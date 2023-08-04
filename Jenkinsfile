@@ -25,7 +25,7 @@ pipeline {
           when { anyOf { branch 'master'; branch 'main'; branch "story/*"; branch 'development'; branch 'release'; branch 'homolog';  } }
           steps {
             script {
-              imagename1 = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-conecta-formacao-frontend"
+              imagename1 = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/conectaformacao-frontend"
               dockerImage1 = docker.build(imagename1, "-f Dockerfile .")
               docker.withRegistry( 'https://registry.sme.prefeitura.sp.gov.br', registryCredential ) {
               dockerImage1.push()
@@ -49,7 +49,7 @@ pipeline {
                     withCredentials([file(credentialsId: "${kubeconfig}", variable: 'config')]){
                             sh('if [ -f '+"$home"+'/.kube/config ];then rm -f '+"$home"+'/.kube/config; fi')
                             sh('cp $config '+"$home"+'/.kube/config')
-                            sh 'kubectl rollout restart deployment sme-conecta-formacao-frontend -n sme-conecta-formacao'
+                            sh 'kubectl rollout restart deployment conectaformacao-frontend -n sme-conectaformacao'
                             sh('rm -f '+"$home"+'/.kube/config')
                     }
                 }
