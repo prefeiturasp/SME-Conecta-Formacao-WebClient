@@ -66,7 +66,7 @@ const Login = () => {
       .listarPerfisUsuario(loginValidado)
       .then((resposta) => {
         if (resposta?.data?.autenticado) {
-          //TODO criar ambiente clarity
+          //TODO Ambiente clarity ainda será criado
           //window.clarity('identify', loginValidado);
           dispatch(setDadosLogin(resposta.data));
         }
