@@ -7,8 +7,10 @@ import PagNotFound from '~/pages/404';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
-import Principal from '~/pages/principal/index';
 import MeusDados from '~/pages/meus-dados';
+import Principal from '~/pages/principal/index';
+import RedefinirSenha from '~/pages/redefinir-senha';
+import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import Auth from './config/auth';
 
 const RoutesConfig = () => {
@@ -17,9 +19,11 @@ const RoutesConfig = () => {
   const homePage = createElement(Home);
   const loginPage = createElement(Login);
   const pagNotFound = createElement(PagNotFound);
-  const meusDadosPage = createElement(MeusDados);
   const principalPage = createElement(Principal);
   const iniciallPage = createElement(Inicial);
+  const meusDadosPage = createElement(MeusDados);
+  const redefinirSenhaPage = createElement(RedefinirSenha);
+  const redefinirSenhaTokenPage = createElement(RedefinirSenhaToken);
 
   return (
     <BrowserRouter>
@@ -41,6 +45,8 @@ const RoutesConfig = () => {
           <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />
           <Route element={homePage}>
             <Route path={ROUTES.LOGIN} element={loginPage} />
+            <Route path={ROUTES.REDEFINIR_SENHA} element={redefinirSenhaPage} />
+            <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
           </Route>
         </Routes>
       )}
