@@ -8,6 +8,7 @@ import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
 import Principal from '~/pages/principal/index';
+import MeusDados from '~/pages/meus-dados';
 import Auth from './config/auth';
 
 const RoutesConfig = () => {
@@ -16,6 +17,7 @@ const RoutesConfig = () => {
   const homePage = createElement(Home);
   const loginPage = createElement(Login);
   const pagNotFound = createElement(PagNotFound);
+  const meusDadosPage = createElement(MeusDados);
   const principalPage = createElement(Principal);
   const iniciallPage = createElement(Inicial);
 
@@ -27,6 +29,7 @@ const RoutesConfig = () => {
             <Route path={ROUTES.PRINCIPAL} element={principalPage}>
               <Route element={<Auth />}>
                 <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
+                <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
                 <Route path='*' element={pagNotFound} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
               </Route>
