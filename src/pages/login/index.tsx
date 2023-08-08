@@ -20,11 +20,15 @@ import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { ValidateErrorEntity } from '~/core/dto/validate-error-entity';
 import { setDadosLogin } from '~/core/redux/modules/auth/actions';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
+import { ROUTES } from '~/core/enum/routes-enum';
+import { useNavigate } from 'react-router-dom';
+import { CF_BUTTON_ESQUECI_SENHA } from '../../core/constants/ids/button/intex';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { Colors } from '~/core/styles/colors';
 
 const Login = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [erroGeral, setErroGeral] = useState<string[]>();
 
@@ -40,6 +44,7 @@ const Login = () => {
     },
   };
 
+  const onClickEsqueciSenha = () => navigate(ROUTES.REDEFINIR_SENHA);
   const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
     if (erro?.response?.status === 401) {
       setErroGeral([ERRO_LOGIN_SENHA_INCORRETOS]);
@@ -145,6 +150,17 @@ const Login = () => {
               id={CF_BUTTON_ACESSAR}
             >
               Acessar
+            </Button>
+          </Col>
+          <Col span={24}>
+            <Button
+              type='text'
+              block
+              style={{ fontSize: 12 }}
+              onClick={() => onClickEsqueciSenha()}
+              id={CF_BUTTON_ESQUECI_SENHA}
+            >
+              Esqueci minha senha
             </Button>
           </Col>
           {erroGeral ? (
