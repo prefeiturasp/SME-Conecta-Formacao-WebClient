@@ -60,28 +60,15 @@ const Login = () => {
     setErroGeral([ERRO_LOGIN]);
   };
 
-  const autenticar = (loginValidado: string) => {
-    dispatch(setSpinning(true));
-    autenticacaoService
-      .listarPerfisUsuario(loginValidado)
-      .then((resposta) => {
-        if (resposta?.data?.autenticado) {
-          //TODO Ambiente clarity ainda será criado
-          //window.clarity('identify', loginValidado);
-          dispatch(setDadosLogin(resposta.data));
-        }
-      })
-      .catch(validarExibirErros)
-      .finally(() => dispatch(setSpinning(false)));
-  };
-
   const onFinish = (values: AutenticacaoDTO) => {
     dispatch(setSpinning(true));
     autenticacaoService
       .autenticar(values)
       .then((resposta) => {
-        if (resposta?.data?.login) {
-          autenticar(resposta.data.login);
+        if (resposta?.data?.autenticado) {
+          //TODO Ambiente clarity ainda será criado
+          //window.clarity('identify', loginValidado);
+          dispatch(setDadosLogin(resposta.data));
         }
       })
       .catch(validarExibirErros)
