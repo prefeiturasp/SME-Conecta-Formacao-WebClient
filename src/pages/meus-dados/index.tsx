@@ -96,7 +96,7 @@ const MeusDados: React.FC = () => {
             <Space direction='vertical' align='center' style={{ width: '100%' }}>
               <Typography.Text strong>{usuarioNome}</Typography.Text>
               <Typography.Text>Perfil: {perfilUsuarioPrincipal} </Typography.Text>
-              <Typography.Text>Login: {meusDados?.login}</Typography.Text>
+              <Typography.Text>Usuário: {meusDados?.login}</Typography.Text>
               <Typography.Text>CPF: {meusDados?.cpf}</Typography.Text>
             </Space>
           </Col>

@@ -104,13 +104,13 @@ const Login = () => {
                   </Tooltip>
                 ),
               }}
-              label='Login'
+              label='Usuário'
               name='login'
               hasFeedback={!login}
               rules={[{ required: true }, { min: 5 }]}
             >
               <Input
-                placeholder='Informe o login'
+                placeholder='Informe o usuário'
                 suffix={<span />}
                 maxLength={100}
                 id={CF_INPUT_LOGIN}
