@@ -99,6 +99,8 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
           type: 'text',
           style: { color: Colors.TEXT },
         },
+        okText: 'Confirmar',
+        cancelText: 'Cancelar'
       });
     } else {
       handleCancel();
