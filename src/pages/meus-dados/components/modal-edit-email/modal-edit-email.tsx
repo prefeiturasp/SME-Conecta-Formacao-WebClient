@@ -36,7 +36,7 @@ const ModalEditEmail: React.FC<ModalEditEmailProps> = ({
       title='Alterar e-mail'
       service={alterarEmail}
       updateFields={updateFields}
-      mensagemConfirmarCancelar='Você não salvou o novo e-mail, deseja descartar a alteração?'
+      mensagemConfirmarCancelar='Você não salvou o novo e-mail, confirma que deseja descartar a alteração?'
       closeModal={closeModal}
     >
       <Form

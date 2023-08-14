@@ -32,6 +32,7 @@ const ModalEditNovaSenha: React.FC<ModalEditNovaSenha> = ({ closeModal }) => {
     'Um algarismo (número) ou um símbolo (caractere especial)',
     'Não pode permitir caracteres acentuados',
     'Deve ter no mínimo 8 e no máximo 12 caracteres',
+    'A senha e a confirmação de senha devem ser iguais'
   ];
 
   const validateMessages = {
@@ -48,7 +49,7 @@ const ModalEditNovaSenha: React.FC<ModalEditNovaSenha> = ({ closeModal }) => {
       form={form}
       title='Nova senha'
       service={alterar}
-      mensagemConfirmarCancelar='Você não salvou a nova senha, deseja descartar a alteração?'
+      mensagemConfirmarCancelar='Você não salvou a nova senha, confirma que deseja descartar a alteração?'
       closeModal={closeModal}
     >
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
