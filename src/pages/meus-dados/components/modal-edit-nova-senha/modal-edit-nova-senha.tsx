@@ -1,4 +1,4 @@
-import { Col, Form, Row, Typography, notification } from 'antd';
+import { Col, Form, Row, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React from 'react';
 import styled from 'styled-components';
