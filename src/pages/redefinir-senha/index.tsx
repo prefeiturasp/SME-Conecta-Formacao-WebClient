@@ -101,13 +101,13 @@ const RedefinirSenha = () => {
             </Col>
             <Col span={24}>
               <Form.Item
-                label='Login'
+                label='Usuário'
                 name='login'
                 hasFeedback={!login}
                 rules={[{ required: true }, { min: 5 }]}
               >
                 <Input
-                  placeholder='Informe o login'
+                  placeholder='Informe o Usuário'
                   suffix={<span />}
                   maxLength={100}
                   id={CF_INPUT_LOGIN}
