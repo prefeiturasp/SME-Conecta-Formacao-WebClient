@@ -8,7 +8,7 @@ import usuarioService from '~/core/services/usuario-service';
 
 import { IoInformationCircleSharp } from 'react-icons/io5';
 import { AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ErroGeralLogin from '~/components/main/erro-geral-login';
 import { CF_BUTTON_CONTINUAR, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_LOGIN } from '~/core/constants/ids/input';
@@ -20,6 +20,7 @@ import Modal from '~/components/lib/modal';
 
 const RedefinirSenha = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const [erroGeral, setErroGeral] = useState<string[]>();
@@ -27,7 +28,7 @@ const RedefinirSenha = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
 
   const [form] = useForm();
-
+  const usuarioLogin = location.state;
   const login = useWatch('login', form);
 
   const validateMessages = {
@@ -104,6 +105,7 @@ const RedefinirSenha = () => {
                 label='Usuário'
                 name='login'
                 hasFeedback={!login}
+                initialValue={usuarioLogin}
                 rules={[{ required: true }, { min: 5 }]}
               >
                 <Input
