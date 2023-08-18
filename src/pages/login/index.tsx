@@ -7,6 +7,8 @@ import { useAppDispatch } from '~/core/hooks/use-redux';
 import autenticacaoService from '~/core/services/autenticacao-service';
 
 import { AxiosError } from 'axios';
+import { FaQuestionCircle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import ErroGeralLogin from '~/components/main/erro-geral-login';
 import { CF_BUTTON_ACESSAR } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_LOGIN, CF_INPUT_SENHA } from '~/core/constants/ids/input';
@@ -18,13 +20,15 @@ import {
 import { AutenticacaoDTO } from '~/core/dto/autenticacao-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { ValidateErrorEntity } from '~/core/dto/validate-error-entity';
+import { ROUTES } from '~/core/enum/routes-enum';
 import { setDadosLogin } from '~/core/redux/modules/auth/actions';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { FaQuestionCircle } from 'react-icons/fa';
 import { Colors } from '~/core/styles/colors';
+import { CF_BUTTON_ESQUECI_SENHA } from '../../core/constants/ids/button/intex';
 
 const Login = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [erroGeral, setErroGeral] = useState<string[]>();
 
@@ -40,6 +44,7 @@ const Login = () => {
     },
   };
 
+  const onClickEsqueciSenha = () => navigate(ROUTES.REDEFINIR_SENHA, { state: login });
   const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
     if (erro?.response?.status === 401) {
       setErroGeral([ERRO_LOGIN_SENHA_INCORRETOS]);
@@ -104,13 +109,13 @@ const Login = () => {
                   </Tooltip>
                 ),
               }}
-              label='Login'
+              label='Usuário'
               name='login'
               hasFeedback={!login}
               rules={[{ required: true }, { min: 5 }]}
             >
               <Input
-                placeholder='Informe o login'
+                placeholder='Informe o usuário'
                 suffix={<span />}
                 maxLength={100}
                 id={CF_INPUT_LOGIN}
@@ -145,6 +150,17 @@ const Login = () => {
               id={CF_BUTTON_ACESSAR}
             >
               Acessar
+            </Button>
+          </Col>
+          <Col span={24}>
+            <Button
+              type='text'
+              block
+              style={{ fontSize: 12 }}
+              onClick={() => onClickEsqueciSenha()}
+              id={CF_BUTTON_ESQUECI_SENHA}
+            >
+              Esqueci minha senha
             </Button>
           </Col>
           {erroGeral ? (
