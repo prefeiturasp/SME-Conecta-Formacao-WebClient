@@ -27,8 +27,8 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao } from '~/core/services/alerta-service';
-import grupoService from '~/core/services/grupo-service';
 import areaPromotoraService from '~/core/services/area-promotora-service';
+import grupoService from '~/core/services/grupo-service';
 
 const AreaPromotoraNovo: React.FC = () => {
   const navigate = useNavigate();
@@ -78,12 +78,6 @@ const AreaPromotoraNovo: React.FC = () => {
       .finally(() => dispatch(setSpinning(false)));
   }, [dispatch]);
 
-  useEffect(() => {
-    obterGrupos();
-    obterTipos();
-    if (paramsRoute?.id) obterAreaPromotora(id);
-  }, [obterGrupos, obterTipos]);
-
   const onClickVoltar = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
@@ -109,11 +103,20 @@ const AreaPromotoraNovo: React.FC = () => {
     console.log(values);
     dispatch(setSpinning(false));
   };
-  const obterAreaPromotora = async (id: any) => {
+
+  const obterAreaPromotora = useCallback(async () => {
     dispatch(setSpinning(true));
-    console.log(id);
-    dispatch(setSpinning(false));
-  };
+    areaPromotoraService
+      .obterAreaPromotoraPorId(id)
+      .then((resposta) => {
+        if (resposta?.status === HttpStatusCode.Ok) {
+          setFormInitialValues(resposta.data);
+        }
+      })
+      .catch(() => alert('erro ao obter meus dados'))
+      .finally(() => dispatch(setSpinning(false)));
+  }, [dispatch, id]);
+
   const onClickExcluir = () => {
     if (id) {
       confirmacao({
@@ -124,6 +127,13 @@ const AreaPromotoraNovo: React.FC = () => {
       });
     }
   };
+  useEffect(() => {
+    obterGrupos();
+    obterTipos();
+    if (id) {
+      obterAreaPromotora();
+    }
+  }, [obterGrupos, obterTipos, id, obterAreaPromotora]);
   return (
     <Col>
       <Form
