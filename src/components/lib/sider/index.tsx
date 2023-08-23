@@ -1,11 +1,11 @@
-import { Button, Layout, Menu } from 'antd';
+import { Button, Layout } from 'antd';
 import React, { useState } from 'react';
 
 import styled from 'styled-components';
 import { BoxShadow, Colors } from '~/core/styles/colors';
 
 import { FormOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { FaUser, FaUserCog } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '~/core/enum/routes-enum';
 
