@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row, Select } from 'antd';
+import { Button, Col, Form, Input, Row, Select, notification } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
 import { HttpStatusCode } from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -27,22 +27,32 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao } from '~/core/services/alerta-service';
+import {
+  alterarRegistro,
+  deletarRegistro,
+  inserirRegistro,
+  obterRegistro,
+} from '~/core/services/api';
 import areaPromotoraService from '~/core/services/area-promotora-service';
 import grupoService from '~/core/services/grupo-service';
 
 const AreaPromotoraNovo: React.FC = () => {
+  const [form] = useForm();
   const navigate = useNavigate();
   const paramsRoute = useParams();
-  const [form] = useForm();
+  const dispatch = useAppDispatch();
+
   const { Option } = Select;
-  const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
+  const id = paramsRoute?.id || 0;
+
   const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>();
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
-  const dispatch = useAppDispatch();
-  const id = paramsRoute?.id || 0;
+  const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
+
   const tituloPagina = paramsRoute?.id
     ? 'Alteração da Área Promotora'
     : 'Cadastro da Área Promotora';
+
   const validateMessages: FormProps['validateMessages'] = {
     required: 'Campo obrigatório',
     string: {
@@ -53,6 +63,23 @@ const AreaPromotoraNovo: React.FC = () => {
     },
     whitespace: 'Campo obrigatório',
   };
+
+  const urlBase = 'v1/AreaPromotora';
+
+  const carregarDados = useCallback(async () => {
+    const resposta = await obterRegistro<any>(`${urlBase}/${id}`);
+
+    if (resposta.sucesso) {
+      setFormInitialValues(resposta.dados);
+    }
+  }, [urlBase, id]);
+
+  useEffect(() => {
+    if (id) {
+      carregarDados();
+    }
+  }, [carregarDados, id]);
+
   const obterGrupos = useCallback(() => {
     dispatch(setSpinning(true));
     grupoService
@@ -65,6 +92,7 @@ const AreaPromotoraNovo: React.FC = () => {
       .catch(() => alert('erro ao obter meus dados'))
       .finally(() => dispatch(setSpinning(false)));
   }, [dispatch]);
+
   const obterTipos = useCallback(() => {
     dispatch(setSpinning(true));
     areaPromotoraService
@@ -86,8 +114,11 @@ const AreaPromotoraNovo: React.FC = () => {
           navigate(ROUTES.AREA_PROMOTORA);
         },
       });
+    } else {
+      navigate(ROUTES.AREA_PROMOTORA);
     }
   };
+
   const onClickCancelar = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
@@ -98,10 +129,44 @@ const AreaPromotoraNovo: React.FC = () => {
       });
     }
   };
+
   const salvar = async (values: any) => {
-    dispatch(setSpinning(true));
-    console.log(values);
-    dispatch(setSpinning(false));
+    let response = null;
+    if (id) {
+      response = await alterarRegistro(urlBase, {
+        id,
+        ...values,
+      });
+    } else {
+      response = await inserirRegistro(urlBase, values);
+    }
+
+    if (response.sucesso) {
+      notification.success({
+        message: 'Sucesso',
+        description: `Registro ${id ? 'alterado' : 'inserido'} com sucesso!`,
+      });
+      navigate(ROUTES.AREA_PROMOTORA);
+    }
+  };
+
+  const onClickExcluir = () => {
+    if (id) {
+      confirmacao({
+        content: DESEJA_EXCLUIR_REGISTRO,
+        onOk() {
+          deletarRegistro(`${urlBase}/${id}`).then((response) => {
+            if (response.sucesso) {
+              notification.success({
+                message: 'Sucesso',
+                description: 'Registro excluído com sucesso',
+              });
+              navigate(ROUTES.AREA_PROMOTORA);
+            }
+          });
+        },
+      });
+    }
   };
 
   const obterAreaPromotora = useCallback(async () => {
@@ -117,16 +182,6 @@ const AreaPromotoraNovo: React.FC = () => {
       .finally(() => dispatch(setSpinning(false)));
   }, [dispatch, id]);
 
-  const onClickExcluir = () => {
-    if (id) {
-      confirmacao({
-        content: DESEJA_EXCLUIR_REGISTRO,
-        onOk() {
-          navigate(ROUTES.AREA_PROMOTORA);
-        },
-      });
-    }
-  };
   useEffect(() => {
     obterGrupos();
     obterTipos();
@@ -134,6 +189,7 @@ const AreaPromotoraNovo: React.FC = () => {
       obterAreaPromotora();
     }
   }, [obterGrupos, obterTipos, id, obterAreaPromotora]);
+
   return (
     <Col>
       <Form
