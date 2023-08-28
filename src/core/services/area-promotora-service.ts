@@ -3,7 +3,7 @@ import { AreaPromotoraDTO } from '../dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '../dto/area-promotora-tipo-dto';
 import api from './api';
 
-const URL_DEFAULT = 'v1/areapromotora';
+const URL_DEFAULT = 'v1/AreaPromotora';
 
 const obterTipo = (): Promise<AxiosResponse<AreaPromotoraTipoDTO[]>> =>
   api.get(`${URL_DEFAULT}/tipos`);

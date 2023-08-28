@@ -8,6 +8,7 @@ import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
 import InputTelefone from '~/components/lib/telefone';
 import ButtonVoltar from '~/components/main/button/voltar';
+import Auditoria from '~/components/main/text/auditoria';
 import {
   CF_BUTTON_CANCELAR,
   CF_BUTTON_EXCLUIR,
@@ -315,6 +316,7 @@ const AreaPromotoraNovo: React.FC = () => {
               />
             </Form.Item>
           </Form.Item>
+          <Auditoria dados={formInitialValues} />
         </CardContent>
       </Form>
     </Col>
