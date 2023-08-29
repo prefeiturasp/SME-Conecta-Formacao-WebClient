@@ -9,11 +9,11 @@ import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
 import MeusDados from '~/pages/meus-dados';
 import AreaPromotora from '~/pages/cadastros/area-promotora';
-import AreaPromotoraNovo from '~/pages/cadastros/area-promotora/novo';
 import Principal from '~/pages/principal/index';
 import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import Auth from './config/auth';
+import FormConfigCadastroAreaPromotora from '~/components/main/cadastros/area-promotora/form/form-config';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -26,8 +26,6 @@ const RoutesConfig = () => {
   const meusDadosPage = createElement(MeusDados);
   const redefinirSenhaPage = createElement(RedefinirSenha);
   const redefinirSenhaTokenPage = createElement(RedefinirSenhaToken);
-  const areaPromotora = createElement(AreaPromotora);
-  const areaPromotoraNovo = createElement(AreaPromotoraNovo);
 
   return (
     <BrowserRouter>
@@ -38,8 +36,19 @@ const RoutesConfig = () => {
               <Route element={<Auth />}>
                 <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
                 <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
-                <Route path={ROUTES.AREA_PROMOTORA} element={areaPromotora} />
-                <Route path={ROUTES.AREA_PROMOTORA_NOVO} element={areaPromotoraNovo} />
+
+                <Route path={ROUTES.AREA_PROMOTORA}>
+                  <Route path='' element={<AreaPromotora />} />
+                  <Route
+                    path={ROUTES.AREA_PROMOTORA_NOVO}
+                    element={<FormConfigCadastroAreaPromotora />}
+                  />
+                  <Route
+                    path={ROUTES.AREA_PROMOTORA_EDITAR}
+                    element={<FormConfigCadastroAreaPromotora />}
+                  />
+                </Route>
+
                 <Route path='*' element={pagNotFound} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
               </Route>

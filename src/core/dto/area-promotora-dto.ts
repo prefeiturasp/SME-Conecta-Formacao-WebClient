@@ -2,8 +2,8 @@ import { EntidadeBaseAuditavel } from './auditoria-dto';
 
 export type AreaPromotoraDTO = {
   nome: string;
-  tipoId: number;
+  tipo: number;
   grupoId: string;
-  telefone: string;
+  telefones: string[];
   email: string;
 } & EntidadeBaseAuditavel;

@@ -7,6 +7,7 @@ import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
 import InputTelefone from '~/components/lib/telefone';
+import { BreadcrumbCDEPProps } from '~/components/main/breadcrumb';
 import ButtonVoltar from '~/components/main/button/voltar';
 import Auditoria from '~/components/main/text/auditoria';
 import {
@@ -24,7 +25,6 @@ import {
 import { AreaPromotoraDTO } from '~/core/dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
 import { GrupoDTO } from '~/core/dto/grupo-dto';
-import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao } from '~/core/services/alerta-service';
@@ -37,7 +37,26 @@ import {
 import areaPromotoraService from '~/core/services/area-promotora-service';
 import grupoService from '~/core/services/grupo-service';
 
-const AreaPromotoraNovo: React.FC = () => {
+type FormPageInputsProps = {
+  nome: string;
+  tipo: string;
+  grupoId: string;
+  telefones: string;
+  email: string;
+};
+
+export type FormPageProps = {
+  title: string;
+  urlBase: string;
+  inputs: FormPageInputsProps[];
+};
+
+export type FormConfigCadastros = {
+  breadcrumb: BreadcrumbCDEPProps;
+  page: FormPageProps;
+};
+
+const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, breadcrumb }) => {
   const [form] = useForm();
   const navigate = useNavigate();
   const paramsRoute = useParams();
@@ -49,6 +68,7 @@ const AreaPromotoraNovo: React.FC = () => {
   const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>();
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
+  const [formInitialValuesAuditoria, setFormInitialValuesAuditoria] = useState<AreaPromotoraDTO>();
 
   const tituloPagina = paramsRoute?.id
     ? 'Alteração da Área Promotora'
@@ -65,21 +85,24 @@ const AreaPromotoraNovo: React.FC = () => {
     whitespace: 'Campo obrigatório',
   };
 
-  const urlBase = 'v1/AreaPromotora';
-
   const carregarDados = useCallback(async () => {
-    const resposta = await obterRegistro<any>(`${urlBase}/${id}`);
+    const resposta = await obterRegistro<any>(`${page.urlBase}/${id}`);
 
     if (resposta.sucesso) {
       setFormInitialValues(resposta.dados);
+      setFormInitialValuesAuditoria(resposta.dados.auditoria);
     }
-  }, [urlBase, id]);
+  }, [page, id]);
 
   useEffect(() => {
     if (id) {
       carregarDados();
     }
   }, [carregarDados, id]);
+
+  useEffect(() => {
+    form.resetFields();
+  }, [form, formInitialValues]);
 
   const obterGrupos = useCallback(() => {
     dispatch(setSpinning(true));
@@ -112,11 +135,11 @@ const AreaPromotoraNovo: React.FC = () => {
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         onOk() {
-          navigate(ROUTES.AREA_PROMOTORA);
+          navigate(breadcrumb.urlMainPage);
         },
       });
     } else {
-      navigate(ROUTES.AREA_PROMOTORA);
+      navigate(breadcrumb.urlMainPage);
     }
   };
 
@@ -133,13 +156,14 @@ const AreaPromotoraNovo: React.FC = () => {
 
   const salvar = async (values: any) => {
     let response = null;
+
     if (id) {
-      response = await alterarRegistro(urlBase, {
+      response = await alterarRegistro(page.urlBase, {
         id,
         ...values,
       });
     } else {
-      response = await inserirRegistro(urlBase, values);
+      response = await inserirRegistro(page.urlBase, values);
     }
 
     if (response.sucesso) {
@@ -147,7 +171,7 @@ const AreaPromotoraNovo: React.FC = () => {
         message: 'Sucesso',
         description: `Registro ${id ? 'alterado' : 'inserido'} com sucesso!`,
       });
-      navigate(ROUTES.AREA_PROMOTORA);
+      navigate(breadcrumb.urlMainPage);
     }
   };
 
@@ -156,13 +180,13 @@ const AreaPromotoraNovo: React.FC = () => {
       confirmacao({
         content: DESEJA_EXCLUIR_REGISTRO,
         onOk() {
-          deletarRegistro(`${urlBase}/${id}`).then((response) => {
+          deletarRegistro(`${page.urlBase}/${id}`).then((response) => {
             if (response.sucesso) {
               notification.success({
                 message: 'Sucesso',
                 description: 'Registro excluído com sucesso',
               });
-              navigate(ROUTES.AREA_PROMOTORA);
+              navigate(breadcrumb.urlMainPage);
             }
           });
         },
@@ -245,82 +269,90 @@ const AreaPromotoraNovo: React.FC = () => {
           </Col>
         </HeaderPage>
         <CardContent>
-          <Form.Item style={{ marginBottom: 0 }}>
-            <Form.Item
-              name='nome'
-              label='Nome'
-              rules={[{ required: true }]}
-              style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
-            >
-              <Input
-                type='text'
-                placeholder={'Nome da área promotra'}
-                maxLength={50}
-                showCount
-                id={CF_INPUT_NOME}
-              />
+          {page.inputs.map((input, index) => (
+            <Form.Item key={index}>
+              <Form.Item style={{ marginBottom: 0 }}>
+                <Form.Item
+                  label='Nome'
+                  key={input.nome}
+                  name={input.nome}
+                  rules={[{ required: true, whitespace: true }]}
+                  style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
+                >
+                  <Input
+                    showCount
+                    type='text'
+                    maxLength={50}
+                    id={CF_INPUT_NOME}
+                    placeholder={'Nome da área promotra'}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label='Tipo'
+                  key={input.tipo}
+                  name={input.tipo}
+                  rules={[{ required: true }]}
+                  style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px' }}
+                >
+                  <Select placeholder='Selecione o Tipo' allowClear>
+                    {listaTipos?.map((item) => {
+                      return (
+                        <Option key={item.id} value={item.id}>
+                          {item.nome}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                </Form.Item>
+              </Form.Item>
+              <Form.Item style={{ marginBottom: 0 }}>
+                <Form.Item
+                  label='Perfil'
+                  key={input.grupoId}
+                  name={input.grupoId}
+                  rules={[{ required: true }]}
+                  style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
+                >
+                  <Select placeholder='Selecione o Perfil' allowClear>
+                    {listaGrupos?.map((item) => {
+                      return (
+                        <Option key={item.id} value={item.id}>
+                          {item.nome}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px' }}
+                >
+                  <InputTelefone inputProps={{ id: CF_INPUT_TELEFONE }} />
+                </Form.Item>
+              </Form.Item>
+              <Form.Item style={{ marginBottom: 0 }}>
+                <Form.Item
+                  key={input.email}
+                  name={input.email}
+                  label='E-mail'
+                  rules={[{ required: false, type: 'email' }]}
+                  style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
+                >
+                  <Input
+                    type='email'
+                    placeholder={'Informe o E-mail'}
+                    maxLength={100}
+                    showCount
+                    id={CF_INPUT_NOME}
+                  />
+                </Form.Item>
+              </Form.Item>
             </Form.Item>
-            <Form.Item
-              name='tipoId'
-              label='Tipo'
-              rules={[{ required: true }]}
-              style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px' }}
-            >
-              <Select placeholder='Selecione o Tipo' allowClear>
-                {listaTipos?.map((item) => {
-                  return (
-                    <Option key={item.id} value={item.id}>
-                      {item.nome}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-          </Form.Item>
-          <Form.Item style={{ marginBottom: 0 }}>
-            <Form.Item
-              name='grupoId'
-              label='Perfil'
-              rules={[{ required: true }]}
-              style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
-            >
-              <Select placeholder='Selecione o Perfil' allowClear>
-                {listaGrupos?.map((item) => {
-                  return (
-                    <Option key={item.id} value={item.id}>
-                      {item.nome}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px' }}
-            >
-              <InputTelefone inputProps={{ id: CF_INPUT_TELEFONE }} />
-            </Form.Item>
-          </Form.Item>
-          <Form.Item style={{ marginBottom: 0 }}>
-            <Form.Item
-              name='email'
-              label='E-mail'
-              rules={[{ required: false, type: 'email' }]}
-              style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
-            >
-              <Input
-                type='email'
-                placeholder={'Informe o E-mail'}
-                maxLength={100}
-                showCount
-                id={CF_INPUT_NOME}
-              />
-            </Form.Item>
-          </Form.Item>
-          <Auditoria dados={formInitialValues} />
+          ))}
+          <Auditoria dados={formInitialValuesAuditoria} />
         </CardContent>
       </Form>
     </Col>
   );
 };
 
-export default AreaPromotoraNovo;
+export default FormCadastrosAreaPromotora;
