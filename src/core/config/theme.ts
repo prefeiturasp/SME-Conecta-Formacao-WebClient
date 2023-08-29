@@ -21,9 +21,5 @@ export const ConectaFormacaoTheme: ThemeConfig = {
     Form: {
       paddingXS: 2,
     },
-    Pagination: {
-      colorPrimary: Colors.BACKGROUND_CONTENT,
-      colorBgContainer: Colors.ORANGE_CONECTA_FORMACAO,
-    },
   },
 };

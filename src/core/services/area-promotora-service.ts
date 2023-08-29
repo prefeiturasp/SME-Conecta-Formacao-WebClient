@@ -8,10 +8,14 @@ const URL_DEFAULT = 'v1/AreaPromotora';
 const obterTipo = (): Promise<AxiosResponse<AreaPromotoraTipoDTO[]>> =>
   api.get(`${URL_DEFAULT}/tipos`);
 
+const obterAreaPromotora = (): Promise<AxiosResponse<AreaPromotoraDTO>> =>
+  api.get(`${URL_DEFAULT}`);
+
 const obterAreaPromotoraPorId = (id: any): Promise<AxiosResponse<AreaPromotoraDTO>> =>
   api.get(`${URL_DEFAULT}/${id}`);
 
 export default {
   obterTipo,
+  obterAreaPromotora,
   obterAreaPromotoraPorId,
 };

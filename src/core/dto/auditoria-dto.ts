@@ -1,3 +1,5 @@
+import { BaseDTO } from './base-dto';
+
 export type EntidadeBaseAuditavel = {
   criadoEm: string;
   criadoPor: string;
@@ -5,4 +7,4 @@ export type EntidadeBaseAuditavel = {
   alteradoPor: string;
   criadoLogin: string;
   alteradoLogin: string;
-};
+} & BaseDTO;
