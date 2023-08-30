@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { BoxShadow, Colors } from '~/core/styles/colors';
 
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { FormOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '~/core/enum/routes-enum';
@@ -38,7 +38,6 @@ const MenuGroup = styled.div`
     font-weight: 700;
   }
 `;
-
 const Sider: React.FC = () => {
   const navigate = useNavigate();
 
@@ -80,6 +79,10 @@ const Sider: React.FC = () => {
         <MenuGroup onClick={() => navigate(ROUTES.MEUS_DADOS)}>
           <FaUser size={24} />
           <div>Meus dados</div>
+        </MenuGroup>
+        <MenuGroup onClick={() => navigate(ROUTES.AREA_PROMOTORA)}>
+          <FormOutlined size={24} />
+          <div>Área promotora</div>
         </MenuGroup>
       </MenuContainer>
     </SiderContainer>
