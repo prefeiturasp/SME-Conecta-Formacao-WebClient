@@ -14,6 +14,7 @@ import Principal from '~/pages/principal/index';
 import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import Auth from './config/auth';
+import FormCadastroDePropostas from '~/pages/propostas/cadastros/form';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -24,6 +25,7 @@ const RoutesConfig = () => {
   const principalPage = createElement(Principal);
   const iniciallPage = createElement(Inicial);
   const meusDadosPage = createElement(MeusDados);
+  const cadastroDePropostasPage = createElement(FormCadastroDePropostas);
   const redefinirSenhaPage = createElement(RedefinirSenha);
   const redefinirSenhaTokenPage = createElement(RedefinirSenhaToken);
 
@@ -48,6 +50,8 @@ const RoutesConfig = () => {
                     element={<FormCadastrosAreaPromotora />}
                   />
                 </Route>
+
+                <Route path={ROUTES.CADASTRO_DE_PROPOSTAS} element={cadastroDePropostasPage} />
 
                 <Route path='*' element={pagNotFound} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
