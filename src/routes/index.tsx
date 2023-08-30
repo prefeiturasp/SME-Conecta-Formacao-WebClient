@@ -4,16 +4,16 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import PagNotFound from '~/pages/404';
+import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
+import ListAreaPromotora from '~/pages/cadastros/area-promotora/list/list';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
 import MeusDados from '~/pages/meus-dados';
-import AreaPromotora from '~/pages/cadastros/area-promotora';
 import Principal from '~/pages/principal/index';
 import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import Auth from './config/auth';
-import FormConfigCadastroAreaPromotora from '~/components/main/cadastros/area-promotora/form/form-config';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -38,14 +38,14 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
 
                 <Route path={ROUTES.AREA_PROMOTORA}>
-                  <Route path='' element={<AreaPromotora />} />
+                  <Route path='' element={<ListAreaPromotora />} />
                   <Route
                     path={ROUTES.AREA_PROMOTORA_NOVO}
-                    element={<FormConfigCadastroAreaPromotora />}
+                    element={<FormCadastrosAreaPromotora />}
                   />
                   <Route
                     path={ROUTES.AREA_PROMOTORA_EDITAR}
-                    element={<FormConfigCadastroAreaPromotora />}
+                    element={<FormCadastrosAreaPromotora />}
                   />
                 </Route>
 

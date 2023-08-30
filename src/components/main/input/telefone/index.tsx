@@ -23,7 +23,7 @@ const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps
       name='telefone'
       getValueFromEvent={getValueFromEvent}
       rules={[
-        { required: true },
+        { required: !!formItemProps?.required },
         {
           message:
             'Telefone inválido, você deve digitar o DDD com dois dígitos e o telefone com 8 ou 9 dígitos',

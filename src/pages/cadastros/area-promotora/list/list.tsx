@@ -1,40 +1,27 @@
-import { useCallback, useEffect, useState } from 'react';
+import { SearchOutlined } from '@ant-design/icons';
 import { Button, Col, Empty, Input, Row, Select } from 'antd';
-import React from 'react';
+import { ColumnsType } from 'antd/es/table';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CardContent from '~/components/lib/card-content';
+import DataTable from '~/components/lib/card-table';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
-import { ROUTES } from '~/core/enum/routes-enum';
-import { ColumnsType } from 'antd/es/table';
-import { useAppDispatch } from '~/core/hooks/use-redux';
-import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
-import areaPromotoraService from '~/core/services/area-promotora-service';
-import { HttpStatusCode } from 'axios';
-import CardContent from '~/components/lib/card-content';
-import { SearchOutlined } from '@ant-design/icons';
-import DataTable from '~/components/lib/card-table';
 import { CadastroAreaPromotoraDTO } from '~/core/dto/cadastro-area-promotora-dto';
-import { BreadcrumbCDEPProps } from '~/components/main/breadcrumb';
+import { ROUTES } from '~/core/enum/routes-enum';
+import { obterRegistro } from '~/core/services/api';
 
-export type ListPageProps = {
-  title: string;
-  urlApiBase: string;
-};
-
-export type ListConfigCadastros = {
-  page: ListPageProps;
-  breadcrumb: BreadcrumbCDEPProps;
-};
-
-const ListaCadastroAreaPromotora: React.FC<ListConfigCadastros> = ({ page }) => {
+const ListAreaPromotora: React.FC = () => {
   const { Option } = Select;
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+
   const [filters, setFilters] = useState({ nome: '', tipo: 0 });
 
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
+
+  const URL_DEFAULT = 'v1/AreaPromotora';
 
   const columns: ColumnsType<CadastroAreaPromotoraDTO> = [
     {
@@ -49,26 +36,12 @@ const ListaCadastroAreaPromotora: React.FC<ListConfigCadastros> = ({ page }) => 
     },
   ];
 
-  const obterDados = useCallback(() => {
-    dispatch(setSpinning(false));
-  }, [dispatch]);
-
-  useEffect(() => {
-    obterDados();
-  }, [obterDados]);
-
-  const obterTipos = useCallback(() => {
-    dispatch(setSpinning(true));
-    areaPromotoraService
-      .obterTipo()
-      .then((resposta) => {
-        if (resposta?.status === HttpStatusCode.Ok) {
-          setListaTipos(resposta.data);
-        }
-      })
-      .catch(() => alert('erro ao obter meus dados'))
-      .finally(() => dispatch(setSpinning(false)));
-  }, [dispatch]);
+  const obterTipos = useCallback(async () => {
+    const resposta = await obterRegistro<AreaPromotoraTipoDTO[]>(`${URL_DEFAULT}/tipos`);
+    if (resposta.sucesso) {
+      setListaTipos(resposta.dados);
+    }
+  }, []);
 
   useEffect(() => {
     obterTipos();
@@ -144,7 +117,7 @@ const ListaCadastroAreaPromotora: React.FC<ListConfigCadastros> = ({ page }) => 
             <DataTable
               filters={filters}
               columns={columns}
-              url={page.urlApiBase}
+              url={URL_DEFAULT}
               onRow={(row) => ({
                 onClick: () => {
                   onClickEditar(row.id);
@@ -157,4 +130,4 @@ const ListaCadastroAreaPromotora: React.FC<ListConfigCadastros> = ({ page }) => 
     </Col>
   );
 };
-export default ListaCadastroAreaPromotora;
+export default ListAreaPromotora;

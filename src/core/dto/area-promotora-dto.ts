@@ -4,6 +4,7 @@ export type AreaPromotoraDTO = {
   nome: string;
   tipo: number;
   grupoId: string;
-  telefones: string[];
+  telefones: [object];
   email: string;
-} & EntidadeBaseAuditavel;
+  auditoria: EntidadeBaseAuditavel;
+};

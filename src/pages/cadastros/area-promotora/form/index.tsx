@@ -1,14 +1,13 @@
 import { Button, Col, Form, Input, Row, Select, notification } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
-import { HttpStatusCode } from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
-import InputTelefone from '~/components/lib/telefone';
-import { BreadcrumbCDEPProps } from '~/components/main/breadcrumb';
 import ButtonVoltar from '~/components/main/button/voltar';
+import InputEmail from '~/components/main/input/email';
+import TelefoneLista from '~/components/main/input/telefone-lista';
 import Auditoria from '~/components/main/text/auditoria';
 import {
   CF_BUTTON_CANCELAR,
@@ -16,7 +15,7 @@ import {
   CF_BUTTON_NOVO,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
-import { CF_INPUT_NOME, CF_INPUT_TELEFONE } from '~/core/constants/ids/input';
+import { CF_INPUT_EMAIL, CF_INPUT_NOME } from '~/core/constants/ids/input';
 import {
   DESEJA_CANCELAR_ALTERACOES,
   DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -25,8 +24,7 @@ import {
 import { AreaPromotoraDTO } from '~/core/dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
 import { GrupoDTO } from '~/core/dto/grupo-dto';
-import { useAppDispatch } from '~/core/hooks/use-redux';
-import { setSpinning } from '~/core/redux/modules/spin/actions';
+import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
   alterarRegistro,
@@ -34,41 +32,20 @@ import {
   inserirRegistro,
   obterRegistro,
 } from '~/core/services/api';
-import areaPromotoraService from '~/core/services/area-promotora-service';
-import grupoService from '~/core/services/grupo-service';
 
-type FormPageInputsProps = {
-  nome: string;
-  tipo: string;
-  grupoId: string;
-  telefones: string;
-  email: string;
-};
-
-export type FormPageProps = {
-  title: string;
-  urlBase: string;
-  inputs: FormPageInputsProps[];
-};
-
-export type FormConfigCadastros = {
-  breadcrumb: BreadcrumbCDEPProps;
-  page: FormPageProps;
-};
-
-const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, breadcrumb }) => {
+const FormCadastrosAreaPromotora: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const paramsRoute = useParams();
-  const dispatch = useAppDispatch();
 
   const { Option } = Select;
   const id = paramsRoute?.id || 0;
 
+  const URL_DEFAULT = 'v1/AreaPromotora';
+
   const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>();
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
-  const [formInitialValuesAuditoria, setFormInitialValuesAuditoria] = useState<AreaPromotoraDTO>();
 
   const tituloPagina = paramsRoute?.id
     ? 'Alteração da Área Promotora'
@@ -86,13 +63,15 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
   };
 
   const carregarDados = useCallback(async () => {
-    const resposta = await obterRegistro<any>(`${page.urlBase}/${id}`);
+    const resposta = await obterRegistro<AreaPromotoraDTO>(`${URL_DEFAULT}/${id}`);
 
     if (resposta.sucesso) {
+      if (!resposta.dados?.telefones?.length) {
+        resposta.dados.telefones = [{ telefone: '' }];
+      }
       setFormInitialValues(resposta.dados);
-      setFormInitialValuesAuditoria(resposta.dados.auditoria);
     }
-  }, [page, id]);
+  }, [id]);
 
   useEffect(() => {
     if (id) {
@@ -104,42 +83,30 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
     form.resetFields();
   }, [form, formInitialValues]);
 
-  const obterGrupos = useCallback(() => {
-    dispatch(setSpinning(true));
-    grupoService
-      .obterGrupos()
-      .then((resposta) => {
-        if (resposta?.status === HttpStatusCode.Ok) {
-          setListaGrupos(resposta.data);
-        }
-      })
-      .catch(() => alert('erro ao obter meus dados'))
-      .finally(() => dispatch(setSpinning(false)));
-  }, [dispatch]);
+  const obterGrupos = useCallback(async () => {
+    const resposta = await obterRegistro<GrupoDTO[]>('v1/Grupo');
+    if (resposta.sucesso) {
+      setListaGrupos(resposta.dados);
+    }
+  }, [id]);
 
-  const obterTipos = useCallback(() => {
-    dispatch(setSpinning(true));
-    areaPromotoraService
-      .obterTipo()
-      .then((resposta) => {
-        if (resposta?.status === HttpStatusCode.Ok) {
-          setListaTipos(resposta.data);
-        }
-      })
-      .catch(() => alert('erro ao obter meus dados'))
-      .finally(() => dispatch(setSpinning(false)));
-  }, [dispatch]);
+  const obterTipos = useCallback(async () => {
+    const resposta = await obterRegistro<AreaPromotoraTipoDTO[]>(`${URL_DEFAULT}/tipos`);
+    if (resposta.sucesso) {
+      setListaTipos(resposta.dados);
+    }
+  }, []);
 
   const onClickVoltar = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         onOk() {
-          navigate(breadcrumb.urlMainPage);
+          navigate(ROUTES.AREA_PROMOTORA);
         },
       });
     } else {
-      navigate(breadcrumb.urlMainPage);
+      navigate(ROUTES.AREA_PROMOTORA);
     }
   };
 
@@ -156,14 +123,17 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
 
   const salvar = async (values: any) => {
     let response = null;
+    const valoresSalvar = { ...values };
 
+    if (valoresSalvar?.telefones?.length) {
+      valoresSalvar.telefones = valoresSalvar.telefones.filter((item: any) => !!item?.telefone);
+    }
     if (id) {
-      response = await alterarRegistro(page.urlBase, {
-        id,
-        ...values,
+      response = await alterarRegistro(`${URL_DEFAULT}/${id}`, {
+        ...valoresSalvar,
       });
     } else {
-      response = await inserirRegistro(page.urlBase, values);
+      response = await inserirRegistro(URL_DEFAULT, valoresSalvar);
     }
 
     if (response.sucesso) {
@@ -171,7 +141,7 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
         message: 'Sucesso',
         description: `Registro ${id ? 'alterado' : 'inserido'} com sucesso!`,
       });
-      navigate(breadcrumb.urlMainPage);
+      navigate(ROUTES.AREA_PROMOTORA);
     }
   };
 
@@ -180,13 +150,13 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
       confirmacao({
         content: DESEJA_EXCLUIR_REGISTRO,
         onOk() {
-          deletarRegistro(`${page.urlBase}/${id}`).then((response) => {
+          deletarRegistro(`${URL_DEFAULT}/${id}`).then((response) => {
             if (response.sucesso) {
               notification.success({
                 message: 'Sucesso',
                 description: 'Registro excluído com sucesso',
               });
-              navigate(breadcrumb.urlMainPage);
+              navigate(ROUTES.AREA_PROMOTORA);
             }
           });
         },
@@ -194,26 +164,10 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
     }
   };
 
-  const obterAreaPromotora = useCallback(async () => {
-    dispatch(setSpinning(true));
-    areaPromotoraService
-      .obterAreaPromotoraPorId(id)
-      .then((resposta) => {
-        if (resposta?.status === HttpStatusCode.Ok) {
-          setFormInitialValues(resposta.data);
-        }
-      })
-      .catch(() => alert('erro ao obter meus dados'))
-      .finally(() => dispatch(setSpinning(false)));
-  }, [dispatch, id]);
-
   useEffect(() => {
     obterGrupos();
     obterTipos();
-    if (id) {
-      obterAreaPromotora();
-    }
-  }, [obterGrupos, obterTipos, id, obterAreaPromotora]);
+  }, [obterGrupos, obterTipos]);
 
   return (
     <Col>
@@ -269,31 +223,26 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
           </Col>
         </HeaderPage>
         <CardContent>
-          {page.inputs.map((input, index) => (
-            <Form.Item key={index}>
-              <Form.Item style={{ marginBottom: 0 }}>
+          <Col span={24}>
+            <Row gutter={[16, 8]}>
+              <Col xs={24} sm={12}>
                 <Form.Item
-                  label='Nome'
-                  key={input.nome}
-                  name={input.nome}
+                  label='Área promotora'
+                  key='nome'
+                  name='nome'
                   rules={[{ required: true, whitespace: true }]}
-                  style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
                 >
                   <Input
-                    showCount
                     type='text'
                     maxLength={50}
                     id={CF_INPUT_NOME}
-                    placeholder={'Nome da área promotra'}
+                    placeholder='Nome da área promotra'
                   />
                 </Form.Item>
-                <Form.Item
-                  label='Tipo'
-                  key={input.tipo}
-                  name={input.tipo}
-                  rules={[{ required: true }]}
-                  style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px' }}
-                >
+              </Col>
+
+              <Col xs={24} sm={12}>
+                <Form.Item label='Tipo' key='tipo' name='tipo' rules={[{ required: true }]}>
                   <Select placeholder='Selecione o Tipo' allowClear>
                     {listaTipos?.map((item) => {
                       return (
@@ -304,15 +253,16 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
                     })}
                   </Select>
                 </Form.Item>
-              </Form.Item>
-              <Form.Item style={{ marginBottom: 0 }}>
-                <Form.Item
-                  label='Perfil'
-                  key={input.grupoId}
-                  name={input.grupoId}
-                  rules={[{ required: true }]}
-                  style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
-                >
+              </Col>
+
+              <TelefoneLista />
+
+              <Col xs={24} sm={12}>
+                <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} />
+              </Col>
+
+              <Col xs={24} sm={12}>
+                <Form.Item label='Perfil' key='grupoId' name='grupoId' rules={[{ required: true }]}>
                   <Select placeholder='Selecione o Perfil' allowClear>
                     {listaGrupos?.map((item) => {
                       return (
@@ -323,32 +273,10 @@ const FormCadastrosAreaPromotora: React.FC<FormConfigCadastros> = ({ page, bread
                     })}
                   </Select>
                 </Form.Item>
-                <Form.Item
-                  style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px' }}
-                >
-                  <InputTelefone inputProps={{ id: CF_INPUT_TELEFONE }} />
-                </Form.Item>
-              </Form.Item>
-              <Form.Item style={{ marginBottom: 0 }}>
-                <Form.Item
-                  key={input.email}
-                  name={input.email}
-                  label='E-mail'
-                  rules={[{ required: false, type: 'email' }]}
-                  style={{ display: 'inline-block', width: 'calc(50% - 8px)' }}
-                >
-                  <Input
-                    type='email'
-                    placeholder={'Informe o E-mail'}
-                    maxLength={100}
-                    showCount
-                    id={CF_INPUT_NOME}
-                  />
-                </Form.Item>
-              </Form.Item>
-            </Form.Item>
-          ))}
-          <Auditoria dados={formInitialValuesAuditoria} />
+              </Col>
+            </Row>
+          </Col>
+          <Auditoria dados={formInitialValues?.auditoria} />
         </CardContent>
       </Form>
     </Col>
