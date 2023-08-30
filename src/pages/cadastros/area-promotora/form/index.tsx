@@ -6,7 +6,7 @@ import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
-import InputEmail from '~/components/main/input/email';
+import EmailLista from '~/components/main/input/email-lista';
 import TelefoneLista from '~/components/main/input/telefone-lista';
 import Auditoria from '~/components/main/text/auditoria';
 import {
@@ -15,23 +15,29 @@ import {
   CF_BUTTON_NOVO,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
-import { CF_INPUT_EMAIL, CF_INPUT_NOME } from '~/core/constants/ids/input';
+import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import {
   DESEJA_CANCELAR_ALTERACOES,
   DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   DESEJA_EXCLUIR_REGISTRO,
 } from '~/core/constants/mensagens';
-import { AreaPromotoraDTO } from '~/core/dto/area-promotora-dto';
+import {
+  AreaPromotoraDTO,
+  EmailAreaPromotora,
+  TelefoneAreaPromotora,
+} from '~/core/dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
 import { GrupoDTO } from '~/core/dto/grupo-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
-  alterarRegistro,
-  deletarRegistro,
-  inserirRegistro,
-  obterRegistro,
-} from '~/core/services/api';
+  alterarAreaPromotora,
+  deletarAreaPromotora,
+  inserirAreaPromotora,
+  obterAreaPromotoraPorId,
+  obterTiposAreaPromotora,
+} from '~/core/services/area-promotora-service';
+import { obterGruposPerfis } from '~/core/services/grupo-service';
 
 const FormCadastrosAreaPromotora: React.FC = () => {
   const [form] = useForm();
@@ -40,8 +46,6 @@ const FormCadastrosAreaPromotora: React.FC = () => {
 
   const { Option } = Select;
   const id = paramsRoute?.id || 0;
-
-  const URL_DEFAULT = 'v1/AreaPromotora';
 
   const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>();
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
@@ -63,12 +67,17 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   };
 
   const carregarDados = useCallback(async () => {
-    const resposta = await obterRegistro<AreaPromotoraDTO>(`${URL_DEFAULT}/${id}`);
+    const resposta = await obterAreaPromotoraPorId(id);
 
     if (resposta.sucesso) {
       if (!resposta.dados?.telefones?.length) {
         resposta.dados.telefones = [{ telefone: '' }];
       }
+
+      if (!resposta.dados?.emails?.length) {
+        resposta.dados.emails = [{ email: '' }];
+      }
+
       setFormInitialValues(resposta.dados);
     }
   }, [id]);
@@ -84,14 +93,14 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   }, [form, formInitialValues]);
 
   const obterGrupos = useCallback(async () => {
-    const resposta = await obterRegistro<GrupoDTO[]>('v1/Grupo');
+    const resposta = await obterGruposPerfis();
     if (resposta.sucesso) {
       setListaGrupos(resposta.dados);
     }
-  }, [id]);
+  }, []);
 
   const obterTipos = useCallback(async () => {
-    const resposta = await obterRegistro<AreaPromotoraTipoDTO[]>(`${URL_DEFAULT}/tipos`);
+    const resposta = await obterTiposAreaPromotora();
     if (resposta.sucesso) {
       setListaTipos(resposta.dados);
     }
@@ -121,19 +130,26 @@ const FormCadastrosAreaPromotora: React.FC = () => {
     }
   };
 
-  const salvar = async (values: any) => {
+  const salvar = async (values: AreaPromotoraDTO) => {
     let response = null;
     const valoresSalvar = { ...values };
 
     if (valoresSalvar?.telefones?.length) {
-      valoresSalvar.telefones = valoresSalvar.telefones.filter((item: any) => !!item?.telefone);
+      valoresSalvar.telefones = valoresSalvar.telefones.filter(
+        (item: TelefoneAreaPromotora) => !!item?.telefone,
+      );
     }
+
+    if (valoresSalvar?.emails?.length) {
+      valoresSalvar.emails = valoresSalvar.emails.filter(
+        (item: EmailAreaPromotora) => !!item?.email,
+      );
+    }
+
     if (id) {
-      response = await alterarRegistro(`${URL_DEFAULT}/${id}`, {
-        ...valoresSalvar,
-      });
+      response = await alterarAreaPromotora(id, valoresSalvar);
     } else {
-      response = await inserirRegistro(URL_DEFAULT, valoresSalvar);
+      response = await inserirAreaPromotora(valoresSalvar);
     }
 
     if (response.sucesso) {
@@ -150,7 +166,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
       confirmacao({
         content: DESEJA_EXCLUIR_REGISTRO,
         onOk() {
-          deletarRegistro(`${URL_DEFAULT}/${id}`).then((response) => {
+          deletarAreaPromotora(id).then((response) => {
             if (response.sucesso) {
               notification.success({
                 message: 'Sucesso',
@@ -255,12 +271,6 @@ const FormCadastrosAreaPromotora: React.FC = () => {
                 </Form.Item>
               </Col>
 
-              <TelefoneLista />
-
-              <Col xs={24} sm={12}>
-                <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} />
-              </Col>
-
               <Col xs={24} sm={12}>
                 <Form.Item label='Perfil' key='grupoId' name='grupoId' rules={[{ required: true }]}>
                   <Select placeholder='Selecione o Perfil' allowClear>
@@ -274,6 +284,10 @@ const FormCadastrosAreaPromotora: React.FC = () => {
                   </Select>
                 </Form.Item>
               </Col>
+
+              <TelefoneLista />
+
+              <EmailLista />
             </Row>
           </Col>
           <Auditoria dados={formInitialValues?.auditoria} />

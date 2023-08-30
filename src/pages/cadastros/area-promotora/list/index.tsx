@@ -11,7 +11,7 @@ import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/in
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
 import { CadastroAreaPromotoraDTO } from '~/core/dto/cadastro-area-promotora-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { obterRegistro } from '~/core/services/api';
+import { obterTiposAreaPromotora } from '~/core/services/area-promotora-service';
 
 const ListAreaPromotora: React.FC = () => {
   const { Option } = Select;
@@ -20,8 +20,6 @@ const ListAreaPromotora: React.FC = () => {
   const [filters, setFilters] = useState({ nome: '', tipo: 0 });
 
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
-
-  const URL_DEFAULT = 'v1/AreaPromotora';
 
   const columns: ColumnsType<CadastroAreaPromotoraDTO> = [
     {
@@ -37,7 +35,7 @@ const ListAreaPromotora: React.FC = () => {
   ];
 
   const obterTipos = useCallback(async () => {
-    const resposta = await obterRegistro<AreaPromotoraTipoDTO[]>(`${URL_DEFAULT}/tipos`);
+    const resposta = await obterTiposAreaPromotora();
     if (resposta.sucesso) {
       setListaTipos(resposta.dados);
     }
@@ -117,7 +115,7 @@ const ListAreaPromotora: React.FC = () => {
             <DataTable
               filters={filters}
               columns={columns}
-              url={URL_DEFAULT}
+              url='v1/AreaPromotora'
               onRow={(row) => ({
                 onClick: () => {
                   onClickEditar(row.id);
