@@ -1,12 +1,12 @@
-import { Button, Col, Form, Row, Steps, notification } from 'antd';
-import { useForm } from 'antd/es/form/Form';
+import { Button, Col, Divider, Form, Row, notification } from 'antd';
+import { FormProps, useForm } from 'antd/es/form/Form';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
-import Auditoria from '~/components/main/text/auditoria';
+import Steps from '~/components/main/steps';
 import {
   CF_BUTTON_CANCELAR,
   CF_BUTTON_EXCLUIR,
@@ -22,19 +22,22 @@ import { AreaPromotoraDTO } from '~/core/dto/area-promotora-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import { deletarRegistro, obterRegistro } from '~/core/services/api';
+import FormInformacoesGerais from './steps/informacoes-gerais';
+import Auditoria from '~/components/main/text/auditoria';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const paramsRoute = useParams();
-  const [current, setCurrent] = useState(0);
+  const id = paramsRoute?.id || 0;
   // ATUALIZAR TIPAGEM DO DTO
+  const [current, setCurrent] = useState(0);
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
 
-  const id = paramsRoute?.id || 0;
+  const quantidadeTurmas = Form.useWatch('quantidadeTurmas', form);
+  const vagasTurma = Form.useWatch('vagasTurma', form);
+  const totalVagas = Number(quantidadeTurmas) + Number(vagasTurma);
 
-  // ATUALIZAR QUANDO O ENDPOINT ESTIVER PRONTO
-  const URL_DEFAULT = 'v1/cadastrodepropostas';
   const stepTitles = [
     'Informações gerais',
     'Datas',
@@ -42,6 +45,13 @@ const FormCadastroDePropostas: React.FC = () => {
     'Profissionais',
     'Certificação',
   ];
+
+  const validateMessages: FormProps['validateMessages'] = {
+    required: 'Campo obrigatório',
+  };
+
+  // ATUALIZAR QUANDO O ENDPOINT ESTIVER PRONTO
+  const URL_DEFAULT = 'v1/cadastrodepropostas';
 
   const carregarDados = useCallback(async () => {
     // ATUALIZAR TIPAGEM DO DTO
@@ -120,7 +130,14 @@ const FormCadastroDePropostas: React.FC = () => {
 
   return (
     <Col>
-      <Form form={form} layout='vertical' autoComplete='off' onFinish={salvar}>
+      <Form
+        form={form}
+        layout='vertical'
+        autoComplete='off'
+        onFinish={salvar}
+        initialValues={formInitialValues}
+        validateMessages={validateMessages}
+      >
         <HeaderPage title='Cadastro de Propostas'>
           <Col span={24}>
             <Row gutter={[8, 8]}>
@@ -178,22 +195,15 @@ const FormCadastroDePropostas: React.FC = () => {
           </Col>
         </HeaderPage>
         <CardContent>
+          <Divider orientation='left' />
           <Steps
-            size='small'
             current={current}
-            labelPlacement='vertical'
-            style={{ fontWeight: 700 }}
-            onChange={(value) => setCurrent(value)}
             items={stepTitles.map((title) => ({ title }))}
+            onChange={(value) => setCurrent(value)}
           />
-          {stepTitles.map((title, index) => (
-            <Form.Item
-              style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-              key={index}
-            >
-              {current === index && title}
-            </Form.Item>
-          ))}
+          {current === 0 && (
+            <FormInformacoesGerais totalVagas={totalVagas ? String(totalVagas) : '0'} />
+          )}
           <Auditoria dados={formInitialValues?.auditoria} />
         </CardContent>
       </Form>

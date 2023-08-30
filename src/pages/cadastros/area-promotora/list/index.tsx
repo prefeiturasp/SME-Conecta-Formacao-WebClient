@@ -1,5 +1,5 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { Button, Col, Empty, Input, Row, Select } from 'antd';
+import { Button, Col, Input, Row, Select } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import CardContent from '~/components/lib/card-content';
 import DataTable from '~/components/lib/card-table';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
+import Empty from '~/components/main/empty';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
 import { CadastroAreaPromotoraDTO } from '~/core/dto/cadastro-area-promotora-dto';
@@ -97,7 +98,7 @@ const ListAreaPromotora: React.FC = () => {
               allowClear
               style={{ width: '100%' }}
               placeholder='Selecione o Tipo'
-              notFoundContent={<Empty description='Sem dados' />}
+              notFoundContent={<Empty />}
               onChange={(e: any) =>
                 setFilters((oldState) => {
                   return { ...oldState, tipo: e };
