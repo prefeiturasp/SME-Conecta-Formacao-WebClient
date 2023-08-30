@@ -1,11 +1,8 @@
-import { AxiosResponse } from 'axios';
 import { GrupoDTO } from '../dto/grupo-dto';
-import api from './api';
+import { ApiResult, obterRegistro } from './api';
 
 const URL_DEFAULT = 'v1/Grupo';
 
-const obterGrupos = (): Promise<AxiosResponse<GrupoDTO[]>> => api.get(URL_DEFAULT);
+const obterGruposPerfis = (): Promise<ApiResult<GrupoDTO[]>> => obterRegistro(URL_DEFAULT);
 
-export default {
-  obterGrupos,
-};
+export { obterGruposPerfis };

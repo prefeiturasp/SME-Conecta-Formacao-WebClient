@@ -1,33 +1,32 @@
 import { Button, Col, Form, Row, theme } from 'antd';
 import React from 'react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
-import { CF_INPUT_TELEFONE } from '~/core/constants/ids/input';
-import { TelefoneAreaPromotora } from '~/core/dto/area-promotora-dto';
-import InputTelefone from '../telefone';
+import { CF_INPUT_EMAIL } from '~/core/constants/ids/input';
+import { EmailAreaPromotora } from '~/core/dto/area-promotora-dto';
+import InputEmail from '../email';
 
 const { useToken } = theme;
 
-const TelefoneLista: React.FC = () => {
+const EmailLista: React.FC = () => {
   const { token } = useToken();
 
-  const initialValue: TelefoneAreaPromotora[] = [{ telefone: '' }];
+  const initialValue: EmailAreaPromotora[] = [{ email: '' }];
 
   return (
-    <Form.List name='telefones' initialValue={initialValue}>
+    <Form.List name='emails' initialValue={initialValue}>
       {(fields, { add, remove }) => (
         <>
           {fields.map(({ key, name, ...restField }) => {
             return (
               <Col xs={24} sm={12} key={key}>
                 <Row wrap={false} align='top'>
-                  <InputTelefone
+                  <InputEmail
                     inputProps={{
-                      id: `${CF_INPUT_TELEFONE}_${name + 1}`,
-                      placeholder: '(00) 00000-0000',
+                      id: `${CF_INPUT_EMAIL}_${name + 1}`,
                     }}
                     formItemProps={{
                       ...restField,
-                      name: [name, 'telefone'],
+                      name: [name, 'email'],
                       style: { width: '100%', marginRight: '8px' },
                       required: false,
                     }}
@@ -67,4 +66,4 @@ const TelefoneLista: React.FC = () => {
   );
 };
 
-export default TelefoneLista;
+export default EmailLista;

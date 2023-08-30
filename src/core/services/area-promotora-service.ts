@@ -1,21 +1,31 @@
-import { AxiosResponse } from 'axios';
 import { AreaPromotoraDTO } from '../dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '../dto/area-promotora-tipo-dto';
-import api from './api';
+import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
 
 const URL_DEFAULT = 'v1/AreaPromotora';
 
-const obterTipo = (): Promise<AxiosResponse<AreaPromotoraTipoDTO[]>> =>
-  api.get(`${URL_DEFAULT}/tipos`);
+const obterTiposAreaPromotora = (): Promise<ApiResult<AreaPromotoraTipoDTO[]>> =>
+  obterRegistro(`${URL_DEFAULT}/tipos`);
 
-const obterAreaPromotora = (): Promise<AxiosResponse<AreaPromotoraDTO>> =>
-  api.get(`${URL_DEFAULT}`);
+const obterAreaPromotoraPorId = (id: string | number): Promise<ApiResult<AreaPromotoraDTO>> =>
+  obterRegistro(`${URL_DEFAULT}/${id}`);
 
-const obterAreaPromotoraPorId = (id: any): Promise<AxiosResponse<AreaPromotoraDTO>> =>
-  api.get(`${URL_DEFAULT}/${id}`);
+const alterarAreaPromotora = (
+  id: string | number,
+  params: AreaPromotoraDTO,
+): Promise<ApiResult<AreaPromotoraDTO>> =>
+  alterarRegistro<AreaPromotoraDTO>(`${URL_DEFAULT}/${id}`, params);
 
-export default {
-  obterTipo,
-  obterAreaPromotora,
+const inserirAreaPromotora = (params: AreaPromotoraDTO): Promise<ApiResult<AreaPromotoraDTO>> =>
+  inserirRegistro<AreaPromotoraDTO>(URL_DEFAULT, params);
+
+const deletarAreaPromotora = (id: string | number): Promise<ApiResult<boolean>> =>
+  deletarRegistro(`${URL_DEFAULT}/${id}`);
+
+export {
+  alterarAreaPromotora,
+  deletarAreaPromotora,
+  inserirAreaPromotora,
   obterAreaPromotoraPorId,
+  obterTiposAreaPromotora,
 };
