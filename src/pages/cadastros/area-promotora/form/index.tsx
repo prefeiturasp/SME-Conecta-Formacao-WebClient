@@ -111,6 +111,9 @@ const FormCadastrosAreaPromotora: React.FC = () => {
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         onOk() {
+          form.submit();
+        },
+        onCancel() {
           navigate(ROUTES.AREA_PROMOTORA);
         },
       });
