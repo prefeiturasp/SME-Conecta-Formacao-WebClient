@@ -1,7 +1,10 @@
-export interface AreaPromotoraDTO {
+import { EntidadeBaseAuditavel } from './auditoria-dto';
+
+export type AreaPromotoraDTO = {
   nome: string;
-  tipoId: number;
+  tipo: number;
   grupoId: string;
-  telefone: string;
+  telefones: [object];
   email: string;
-}
+  auditoria: EntidadeBaseAuditavel;
+};
