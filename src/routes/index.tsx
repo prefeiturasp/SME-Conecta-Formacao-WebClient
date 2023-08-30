@@ -5,7 +5,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import PagNotFound from '~/pages/404';
 import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
-import ListAreaPromotora from '~/pages/cadastros/area-promotora/list/list';
+import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
