@@ -45,6 +45,7 @@ const EmailLista: React.FC = () => {
                         justifyContent: 'center',
                         marginTop: '24px',
                       }}
+                      disabled={fields?.length > 1}
                     />
                   ) : (
                     <FaTrashAlt
