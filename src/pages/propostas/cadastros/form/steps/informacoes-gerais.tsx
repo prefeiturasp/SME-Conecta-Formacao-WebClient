@@ -1,17 +1,21 @@
-import { Col, Form, Input, Row, Select, SelectProps } from 'antd';
+import { InfoCircleFilled } from '@ant-design/icons';
+import { Col, Divider, Form, Input, Row, Select, SelectProps, Tooltip } from 'antd';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Empty from '~/components/main/empty';
 import InputNumero from '~/components/main/numero';
 import Radio from '~/components/main/radio';
 import SelectMultiple from '~/components/main/select';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
+import { Colors } from '~/core/styles/colors';
 
 interface FormInformacoesGeraisProps {
   totalVagas: string;
 }
 
 const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVagas }) => {
+  const [mostrarInputFuncaoEspecifica, setMostrarInputFuncaoEspecifica] = useState<boolean>(false);
+
   const tipoFormacao = [
     { label: 'Curso', value: 1 },
     { label: 'Evento', value: 2 },
@@ -49,6 +53,15 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVaga
             name='modalidade'
             label='Modalidade'
             rules={[{ required: true }]}
+            tooltip={{
+              title:
+                'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
+              icon: (
+                <Tooltip>
+                  <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                </Tooltip>
+              ),
+            }}
           >
             <Select placeholder='Modalidade' allowClear notFoundContent={<Empty />}>
               {/* {listaTipos?.map((item) => {
@@ -76,6 +89,15 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVaga
           key='nomeFormacao'
           name='nomeFormacao'
           label='Nome da formação'
+          tooltip={{
+            title:
+              'O título da formação deve apresentar de forma sucinta a ideia central do tema que será tratado, indicando ao cursista a macro área do tema e a especificidade do curso proposto.',
+            icon: (
+              <Tooltip>
+                <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+              </Tooltip>
+            ),
+          }}
           rules={[{ required: true, whitespace: true }]}
         >
           <Input
@@ -92,6 +114,14 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVaga
             name: 'publicoAlvo',
             label: 'Público alvo',
             rules: [{ required: true }],
+            tooltip: {
+              title: 'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
+              icon: (
+                <Tooltip>
+                  <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                </Tooltip>
+              ),
+            },
           }}
           selectProps={{
             options: options,
@@ -104,10 +134,36 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVaga
           formItemProps={{
             name: 'funcaoEspecifica',
             label: 'Função específica',
+            tooltip: {
+              title:
+                'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outros).',
+              icon: (
+                <Tooltip>
+                  <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                </Tooltip>
+              ),
+            },
           }}
           selectProps={{
             options: options,
             placeholder: 'Função específica',
+            // Caso seja selecionada a opção "Outros" deverá ser disponibilizado um campo obrigatório de 100 caracteres.
+            onChange(value, _option) {
+              value.includes('g16') && setMostrarInputFuncaoEspecifica(true);
+            },
+            dropdownRender(menu) {
+              return (
+                <>
+                  {menu}
+                  {mostrarInputFuncaoEspecifica && (
+                    <>
+                      <Divider />
+                      <Input type='text' maxLength={100} placeholder='Função específica' />
+                    </>
+                  )}
+                </>
+              );
+            },
           }}
         />
       </Col>
@@ -130,6 +186,15 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVaga
             formItemProps={{
               name: 'vagasRemanescentes',
               label: 'Em caso de vagas remanescentes',
+              tooltip: {
+                title:
+                  'Havendo vagas remanescentes, poderão ser contemplados os seguintes cargos e/ou funções como público-alvo.',
+                icon: (
+                  <Tooltip>
+                    <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                  </Tooltip>
+                ),
+              },
             }}
             selectProps={{
               options: options,
@@ -155,6 +220,15 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVaga
               label: 'Vagas por turma',
               name: 'vagasTurma',
               rules: [{ required: true }],
+              tooltip: {
+                title:
+                  'Tanto nos cursos presenciais, quanto nos cursos a distância, a proporção máxima aceita será de 50 (cinquenta) cursistas por turma/tutor. Nos eventos presenciais, a quantidade de participantes poderá se adequar à capacidade do espaço. Nos eventos a distância/híbridos, a proporção máxima aceita será de 200 (duzentas) pessoas, sendo a proporção máxima de um tutor para 50 (cinquenta) participantes.',
+                icon: (
+                  <Tooltip>
+                    <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                  </Tooltip>
+                ),
+              },
             }}
             inputProps={{ id: '', placeholder: 'Vagas por turma', maxLength: 4 }}
           />

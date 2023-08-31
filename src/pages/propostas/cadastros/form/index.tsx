@@ -34,8 +34,8 @@ const FormCadastroDePropostas: React.FC = () => {
   const [current, setCurrent] = useState(0);
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
 
-  const quantidadeTurmas = Form.useWatch('quantidadeTurmas', form);
   const vagasTurma = Form.useWatch('vagasTurma', form);
+  const quantidadeTurmas = Form.useWatch('quantidadeTurmas', form);
   const totalVagas = Number(quantidadeTurmas) + Number(vagasTurma);
 
   const stepTitles = [
@@ -96,17 +96,23 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const salvar = async (values: any) => {
-    console.log(values);
+    console.log('🚀 ~ salvar ~ values:', values);
   };
 
   const salvarRascunho = async () => {
     /* Salvar rascunho: Grava o registro no banco de dados como rascunho, apresenta mensagem de feedback para o usuário e mantém o usuário na tela. Neste caso não há necessidade de preencher todos os campos obrigatórios.*/
   };
 
-  const proximo = async () => {
+  const proximoPasso = async () => {
     /* deve ir para o próximo step se todos os campos obrigatórios estiverem preenchidos e o anterior fica verde e abre o próximo step com algum texto.*/
 
     setCurrent(current + 1);
+  };
+
+  const passoAnterior = async () => {
+    /* deve ir para o próximo step se todos os campos obrigatórios estiverem preenchidos e o anterior fica verde e abre o próximo step com algum texto.*/
+
+    current >= 1 && setCurrent(current - 1);
   };
 
   const onClickExcluir = () => {
@@ -167,16 +173,28 @@ const FormCadastroDePropostas: React.FC = () => {
                   )}
                 </Form.Item>
               </Col>
+              {current > 0 && (
+                <Col>
+                  <Button
+                    block
+                    htmlType='submit'
+                    onClick={passoAnterior}
+                    id={CF_BUTTON_NOVO}
+                    style={{ fontWeight: 700 }}
+                  >
+                    Passo anterior
+                  </Button>
+                </Col>
+              )}
               <Col>
                 <Button
                   block
-                  type='default'
                   htmlType='submit'
+                  onClick={proximoPasso}
                   id={CF_BUTTON_NOVO}
-                  onClick={salvarRascunho}
                   style={{ fontWeight: 700 }}
                 >
-                  Salvar rascunho
+                  Próximo passo
                 </Button>
               </Col>
               <Col>
@@ -184,11 +202,11 @@ const FormCadastroDePropostas: React.FC = () => {
                   block
                   type='primary'
                   htmlType='submit'
-                  onClick={proximo}
                   id={CF_BUTTON_NOVO}
+                  onClick={salvarRascunho}
                   style={{ fontWeight: 700 }}
                 >
-                  Próximo
+                  Salvar rascunho
                 </Button>
               </Col>
             </Row>

@@ -4,6 +4,7 @@ const Colors = {
   BACKGROUND_CONTENT: '#F5F5F5',
   ERROR: '#B40C02',
   TEXT: '#42474A',
+  TOOLTIP: '#086397',
 };
 
 const BoxShadow = {
