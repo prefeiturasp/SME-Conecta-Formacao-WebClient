@@ -11,6 +11,7 @@ import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
 import MeusDados from '~/pages/meus-dados';
 import Principal from '~/pages/principal/index';
+import FormCadastroDePropostas from '~/pages/propostas/cadastros/form';
 import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import Auth from './config/auth';
@@ -46,6 +47,17 @@ const RoutesConfig = () => {
                   <Route
                     path={ROUTES.AREA_PROMOTORA_EDITAR}
                     element={<FormCadastrosAreaPromotora />}
+                  />
+                </Route>
+
+                <Route path={ROUTES.CADASTRO_DE_PROPOSTAS}>
+                  <Route
+                    path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
+                    element={<FormCadastroDePropostas />}
+                  />
+                  <Route
+                    path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
+                    element={<FormCadastroDePropostas />}
                   />
                 </Route>
 
