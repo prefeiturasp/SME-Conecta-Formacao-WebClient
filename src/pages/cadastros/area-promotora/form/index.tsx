@@ -18,7 +18,7 @@ import {
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import {
   DESEJA_CANCELAR_ALTERACOES,
-  DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
+  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   DESEJA_EXCLUIR_REGISTRO,
 } from '~/core/constants/mensagens';
 import {
@@ -109,7 +109,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   const onClickVoltar = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
-        content: DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
+        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         onOk() {
           form.submit();
         },

@@ -1,4 +1,4 @@
-import { EntidadeBaseAuditavel } from './auditoria-dto';
+import { AuditoriaDTO } from './auditoria-dto';
 
 export type EmailAreaPromotora = {
   email: string;
@@ -14,5 +14,5 @@ export type AreaPromotoraDTO = {
   grupoId: string;
   telefones: TelefoneAreaPromotora[];
   emails: EmailAreaPromotora[];
-  auditoria: EntidadeBaseAuditavel;
+  auditoria: AuditoriaDTO;
 };

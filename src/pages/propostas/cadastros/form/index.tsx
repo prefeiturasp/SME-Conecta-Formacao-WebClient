@@ -1,5 +1,6 @@
 import { Button, Col, Divider, Form, Row, notification } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
+import { cloneDeep } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
@@ -7,36 +8,42 @@ import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import Steps from '~/components/main/steps';
+import Auditoria from '~/components/main/text/auditoria';
 import {
   CF_BUTTON_CANCELAR,
   CF_BUTTON_EXCLUIR,
   CF_BUTTON_NOVO,
+  CF_BUTTON_PROXIMO_STEP,
+  CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import {
   DESEJA_CANCELAR_ALTERACOES,
-  DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   DESEJA_EXCLUIR_REGISTRO,
+  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
+  REGISTRO_EXCLUIDO_SUCESSO,
 } from '~/core/constants/mensagens';
-import { AreaPromotoraDTO } from '~/core/dto/area-promotora-dto';
+import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { SituacaoRegistro } from '~/core/enum/situacao-registro';
 import { confirmacao } from '~/core/services/alerta-service';
-import { deletarRegistro, obterRegistro } from '~/core/services/api';
+import {
+  alterarProposta,
+  deletarProposta,
+  inserirProposta,
+  obterPropostaPorId,
+} from '~/core/services/proposta-service';
 import FormInformacoesGerais from './steps/informacoes-gerais';
-import Auditoria from '~/components/main/text/auditoria';
 
 const FormCadastroDePropostas: React.FC = () => {
-  const [form] = useForm();
   const navigate = useNavigate();
   const paramsRoute = useParams();
-  const id = paramsRoute?.id || 0;
-  // ATUALIZAR TIPAGEM DO DTO
-  const [current, setCurrent] = useState(0);
-  const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
+  const [form] = useForm();
 
-  const vagasTurma = Form.useWatch('vagasTurma', form);
-  const quantidadeTurmas = Form.useWatch('quantidadeTurmas', form);
-  const totalVagas = Number(quantidadeTurmas) + Number(vagasTurma);
+  const [current, setCurrent] = useState(0);
+  const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
+
+  const id = paramsRoute?.id || 0;
 
   const stepTitles = [
     'Informações gerais',
@@ -50,18 +57,41 @@ const FormCadastroDePropostas: React.FC = () => {
     required: 'Campo obrigatório',
   };
 
-  // ATUALIZAR QUANDO O ENDPOINT ESTIVER PRONTO
-  const URL_DEFAULT = 'v1/cadastrodepropostas';
-
   const carregarDados = useCallback(async () => {
-    // ATUALIZAR TIPAGEM DO DTO
-    const resposta = await obterRegistro<AreaPromotoraDTO>(`${URL_DEFAULT}/${id}`);
+    const resposta = await obterPropostaPorId(id);
 
     if (resposta.sucesso) {
-      if (!resposta.dados?.telefones?.length) {
-        resposta.dados.telefones = [{ telefone: '' }];
+      let publicosAlvo: number[] = [];
+      if (resposta.dados?.publicosAlvo?.length) {
+        publicosAlvo = resposta.dados.publicosAlvo.map((item) => item.cargoFuncaoId);
       }
-      setFormInitialValues(resposta.dados);
+
+      let funcoesEspecificas: number[] = [];
+      if (resposta.dados?.funcoesEspecificas?.length) {
+        funcoesEspecificas = resposta.dados.funcoesEspecificas.map((item) => item.cargoFuncaoId);
+      }
+
+      let vagasRemanecentes: number[] = [];
+      if (resposta.dados?.vagasRemanecentes?.length) {
+        vagasRemanecentes = resposta.dados.vagasRemanecentes.map((item) => item.cargoFuncaoId);
+      }
+
+      let criteriosValidacaoInscricao: number[] = [];
+      if (resposta.dados?.criteriosValidacaoInscricao?.length) {
+        criteriosValidacaoInscricao = resposta.dados.criteriosValidacaoInscricao.map(
+          (item) => item.criterioValidacaoInscricaoId,
+        );
+      }
+
+      const valoresIniciais: PropostaFormDTO = {
+        ...resposta.dados,
+        publicosAlvo,
+        funcoesEspecificas,
+        vagasRemanecentes,
+        criteriosValidacaoInscricao,
+      };
+
+      setFormInitialValues(valoresIniciais);
     }
   }, [id]);
 
@@ -71,18 +101,9 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   }, [carregarDados, id]);
 
-  const onClickVoltar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_CANCELAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          navigate(ROUTES.AREA_PROMOTORA);
-        },
-      });
-    } else {
-      navigate(ROUTES.AREA_PROMOTORA);
-    }
-  };
+  useEffect(() => {
+    form.resetFields();
+  }, [form, formInitialValues]);
 
   const onClickCancelar = () => {
     if (form.isFieldsTouched()) {
@@ -95,24 +116,91 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
-  const salvar = async (values: any) => {
-    console.log('🚀 ~ salvar ~ values:', values);
-  };
+  const salvar = async (values: PropostaFormDTO, situacao: SituacaoRegistro) => {
+    let response = null;
+    const clonedValues = cloneDeep(values);
 
-  const salvarRascunho = async () => {
-    /* Salvar rascunho: Grava o registro no banco de dados como rascunho, apresenta mensagem de feedback para o usuário e mantém o usuário na tela. Neste caso não há necessidade de preencher todos os campos obrigatórios.*/
+    const valoresSalvar: PropostaDTO = {
+      tipoFormacao: clonedValues?.tipoFormacao,
+      modalidade: clonedValues?.modalidade,
+      tipoInscricao: clonedValues?.tipoInscricao,
+      nomeFormacao: clonedValues?.nomeFormacao,
+      quantidadeTurmas: clonedValues?.quantidadeTurmas,
+      quantidadeVagasTurma: clonedValues?.quantidadeVagasTurma,
+      publicosAlvo: [],
+      quantidadeTotal: clonedValues?.quantidadeTotal,
+      funcoesEspecificas: [],
+      funcaoEspecificaOutros: clonedValues?.funcaoEspecificaOutros || '',
+      vagasRemanecentes: [],
+      criteriosValidacaoInscricao: [],
+      criterioValidacaoInscricaoOutros: clonedValues?.criterioValidacaoInscricaoOutros || '',
+      situacao,
+    };
+
+    if (clonedValues?.publicosAlvo?.length) {
+      valoresSalvar.publicosAlvo = clonedValues.publicosAlvo.map((cargoFuncaoId) => ({
+        cargoFuncaoId,
+      }));
+    }
+
+    if (clonedValues?.funcoesEspecificas?.length) {
+      valoresSalvar.funcoesEspecificas = clonedValues.funcoesEspecificas.map((cargoFuncaoId) => ({
+        cargoFuncaoId,
+      }));
+    }
+
+    if (clonedValues?.vagasRemanecentes?.length) {
+      valoresSalvar.vagasRemanecentes = clonedValues.vagasRemanecentes.map((cargoFuncaoId) => ({
+        cargoFuncaoId,
+      }));
+    }
+
+    if (clonedValues?.criteriosValidacaoInscricao?.length) {
+      valoresSalvar.criteriosValidacaoInscricao = clonedValues.criteriosValidacaoInscricao.map(
+        (criterioValidacaoInscricaoId) => ({
+          criterioValidacaoInscricaoId,
+        }),
+      );
+    }
+
+    if (id) {
+      response = await alterarProposta(id, valoresSalvar);
+    } else {
+      response = await inserirProposta(valoresSalvar);
+    }
+
+    if (response.sucesso) {
+      notification.success({
+        message: 'Sucesso',
+        description: `Registro ${id ? 'alterado' : 'inserido'} com sucesso!`,
+      });
+
+      if (id) {
+        carregarDados();
+      } else {
+        const novoId = response.dados;
+        navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
+      }
+      return true;
+    }
+
+    return false;
   };
 
   const proximoPasso = async () => {
-    /* deve ir para o próximo step se todos os campos obrigatórios estiverem preenchidos e o anterior fica verde e abre o próximo step com algum texto.*/
-
-    setCurrent(current + 1);
+    const salvou = await salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
+    if (salvou) {
+      setCurrent(current + 1);
+    }
   };
 
   const passoAnterior = async () => {
-    /* deve ir para o próximo step se todos os campos obrigatórios estiverem preenchidos e o anterior fica verde e abre o próximo step com algum texto.*/
-
+    // TODO
     current >= 1 && setCurrent(current - 1);
+  };
+
+  const salvarRascunho = () => {
+    salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
   };
 
   const onClickExcluir = () => {
@@ -120,17 +208,33 @@ const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_EXCLUIR_REGISTRO,
         onOk() {
-          deletarRegistro(`${URL_DEFAULT}/${id}`).then((response) => {
+          deletarProposta(id).then((response) => {
             if (response.sucesso) {
               notification.success({
                 message: 'Sucesso',
-                description: 'Registro excluído com sucesso',
+                description: REGISTRO_EXCLUIDO_SUCESSO,
               });
-              navigate(ROUTES.CADASTRO);
+              navigate(ROUTES.PRINCIPAL);
             }
           });
         },
       });
+    }
+  };
+
+  const onClickVoltar = () => {
+    if (form.isFieldsTouched()) {
+      confirmacao({
+        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
+        onOk() {
+          salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
+        },
+        onCancel() {
+          navigate(ROUTES.PRINCIPAL);
+        },
+      });
+    } else {
+      navigate(ROUTES.PRINCIPAL);
     }
   };
 
@@ -140,7 +244,6 @@ const FormCadastroDePropostas: React.FC = () => {
         form={form}
         layout='vertical'
         autoComplete='off'
-        onFinish={salvar}
         initialValues={formInitialValues}
         validateMessages={validateMessages}
       >
@@ -173,26 +276,24 @@ const FormCadastroDePropostas: React.FC = () => {
                   )}
                 </Form.Item>
               </Col>
-              {current > 0 && (
-                <Col>
-                  <Button
-                    block
-                    htmlType='submit'
-                    onClick={passoAnterior}
-                    id={CF_BUTTON_NOVO}
-                    style={{ fontWeight: 700 }}
-                  >
-                    Passo anterior
-                  </Button>
-                </Col>
-              )}
               <Col>
                 <Button
                   block
-                  htmlType='submit'
-                  onClick={proximoPasso}
-                  id={CF_BUTTON_NOVO}
+                  onClick={passoAnterior}
+                  id={CF_BUTTON_STEP_ANTERIOR}
                   style={{ fontWeight: 700 }}
+                  disabled={current < 1}
+                >
+                  Passo anterior
+                </Button>
+              </Col>
+              <Col>
+                <Button
+                  block
+                  onClick={proximoPasso}
+                  id={CF_BUTTON_PROXIMO_STEP}
+                  style={{ fontWeight: 700 }}
+                  disabled={current >= 4}
                 >
                   Próximo passo
                 </Button>
@@ -201,7 +302,6 @@ const FormCadastroDePropostas: React.FC = () => {
                 <Button
                   block
                   type='primary'
-                  htmlType='submit'
                   id={CF_BUTTON_NOVO}
                   onClick={salvarRascunho}
                   style={{ fontWeight: 700 }}
@@ -214,15 +314,21 @@ const FormCadastroDePropostas: React.FC = () => {
         </HeaderPage>
         <CardContent>
           <Divider orientation='left' />
+
           <Steps
             current={current}
             items={stepTitles.map((title) => ({ title }))}
             onChange={(value) => setCurrent(value)}
+            style={{ marginBottom: 55 }}
           />
-          {current === 0 && (
-            <FormInformacoesGerais totalVagas={totalVagas ? String(totalVagas) : '0'} />
+          {current === 0 ? (
+            <>
+              <FormInformacoesGerais />
+              <Auditoria dados={formInitialValues?.auditoria} />
+            </>
+          ) : (
+            'Seção em desenvolvimento!'
           )}
-          <Auditoria dados={formInitialValues?.auditoria} />
         </CardContent>
       </Form>
     </Col>

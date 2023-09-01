@@ -1,90 +1,39 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Col, Divider, Form, Input, Row, Select, SelectProps, Tooltip } from 'antd';
+import { Col, Form, Input, Row, Tooltip } from 'antd';
 
-import React, { useState } from 'react';
-import Empty from '~/components/main/empty';
+import React from 'react';
+import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
+import SelectFuncaoEspecifica from '~/components/main/input/funcao-especifica';
+import SelectModalidades from '~/components/main/input/modalidades';
+import { default as SelectPublicoAlvo } from '~/components/main/input/publico-alvo';
+import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
+import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
+import SelectVagasRemanescentes from '~/components/main/input/vagas-remanescentes';
 import InputNumero from '~/components/main/numero';
-import Radio from '~/components/main/radio';
-import SelectMultiple from '~/components/main/select';
-import { CF_INPUT_NOME } from '~/core/constants/ids/input';
+import {
+  CF_INPUT_NOME_FORMACAO,
+  CF_INPUT_QUANTIDADE_TURMAS,
+  CF_INPUT_QUANTIDADE_VAGAS_TURMA,
+  CF_INPUT_TOTAL_VAGAS,
+} from '~/core/constants/ids/input';
 import { Colors } from '~/core/styles/colors';
 
-interface FormInformacoesGeraisProps {
-  totalVagas: string;
-}
-
-const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVagas }) => {
-  const [mostrarInputFuncaoEspecifica, setMostrarInputFuncaoEspecifica] = useState<boolean>(false);
-
-  const tipoFormacao = [
-    { label: 'Curso', value: 1 },
-    { label: 'Evento', value: 2 },
-  ];
-
-  const tipoInscricao = [
-    { label: 'Optativa', value: 1 },
-    { label: 'Automática', value: 2 },
-  ];
-
-  const options: SelectProps['options'] = [];
-
-  for (let i = 10; i < 36; i++) {
-    options.push({
-      label: i.toString(36) + i,
-      value: i.toString(36) + i,
-    });
-  }
-
+const FormInformacoesGerais: React.FC = () => {
   return (
-    <Col span={24} style={{ margin: '51px 0' }}>
-      <Row gutter={16} justify={'start'}>
-        <Col span={8}>
-          <Radio
-            formItemProps={{
-              name: 'tipoFormacao',
-              label: 'Tipo de formação',
-            }}
-            dados={tipoFormacao}
-          />
-        </Col>
-        <Col span={8}>
-          <Form.Item
-            key='modalidade'
-            name='modalidade'
-            label='Modalidade'
-            rules={[{ required: true }]}
-            tooltip={{
-              title:
-                'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
-              icon: (
-                <Tooltip>
-                  <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-                </Tooltip>
-              ),
-            }}
-          >
-            <Select placeholder='Modalidade' allowClear notFoundContent={<Empty />}>
-              {/* {listaTipos?.map((item) => {
-                  return (
-                    <Option key={item.id} value={item.id}>
-                      {item.nome}
-                    </Option>
-                  );
-                })} */}
-            </Select>
-          </Form.Item>
-        </Col>
-        <Col offset={3}>
-          <Radio
-            formItemProps={{
-              name: 'tipoInscricao',
-              label: 'Tipo de inscrição',
-            }}
-            dados={tipoInscricao}
-          />
-        </Col>
-      </Row>
-      <Col>
+    <Row gutter={[16, 8]}>
+      <Col xs={24} sm={10} md={7} lg={6} xl={4}>
+        <RadioTipoFormacao />
+      </Col>
+
+      <Col xs={24} sm={14} md={7} lg={11} xl={15}>
+        <SelectModalidades />
+      </Col>
+
+      <Col xs={24} sm={10} md={9} lg={7} xl={5}>
+        <RadioTipoInscricao />
+      </Col>
+
+      <Col xs={24} sm={14} md={24}>
         <Form.Item
           key='nomeFormacao'
           name='nomeFormacao'
@@ -103,40 +52,51 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVaga
           <Input
             type='text'
             maxLength={150}
-            id={CF_INPUT_NOME}
+            id={CF_INPUT_NOME_FORMACAO}
             placeholder='Escreva o título da formação'
           />
         </Form.Item>
       </Col>
-      <Col>
-        <SelectMultiple
+
+      <Col span={24}>
+        <SelectPublicoAlvo />
+      </Col>
+
+      <Col span={24}>
+        <SelectFuncaoEspecifica />
+      </Col>
+
+      <Col xs={24}>
+        <SelectCriteriosValidacaoInscricoes />
+      </Col>
+
+      <Col xs={24}>
+        <SelectVagasRemanescentes />
+      </Col>
+
+      <Col xs={24} sm={12} md={8}>
+        <InputNumero
           formItemProps={{
-            name: 'publicoAlvo',
-            label: 'Público alvo',
+            label: 'Quantidade de turmas',
+            name: 'quantidadeTurmas',
+            rules: [{ required: true }],
+          }}
+          inputProps={{
+            id: CF_INPUT_QUANTIDADE_TURMAS,
+            placeholder: 'Quantidade de turmas',
+            maxLength: 3,
+          }}
+        />
+      </Col>
+      <Col xs={24} sm={12} md={8}>
+        <InputNumero
+          formItemProps={{
+            label: 'Vagas por turma',
+            name: 'quantidadeVagasTurma',
             rules: [{ required: true }],
             tooltip: {
-              title: 'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
-              icon: (
-                <Tooltip>
-                  <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-                </Tooltip>
-              ),
-            },
-          }}
-          selectProps={{
-            options: options,
-            placeholder: 'Público alvo',
-          }}
-        />
-      </Col>
-      <Col>
-        <SelectMultiple
-          formItemProps={{
-            name: 'funcaoEspecifica',
-            label: 'Função específica',
-            tooltip: {
               title:
-                'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outros).',
+                'Tanto nos cursos presenciais, quanto nos cursos a distância, a proporção máxima aceita será de 50 (cinquenta) cursistas por turma/tutor. Nos eventos presenciais, a quantidade de participantes poderá se adequar à capacidade do espaço. Nos eventos a distância/híbridos, a proporção máxima aceita será de 200 (duzentas) pessoas, sendo a proporção máxima de um tutor para 50 (cinquenta) participantes.',
               icon: (
                 <Tooltip>
                   <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
@@ -144,106 +104,37 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ totalVaga
               ),
             },
           }}
-          selectProps={{
-            options: options,
-            placeholder: 'Função específica',
-            // Caso seja selecionada a opção "Outros" deverá ser disponibilizado um campo obrigatório de 100 caracteres.
-            onChange(value, _option) {
-              value.includes('g16') && setMostrarInputFuncaoEspecifica(true);
-            },
-            dropdownRender(menu) {
-              return (
-                <>
-                  {menu}
-                  {mostrarInputFuncaoEspecifica && (
-                    <>
-                      <Divider />
-                      <Input type='text' maxLength={100} placeholder='Função específica' />
-                    </>
-                  )}
-                </>
-              );
-            },
+          inputProps={{
+            id: CF_INPUT_QUANTIDADE_VAGAS_TURMA,
+            placeholder: 'Vagas por turma',
+            maxLength: 4,
           }}
         />
       </Col>
-      <Row gutter={24} justify={'space-between'}>
-        <Col span={12}>
-          <SelectMultiple
-            formItemProps={{
-              name: 'criteriosValidacaoInscricoes',
-              label: 'Critérios para validação das inscrições',
-              rules: [{ required: true }],
-            }}
-            selectProps={{
-              options: options,
-              placeholder: 'Critérios para validação das inscrições',
-            }}
-          />
-        </Col>
-        <Col span={12}>
-          <SelectMultiple
-            formItemProps={{
-              name: 'vagasRemanescentes',
-              label: 'Em caso de vagas remanescentes',
-              tooltip: {
-                title:
-                  'Havendo vagas remanescentes, poderão ser contemplados os seguintes cargos e/ou funções como público-alvo.',
-                icon: (
-                  <Tooltip>
-                    <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-                  </Tooltip>
-                ),
-              },
-            }}
-            selectProps={{
-              options: options,
-              placeholder: 'Em caso de vagas remanescentes',
-            }}
-          />
-        </Col>
-      </Row>
-      <Row gutter={24} justify={'space-between'}>
-        <Col span={8}>
-          <InputNumero
-            formItemProps={{
-              label: 'Quantidade de turmas',
-              name: 'quantidadeTurmas',
-              rules: [{ required: true }],
-            }}
-            inputProps={{ id: '', placeholder: 'Quantidade de turmas', maxLength: 3 }}
-          />
-        </Col>
-        <Col span={8}>
-          <InputNumero
-            formItemProps={{
-              label: 'Vagas por turma',
-              name: 'vagasTurma',
-              rules: [{ required: true }],
-              tooltip: {
-                title:
-                  'Tanto nos cursos presenciais, quanto nos cursos a distância, a proporção máxima aceita será de 50 (cinquenta) cursistas por turma/tutor. Nos eventos presenciais, a quantidade de participantes poderá se adequar à capacidade do espaço. Nos eventos a distância/híbridos, a proporção máxima aceita será de 200 (duzentas) pessoas, sendo a proporção máxima de um tutor para 50 (cinquenta) participantes.',
-                icon: (
-                  <Tooltip>
-                    <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-                  </Tooltip>
-                ),
-              },
-            }}
-            inputProps={{ id: '', placeholder: 'Vagas por turma', maxLength: 4 }}
-          />
-        </Col>
-        <Col span={8}>
-          <InputNumero
-            formItemProps={{
-              label: 'Total de vagas',
-              name: 'totalVagas',
-            }}
-            inputProps={{ id: '', placeholder: totalVagas, disabled: true }}
-          />
-        </Col>
-      </Row>
-    </Col>
+      <Col xs={24} sm={12} md={8}>
+        <Form.Item shouldUpdate>
+          {(form) => {
+            const quantidadeTurmas = form.getFieldValue('quantidadeTurmas') || 0;
+            const quantidadeVagasTurma = form.getFieldValue('quantidadeVagasTurma') || 0;
+
+            const totalVagas = quantidadeTurmas * quantidadeVagasTurma;
+
+            return (
+              <InputNumero
+                formItemProps={{
+                  label: 'Total de vagas',
+                }}
+                inputProps={{
+                  id: CF_INPUT_TOTAL_VAGAS,
+                  value: totalVagas?.toString(),
+                  disabled: true,
+                }}
+              />
+            );
+          }}
+        </Form.Item>
+      </Col>
+    </Row>
   );
 };
 

@@ -1,6 +1,6 @@
 import { Col, Row, Typography } from 'antd';
 import { FC } from 'react';
-import { EntidadeBaseAuditavel } from '~/core/dto/auditoria-dto';
+import { AuditoriaDTO } from '~/core/dto/auditoria-dto';
 import { formatarDataHoraAuditoria } from '~/core/utils/functions';
 
 interface InfoAuditoriaProps {
@@ -11,7 +11,7 @@ interface InfoAuditoriaProps {
 }
 
 interface AuditoriaProps {
-  dados: EntidadeBaseAuditavel | undefined;
+  dados: AuditoriaDTO | undefined;
 }
 
 const InfoAuditoria: FC<InfoAuditoriaProps> = ({ label, autor, rf, data }) => {
