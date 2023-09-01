@@ -33,8 +33,8 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
     api
       .get<PaginacaoResultadoDTO<T[]>>(url, {
         headers: {
-          totalPaginas: tableParams.pagination?.current,
-          totalRegistros: tableParams.pagination?.pageSize,
+          numeroPagina: tableParams.pagination?.current,
+          numeroRegistros: tableParams.pagination?.pageSize,
         },
         params: filters,
         paramsSerializer: {
