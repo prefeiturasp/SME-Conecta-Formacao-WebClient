@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Row, notification } from 'antd';
+import { Button, Col, Divider, Form, Row, StepProps, notification } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -23,6 +23,7 @@ import {
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   REGISTRO_EXCLUIDO_SUCESSO,
 } from '~/core/constants/mensagens';
+import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro } from '~/core/enum/situacao-registro';
@@ -40,17 +41,30 @@ const FormCadastroDePropostas: React.FC = () => {
   const paramsRoute = useParams();
   const [form] = useForm();
 
-  const [current, setCurrent] = useState(0);
+  const [currentStep, setCurrentStep] = useState<StepPropostaEnum>(
+    StepPropostaEnum.InformacoesGerais,
+  );
+
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
   const id = paramsRoute?.id || 0;
 
-  const stepTitles = [
-    'Informações gerais',
-    'Datas',
-    'Detalhamento',
-    'Profissionais',
-    'Certificação',
+  const stepsProposta: StepProps[] = [
+    {
+      title: STEP_PROPOSTA.INFORMACOES_GERAIS.TITULO,
+    },
+    {
+      title: STEP_PROPOSTA.DATAS.TITULO,
+    },
+    {
+      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
+    },
+    {
+      title: STEP_PROPOSTA.PROFISSIONAIS.TITULO,
+    },
+    {
+      title: STEP_PROPOSTA.CERTIFICACAO.TITULO,
+    },
   ];
 
   const validateMessages: FormProps['validateMessages'] = {
@@ -190,13 +204,13 @@ const FormCadastroDePropostas: React.FC = () => {
   const proximoPasso = async () => {
     const salvou = await salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
     if (salvou) {
-      setCurrent(current + 1);
+      setCurrentStep(currentStep + 1);
     }
   };
 
   const passoAnterior = async () => {
     // TODO
-    current >= 1 && setCurrent(current - 1);
+    currentStep >= StepPropostaEnum.Datas && setCurrentStep(currentStep - 1);
   };
 
   const salvarRascunho = () => {
@@ -282,7 +296,7 @@ const FormCadastroDePropostas: React.FC = () => {
                   onClick={passoAnterior}
                   id={CF_BUTTON_STEP_ANTERIOR}
                   style={{ fontWeight: 700 }}
-                  disabled={current < 1}
+                  disabled={currentStep < StepPropostaEnum.Datas}
                 >
                   Passo anterior
                 </Button>
@@ -293,7 +307,7 @@ const FormCadastroDePropostas: React.FC = () => {
                   onClick={proximoPasso}
                   id={CF_BUTTON_PROXIMO_STEP}
                   style={{ fontWeight: 700 }}
-                  disabled={current >= 4}
+                  disabled={currentStep >= StepPropostaEnum.Certificacao}
                 >
                   Próximo passo
                 </Button>
@@ -316,12 +330,12 @@ const FormCadastroDePropostas: React.FC = () => {
           <Divider orientation='left' />
 
           <Steps
-            current={current}
-            items={stepTitles.map((title) => ({ title }))}
-            onChange={(value) => setCurrent(value)}
+            current={currentStep}
+            items={stepsProposta}
+            onChange={(value) => setCurrentStep(value)}
             style={{ marginBottom: 55 }}
           />
-          {current === 0 ? (
+          {currentStep === StepPropostaEnum.InformacoesGerais ? (
             <>
               <FormInformacoesGerais />
               <Auditoria dados={formInitialValues?.auditoria} />
