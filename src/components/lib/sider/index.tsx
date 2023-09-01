@@ -84,6 +84,10 @@ const Sider: React.FC = () => {
           <FormOutlined size={24} />
           <div>Área promotora</div>
         </MenuGroup>
+        <MenuGroup onClick={() => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO)}>
+          <FormOutlined size={24} />
+          <div>Cadastro de propostas</div>
+        </MenuGroup>
       </MenuContainer>
     </SiderContainer>
   );
