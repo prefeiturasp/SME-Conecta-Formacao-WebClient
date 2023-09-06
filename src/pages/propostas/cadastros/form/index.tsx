@@ -35,6 +35,8 @@ import {
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
 import FormInformacoesGerais from './steps/informacoes-gerais';
+import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -69,6 +71,19 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const validateMessages: FormProps['validateMessages'] = {
     required: 'Campo obrigatório',
+  };
+
+  const carregarValoresDefault = () => {
+    const valoresIniciais: PropostaFormDTO = {
+      tipoFormacao: TipoFormacao.Curso,
+      tipoInscricao: TipoInscricao.Optativa,
+      publicosAlvo: [],
+      funcoesEspecificas: [],
+      vagasRemanecentes: [],
+      criteriosValidacaoInscricao: [],
+    };
+
+    setFormInitialValues(valoresIniciais);
   };
 
   const carregarDados = useCallback(async () => {
@@ -112,6 +127,8 @@ const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     if (id) {
       carregarDados();
+    } else {
+      carregarValoresDefault();
     }
   }, [carregarDados, id]);
 
@@ -337,7 +354,7 @@ const FormCadastroDePropostas: React.FC = () => {
           />
           {currentStep === StepPropostaEnum.InformacoesGerais ? (
             <>
-              <FormInformacoesGerais />
+              <FormInformacoesGerais form={form} />
               <Auditoria dados={formInitialValues?.auditoria} />
             </>
           ) : (

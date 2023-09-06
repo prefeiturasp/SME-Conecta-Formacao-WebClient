@@ -3,7 +3,6 @@ import { Tooltip } from 'antd';
 import { AbstractCheckboxGroupProps } from 'antd/es/checkbox/Group';
 import React, { useEffect, useState } from 'react';
 import { CF_RADIO_TIPO_INSCRICAO } from '~/core/constants/ids/radio';
-import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { obterTipoInscricao } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 import Radio from '../../radio';
@@ -43,7 +42,6 @@ const RadioTipoInscricao: React.FC = () => {
       radioGroupProps={{
         id: CF_RADIO_TIPO_INSCRICAO,
         options,
-        defaultValue: TipoInscricao.Optativa,
       }}
     />
   );
