@@ -19,21 +19,18 @@ import {
 import { Colors } from '~/core/styles/colors';
 
 type FormInformacoesGeraisProps = {
-  form : FormInstance
-}
+  form: FormInstance;
+};
 
-const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({form}) => {
-
-  var tipoFormacao = Form.useWatch('tipoFormacao', form);
-
+const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) => {
   return (
     <Row gutter={[16, 8]}>
       <Col xs={24} sm={10} md={7} lg={6} xl={4}>
-        <RadioTipoFormacao  />
+        <RadioTipoFormacao />
       </Col>
 
       <Col xs={24} sm={14} md={7} lg={11} xl={15}>
-        <SelectModalidades tipoFormacao={tipoFormacao}/>
+        <SelectModalidades form={form} />
       </Col>
 
       <Col xs={24} sm={10} md={9} lg={7} xl={5}>

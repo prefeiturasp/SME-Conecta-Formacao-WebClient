@@ -36,6 +36,7 @@ import {
 } from '~/core/services/proposta-service';
 import FormInformacoesGerais from './steps/informacoes-gerais';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -75,14 +76,15 @@ const FormCadastroDePropostas: React.FC = () => {
   const carregarValoresDefault = () => {
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
+      tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
       funcoesEspecificas: [],
       vagasRemanecentes: [],
-      criteriosValidacaoInscricao: []
+      criteriosValidacaoInscricao: [],
     };
 
     setFormInitialValues(valoresIniciais);
-  }
+  };
 
   const carregarDados = useCallback(async () => {
     const resposta = await obterPropostaPorId(id);
@@ -365,4 +367,3 @@ const FormCadastroDePropostas: React.FC = () => {
 };
 
 export default FormCadastroDePropostas;
-
