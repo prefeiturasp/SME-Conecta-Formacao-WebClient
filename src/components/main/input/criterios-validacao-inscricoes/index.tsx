@@ -5,10 +5,8 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_CRITERIOS_VALIDACOES_INSCRICAO_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_CRITERIOS_VALIDACOES_INSCRICAO } from '~/core/constants/ids/select';
-import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 import { obterCriterioValidacaoInscricao } from '~/core/services/proposta-service';
 import {
-  validarOnChangeMultiSelectOutros,
   validarOnChangeMultiSelectUnico,
 } from '~/core/utils/functions';
 
@@ -22,6 +20,7 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
         label: item.nome,
         value: item.id,
         unico: item.unico,
+        outros: item.outros,
       }));
       setOptions(newOptions);
     } else {
@@ -43,8 +42,8 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
         let campoOutros = null;
 
         if (criteriosValidacaoInscricao?.length) {
-          const ehOutros = criteriosValidacaoInscricao.find(
-            (value) => value === OpcaoListagem.Outros,
+          const ehOutros = options.some(
+            (option: any) => criteriosValidacaoInscricao.includes(option.value) && option.outros,
           );
 
           if (ehOutros) {
@@ -79,22 +78,17 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
                 placeholder='Critérios para validação das inscrições'
                 id={CF_SELECT_CRITERIOS_VALIDACOES_INSCRICAO}
                 onChange={(value) => {
-                  let newValues = validarOnChangeMultiSelectOutros(
-                    value,
-                    criteriosValidacaoInscricao,
-                  );
-
                   const opcoesAtuais = options.filter((option: any) => {
                     return criteriosValidacaoInscricao.includes(option.value);
                   });
 
                   const opcoesNovas = options.filter((option: any) => {
-                    return newValues.includes(option.value);
+                    return value.includes(option.value);
                   });
 
-                  newValues = validarOnChangeMultiSelectUnico(opcoesNovas, opcoesAtuais);
+                  const values = validarOnChangeMultiSelectUnico(opcoesNovas, opcoesAtuais);
 
-                  form.setFieldValue('criteriosValidacaoInscricao', newValues);
+                  form.setFieldValue('criteriosValidacaoInscricao', values);
                   form.setFieldValue('criterioValidacaoInscricaoOutros', '');
                 }}
               />
