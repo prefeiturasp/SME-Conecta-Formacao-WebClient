@@ -27,7 +27,7 @@ const ListCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormListDTO>();
   const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
-  //const onClickNovo = () => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO);
+  const onClickNovo = () => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO);
 
   const buscar = () => {
     console.log(form.getFieldsValue());
@@ -60,7 +60,7 @@ const ListCadastroDePropostas: React.FC = () => {
                   type='primary'
                   htmlType='submit'
                   id={CF_BUTTON_NOVO}
-                  onClick={() => buscar()}
+                  onClick={() => onClickNovo()}
                   style={{ fontWeight: 700 }}
                 >
                   {'Novo'}
