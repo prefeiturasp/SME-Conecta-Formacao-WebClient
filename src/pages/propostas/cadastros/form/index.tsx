@@ -257,8 +257,9 @@ const FormCadastroDePropostas: React.FC = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
         content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
+        async onOk() {
+          await salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
+          navigate(ROUTES.PRINCIPAL);
         },
         onCancel() {
           navigate(ROUTES.PRINCIPAL);
