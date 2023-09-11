@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Row, StepProps, notification } from 'antd';
+import { Button, Card, Col, Divider, Form, Row, Space, StepProps, notification } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import Steps from '~/components/main/steps';
 import Auditoria from '~/components/main/text/auditoria';
+import styled from 'styled-components';
 import {
   CF_BUTTON_CANCELAR,
   CF_BUTTON_EXCLUIR,
@@ -35,6 +36,8 @@ import {
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
 import FormInformacoesGerais from './steps/informacoes-gerais';
+import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
+import { InformacoesCadastranteDto } from '~/core/dto/informacoes-cadastrante-dto';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -251,7 +254,28 @@ const FormCadastroDePropostas: React.FC = () => {
       navigate(ROUTES.PRINCIPAL);
     }
   };
-
+  const dadosCadastrante: InformacoesCadastranteDto = {
+    nome: 'Marlena da Silva',
+    email: 'marlena.silva@sme.prefeitura.sp.gov.br',
+    areaPromotora: 'NTC',
+    tipo: 'Rede Indireta',
+    telefone: '(11) 99647-8503',
+    emailAreaPromotora: 'marlena.silva@sme.prefeitura.sp.gov.br',
+    roteiro: `Este roteiro tem como finalidade auxiliar na elaboração das propostas formativas no âmbito da Rede Municipal de Ensino.
+    O tema é prioritário para o desenvolvimento dos programas e projetos da SME?
+    A carga horária apresentada está em acordo com o disposto no Edital NTF 2023?
+    A justificativa apresenta diagnóstico da realidade local e/ou necessidade de continuidade ou aprofundamento no tema?
+    Há articulação entre objetivos, tema, metodologia, conteúdo, forma de abordagem e carga horária?
+    O conteúdo programático está alinhado a um ou mais princípios do Edital NTF 2023, com foco na melhoria das aprendizagens dos estudantes?
+    A carga horária possibilita a exploração do conteúdo apresentado de forma satisfatória, permitindo o aprofundamento na temática?
+    A metodologia e quantidade de participantes por turma são adequadas para promover a aquisição de saberes pelos cursistas e estão em acordo com o Edital NTF 2023?
+    A proposta tem como princípio metodológico o uso da problematização?
+    Os procedimentos metodológicos favorecem a relação entre a teoria e a prática profissional?
+    As referências bibliográficas atendem ao conteúdo programático?
+    Os objetivos desta formação serão atingidos considerando o público-alvo proposto?
+    O corpo docente tem formação ou experiência na temática do curso?
+    No caso das formações a distância, a relação entre tutores e cursistas no ambiente virtual de aprendizagem permite a mediação satisfatória?`,
+  };
   return (
     <Col>
       <Form
@@ -326,6 +350,9 @@ const FormCadastroDePropostas: React.FC = () => {
             </Row>
           </Col>
         </HeaderPage>
+        <br />
+        <CardInformacoesCadastrante dadosCadastrante={dadosCadastrante} />
+        <br />
         <CardContent>
           <Divider orientation='left' />
 
