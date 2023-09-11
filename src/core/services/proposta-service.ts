@@ -11,6 +11,9 @@ const obterCriterioValidacaoInscricao = (): Promise<ApiResult<CriterioValidacaoI
 const obterModalidades = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/modalidades`);
 
+const obterSituacoes = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/situacao`);
+
 const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-formacao`);
 
@@ -41,4 +44,5 @@ export {
   obterPropostaPorId,
   obterTipoFormacao,
   obterTipoInscricao,
+  obterSituacoes,
 };
