@@ -20,6 +20,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({ form, required = 
 
   const obterDados = async (tipoFormacao: TipoFormacao) => {
     if (tipoFormacao) {
+      tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
       const resposta = await obterModalidades(tipoFormacao);
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
@@ -30,7 +31,6 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({ form, required = 
         return;
       }
     }
-
     setOptions([]);
   };
 

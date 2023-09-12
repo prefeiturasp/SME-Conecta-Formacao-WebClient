@@ -17,7 +17,6 @@ const SelectSituacaoProposta: React.FC = () => {
     } else {
       setOptions([]);
     }
-    setOptions([]);
   };
 
   useEffect(() => {
