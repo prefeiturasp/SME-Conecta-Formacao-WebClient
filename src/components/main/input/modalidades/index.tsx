@@ -26,6 +26,8 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({ form }) => {
           label: item.descricao,
           value: item.id,
         }));
+
+        form.setFieldValue('modalidade', []);
         setOptions(newOptions);
         return;
       }
