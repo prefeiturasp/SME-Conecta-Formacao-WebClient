@@ -8,7 +8,11 @@ import { CF_SELECT_PUBLICO_ALVO } from '~/core/constants/ids/select';
 import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
 import { Colors } from '~/core/styles/colors';
 
-const SelectPublicoAlvo: React.FC = () => {
+type SelectPublicoAlvoProps = {
+  required?: boolean | true;
+};
+
+const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({ required = true }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -29,7 +33,7 @@ const SelectPublicoAlvo: React.FC = () => {
     <Form.Item
       label='Público alvo'
       name='publicosAlvo'
-      rules={[{ required: true }]}
+      rules={[{ required: required }]}
       tooltip={{
         title: 'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
         icon: (

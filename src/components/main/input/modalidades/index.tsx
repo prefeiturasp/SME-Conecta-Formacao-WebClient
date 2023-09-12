@@ -8,7 +8,11 @@ import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
 import { obterModalidades } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
-const SelectModalidades: React.FC = () => {
+type SelectModalidadesProps = {
+  required?: boolean | true;
+};
+
+const SelectModalidades: React.FC<SelectModalidadesProps> = ({ required = true }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -29,7 +33,7 @@ const SelectModalidades: React.FC = () => {
     <Form.Item
       label='Modalidade'
       name='modalidade'
-      rules={[{ required: true }]}
+      rules={[{ required: required }]}
       tooltip={{
         title:
           'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',

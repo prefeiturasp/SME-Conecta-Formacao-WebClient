@@ -244,11 +244,11 @@ const FormCadastroDePropostas: React.FC = () => {
           salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
         },
         onCancel() {
-          navigate(ROUTES.PRINCIPAL);
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
         },
       });
     } else {
-      navigate(ROUTES.PRINCIPAL);
+      navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
 
