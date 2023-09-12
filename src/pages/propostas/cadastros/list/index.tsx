@@ -29,9 +29,6 @@ const ListCadastroDePropostas: React.FC = () => {
   const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
   const onClickNovo = () => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO);
 
-  const buscar = () => {
-    console.log(form.getFieldsValue());
-  };
   const carregarValoresDefault = () => {
     const valoreIniciais: PropostaFormListDTO = {
       areaPromotora: 0,
@@ -81,7 +78,7 @@ const ListCadastroDePropostas: React.FC = () => {
                     <SelectAreaPromotora />
                   </Col>
                   <Col xs={24} sm={10} md={7} lg={7} xl={10}>
-                    <SelectModalidades required={false} />
+                    <SelectModalidades required={false} form={form} />
                   </Col>
                   <Col span={8}>
                     <SelectPublicoAlvo required={false} />
