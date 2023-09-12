@@ -1,7 +1,6 @@
 import { AbstractCheckboxGroupProps } from 'antd/es/checkbox/Group';
 import React, { useEffect, useState } from 'react';
 import { CF_RADIO_TIPO_FORMACAO } from '~/core/constants/ids/radio';
-import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { obterTipoFormacao } from '~/core/services/proposta-service';
 import Radio from '../../radio';
 
@@ -30,8 +29,7 @@ const RadioTipoFormacao: React.FC = () => {
       }}
       radioGroupProps={{
         id: CF_RADIO_TIPO_FORMACAO,
-        options,
-        defaultValue: TipoFormacao.Curso,
+        options
       }}
     />
   );

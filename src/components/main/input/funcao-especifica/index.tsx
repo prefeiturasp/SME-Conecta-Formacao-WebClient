@@ -6,7 +6,6 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_FUNCAO_ESPECIFICA_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_FUNCAO_ESPECIFICA } from '~/core/constants/ids/select';
-import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { Colors } from '~/core/styles/colors';
 import { validarOnChangeMultiSelectOutros } from '~/core/utils/functions';
@@ -17,7 +16,11 @@ const SelectFuncaoEspecifica: React.FC = () => {
   const obterDados = async () => {
     const resposta = await obterFuncaoEspecifica();
     if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item) => ({ label: item.nome, value: item.id }));
+      const newOptions = resposta.dados.map((item) => ({
+        label: item.nome,
+        value: item.id,
+        outros: item.outros,
+      }));
       setOptions(newOptions);
     } else {
       setOptions([]);
@@ -36,7 +39,9 @@ const SelectFuncaoEspecifica: React.FC = () => {
         let campoOutros = null;
 
         if (funcoesEspecificas?.length) {
-          const ehOutros = funcoesEspecificas.find((value) => value === OpcaoListagem.Outros);
+          const ehOutros = options.some(
+            (option: any) => funcoesEspecificas.includes(option.value) && option.outros,
+          );
 
           if (ehOutros) {
             campoOutros = (

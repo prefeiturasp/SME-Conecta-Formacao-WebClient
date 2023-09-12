@@ -1,5 +1,5 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Col, Form, Input, Row, Tooltip } from 'antd';
+import { Col, Form, FormInstance, Input, Row, Tooltip } from 'antd';
 
 import React from 'react';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
@@ -18,7 +18,11 @@ import {
 } from '~/core/constants/ids/input';
 import { Colors } from '~/core/styles/colors';
 
-const FormInformacoesGerais: React.FC = () => {
+type FormInformacoesGeraisProps = {
+  form: FormInstance;
+};
+
+const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) => {
   return (
     <Row gutter={[16, 8]}>
       <Col xs={24} sm={10} md={7} lg={6} xl={4}>
@@ -26,7 +30,7 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col xs={24} sm={14} md={7} lg={11} xl={15}>
-        <SelectModalidades />
+        <SelectModalidades form={form} />
       </Col>
 
       <Col xs={24} sm={10} md={9} lg={7} xl={5}>
