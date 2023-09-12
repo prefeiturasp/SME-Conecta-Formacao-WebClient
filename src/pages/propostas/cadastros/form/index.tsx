@@ -262,11 +262,11 @@ const FormCadastroDePropostas: React.FC = () => {
           navigate(ROUTES.PRINCIPAL);
         },
         onCancel() {
-          navigate(ROUTES.PRINCIPAL);
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
         },
       });
     } else {
-      navigate(ROUTES.PRINCIPAL);
+      navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
 
