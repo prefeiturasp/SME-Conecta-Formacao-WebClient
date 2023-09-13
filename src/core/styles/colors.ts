@@ -5,6 +5,8 @@ const Colors = {
   ERROR: '#B40C02',
   TEXT: '#42474A',
   TOOLTIP: '#086397',
+  TEXTTOOLTIP: '#3a3737',
+  BACKGROUND_DIV: '#DADADA',
 };
 
 const BoxShadow = {
