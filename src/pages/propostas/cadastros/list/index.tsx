@@ -3,6 +3,7 @@ import { useForm } from 'antd/es/form/Form';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
+import DataTableOrdenacao from '~/components/lib/card-table-ordenacao';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
@@ -28,7 +29,14 @@ const ListCadastroDePropostas: React.FC = () => {
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormListDTO>();
   const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
   const onClickNovo = () => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO);
-
+  const [filters, setFilters] = useState({ nome: '' });
+  const urlApiBase = '';
+  const columns: ColumnsType<CadastroAuxiliarDTO> = [
+    {
+      title: 'Nome',
+      dataIndex: 'nome',
+    },
+  ];
   const carregarValoresDefault = () => {
     const valoreIniciais: PropostaFormListDTO = {
       areaPromotora: 0,
@@ -133,6 +141,9 @@ const ListCadastroDePropostas: React.FC = () => {
                   </Col>
                   <Col xs={24} sm={10} md={7} lg={7} xl={10}>
                     <SelectSituacaoProposta />
+                  </Col>
+                  <Col span={24}>
+                    <DataTableOrdenacao filters={filters} url={urlApiBase} columns={columns} />
                   </Col>
                 </Row>
               </>
