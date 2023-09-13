@@ -37,6 +37,7 @@ import {
 import FormInformacoesGerais from './steps/informacoes-gerais';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
+import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -269,7 +270,6 @@ const FormCadastroDePropostas: React.FC = () => {
       navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
-
   return (
     <Col>
       <Form
@@ -344,6 +344,9 @@ const FormCadastroDePropostas: React.FC = () => {
             </Row>
           </Col>
         </HeaderPage>
+        <br />
+        <CardInformacoesCadastrante />
+        <br />
         <CardContent>
           <Divider orientation='left' />
 
