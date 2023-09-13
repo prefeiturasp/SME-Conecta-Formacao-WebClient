@@ -1,4 +1,5 @@
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
+import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
@@ -10,6 +11,9 @@ const obterCriterioValidacaoInscricao = (): Promise<ApiResult<CriterioValidacaoI
 
 const obterModalidades = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/modalidades`);
+
+const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/infornacoes-cadastrante`);
 
 const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-formacao`);
@@ -41,4 +45,5 @@ export {
   obterPropostaPorId,
   obterTipoFormacao,
   obterTipoInscricao,
+  obterDadosCadastrante,
 };

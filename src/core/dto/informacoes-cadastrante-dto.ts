@@ -1,9 +1,8 @@
-export type InformacoesCadastranteDto = {
-  nome: string;
-  email: string;
+export interface PropostaInformacoesCadastranteDTO {
+  usuarioLogadoNome: string;
+  usuarioLogadoEmail: string;
   areaPromotora: string;
-  tipo: string;
-  telefone: string;
-  emailAreaPromotora: string;
-  roteiro: string;
-};
+  areaPromotoraTipo: string;
+  areaPromotoraTelefones: string;
+  areaPromotoraEmails: string;
+}
