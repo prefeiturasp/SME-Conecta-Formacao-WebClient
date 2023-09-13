@@ -9,19 +9,17 @@ dayjs.extend(weekday);
 dayjs.extend(localeData);
 dayjs.locale(locale);
 
-const DatePickerPeriodo: FC = () => {
+type DatePickerPeriodoProps = {
+  changeFunction: VoidFunction;
+};
+
+const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({ changeFunction }) => {
   const { RangePicker } = DatePicker;
   const dateFormat = 'DD/MM/YYYY';
-  const dataAtual = new Date();
-  const dataFinal = new Date().setDate(dataAtual.getDate() + 1);
   return (
     <>
       <Form.Item label='Período de realização' name='periodoRealizacao'>
-        <RangePicker
-          locale={localeDatePicker}
-          defaultValue={[dayjs(dataAtual, dateFormat), dayjs(dataFinal, dateFormat)]}
-          format={dateFormat}
-        />
+        <RangePicker onChange={changeFunction} locale={localeDatePicker} format={dateFormat} />
       </Form.Item>
     </>
   );

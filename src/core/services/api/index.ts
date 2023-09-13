@@ -146,10 +146,14 @@ export type ApiResult<T> = {
   mensagens: string[];
 };
 
-export const obterRegistro = async <T>(url: string): Promise<ApiResult<T>> => {
+export const obterRegistro = async <T>(url: string, params?: any): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
-    .get(url)
+    .get(url, {
+      params: {
+        params: params,
+      },
+    })
     .then((response: AxiosResponse<T>): ApiResult<T> => {
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })
