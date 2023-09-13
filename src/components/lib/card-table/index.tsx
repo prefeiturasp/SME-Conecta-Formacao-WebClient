@@ -42,7 +42,6 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
             return queryString.stringify(params, {
               skipNull: true,
               skipEmptyString: true,
-              arrayFormat: 'bracket',
             });
           },
         },

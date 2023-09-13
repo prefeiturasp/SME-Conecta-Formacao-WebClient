@@ -1,6 +1,6 @@
 import { InfoCircleFilled } from '@ant-design/icons';
 import { Form, FormInstance, Tooltip } from 'antd';
-import { DefaultOptionType } from 'antd/es/select';
+import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
@@ -12,15 +12,22 @@ import { Colors } from '~/core/styles/colors';
 type SelectModalidadesProps = {
   form: FormInstance;
   required?: boolean | true;
+  exibirTooltip?: boolean | true;
+  selectProps: SelectProps;
 };
 
-const SelectModalidades: React.FC<SelectModalidadesProps> = ({ form, required = true }) => {
+const SelectModalidades: React.FC<SelectModalidadesProps> = ({
+  form,
+  selectProps,
+  required = true,
+  exibirTooltip = true,
+}) => {
   const tipoFormacao = Form.useWatch('tipoFormacao', form);
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async (tipoFormacao: TipoFormacao) => {
+    tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
     if (tipoFormacao) {
-      tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
       const resposta = await obterModalidades(tipoFormacao);
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
@@ -31,9 +38,16 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({ form, required = 
         return;
       }
     }
-    setOptions([]);
   };
-
+  const iconTooltip = exibirTooltip ? (
+    <>
+      <Tooltip>
+        <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+      </Tooltip>
+    </>
+  ) : (
+    <></>
+  );
   useEffect(() => {
     obterDados(tipoFormacao);
   }, [tipoFormacao]);
@@ -46,14 +60,15 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({ form, required = 
       tooltip={{
         title:
           'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
-        icon: (
-          <Tooltip>
-            <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-          </Tooltip>
-        ),
+        icon: iconTooltip,
       }}
     >
-      <Select options={options} placeholder='Modalidade' id={CF_SELECT_MODALIDADE} />
+      <Select
+        {...selectProps}
+        options={options}
+        placeholder='Modalidade'
+        id={CF_SELECT_MODALIDADE}
+      />
     </Form.Item>
   );
 };

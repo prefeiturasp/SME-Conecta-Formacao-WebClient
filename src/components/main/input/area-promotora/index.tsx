@@ -1,12 +1,16 @@
 import { Form } from 'antd';
-import { DefaultOptionType } from 'antd/es/select';
+import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_AREA_PROMOTORA } from '~/core/constants/ids/select';
 import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service';
 
-const SelectAreaPromotora: React.FC = () => {
+type SelectAreaPromotoraProps = {
+  selectProps: SelectProps;
+};
+
+const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({ selectProps }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -24,9 +28,16 @@ const SelectAreaPromotora: React.FC = () => {
   }, []);
 
   return (
-    <Form.Item label='Área promotora' name='areaPromotora' rules={[{ required: false }]}>
-      <Select options={options} placeholder='Área promotora' id={CF_SELECT_AREA_PROMOTORA} />
-    </Form.Item>
+    <>
+      <Form.Item label='Área promotora' name='areaPromotora' rules={[{ required: false }]}>
+        <Select
+          {...selectProps}
+          options={options}
+          placeholder='Área promotora'
+          id={CF_SELECT_AREA_PROMOTORA}
+        />
+      </Form.Item>
+    </>
   );
 };
 
