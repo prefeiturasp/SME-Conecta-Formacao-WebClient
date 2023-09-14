@@ -57,10 +57,10 @@ const FormCadastroDePropostas: React.FC = () => {
       title: STEP_PROPOSTA.INFORMACOES_GERAIS.TITULO,
     },
     {
-      title: STEP_PROPOSTA.DATAS.TITULO,
+      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
     },
     {
-      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
+      title: STEP_PROPOSTA.DATAS.TITULO,
     },
     {
       title: STEP_PROPOSTA.PROFISSIONAIS.TITULO,
