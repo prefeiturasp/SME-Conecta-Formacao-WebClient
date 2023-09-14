@@ -1,5 +1,4 @@
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
-import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { TipoFormacao } from '../enum/tipo-formacao';
@@ -15,9 +14,6 @@ const obterModalidades = (tipoFormacao: TipoFormacao): Promise<ApiResult<Retorno
 
 const obterSituacoes = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/situacao`);
-
-const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/infornacoes-cadastrante`);
 
 const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-formacao`);
@@ -50,5 +46,4 @@ export {
   obterTipoFormacao,
   obterTipoInscricao,
   obterSituacoes,
-  obterDadosCadastrante,
 };

@@ -37,7 +37,6 @@ import {
 import FormInformacoesGerais from './steps/informacoes-gerais';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
-import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -263,11 +262,11 @@ const FormCadastroDePropostas: React.FC = () => {
           navigate(ROUTES.PRINCIPAL);
         },
         onCancel() {
-          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+          navigate(ROUTES.PRINCIPAL);
         },
       });
     } else {
-      navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+      navigate(ROUTES.PRINCIPAL);
     }
   };
   return (
@@ -344,9 +343,6 @@ const FormCadastroDePropostas: React.FC = () => {
             </Row>
           </Col>
         </HeaderPage>
-        <br />
-        <CardInformacoesCadastrante />
-        <br />
         <CardContent>
           <Divider orientation='left' />
 
