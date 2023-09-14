@@ -4,7 +4,7 @@ export type PropostaPaginadaDTO = {
   areaPromotora: string;
   modalidade: string;
   nomeFormacao: string;
-  numeroHomologacao: number;
+  numeroHomologacao: number | null;
   periodoRealizacaoInicio: string | null;
   periodoRealizacaoFim: string | null;
   situacao: string;
