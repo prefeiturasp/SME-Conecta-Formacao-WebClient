@@ -19,7 +19,7 @@ const obterSituacoes = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/situacao`);
 
 const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/infornacoes-cadastrante`);
+  obterRegistro(`${URL_API_PROPOSTA}/informacoes-cadastrante`);
 
 const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-formacao`);

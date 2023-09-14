@@ -13,7 +13,7 @@ type SelectModalidadesProps = {
   form: FormInstance;
   required?: boolean | true;
   exibirTooltip?: boolean | true;
-  selectProps: SelectProps;
+  selectProps?: SelectProps;
 };
 
 const SelectModalidades: React.FC<SelectModalidadesProps> = ({

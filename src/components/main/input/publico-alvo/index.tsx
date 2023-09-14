@@ -11,7 +11,7 @@ import { Colors } from '~/core/styles/colors';
 type SelectPublicoAlvoProps = {
   required?: boolean | true;
   exibirTooltip?: boolean | true;
-  selectProps: SelectProps;
+  selectProps?: SelectProps;
 };
 
 const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
@@ -58,7 +58,7 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
         mode='multiple'
         options={options}
         placeholder='Público alvo'
-        onChange={selectProps.onChange}
+        {...selectProps}
         id={CF_SELECT_PUBLICO_ALVO}
       />
     </Form.Item>
