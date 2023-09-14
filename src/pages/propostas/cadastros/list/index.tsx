@@ -126,28 +126,28 @@ const ListCadastroDePropostas: React.FC = () => {
   }, [form]);
   return (
     <Col>
+      <HeaderPage title='Cadastro de Propostas'>
+        <Col span={24}>
+          <Row gutter={[8, 8]}>
+            <Col>
+              <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+            </Col>
+            <Col>
+              <Button
+                block
+                type='primary'
+                htmlType='submit'
+                id={CF_BUTTON_NOVO}
+                onClick={() => onClickNovo()}
+                style={{ fontWeight: 700 }}
+              >
+                {'Novo'}
+              </Button>
+            </Col>
+          </Row>
+        </Col>
+      </HeaderPage>
       <Form form={form} layout='vertical' autoComplete='off' initialValues={formInitialValues}>
-        <HeaderPage title='Cadastro de Propostas'>
-          <Col span={24}>
-            <Row gutter={[8, 8]}>
-              <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
-              </Col>
-              <Col>
-                <Button
-                  block
-                  type='primary'
-                  htmlType='submit'
-                  id={CF_BUTTON_NOVO}
-                  onClick={() => onClickNovo()}
-                  style={{ fontWeight: 700 }}
-                >
-                  {'Novo'}
-                </Button>
-              </Col>
-            </Row>
-          </Col>
-        </HeaderPage>
         <CardContent>
           <Form.Item shouldUpdate>
             {() => (
