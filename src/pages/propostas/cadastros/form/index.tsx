@@ -37,6 +37,7 @@ import {
 import FormInformacoesGerais from './steps/informacoes-gerais';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
+import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -56,10 +57,10 @@ const FormCadastroDePropostas: React.FC = () => {
       title: STEP_PROPOSTA.INFORMACOES_GERAIS.TITULO,
     },
     {
-      title: STEP_PROPOSTA.DATAS.TITULO,
+      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
     },
     {
-      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
+      title: STEP_PROPOSTA.DATAS.TITULO,
     },
     {
       title: STEP_PROPOSTA.PROFISSIONAIS.TITULO,
@@ -262,11 +263,11 @@ const FormCadastroDePropostas: React.FC = () => {
           navigate(ROUTES.PRINCIPAL);
         },
         onCancel() {
-          navigate(ROUTES.PRINCIPAL);
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
         },
       });
     } else {
-      navigate(ROUTES.PRINCIPAL);
+      navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
   return (
@@ -343,6 +344,9 @@ const FormCadastroDePropostas: React.FC = () => {
             </Row>
           </Col>
         </HeaderPage>
+        <br />
+        <CardInformacoesCadastrante />
+        <br />
         <CardContent>
           <Divider orientation='left' />
 

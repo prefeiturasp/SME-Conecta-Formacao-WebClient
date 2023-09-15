@@ -5,16 +5,16 @@ export type StepItemPropostaType = {
 
 type StepPropostaType = {
   INFORMACOES_GERAIS: StepItemPropostaType;
-  DATAS: StepItemPropostaType;
   DETALHAMENTO: StepItemPropostaType;
+  DATAS: StepItemPropostaType;
   PROFISSIONAIS: StepItemPropostaType;
   CERTIFICACAO: StepItemPropostaType;
 };
 
 export enum StepPropostaEnum {
   InformacoesGerais = 0,
-  Datas = 1,
-  Detalhamento = 2,
+  Detalhamento = 1,
+  Datas = 2,
   Profissionais = 3,
   Certificacao = 4,
 }
@@ -24,13 +24,13 @@ export const STEP_PROPOSTA: StepPropostaType = {
     NUMERO: StepPropostaEnum.InformacoesGerais,
     TITULO: 'Informações gerais',
   },
-  DATAS: {
-    NUMERO: StepPropostaEnum.Datas,
-    TITULO: 'Datas',
-  },
   DETALHAMENTO: {
     NUMERO: StepPropostaEnum.Detalhamento,
     TITULO: 'Detalhamento',
+  },
+  DATAS: {
+    NUMERO: StepPropostaEnum.Datas,
+    TITULO: 'Datas',
   },
   PROFISSIONAIS: {
     NUMERO: StepPropostaEnum.Profissionais,
