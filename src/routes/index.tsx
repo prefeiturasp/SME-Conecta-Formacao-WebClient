@@ -15,6 +15,7 @@ import FormCadastroDePropostas from '~/pages/propostas/cadastros/form';
 import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import Auth from './config/auth';
+import ListCadastroDePropostas from '~/pages/propostas/cadastros/list';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -51,6 +52,7 @@ const RoutesConfig = () => {
                 </Route>
 
                 <Route path={ROUTES.CADASTRO_DE_PROPOSTAS}>
+                  <Route path='' element={<ListCadastroDePropostas />} />
                   <Route
                     path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
                     element={<FormCadastroDePropostas />}

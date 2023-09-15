@@ -35,6 +35,9 @@ import {
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
 import FormInformacoesGerais from './steps/informacoes-gerais';
+import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { TipoInscricao } from '~/core/enum/tipo-inscricao';
+import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -54,10 +57,10 @@ const FormCadastroDePropostas: React.FC = () => {
       title: STEP_PROPOSTA.INFORMACOES_GERAIS.TITULO,
     },
     {
-      title: STEP_PROPOSTA.DATAS.TITULO,
+      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
     },
     {
-      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
+      title: STEP_PROPOSTA.DATAS.TITULO,
     },
     {
       title: STEP_PROPOSTA.PROFISSIONAIS.TITULO,
@@ -69,6 +72,19 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const validateMessages: FormProps['validateMessages'] = {
     required: 'Campo obrigatório',
+  };
+
+  const carregarValoresDefault = () => {
+    const valoresIniciais: PropostaFormDTO = {
+      tipoFormacao: TipoFormacao.Curso,
+      tipoInscricao: TipoInscricao.Optativa,
+      publicosAlvo: [],
+      funcoesEspecificas: [],
+      vagasRemanecentes: [],
+      criteriosValidacaoInscricao: [],
+    };
+
+    setFormInitialValues(valoresIniciais);
   };
 
   const carregarDados = useCallback(async () => {
@@ -112,6 +128,8 @@ const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     if (id) {
       carregarDados();
+    } else {
+      carregarValoresDefault();
     }
   }, [carregarDados, id]);
 
@@ -240,18 +258,18 @@ const FormCadastroDePropostas: React.FC = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
         content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
+        async onOk() {
+          await salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
+          navigate(ROUTES.PRINCIPAL);
         },
         onCancel() {
-          navigate(ROUTES.PRINCIPAL);
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
         },
       });
     } else {
-      navigate(ROUTES.PRINCIPAL);
+      navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
-
   return (
     <Col>
       <Form
@@ -326,6 +344,9 @@ const FormCadastroDePropostas: React.FC = () => {
             </Row>
           </Col>
         </HeaderPage>
+        <br />
+        <CardInformacoesCadastrante />
+        <br />
         <CardContent>
           <Divider orientation='left' />
 
@@ -337,7 +358,7 @@ const FormCadastroDePropostas: React.FC = () => {
           />
           {currentStep === StepPropostaEnum.InformacoesGerais ? (
             <>
-              <FormInformacoesGerais />
+              <FormInformacoesGerais form={form} />
               <Auditoria dados={formInitialValues?.auditoria} />
             </>
           ) : (

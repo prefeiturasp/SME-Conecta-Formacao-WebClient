@@ -4,4 +4,5 @@ export type CargoFuncaoDTO = {
   id: number;
   nome: string;
   tipo: CargoFuncaoTipo;
+  outros?: boolean;
 };
