@@ -89,6 +89,9 @@ const ListCadastroDePropostas: React.FC = () => {
       dataIndex: 'situacao',
     },
   ];
+  const onClickEditar = (id: number) =>
+    navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${id}`, { replace: true });
+
   const obterFiltros = () => {
     const dataInicio =
       form?.getFieldValue('periodoRealizacao') != undefined
@@ -242,7 +245,16 @@ const ListCadastroDePropostas: React.FC = () => {
                     </b>
                   </Col>
                   <Col span={24}>
-                    <DataTable filters={filters} url={url} columns={columns} />
+                    <DataTable
+                      filters={filters}
+                      url={url}
+                      columns={columns}
+                      onRow={(row) => ({
+                        onClick: () => {
+                          onClickEditar(row.id);
+                        },
+                      })}
+                    />
                   </Col>
                 </Row>
               </>
