@@ -5,6 +5,7 @@ import { TipoInscricao } from '../enum/tipo-inscricao';
 import { AuditoriaDTO } from './auditoria-dto';
 import { PropostaCriterioValidacaoInscricaoDTO } from './proposta-criterio-validacao-inscricao-dto';
 import { PropostaFuncaoEspecificaDTO } from './proposta-funcao-especifica-dto';
+import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
 import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 
@@ -23,10 +24,12 @@ export type PropostaDTO = {
   criteriosValidacaoInscricao: PropostaCriterioValidacaoInscricaoDTO[];
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoRegistro;
+  arquivoImagemDivulgacaoId?: number;
 };
 
 export type PropostaCompletoDTO = {
   auditoria: AuditoriaDTO;
+  arquivoImagemDivulgacao?: PropostaImagemDivulgacaoDTO;
 } & PropostaDTO;
 
 export type PropostaFormDTO = {
@@ -45,4 +48,5 @@ export type PropostaFormDTO = {
   criterioValidacaoInscricaoOutros?: string;
   situacao?: SituacaoRegistro;
   auditoria?: AuditoriaDTO;
+  arquivos?: any[];
 };
