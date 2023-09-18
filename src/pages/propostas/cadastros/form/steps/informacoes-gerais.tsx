@@ -10,6 +10,7 @@ import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
 import SelectVagasRemanescentes from '~/components/main/input/vagas-remanescentes';
 import InputNumero from '~/components/main/numero';
+import UploadArquivosConectaFormacao from '~/components/main/upload';
 import {
   CF_INPUT_NOME_FORMACAO,
   CF_INPUT_QUANTIDADE_TURMAS,
@@ -137,6 +138,17 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
             );
           }}
         </Form.Item>
+      </Col>
+      <Col span={24}>
+        <UploadArquivosConectaFormacao
+          form={form}
+          formItemProps={{
+            name: 'arquivos',
+            label: 'Imagem de divulgação',
+            rules: [{ required: true }],
+          }}
+          draggerProps={{ multiple: false, maxCount: 1 }}
+        />
       </Col>
     </Row>
   );
