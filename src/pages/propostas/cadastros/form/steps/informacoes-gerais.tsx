@@ -145,7 +145,6 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
           formItemProps={{
             name: 'arquivos',
             label: 'Imagem de divulgação',
-            rules: [{ required: true }],
           }}
           draggerProps={{ multiple: false, maxCount: 1 }}
         />
