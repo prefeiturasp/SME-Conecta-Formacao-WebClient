@@ -4,7 +4,11 @@ import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { PropostaInformacoesCadastranteDTO } from '~/core/dto/informacoes-cadastrante-dto';
 import { Colors } from '~/core/styles/colors';
-import { obterDadosCadastrante } from '~/core/services/proposta-service';
+import {
+  obterDadosCadastrante,
+  obterRoteiroPropostaFormativa,
+} from '~/core/services/proposta-service';
+import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 const Container = styled.div`
   .ant-card-head {
     min-height: auto;
@@ -40,9 +44,13 @@ const CardInformacoesCadastrante: FC = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [dados, setDados] = useState<PropostaInformacoesCadastranteDTO>();
-  const abrirModal = () => {
+  const [roteiro, setRoteiro] = useState<RetornoListagemDTO>();
+
+  const abrirModal = async () => {
+    await obterRoteiro();
     setOpenModal(true);
   };
+
   const obterDados = async () => {
     setLoading(true);
     const resposta = await obterDadosCadastrante();
@@ -50,6 +58,19 @@ const CardInformacoesCadastrante: FC = () => {
       setDados(resposta.dados);
     }
     setLoading(false);
+  };
+
+  const obterRoteiro = async () => {
+    if (!roteiro) {
+      setLoading(true);
+
+      const resposta = await obterRoteiroPropostaFormativa();
+      if (resposta.sucesso) {
+        setRoteiro(resposta.dados);
+      }
+
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -66,29 +87,12 @@ const CardInformacoesCadastrante: FC = () => {
           destroyOnClose
           footer={null}
           onCancel={() => setOpenModal(false)}
+          width={'auto'}
         >
-          <Typography.Text
+          <Typography
             style={{ fontSize: 16, height: 'auto', width: 'auto', textAlign: 'justify' }}
-          >
-            `Este roteiro tem como finalidade auxiliar na elaboração das propostas formativas no
-            âmbito da Rede Municipal de Ensino. O tema é prioritário para o desenvolvimento dos
-            programas e projetos da SME? A carga horária apresentada está em acordo com o disposto
-            no Edital NTF 2023? A justificativa apresenta diagnóstico da realidade local e/ou
-            necessidade de continuidade ou aprofundamento no tema? Há articulação entre objetivos,
-            tema, metodologia, conteúdo, forma de abordagem e carga horária? O conteúdo programático
-            está alinhado a um ou mais princípios do Edital NTF 2023, com foco na melhoria das
-            aprendizagens dos estudantes? A carga horária possibilita a exploração do conteúdo
-            apresentado de forma satisfatória, permitindo o aprofundamento na temática? A
-            metodologia e quantidade de participantes por turma são adequadas para promover a
-            aquisição de saberes pelos cursistas e estão em acordo com o Edital NTF 2023? A proposta
-            tem como princípio metodológico o uso da problematização? Os procedimentos metodológicos
-            favorecem a relação entre a teoria e a prática profissional? As referências
-            bibliográficas atendem ao conteúdo programático? Os objetivos desta formação serão
-            atingidos considerando o público-alvo proposto? O corpo docente tem formação ou
-            experiência na temática do curso? No caso das formações a distância, a relação entre
-            tutores e cursistas no ambiente virtual de aprendizagem permite a mediação
-            satisfatória?`
-          </Typography.Text>
+            dangerouslySetInnerHTML={{ __html: roteiro?.descricao || '' }}
+          />
         </Modal>
       ) : (
         <></>
