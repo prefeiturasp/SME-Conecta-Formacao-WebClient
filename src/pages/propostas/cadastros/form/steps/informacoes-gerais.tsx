@@ -10,6 +10,7 @@ import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
 import SelectVagasRemanescentes from '~/components/main/input/vagas-remanescentes';
 import InputNumero from '~/components/main/numero';
+import UploadArquivosConectaFormacao from '~/components/main/upload';
 import {
   CF_INPUT_NOME_FORMACAO,
   CF_INPUT_QUANTIDADE_TURMAS,
@@ -116,7 +117,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
         />
       </Col>
       <Col xs={24} sm={12} md={8}>
-        <Form.Item shouldUpdate>
+        <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
           {(form) => {
             const quantidadeTurmas = form.getFieldValue('quantidadeTurmas') || 0;
             const quantidadeVagasTurma = form.getFieldValue('quantidadeVagasTurma') || 0;
@@ -137,6 +138,16 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
             );
           }}
         </Form.Item>
+      </Col>
+      <Col span={24}>
+        <UploadArquivosConectaFormacao
+          form={form}
+          formItemProps={{
+            name: 'arquivos',
+            label: 'Imagem de divulgação',
+          }}
+          draggerProps={{ multiple: false, maxCount: 1 }}
+        />
       </Col>
     </Row>
   );

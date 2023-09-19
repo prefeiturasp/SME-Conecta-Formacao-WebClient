@@ -1,5 +1,8 @@
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
+import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
+import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
+import { PropostaPaginadaDTO } from '../dto/proposta-paginada-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
@@ -14,6 +17,9 @@ const obterModalidades = (tipoFormacao: TipoFormacao): Promise<ApiResult<Retorno
 
 const obterSituacoes = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/situacao`);
+
+const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/informacoes-cadastrante`);
 
 const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-formacao`);
@@ -36,6 +42,9 @@ const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaComp
 const deletarProposta = (id: string | number): Promise<ApiResult<boolean>> =>
   deletarRegistro(`${URL_API_PROPOSTA}/${id}`);
 
+const obterPropostaPaginada = (
+  params?: PropostaFiltrosDTO,
+): Promise<ApiResult<PropostaPaginadaDTO[]>> => obterRegistro(URL_API_PROPOSTA, params);
 export {
   alterarProposta,
   deletarProposta,
@@ -46,4 +55,6 @@ export {
   obterTipoFormacao,
   obterTipoInscricao,
   obterSituacoes,
+  obterDadosCadastrante,
+  obterPropostaPaginada,
 };

@@ -69,7 +69,6 @@ const configPadraoAutenticacao = async (
   const diff = now.diff(dayjs(dataHoraExpiracao), 'seconds');
 
   if (requestConfig.headers) {
-    requestConfig.headers['Content-Type'] = 'application/json';
     if (token) requestConfig.headers.Authorization = `Bearer ${token}`;
   }
 
@@ -146,10 +145,14 @@ export type ApiResult<T> = {
   mensagens: string[];
 };
 
-export const obterRegistro = async <T>(url: string): Promise<ApiResult<T>> => {
+export const obterRegistro = async <T>(url: string, params?: any): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
-    .get(url)
+    .get(url, {
+      params: {
+        params: params,
+      },
+    })
     .then((response: AxiosResponse<T>): ApiResult<T> => {
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })
@@ -186,10 +189,14 @@ export const alterarRegistro = async <T>(url: string, params: any): Promise<ApiR
     .finally(() => store.dispatch(setSpinning(false)));
 };
 
-export const inserirRegistro = async <T>(url: string, params: any): Promise<ApiResult<T>> => {
+export const inserirRegistro = async <T>(
+  url: string,
+  params: any,
+  config?: AxiosRequestConfig,
+): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
-    .post(url, params)
+    .post(url, params, config)
     .then((response: AxiosResponse<T>): ApiResult<T> => {
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })

@@ -1,11 +1,12 @@
 import { Button, Col, Divider, Form, Row, StepProps, notification } from 'antd';
-import { FormProps, useForm } from 'antd/es/form/Form';
+import { useForm } from 'antd/es/form/Form';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
+import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
 import Steps from '~/components/main/steps';
 import Auditoria from '~/components/main/text/auditoria';
@@ -24,9 +25,12 @@ import {
   REGISTRO_EXCLUIDO_SUCESSO,
 } from '~/core/constants/mensagens';
 import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
+import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro } from '~/core/enum/situacao-registro';
+import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
   alterarProposta,
@@ -35,8 +39,6 @@ import {
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
 import FormInformacoesGerais from './steps/informacoes-gerais';
-import { TipoFormacao } from '~/core/enum/tipo-formacao';
-import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -56,10 +58,10 @@ const FormCadastroDePropostas: React.FC = () => {
       title: STEP_PROPOSTA.INFORMACOES_GERAIS.TITULO,
     },
     {
-      title: STEP_PROPOSTA.DATAS.TITULO,
+      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
     },
     {
-      title: STEP_PROPOSTA.DETALHAMENTO.TITULO,
+      title: STEP_PROPOSTA.DATAS.TITULO,
     },
     {
       title: STEP_PROPOSTA.PROFISSIONAIS.TITULO,
@@ -68,10 +70,6 @@ const FormCadastroDePropostas: React.FC = () => {
       title: STEP_PROPOSTA.CERTIFICACAO.TITULO,
     },
   ];
-
-  const validateMessages: FormProps['validateMessages'] = {
-    required: 'Campo obrigatório',
-  };
 
   const carregarValoresDefault = () => {
     const valoresIniciais: PropostaFormDTO = {
@@ -112,12 +110,26 @@ const FormCadastroDePropostas: React.FC = () => {
         );
       }
 
+      const arquivoImagemDivulgacao = resposta?.dados?.arquivoImagemDivulgacao;
+      let arquivos: any[] = [];
+      if (arquivoImagemDivulgacao?.arquivoId) {
+        arquivos = [
+          {
+            xhr: arquivoImagemDivulgacao?.codigo,
+            name: arquivoImagemDivulgacao?.nome,
+            id: arquivoImagemDivulgacao?.arquivoId,
+            status: 'done',
+          },
+        ];
+      }
+
       const valoresIniciais: PropostaFormDTO = {
         ...resposta.dados,
         publicosAlvo,
         funcoesEspecificas,
         vagasRemanecentes,
         criteriosValidacaoInscricao,
+        arquivos,
       };
 
       setFormInitialValues(valoresIniciais);
@@ -194,6 +206,10 @@ const FormCadastroDePropostas: React.FC = () => {
       );
     }
 
+    if (clonedValues?.arquivos?.length) {
+      valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
+    }
+
     if (id) {
       response = await alterarProposta(id, valoresSalvar);
     } else {
@@ -262,11 +278,11 @@ const FormCadastroDePropostas: React.FC = () => {
           navigate(ROUTES.PRINCIPAL);
         },
         onCancel() {
-          navigate(ROUTES.PRINCIPAL);
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
         },
       });
     } else {
-      navigate(ROUTES.PRINCIPAL);
+      navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
   return (
@@ -343,6 +359,9 @@ const FormCadastroDePropostas: React.FC = () => {
             </Row>
           </Col>
         </HeaderPage>
+        <br />
+        <CardInformacoesCadastrante />
+        <br />
         <CardContent>
           <Divider orientation='left' />
 
