@@ -18,6 +18,9 @@ const obterModalidades = (tipoFormacao: TipoFormacao): Promise<ApiResult<Retorno
 const obterSituacoes = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/situacao`);
 
+const obterRoteiroPropostaFormativa = (): Promise<ApiResult<RetornoListagemDTO>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/roteiro`);
+
 const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/informacoes-cadastrante`);
 
@@ -57,4 +60,5 @@ export {
   obterSituacoes,
   obterDadosCadastrante,
   obterPropostaPaginada,
+  obterRoteiroPropostaFormativa,
 };
