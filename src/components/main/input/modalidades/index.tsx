@@ -27,6 +27,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
 
   const obterDados = async (tipoFormacao: TipoFormacao) => {
     tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
+
     if (tipoFormacao) {
       const resposta = await obterModalidades(tipoFormacao);
       if (resposta.sucesso) {
@@ -35,7 +36,11 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
           value: item.id,
         }));
 
-        form.setFieldValue('modalidade', []);
+        const modalidade = form.getFieldValue('modalidade');
+        if (!newOptions.some((t) => t.value === modalidade)) {
+          form.setFieldValue('modalidade', null);
+        }
+
         setOptions(newOptions);
         return;
       }
