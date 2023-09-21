@@ -23,12 +23,14 @@ const contentStyle: React.CSSProperties = {
   color: Colors.ORANGE_CONECTA_FORMACAO,
   fontWeight: 'bold',
 };
-const AlinharButton = styled.div`
-  float: 'right';
-  textalign: 'center';
-  width: '9%';
-  marginbottom: '20px';
-`;
+const stuleButtonAddData: React.CSSProperties = {
+  float: 'right',
+  textAlign: 'center',
+  width: '200px',
+  marginBottom: '10px',
+  marginTop: '2px',
+  marginLeft: '750px',
+};
 const contentStyleTituloListagem: React.CSSProperties = {
   fontSize: 16,
   color: 'black',
@@ -51,7 +53,6 @@ const FormularioDatas: React.FC<FormDatasProps> = ({ form }) => {
               label='Período de realização'
               name='periodoRealizacaoFormDatas'
               required
-              width='130%'
               exibirTooltip
               titleToolTip='Primeiro dia da primeira turma até o último dia da última turma.'
             />
@@ -61,11 +62,16 @@ const FormularioDatas: React.FC<FormDatasProps> = ({ form }) => {
           <Col xs={24} sm={14} md={24} style={contentStyle}>
             Cronograma de encontros
           </Col>
-          <AlinharButton>
-            <Button block type='primary' id={CF_BUTTON_NOVO} onClick={abrirModal}>
+          <Col>
+            <Button
+              type='primary'
+              id={CF_BUTTON_NOVO}
+              onClick={abrirModal}
+              style={stuleButtonAddData}
+            >
               Adicionar datas
             </Button>
-          </AlinharButton>
+          </Col>
         </Row>
         <Row>
           <Col xs={24} sm={14} md={24} style={contentStyleTituloListagem}>
@@ -84,7 +90,6 @@ const FormularioDatas: React.FC<FormDatasProps> = ({ form }) => {
               label='Período de inscricao'
               name='periodoIncricaoFormDatas'
               required
-              width='130%'
             />
           </b>
         </Col>
