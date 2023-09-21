@@ -39,6 +39,10 @@ import {
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
 import FormInformacoesGerais from './steps/informacoes-gerais';
+import FormularioDatas from './steps/formulario-datas';
+import FormularioDetalhamento from './steps/formulario-detalhamento';
+import FormularioProfissionais from './steps/formulario-profissionais';
+import FormularioCertificacao from './steps/formulario-certificacao';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -285,6 +289,22 @@ const FormCadastroDePropostas: React.FC = () => {
       navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
+  const selecionarTelaStep = (stepSelecionado: StepPropostaEnum) => {
+    switch (stepSelecionado) {
+      case StepPropostaEnum.InformacoesGerais:
+        return <FormInformacoesGerais form={form} />;
+      case StepPropostaEnum.Datas:
+        return <FormularioDatas form={form} />;
+      case StepPropostaEnum.Detalhamento:
+        return <FormularioDetalhamento form={form} />;
+      case StepPropostaEnum.Profissionais:
+        return <FormularioProfissionais form={form} />;
+      case StepPropostaEnum.Certificacao:
+        return <FormularioCertificacao form={form} />;
+      default:
+        return 'Seção em desenvolvimento!';
+    }
+  };
   return (
     <Col>
       <Form
@@ -371,14 +391,8 @@ const FormCadastroDePropostas: React.FC = () => {
             onChange={(value) => setCurrentStep(value)}
             style={{ marginBottom: 55 }}
           />
-          {currentStep === StepPropostaEnum.InformacoesGerais ? (
-            <>
-              <FormInformacoesGerais form={form} />
-              <Auditoria dados={formInitialValues?.auditoria} />
-            </>
-          ) : (
-            'Seção em desenvolvimento!'
-          )}
+          {selecionarTelaStep(currentStep)}
+          <Auditoria dados={formInitialValues?.auditoria} />
         </CardContent>
       </Form>
     </Col>
