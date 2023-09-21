@@ -1,15 +1,12 @@
-import { Button, Col, FormInstance, Row } from 'antd';
+import { Button, Col, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import DataTable from '~/components/lib/card-table';
+import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { Colors } from '~/core/styles/colors';
-type FormDatasProps = {
-  form: FormInstance;
-};
 
 const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
   { key: 'turma', title: 'Turma', dataIndex: 'turma' },
@@ -36,13 +33,28 @@ const contentStyleTituloListagem: React.CSSProperties = {
   color: 'black',
   fontWeight: 'bold',
 };
-const FormularioDatas: React.FC<FormDatasProps> = ({ form }) => {
+const FormularioDatas: React.FC = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [dadosListagemEncontros, setDadosListagemEncontros] = useState<
+    CronogramaEncontrosPaginadoDto[]
+  >([]);
   const abrirModal = async () => {
     setOpenModal(true);
   };
+  const fechaModal = () => {
+    setOpenModal(false);
+  };
+  const salvarDadosNaGridDeEncontros = () => {
+    setDadosListagemEncontros([]);
+    console.log(dadosListagemEncontros);
+  };
   return (
     <>
+      <DrawerFormularioEncontroTurmas
+        openModal={openModal}
+        onCloseModal={fechaModal}
+        salvarDados={salvarDadosNaGridDeEncontros}
+      />
       <Col>
         <Col xs={24} sm={14} md={24} style={contentStyle}>
           Cronograma geral
