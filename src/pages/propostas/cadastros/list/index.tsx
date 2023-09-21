@@ -218,7 +218,11 @@ const ListCadastroDePropostas: React.FC = () => {
                 <Row gutter={[16, 8]}>
                   <Col xs={24} sm={10} md={7} lg={7} xl={5}>
                     <b>
-                      <DatePickerPeriodo changeFunction={obterFiltros} />
+                      <DatePickerPeriodo
+                        changeFunction={obterFiltros}
+                        label='Período de realização'
+                        name='periodoRealizacao'
+                      />
                     </b>
                   </Col>
 
