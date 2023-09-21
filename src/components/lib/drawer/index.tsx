@@ -21,10 +21,12 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   salvarDados,
 }) => {
   const [formDrawer] = useForm();
-  const [formInitialValues, setFormInitialValues] = useState<CronogramaEncontrosPaginadoDto[]>();
+  const [formInitialValues, setFormInitialValues] = useState<CronogramaEncontrosPaginadoDto>();
   const obterDadosForm = () => {
-    salvarDados();
+    formDrawer.submit();
     console.log(formDrawer.getFieldsValue());
+    // salvarDados();
+    // console.log(formDrawer.getFieldsValue());
   };
   return (
     <>
@@ -47,12 +49,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                   </Space>
                 }
               >
-                <Form
-                  form={formDrawer}
-                  layout='vertical'
-                  autoComplete='off'
-                  initialValues={formInitialValues}
-                >
+                <Form form={formDrawer} layout='vertical' autoComplete='off'>
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
