@@ -19,6 +19,7 @@ type DatePickerPeriodoProps = {
   width?: string;
   exibirTooltip?: boolean;
   titleToolTip?: string;
+  id?: string;
 };
 const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
   changeFunction,
@@ -28,6 +29,7 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
   required = false,
   exibirTooltip = false,
   titleToolTip,
+  id,
 }) => {
   const { RangePicker } = DatePicker;
   const dateFormat = 'DD/MM/YYYY';
@@ -56,6 +58,7 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
           locale={localeDatePicker}
           format={dateFormat}
           style={{ width: width }}
+          id={id}
         />
       </Form.Item>
     </>

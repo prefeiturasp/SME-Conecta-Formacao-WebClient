@@ -3,8 +3,12 @@ import { TurmaEncontrosDto } from './turma-encontros-dto';
 
 export type CronogramaEncontrosPaginadoDto = {
   turma: TurmaEncontrosDto[] | [];
-  data: string;
+  data: EncontroTurmaDatasDto[];
   hora: string;
   tipoEncontro: TipoEncontro | TipoEncontro.Presencial;
   local: string;
+};
+
+export type EncontroTurmaDatasDto = {
+  dataEncontro: Date;
 };

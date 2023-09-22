@@ -1,16 +1,23 @@
 import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import React, { useState } from 'react';
+import React from 'react';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
-import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
-import locale from 'antd/es/date-picker/locale/pt_BR';
+import DataLista from '~/components/main/input/data-lista';
+import dayjs from 'dayjs';
+import weekday from 'dayjs/plugin/weekday';
+import localeData from 'dayjs/plugin/localeData';
+import locale from 'dayjs/locale/pt-br';
+import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
 type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
   onCloseModal: VoidFunction;
   salvarDados: VoidFunction;
   idProposta: number;
 };
+dayjs.extend(weekday);
+dayjs.extend(localeData);
+dayjs.locale(locale);
 const format = 'HH:mm';
 const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasProps> = ({
   openModal,
@@ -18,9 +25,10 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   salvarDados,
   idProposta,
 }) => {
+  const { RangePicker } = TimePicker;
   const [formDrawer] = useForm();
   const { TextArea } = Input;
-  const [formInitialValues, setFormInitialValues] = useState<CronogramaEncontrosPaginadoDto>();
+  //  const [formInitialValues, setFormInitialValues] = useState<CronogramaEncontrosPaginadoDto>();
   const obterDadosForm = () => {
     formDrawer.submit();
     console.log(formDrawer.getFieldsValue());
@@ -54,35 +62,21 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                       <SelectTurmaEncontros idProposta={idProposta} />
                     </Col>
                     <Col span={12}>
-                      <Form.Item
-                        name='data'
-                        label='Data'
-                        rules={[{ required: true, message: 'Informe a data' }]}
-                      >
-                        <Input placeholder='Informe a data' />
-                      </Form.Item>
+                      <DataLista />
                     </Col>
                   </Row>
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
-                        name='hora'
-                        label='Hora'
-                        rules={[{ required: true, message: 'Informe a Hora' }]}
+                        name='horaInicio'
+                        label='Hora de início e Fim'
+                        rules={[{ required: true, message: 'Informe a Hora de início e Fim' }]}
                       >
-                        <TimePicker
+                        <RangePicker
                           format={format}
-                          placeholder='Informe a Hora'
                           allowClear
                           style={{ width: '328px' }}
-                          locale={{
-                            ...locale,
-                            lang: {
-                              ...locale.lang,
-                              now: 'Hora Atual',
-                              ok: 'OK',
-                            },
-                          }}
+                          locale={localeDatePicker}
                         />
                       </Form.Item>
                     </Col>
