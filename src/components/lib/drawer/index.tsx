@@ -5,7 +5,6 @@ import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import locale from 'antd/es/date-picker/locale/pt_BR';
-import localeData from 'dayjs/plugin/localeData';
 type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
   onCloseModal: VoidFunction;
@@ -20,6 +19,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   idProposta,
 }) => {
   const [formDrawer] = useForm();
+  const { TextArea } = Input;
   const [formInitialValues, setFormInitialValues] = useState<CronogramaEncontrosPaginadoDto>();
   const obterDadosForm = () => {
     formDrawer.submit();
@@ -88,6 +88,22 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                     </Col>
                     <Col span={12}>
                       <SelectTipoEncontro />
+                    </Col>
+                  </Row>
+                  <Row gutter={24}>
+                    <Col span={24}>
+                      <Form.Item
+                        label='Local'
+                        name='local'
+                        rules={[{ required: true, message: 'Informe o local' }]}
+                      >
+                        <TextArea
+                          maxLength={200}
+                          minLength={1}
+                          showCount
+                          placeholder='Informe o Local'
+                        />
+                      </Form.Item>
                     </Col>
                   </Row>
                 </Form>
