@@ -251,6 +251,7 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const salvarRascunho = () => {
+    console.log(form.getFieldsValue());
     salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
   };
 
@@ -391,7 +392,7 @@ const FormCadastroDePropostas: React.FC = () => {
             onChange={(value) => setCurrentStep(value)}
             style={{ marginBottom: 55 }}
           />
-          {selecionarTelaStep(currentStep)}
+          <Form.Item>{selecionarTelaStep(currentStep)}</Form.Item>
           <Auditoria dados={formInitialValues?.auditoria} />
         </CardContent>
       </Form>

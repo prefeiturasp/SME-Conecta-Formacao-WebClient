@@ -1,24 +1,23 @@
-import { Button, Col, Drawer, Form, Input, Row, Select, Space } from 'antd';
+import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React, { useState } from 'react';
+import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
+import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
-
+import locale from 'antd/es/date-picker/locale/pt_BR';
+import localeData from 'dayjs/plugin/localeData';
 type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
   onCloseModal: VoidFunction;
   salvarDados: VoidFunction;
+  idProposta: number;
 };
-// const stuleButtons: React.CSSProperties = {
-//   float: 'right',
-//   textAlign: 'center',
-//   width: '180px',
-//   marginTop: '2px',
-//   //marginLeft: '5px',
-// };
+const format = 'HH:mm';
 const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasProps> = ({
   openModal,
   onCloseModal,
   salvarDados,
+  idProposta,
 }) => {
   const [formDrawer] = useForm();
   const [formInitialValues, setFormInitialValues] = useState<CronogramaEncontrosPaginadoDto>();
@@ -52,13 +51,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                 <Form form={formDrawer} layout='vertical' autoComplete='off'>
                   <Row gutter={16}>
                     <Col span={12}>
-                      <Form.Item
-                        name='turma'
-                        label='Turma'
-                        rules={[{ required: true, message: 'Informe a turma' }]}
-                      >
-                        <Select placeholder='Informe a turma' />
-                      </Form.Item>
+                      <SelectTurmaEncontros idProposta={idProposta} />
                     </Col>
                     <Col span={12}>
                       <Form.Item
@@ -77,17 +70,24 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                         label='Hora'
                         rules={[{ required: true, message: 'Informe a Hora' }]}
                       >
-                        <Input placeholder='Informe a Hora' />
+                        <TimePicker
+                          format={format}
+                          placeholder='Informe a Hora'
+                          allowClear
+                          style={{ width: '328px' }}
+                          locale={{
+                            ...locale,
+                            lang: {
+                              ...locale.lang,
+                              now: 'Hora Atual',
+                              ok: 'OK',
+                            },
+                          }}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
-                      <Form.Item
-                        name='tipoEncontro'
-                        label='Tipo de Encontro'
-                        rules={[{ required: true, message: 'Informe o Tipo de encontro' }]}
-                      >
-                        <Select placeholder='Informe o Tipo de encontro' />
-                      </Form.Item>
+                      <SelectTipoEncontro />
                     </Col>
                   </Row>
                 </Form>
