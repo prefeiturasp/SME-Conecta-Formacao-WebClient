@@ -1,6 +1,7 @@
 import { Button, Col, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
 import DatePickerPeriodo from '~/components/main/input/date-range';
@@ -34,6 +35,7 @@ const contentStyleTituloListagem: React.CSSProperties = {
   fontWeight: 'bold',
 };
 const FormularioDatas: React.FC = () => {
+  const paramsRoute = useParams();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosListagemEncontros, setDadosListagemEncontros] = useState<
     CronogramaEncontrosPaginadoDto[]
@@ -45,15 +47,19 @@ const FormularioDatas: React.FC = () => {
     setOpenModal(false);
   };
   const salvarDadosNaGridDeEncontros = () => {
+    //const cronograma: CronogramaEncontrosPaginadoDto = {};
     setDadosListagemEncontros([]);
     console.log(dadosListagemEncontros);
   };
+
+  const idProposta = paramsRoute?.id ?? 0;
   return (
     <>
       <DrawerFormularioEncontroTurmas
         openModal={openModal}
         onCloseModal={fechaModal}
         salvarDados={salvarDadosNaGridDeEncontros}
+        idProposta={parseInt(idProposta.toString())}
       />
       <Col>
         <Col xs={24} sm={14} md={24} style={contentStyle}>
@@ -63,7 +69,7 @@ const FormularioDatas: React.FC = () => {
           <b>
             <DatePickerPeriodo
               label='Período de realização'
-              name='periodoRealizacaoFormDatas'
+              name='periodoRealizacao'
               required
               exibirTooltip
               titleToolTip='Primeiro dia da primeira turma até o último dia da última turma.'
@@ -98,11 +104,7 @@ const FormularioDatas: React.FC = () => {
         </Col>
         <Col xs={24} sm={10} md={7} lg={7} xl={5}>
           <b>
-            <DatePickerPeriodo
-              label='Período de inscricao'
-              name='periodoIncricaoFormDatas'
-              required
-            />
+            <DatePickerPeriodo label='Período de inscricao' name='periodoIncricao' required />
           </b>
         </Col>
       </Col>

@@ -1,6 +1,10 @@
+import { TipoEncontro } from '../enum/tipo-encontro';
+import { TurmaEncontrosDto } from './turma-encontros-dto';
+
 export type CronogramaEncontrosPaginadoDto = {
-  turma: string | undefined;
-  data: string | undefined;
-  hora: string | undefined;
-  tipoEncontro: string | undefined;
+  turma: TurmaEncontrosDto[] | [];
+  data: string;
+  hora: string;
+  tipoEncontro: TipoEncontro | TipoEncontro.Presencial;
+  local: string;
 };
