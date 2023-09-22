@@ -3,6 +3,7 @@ import { SituacaoRegistro } from '../enum/situacao-registro';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { TipoInscricao } from '../enum/tipo-inscricao';
 import { AuditoriaDTO } from './auditoria-dto';
+import { CronogramaEncontrosPaginadoDto } from './cronograma-encontros-paginado-dto';
 import { PropostaCriterioValidacaoInscricaoDTO } from './proposta-criterio-validacao-inscricao-dto';
 import { PropostaFuncaoEspecificaDTO } from './proposta-funcao-especifica-dto';
 import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
@@ -25,6 +26,9 @@ export type PropostaDTO = {
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoRegistro;
   arquivoImagemDivulgacaoId?: number;
+  periodoRealizacao?: Date;
+  periodoIncricao?: Date;
+  cronogramaDeEncontros?: CronogramaEncontrosPaginadoDto[];
 };
 
 export type PropostaCompletoDTO = {
@@ -49,4 +53,7 @@ export type PropostaFormDTO = {
   situacao?: SituacaoRegistro;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];
+  periodoRealizacao?: Date;
+  periodoIncricao?: Date;
+  cronogramaDeEncontros?: CronogramaEncontrosPaginadoDto[];
 };
