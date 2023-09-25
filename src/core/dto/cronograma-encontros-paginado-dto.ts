@@ -1,14 +1,15 @@
 import { TipoEncontro } from '../enum/tipo-encontro';
-import { TurmaEncontrosDto } from './turma-encontros-dto';
 
 export type CronogramaEncontrosPaginadoDto = {
-  turma: TurmaEncontrosDto[] | [];
+  turma: number[] | [];
   data: EncontroTurmaDatasDto[];
-  hora: string;
+  horaInicio: string;
+  horaFim: string;
   tipoEncontro: TipoEncontro | TipoEncontro.Presencial;
   local: string;
 };
 
 export type EncontroTurmaDatasDto = {
-  dataEncontro: Date;
+  dataInicio: Date;
+  dataFim?: Date | null;
 };

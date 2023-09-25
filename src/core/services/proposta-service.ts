@@ -52,6 +52,9 @@ const obterPropostaPaginada = (
 const obterTurmasDaProposta = (id: number): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}/turma`);
 
+const obterTipoEncontro = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/tipo-encontro`);
+
 export {
   alterarProposta,
   deletarProposta,
@@ -66,4 +69,5 @@ export {
   obterPropostaPaginada,
   obterRoteiroPropostaFormativa,
   obterTurmasDaProposta,
+  obterTipoEncontro,
 };

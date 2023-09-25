@@ -5,8 +5,8 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { Colors } from '~/core/styles/colors';
-import { TipoEncontro } from '../../../../core/enum/tipo-encontro';
 import { CF_SELECT_TIPO_ENCONTRO } from '../../../../core/constants/ids/select/index';
+import { obterTipoEncontro } from '~/core/services/proposta-service';
 
 type SelectTipoEncontroProps = {
   required?: boolean | true;
@@ -22,13 +22,9 @@ const SelectTipoEncontro: React.FC<SelectTipoEncontroProps> = ({
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
-    const resposta = [
-      { descricao: 'Presencial', id: TipoEncontro.Presencial },
-      { descricao: 'Síncrono', id: TipoEncontro.Sincrono },
-      { descricao: 'Assíncrono', id: TipoEncontro.Assincrono },
-    ];
-    if (resposta.length) {
-      const newOptions = resposta.map((item) => ({ label: item.descricao, value: item.id }));
+    const resposta = await obterTipoEncontro();
+    if (resposta.sucesso) {
+      const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
       setOptions(newOptions);
     } else {
       setOptions([]);

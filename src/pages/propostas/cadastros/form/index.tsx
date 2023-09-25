@@ -295,7 +295,7 @@ const FormCadastroDePropostas: React.FC = () => {
       case StepPropostaEnum.InformacoesGerais:
         return <FormInformacoesGerais form={form} />;
       case StepPropostaEnum.Datas:
-        return <FormularioDatas />;
+        return <FormularioDatas form={form} />;
       case StepPropostaEnum.Detalhamento:
         return <FormularioDetalhamento form={form} />;
       case StepPropostaEnum.Profissionais:

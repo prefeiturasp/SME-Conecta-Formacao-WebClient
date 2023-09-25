@@ -1,18 +1,21 @@
-import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space } from 'antd';
-import { useForm } from 'antd/es/form/Form';
+import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space, notification } from 'antd';
+import { FormInstance, useForm } from 'antd/es/form/Form';
 import React from 'react';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
-import DataLista from '~/components/main/input/data-lista';
 import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday';
 import localeData from 'dayjs/plugin/localeData';
 import locale from 'dayjs/locale/pt-br';
 import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
+import DatePickerMultiplos from '~/components/main/input/data-lista';
+import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
+import { EncontroTurmaDatasDto } from '../../../core/dto/cronograma-encontros-paginado-dto';
 type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
+  form: FormInstance;
   onCloseModal: VoidFunction;
-  salvarDados: VoidFunction;
+  salvarDados: any;
   idProposta: number;
 };
 dayjs.extend(weekday);
@@ -24,16 +27,108 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   onCloseModal,
   salvarDados,
   idProposta,
+  form,
 }) => {
   const { RangePicker } = TimePicker;
   const [formDrawer] = useForm();
   const { TextArea } = Input;
-  //  const [formInitialValues, setFormInitialValues] = useState<CronogramaEncontrosPaginadoDto>();
+  const validiarPeriodo = () => {
+    const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
+    if (!periodoRealizacao) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Informe a dada do Período de realização',
+      });
+
+      return false;
+    }
+
+    return true;
+  };
+  const validarSeEstaDentroDoPeriodo = (datas: EncontroTurmaDatasDto[]) => {
+    const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
+    const periodoInicio = new Date(periodoRealizacao[0]);
+    const periodoFim = new Date(periodoRealizacao[1]);
+    for (let index = 0; index < datas.length; index++) {
+      const dataFim =
+        datas[index].dataFim != null
+          ? datas[index].dataFim?.toDateString()
+          : datas[index].dataInicio.toDateString();
+      if (
+        !(
+          new Date(datas[index].dataInicio.toDateString()) >=
+            new Date(periodoInicio.toDateString()) &&
+          new Date(dataFim!) <= new Date(periodoFim.toDateString())
+        )
+      ) {
+        notification.warning({
+          message: 'Atenção',
+          description: 'As dadas devem estar dentro do Período de realização',
+        });
+      }
+    }
+  };
+  const validarDataInicialEFinal = (datas: EncontroTurmaDatasDto[]) => {
+    for (let index = 0; index < datas.length; index++) {
+      const dataFim =
+        datas[index].dataFim != null
+          ? new Date(datas[index].dataFim!.toDateString())
+          : new Date(datas[index].dataInicio.toDateString());
+
+      const dataInicio = new Date(datas[index].dataInicio?.toDateString());
+
+      if (dataFim != null && dataFim < dataInicio) {
+        notification.warning({
+          message: 'Atenção',
+          description: 'A data final não pode ser menor que a data inicial ',
+        });
+        return false;
+      }
+    }
+    return true;
+  };
   const obterDadosForm = () => {
-    formDrawer.submit();
-    console.log(formDrawer.getFieldsValue());
-    // salvarDados();
-    // console.log(formDrawer.getFieldsValue());
+    if (validiarPeriodo()) {
+      formDrawer.submit();
+      const horarios = formDrawer.getFieldValue('horarios');
+      const horaInicio = new Date(horarios[0]).toLocaleTimeString('pt-BR');
+      const horaFim = new Date(horarios[1]).toLocaleTimeString('pt-BR');
+      const datas = Array<EncontroTurmaDatasDto>();
+      const dataInicial = new Date(formDrawer.getFieldValue('dataInicial'));
+
+      const dataFinal = formDrawer.getFieldValue('dataFinal')
+        ? new Date(formDrawer.getFieldValue('dataFinal'))
+        : null;
+      const dataPrincial: EncontroTurmaDatasDto = { dataInicio: dataInicial, dataFim: dataFinal };
+      datas.push(dataPrincial);
+
+      const dataAdicionada = formDrawer.getFieldValue('datas');
+      for (let index = 0; index < dataAdicionada?.length; index++) {
+        const inicio = new Date(dataAdicionada[index].dataInicial);
+        const final = dataAdicionada[index].dataFinal
+          ? new Date(dataAdicionada[index].dataFinal)
+          : null;
+        const dataSelecionada: EncontroTurmaDatasDto = { dataInicio: inicio, dataFim: final };
+        datas.push(dataSelecionada);
+      }
+      if (validarDataInicialEFinal(datas)) {
+        validarSeEstaDentroDoPeriodo(datas);
+        const dto: CronogramaEncontrosPaginadoDto = {
+          local: formDrawer.getFieldValue('local'),
+          data: datas,
+          horaFim: horaInicio,
+          horaInicio: horaFim,
+          tipoEncontro: formDrawer.getFieldValue('tipoEncontro'),
+          turma: formDrawer.getFieldValue('turma'),
+        };
+        console.log(dto);
+        //salvarDados(dto);
+      }
+    }
+  };
+  const fecharModal = () => {
+    formDrawer.resetFields();
+    onCloseModal();
   };
   return (
     <>
@@ -44,7 +139,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
               <Drawer
                 title='Encontro de turmas'
                 width={720}
-                onClose={onCloseModal}
+                onClose={fecharModal}
                 open
                 bodyStyle={{ paddingBottom: 80 }}
                 extra={
@@ -57,18 +152,18 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                 }
               >
                 <Form form={formDrawer} layout='vertical' autoComplete='off'>
-                  <Row gutter={16}>
-                    <Col span={12}>
+                  <Row gutter={[16, 16]}>
+                    <Col span={10}>
                       <SelectTurmaEncontros idProposta={idProposta} />
                     </Col>
                     <Col span={12}>
-                      <DataLista />
+                      <DatePickerMultiplos />
                     </Col>
                   </Row>
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
-                        name='horaInicio'
+                        name='horarios'
                         label='Hora de início e Fim'
                         rules={[{ required: true, message: 'Informe a Hora de início e Fim' }]}
                       >

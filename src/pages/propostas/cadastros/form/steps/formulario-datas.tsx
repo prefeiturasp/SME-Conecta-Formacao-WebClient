@@ -1,4 +1,4 @@
-import { Button, Col, Row } from 'antd';
+import { Button, Col, FormInstance, Row, notification } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -34,21 +34,37 @@ const contentStyleTituloListagem: React.CSSProperties = {
   color: 'black',
   fontWeight: 'bold',
 };
-const FormularioDatas: React.FC = () => {
+type FormularioDatasProps = {
+  form: FormInstance;
+};
+const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
   const paramsRoute = useParams();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosListagemEncontros, setDadosListagemEncontros] = useState<
     CronogramaEncontrosPaginadoDto[]
   >([]);
   const abrirModal = async () => {
-    setOpenModal(true);
+    if (validiarPeriodo()) setOpenModal(true);
+  };
+  const validiarPeriodo = () => {
+    const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
+    if (!periodoRealizacao) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Informe a dada do Período de realização',
+      });
+
+      return false;
+    }
+
+    return true;
   };
   const fechaModal = () => {
     setOpenModal(false);
   };
-  const salvarDadosNaGridDeEncontros = () => {
-    //const cronograma: CronogramaEncontrosPaginadoDto = {};
-    setDadosListagemEncontros([]);
+  const salvarDadosNaGridDeEncontros = (dados: CronogramaEncontrosPaginadoDto) => {
+    console.log(dados);
+    setDadosListagemEncontros([dados]);
     console.log(dadosListagemEncontros);
   };
 
@@ -59,6 +75,7 @@ const FormularioDatas: React.FC = () => {
         openModal={openModal}
         onCloseModal={fechaModal}
         salvarDados={salvarDadosNaGridDeEncontros}
+        form={form}
         idProposta={parseInt(idProposta.toString())}
       />
       <Col>
