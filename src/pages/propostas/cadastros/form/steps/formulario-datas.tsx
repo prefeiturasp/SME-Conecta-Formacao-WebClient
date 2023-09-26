@@ -1,15 +1,13 @@
-import { Button, Col, FormInstance, Row } from 'antd';
+import { Button, Col, FormInstance, Row, notification } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
+import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { Colors } from '~/core/styles/colors';
-type FormDatasProps = {
-  form: FormInstance;
-};
 
 const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
   { key: 'turma', title: 'Turma', dataIndex: 'turma' },
@@ -23,24 +21,62 @@ const contentStyle: React.CSSProperties = {
   color: Colors.ORANGE_CONECTA_FORMACAO,
   fontWeight: 'bold',
 };
-const AlinharButton = styled.div`
-  float: 'right';
-  textalign: 'center';
-  width: '9%';
-  marginbottom: '20px';
-`;
+const stuleButtonAddData: React.CSSProperties = {
+  float: 'right',
+  textAlign: 'center',
+  width: '200px',
+  marginBottom: '10px',
+  marginTop: '2px',
+  marginLeft: '750px',
+};
 const contentStyleTituloListagem: React.CSSProperties = {
   fontSize: 16,
   color: 'black',
   fontWeight: 'bold',
 };
-const FormularioDatas: React.FC<FormDatasProps> = ({ form }) => {
+type FormularioDatasProps = {
+  form: FormInstance;
+};
+const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
+  const paramsRoute = useParams();
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [dadosListagemEncontros, setDadosListagemEncontros] = useState<
+    CronogramaEncontrosPaginadoDto[]
+  >([]);
   const abrirModal = async () => {
-    setOpenModal(true);
+    if (validiarPeriodo()) setOpenModal(true);
   };
+  const validiarPeriodo = () => {
+    const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
+    if (!periodoRealizacao) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Informe a dada do Período de realização',
+      });
+
+      return false;
+    }
+
+    return true;
+  };
+  const fechaModal = () => {
+    setOpenModal(false);
+  };
+  const salvarDadosNaGridDeEncontros = (dados: CronogramaEncontrosPaginadoDto) => {
+    console.log(dados);
+    setDadosListagemEncontros([dados]);
+  };
+
+  const idProposta = paramsRoute?.id ?? 0;
   return (
     <>
+      <DrawerFormularioEncontroTurmas
+        openModal={openModal}
+        onCloseModal={fechaModal}
+        salvarDados={salvarDadosNaGridDeEncontros}
+        form={form}
+        idProposta={parseInt(idProposta.toString())}
+      />
       <Col>
         <Col xs={24} sm={14} md={24} style={contentStyle}>
           Cronograma geral
@@ -49,9 +85,8 @@ const FormularioDatas: React.FC<FormDatasProps> = ({ form }) => {
           <b>
             <DatePickerPeriodo
               label='Período de realização'
-              name='periodoRealizacaoFormDatas'
+              name='periodoRealizacao'
               required
-              width='130%'
               exibirTooltip
               titleToolTip='Primeiro dia da primeira turma até o último dia da última turma.'
             />
@@ -61,11 +96,16 @@ const FormularioDatas: React.FC<FormDatasProps> = ({ form }) => {
           <Col xs={24} sm={14} md={24} style={contentStyle}>
             Cronograma de encontros
           </Col>
-          <AlinharButton>
-            <Button block type='primary' id={CF_BUTTON_NOVO} onClick={abrirModal}>
+          <Col>
+            <Button
+              type='primary'
+              id={CF_BUTTON_NOVO}
+              onClick={abrirModal}
+              style={stuleButtonAddData}
+            >
               Adicionar datas
             </Button>
-          </AlinharButton>
+          </Col>
         </Row>
         <Row>
           <Col xs={24} sm={14} md={24} style={contentStyleTituloListagem}>
@@ -80,12 +120,7 @@ const FormularioDatas: React.FC<FormDatasProps> = ({ form }) => {
         </Col>
         <Col xs={24} sm={10} md={7} lg={7} xl={5}>
           <b>
-            <DatePickerPeriodo
-              label='Período de inscricao'
-              name='periodoIncricaoFormDatas'
-              required
-              width='130%'
-            />
+            <DatePickerPeriodo label='Período de inscricao' name='periodoIncricao' required />
           </b>
         </Col>
       </Col>

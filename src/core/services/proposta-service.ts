@@ -48,6 +48,13 @@ const deletarProposta = (id: string | number): Promise<ApiResult<boolean>> =>
 const obterPropostaPaginada = (
   params?: PropostaFiltrosDTO,
 ): Promise<ApiResult<PropostaPaginadaDTO[]>> => obterRegistro(URL_API_PROPOSTA, params);
+
+const obterTurmasDaProposta = (id: number): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/${id}/turma`);
+
+const obterTipoEncontro = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/tipo-encontro`);
+
 export {
   alterarProposta,
   deletarProposta,
@@ -61,4 +68,6 @@ export {
   obterDadosCadastrante,
   obterPropostaPaginada,
   obterRoteiroPropostaFormativa,
+  obterTurmasDaProposta,
+  obterTipoEncontro,
 };
