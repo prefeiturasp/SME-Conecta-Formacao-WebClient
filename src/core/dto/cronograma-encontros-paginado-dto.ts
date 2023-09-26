@@ -1,8 +1,10 @@
 import { TipoEncontro } from '../enum/tipo-encontro';
 
 export type CronogramaEncontrosPaginadoDto = {
-  turma: number[] | [];
-  data: EncontroTurmaDatasDto[];
+  id?: number | 0;
+  idProposta: number;
+  turmasId: number[] | [];
+  datas: EncontroTurmaDatasDto[];
   horaInicio: string;
   horaFim: string;
   tipoEncontro: TipoEncontro | TipoEncontro.Presencial;

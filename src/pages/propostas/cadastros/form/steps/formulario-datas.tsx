@@ -65,7 +65,6 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
   const salvarDadosNaGridDeEncontros = (dados: CronogramaEncontrosPaginadoDto) => {
     console.log(dados);
     setDadosListagemEncontros([dados]);
-    console.log(dadosListagemEncontros);
   };
 
   const idProposta = paramsRoute?.id ?? 0;

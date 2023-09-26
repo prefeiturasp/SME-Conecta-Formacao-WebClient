@@ -1,6 +1,6 @@
 import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space, notification } from 'antd';
 import { FormInstance, useForm } from 'antd/es/form/Form';
-import React from 'react';
+import React, { useState } from 'react';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import dayjs from 'dayjs';
@@ -114,12 +114,13 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       if (validarDataInicialEFinal(datas)) {
         validarSeEstaDentroDoPeriodo(datas);
         const dto: CronogramaEncontrosPaginadoDto = {
+          idProposta: idProposta,
           local: formDrawer.getFieldValue('local'),
-          data: datas,
+          datas: datas,
           horaFim: horaInicio,
           horaInicio: horaFim,
           tipoEncontro: formDrawer.getFieldValue('tipoEncontro'),
-          turma: formDrawer.getFieldValue('turma'),
+          turmasId: formDrawer.getFieldValue('turma'),
         };
         console.log(dto);
         //salvarDados(dto);
