@@ -48,7 +48,7 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
   return (
     <Form.Item
       label='Turma'
-      name='turma'
+      name='turmas'
       rules={[{ required: required, message: 'Selecione um Turma' }]}
       tooltip={{
         title: 'Você deve informar a Quantidade de turmas, na sessão de Informações gerais',

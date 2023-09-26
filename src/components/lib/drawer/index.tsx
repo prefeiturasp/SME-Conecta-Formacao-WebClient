@@ -1,6 +1,6 @@
 import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space, notification } from 'antd';
 import { FormInstance, useForm } from 'antd/es/form/Form';
-import React from 'react';
+import React, { useState } from 'react';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import dayjs from 'dayjs';
@@ -9,13 +9,19 @@ import localeData from 'dayjs/plugin/localeData';
 import locale from 'dayjs/locale/pt-br';
 import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
 import DatePickerMultiplos from '~/components/main/input/data-lista';
-import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
-import { EncontroTurmaDatasDto } from '../../../core/dto/cronograma-encontros-paginado-dto';
+import { salvarPropostaEncontro } from '~/core/services/proposta-service';
+import {
+  PropostaEncontroDTO,
+  PropostaEncontroDataDTO,
+  PropostaEncontroTurmaDTO,
+} from '~/core/dto/proposta-encontro-dto';
+
 type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
   form: FormInstance;
   onCloseModal: VoidFunction;
   idProposta: number;
+  idEncontro?: number | 0;
 };
 dayjs.extend(weekday);
 dayjs.extend(localeData);
@@ -26,9 +32,11 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   onCloseModal,
   idProposta,
   form,
+  idEncontro = 0,
 }) => {
   const { RangePicker } = TimePicker;
   const [formDrawer] = useForm();
+  const [loading, setLoading] = useState(false);
   const { TextArea } = Input;
   const validiarPeriodo = () => {
     const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
@@ -43,20 +51,17 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 
     return true;
   };
-  const validarSeEstaDentroDoPeriodo = (datas: EncontroTurmaDatasDto[]) => {
+  const validarSeEstaDentroDoPeriodo = (datas: PropostaEncontroDataDTO[]) => {
     const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
     const periodoInicio = new Date(periodoRealizacao[0]);
     const periodoFim = new Date(periodoRealizacao[1]);
     for (let index = 0; index < datas.length; index++) {
-      const dataFim =
-        datas[index].dataFim != null
-          ? datas[index].dataFim?.toDateString()
-          : datas[index].dataInicio.toDateString();
+      const dataFim = datas[index].dataFim ? datas[index].dataFim! : datas[index].dataInicio;
       if (
         !(
           new Date(datas[index].dataInicio.toDateString()) >=
             new Date(periodoInicio.toDateString()) &&
-          new Date(dataFim!) <= new Date(periodoFim.toDateString())
+          new Date(dataFim.toDateString()) <= new Date(periodoFim.toDateString())
         )
       ) {
         notification.warning({
@@ -66,14 +71,12 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       }
     }
   };
-  const validarDataInicialEFinal = (datas: EncontroTurmaDatasDto[]) => {
+  const validarDataInicialEFinal = (datas: PropostaEncontroDataDTO[]) => {
     for (let index = 0; index < datas.length; index++) {
       const dataFim =
-        datas[index].dataFim != null
-          ? new Date(datas[index].dataFim!.toDateString())
-          : new Date(datas[index].dataInicio.toDateString());
+        datas[index].dataFim != null ? datas[index].dataFim! : datas[index].dataInicio;
 
-      const dataInicio = new Date(datas[index].dataInicio?.toDateString());
+      const dataInicio = datas[index].dataInicio;
 
       if (dataFim != null && dataFim < dataInicio) {
         notification.warning({
@@ -85,19 +88,23 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     }
     return true;
   };
-  const obterDadosForm = () => {
+  const obterDadosForm = async () => {
     if (validiarPeriodo()) {
       formDrawer.submit();
       const horarios = formDrawer.getFieldValue('horarios');
       const horaInicio = new Date(horarios[0]).toLocaleTimeString('pt-BR');
       const horaFim = new Date(horarios[1]).toLocaleTimeString('pt-BR');
-      const datas = Array<EncontroTurmaDatasDto>();
+      const datas = Array<PropostaEncontroDataDTO>();
+      const turmas = Array<PropostaEncontroTurmaDTO>();
       const dataInicial = new Date(formDrawer.getFieldValue('dataInicial'));
 
       const dataFinal = formDrawer.getFieldValue('dataFinal')
         ? new Date(formDrawer.getFieldValue('dataFinal'))
         : null;
-      const dataPrincial: EncontroTurmaDatasDto = { dataInicio: dataInicial, dataFim: dataFinal };
+      const dataPrincial: PropostaEncontroDataDTO = {
+        dataInicio: dataInicial,
+        dataFim: dataFinal,
+      };
       datas.push(dataPrincial);
 
       const dataAdicionada = formDrawer.getFieldValue('datas');
@@ -106,24 +113,52 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
         const final = dataAdicionada[index].dataFinal
           ? new Date(dataAdicionada[index].dataFinal)
           : null;
-        const dataSelecionada: EncontroTurmaDatasDto = { dataInicio: inicio, dataFim: final };
+        const dataSelecionada: PropostaEncontroDataDTO = {
+          dataInicio: inicio,
+          dataFim: final,
+        };
         datas.push(dataSelecionada);
+      }
+      const turmasSelecionadas = formDrawer.getFieldValue('turmas');
+      for (let index = 0; index < turmasSelecionadas.length; index++) {
+        const turma: PropostaEncontroTurmaDTO = { turma: turmasSelecionadas[index] };
+        turmas.push(turma);
       }
       if (validarDataInicialEFinal(datas)) {
         validarSeEstaDentroDoPeriodo(datas);
-        const dto: CronogramaEncontrosPaginadoDto = {
-          idProposta: idProposta,
+        const encontro: PropostaEncontroDTO = {
+          id: idEncontro,
+          horaFim: horaFim.substring(0, 5),
+          horaInicio: horaInicio.substring(0, 5),
+          tipo: formDrawer.getFieldValue('tipoEncontro'),
           local: formDrawer.getFieldValue('local'),
+          turmas: turmas,
           datas: datas,
-          horaFim: horaInicio,
-          horaInicio: horaFim,
-          tipoEncontro: formDrawer.getFieldValue('tipoEncontro'),
-          turmasId: formDrawer.getFieldValue('turma'),
         };
-        console.log(dto);
-        //salvarDados(dto);
+        console.log(encontro);
+        await salvarEncontro(encontro);
       }
     }
+  };
+  const salvarEncontro = async (encontro: PropostaEncontroDTO) => {
+    setLoading(true);
+    const result = await salvarPropostaEncontro(idProposta, encontro);
+    if (result.sucesso) {
+      setLoading(false);
+      notification.success({
+        message: 'Sucesso',
+        description: 'Registro salvo com Sucesso!',
+      });
+      formDrawer.resetFields();
+    } else {
+      setLoading(false);
+
+      notification.error({
+        message: 'Erro',
+        description: 'Falha ao salvar encontro!',
+      });
+    }
+    setLoading(false);
   };
   const fecharModal = () => {
     formDrawer.resetFields();

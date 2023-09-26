@@ -1,8 +1,7 @@
 import { Button, Col, FormInstance, Row, notification } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import DataTable from '~/components/lib/card-table';
+import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
@@ -10,12 +9,11 @@ import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-
 import { Colors } from '~/core/styles/colors';
 
 const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
-  { key: 'turma', title: 'Turma', dataIndex: 'turma' },
-  { key: 'data', title: 'Data', dataIndex: 'data' },
+  { key: 'turmas', title: 'Turma', dataIndex: 'turmas' },
+  { key: 'datas', title: 'Data', dataIndex: 'datas' },
   { key: 'hora', title: 'Hora', dataIndex: 'hora' },
-  { key: 'tipoEncontro', title: 'Tipo de Encontro', dataIndex: 'tipoEncontro' },
+  { key: 'tipoEncontroDescricao', title: 'Tipo de Encontro', dataIndex: 'tipoEncontroDescricao' },
 ];
-const url = '';
 const contentStyle: React.CSSProperties = {
   fontSize: 18,
   color: Colors.ORANGE_CONECTA_FORMACAO,
@@ -36,9 +34,9 @@ const contentStyleTituloListagem: React.CSSProperties = {
 };
 type FormularioDatasProps = {
   form: FormInstance;
+  idProposta?: string;
 };
-const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
-  const paramsRoute = useParams();
+const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const abrirModal = async () => {
     if (validiarPeriodo()) setOpenModal(true);
@@ -59,14 +57,17 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
   const fechaModal = () => {
     setOpenModal(false);
   };
-  const idProposta = paramsRoute?.id ?? 0;
+  const propostaId = idProposta != null ? parseInt(idProposta) : 0;
+
+  const url_api_encontro = `v1/Proposta/${propostaId}/encontro`;
+
   return (
     <>
       <DrawerFormularioEncontroTurmas
         openModal={openModal}
         onCloseModal={fechaModal}
         form={form}
-        idProposta={parseInt(idProposta.toString())}
+        idProposta={propostaId}
       />
       <Col>
         <Col xs={24} sm={14} md={24} style={contentStyle}>
@@ -104,7 +105,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
           </Col>
         </Row>
         <Col span={24}>
-          <DataTable url={url} columns={columns} />
+          <DataTableEncontros url={url_api_encontro} columns={columns} />
         </Col>
         <Col xs={24} sm={14} md={24} style={contentStyle}>
           Inscrição
