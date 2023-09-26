@@ -4,7 +4,7 @@ type FormDetalhamentoProps = {
   form: FormInstance;
 };
 
-const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
+const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = () => {
   return 'Seção em desenvolvimento!';
 };
 

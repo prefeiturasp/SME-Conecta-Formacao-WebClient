@@ -1,6 +1,6 @@
 import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space, notification } from 'antd';
 import { FormInstance, useForm } from 'antd/es/form/Form';
-import React, { useState } from 'react';
+import React from 'react';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import dayjs from 'dayjs';
@@ -15,7 +15,6 @@ type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
   form: FormInstance;
   onCloseModal: VoidFunction;
-  salvarDados: any;
   idProposta: number;
 };
 dayjs.extend(weekday);
@@ -25,7 +24,6 @@ const format = 'HH:mm';
 const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasProps> = ({
   openModal,
   onCloseModal,
-  salvarDados,
   idProposta,
   form,
 }) => {
