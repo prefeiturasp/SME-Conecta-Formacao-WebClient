@@ -4,7 +4,7 @@ type FormDatasProps = {
   form: FormInstance;
 };
 
-const FormularioProfissionais: React.FC<FormDatasProps> = ({ form }) => {
+const FormularioProfissionais: React.FC<FormDatasProps> = () => {
   return 'Seção em desenvolvimento!';
 };
 

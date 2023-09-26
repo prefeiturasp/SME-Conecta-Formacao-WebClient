@@ -40,9 +40,6 @@ type FormularioDatasProps = {
 const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
   const paramsRoute = useParams();
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [dadosListagemEncontros, setDadosListagemEncontros] = useState<
-    CronogramaEncontrosPaginadoDto[]
-  >([]);
   const abrirModal = async () => {
     if (validiarPeriodo()) setOpenModal(true);
   };
@@ -62,18 +59,12 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
   const fechaModal = () => {
     setOpenModal(false);
   };
-  const salvarDadosNaGridDeEncontros = (dados: CronogramaEncontrosPaginadoDto) => {
-    console.log(dados);
-    setDadosListagemEncontros([dados]);
-  };
-
   const idProposta = paramsRoute?.id ?? 0;
   return (
     <>
       <DrawerFormularioEncontroTurmas
         openModal={openModal}
         onCloseModal={fechaModal}
-        salvarDados={salvarDadosNaGridDeEncontros}
         form={form}
         idProposta={parseInt(idProposta.toString())}
       />
