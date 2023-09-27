@@ -40,6 +40,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
   const abrirModal = async () => {
+    setDadosEncontro(undefined);
     if (validiarPeriodo(false)) setOpenModal(true);
   };
   const validiarPeriodo = (registroExistente: boolean) => {

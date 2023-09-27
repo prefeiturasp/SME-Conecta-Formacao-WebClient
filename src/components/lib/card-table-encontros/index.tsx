@@ -74,6 +74,7 @@ const DataTableEncontros = ({
       const listaDatasFormatadas = Array<string>();
 
       const listaFilrada = lista.filter((x) => x.id == lista[index].id);
+      console.log(listaFilrada);
       listaFilrada.forEach((valores) => {
         valores.datas.forEach((d) => {
           const inicio = new Date(d.dataInicio).toLocaleDateString();
@@ -87,11 +88,26 @@ const DataTableEncontros = ({
       turmasLista.forEach((turma) => {
         listaTurmasFormatadas.push(`Turma ${turma}`);
       });
+      const horaInicio = lista[index].horaInicio!.substring(0, 2);
+      const minutoInicio = lista[index].horaInicio!.substring(3, 5);
+      const horaDataInicial = new Date();
+      horaDataInicial.setHours(parseInt(horaInicio));
+      horaDataInicial.setMinutes(parseInt(minutoInicio));
+
+      const horaFim = lista[index].horaFim!.substring(0, 2);
+      const minutoFim = lista[index].horaFim!.substring(3, 5);
+      const horaDataFinal = new Date();
+      horaDataFinal.setHours(parseInt(horaFim));
+      horaDataFinal.setMinutes(parseInt(minutoFim));
+
       const cronograma: CronogramaEncontrosPaginadoDto = {
         id: lista[index].id!,
-        turmasId: [],
+        turmasId: turmasLista,
+        horarios: [horaDataInicial, horaDataFinal],
         turmas: listaTurmasFormatadas.join(', '),
         datas: listaDatasFormatadas.join(', '),
+        horaInicio: lista[index].horaInicio!,
+        horaFim: lista[index].horaFim!,
         hora: `${lista[index].horaInicio!} até ${lista[index].horaFim!}`,
         tipoEncontro: lista[index].tipo,
         tipoEncontroDescricao: obteTipoEncontroTexto(lista[index].tipo!),

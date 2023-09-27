@@ -1,6 +1,6 @@
 import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space, notification } from 'antd';
 import { FormInstance, useForm } from 'antd/es/form/Form';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import dayjs from 'dayjs';
@@ -18,6 +18,7 @@ import {
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import { CF_BUTTON_EXCLUIR } from '~/core/constants/ids/button/intex';
+import { FormularioDrawerEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 
 type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
@@ -29,7 +30,7 @@ type DrawerFormularioEncontroTurmasProps = {
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 dayjs.locale(locale);
-const format = 'HH:mm';
+
 const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasProps> = ({
   openModal,
   onCloseModal,
@@ -37,11 +38,11 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   form,
   dadosEncontro,
 }) => {
-  const { RangePicker } = TimePicker;
+  // const { RangePicker } = TimePicker;
+  const [formInitialValues, setFormInitialValues] = useState<FormularioDrawerEncontro>();
   const [formDrawer] = useForm();
   const { TextArea } = Input;
   const validiarPeriodo = () => {
-    if (dadosEncontro != null) return true;
     const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
     if (!periodoRealizacao) {
       notification.warning({
@@ -54,9 +55,26 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 
     return true;
   };
+
+  const carregarDados = useCallback(() => {
+    console.log(dadosEncontro);
+    formDrawer.setFieldValue('local', dadosEncontro!.local);
+    formDrawer.setFieldValue('turmas', dadosEncontro!.turmasId);
+    formDrawer.setFieldValue('tipoEncontro', dadosEncontro!.tipoEncontro);
+    console.log(formDrawer.getFieldsValue());
+  }, [dadosEncontro]);
+
   useEffect(() => {
-    formDrawer.resetFields();
-  }, [formDrawer]);
+    if (dadosEncontro?.id) {
+      carregarDados();
+      setTimeout(() => {
+        formDrawer.setFieldValue('horarios', [
+          dayjs(dadosEncontro?.horarios[0], 'HH:mm'),
+          dayjs(dadosEncontro?.horarios[1], 'HH:mm'),
+        ]);
+      }, 2000);
+    }
+  }, [carregarDados, dadosEncontro?.id]);
 
   const validarSeEstaDentroDoPeriodo = (datas: PropostaEncontroDataDTO[]) => {
     const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
@@ -96,6 +114,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     return true;
   };
   const obterDadosForm = async () => {
+    console.log('form', formDrawer.getFieldsValue());
     if (validiarPeriodo()) {
       formDrawer.submit();
       const horarios = formDrawer.getFieldValue('horarios');
@@ -103,16 +122,6 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       const horaFim = new Date(horarios[1]).toLocaleTimeString('pt-BR');
       const datas = Array<PropostaEncontroDataDTO>();
       const turmas = Array<PropostaEncontroTurmaDTO>();
-      const dataInicial = new Date(formDrawer.getFieldValue('dataInicial'));
-
-      const dataFinal = formDrawer.getFieldValue('dataFinal')
-        ? new Date(formDrawer.getFieldValue('dataFinal'))
-        : null;
-      const dataPrincial: PropostaEncontroDataDTO = {
-        dataInicio: dataInicial,
-        dataFim: dataFinal,
-      };
-      datas.push(dataPrincial);
 
       const dataAdicionada = formDrawer.getFieldValue('datas');
       for (let index = 0; index < dataAdicionada?.length; index++) {
@@ -135,6 +144,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
         validarSeEstaDentroDoPeriodo(datas);
         const encontro: PropostaEncontroDTO = {
           id: dadosEncontro?.id ?? 0,
+          propostaId: idProposta,
           horaFim: horaFim.substring(0, 5),
           horaInicio: horaInicio.substring(0, 5),
           tipo: formDrawer.getFieldValue('tipoEncontro'),
@@ -142,7 +152,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
           turmas: turmas,
           datas: datas,
         };
-        console.log(encontro);
+        console.log('encontro', encontro);
         await salvarEncontro(encontro);
       }
     }
@@ -180,6 +190,11 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       });
     }
   };
+
+  useEffect(() => {
+    formDrawer.resetFields();
+  }, [formDrawer, formInitialValues]);
+
   return (
     <>
       {openModal ? (
@@ -204,9 +219,14 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                   </Space>
                 }
               >
-                <Form form={formDrawer} layout='vertical' autoComplete='off'>
+                <Form
+                  form={formDrawer}
+                  layout='vertical'
+                  autoComplete='off'
+                  initialValues={formInitialValues}
+                >
                   <Row gutter={[16, 16]}>
-                    <Col span={10}>
+                    <Col span={12}>
                       <SelectTurmaEncontros idProposta={idProposta} />
                     </Col>
                     <Col span={12}>
@@ -217,11 +237,12 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                     <Col span={12}>
                       <Form.Item
                         name='horarios'
+                        // key='horarios'
                         label='Hora de início e Fim'
                         rules={[{ required: true, message: 'Informe a Hora de início e Fim' }]}
                       >
-                        <RangePicker
-                          format={format}
+                        <TimePicker.RangePicker
+                          format='HH:mm'
                           allowClear
                           style={{ width: '328px' }}
                           locale={localeDatePicker}
@@ -237,6 +258,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                       <Form.Item
                         label='Local'
                         name='local'
+                        key='local'
                         rules={[{ required: true, message: 'Informe o local' }]}
                       >
                         <TextArea
@@ -244,7 +266,6 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                           minLength={1}
                           showCount
                           placeholder='Informe o Local'
-                          value={dadosEncontro?.local}
                         />
                       </Form.Item>
                     </Col>

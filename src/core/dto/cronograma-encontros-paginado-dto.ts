@@ -6,6 +6,9 @@ export type CronogramaEncontrosPaginadoDto = {
   turmas: string;
   datas: string;
   hora: string;
+  horarios: Array<Date>;
+  horaInicio: string;
+  horaFim: string;
   tipoEncontro: TipoEncontro | null;
   tipoEncontroDescricao: string | null;
   local: string;
