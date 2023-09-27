@@ -1,6 +1,6 @@
 import { Button, Col, Drawer, Form, Input, Row, TimePicker, Space, notification } from 'antd';
 import { FormInstance, useForm } from 'antd/es/form/Form';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import dayjs from 'dayjs';
@@ -9,13 +9,15 @@ import localeData from 'dayjs/plugin/localeData';
 import locale from 'dayjs/locale/pt-br';
 import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
 import DatePickerMultiplos from '~/components/main/input/data-lista';
-import { salvarPropostaEncontro } from '~/core/services/proposta-service';
+import { removerPropostaEncontro, salvarPropostaEncontro } from '~/core/services/proposta-service';
 import {
   PropostaEncontroDTO,
   PropostaEncontroDataDTO,
   PropostaEncontroTurmaDTO,
 } from '~/core/dto/proposta-encontro-dto';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
+import ButtonExcluir from '~/components/lib/excluir-button';
+import { CF_BUTTON_EXCLUIR } from '~/core/constants/ids/button/intex';
 
 type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
@@ -52,6 +54,10 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 
     return true;
   };
+  useEffect(() => {
+    formDrawer.resetFields();
+  }, [formDrawer]);
+
   const validarSeEstaDentroDoPeriodo = (datas: PropostaEncontroDataDTO[]) => {
     const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
     const periodoInicio = new Date(periodoRealizacao[0]);
@@ -128,7 +134,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       if (validarDataInicialEFinal(datas)) {
         validarSeEstaDentroDoPeriodo(datas);
         const encontro: PropostaEncontroDTO = {
-          id: dadosEncontro?.id,
+          id: dadosEncontro?.id ?? 0,
           horaFim: horaFim.substring(0, 5),
           horaInicio: horaInicio.substring(0, 5),
           tipo: formDrawer.getFieldValue('tipoEncontro'),
@@ -160,6 +166,20 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     formDrawer.resetFields();
     onCloseModal();
   };
+  const excluirEncontro = async () => {
+    const response = await removerPropostaEncontro(dadosEncontro!.id!);
+    if (response.sucesso) {
+      notification.success({
+        message: 'Sucesso',
+        description: 'Registro excluído com Sucesso!',
+      });
+    } else {
+      notification.error({
+        message: 'Erro',
+        description: 'Falha ao excluir encontro!',
+      });
+    }
+  };
   return (
     <>
       {openModal ? (
@@ -174,7 +194,10 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                 bodyStyle={{ paddingBottom: 80 }}
                 extra={
                   <Space>
-                    <Button onClick={onCloseModal}>Cancelar</Button>
+                    {dadosEncontro?.id ? (
+                      <ButtonExcluir id={CF_BUTTON_EXCLUIR} onClick={excluirEncontro} />
+                    ) : null}
+                    <Button onClick={fecharModal}>Cancelar</Button>
                     <Button onClick={obterDadosForm} type='primary'>
                       Salvar
                     </Button>
