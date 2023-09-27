@@ -1,7 +1,7 @@
 import { TipoEncontro } from '../enum/tipo-encontro';
 
 export type PropostaEncontroDTO = {
-  id: number | 0;
+  id?: number | 0;
   horaInicio: string | null;
   horaFim: string | null;
   tipo: TipoEncontro | null;

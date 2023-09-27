@@ -15,13 +15,14 @@ import {
   PropostaEncontroDataDTO,
   PropostaEncontroTurmaDTO,
 } from '~/core/dto/proposta-encontro-dto';
+import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 
 type DrawerFormularioEncontroTurmasProps = {
   openModal: boolean;
   form: FormInstance;
   onCloseModal: VoidFunction;
   idProposta: number;
-  idEncontro?: number | 0;
+  dadosEncontro?: CronogramaEncontrosPaginadoDto;
 };
 dayjs.extend(weekday);
 dayjs.extend(localeData);
@@ -32,13 +33,14 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   onCloseModal,
   idProposta,
   form,
-  idEncontro = 0,
+  dadosEncontro,
 }) => {
   const { RangePicker } = TimePicker;
   const [formDrawer] = useForm();
   const [loading, setLoading] = useState(false);
   const { TextArea } = Input;
   const validiarPeriodo = () => {
+    if (dadosEncontro != null) return true;
     const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
     if (!periodoRealizacao) {
       notification.warning({
@@ -127,7 +129,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       if (validarDataInicialEFinal(datas)) {
         validarSeEstaDentroDoPeriodo(datas);
         const encontro: PropostaEncontroDTO = {
-          id: idEncontro,
+          id: dadosEncontro?.id,
           horaFim: horaFim.substring(0, 5),
           horaInicio: horaInicio.substring(0, 5),
           tipo: formDrawer.getFieldValue('tipoEncontro'),
@@ -225,6 +227,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                           minLength={1}
                           showCount
                           placeholder='Informe o Local'
+                          value={dadosEncontro?.local}
                         />
                       </Form.Item>
                     </Col>

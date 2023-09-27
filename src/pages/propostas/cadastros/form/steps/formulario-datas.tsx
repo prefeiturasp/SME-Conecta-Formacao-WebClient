@@ -38,10 +38,12 @@ type FormularioDatasProps = {
 };
 const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
   const abrirModal = async () => {
-    if (validiarPeriodo()) setOpenModal(true);
+    if (validiarPeriodo(false)) setOpenModal(true);
   };
-  const validiarPeriodo = () => {
+  const validiarPeriodo = (registroExistente: boolean) => {
+    if (registroExistente) return true;
     const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
     if (!periodoRealizacao) {
       notification.warning({
@@ -57,6 +59,10 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
   const fechaModal = () => {
     setOpenModal(false);
   };
+  const onClickEditar = (idEncontro: CronogramaEncontrosPaginadoDto) => {
+    setDadosEncontro(idEncontro);
+    if (validiarPeriodo(true)) setOpenModal(true);
+  };
   const propostaId = idProposta != null ? parseInt(idProposta) : 0;
 
   const url_api_encontro = `v1/Proposta/${propostaId}/encontro`;
@@ -68,6 +74,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
         onCloseModal={fechaModal}
         form={form}
         idProposta={propostaId}
+        dadosEncontro={dadosEncontro}
       />
       <Col>
         <Col xs={24} sm={14} md={24} style={contentStyle}>
@@ -105,7 +112,15 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
           </Col>
         </Row>
         <Col span={24}>
-          <DataTableEncontros url={url_api_encontro} columns={columns} />
+          <DataTableEncontros
+            url={url_api_encontro}
+            columns={columns}
+            onRow={(row) => ({
+              onClick: () => {
+                onClickEditar(row);
+              },
+            })}
+          />
         </Col>
         <Col xs={24} sm={14} md={24} style={contentStyle}>
           Inscrição

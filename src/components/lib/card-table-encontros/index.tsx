@@ -17,7 +17,7 @@ type DataTableProps<T> = {
   url: string;
 } & TableProps<T>;
 
-const DataTableEncontros = <T extends object>({
+const DataTableEncontros = ({
   filters,
   url,
   columns,
@@ -69,12 +69,11 @@ const DataTableEncontros = <T extends object>({
       .finally(() => setLoading(false));
   };
   const montarDtoRetorno = (lista: PropostaEncontroDTO[]) => {
-
     const encontros = Array<CronogramaEncontrosPaginadoDto>();
     for (let index = 0; index < lista.length; index++) {
       const listaDatasFormatadas = Array<string>();
 
-      const listaFilrada = lista.filter(x=> x.id == lista[index].id);
+      const listaFilrada = lista.filter((x) => x.id == lista[index].id);
       listaFilrada.forEach((valores) => {
         valores.datas.forEach((d) => {
           const inicio = new Date(d.dataInicio).toLocaleDateString();
