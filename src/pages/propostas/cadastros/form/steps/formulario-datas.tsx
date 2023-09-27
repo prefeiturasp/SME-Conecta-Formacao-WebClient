@@ -59,8 +59,8 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
   const fechaModal = () => {
     setOpenModal(false);
   };
-  const onClickEditar = (idEncontro: CronogramaEncontrosPaginadoDto) => {
-    setDadosEncontro(idEncontro);
+  const onClickEditar = (encontro: CronogramaEncontrosPaginadoDto) => {
+    setDadosEncontro(encontro);
     if (validiarPeriodo(true)) setOpenModal(true);
   };
   const propostaId = idProposta != null ? parseInt(idProposta) : 0;
