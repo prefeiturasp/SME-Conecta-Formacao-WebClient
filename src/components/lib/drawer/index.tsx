@@ -37,7 +37,6 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 }) => {
   const { RangePicker } = TimePicker;
   const [formDrawer] = useForm();
-  const [loading, setLoading] = useState(false);
   const { TextArea } = Input;
   const validiarPeriodo = () => {
     if (dadosEncontro != null) return true;
@@ -143,24 +142,19 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     }
   };
   const salvarEncontro = async (encontro: PropostaEncontroDTO) => {
-    setLoading(true);
     const result = await salvarPropostaEncontro(idProposta, encontro);
     if (result.sucesso) {
-      setLoading(false);
       notification.success({
         message: 'Sucesso',
         description: 'Registro salvo com Sucesso!',
       });
       formDrawer.resetFields();
     } else {
-      setLoading(false);
-
       notification.error({
         message: 'Erro',
         description: 'Falha ao salvar encontro!',
       });
     }
-    setLoading(false);
   };
   const fecharModal = () => {
     formDrawer.resetFields();
