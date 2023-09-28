@@ -12,7 +12,7 @@ type SelectTurmaEncontrosProps = {
   required?: boolean | true;
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;
-  idProposta: number;
+  idProposta: any;
 };
 
 const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({

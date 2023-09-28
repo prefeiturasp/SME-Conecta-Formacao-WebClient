@@ -1,14 +1,15 @@
-export type FormularioDrawerEncontro = {
-  turmas: number[];
-  dataInicial: string;
-  dataFinal: string;
-  datas: Data[];
-  horarios: string[];
-  tipoEncontro: number;
-  local: string;
+import { Dayjs } from 'dayjs';
+import { TipoEncontro } from '../enum/tipo-encontro';
+
+export type DataEncontro = {
+  dataInicial: Dayjs;
+  dataFinal: Dayjs;
 };
 
-export type Data = {
-  dataInicial: string;
-  dataFinal: string;
+export type FormularioDrawerEncontro = {
+  turmas: number[];
+  datas: DataEncontro[];
+  horarios: Dayjs[];
+  tipoEncontro: TipoEncontro;
+  local: string;
 };

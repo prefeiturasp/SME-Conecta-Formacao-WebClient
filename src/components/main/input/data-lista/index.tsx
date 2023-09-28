@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Form, Row, Space, theme } from 'antd';
+import { Button, DatePicker, Form, Row, Space, theme } from 'antd';
 import React from 'react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 import localeDayjs from 'dayjs/locale/pt-br';
@@ -11,12 +11,12 @@ dayjs.extend(weekday);
 dayjs.extend(localeData);
 dayjs.locale(localeDayjs);
 
-dayjs.extend(weekday);
-dayjs.extend(localeData);
-dayjs.locale(localeDayjs);
 const { useToken } = theme;
 
-const DatePickerMultiplos: React.FC = () => {
+type Thiago = {
+  disabledDate: any;
+};
+const DatePickerMultiplos: React.FC<Thiago> = ({ disabledDate }) => {
   const { token } = useToken();
   const dateFormat = 'DD/MM/YYYY';
   const initialValue = [{ data: '' }];
@@ -43,6 +43,7 @@ const DatePickerMultiplos: React.FC = () => {
                       id={`${CF_INPUT_DATA}_${name + 1}`}
                       locale={localeDatePicker}
                       format={dateFormat}
+                      disabledDate={disabledDate}
                     />
                   </Form.Item>
                   <Form.Item
@@ -59,6 +60,7 @@ const DatePickerMultiplos: React.FC = () => {
                       id={`${CF_INPUT_DATA}_${name + 1}`}
                       locale={localeDatePicker}
                       format={dateFormat}
+                      disabledDate={disabledDate}
                     />
                   </Form.Item>
 
@@ -69,12 +71,12 @@ const DatePickerMultiplos: React.FC = () => {
                       icon={<FaPlus />}
                       onClick={() => add()}
                       style={{
-                        fontSize: 16,
-                        width: '43px',
+                        fontSize: 18,
+                        width: '83px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        marginTop: '24px',
+                        marginTop: '37px',
                       }}
                     />
                   ) : (
@@ -83,12 +85,12 @@ const DatePickerMultiplos: React.FC = () => {
                       onClick={() => remove(name)}
                       style={{
                         color: token.colorError,
-                        fontSize: 16,
-                        width: '43px',
+                        fontSize: 18,
+                        width: '83px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        marginTop: '34px',
+                        marginTop: '47px',
                       }}
                     />
                   )}

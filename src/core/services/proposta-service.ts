@@ -57,12 +57,12 @@ const obterTipoEncontro = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-encontro`);
 
 const obterPropostaEncontrosPaginado = (
-  propostaId: number,
+  propostaId: number | string,
 ): Promise<ApiResult<PropostaEncontroDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/encontro`);
 
 const salvarPropostaEncontro = (
-  propostaId: number,
+  propostaId: number | string,
   encontro: PropostaEncontroDTO,
 ): Promise<ApiResult<number>> =>
   inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/encontro`, encontro);

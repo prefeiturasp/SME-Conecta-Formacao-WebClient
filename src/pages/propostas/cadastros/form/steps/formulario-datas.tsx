@@ -1,11 +1,13 @@
 import { Button, Col, FormInstance, Row, notification } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useState } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import React, { useEffect, useState } from 'react';
 import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
+import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 import { Colors } from '~/core/styles/colors';
 
 const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
@@ -39,14 +41,30 @@ type FormularioDatasProps = {
 const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
-  const abrirModal = async () => {
+
+  const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
+
+  const dataInicial = periodoRealizacao?.[0] as Dayjs;
+  const dataFinal = periodoRealizacao?.[1] as Dayjs;
+
+  const propostaId = idProposta ? parseInt(idProposta) : 0;
+
+  const url_api_encontro = `v1/Proposta/${propostaId}/encontro`;
+
+  const abrirModal = () => {
     setDadosEncontro(undefined);
-    if (validiarPeriodo(false)) setOpenModal(true);
+    const permiteAbrirModal = validiarPeriodo();
+
+    if (permiteAbrirModal) {
+      setOpenModal(true);
+      return true;
+    }
+    return false;
   };
-  const validiarPeriodo = (registroExistente: boolean) => {
-    if (registroExistente) return true;
-    const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
-    if (!periodoRealizacao) {
+
+  const validiarPeriodo = () => {
+    debugger;
+    if (dataInicial && dataFinal && dataInicial?.isValid() && dataFinal?.isValid()) {
       notification.warning({
         message: 'Atenção',
         description: 'Informe a dada do Período de realização',
@@ -57,26 +75,31 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
 
     return true;
   };
-  const fechaModal = () => {
-    setOpenModal(false);
-  };
-  const onClickEditar = (encontro: CronogramaEncontrosPaginadoDto) => {
-    setDadosEncontro(encontro);
-    if (validiarPeriodo(true)) setOpenModal(true);
-  };
-  const propostaId = idProposta != null ? parseInt(idProposta) : 0;
 
-  const url_api_encontro = `v1/Proposta/${propostaId}/encontro`;
+  const onCloseModal = (salvou: boolean) => {
+    setDadosEncontro(undefined);
+    setOpenModal(false);
+    if (salvou) {
+      // TODO - Recaregar tabela
+    }
+  };
+
+  const onClickEditar = (encontro: CronogramaEncontrosPaginadoDto) => {
+    if (abrirModal()) {
+      setDadosEncontro(encontro);
+    }
+  };
 
   return (
     <>
-      <DrawerFormularioEncontroTurmas
-        openModal={openModal}
-        onCloseModal={fechaModal}
-        form={form}
-        idProposta={propostaId}
-        dadosEncontro={dadosEncontro}
-      />
+      {openModal && (
+        <DrawerFormularioEncontroTurmas
+          openModal={openModal}
+          onCloseModal={onCloseModal}
+          periodoRealizacao={periodoRealizacao}
+          dadosEncontro={dadosEncontro}
+        />
+      )}
       <Col>
         <Col xs={24} sm={14} md={24} style={contentStyle}>
           Cronograma geral

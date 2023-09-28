@@ -74,7 +74,6 @@ const DataTableEncontros = ({
       const listaDatasFormatadas = Array<string>();
 
       const listaFilrada = lista.filter((x) => x.id == lista[index].id);
-      console.log(listaFilrada);
       listaFilrada.forEach((valores) => {
         valores.datas.forEach((d) => {
           const inicio = new Date(d.dataInicio).toLocaleDateString();
@@ -106,6 +105,7 @@ const DataTableEncontros = ({
         horarios: [horaDataInicial, horaDataFinal],
         turmas: listaTurmasFormatadas.join(', '),
         datas: listaDatasFormatadas.join(', '),
+        datasPeriodos: lista[index].datas,
         horaInicio: lista[index].horaInicio!,
         horaFim: lista[index].horaFim!,
         hora: `${lista[index].horaInicio!} até ${lista[index].horaFim!}`,
