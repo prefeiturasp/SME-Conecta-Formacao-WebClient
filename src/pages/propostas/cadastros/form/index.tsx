@@ -273,11 +273,10 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const passoAnterior = async () => {
     // TODO
-    currentStep >= StepPropostaEnum.Datas && setCurrentStep(currentStep - 1);
+    currentStep >= StepPropostaEnum.Detalhamento && setCurrentStep(currentStep - 1);
   };
 
   const salvarRascunho = () => {
-    console.log(form.getFieldsValue());
     salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
   };
 
@@ -383,7 +382,7 @@ const FormCadastroDePropostas: React.FC = () => {
                   onClick={passoAnterior}
                   id={CF_BUTTON_STEP_ANTERIOR}
                   style={{ fontWeight: 700 }}
-                  disabled={currentStep < StepPropostaEnum.Datas}
+                  disabled={currentStep < StepPropostaEnum.Detalhamento}
                 >
                   Passo anterior
                 </Button>
@@ -419,14 +418,7 @@ const FormCadastroDePropostas: React.FC = () => {
         <CardContent>
           <Divider orientation='left' />
 
-          <Steps
-            current={currentStep}
-            items={stepsProposta}
-            onChange={(value) => {
-              id ? setCurrentStep(value) : null;
-            }}
-            style={{ marginBottom: 55 }}
-          />
+          <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
           {selecionarTelaStep(currentStep, id.toString())}
           <Auditoria dados={formInitialValues?.auditoria} />
         </CardContent>
