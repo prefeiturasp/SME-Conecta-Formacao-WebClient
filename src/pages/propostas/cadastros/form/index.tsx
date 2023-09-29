@@ -422,7 +422,9 @@ const FormCadastroDePropostas: React.FC = () => {
           <Steps
             current={currentStep}
             items={stepsProposta}
-            onChange={(value) => setCurrentStep(value)}
+            onChange={(value) => {
+              id ? setCurrentStep(value) : null;
+            }}
             style={{ marginBottom: 55 }}
           />
           {selecionarTelaStep(currentStep, id.toString())}
