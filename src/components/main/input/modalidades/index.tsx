@@ -27,6 +27,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
 
   const obterDados = async (tipoFormacao: TipoFormacao) => {
     tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
+
     if (tipoFormacao) {
       const resposta = await obterModalidades(tipoFormacao);
       if (resposta.sucesso) {
@@ -34,17 +35,22 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
           label: item.descricao,
           value: item.id,
         }));
+
+        const modalidade = form.getFieldValue('modalidade');
+        if (!newOptions.some((t) => t.value === modalidade)) {
+          form.setFieldValue('modalidade', null);
+        }
+
         setOptions(newOptions);
         return;
       }
     }
   };
+
   const iconTooltip = exibirTooltip ? (
-    <>
-      <Tooltip>
-        <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-      </Tooltip>
-    </>
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+    </Tooltip>
   ) : (
     <></>
   );

@@ -117,7 +117,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
         />
       </Col>
       <Col xs={24} sm={12} md={8}>
-        <Form.Item shouldUpdate>
+        <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
           {(form) => {
             const quantidadeTurmas = form.getFieldValue('quantidadeTurmas') || 0;
             const quantidadeVagasTurma = form.getFieldValue('quantidadeVagasTurma') || 0;

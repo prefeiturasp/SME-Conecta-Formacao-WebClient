@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs';
 import { Modalidade } from '../enum/modalidade';
 import { SituacaoRegistro } from '../enum/situacao-registro';
 import { TipoFormacao } from '../enum/tipo-formacao';
@@ -16,15 +17,18 @@ export type PropostaDTO = {
   nomeFormacao?: string;
   quantidadeTurmas?: number;
   quantidadeVagasTurma?: number;
-  publicosAlvo: PropostaPublicoAlvoDTO[];
-  quantidadeTotal?: number;
-  funcoesEspecificas: PropostaFuncaoEspecificaDTO[];
   funcaoEspecificaOutros: string;
-  vagasRemanecentes: PropostaVagaRemanecenteDTO[];
-  criteriosValidacaoInscricao: PropostaCriterioValidacaoInscricaoDTO[];
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoRegistro;
   arquivoImagemDivulgacaoId?: number;
+  dataRealizacaoInicio?: Dayjs;
+  dataRealizacaoFim?: Dayjs;
+  dataInscricaoInicio?: Dayjs;
+  dataInscricaoFim?: Dayjs;
+  publicosAlvo: PropostaPublicoAlvoDTO[];
+  funcoesEspecificas: PropostaFuncaoEspecificaDTO[];
+  vagasRemanecentes: PropostaVagaRemanecenteDTO[];
+  criteriosValidacaoInscricao: PropostaCriterioValidacaoInscricaoDTO[];
 };
 
 export type PropostaCompletoDTO = {
@@ -40,7 +44,6 @@ export type PropostaFormDTO = {
   quantidadeTurmas?: number;
   quantidadeVagasTurma?: number;
   publicosAlvo?: number[];
-  quantidadeTotal?: number;
   funcoesEspecificas?: number[];
   funcaoEspecificaOutros?: string;
   vagasRemanecentes?: number[];
@@ -49,4 +52,6 @@ export type PropostaFormDTO = {
   situacao?: SituacaoRegistro;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];
+  periodoRealizacao?: Dayjs[];
+  periodoInscricao?: Dayjs[];
 };
