@@ -12,6 +12,10 @@ export type PropostaEncontroDTO = {
   datas: DataEncontro[];
 };
 
+export type PropostaEncontroPaginadoDTO = {
+  datas: PropostaEncontroDataDTO[];
+} & PropostaEncontroDTO;
+
 export type PropostaEncontroTurmaDTO = {
   turma: number;
 };

@@ -4,7 +4,7 @@ import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import api from '~/core/services/api';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import queryString from 'query-string';
-import { PropostaEncontroDTO } from '~/core/dto/proposta-encontro-dto';
+import { PropostaEncontroPaginadoDTO } from '~/core/dto/proposta-encontro-dto';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { TipoEncontro } from '~/core/enum/tipo-encontro';
 
@@ -35,7 +35,7 @@ const DataTableEncontros = forwardRef(
     const fetchData = () => {
       setLoading(true);
       api
-        .get<PaginacaoResultadoDTO<PropostaEncontroDTO[]>>(url, {
+        .get<PaginacaoResultadoDTO<PropostaEncontroPaginadoDTO[]>>(url, {
           headers: {
             numeroPagina: tableParams.pagination?.current,
             numeroRegistros: tableParams.pagination?.pageSize,
@@ -64,7 +64,7 @@ const DataTableEncontros = forwardRef(
         })
         .finally(() => setLoading(false));
     };
-    const montarDtoRetorno = (lista: PropostaEncontroDTO[]) => {
+    const montarDtoRetorno = (lista: PropostaEncontroPaginadoDTO[]) => {
       const encontros = Array<CronogramaEncontrosPaginadoDto>();
       for (let index = 0; index < lista.length; index++) {
         const listaDatasFormatadas = Array<string>();
