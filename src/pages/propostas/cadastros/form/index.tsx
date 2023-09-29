@@ -240,23 +240,25 @@ const FormCadastroDePropostas: React.FC = () => {
       valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
     }
 
-    if (id) {
-      response = await alterarProposta(id, valoresSalvar);
-    } else {
-      response = await inserirProposta(valoresSalvar);
-    }
-
-    if (response.sucesso) {
-      notification.success({
-        message: 'Sucesso',
-        description: `Registro ${id ? 'alterado' : 'inserido'} com sucesso!`,
-      });
-
+    if (form.isFieldsTouched()) {
       if (id) {
-        carregarDados();
+        response = await alterarProposta(id, valoresSalvar);
       } else {
-        const novoId = response.dados;
-        navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
+        response = await inserirProposta(valoresSalvar);
+      }
+
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: `Registro ${id ? 'alterado' : 'inserido'} com sucesso!`,
+        });
+
+        if (id) {
+          carregarDados();
+        } else {
+          const novoId = response.dados;
+          navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
+        }
       }
       return true;
     }
