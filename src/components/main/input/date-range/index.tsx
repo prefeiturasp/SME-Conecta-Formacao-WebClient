@@ -34,11 +34,9 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
   const { RangePicker } = DatePicker;
   const dateFormat = 'DD/MM/YYYY';
   const iconTooltip = exibirTooltip ? (
-    <>
-      <Tooltip>
-        <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-      </Tooltip>
-    </>
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+    </Tooltip>
   ) : (
     <></>
   );
@@ -47,7 +45,7 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
       <Form.Item
         label={label}
         name={name}
-        rules={[{ required: required }]}
+        rules={[{ required }]}
         tooltip={{
           title: titleToolTip,
           icon: iconTooltip,

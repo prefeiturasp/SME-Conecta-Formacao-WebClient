@@ -36,12 +36,11 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
   useEffect(() => {
     obterDados();
   }, []);
+
   const iconTooltip = exibirTooltip ? (
-    <>
-      <Tooltip>
-        <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-      </Tooltip>
-    </>
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+    </Tooltip>
   ) : (
     <></>
   );

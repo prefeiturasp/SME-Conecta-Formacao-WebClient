@@ -1,7 +1,7 @@
-import { Button, Col, FormInstance, Row, notification } from 'antd';
+import { Button, Col, Form, FormInstance, Row, notification } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import dayjs, { Dayjs } from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import { Dayjs } from 'dayjs';
+import React, { useRef, useState } from 'react';
 import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
 import DatePickerPeriodo from '~/components/main/input/date-range';
@@ -22,12 +22,12 @@ const contentStyle: React.CSSProperties = {
   fontWeight: 'bold',
 };
 const stuleButtonAddData: React.CSSProperties = {
-  float: 'right',
   textAlign: 'center',
   width: '200px',
   marginBottom: '10px',
   marginTop: '2px',
-  marginLeft: '750px',
+  justifyContent: 'center',
+  display: 'flex',
 };
 const contentStyleTituloListagem: React.CSSProperties = {
   fontSize: 16,
@@ -42,10 +42,17 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
 
-  const periodoRealizacao = form?.getFieldValue('periodoRealizacao');
+  const refTable = useRef<any>(null);
 
-  const dataInicial = periodoRealizacao?.[0] as Dayjs;
-  const dataFinal = periodoRealizacao?.[1] as Dayjs;
+  const datasPeriodoRealizacao = Form.useWatch('periodoRealizacao', form);
+
+  const dataInicio = datasPeriodoRealizacao?.[0] as Dayjs;
+  const dataFim = datasPeriodoRealizacao?.[1] as Dayjs;
+
+  const periodoRealizacao: DataEncontro = {
+    dataInicio,
+    dataFim,
+  };
 
   const propostaId = idProposta ? parseInt(idProposta) : 0;
 
@@ -63,8 +70,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
   };
 
   const validiarPeriodo = () => {
-    debugger;
-    if (dataInicial && dataFinal && dataInicial?.isValid() && dataFinal?.isValid()) {
+    if (!dataInicio || !dataFim || !dataInicio?.isValid() || !dataFim?.isValid()) {
       notification.warning({
         message: 'Atenção',
         description: 'Informe a dada do Período de realização',
@@ -76,11 +82,12 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
     return true;
   };
 
-  const onCloseModal = (salvou: boolean) => {
+  const onCloseModal = (recarregarLista: boolean) => {
     setDadosEncontro(undefined);
     setOpenModal(false);
-    if (salvou) {
-      // TODO - Recaregar tabela
+
+    if (recarregarLista && refTable?.current) {
+      refTable.current?.reloadTable();
     }
   };
 
@@ -101,59 +108,60 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
         />
       )}
       <Col>
-        <Col xs={24} sm={14} md={24} style={contentStyle}>
-          Cronograma geral
-        </Col>
-        <Col xs={24} sm={14} md={24} lg={24} xl={5}>
-          <b>
-            <DatePickerPeriodo
-              label='Período de realização'
-              name='periodoRealizacao'
-              required
-              exibirTooltip
-              titleToolTip='Primeiro dia da primeira turma até o último dia da última turma.'
-            />
-          </b>
-        </Col>
-        <Row gutter={[8, 8]}>
+        <Row gutter={[16, 8]}>
           <Col xs={24} sm={14} md={24} style={contentStyle}>
-            Cronograma de encontros
+            Cronograma geral
           </Col>
-          <Col>
-            <Button
-              type='primary'
-              id={CF_BUTTON_NOVO}
-              onClick={abrirModal}
-              style={stuleButtonAddData}
-            >
-              Adicionar datas
-            </Button>
+          <Col sm={24} md={12} lg={8}>
+            <b>
+              <DatePickerPeriodo
+                label='Período de realização'
+                name='periodoRealizacao'
+                required
+                exibirTooltip
+                titleToolTip='Primeiro dia da primeira turma até o último dia da última turma.'
+              />
+            </b>
           </Col>
-        </Row>
-        <Row>
+          <Col xs={24}>
+            <Row wrap={false} justify='space-between'>
+              <Col style={contentStyle}>Cronograma de encontros</Col>
+              <Col>
+                <Button
+                  type='primary'
+                  id={CF_BUTTON_NOVO}
+                  onClick={abrirModal}
+                  style={stuleButtonAddData}
+                >
+                  Adicionar datas
+                </Button>
+              </Col>
+            </Row>
+          </Col>
           <Col xs={24} sm={14} md={24} style={contentStyleTituloListagem}>
             Listagem de encontros
           </Col>
+          <Col span={24}>
+            <DataTableEncontros
+              ref={refTable}
+              url={url_api_encontro}
+              columns={columns}
+              onRow={(row) => ({
+                onClick: () => {
+                  onClickEditar(row);
+                },
+              })}
+            />
+          </Col>
+          <Col xs={24} sm={14} md={24} style={contentStyle}>
+            Inscrição
+          </Col>
+          <Col xs={24} sm={10} md={7} lg={7} xl={5}>
+            <b>
+              <DatePickerPeriodo label='Período de inscricao' name='periodoInscricao' required />
+            </b>
+          </Col>
         </Row>
-        <Col span={24}>
-          <DataTableEncontros
-            url={url_api_encontro}
-            columns={columns}
-            onRow={(row) => ({
-              onClick: () => {
-                onClickEditar(row);
-              },
-            })}
-          />
-        </Col>
-        <Col xs={24} sm={14} md={24} style={contentStyle}>
-          Inscrição
-        </Col>
-        <Col xs={24} sm={10} md={7} lg={7} xl={5}>
-          <b>
-            <DatePickerPeriodo label='Período de inscricao' name='periodoIncricao' required />
-          </b>
-        </Col>
       </Col>
     </>
   );

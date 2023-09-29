@@ -17,6 +17,6 @@ export type PropostaEncontroTurmaDTO = {
 };
 
 export type PropostaEncontroDataDTO = {
-  dataInicio: any;
-  dataFim?: any;
+  dataInicio: string;
+  dataFim?: string;
 };

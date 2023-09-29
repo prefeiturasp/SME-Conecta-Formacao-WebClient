@@ -43,6 +43,7 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import FormularioCertificacao from './steps/formulario-certificacao';
+import dayjs, { Dayjs } from 'dayjs';
 
 const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
@@ -127,6 +128,20 @@ const FormCadastroDePropostas: React.FC = () => {
         ];
       }
 
+      let periodoRealizacao: Dayjs[] = [];
+      const dataRealizacaoInicio = resposta?.dados?.dataRealizacaoInicio;
+      const dataRealizacaoFim = resposta?.dados?.dataRealizacaoFim;
+      if (dataRealizacaoInicio && dataRealizacaoFim) {
+        periodoRealizacao = [dayjs(dataRealizacaoInicio), dayjs(dataRealizacaoFim)];
+      }
+
+      let periodoInscricao: Dayjs[] = [];
+      const dataInscricaoInicio = resposta?.dados?.dataInscricaoInicio;
+      const dataInscricaoFim = resposta?.dados?.dataInscricaoFim;
+      if (dataInscricaoInicio && dataInscricaoFim) {
+        periodoInscricao = [dayjs(dataInscricaoInicio), dayjs(dataInscricaoFim)];
+      }
+
       const valoresIniciais: PropostaFormDTO = {
         ...resposta.dados,
         publicosAlvo,
@@ -134,6 +149,8 @@ const FormCadastroDePropostas: React.FC = () => {
         vagasRemanecentes,
         criteriosValidacaoInscricao,
         arquivos,
+        periodoRealizacao,
+        periodoInscricao,
       };
 
       setFormInitialValues(valoresIniciais);
@@ -167,6 +184,12 @@ const FormCadastroDePropostas: React.FC = () => {
     let response = null;
     const clonedValues = cloneDeep(values);
 
+    const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
+    const dataRealizacaoFim = values.periodoRealizacao?.[1];
+
+    const dataInscricaoInicio = values?.periodoInscricao?.[0];
+    const dataInscricaoFim = values.periodoInscricao?.[1];
+
     const valoresSalvar: PropostaDTO = {
       tipoFormacao: clonedValues?.tipoFormacao,
       modalidade: clonedValues?.modalidade,
@@ -175,13 +198,16 @@ const FormCadastroDePropostas: React.FC = () => {
       quantidadeTurmas: clonedValues?.quantidadeTurmas,
       quantidadeVagasTurma: clonedValues?.quantidadeVagasTurma,
       publicosAlvo: [],
-      quantidadeTotal: clonedValues?.quantidadeTotal,
       funcoesEspecificas: [],
       funcaoEspecificaOutros: clonedValues?.funcaoEspecificaOutros || '',
       vagasRemanecentes: [],
       criteriosValidacaoInscricao: [],
       criterioValidacaoInscricaoOutros: clonedValues?.criterioValidacaoInscricaoOutros || '',
       situacao,
+      dataRealizacaoInicio,
+      dataRealizacaoFim,
+      dataInscricaoInicio,
+      dataInscricaoFim,
     };
 
     if (clonedValues?.publicosAlvo?.length) {
@@ -290,22 +316,29 @@ const FormCadastroDePropostas: React.FC = () => {
       navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
+
   const selecionarTelaStep = (stepSelecionado: StepPropostaEnum, propostaId: string) => {
-    switch (stepSelecionado) {
-      case StepPropostaEnum.InformacoesGerais:
-        return <FormInformacoesGerais form={form} />;
-      case StepPropostaEnum.Datas:
-        return <FormularioDatas form={form} idProposta={propostaId} />;
-      case StepPropostaEnum.Detalhamento:
-        return <FormularioDetalhamento form={form} />;
-      case StepPropostaEnum.Profissionais:
-        return <FormularioProfissionais form={form} />;
-      case StepPropostaEnum.Certificacao:
-        return <FormularioCertificacao form={form} />;
-      default:
-        return 'Seção em desenvolvimento!';
-    }
+    return (
+      <>
+        <Form.Item hidden={StepPropostaEnum.InformacoesGerais !== stepSelecionado}>
+          <FormInformacoesGerais form={form} />
+        </Form.Item>
+        <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
+          <FormularioDetalhamento form={form} />
+        </Form.Item>
+        <Form.Item hidden={StepPropostaEnum.Datas !== stepSelecionado}>
+          <FormularioDatas form={form} idProposta={propostaId} />
+        </Form.Item>
+        <Form.Item hidden={StepPropostaEnum.Profissionais !== stepSelecionado}>
+          <FormularioProfissionais form={form} />
+        </Form.Item>
+        <Form.Item hidden={StepPropostaEnum.Certificacao !== stepSelecionado}>
+          <FormularioCertificacao form={form} />
+        </Form.Item>
+      </>
+    );
   };
+
   return (
     <Col>
       <Form
@@ -392,7 +425,7 @@ const FormCadastroDePropostas: React.FC = () => {
             onChange={(value) => setCurrentStep(value)}
             style={{ marginBottom: 55 }}
           />
-          <Form.Item>{selecionarTelaStep(currentStep, id.toString())}</Form.Item>
+          {selecionarTelaStep(currentStep, id.toString())}
           <Auditoria dados={formInitialValues?.auditoria} />
         </CardContent>
       </Form>
