@@ -17,6 +17,7 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { DataEncontro, FormularioDrawerEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 import { PropostaEncontroDTO, PropostaEncontroDataDTO } from '~/core/dto/proposta-encontro-dto';
+import { TipoEncontro } from '~/core/enum/tipo-encontro';
 import { removerPropostaEncontro, salvarPropostaEncontro } from '~/core/services/proposta-service';
 
 const { TextArea } = Input;
@@ -40,7 +41,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 }) => {
   const [formDrawer] = useForm();
   const paramsRoute = useParams();
-
+  const [tipoEncontroSelecionado, setTipoEncontroSelecionado] = useState(undefined);
   const [formInitialValues, setFormInitialValues] = useState<any>({
     datas: [{ dataInicio: '', dataFim: '' }],
   });
@@ -79,7 +80,9 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 
     return (current && current < dataInicial?.startOf('day')) || current > dataFinal?.endOf('day');
   };
-
+  const obterTipoEncontro = () => {
+    setTipoEncontroSelecionado(formDrawer.getFieldValue('tipoEncontro'));
+  };
   const salvarDadosForm = async (values: FormularioDrawerEncontro) => {
     const horarios = values?.horarios;
     const horaInicio = horarios[0].format('hh:mm');
@@ -199,10 +202,18 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                   </Form.Item>
                 </Col>
                 <Col xs={13}>
-                  <SelectTipoEncontro />
+                  <SelectTipoEncontro
+                    exibirTooltip={false}
+                    selectProps={{ onChange: obterTipoEncontro }}
+                  />
                 </Col>
                 <Col xs={24}>
-                  <Form.Item label='Local' name='local' key='local' rules={[{ required: true }]}>
+                  <Form.Item
+                    label='Local'
+                    name='local'
+                    key='local'
+                    rules={[{ required: tipoEncontroSelecionado == TipoEncontro.Presencial }]}
+                  >
                     <TextArea maxLength={200} placeholder='Informe o Local' />
                   </Form.Item>
                 </Col>
