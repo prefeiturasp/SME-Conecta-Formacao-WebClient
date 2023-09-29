@@ -1,9 +1,9 @@
+import { Dayjs } from 'dayjs';
 import { Modalidade } from '../enum/modalidade';
 import { SituacaoRegistro } from '../enum/situacao-registro';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { TipoInscricao } from '../enum/tipo-inscricao';
 import { AuditoriaDTO } from './auditoria-dto';
-import { CronogramaEncontrosPaginadoDto } from './cronograma-encontros-paginado-dto';
 import { PropostaCriterioValidacaoInscricaoDTO } from './proposta-criterio-validacao-inscricao-dto';
 import { PropostaFuncaoEspecificaDTO } from './proposta-funcao-especifica-dto';
 import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
@@ -17,18 +17,18 @@ export type PropostaDTO = {
   nomeFormacao?: string;
   quantidadeTurmas?: number;
   quantidadeVagasTurma?: number;
-  publicosAlvo: PropostaPublicoAlvoDTO[];
-  quantidadeTotal?: number;
-  funcoesEspecificas: PropostaFuncaoEspecificaDTO[];
   funcaoEspecificaOutros: string;
-  vagasRemanecentes: PropostaVagaRemanecenteDTO[];
-  criteriosValidacaoInscricao: PropostaCriterioValidacaoInscricaoDTO[];
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoRegistro;
   arquivoImagemDivulgacaoId?: number;
-  periodoRealizacao?: Date;
-  periodoIncricao?: Date;
-  cronogramaDeEncontros?: CronogramaEncontrosPaginadoDto[];
+  dataRealizacaoInicio?: Dayjs;
+  dataRealizacaoFim?: Dayjs;
+  dataInscricaoInicio?: Dayjs;
+  dataInscricaoFim?: Dayjs;
+  publicosAlvo: PropostaPublicoAlvoDTO[];
+  funcoesEspecificas: PropostaFuncaoEspecificaDTO[];
+  vagasRemanecentes: PropostaVagaRemanecenteDTO[];
+  criteriosValidacaoInscricao: PropostaCriterioValidacaoInscricaoDTO[];
 };
 
 export type PropostaCompletoDTO = {
@@ -44,7 +44,6 @@ export type PropostaFormDTO = {
   quantidadeTurmas?: number;
   quantidadeVagasTurma?: number;
   publicosAlvo?: number[];
-  quantidadeTotal?: number;
   funcoesEspecificas?: number[];
   funcaoEspecificaOutros?: string;
   vagasRemanecentes?: number[];
@@ -53,7 +52,6 @@ export type PropostaFormDTO = {
   situacao?: SituacaoRegistro;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];
-  periodoRealizacao?: Date;
-  periodoIncricao?: Date;
-  cronogramaDeEncontros?: CronogramaEncontrosPaginadoDto[];
+  periodoRealizacao?: Dayjs[];
+  periodoInscricao?: Dayjs[];
 };

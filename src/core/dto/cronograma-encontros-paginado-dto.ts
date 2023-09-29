@@ -1,17 +1,17 @@
-import { TipoEncontro } from '../enum/tipo-encontro';
+import { TipoEncontro } from '~/core/enum/tipo-encontro';
+import { PropostaEncontroDataDTO } from './proposta-encontro-dto';
 
 export type CronogramaEncontrosPaginadoDto = {
   id?: number | 0;
-  idProposta: number;
-  turmasId: number[] | [];
-  datas: EncontroTurmaDatasDto[];
+  turmasId: number[];
+  turmas: string;
+  datas: string;
+  hora: string;
+  datasPeriodos: PropostaEncontroDataDTO[];
+  horarios: Array<Date>;
   horaInicio: string;
   horaFim: string;
-  tipoEncontro: TipoEncontro | TipoEncontro.Presencial;
+  tipoEncontro: TipoEncontro | null;
+  tipoEncontroDescricao: string | null;
   local: string;
-};
-
-export type EncontroTurmaDatasDto = {
-  dataInicio: Date;
-  dataFim?: Date | null;
 };

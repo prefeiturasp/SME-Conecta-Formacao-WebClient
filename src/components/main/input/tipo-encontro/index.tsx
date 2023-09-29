@@ -34,20 +34,20 @@ const SelectTipoEncontro: React.FC<SelectTipoEncontroProps> = ({
   useEffect(() => {
     obterDados();
   }, []);
+
   const iconTooltip = exibirTooltip ? (
-    <>
-      <Tooltip>
-        <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-      </Tooltip>
-    </>
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+    </Tooltip>
   ) : (
     <></>
   );
+
   return (
     <Form.Item
       label='Tipo de Encontro'
       name='tipoEncontro'
-      rules={[{ required: required, message: 'Selecione um Tipo de Encontro' }]}
+      rules={[{ required: required }]}
       tooltip={{
         title: 'Você deve informar um tipo de encontro',
         icon: iconTooltip,

@@ -12,7 +12,7 @@ type SelectTurmaEncontrosProps = {
   required?: boolean | true;
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;
-  idProposta: number;
+  idProposta: any;
 };
 
 const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
@@ -36,19 +36,18 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
   useEffect(() => {
     obterDados();
   }, []);
+
   const iconTooltip = exibirTooltip ? (
-    <>
-      <Tooltip>
-        <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-      </Tooltip>
-    </>
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+    </Tooltip>
   ) : (
     <></>
   );
   return (
     <Form.Item
       label='Turma'
-      name='turma'
+      name='turmas'
       rules={[{ required: required, message: 'Selecione um Turma' }]}
       tooltip={{
         title: 'Você deve informar a Quantidade de turmas, na sessão de Informações gerais',
