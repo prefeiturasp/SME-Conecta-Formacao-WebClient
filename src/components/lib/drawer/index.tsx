@@ -51,7 +51,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   const carregarDados = useCallback(() => {
     const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroDataDTO) => ({
       dataInicio: dayjs(item?.dataInicio),
-      dataFim: dayjs(item?.dataFim),
+      dataFim: item?.dataFim ? dayjs(item?.dataFim) : null,
     }));
 
     const valoresIniciais = {
