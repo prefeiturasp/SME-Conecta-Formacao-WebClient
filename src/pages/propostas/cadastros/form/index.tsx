@@ -181,6 +181,7 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const salvar = async (values: PropostaFormDTO, situacao: SituacaoRegistro) => {
+    if (!form.isFieldsTouched() && id) return true;
     let response = null;
     const clonedValues = cloneDeep(values);
 
@@ -300,7 +301,6 @@ const FormCadastroDePropostas: React.FC = () => {
       });
     }
   };
-
   const onClickVoltar = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
@@ -317,7 +317,6 @@ const FormCadastroDePropostas: React.FC = () => {
       navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
-
   const selecionarTelaStep = (stepSelecionado: StepPropostaEnum, propostaId: string) => {
     return (
       <>
@@ -395,7 +394,10 @@ const FormCadastroDePropostas: React.FC = () => {
                   onClick={proximoPasso}
                   id={CF_BUTTON_PROXIMO_STEP}
                   style={{ fontWeight: 700 }}
-                  disabled={currentStep >= StepPropostaEnum.Certificacao}
+                  disabled={
+                    (!form.isFieldsTouched() && !(parseInt(id.toString()) > 0)) ||
+                    currentStep >= StepPropostaEnum.Certificacao
+                  }
                 >
                   Próximo passo
                 </Button>
