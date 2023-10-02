@@ -30,7 +30,9 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
 
     return dataInicioMaiorQueFim ? Promise.reject(mensagem) : Promise.resolve();
   };
-
+  const popupContainer = (trigger: HTMLElement) => {
+    return trigger.parentNode as HTMLElement;
+  };
   return (
     <Form.List name='datas'>
       {(fields, { add, remove }) => (
@@ -67,9 +69,7 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
                         locale={localeDatePicker}
                         format={dateFormat}
                         disabledDate={disabledDate}
-                        getPopupContainer={(trigger: HTMLElement) =>
-                          trigger.parentNode as HTMLElement
-                        }
+                        getPopupContainer={(trigger: HTMLElement) => popupContainer(trigger)}
                         style={{
                           width: '100%',
                         }}
@@ -108,6 +108,7 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
                           locale={localeDatePicker}
                           format={dateFormat}
                           disabledDate={disabledDate}
+                          getPopupContainer={(trigger: HTMLElement) => popupContainer(trigger)}
                           style={{
                             width: '100%',
                           }}
