@@ -87,10 +87,9 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     const horarios = values?.horarios;
     const horaInicio = horarios[0].format('HH:mm');
     const horaFim = horarios[1].format('HH:mm');
-
     const datas = values.datas.map((d) => ({
       dataInicio: d.dataInicio,
-      dataFim: d.dataFim.length ? d.dataFim : null,
+      dataFim: values?.datas[0]?.dataFim?.toString()?.length ? d.dataFim : null,
     }));
     const turmas = values.turmas.map((turma) => ({ turma }));
 
