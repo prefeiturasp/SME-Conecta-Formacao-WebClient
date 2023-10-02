@@ -67,6 +67,9 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
                         locale={localeDatePicker}
                         format={dateFormat}
                         disabledDate={disabledDate}
+                        getPopupContainer={(trigger: HTMLElement) =>
+                          trigger.parentNode as HTMLElement
+                        }
                         style={{
                           width: '100%',
                         }}
