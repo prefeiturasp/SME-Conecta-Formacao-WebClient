@@ -85,8 +85,8 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   };
   const salvarDadosForm = async (values: FormularioDrawerEncontro) => {
     const horarios = values?.horarios;
-    const horaInicio = horarios[0].format('hh:mm');
-    const horaFim = horarios[1].format('hh:mm');
+    const horaInicio = horarios[0].format('HH:mm');
+    const horaFim = horarios[1].format('HH:mm');
 
     const datas = values.datas;
     const turmas = values.turmas.map((turma) => ({ turma }));

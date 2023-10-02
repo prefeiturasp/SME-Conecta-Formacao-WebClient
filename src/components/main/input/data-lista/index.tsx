@@ -21,16 +21,14 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
   const { token } = useToken();
   const dateFormat = 'DD/MM/YYYY';
 
-  const validarDataInicioFim = (dataInicio?: Dayjs, dataFim?: Dayjs) => {
+  const validarDataInicioFim = (mensagem: string, dataInicio?: Dayjs, dataFim?: Dayjs) => {
     let dataInicioMaiorQueFim = false;
 
     if (dataInicio && dataFim && dataInicio.isValid() && dataFim.isValid()) {
       dataInicioMaiorQueFim = dataInicio.isAfter(dataFim, 'day');
     }
 
-    return dataInicioMaiorQueFim
-      ? Promise.reject('Data início não pode ser maior que data fim')
-      : Promise.resolve();
+    return dataInicioMaiorQueFim ? Promise.reject(mensagem) : Promise.resolve();
   };
 
   return (
@@ -55,7 +53,11 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
 
                             const dataFim = datas[name]?.dataFim;
 
-                            return validarDataInicioFim(dataInicio, dataFim);
+                            return validarDataInicioFim(
+                              'Data inicial não pode ser maior que data final',
+                              dataInicio,
+                              dataFim,
+                            );
                           },
                         }),
                       ]}
@@ -89,7 +91,11 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
 
                               const dataFim = datas[name]?.dataFim;
 
-                              return validarDataInicioFim(dataInicio, dataFim);
+                              return validarDataInicioFim(
+                                'Data final não pode ser menor que data inicial',
+                                dataInicio,
+                                dataFim,
+                              );
                             },
                           }),
                         ]}
