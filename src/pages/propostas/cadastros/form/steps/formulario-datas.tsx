@@ -73,7 +73,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
     if (!dataInicio || !dataFim || !dataInicio?.isValid() || !dataFim?.isValid()) {
       notification.warning({
         message: 'Atenção',
-        description: 'Informe a dada do Período de realização',
+        description: 'Informe a data do Período de realização',
       });
 
       return false;
