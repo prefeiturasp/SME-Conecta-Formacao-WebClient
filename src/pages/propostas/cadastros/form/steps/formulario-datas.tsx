@@ -2,6 +2,7 @@ import { Button, Col, Form, FormInstance, Row, notification } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Dayjs } from 'dayjs';
 import React, { useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
 import DatePickerPeriodo from '~/components/main/input/date-range';
@@ -40,8 +41,9 @@ type FormularioDatasProps = {
 };
 const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const paramsRoute = useParams();
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
-
+  const id = paramsRoute?.id || 0;
   const refTable = useRef<any>(null);
 
   const datasPeriodoRealizacao = Form.useWatch('periodoRealizacao', form);
@@ -54,9 +56,9 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
     dataFim,
   };
 
-  const propostaId = idProposta ? parseInt(idProposta) : 0;
+  const propostaId = idProposta ? parseInt(id.toString()) : 0;
 
-  const url_api_encontro = `v1/Proposta/${propostaId}/encontro`;
+  const url_api_encontro = `v1/Proposta/${id}/encontro`;
 
   const abrirModal = () => {
     setDadosEncontro(undefined);
@@ -144,7 +146,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
           <Col span={24}>
             <DataTableEncontros
               ref={refTable}
-              url={url_api_encontro}
+              url={`v1/Proposta/${id}/encontro`}
               columns={columns}
               onRow={(row) => ({
                 onClick: () => {

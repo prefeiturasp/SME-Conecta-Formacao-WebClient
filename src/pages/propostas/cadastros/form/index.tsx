@@ -317,7 +317,7 @@ const FormCadastroDePropostas: React.FC = () => {
       navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
-  const selecionarTelaStep = (stepSelecionado: StepPropostaEnum, propostaId: string) => {
+  const selecionarTelaStep = (stepSelecionado: StepPropostaEnum) => {
     return (
       <>
         <Form.Item hidden={StepPropostaEnum.InformacoesGerais !== stepSelecionado}>
@@ -327,7 +327,7 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormularioDetalhamento form={form} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Datas !== stepSelecionado}>
-          <FormularioDatas form={form} idProposta={propostaId} />
+          <FormularioDatas form={form} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Profissionais !== stepSelecionado}>
           <FormularioProfissionais form={form} />
@@ -423,7 +423,7 @@ const FormCadastroDePropostas: React.FC = () => {
           <Divider orientation='left' />
 
           <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
-          {selecionarTelaStep(currentStep, id.toString())}
+          {selecionarTelaStep(currentStep)}
           <Auditoria dados={formInitialValues?.auditoria} />
         </CardContent>
       </Form>
