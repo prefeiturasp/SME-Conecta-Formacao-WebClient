@@ -37,9 +37,8 @@ const contentStyleTituloListagem: React.CSSProperties = {
 };
 type FormularioDatasProps = {
   form: FormInstance;
-  idProposta?: string;
 };
-const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) => {
+const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const paramsRoute = useParams();
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
@@ -55,10 +54,6 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
     dataInicio,
     dataFim,
   };
-
-  const propostaId = idProposta ? parseInt(id.toString()) : 0;
-
-  const url_api_encontro = `v1/Proposta/${id}/encontro`;
 
   const abrirModal = () => {
     setDadosEncontro(undefined);
