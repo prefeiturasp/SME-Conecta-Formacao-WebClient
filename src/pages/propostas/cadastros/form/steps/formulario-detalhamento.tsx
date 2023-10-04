@@ -48,7 +48,7 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = () => {
               panelProps={{ header: item.header, key: item.key }}
               collapseProps={{ defaultActiveKey: item.defaultActiveKey }}
             >
-              {item.header}
+              Editor de Texto Será Adicionado Aqui
             </CollapsePanelSME>
           </>
         );
