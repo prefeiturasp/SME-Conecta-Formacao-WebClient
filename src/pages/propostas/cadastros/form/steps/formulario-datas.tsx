@@ -2,6 +2,7 @@ import { Button, Col, Form, FormInstance, Row, notification } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Dayjs } from 'dayjs';
 import React, { useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
 import DatePickerPeriodo from '~/components/main/input/date-range';
@@ -36,12 +37,12 @@ const contentStyleTituloListagem: React.CSSProperties = {
 };
 type FormularioDatasProps = {
   form: FormInstance;
-  idProposta?: string;
 };
-const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) => {
+const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const paramsRoute = useParams();
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
-
+  const id = paramsRoute?.id || 0;
   const refTable = useRef<any>(null);
 
   const datasPeriodoRealizacao = Form.useWatch('periodoRealizacao', form);
@@ -53,10 +54,6 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
     dataInicio,
     dataFim,
   };
-
-  const propostaId = idProposta ? parseInt(idProposta) : 0;
-
-  const url_api_encontro = `v1/Proposta/${propostaId}/encontro`;
 
   const abrirModal = () => {
     setDadosEncontro(undefined);
@@ -73,7 +70,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
     if (!dataInicio || !dataFim || !dataInicio?.isValid() || !dataFim?.isValid()) {
       notification.warning({
         message: 'Atenção',
-        description: 'Informe a dada do Período de realização',
+        description: 'Informe a data do Período de realização',
       });
 
       return false;
@@ -144,7 +141,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form, idProposta }) =
           <Col span={24}>
             <DataTableEncontros
               ref={refTable}
-              url={url_api_encontro}
+              url={`v1/Proposta/${id}/encontro`}
               columns={columns}
               onRow={(row) => ({
                 onClick: () => {
