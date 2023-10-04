@@ -29,6 +29,12 @@ export type PropostaDTO = {
   funcoesEspecificas: PropostaFuncaoEspecificaDTO[];
   vagasRemanecentes: PropostaVagaRemanecenteDTO[];
   criteriosValidacaoInscricao: PropostaCriterioValidacaoInscricaoDTO[];
+  cargaHorariaPresencial?: string;
+  cargaHorariaSincrona?: string;
+  cargaHorariaDistancia?: string;
+  justificativa?: string;
+  objetivos?: string;
+  palavrasChaves: PropostaPalavraChaveDTO[];
 };
 
 export type PropostaCompletoDTO = {
@@ -54,4 +60,13 @@ export type PropostaFormDTO = {
   arquivos?: any[];
   periodoRealizacao?: Dayjs[];
   periodoInscricao?: Dayjs[];
+  cargaHorariaPresencial?: string;
+  cargaHorariaSincrona?: string;
+  cargaHorariaDistancia?: string;
+  justificativa?: string;
+  objetivos?: string;
+  palavrasChaves?: number[];
+};
+export type PropostaPalavraChaveDTO = {
+  palavraChaveId: number;
 };
