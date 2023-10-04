@@ -58,7 +58,7 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
         allowClear
         mode='multiple'
         options={options}
-        placeholder='Selecione um Turma'
+        placeholder='Selecione uma Turma'
         {...selectProps}
         id={CF_SELECT_TURMA_CRONOGRAMA}
       />

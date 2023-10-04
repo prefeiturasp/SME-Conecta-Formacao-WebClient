@@ -6,7 +6,7 @@ pipeline {
       namespace = "${env.branchname == 'development' ? 'conectaformacao-dev' : env.branchname == 'release' ? 'conectaformacao-hom' : env.branchname == 'release-r2' ? 'conectaformacao-hom2' : 'sme-conectaformacao' }"
     }
 
-    agent { kubernetes { 
+   agent { kubernetes { 
                   label 'builder'
                   defaultContainer 'builder'
                 }

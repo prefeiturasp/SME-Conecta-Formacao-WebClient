@@ -3,7 +3,7 @@ import { TipoEncontro } from '../enum/tipo-encontro';
 
 export type DataEncontro = {
   dataInicio: Dayjs;
-  dataFim: Dayjs;
+  dataFim: Dayjs | any;
 };
 
 export type FormularioDrawerEncontro = {
