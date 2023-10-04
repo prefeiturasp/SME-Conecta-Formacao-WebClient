@@ -1,4 +1,4 @@
-import { FormInstance, Input } from 'antd';
+import { FormInstance } from 'antd';
 import React from 'react';
 import CollapsePanelSME from '~/components/lib/collapse';
 type FormDetalhamentoProps = {
