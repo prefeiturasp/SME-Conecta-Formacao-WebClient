@@ -41,7 +41,7 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = () => {
       >
         Carga horária
       </CollapsePanelSME>
-      {collapsesComEditorDeTexto.map<any>((item) => {
+      {collapsesComEditorDeTexto.map((item) => {
         return (
           <>
             <CollapsePanelSME
