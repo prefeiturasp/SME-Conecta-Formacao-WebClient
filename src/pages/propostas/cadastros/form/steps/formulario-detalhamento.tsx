@@ -1,6 +1,7 @@
 import { FormInstance } from 'antd';
 import React from 'react';
 import CollapsePanelSME from '~/components/lib/collapse';
+import SelectPalavrasChaves from '~/components/main/input/palacras-chave';
 type FormDetalhamentoProps = {
   form: FormInstance;
 };
@@ -57,7 +58,7 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = () => {
         panelProps={{ header: 'Palavras-chave', key: 'palavrasChave' }}
         collapseProps={{ defaultActiveKey: 'palavrasChave' }}
       >
-        Palavras-chave
+        <SelectPalavrasChaves />
       </CollapsePanelSME>
     </>
   );
