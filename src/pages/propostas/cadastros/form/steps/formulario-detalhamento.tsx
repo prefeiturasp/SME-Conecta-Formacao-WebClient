@@ -1,12 +1,14 @@
-import { FormInstance } from 'antd';
+import { Col, FormInstance, Row } from 'antd';
 import React from 'react';
 import CollapsePanelSME from '~/components/lib/collapse';
+import InputTimer from '~/components/lib/inputs/timer';
 import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palacras-chave';
+import { formatarDuasCasasDecimais, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 type FormDetalhamentoProps = {
   form: FormInstance;
 };
-const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = () => {
+const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
   const collapsesComEditorDeTexto = [
     {
       key: 'justificativa',
@@ -45,14 +47,76 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = () => {
       Referenciais bibliográficos em língua estrangeira, preferencialmente, devem ser disponibilizados com tradução para a Língua Portuguesa.`,
     },
   ];
+  const camposComTimer = [
+    {
+      nome: 'cargaHorariaPresencial',
+      label: 'Carga horária presencial',
+      textoTooltip:
+        'No caso de cursos a distância com opções de aulas presenciais (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade.',
+    },
+    {
+      nome: 'cargaHorariaSincrona',
+      label: 'Carga horária aulas síncronas',
+      textoTooltip:
+        'No caso de cursos a distância com opções de aulas síncronas (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade',
+    },
+    {
+      nome: 'cargaHorariaDistancia',
+      label: 'Carga horária a distância',
+      textoTooltip:
+        'Para os cursos presenciais, se houver atividades não presenciais (máximo de 10% da carga horária total), indicar neste campo. Para os cursos a distância indicar a carga horária relativa as aulas assíncronas',
+    },
+  ];
 
+  const modalidade = form.getFieldValue('modalidade');
+  console.log(modalidade);
+  const setValorCargaHorariaTotal = (value: string, nome: string) => {
+    form.setFieldValue(nome, formatarDuasCasasDecimais(value));
+    gerarCargaHorariaTotal();
+  };
+  const gerarCargaHorariaTotal = () => {
+    const presencial = form.getFieldValue('cargaHorariaPresencial');
+    const assicrona = form.getFieldValue('cargaHorariaSincrona');
+    const distancia = form.getFieldValue('cargaHorariaDistancia');
+    const soma =
+      Number(removerTudoQueNaoEhDigito(presencial)) +
+      Number(removerTudoQueNaoEhDigito(assicrona)) +
+      Number(removerTudoQueNaoEhDigito(distancia));
+    setTimeout(() => {
+      form.setFieldValue('cargaHorariaTotal', formatarDuasCasasDecimais(soma));
+    }, 1000);
+  };
   return (
     <>
       <CollapsePanelSME
         panelProps={{ header: 'Carga horária', key: 'cargaHoraria' }}
         collapseProps={{ defaultActiveKey: 'cargaHoraria' }}
       >
-        Carga horária
+        <Col span={24}>
+          <Row>
+            {camposComTimer.map((item) => {
+              return (
+                <InputTimer
+                  label={item.label}
+                  nome={item.nome}
+                  textoToolTip={item.textoTooltip}
+                  key={item.nome}
+                  form={form}
+                  funcao={setValorCargaHorariaTotal}
+                />
+              );
+            })}
+            <InputTimer
+              label='Carga horária total'
+              nome='cargaHorariaTotal'
+              exibirTooltip={false}
+              requerido={false}
+              form={form}
+              somenteLeitura={true}
+              funcao={setValorCargaHorariaTotal}
+            />
+          </Row>
+        </Col>
       </CollapsePanelSME>
       {collapsesComEditorDeTexto.map((item) => {
         return (
