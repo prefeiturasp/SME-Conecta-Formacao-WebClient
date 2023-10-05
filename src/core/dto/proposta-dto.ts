@@ -34,6 +34,9 @@ export type PropostaDTO = {
   cargaHorariaDistancia?: string;
   justificativa?: string;
   objetivos?: string;
+  referencia?: string;
+  procedimentoMetadologico?: string;
+  conteudoProgramatico?: string;
   palavrasChaves: PropostaPalavraChaveDTO[];
 };
 
@@ -65,6 +68,9 @@ export type PropostaFormDTO = {
   cargaHorariaDistancia?: string;
   justificativa?: string;
   objetivos?: string;
+  referencia?: string;
+  procedimentoMetadologico?: string;
+  conteudoProgramatico?: string;
   palavrasChaves?: number[];
 };
 export type PropostaPalavraChaveDTO = {
