@@ -1,5 +1,5 @@
 import { Col, FormInstance, Row } from 'antd';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import CollapsePanelSME from '~/components/lib/collapse';
 import InputTimer from '~/components/lib/inputs/timer';
 import EditorTexto from '~/components/main/input/editor-texto';
@@ -74,7 +74,7 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
     form.setFieldValue(nome, formatarDuasCasasDecimais(value));
     gerarCargaHorariaTotal();
   };
-  const gerarCargaHorariaTotal = () => {
+  const gerarCargaHorariaTotal = useCallback(() => {
     const presencial = form.getFieldValue('cargaHorariaPresencial');
     const assicrona = form.getFieldValue('cargaHorariaSincrona');
     const distancia = form.getFieldValue('cargaHorariaDistancia');
@@ -85,7 +85,12 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
     setTimeout(() => {
       form.setFieldValue('cargaHorariaTotal', formatarDuasCasasDecimais(soma));
     }, 1000);
-  };
+  }, []);
+
+  useEffect(() => {
+    gerarCargaHorariaTotal();
+  }, [gerarCargaHorariaTotal()]);
+
   return (
     <>
       <CollapsePanelSME
