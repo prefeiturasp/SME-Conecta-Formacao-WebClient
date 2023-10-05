@@ -4,6 +4,7 @@ import CollapsePanelSME from '~/components/lib/collapse';
 import InputTimer from '~/components/lib/inputs/timer';
 import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palacras-chave';
+import { Modalidade } from '~/core/enum/modalidade';
 import { formatarDuasCasasDecimais, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 type FormDetalhamentoProps = {
   form: FormInstance;
@@ -87,6 +88,12 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
     }, 1000);
   }, []);
 
+  const cargaHorariaPresencialObrigatoria = (campoHora: string): boolean => {
+    const modalidade = form.getFieldValue('modalidade');
+    const presencial = 'cargaHorariaPresencial';
+    if (presencial == campoHora) return modalidade == Modalidade.Presencial;
+    return true;
+  };
   useEffect(() => {
     gerarCargaHorariaTotal();
   }, [gerarCargaHorariaTotal()]);
@@ -107,6 +114,7 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
                   textoToolTip={item.textoTooltip}
                   key={item.nome}
                   form={form}
+                  requerido={cargaHorariaPresencialObrigatoria(item.nome)}
                   funcao={setValorCargaHorariaTotal}
                 />
               );
