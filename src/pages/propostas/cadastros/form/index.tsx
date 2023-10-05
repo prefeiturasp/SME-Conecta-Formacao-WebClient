@@ -109,7 +109,7 @@ const FormCadastroDePropostas: React.FC = () => {
       }
 
       let palavrasChaves: number[] = [];
-      if (resposta.dados?.vagasRemanecentes?.length) {
+      if (resposta.dados?.palavrasChaves?.length) {
         palavrasChaves = resposta.dados.palavrasChaves.map((item) => item.palavraChaveId);
       }
 
@@ -219,6 +219,9 @@ const FormCadastroDePropostas: React.FC = () => {
       cargaHorariaSincrona: clonedValues.cargaHorariaSincrona,
       cargaHorariaDistancia: clonedValues.cargaHorariaDistancia,
       justificativa: clonedValues.justificativa,
+      referencia: clonedValues.referencia,
+      procedimentoMetadologico: clonedValues.procedimentoMetadologico,
+      conteudoProgramatico: clonedValues.conteudoProgramatico,
       objetivos: clonedValues.objetivos,
       palavrasChaves: [],
     };

@@ -1,4 +1,5 @@
-import { Collapse, CollapsePanelProps, CollapseProps } from 'antd';
+import { InfoCircleFilled } from '@ant-design/icons';
+import { Collapse, CollapsePanelProps, CollapseProps, Tooltip } from 'antd';
 import React from 'react';
 import { Colors } from '~/core/styles/colors';
 
@@ -14,6 +15,8 @@ type CollapsePanelSMEProps = {
   children: React.ReactNode;
   panelProps: CollapsePanelProps;
   collapseProps?: CollapseProps;
+  exibirTooltip?: boolean;
+  titleToolTip?: string;
 };
 const styleTituloPanel: React.CSSProperties = {
   fontSize: 14,
@@ -27,12 +30,28 @@ const CollapsePanelSME: React.FC<CollapsePanelSMEProps> = ({
   children,
   panelProps,
   collapseProps,
+  exibirTooltip = false,
+  titleToolTip,
 }) => {
   const tituloPanel = <span style={styleTituloPanel}>{panelProps.header}</span>;
+  const iconTooltip = exibirTooltip ? (
+    <InfoCircleFilled style={{ color: Colors.TOOLTIP, paddingLeft: '5px' }} />
+  ) : (
+    <></>
+  );
   return (
     <>
       <Collapse expandIconPosition='right' {...collapseProps} style={styleCollapse}>
-        <Panel header={tituloPanel} key={panelProps.key} extra={genExtra()}>
+        <Panel
+          header={
+            <Tooltip title={titleToolTip}>
+              {tituloPanel}
+              {iconTooltip}
+            </Tooltip>
+          }
+          key={panelProps.key}
+          extra={genExtra()}
+        >
           {children}
         </Panel>
       </Collapse>
