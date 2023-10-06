@@ -108,6 +108,11 @@ const FormCadastroDePropostas: React.FC = () => {
         vagasRemanecentes = resposta.dados.vagasRemanecentes.map((item) => item.cargoFuncaoId);
       }
 
+      let palavrasChaves: number[] = [];
+      if (resposta.dados?.palavrasChaves?.length) {
+        palavrasChaves = resposta.dados.palavrasChaves.map((item) => item.palavraChaveId);
+      }
+
       let criteriosValidacaoInscricao: number[] = [];
       if (resposta.dados?.criteriosValidacaoInscricao?.length) {
         criteriosValidacaoInscricao = resposta.dados.criteriosValidacaoInscricao.map(
@@ -151,6 +156,7 @@ const FormCadastroDePropostas: React.FC = () => {
         arquivos,
         periodoRealizacao,
         periodoInscricao,
+        palavrasChaves,
       };
 
       setFormInitialValues(valoresIniciais);
@@ -209,6 +215,15 @@ const FormCadastroDePropostas: React.FC = () => {
       dataRealizacaoFim,
       dataInscricaoInicio,
       dataInscricaoFim,
+      cargaHorariaPresencial: clonedValues.cargaHorariaPresencial,
+      cargaHorariaSincrona: clonedValues.cargaHorariaSincrona,
+      cargaHorariaDistancia: clonedValues.cargaHorariaDistancia,
+      justificativa: clonedValues.justificativa,
+      referencia: clonedValues.referencia,
+      procedimentoMetadologico: clonedValues.procedimentoMetadologico,
+      conteudoProgramatico: clonedValues.conteudoProgramatico,
+      objetivos: clonedValues.objetivos,
+      palavrasChaves: [],
     };
 
     if (clonedValues?.publicosAlvo?.length) {
@@ -216,7 +231,11 @@ const FormCadastroDePropostas: React.FC = () => {
         cargoFuncaoId,
       }));
     }
-
+    if (clonedValues?.palavrasChaves?.length) {
+      valoresSalvar.palavrasChaves = clonedValues.palavrasChaves.map((palavraChaveId) => ({
+        palavraChaveId,
+      }));
+    }
     if (clonedValues?.funcoesEspecificas?.length) {
       valoresSalvar.funcoesEspecificas = clonedValues.funcoesEspecificas.map((cargoFuncaoId) => ({
         cargoFuncaoId,
