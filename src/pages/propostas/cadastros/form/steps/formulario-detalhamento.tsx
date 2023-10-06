@@ -5,7 +5,7 @@ import InputTimer from '~/components/lib/inputs/timer';
 import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palacras-chave';
 import { Modalidade } from '~/core/enum/modalidade';
-import { formatarDuasCasasDecimais, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
+import { formatarDuasCasasDecimais } from '~/core/utils/functions';
 type FormDetalhamentoProps = {
   form: FormInstance;
 };
