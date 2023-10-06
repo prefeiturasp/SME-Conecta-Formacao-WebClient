@@ -79,15 +79,27 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
     const presencial = form.getFieldValue('cargaHorariaPresencial');
     const assicrona = form.getFieldValue('cargaHorariaSincrona');
     const distancia = form.getFieldValue('cargaHorariaDistancia');
-    const soma =
-      Number(removerTudoQueNaoEhDigito(presencial)) +
-      Number(removerTudoQueNaoEhDigito(assicrona)) +
-      Number(removerTudoQueNaoEhDigito(distancia));
+    const minutosTotais =
+      converterParaMinutos(presencial) +
+      converterParaMinutos(assicrona) +
+      converterParaMinutos(distancia);
+
+    const horasFinais = Math.floor(minutosTotais / 60);
+    const minutosFinais = minutosTotais % 60;
     setTimeout(() => {
-      form.setFieldValue('cargaHorariaTotal', formatarDuasCasasDecimais(soma));
+      form.setFieldValue('cargaHorariaTotal', `${horasFinais}:${minutosFinais}`);
     }, 1000);
   }, []);
 
+  const converterParaMinutos = (hora: string): number => {
+    if (hora) {
+      const partes = hora?.split(':');
+      const horas = Number(partes[0]);
+      const minutos = Number(partes[1]);
+      return horas * 60 + minutos;
+    }
+    return 0;
+  };
   const cargaHorariaPresencialObrigatoria = (campoHora: string): boolean => {
     const modalidade = form.getFieldValue('modalidade');
     const presencial = 'cargaHorariaPresencial';
