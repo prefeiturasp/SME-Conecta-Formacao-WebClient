@@ -43,10 +43,10 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
   );
   return (
     <Form.Item
-      label='Palavra-chave'
+      label='Palavras-chave'
       name='palavrasChaves'
       rules={[
-        { required: required, message: 'Selecione uma Palavra-chave' },
+        { required: required },
         {
           validator: (rule, value, callback) => {
             if (value) {
@@ -75,7 +75,7 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
         allowClear
         mode='multiple'
         options={options}
-        placeholder='Selecione uma Palavra-chave'
+        placeholder='Escolha no mínimo 3 palavras-chave e no máximo 5 palavras-chave'
         {...selectProps}
         id={CF_SELECT_PALAVRA_CHAVE}
       />
