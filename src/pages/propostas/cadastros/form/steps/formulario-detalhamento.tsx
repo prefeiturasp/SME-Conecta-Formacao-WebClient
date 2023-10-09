@@ -5,7 +5,7 @@ import InputTimer from '~/components/lib/inputs/timer';
 import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palacras-chave';
 import { Modalidade } from '~/core/enum/modalidade';
-import { formatarDuasCasasDecimais, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
+import { formatarDuasCasasDecimais } from '~/core/utils/functions';
 type FormDetalhamentoProps = {
   form: FormInstance;
 };
@@ -79,15 +79,32 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
     const presencial = form.getFieldValue('cargaHorariaPresencial');
     const assicrona = form.getFieldValue('cargaHorariaSincrona');
     const distancia = form.getFieldValue('cargaHorariaDistancia');
-    const soma =
-      Number(removerTudoQueNaoEhDigito(presencial)) +
-      Number(removerTudoQueNaoEhDigito(assicrona)) +
-      Number(removerTudoQueNaoEhDigito(distancia));
+    const minutosTotais =
+      converterParaMinutos(presencial) +
+      converterParaMinutos(assicrona) +
+      converterParaMinutos(distancia);
+
+    const horasFinais = Math.floor(minutosTotais / 60);
+    const minutosFinais = minutosTotais % 60;
     setTimeout(() => {
-      form.setFieldValue('cargaHorariaTotal', formatarDuasCasasDecimais(soma));
+      form.setFieldValue(
+        'cargaHorariaTotal',
+        `${horasFinais.toString().padStart(3, '0')}:${minutosFinais.toString().padStart(2, '0')}`,
+      );
     }, 1000);
   }, []);
 
+  const converterParaMinutos = (hora: string): number => {
+    if (hora) {
+      const partes = hora?.split(':');
+      const parteZero = partes[0] ?? '00';
+      const horas = Number(parteZero);
+      const parteUm = partes[1] ?? '00';
+      const minutos = Number(parteUm);
+      return horas * 60 + minutos;
+    }
+    return 0;
+  };
   const cargaHorariaPresencialObrigatoria = (campoHora: string): boolean => {
     const modalidade = form.getFieldValue('modalidade');
     const presencial = 'cargaHorariaPresencial';
