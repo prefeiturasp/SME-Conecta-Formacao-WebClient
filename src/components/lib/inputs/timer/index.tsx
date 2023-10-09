@@ -36,7 +36,20 @@ const InputTimer: FC<InputTimerProp> = ({
       name={nome}
       key={nome}
       style={{ marginLeft: '10px' }}
-      rules={[{ required: requerido }]}
+      rules={[
+        { required: requerido },
+        {
+          validator: (rule, value, callback) => {
+            if (value) {
+              if (value.length < 5) {
+                rule;
+                callback('Informe uma hora no formato 999:99');
+              }
+            }
+            return;
+          },
+        },
+      ]}
       tooltip={{
         title: textoToolTip,
         icon: iconTooltip,

@@ -87,15 +87,20 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
     const horasFinais = Math.floor(minutosTotais / 60);
     const minutosFinais = minutosTotais % 60;
     setTimeout(() => {
-      form.setFieldValue('cargaHorariaTotal', `${horasFinais}:${minutosFinais}`);
+      form.setFieldValue(
+        'cargaHorariaTotal',
+        `${horasFinais.toString().padStart(3, '0')}:${minutosFinais.toString().padStart(2, '0')}`,
+      );
     }, 1000);
   }, []);
 
   const converterParaMinutos = (hora: string): number => {
     if (hora) {
       const partes = hora?.split(':');
-      const horas = Number(partes[0] ?? 0);
-      const minutos = Number(partes[1] ?? 0);
+      const parteZero = partes[0] ?? '00';
+      const horas = Number(parteZero);
+      const parteUm = partes[1] ?? '00';
+      const minutos = Number(parteUm);
       return horas * 60 + minutos;
     }
     return 0;
