@@ -94,8 +94,8 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
   const converterParaMinutos = (hora: string): number => {
     if (hora) {
       const partes = hora?.split(':');
-      const horas = Number(partes[0]);
-      const minutos = Number(partes[1]);
+      const horas = Number(partes[0] ?? 0);
+      const minutos = Number(partes[1] ?? 0);
       return horas * 60 + minutos;
     }
     return 0;
