@@ -12,12 +12,14 @@ type SelectCriterioCertificacaoProps = {
   required?: boolean;
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;
+  onchange: VoidFunction;
 };
 
 const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
   required = false,
   exibirTooltip = true,
   selectProps,
+  onchange
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const obterDados = async () => {
@@ -50,7 +52,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
         {
           validator: (rule, value, callback) => {
             if (value) {
-              if (value.length < 3) {
+              if (value.length < 3 && required) {
                 rule;
                 callback('Indique ao menos 3 critérios.');
               } else {
@@ -70,6 +72,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
         allowClear
         mode='multiple'
         options={options}
+        onChange={onchange}
         placeholder='Critérios para certificação'
         {...selectProps}
         id={CF_SELECT_CRITERIO_CERTIFICACAO}

@@ -38,6 +38,10 @@ export type PropostaDTO = {
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;
   palavrasChaves: PropostaPalavraChaveDTO[];
+  criterioCertificacao: CriterioCertificacaoDTO[];
+  cursoComCertificado: boolean;
+  acaoInformativa: boolean;
+  descricaoDaAtividade?: string;
 };
 
 export type PropostaCompletoDTO = {
@@ -72,7 +76,17 @@ export type PropostaFormDTO = {
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;
   palavrasChaves?: number[];
+  criterioCertificacao: number[];
+  cursoComCertificado: boolean;
+  acaoInformativa: boolean;
+  descricaoDaAtividade?: string;
+  acaoFormativaTexto?: string;
+  acaoFormativaLink?: string;
 };
 export type PropostaPalavraChaveDTO = {
   palavraChaveId: number;
+};
+
+export type CriterioCertificacaoDTO = {
+  criterioCertificacaoId: number;
 };
