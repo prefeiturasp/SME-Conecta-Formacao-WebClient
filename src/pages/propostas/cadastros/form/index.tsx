@@ -84,6 +84,9 @@ const FormCadastroDePropostas: React.FC = () => {
       funcoesEspecificas: [],
       vagasRemanecentes: [],
       criteriosValidacaoInscricao: [],
+      criterioCertificacao: [],
+      cursoComCertificado: false,
+      acaoInformativa: false,
     };
 
     setFormInitialValues(valoresIniciais);
@@ -111,6 +114,13 @@ const FormCadastroDePropostas: React.FC = () => {
       let palavrasChaves: number[] = [];
       if (resposta.dados?.palavrasChaves?.length) {
         palavrasChaves = resposta.dados.palavrasChaves.map((item) => item.palavraChaveId);
+      }
+
+      let criterioCertificacao: number[] = [];
+      if (resposta.dados?.criterioCertificacao?.length) {
+        criterioCertificacao = resposta.dados.criterioCertificacao.map(
+          (item) => item.criterioCertificacaoId,
+        );
       }
 
       let criteriosValidacaoInscricao: number[] = [];
@@ -157,6 +167,7 @@ const FormCadastroDePropostas: React.FC = () => {
         periodoRealizacao,
         periodoInscricao,
         palavrasChaves,
+        criterioCertificacao,
       };
 
       setFormInitialValues(valoresIniciais);
@@ -224,6 +235,10 @@ const FormCadastroDePropostas: React.FC = () => {
       conteudoProgramatico: clonedValues.conteudoProgramatico,
       objetivos: clonedValues.objetivos,
       palavrasChaves: [],
+      criterioCertificacao: [],
+      cursoComCertificado: clonedValues.cursoComCertificado,
+      acaoInformativa: clonedValues.acaoInformativa,
+      descricaoDaAtividade: clonedValues.descricaoDaAtividade,
     };
 
     if (clonedValues?.publicosAlvo?.length) {
@@ -235,6 +250,13 @@ const FormCadastroDePropostas: React.FC = () => {
       valoresSalvar.palavrasChaves = clonedValues.palavrasChaves.map((palavraChaveId) => ({
         palavraChaveId,
       }));
+    }
+    if (clonedValues?.criterioCertificacao?.length) {
+      valoresSalvar.criterioCertificacao = clonedValues.criterioCertificacao.map(
+        (criterioCertificacaoId) => ({
+          criterioCertificacaoId,
+        }),
+      );
     }
     if (clonedValues?.funcoesEspecificas?.length) {
       valoresSalvar.funcoesEspecificas = clonedValues.funcoesEspecificas.map((cargoFuncaoId) => ({
