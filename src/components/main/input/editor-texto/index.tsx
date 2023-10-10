@@ -9,20 +9,13 @@ type EditorTextoProps = {
   label?: string;
   mensagemTooltip?: string;
   required?: boolean;
-  exibirTooltip?: boolean;
 };
 
-const EditorTexto: FC<EditorTextoProps> = ({
-  nome,
-  label,
-  mensagemTooltip,
-  required = true,
-  exibirTooltip = false,
-}) => {
+const EditorTexto: FC<EditorTextoProps> = ({ nome, label, mensagemTooltip, required = true }) => {
   const config = {
     placeholder: label ?? '',
   };
-  const iconTooltip = exibirTooltip ? (
+  const iconTooltip = required ? (
     <Tooltip>
       <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
     </Tooltip>
@@ -30,18 +23,20 @@ const EditorTexto: FC<EditorTextoProps> = ({
     <></>
   );
   return (
-    <Form.Item
-      shouldUpdate
-      tooltip={{
-        title: mensagemTooltip,
-        icon: iconTooltip,
-      }}
-    >
+    <Form.Item shouldUpdate>
       {(form) => {
         const temErro = !!form.getFieldError(nome)?.length;
 
         return (
-          <Form.Item name={nome} label={label} rules={[{ required: required }]}>
+          <Form.Item
+            name={nome}
+            label={label}
+            rules={[{ required: required }]}
+            tooltip={{
+              title: mensagemTooltip,
+              icon: iconTooltip,
+            }}
+          >
             <JoditEditorSME hasError={temErro} config={config} />
           </Form.Item>
         );
