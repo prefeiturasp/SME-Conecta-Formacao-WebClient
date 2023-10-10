@@ -1,6 +1,6 @@
 import { InfoCircleFilled } from '@ant-design/icons';
 import { Form, Tooltip } from 'antd';
-import { DefaultOptionType, SelectProps } from 'antd/es/select';
+import { DefaultOptionType } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
@@ -9,18 +9,10 @@ import { obterCriterioCertificacao } from '~/core/services/criterio-certificacao
 import { Colors } from '~/core/styles/colors';
 
 type SelectCriterioCertificacaoProps = {
-  required?: boolean;
-  exibirTooltip?: boolean | true;
-  selectProps?: SelectProps;
   onchange: VoidFunction;
 };
 
-const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
-  required = false,
-  exibirTooltip = true,
-  selectProps,
-  onchange,
-}) => {
+const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({ onchange }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const obterDados = async () => {
     const resposta = await obterCriterioCertificacao();
@@ -36,43 +28,53 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
     obterDados();
   }, []);
 
-  const iconTooltip = exibirTooltip ? (
-    <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-    </Tooltip>
-  ) : (
-    <></>
-  );
   return (
-    <Form.Item
-      label='Critérios para certificação'
-      name='criterioCertificacao'
-      rules={[
-        { required: required },
-        {
-          validator: (rule, value, callback) => {
-            if (value) {
-              rule;
-              callback(value.length < 3 && required ? 'Indique ao menos 3 critérios.' : '');
-            }
-            return;
-          },
-        },
-      ]}
-      tooltip={{
-        title: 'Indique ao menos 3 critérios.',
-        icon: iconTooltip,
+    <Form.Item shouldUpdate>
+      {(form) => {
+        const requerido: boolean = form.getFieldValue('cursoComCertificado');
+        return (
+          <>
+            <Form.Item
+              label='Critérios para certificação'
+              name='criterioCertificacao'
+              validateStatus={requerido ? '' : ''}
+              rules={[
+                { required: requerido },
+                {
+                  validator: (rule, value, callback) => {
+                    if (value) {
+                      rule;
+                      callback(
+                        value.length < 3 && requerido ? 'Indique ao menos 3 critérios.' : '',
+                      );
+                    }
+                    return;
+                  },
+                },
+              ]}
+              tooltip={{
+                title: 'Indique ao menos 3 critérios.',
+                icon: requerido ? (
+                  <Tooltip>
+                    <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                  </Tooltip>
+                ) : (
+                  <></>
+                ),
+              }}
+            >
+              <Select
+                allowClear
+                mode='multiple'
+                options={options}
+                onChange={onchange}
+                placeholder='Critérios para certificação'
+                id={CF_SELECT_CRITERIO_CERTIFICACAO}
+              />
+            </Form.Item>
+          </>
+        );
       }}
-    >
-      <Select
-        allowClear
-        mode='multiple'
-        options={options}
-        onChange={onchange}
-        placeholder='Critérios para certificação'
-        {...selectProps}
-        id={CF_SELECT_CRITERIO_CERTIFICACAO}
-      />
     </Form.Item>
   );
 };

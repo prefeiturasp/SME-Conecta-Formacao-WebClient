@@ -16,6 +16,7 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form }) => {
     setValuePossuiCertificado(e.target.value);
     form.setFieldValue('cursoComCertificado', e.target.value);
   };
+
   const obterDados = async () => {
     setTimeout(() => {
       setValuePossuiCertificado(form.getFieldValue('cursoComCertificado'));
@@ -55,11 +56,7 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form }) => {
             </Form.Item>
           </Col>
           <Col span={24}>
-            <SelectCriterioCertificacao
-              required={valuePossuiCertificado}
-              exibirTooltip={valuePossuiCertificado}
-              onchange={verificarCriteriosSelecionados}
-            />
+            <SelectCriterioCertificacao onchange={verificarCriteriosSelecionados} />
           </Col>
           <Col span={24}>
             <EditorTexto
