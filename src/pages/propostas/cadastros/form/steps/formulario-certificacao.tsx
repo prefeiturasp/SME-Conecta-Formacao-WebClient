@@ -25,10 +25,20 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form }) => {
   const verificarCriteriosSelecionados = () => {
     const atividadeObrigatorioCodigo = 4;
     const criteriosSelecionados: number[] = form.getFieldValue('criterioCertificacao');
+    const criterioExiste = criteriosSelecionados?.includes(atividadeObrigatorioCodigo);
     setTimeout(() => {
-      setEditorRequerido(criteriosSelecionados.includes(atividadeObrigatorioCodigo));
+      setEditorRequerido(criterioExiste);
       setValuePossuiCertificado(form.getFieldValue('cursoComCertificado'));
-    }, 2000);
+    }, 1000);
+    const error = form.getFieldError('descricaoDaAtividade');
+    if (!criterioExiste && error.length > 0) {
+      form.setFields([
+        {
+          name: 'descricaoDaAtividade',
+          errors: [],
+        },
+      ]);
+    }
   };
   useEffect(() => {
     obterDados();
