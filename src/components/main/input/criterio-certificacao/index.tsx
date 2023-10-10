@@ -39,7 +39,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
               label='Critérios para certificação'
               name='criterioCertificacao'
               rules={[{ required: requerido }]}
-              style={{ paddingBottom: '3px' }}
+              style={{ paddingBottom: '0px', marginBottom: '0px' }}
               tooltip={{
                 title: 'Indique ao menos 3 critérios.',
                 icon: requerido ? (
