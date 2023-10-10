@@ -1,3 +1,4 @@
+import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
@@ -24,6 +25,9 @@ const obterRoteiroPropostaFormativa = (): Promise<ApiResult<RetornoListagemDTO>>
 
 const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/informacoes-cadastrante`);
+
+const obterComunicadoAcaoInformatica = (id: number): Promise<ApiResult<AcaoInformativaDto>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/comunicado-acao-formativa/${id}`);
 
 const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-formacao`);
@@ -88,4 +92,5 @@ export {
   obterPropostaEncontrosPaginado,
   salvarPropostaEncontro,
   removerPropostaEncontro,
+  obterComunicadoAcaoInformatica,
 };
