@@ -69,8 +69,6 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
     },
   ];
 
-  const modalidade = form.getFieldValue('modalidade');
-  console.log(modalidade);
   const setValorCargaHorariaTotal = (value: string, nome: string) => {
     form.setFieldValue(nome, formatarDuasCasasDecimais(value));
     gerarCargaHorariaTotal();
