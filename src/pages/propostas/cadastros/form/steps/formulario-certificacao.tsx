@@ -41,7 +41,7 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form }) => {
         <Row>
           <Col>
             <Form.Item
-              label='Possui Certificado'
+              label='Curso com certificação'
               name='cursoComCertificado'
               rules={[{ required: true }]}
             >
