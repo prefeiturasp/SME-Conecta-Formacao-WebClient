@@ -1,4 +1,4 @@
-import { Form, FormInstance, Switch } from 'antd';
+import { Form, FormInstance, Row, Switch } from 'antd';
 import { FC, useEffect, useState } from 'react';
 import { obterComunicadoAcaoInformatica } from '~/core/services/proposta-service';
 
@@ -25,13 +25,18 @@ const CheckboxAcaoInformatica: FC<CheckboxAcaoInformaticaProps> = ({ form, propo
       setValueSwitch(form.getFieldValue('acaoInformativa'));
     }, 1000);
   };
+  const changeSwitch = () => {
+    setValueSwitch((valor) => !valor);
+  };
   useEffect(() => {
     obterDados();
   }, []);
   return (
-    <>
+    <Row>
       <Form.Item name='acaoInformativa' rules={[{ required: true }]} style={{ fontWeight: 'bold' }}>
-        <Switch onChange={setValueSwitch} checked={valueSwitch}></Switch>
+        <Switch onChange={changeSwitch} checked={valueSwitch}></Switch>
+      </Form.Item>
+      <Form.Item>
         <a
           href={link}
           target='_blank'
@@ -42,7 +47,7 @@ const CheckboxAcaoInformatica: FC<CheckboxAcaoInformaticaProps> = ({ form, propo
           {mensagem}
         </a>
       </Form.Item>
-    </>
+    </Row>
   );
 };
 
