@@ -17,21 +17,22 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form }) => {
     form.setFieldValue('cursoComCertificado', e.target.value);
   };
   const obterDados = async () => {
-    verificarCriteriosSelecionados();
     setTimeout(() => {
       setValuePossuiCertificado(form.getFieldValue('cursoComCertificado'));
-    }, 1000);
+    }, 2000);
   };
   const verificarCriteriosSelecionados = () => {
     const atividadeObrigatorioCodigo = 4;
     const criteriosSelecionados: number[] = form.getFieldValue('criterioCertificacao');
     setTimeout(() => {
       setEditorRequerido(criteriosSelecionados.includes(atividadeObrigatorioCodigo));
-    });
+      setValuePossuiCertificado(form.getFieldValue('cursoComCertificado'));
+    }, 2000);
   };
   useEffect(() => {
     obterDados();
-  }, []);
+    verificarCriteriosSelecionados();
+  }, [obterDados(), verificarCriteriosSelecionados()]);
   const id = paramsRoute?.id || 0;
   return (
     <>
