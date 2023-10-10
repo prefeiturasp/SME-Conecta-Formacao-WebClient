@@ -32,26 +32,14 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
     <Form.Item shouldUpdate>
       {(form) => {
         const requerido: boolean = form.getFieldValue('cursoComCertificado');
+        const criterios: number[] = form.getFieldValue('criterioCertificacao');
         return (
           <>
             <Form.Item
               label='Critérios para certificação'
               name='criterioCertificacao'
-              validateStatus={requerido ? '' : ''}
-              rules={[
-                { required: requerido },
-                {
-                  validator: (rule, value, callback) => {
-                    if (value) {
-                      rule;
-                      callback(
-                        value.length < 3 && requerido ? 'Indique ao menos 3 critérios.' : '',
-                      );
-                    }
-                    return;
-                  },
-                },
-              ]}
+              rules={[{ required: requerido }]}
+              style={{ paddingBottom: '3px' }}
               tooltip={{
                 title: 'Indique ao menos 3 critérios.',
                 icon: requerido ? (
@@ -72,6 +60,11 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
                 id={CF_SELECT_CRITERIO_CERTIFICACAO}
               />
             </Form.Item>
+            {criterios?.length < 3 && requerido ? (
+              <span style={{ color: '#b40c02' }}>Indique ao menos 3 critérios.</span>
+            ) : (
+              ''
+            )}
           </>
         );
       }}
