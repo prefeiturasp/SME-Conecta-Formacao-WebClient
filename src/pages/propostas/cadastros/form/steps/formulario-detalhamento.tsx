@@ -148,7 +148,7 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
       </CollapsePanelSME>
       {collapsesComEditorDeTexto.map((item) => {
         return (
-          <>
+          <React.Fragment key={item.key}>
             <CollapsePanelSME
               panelProps={{ header: item.header, key: item.key }}
               exibirTooltip={true}
@@ -157,7 +157,7 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
             >
               <EditorTexto nome={item.key} />
             </CollapsePanelSME>
-          </>
+          </React.Fragment>
         );
       })}
       <CollapsePanelSME
