@@ -1,6 +1,6 @@
 import { Table } from 'antd';
 import { TablePaginationConfig, TableProps } from 'antd/es/table';
-import { useState, useEffect, forwardRef, useImperativeHandle, useCallback } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import api from '~/core/services/api';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import queryString from 'query-string';
