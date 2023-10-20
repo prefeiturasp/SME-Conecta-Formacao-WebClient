@@ -107,7 +107,7 @@ const FormularioDetalhamento: React.FC<FormDetalhamentoProps> = ({ form }) => {
     const modalidade = form.getFieldValue('modalidade');
     const presencial = 'cargaHorariaPresencial';
     if (presencial == campoHora) return modalidade == Modalidade.Presencial;
-    return true;
+    return false;
   };
   useEffect(() => {
     gerarCargaHorariaTotal();
