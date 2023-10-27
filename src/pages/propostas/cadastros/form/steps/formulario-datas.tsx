@@ -4,7 +4,7 @@ import { Dayjs } from 'dayjs';
 import React, { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTableEncontros from '~/components/lib/card-table-encontros';
-import DrawerFormularioEncontroTurmas from '~/components/lib/drawer';
+import DrawerFormularioEncontroTurmas from '~/components/lib/drawer/drawer-form-encontro-turmas';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
