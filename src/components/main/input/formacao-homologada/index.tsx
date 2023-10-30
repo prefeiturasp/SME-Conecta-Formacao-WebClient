@@ -29,8 +29,8 @@ const RadioFormacaoHomologada: React.FC = () => {
       formItemProps={{
         name: 'formacaoHomologada',
         label: 'Formação homologada',
+        rules: [{ required: false }],
       }}
-      required={false}
       radioGroupProps={{
         id: CF_RADIO_FORMACAO_HOMOLOGADA,
         options,

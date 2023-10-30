@@ -371,7 +371,7 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormularioDatas form={form} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Profissionais !== stepSelecionado}>
-          <FormularioProfissionais form={form} />
+          <FormularioProfissionais />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Certificacao !== stepSelecionado}>
           <FormularioCertificacao form={form} />

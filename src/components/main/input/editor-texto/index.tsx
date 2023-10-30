@@ -9,13 +9,21 @@ type EditorTextoProps = {
   label?: string;
   mensagemTooltip?: string;
   required?: boolean;
+  exibirTooltip?: boolean;
 };
 
-const EditorTexto: FC<EditorTextoProps> = ({ nome, label, mensagemTooltip, required = true }) => {
+const EditorTexto: FC<EditorTextoProps> = ({
+  nome,
+  label,
+  mensagemTooltip,
+  required = true,
+  exibirTooltip = false,
+}) => {
   const config = {
-    placeholder: label ?? '',
+    placeholder: label || '',
   };
-  const iconTooltip = required ? (
+
+  const iconTooltip = exibirTooltip ? (
     <Tooltip>
       <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
     </Tooltip>
@@ -31,7 +39,7 @@ const EditorTexto: FC<EditorTextoProps> = ({ nome, label, mensagemTooltip, requi
           <Form.Item
             name={nome}
             label={label}
-            rules={[{ required: required }]}
+            rules={[{ required }]}
             tooltip={{
               title: mensagemTooltip,
               icon: iconTooltip,
