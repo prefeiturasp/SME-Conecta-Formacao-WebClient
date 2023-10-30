@@ -69,7 +69,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
         message: 'Sucesso',
         description: 'Registro excluído com Sucesso!',
       });
-      fecharModal();
+      fecharModal(true);
     }
   };
 
