@@ -1,9 +1,10 @@
 import { Table } from 'antd';
 import { TablePaginationConfig, TableProps } from 'antd/es/table';
-import { useState, useEffect } from 'react';
-import api from '~/core/services/api';
-import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import queryString from 'query-string';
+import { useContext, useEffect, useState } from 'react';
+import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
+import api from '~/core/services/api';
+import { DataTableContext } from './provider';
 
 interface TableParams {
   pagination?: TablePaginationConfig;
@@ -15,6 +16,8 @@ type DataTableProps<T> = {
 } & TableProps<T>;
 
 const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTableProps<T>) => {
+  const { setTableState } = useContext(DataTableContext);
+
   const [data, setData] = useState<T[]>();
   const [loading, setLoading] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
@@ -63,6 +66,8 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
 
   useEffect(() => {
     fetchData();
+
+    setTableState({ reloadData: fetchData });
   }, [JSON.stringify(tableParams), JSON.stringify(filters)]);
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
