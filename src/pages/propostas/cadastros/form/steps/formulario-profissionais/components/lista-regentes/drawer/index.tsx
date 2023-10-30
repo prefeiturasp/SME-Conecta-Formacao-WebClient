@@ -191,6 +191,9 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                               rules: [{ required: !rfEhObrigatorio }],
                               name: 'nomeRegente',
                             }}
+                            inputPropsRF={{
+                              disabled: !rfEhObrigatorio,
+                            }}
                             inputPropsNome={{
                               disabled: rfEhObrigatorio,
                             }}

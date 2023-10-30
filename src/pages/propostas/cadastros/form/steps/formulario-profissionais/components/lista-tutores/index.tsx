@@ -55,7 +55,7 @@ const ListaTutores: React.FC = () => {
               </Col>
               <Col>
                 <Button type='primary' id={CF_BUTTON_ADD_TUTOR} onClick={abrirModal}>
-                  Adicionar Tutores
+                  Adicionar tutores
                 </Button>
               </Col>
             </Row>

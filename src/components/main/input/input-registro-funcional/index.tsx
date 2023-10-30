@@ -1,7 +1,9 @@
-import { Col, Form, FormItemProps, Input, InputProps, notification } from 'antd';
+import { InfoCircleFilled } from '@ant-design/icons';
+import { Col, Form, FormItemProps, Input, InputProps, Tooltip, notification } from 'antd';
 import { Rule } from 'antd/es/form';
 import React, { useEffect } from 'react';
 import { obterNomeProfissional } from '~/core/services/proposta-service';
+import { Colors } from '~/core/styles/colors';
 
 type InputRegistroFuncionalProps = {
   inputPropsRF?: InputProps;
@@ -47,10 +49,25 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
     rules = [...formItemPropsRF.rules, ...defaultRules];
   }
 
+  const iconTooltip = (
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+    </Tooltip>
+  );
+
   return (
     <>
       <Col xs={12}>
-        <Form.Item label='RF' name='registroFuncional' {...formItemPropsRF} rules={rules}>
+        <Form.Item
+          label='RF'
+          name='registroFuncional'
+          {...formItemPropsRF}
+          rules={rules}
+          tooltip={{
+            title: 'Digite o RF completo com 7 caracteres e clique na lupa para pesquisar ',
+            icon: iconTooltip,
+          }}
+        >
           <Input
             id='INPUT_RF'
             placeholder='Registro Funcional (RF)'

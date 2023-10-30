@@ -190,6 +190,9 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                               rules: [{ required: !rfEhObrigatorio }],
                               name: 'nomeTutor',
                             }}
+                            inputPropsRF={{
+                              disabled: !rfEhObrigatorio,
+                            }}
                             inputPropsNome={{
                               disabled: rfEhObrigatorio,
                             }}
