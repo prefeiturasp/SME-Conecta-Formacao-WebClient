@@ -6,5 +6,6 @@ export const validateMessages: FormProps['validateMessages'] = {
   string: {
     range: 'Deve ter entre ${min} e ${max} caracteres',
     min: 'Deve conter no mínimo ${min} caracteres',
+    len: 'Deve conter ${len} caracteres',
   },
 };
