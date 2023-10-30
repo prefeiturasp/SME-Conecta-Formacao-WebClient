@@ -35,10 +35,23 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
   const propostaId = paramsRoute?.id || 0;
 
   const fecharModal = (reloadData = false) => {
-    onCloseModal();
-    formDrawer.resetFields();
-    if (reloadData) {
-      tableState.reloadData();
+    if (formDrawer.isFieldsTouched()) {
+      confirmacao({
+        content: DESEJA_CANCELAR_ALTERACOES,
+        onOk() {
+          onCloseModal();
+          formDrawer.resetFields();
+          if (reloadData) {
+            tableState.reloadData();
+          }
+        },
+      });
+    } else {
+      onCloseModal();
+      formDrawer.resetFields();
+      if (reloadData) {
+        tableState.reloadData();
+      }
     }
   };
 
