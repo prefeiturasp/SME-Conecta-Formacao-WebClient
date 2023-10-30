@@ -12,6 +12,7 @@ import { TituloListaPaginada, TituloSecao } from '../../../../styles';
 const columns: ColumnsType<PropostaRegenteDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
   { title: 'Regente', dataIndex: 'nomeRegente' },
+  { title: 'Turmas', dataIndex: 'nomesTurmas' },
 ];
 
 const ListaRegentes: React.FC = () => {

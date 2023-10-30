@@ -12,6 +12,7 @@ import { TituloListaPaginada, TituloSecao } from '../../../../styles';
 const columns: ColumnsType<PropostaTutorDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
   { title: 'Tutor', dataIndex: 'nomeTutor' },
+  { title: 'Turmas', dataIndex: 'nomesTurmas' },
 ];
 
 const ListaTutores: React.FC = () => {

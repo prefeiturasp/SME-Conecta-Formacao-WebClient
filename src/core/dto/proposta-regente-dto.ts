@@ -4,5 +4,6 @@ export type PropostaRegenteDTO = {
   registroFuncional: string;
   nomeRegente: string;
   miniBiografia: string;
+  nomesTurmas: string;
   turmas: any[];
 };

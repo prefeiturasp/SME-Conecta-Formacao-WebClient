@@ -3,5 +3,6 @@ export type PropostaTutorDTO = {
   profissionalRedeMunicipal: boolean;
   registroFuncional: string;
   nomeTutor: string;
+  nomesTurmas: string;
   turmas: any[];
 };
