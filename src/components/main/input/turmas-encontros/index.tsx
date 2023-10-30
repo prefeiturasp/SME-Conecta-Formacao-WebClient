@@ -9,8 +9,8 @@ import { obterTurmasDaProposta } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectTurmaEncontrosProps = {
-  required?: boolean | true;
-  exibirTooltip?: boolean | true;
+  required?: boolean;
+  exibirTooltip?: boolean;
   selectProps?: SelectProps;
   idProposta: any;
 };

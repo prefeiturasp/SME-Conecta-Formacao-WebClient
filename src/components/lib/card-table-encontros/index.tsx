@@ -1,6 +1,6 @@
 import { Table } from 'antd';
 import { TablePaginationConfig, TableProps } from 'antd/es/table';
-import { useState, useEffect, forwardRef, useImperativeHandle, useCallback } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import api from '~/core/services/api';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import queryString from 'query-string';
@@ -31,7 +31,7 @@ const DataTableEncontros = forwardRef(
         pageSizeOptions: [10, 20, 50, 100],
       },
     });
-    const fetchData = useCallback(() => {
+    const fetchData = () => {
       setLoading(true);
       api
         .get<PaginacaoResultadoDTO<PropostaEncontroPaginadoDTO[]>>(url, {
@@ -62,7 +62,7 @@ const DataTableEncontros = forwardRef(
           }
         })
         .finally(() => setLoading(false));
-    }, [url]);
+    };
     const montarDtoRetorno = (lista: PropostaEncontroPaginadoDTO[]) => {
       const encontros = Array<CronogramaEncontrosPaginadoDto>();
       for (let index = 0; index < lista.length; index++) {
@@ -148,7 +148,7 @@ const DataTableEncontros = forwardRef(
           },
         };
       },
-      [fetchData],
+      [url],
     );
 
     return (

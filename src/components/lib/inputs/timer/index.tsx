@@ -29,7 +29,6 @@ const InputTimer: FC<InputTimerProp> = ({
   ) : (
     <></>
   );
-
   return (
     <Form.Item
       label={label}
@@ -37,7 +36,7 @@ const InputTimer: FC<InputTimerProp> = ({
       key={nome}
       style={{ marginLeft: '10px' }}
       rules={[
-        { required: requerido },
+        { required: requerido, message: 'Campo obrigatório' },
         {
           validator: (rule, value, callback) => {
             if (value) {
@@ -45,6 +44,8 @@ const InputTimer: FC<InputTimerProp> = ({
                 rule;
                 callback('Informe uma hora no formato 999:99');
               }
+            } else {
+              callback();
             }
             return;
           },

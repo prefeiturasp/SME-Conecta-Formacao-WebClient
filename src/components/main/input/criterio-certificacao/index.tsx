@@ -33,13 +33,22 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
       {(form) => {
         const requerido: boolean = form.getFieldValue('cursoComCertificado');
         const criterios: number[] = form.getFieldValue('criterioCertificacao');
+        const error = form.getFieldError('criterioCertificacao');
+        if (!requerido && error.length > 0) {
+          form.setFields([
+            {
+              name: 'criterioCertificacao',
+              errors: [],
+            },
+          ]);
+        }
         return (
           <>
             <Form.Item
               label='Critérios para certificação'
               name='criterioCertificacao'
               rules={[{ required: requerido }]}
-              style={{ paddingBottom: '3px' }}
+              style={{ paddingBottom: '0px', marginBottom: '0px' }}
               tooltip={{
                 title: 'Indique ao menos 3 critérios.',
                 icon: requerido ? (
