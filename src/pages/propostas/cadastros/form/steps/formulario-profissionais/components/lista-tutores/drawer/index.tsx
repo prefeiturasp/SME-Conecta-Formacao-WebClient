@@ -68,7 +68,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
         message: 'Sucesso',
         description: 'Registro excluído com Sucesso!',
       });
-      fecharModal();
+      fecharModal(true);
     }
   };
 
