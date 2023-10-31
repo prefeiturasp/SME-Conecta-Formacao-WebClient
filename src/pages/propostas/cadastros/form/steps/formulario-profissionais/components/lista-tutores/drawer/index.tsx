@@ -34,8 +34,8 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
 
   const propostaId = paramsRoute?.id || 0;
 
-  const fecharModal = (reloadData = false) => {
-    if (formDrawer.isFieldsTouched()) {
+  const fecharModal = (reloadData = false, checkFieldsTouched = true) => {
+    if (checkFieldsTouched && formDrawer.isFieldsTouched()) {
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES,
         onOk() {
@@ -69,7 +69,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
         message: 'Sucesso',
         description: 'Registro salvo com Sucesso!',
       });
-      fecharModal(true);
+      fecharModal(true, false);
     }
   };
 
