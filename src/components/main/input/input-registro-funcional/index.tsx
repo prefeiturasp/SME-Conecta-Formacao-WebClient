@@ -64,7 +64,7 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
           {...formItemPropsRF}
           rules={rules}
           tooltip={{
-            title: 'Digite o RF completo com 7 caracteres e clique na lupa para pesquisar ',
+            title: 'Digite o RF completo com 7 caracteres para pesquisar ',
             icon: iconTooltip,
           }}
         >
