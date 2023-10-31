@@ -1,7 +1,7 @@
 import { Table } from 'antd';
 import { TablePaginationConfig, TableProps } from 'antd/es/table';
 import queryString from 'query-string';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import api from '~/core/services/api';
 import { DataTableContext } from './provider';
@@ -31,52 +31,62 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
     },
   });
 
-  const fetchData = () => {
-    setLoading(true);
-    api
-      .get<PaginacaoResultadoDTO<T[]>>(url, {
-        headers: {
-          numeroPagina: tableParams.pagination?.current,
-          numeroRegistros: tableParams.pagination?.pageSize,
-        },
-        params: filters,
-        paramsSerializer: {
-          serialize: (params) => {
-            return queryString.stringify(params, {
-              skipNull: true,
-              skipEmptyString: true,
-            });
+  const fetchData = useCallback(
+    (newParams: TableParams) => {
+      setLoading(true);
+
+      api
+        .get<PaginacaoResultadoDTO<T[]>>(url, {
+          headers: {
+            numeroPagina: newParams.pagination?.current,
+            numeroRegistros: newParams.pagination?.pageSize,
           },
-        },
-      })
-      .then((response) => {
-        if (response?.data.items) {
-          setData(response.data.items);
-          setTableParams({
-            ...tableParams,
-            pagination: {
-              ...tableParams.pagination,
-              total: response.data.totalRegistros,
+          params: filters,
+          paramsSerializer: {
+            serialize: (params) => {
+              return queryString.stringify(params, {
+                skipNull: true,
+                skipEmptyString: true,
+              });
             },
-          });
-        }
-      })
-      .finally(() => setLoading(false));
-  };
-
+          },
+        })
+        .then((response) => {
+          if (response?.data.items) {
+            setData(response.data.items);
+            setTableParams({
+              ...newParams,
+              pagination: {
+                ...newParams.pagination,
+                total: response.data.totalRegistros,
+              },
+            });
+          }
+        })
+        .finally(() => setLoading(false));
+    },
+    [url],
+  );
   useEffect(() => {
-    fetchData();
-
-    setTableState({ reloadData: fetchData });
-  }, [JSON.stringify(tableParams), JSON.stringify(filters)]);
+    fetchData(tableParams);
+    setTableState({
+      reloadData: () => {
+        fetchData(tableParams);
+      },
+    });
+  }, [JSON.stringify(filters), fetchData]);
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    setTableParams({
+    const newParams = {
       ...tableParams,
       pagination,
-    });
+    };
 
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+    setTableParams(newParams);
+
+    fetchData(newParams);
+
+    if (pagination.pageSize !== newParams.pagination?.pageSize) {
       setData([]);
     }
   };
