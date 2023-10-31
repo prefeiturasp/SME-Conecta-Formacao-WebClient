@@ -47,7 +47,7 @@ const ListaTutores: React.FC = () => {
         />
       )}
       <Col>
-        <Row gutter={[16, 8]}>
+        <Row gutter={[16, 8]} style={{ paddingTop: '20px' }}>
           <Col xs={24}>
             <Row wrap={false} justify='space-between'>
               <Col>
