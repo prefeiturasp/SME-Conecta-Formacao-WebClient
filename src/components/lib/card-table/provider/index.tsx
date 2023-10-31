@@ -2,7 +2,7 @@
 import React, { PropsWithChildren, useState, createContext } from 'react';
 
 type TableStateProps = {
-  reloadData: () => void;
+  reloadData: any;
 };
 
 type DataTableContextProps = {
