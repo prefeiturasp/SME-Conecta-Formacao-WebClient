@@ -207,7 +207,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                             inputPropsRF={{
                               disabled: !rfEhObrigatorio,
                               onChange: (e) => {
-                                if (e.target.value === '') {
+                                if (!e.target.value) {
                                   formDrawer.resetFields(['nomeRegente']);
                                   formDrawer.setFieldValue('nomeRegente', '');
                                 }
