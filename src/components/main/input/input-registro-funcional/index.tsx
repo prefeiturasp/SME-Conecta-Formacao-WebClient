@@ -1,7 +1,7 @@
 import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, FormItemProps, Input, InputProps, Tooltip, notification } from 'antd';
 import { Rule } from 'antd/es/form';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { obterNomeProfissional } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
@@ -19,11 +19,13 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
   formItemPropsNome,
 }) => {
   const form = Form.useFormInstance();
+  const [loading, setLoading] = useState(false);
 
   const registroFuncional = Form.useWatch('registroFuncional', form);
   const profissionalRedeMunicipal = Form.useWatch('profissionalRedeMunicipal', form);
 
   const obterDadosPofissional = async () => {
+    setLoading(true);
     if (registroFuncional?.length === 7) {
       const resposta = await obterNomeProfissional(registroFuncional);
       if (resposta.sucesso && resposta.dados.length) {
@@ -36,11 +38,12 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
         if (profissionalRedeMunicipal) form.setFieldValue(formItemPropsNome!.name!, '');
       }
     }
+    setLoading(false);
   };
 
   useEffect(() => {
     obterDadosPofissional();
-  }, [registroFuncional]);
+  }, []);
 
   const defaultRules: Rule[] = [{ len: 7 }];
 
@@ -68,10 +71,12 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
             icon: iconTooltip,
           }}
         >
-          <Input
+          <Input.Search
             id='INPUT_RF'
-            placeholder='Registro Funcional (RF)'
             maxLength={7}
+            loading={loading}
+            onSearch={obterDadosPofissional}
+            placeholder='Registro Funcional (RF)'
             {...inputPropsRF}
           />
         </Form.Item>
