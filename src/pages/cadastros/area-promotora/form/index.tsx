@@ -298,7 +298,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
                 >
                   <Select
                     allowClear
-                    // labelInValue
+                    labelInValue
                     options={listaGrupos}
                     placeholder='Selecione o Perfil'
                     onChange={() => form.resetFields(['dreAreaPromotra'])}
