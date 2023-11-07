@@ -1,6 +1,5 @@
 import { Button, Col, Form, Input, Row, Select, notification } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
-import { BaseOptionType } from 'antd/es/select';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
@@ -39,6 +38,7 @@ import {
   obterTiposAreaPromotora,
 } from '~/core/services/area-promotora-service';
 import { obterGruposPerfis } from '~/core/services/grupo-service';
+import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
 
 const FormCadastrosAreaPromotora: React.FC = () => {
   const [form] = useForm();
@@ -48,9 +48,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   const { Option } = Select;
   const id = paramsRoute?.id || 0;
 
-  const [listaDRE, setListaDRE] = useState<GrupoDTO[]>();
-  const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>();
-  const [perfilSelecionado, setPerfilSelecionado] = useState<number | undefined>();
+  const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>([]);
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
 
@@ -97,8 +95,17 @@ const FormCadastrosAreaPromotora: React.FC = () => {
 
   const obterGrupos = useCallback(async () => {
     const resposta = await obterGruposPerfis();
+
     if (resposta.sucesso) {
-      setListaGrupos(resposta.dados);
+      let lista = resposta.dados;
+
+      lista = lista.map((item: any) => ({
+        ...item,
+        label: item?.nome,
+        value: item?.id,
+      }));
+
+      setListaGrupos(lista);
     }
   }, []);
 
@@ -107,14 +114,6 @@ const FormCadastrosAreaPromotora: React.FC = () => {
     if (resposta.sucesso) {
       setListaTipos(resposta.dados);
     }
-  }, []);
-
-  const obterDREs = useCallback(async () => {
-    // const resposta = await obterDREs();
-    // if (resposta.sucesso) {
-    //   setListaDRE(resposta.dados);
-    // }
-    setListaDRE([]);
   }, []);
 
   const onClickVoltar = () => {
@@ -160,6 +159,10 @@ const FormCadastrosAreaPromotora: React.FC = () => {
       );
     }
 
+    if (valoresSalvar?.grupoId?.value) {
+      valoresSalvar.grupoId = valoresSalvar.grupoId.value;
+    }
+
     if (id) {
       response = await alterarAreaPromotora(id, valoresSalvar);
     } else {
@@ -197,8 +200,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   useEffect(() => {
     obterGrupos();
     obterTipos();
-    obterDREs();
-  }, [obterGrupos, obterTipos, obterDREs]);
+  }, [obterGrupos, obterTipos]);
 
   return (
     <Col>
@@ -287,49 +289,25 @@ const FormCadastrosAreaPromotora: React.FC = () => {
               </Col>
 
               <Col xs={24} sm={12}>
-                <Form.Item label='Perfil' key='grupoId' name='grupoId' rules={[{ required: true }]}>
+                <Form.Item
+                  label='Perfil'
+                  key='grupoId'
+                  name='grupoId'
+                  rules={[{ required: true }]}
+                  getValueFromEvent={(_, value) => value}
+                >
                   <Select
                     allowClear
+                    labelInValue
+                    options={listaGrupos}
                     placeholder='Selecione o Perfil'
-                    onChange={(_, option: BaseOptionType) => {
-                      const filtroPerfil = listaGrupos?.filter(
-                        (item) => item.id === option?.value,
-                      )?.[0]?.visaoId;
-
-                      const ehPerfilDRE = filtroPerfil === 3;
-
-                      setPerfilSelecionado(ehPerfilDRE ? filtroPerfil : undefined);
-                    }}
-                  >
-                    {listaGrupos?.map((item) => {
-                      return (
-                        <Option key={item.id} value={item.id}>
-                          {item.nome}
-                        </Option>
-                      );
-                    })}
-                  </Select>
+                    onChange={() => form.resetFields(['dreAreaPromotra'])}
+                  />
                 </Form.Item>
               </Col>
 
-              {perfilSelecionado && (
-                <Col xs={24} sm={12}>
-                  <Form.Item label='DRE' key='dre' name='dre' rules={[{ required: true }]}>
-                    <Select allowClear placeholder='Selecione a DRE'>
-                      {listaDRE?.map((item) => {
-                        return (
-                          <Option key={item.id} value={item.id}>
-                            {item.nome}
-                          </Option>
-                        );
-                      })}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              )}
-
+              <SelectDREAreaPromotora formSelect={form} />
               <TelefoneLista />
-
               <EmailLista />
             </Row>
           </Col>
