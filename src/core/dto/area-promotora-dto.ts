@@ -11,7 +11,8 @@ export type TelefoneAreaPromotora = {
 export type AreaPromotoraDTO = {
   nome: string;
   tipo: number;
-  grupoId: string;
+  dreId: number;
+  grupoId: string & { label?: string; value?: string };
   telefones: TelefoneAreaPromotora[];
   emails: EmailAreaPromotora[];
   auditoria: AuditoriaDTO;

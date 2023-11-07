@@ -1,9 +1,8 @@
-import { GrupoDTO } from '../dto/grupo-dto';
+import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, obterRegistro } from './api';
 
-//TODO: Alterar para o endereço da API para DRE quando tiver pronto
-const URL_DEFAULT = 'v1/';
+const URL_DEFAULT = 'v1/Dre';
 
-const obterDREs = (): Promise<ApiResult<GrupoDTO[]>> => obterRegistro(URL_DEFAULT);
+const obterDREs = (): Promise<ApiResult<RetornoListagemDTO[]>> => obterRegistro(URL_DEFAULT);
 
 export { obterDREs };
