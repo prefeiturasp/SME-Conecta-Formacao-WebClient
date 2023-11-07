@@ -64,7 +64,7 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
           {...formItemPropsRF}
           rules={rules}
           tooltip={{
-            title: 'Digite o RF completo com 7 caracteres e clique na lupa para pesquisar ',
+            title: 'Digite o RF completo com 7 caracteres para pesquisar ',
             icon: iconTooltip,
           }}
         >
@@ -79,7 +79,13 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
 
       <Col xs={12}>
         <Form.Item label='Nome' name='nome' {...formItemPropsNome}>
-          <Input id='INPUT_NOME' placeholder='Nome' maxLength={50} {...inputPropsNome} />
+          <Input
+            id='INPUT_NOME'
+            placeholder='Nome'
+            maxLength={50}
+            {...inputPropsNome}
+            style={{ textTransform: 'uppercase' }}
+          />
         </Form.Item>
       </Col>
     </>

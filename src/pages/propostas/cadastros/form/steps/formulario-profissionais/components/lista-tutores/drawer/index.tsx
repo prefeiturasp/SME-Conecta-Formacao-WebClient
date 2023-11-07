@@ -34,11 +34,24 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
 
   const propostaId = paramsRoute?.id || 0;
 
-  const fecharModal = (reloadData = false) => {
-    onCloseModal();
-    formDrawer.resetFields();
-    if (reloadData) {
-      tableState.reloadData();
+  const fecharModal = (reloadData = false, checkFieldsTouched = true) => {
+    if (checkFieldsTouched && formDrawer.isFieldsTouched()) {
+      confirmacao({
+        content: DESEJA_CANCELAR_ALTERACOES,
+        onOk() {
+          onCloseModal();
+          formDrawer.resetFields();
+          if (reloadData) {
+            tableState.reloadData();
+          }
+        },
+      });
+    } else {
+      onCloseModal();
+      formDrawer.resetFields();
+      if (reloadData) {
+        tableState.reloadData();
+      }
     }
   };
 
@@ -56,7 +69,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
         message: 'Sucesso',
         description: 'Registro salvo com Sucesso!',
       });
-      fecharModal(true);
+      fecharModal(true, false);
     }
   };
 
@@ -192,6 +205,12 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                             }}
                             inputPropsRF={{
                               disabled: !rfEhObrigatorio,
+                              onChange: (e) => {
+                                if (!e.target.value) {
+                                  formDrawer.resetFields(['nomeTutor']);
+                                  formDrawer.setFieldValue('nomeTutor', '');
+                                }
+                              },
                             }}
                             inputPropsNome={{
                               disabled: rfEhObrigatorio,

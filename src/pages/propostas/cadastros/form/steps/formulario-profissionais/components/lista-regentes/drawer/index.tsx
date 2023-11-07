@@ -35,11 +35,24 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
 
   const propostaId = paramsRoute?.id || 0;
 
-  const fecharModal = (reloadData = false) => {
-    onCloseModal();
-    formDrawer.resetFields();
-    if (reloadData) {
-      tableState.reloadData();
+  const fecharModal = (reloadData = false, checkFieldsTouched = true) => {
+    if (checkFieldsTouched && formDrawer.isFieldsTouched()) {
+      confirmacao({
+        content: DESEJA_CANCELAR_ALTERACOES,
+        onOk() {
+          onCloseModal();
+          formDrawer.resetFields();
+          if (reloadData) {
+            tableState.reloadData();
+          }
+        },
+      });
+    } else {
+      onCloseModal();
+      formDrawer.resetFields();
+      if (reloadData) {
+        tableState.reloadData();
+      }
     }
   };
 
@@ -57,7 +70,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
         message: 'Sucesso',
         description: 'Registro salvo com Sucesso!',
       });
-      fecharModal(true);
+      fecharModal(true, false);
     }
   };
 
@@ -193,6 +206,12 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                             }}
                             inputPropsRF={{
                               disabled: !rfEhObrigatorio,
+                              onChange: (e) => {
+                                if (!e.target.value) {
+                                  formDrawer.resetFields(['nomeRegente']);
+                                  formDrawer.setFieldValue('nomeRegente', '');
+                                }
+                              },
                             }}
                             inputPropsNome={{
                               disabled: rfEhObrigatorio,

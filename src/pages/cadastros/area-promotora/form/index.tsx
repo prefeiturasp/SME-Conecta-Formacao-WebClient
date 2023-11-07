@@ -18,8 +18,8 @@ import {
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import {
   DESEJA_CANCELAR_ALTERACOES,
-  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   DESEJA_EXCLUIR_REGISTRO,
+  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
 } from '~/core/constants/mensagens';
 import {
   AreaPromotoraDTO,
@@ -38,6 +38,7 @@ import {
   obterTiposAreaPromotora,
 } from '~/core/services/area-promotora-service';
 import { obterGruposPerfis } from '~/core/services/grupo-service';
+import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
 
 const FormCadastrosAreaPromotora: React.FC = () => {
   const [form] = useForm();
@@ -47,7 +48,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   const { Option } = Select;
   const id = paramsRoute?.id || 0;
 
-  const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>();
+  const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>([]);
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
 
@@ -94,8 +95,17 @@ const FormCadastrosAreaPromotora: React.FC = () => {
 
   const obterGrupos = useCallback(async () => {
     const resposta = await obterGruposPerfis();
+
     if (resposta.sucesso) {
-      setListaGrupos(resposta.dados);
+      let lista = resposta.dados;
+
+      lista = lista.map((item: any) => ({
+        ...item,
+        label: item?.nome,
+        value: item?.id,
+      }));
+
+      setListaGrupos(lista);
     }
   }, []);
 
@@ -147,6 +157,10 @@ const FormCadastrosAreaPromotora: React.FC = () => {
       valoresSalvar.emails = valoresSalvar.emails.filter(
         (item: EmailAreaPromotora) => !!item?.email,
       );
+    }
+
+    if (valoresSalvar?.grupoId?.value) {
+      valoresSalvar.grupoId = valoresSalvar.grupoId.value;
     }
 
     if (id) {
@@ -275,21 +289,25 @@ const FormCadastrosAreaPromotora: React.FC = () => {
               </Col>
 
               <Col xs={24} sm={12}>
-                <Form.Item label='Perfil' key='grupoId' name='grupoId' rules={[{ required: true }]}>
-                  <Select placeholder='Selecione o Perfil' allowClear>
-                    {listaGrupos?.map((item) => {
-                      return (
-                        <Option key={item.id} value={item.id}>
-                          {item.nome}
-                        </Option>
-                      );
-                    })}
-                  </Select>
+                <Form.Item
+                  label='Perfil'
+                  key='grupoId'
+                  name='grupoId'
+                  rules={[{ required: true }]}
+                  getValueFromEvent={(_, value) => value}
+                >
+                  <Select
+                    allowClear
+                    labelInValue
+                    options={listaGrupos}
+                    placeholder='Selecione o Perfil'
+                    onChange={() => form.resetFields(['dreAreaPromotra'])}
+                  />
                 </Form.Item>
               </Col>
 
+              <SelectDREAreaPromotora formSelect={form} />
               <TelefoneLista />
-
               <EmailLista />
             </Row>
           </Col>
