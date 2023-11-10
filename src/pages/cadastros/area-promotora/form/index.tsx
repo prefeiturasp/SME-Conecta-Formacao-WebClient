@@ -79,9 +79,13 @@ const FormCadastrosAreaPromotora: React.FC = () => {
         resposta.dados.emails = [{ email: '' }];
       }
 
+      if (resposta.dados?.grupoId) {
+        resposta.dados.grupoId = listaGrupos.filter((item) => item.id === resposta.dados.grupoId);
+      }
+
       setFormInitialValues(resposta.dados);
     }
-  }, [id]);
+  }, [id, listaGrupos]);
 
   useEffect(() => {
     if (id) {
