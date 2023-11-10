@@ -7,6 +7,7 @@ import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import EmailLista from '~/components/main/input/email-lista';
+import SelectPerfil from '~/components/main/input/perfil/select-perfil';
 import TelefoneLista from '~/components/main/input/telefone-lista';
 import Auditoria from '~/components/main/text/auditoria';
 import {
@@ -27,7 +28,6 @@ import {
   TelefoneAreaPromotora,
 } from '~/core/dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
-import { GrupoDTO } from '~/core/dto/grupo-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
@@ -37,7 +37,6 @@ import {
   obterAreaPromotoraPorId,
   obterTiposAreaPromotora,
 } from '~/core/services/area-promotora-service';
-import { obterGruposPerfis } from '~/core/services/grupo-service';
 import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
 
 const FormCadastrosAreaPromotora: React.FC = () => {
@@ -47,8 +46,6 @@ const FormCadastrosAreaPromotora: React.FC = () => {
 
   const { Option } = Select;
   const id = paramsRoute?.id || 0;
-
-  const [listaGrupos, setListaGrupos] = useState<GrupoDTO[]>([]);
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
 
@@ -79,13 +76,13 @@ const FormCadastrosAreaPromotora: React.FC = () => {
         resposta.dados.emails = [{ email: '' }];
       }
 
-      if (resposta.dados?.grupoId) {
-        resposta.dados.grupoId = listaGrupos.filter((item) => item.id === resposta.dados.grupoId);
+      if (resposta?.dados?.grupoId) {
+        resposta.dados.perfil = { value: resposta.dados.grupoId, visaoId: resposta.dados?.visaoId };
       }
 
       setFormInitialValues(resposta.dados);
     }
-  }, [id, listaGrupos]);
+  }, [id]);
 
   useEffect(() => {
     if (id) {
@@ -96,22 +93,6 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   useEffect(() => {
     form.resetFields();
   }, [form, formInitialValues]);
-
-  const obterGrupos = useCallback(async () => {
-    const resposta = await obterGruposPerfis();
-
-    if (resposta.sucesso) {
-      let lista = resposta.dados;
-
-      lista = lista.map((item: any) => ({
-        ...item,
-        label: item?.nome,
-        value: item?.id,
-      }));
-
-      setListaGrupos(lista);
-    }
-  }, []);
 
   const obterTipos = useCallback(async () => {
     const resposta = await obterTiposAreaPromotora();
@@ -163,8 +144,8 @@ const FormCadastrosAreaPromotora: React.FC = () => {
       );
     }
 
-    if (valoresSalvar?.grupoId?.value) {
-      valoresSalvar.grupoId = valoresSalvar.grupoId.value;
+    if (valoresSalvar?.perfil?.value) {
+      valoresSalvar.grupoId = valoresSalvar.perfil.value;
     }
 
     if (id) {
@@ -202,9 +183,8 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   };
 
   useEffect(() => {
-    obterGrupos();
     obterTipos();
-  }, [obterGrupos, obterTipos]);
+  }, [obterTipos]);
 
   return (
     <Col>
@@ -293,24 +273,11 @@ const FormCadastrosAreaPromotora: React.FC = () => {
               </Col>
 
               <Col xs={24} sm={12}>
-                <Form.Item
-                  label='Perfil'
-                  key='grupoId'
-                  name='grupoId'
-                  rules={[{ required: true }]}
-                  getValueFromEvent={(_, value) => value}
-                >
-                  <Select
-                    allowClear
-                    labelInValue
-                    options={listaGrupos}
-                    placeholder='Selecione o Perfil'
-                    onChange={() => form.resetFields(['dreAreaPromotra'])}
-                  />
-                </Form.Item>
+                <SelectPerfil />
               </Col>
 
-              <SelectDREAreaPromotora formSelect={form} />
+              <SelectDREAreaPromotora />
+
               <TelefoneLista />
               <EmailLista />
             </Row>
