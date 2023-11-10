@@ -1,7 +1,7 @@
-import { Col, Form, FormInstance, Select, SelectProps } from 'antd';
+import { Col, Form, FormInstance, SelectProps } from 'antd';
 import { DefaultOptionType } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_DRE } from '~/core/constants/ids/select';
 import { obterDREs } from '~/core/services/dre-service';
 
@@ -14,15 +14,16 @@ export const SelectDREAreaPromotora: React.FC<SelectDREAreaPromotoraProps> = ({
   formSelect,
   selectProps,
 }) => {
-  const perfilDRE = 3;
-  const { id } = useParams();
   const form = Form.useFormInstance();
 
-  const temPerfilAoEditar = formSelect?.getFieldValue('dreId');
-  const ehPerfilDRE = Form.useWatch('grupoId', form)?.visaoId === perfilDRE;
-  const perfil = formSelect?.getFieldValue('grupoId')?.[0]?.visaoId === perfilDRE;
-
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
+
+  const perfilWatch = Form.useWatch('perfil', form);
+  const perfil = formSelect?.getFieldValue('perfil');
+
+  const perfilDRE = 3;
+
+  const ehPerfilDRE = perfilWatch?.visaoId === perfilDRE || perfil?.visaoId === perfilDRE;
 
   const obterDRE = async () => {
     const resposta = await obterDREs();
@@ -34,10 +35,14 @@ export const SelectDREAreaPromotora: React.FC<SelectDREAreaPromotoraProps> = ({
   };
 
   useEffect(() => {
-    obterDRE();
-  }, []);
+    if (ehPerfilDRE) {
+      obterDRE();
+    }
+  }, [ehPerfilDRE]);
 
-  const componente = (
+  if (!ehPerfilDRE) return <></>;
+
+  return (
     <Col xs={24} sm={12}>
       <Form.Item label='DRE' key='dreId' name='dreId' rules={[{ required: true }]}>
         <Select
@@ -50,16 +55,4 @@ export const SelectDREAreaPromotora: React.FC<SelectDREAreaPromotoraProps> = ({
       </Form.Item>
     </Col>
   );
-
-  if ((id && ehPerfilDRE) || (id && perfil)) {
-    return componente;
-  }
-
-  if (id && !ehPerfilDRE) return <></>;
-
-  if (ehPerfilDRE || temPerfilAoEditar) {
-    return componente;
-  }
-
-  if (!ehPerfilDRE) return <></>;
 };

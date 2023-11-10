@@ -13,7 +13,8 @@ export type AreaPromotoraDTO = {
   tipo: number;
   dreId: number;
   visaoId: number;
-  grupoId: any;
+  grupoId?: any;
+  perfil?: any;
   telefones: TelefoneAreaPromotora[];
   emails: EmailAreaPromotora[];
   auditoria: AuditoriaDTO;
