@@ -28,7 +28,9 @@ const obterRoteiroPropostaFormativa = (): Promise<ApiResult<RetornoListagemDTO>>
 const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/informacoes-cadastrante`);
 
-const obterComunicadoAcaoInformatica = (id: number): Promise<ApiResult<AcaoInformativaDto>> =>
+const obterComunicadoAcaoInformatica = (
+  id: number | string,
+): Promise<ApiResult<AcaoInformativaDto>> =>
   obterRegistro(`${URL_API_PROPOSTA}/comunicado-acao-formativa/${id}`);
 
 const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>

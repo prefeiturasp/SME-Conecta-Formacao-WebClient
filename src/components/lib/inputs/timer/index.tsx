@@ -1,68 +1,52 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, FormInstance, Input, Tooltip } from 'antd';
+import { Form, Input, Tooltip } from 'antd';
+import { WrapperTooltipProps } from 'antd/es/form/FormItemLabel';
 import { FC } from 'react';
 import { Colors } from '~/core/styles/colors';
+import { formatarDuasCasasDecimais } from '~/core/utils/functions';
 
 type InputTimerProp = {
   nome: string;
   label: string;
-  textoToolTip?: string;
-  requerido?: boolean;
-  exibirTooltip?: boolean;
-  form: FormInstance;
-  somenteLeitura?: boolean;
-  funcao: (value: string, valorNome: string) => void;
+  textToolTip?: WrapperTooltipProps['title'];
+  required?: boolean;
+  disabled?: boolean;
 };
 const InputTimer: FC<InputTimerProp> = ({
   nome,
   label,
-  textoToolTip,
-  requerido = true,
-  exibirTooltip = true,
-  somenteLeitura = false,
-  funcao,
+  textToolTip,
+  required = false,
+  disabled = false,
 }) => {
-  const iconTooltip = exibirTooltip ? (
-    <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
-    </Tooltip>
-  ) : (
-    <></>
-  );
+  let tooltip: WrapperTooltipProps | undefined = undefined;
+
+  if (textToolTip) {
+    tooltip = {
+      title: textToolTip,
+      icon: (
+        <Tooltip>
+          <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+        </Tooltip>
+      ),
+    };
+  }
+
   return (
     <Form.Item
       label={label}
       name={nome}
       key={nome}
-      style={{ marginLeft: '10px' }}
+      getValueFromEvent={(e: React.ChangeEvent<HTMLInputElement>) =>
+        formatarDuasCasasDecimais(e.target.value)
+      }
       rules={[
-        { required: requerido, message: 'Campo obrigatório' },
-        {
-          validator: (rule, value, callback) => {
-            if (value) {
-              if (value.length < 5) {
-                rule;
-                callback('Informe uma hora no formato 999:99');
-              }
-            } else {
-              callback();
-            }
-            return;
-          },
-        },
+        { required, message: 'Campo obrigatório' },
+        { len: 6, message: 'Informe uma hora no formato 999:99' },
       ]}
-      tooltip={{
-        title: textoToolTip,
-        icon: iconTooltip,
-      }}
+      tooltip={tooltip}
     >
-      <Input
-        readOnly={somenteLeitura}
-        maxLength={6}
-        onChange={(d) => {
-          funcao(d.target.value, nome);
-        }}
-      />
+      <Input disabled={disabled} maxLength={6} />
     </Form.Item>
   );
 };

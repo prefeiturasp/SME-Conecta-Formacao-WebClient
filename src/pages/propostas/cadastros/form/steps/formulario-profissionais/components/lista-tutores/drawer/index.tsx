@@ -206,7 +206,8 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                             inputPropsRF={{
                               disabled: !rfEhObrigatorio,
                               onChange: (e) => {
-                                if (!e.target.value) {
+                                const value = e.target.value;
+                                if (!value || value.length < 7) {
                                   formDrawer.resetFields(['nomeTutor']);
                                   formDrawer.setFieldValue('nomeTutor', '');
                                 }
