@@ -11,3 +11,10 @@ export const DESEJA_EXCLUIR_REGISTRO = 'Você tem certeza que deseja excluir est
 export const DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA =
   'Suas alterações não foram salvas, deseja salvar agora?';
 export const REGISTRO_EXCLUIDO_SUCESSO = 'Registro excluído com sucesso!';
+export const DESEJA_ENVIAR_PROPOSTA = 'Gostaria de enviar a proposta também?';
+export const PROPOSTA_CADASTRADA = 'Proposta cadastrada com sucesso';
+export const PROPOSTA_ENVIADA = 'Proposta enviada com sucesso';
+export const ERRO_CAMPOS_OBRIGATORIOS =
+  'Existem campos obrigatórios não preenchidos, revise as etapas.';
+export const APOS_ENVIAR_PROPOSTA_NAO_EDITA =
+  'Após o envio da proposta não será possível realizar edições, tem certeza que deseja enviar?';

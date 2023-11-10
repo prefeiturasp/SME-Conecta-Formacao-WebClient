@@ -8,6 +8,7 @@ export const formatarDataHoraAuditoria = (data: string) =>
 
 export const formatarDuasCasasDecimais = (value: any) =>
   removerTudoQueNaoEhDigito(value).replace(/(\d{3})(\d{2})$/, '$1:$2');
+
 export const validarOnChangeMultiSelectOutros = (newValues: any[], currentValues: any[]) => {
   let valorParaSetar: any[] = newValues;
   const valorAtualTemOpcaoOutros = currentValues?.includes(OpcaoListagem.Outros);

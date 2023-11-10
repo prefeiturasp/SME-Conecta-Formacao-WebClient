@@ -41,6 +41,8 @@ export type PropostaDTO = {
   criterioCertificacao: CriterioCertificacaoDTO[];
   cursoComCertificado: boolean;
   acaoInformativa: boolean;
+  acaoFormativaTexto?: string;
+  acaoFormativaLink?: string;
   descricaoDaAtividade?: string;
 };
 
@@ -62,7 +64,7 @@ export type PropostaFormDTO = {
   vagasRemanecentes?: number[];
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
-  situacao?: SituacaoRegistro;
+  situacao: SituacaoRegistro;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];
   periodoRealizacao?: Dayjs[];
