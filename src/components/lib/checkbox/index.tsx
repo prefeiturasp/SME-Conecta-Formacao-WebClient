@@ -9,7 +9,7 @@ type CheckboxPersonalizadoPros = {
   hasError?: boolean;
 };
 
-const CheckboxPersonalizado = styled(Checkbox)<CheckboxPersonalizadoPros>`
+const CheckboxContainer = styled.div<CheckboxPersonalizadoPros>`
   .ant-checkbox-inner {
     border-color: ${(props) => props.hasError && Colors.ERROR};
   }
@@ -68,18 +68,20 @@ const CheckboxAcaoInformatica: FC = () => {
         },
       ]}
     >
-      <CheckboxPersonalizado hasError={erroCheckbox}>
-        <Link
-          type='link'
-          to={acaoFormativaLink}
-          target='_blank'
-          rel='noreferrer'
-          style={{ paddingLeft: '5px' }}
-        >
-          <span style={{ color: Colors.ERROR }}>* </span>
-          {acaoFormativaTexto}
-        </Link>
-      </CheckboxPersonalizado>
+      <CheckboxContainer hasError={erroCheckbox}>
+        <Checkbox>
+          <Link
+            type='link'
+            to={acaoFormativaLink}
+            target='_blank'
+            rel='noreferrer'
+            style={{ paddingLeft: '5px' }}
+          >
+            <span style={{ color: Colors.ERROR }}>* </span>
+            {acaoFormativaTexto}
+          </Link>
+        </Checkbox>
+      </CheckboxContainer>
     </Form.Item>
   );
 };

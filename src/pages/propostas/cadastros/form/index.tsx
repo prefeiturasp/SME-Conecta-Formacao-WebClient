@@ -335,6 +335,8 @@ const FormCadastroDePropostas: React.FC = () => {
         navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
       }
     }
+
+    return response;
   };
 
   const proximoPasso = async () => {
@@ -353,9 +355,9 @@ const FormCadastroDePropostas: React.FC = () => {
     if (id) {
       confirmacao({
         content: DESEJA_EXCLUIR_REGISTRO,
-        onOk() {
+        async onOk() {
           deletarProposta(id).then((response) => {
-            if (response.sucesso) {
+            if (response?.sucesso) {
               notification.success({
                 message: 'Sucesso',
                 description: REGISTRO_EXCLUIDO_SUCESSO,
@@ -373,7 +375,11 @@ const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         async onOk() {
-          await salvar().then(() => navigate(ROUTES.CADASTRO_DE_PROPOSTAS));
+          await salvar().then((response) => {
+            if (response?.sucesso) {
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+            }
+          });
         },
         onCancel() {
           navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
