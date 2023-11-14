@@ -1,7 +1,7 @@
-import { Form, Tooltip } from 'antd';
-import JoditEditorSME from '~/components/lib/inputs/editor/index.tsx';
-import { FC } from 'react';
 import { InfoCircleFilled } from '@ant-design/icons';
+import { Form, Tooltip } from 'antd';
+import { FC } from 'react';
+import JoditEditorSME from '~/components/lib/inputs/editor/index.tsx';
 import { Colors } from '~/core/styles/colors';
 
 type EditorTextoProps = {
@@ -10,6 +10,7 @@ type EditorTextoProps = {
   mensagemTooltip?: string;
   required?: boolean;
   exibirTooltip?: boolean;
+  disabeld?: boolean;
 };
 
 const EditorTexto: FC<EditorTextoProps> = ({
@@ -18,9 +19,11 @@ const EditorTexto: FC<EditorTextoProps> = ({
   mensagemTooltip,
   required = true,
   exibirTooltip = false,
+  disabeld = false,
 }) => {
   const config = {
     placeholder: label || '',
+    disabled: disabeld,
   };
 
   const iconTooltip = exibirTooltip ? (

@@ -47,6 +47,7 @@ type JoditEditorProps = IJoditEditorProps & {
   quantidadeMaximaImagens?: number;
   tamanhoMaximoUploadMb?: number;
   hasError?: boolean;
+  disabled?: boolean;
   erro?: (mensagem: string) => void;
 };
 
@@ -65,6 +66,7 @@ const JoditEditorSME = forwardRef((props: JoditEditorProps, ref: any) => {
     onBlur,
     onChange,
     erro,
+    disabled = false,
   } = props;
 
   const textArea = useRef<JoditType>();
@@ -123,6 +125,7 @@ const JoditEditorSME = forwardRef((props: JoditEditorProps, ref: any) => {
       height: 'auto',
       spellcheck: true,
       language: 'pt_br',
+      disabled: disabled,
       showWordsCounter: false,
       askBeforePasteHTML: false,
       showXPathInStatusbar: false,
