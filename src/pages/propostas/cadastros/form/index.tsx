@@ -16,8 +16,8 @@ import {
   CF_BUTTON_CANCELAR,
   CF_BUTTON_ENVIAR_PROPOSTA,
   CF_BUTTON_EXCLUIR,
-  CF_BUTTON_NOVO,
   CF_BUTTON_PROXIMO_STEP,
+  CF_BUTTON_SALVAR_RASCUNHO,
   CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
@@ -360,7 +360,7 @@ const FormCadastroDePropostas: React.FC = () => {
                 message: 'Sucesso',
                 description: REGISTRO_EXCLUIDO_SUCESSO,
               });
-              navigate(ROUTES.PRINCIPAL);
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
             }
           });
         },
@@ -373,8 +373,7 @@ const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         async onOk() {
-          await salvar();
-          navigate(ROUTES.PRINCIPAL);
+          await salvar().then(() => navigate(ROUTES.CADASTRO_DE_PROPOSTAS));
         },
         onCancel() {
           navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
@@ -443,7 +442,7 @@ const FormCadastroDePropostas: React.FC = () => {
       });
   };
 
-  const enviarProposta = async () => {
+  const enviarProposta = () => {
     confirmacao({
       content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
       onOk() {
@@ -564,7 +563,7 @@ const FormCadastroDePropostas: React.FC = () => {
                 <Button
                   block
                   type='primary'
-                  id={CF_BUTTON_NOVO}
+                  id={CF_BUTTON_SALVAR_RASCUNHO}
                   onClick={() => salvar()}
                   style={{ fontWeight: 700 }}
                 >
