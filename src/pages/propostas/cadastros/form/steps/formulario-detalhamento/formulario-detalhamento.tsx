@@ -7,7 +7,11 @@ import SelectPalavrasChaves from '~/components/main/input/palacras-chave';
 import { Modalidade } from '~/core/enum/modalidade';
 import InputTimerCargaHorariaTotal from './components/carga-horaria-total';
 
-const FormularioDetalhamento: React.FC = () => {
+interface FormularioDetalhamentoProps {
+  disabledForm: boolean;
+}
+
+const FormularioDetalhamento: React.FC<FormularioDetalhamentoProps> = ({ disabledForm }) => {
   const collapsesComEditorDeTexto = [
     {
       key: 'justificativa',
@@ -68,6 +72,7 @@ const FormularioDetalhamento: React.FC = () => {
                       textToolTip='No caso de cursos a distância com opções de aulas presenciais (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade.'
                       key='cargaHorariaPresencial'
                       required={requerido}
+                      disabled={disabledForm}
                     />
                   );
                 }}
@@ -79,6 +84,7 @@ const FormularioDetalhamento: React.FC = () => {
                 nome='cargaHorariaSincrona'
                 textToolTip='No caso de cursos a distância com opções de aulas síncronas (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade'
                 key='cargaHorariaSincrona'
+                disabled={disabledForm}
               />
             </Col>
             <Col xs={24} sm={12}>
@@ -87,6 +93,7 @@ const FormularioDetalhamento: React.FC = () => {
                 nome='cargaHorariaDistancia'
                 textToolTip='Para os cursos presenciais, se houver atividades não presenciais (máximo de 10% da carga horária total), indicar neste campo. Para os cursos a distância indicar a carga horária relativa as aulas assíncronas'
                 key='cargaHorariaDistancia'
+                disabled={disabledForm}
               />
             </Col>
             <Col xs={24} sm={12}>
@@ -107,7 +114,7 @@ const FormularioDetalhamento: React.FC = () => {
               titleToolTip={item.textoTooltip}
               collapseProps={{ defaultActiveKey: item.defaultActiveKey }}
             >
-              <EditorTexto nome={item.key} />
+              <EditorTexto nome={item.key} disabeld={disabledForm} />
             </CollapsePanelSME>
           </React.Fragment>
         );

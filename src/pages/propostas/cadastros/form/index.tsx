@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Row, StepProps, notification } from 'antd';
+import { Badge, Button, Col, Divider, Form, Row, StepProps, notification } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import dayjs, { Dayjs } from 'dayjs';
 import { cloneDeep } from 'lodash';
@@ -28,6 +28,7 @@ import {
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   ERRO_CAMPOS_OBRIGATORIOS,
+  NAO_ENVIOU_PROPOSTA_ANALISE,
   PROPOSTA_CADASTRADA,
   PROPOSTA_ENVIADA,
   REGISTRO_EXCLUIDO_SUCESSO,
@@ -36,13 +37,14 @@ import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoRegistro } from '~/core/enum/situacao-registro';
+import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
   alterarProposta,
   deletarProposta,
+  enviarPropostaDF,
   inserirProposta,
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
@@ -58,13 +60,15 @@ const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
   const paramsRoute = useParams();
 
-  const [propostaEnviada, setPropostaEnviada] = useState<boolean>();
   const [currentStep, setCurrentStep] = useState<StepPropostaEnum>(
     StepPropostaEnum.InformacoesGerais,
   );
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
   const id = paramsRoute?.id || 0;
+
+  const desabilitarTodosFormularios =
+    SituacaoRegistro.AguardandoAnaliseDF === formInitialValues?.situacao;
 
   const stepsProposta: StepProps[] = [
     {
@@ -207,9 +211,9 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
-  const salvar = async (values: PropostaFormDTO) => {
-    if (!form.isFieldsTouched() && id) return true;
+  const salvar = async (novaSituacao?: SituacaoRegistro) => {
     let response = null;
+    const values: PropostaFormDTO = form.getFieldsValue();
     const clonedValues = cloneDeep(values);
 
     const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
@@ -217,6 +221,20 @@ const FormCadastroDePropostas: React.FC = () => {
 
     const dataInscricaoInicio = values?.periodoInscricao?.[0];
     const dataInscricaoFim = values.periodoInscricao?.[1];
+
+    let situacao = SituacaoRegistro.Rascunho;
+
+    if (id && !novaSituacao && !clonedValues?.situacao) {
+      situacao;
+    }
+
+    if (id && !novaSituacao && clonedValues?.situacao) {
+      situacao = clonedValues?.situacao;
+    }
+
+    if (id && novaSituacao) {
+      situacao = novaSituacao;
+    }
 
     const valoresSalvar: PropostaDTO = {
       tipoFormacao: clonedValues?.tipoFormacao,
@@ -231,9 +249,7 @@ const FormCadastroDePropostas: React.FC = () => {
       vagasRemanecentes: [],
       criteriosValidacaoInscricao: [],
       criterioValidacaoInscricaoOutros: clonedValues?.criterioValidacaoInscricaoOutros || '',
-      // TODO
-      // situacao: id ? clonedValues.situacao : SituacaoRegistro.Rascunho,
-      situacao: SituacaoRegistro.Rascunho,
+      situacao,
       dataRealizacaoInicio,
       dataRealizacaoFim,
       dataInscricaoInicio,
@@ -292,45 +308,45 @@ const FormCadastroDePropostas: React.FC = () => {
     if (clonedValues?.arquivos?.length) {
       valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
     }
-    if (form.isFieldsTouched()) {
-      if (id) {
-        response = await alterarProposta(id, valoresSalvar);
-      } else {
-        response = await inserirProposta(valoresSalvar);
-      }
 
-      if (response.sucesso) {
-        notification.success({
-          message: 'Sucesso',
-          description: `Registro ${id ? 'alterado' : 'inserido'} com sucesso!`,
-        });
-
-        if (id) {
-          carregarDados();
-        } else {
-          const novoId = response.dados;
-          navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
-        }
-      }
-      return true;
+    if (id) {
+      response = await alterarProposta(id, valoresSalvar);
+    } else {
+      response = await inserirProposta(valoresSalvar);
     }
 
-    return false;
+    if (response.sucesso) {
+      if (situacao && situacao !== SituacaoRegistro.Rascunho) {
+        notification.success({
+          message: 'Sucesso',
+          description: PROPOSTA_CADASTRADA,
+        });
+      } else {
+        notification.success({
+          message: 'Sucesso',
+          description: `Rascunho ${id ? 'alterado' : 'inserido'} com sucesso!`,
+        });
+      }
+
+      if (id) {
+        carregarDados();
+      } else {
+        const novoId = response.dados;
+        navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
+      }
+    }
   };
 
   const proximoPasso = async () => {
-    const salvou = await salvar(form.getFieldsValue());
-    if (salvou) {
-      setCurrentStep(currentStep + 1);
+    if (form.isFieldsTouched()) {
+      await salvar();
     }
+
+    setCurrentStep(currentStep + 1);
   };
 
   const passoAnterior = async () => {
     currentStep >= StepPropostaEnum.Detalhamento && setCurrentStep(currentStep - 1);
-  };
-
-  const salvarRascunho = () => {
-    salvar(form.getFieldsValue());
   };
 
   const onClickExcluir = () => {
@@ -357,7 +373,7 @@ const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         async onOk() {
-          await salvar(form.getFieldsValue());
+          await salvar();
           navigate(ROUTES.PRINCIPAL);
         },
         onCancel() {
@@ -376,7 +392,7 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormInformacoesGerais form={form} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
-          <FormularioDetalhamento />
+          <FormularioDetalhamento disabledForm={desabilitarTodosFormularios} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Datas !== stepSelecionado}>
           <FormularioDatas form={form} />
@@ -385,7 +401,7 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormularioProfissionais />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Certificacao !== stepSelecionado}>
-          <FormularioCertificacao form={form} />
+          <FormularioCertificacao form={form} disabledForm={desabilitarTodosFormularios} />
         </Form.Item>
       </>
     );
@@ -395,25 +411,27 @@ const FormCadastroDePropostas: React.FC = () => {
     form
       .validateFields()
       .then(() => {
-        salvar(form.getFieldsValue()).then(() => {
-          notification.success({
-            message: 'Sucesso',
-            description: PROPOSTA_CADASTRADA,
+        salvar(SituacaoRegistro.Cadastrada)
+          .then(() => {
+            confirmacao({
+              content: DESEJA_ENVIAR_PROPOSTA,
+              onOk() {
+                enviarProposta();
+              },
+
+              onCancel() {
+                carregarDados();
+              },
+            });
+          })
+          .catch((erro) => {
+            if (erro) {
+              notification.error({
+                message: 'Erro',
+                description: erro,
+              });
+            }
           });
-
-          setPropostaEnviada(true);
-
-          confirmacao({
-            content: DESEJA_ENVIAR_PROPOSTA,
-            onOk() {
-              enviarProposta();
-            },
-
-            onCancel() {
-              carregarDados();
-            },
-          });
-        });
       })
       .catch((error: any) => {
         if (error?.errorFields?.length) {
@@ -425,20 +443,42 @@ const FormCadastroDePropostas: React.FC = () => {
       });
   };
 
-  const enviarProposta = () => {
+  const enviarProposta = async () => {
     confirmacao({
       content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
       onOk() {
-        salvar(form.getFieldsValue()).then(() => {
-          notification.success({
-            message: 'Sucesso',
-            description: PROPOSTA_ENVIADA,
-          });
+        enviarPropostaDF(id)
+          .then(() => {
+            notification.success({
+              message: 'Sucesso',
+              description: PROPOSTA_ENVIADA,
+            });
 
-          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-        });
+            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+          })
+          .catch((erro) => {
+            if (erro) {
+              notification.error({
+                message: 'Erro',
+                description: erro,
+              });
+            }
+          });
       },
     });
+  };
+
+  const badgeSituacaoProposta = () => {
+    switch (formInitialValues?.situacao) {
+      case SituacaoRegistro.Ativo:
+        return SituacaoRegistroTagDisplay[SituacaoRegistro.Ativo];
+      case SituacaoRegistro.Rascunho:
+        return SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho];
+      case SituacaoRegistro.Cadastrada:
+        return SituacaoRegistroTagDisplay[SituacaoRegistro.Cadastrada];
+      case SituacaoRegistro.AguardandoAnaliseDF:
+        return SituacaoRegistroTagDisplay[SituacaoRegistro.AguardandoAnaliseDF];
+    }
   };
 
   return (
@@ -449,12 +489,28 @@ const FormCadastroDePropostas: React.FC = () => {
         autoComplete='off'
         initialValues={formInitialValues}
         validateMessages={validateMessages}
+        disabled={desabilitarTodosFormularios}
       >
         <HeaderPage title='Cadastro de Propostas'>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+                <ButtonVoltar
+                  disabled={false}
+                  onClick={() => {
+                    if (SituacaoRegistro.Cadastrada === formInitialValues?.situacao) {
+                      confirmacao({
+                        content: NAO_ENVIOU_PROPOSTA_ANALISE,
+                        onOk() {
+                          onClickVoltar();
+                        },
+                      });
+                    } else {
+                      onClickVoltar();
+                    }
+                  }}
+                  id={CF_BUTTON_VOLTAR}
+                />
               </Col>
               {id ? (
                 <Col>
@@ -509,7 +565,7 @@ const FormCadastroDePropostas: React.FC = () => {
                   block
                   type='primary'
                   id={CF_BUTTON_NOVO}
-                  onClick={salvarRascunho}
+                  onClick={() => salvar()}
                   style={{ fontWeight: 700 }}
                 >
                   Salvar rascunho
@@ -528,7 +584,7 @@ const FormCadastroDePropostas: React.FC = () => {
                   </Button>
                 </Col>
               )}
-              {propostaEnviada && (
+              {formInitialValues?.situacao === SituacaoRegistro.Cadastrada && (
                 <Col>
                   <Button
                     block
@@ -547,13 +603,14 @@ const FormCadastroDePropostas: React.FC = () => {
         <br />
         <CardInformacoesCadastrante />
         <br />
-        <CardContent>
-          <Divider orientation='left' />
-
-          <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
-          {selecionarTelaStep(currentStep)}
-          <Auditoria dados={formInitialValues?.auditoria} />
-        </CardContent>
+        <Badge.Ribbon text={badgeSituacaoProposta()}>
+          <CardContent>
+            <Divider orientation='left' />
+            <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
+            {selecionarTelaStep(currentStep)}
+            <Auditoria dados={formInitialValues?.auditoria} />
+          </CardContent>
+        </Badge.Ribbon>
       </Form>
     </Col>
   );

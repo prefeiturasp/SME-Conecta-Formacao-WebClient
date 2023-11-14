@@ -48,6 +48,9 @@ const alterarProposta = (
 ): Promise<ApiResult<PropostaDTO>> =>
   alterarRegistro<PropostaDTO>(`${URL_API_PROPOSTA}/${id}`, params);
 
+const enviarPropostaDF = (id: string | number, params?: PropostaDTO): Promise<ApiResult<number>> =>
+  alterarRegistro<number>(`${URL_API_PROPOSTA}/${id}/enviardf`, params);
+
 const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}`);
 
@@ -104,6 +107,7 @@ const obterPropostaTutorPorId = (id: string | number) =>
 export {
   alterarProposta,
   deletarProposta,
+  enviarPropostaDF,
   excluirRegente,
   excluirTutor,
   inserirProposta,
