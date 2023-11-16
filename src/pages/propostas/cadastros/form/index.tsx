@@ -1,5 +1,6 @@
-import { Button, Col, Divider, Form, Row, StepProps, notification } from 'antd';
+import { Badge, Button, Col, Divider, Form, Row, StepProps, notification } from 'antd';
 import { useForm } from 'antd/es/form/Form';
+import dayjs, { Dayjs } from 'dayjs';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,52 +12,63 @@ import ButtonVoltar from '~/components/main/button/voltar';
 import Steps from '~/components/main/steps';
 import Auditoria from '~/components/main/text/auditoria';
 import {
+  CF_BUTTON_CADASTRAR_PROPOSTA,
   CF_BUTTON_CANCELAR,
+  CF_BUTTON_ENVIAR_PROPOSTA,
   CF_BUTTON_EXCLUIR,
-  CF_BUTTON_NOVO,
   CF_BUTTON_PROXIMO_STEP,
+  CF_BUTTON_SALVAR_RASCUNHO,
   CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import {
+  APOS_ENVIAR_PROPOSTA_NAO_EDITA,
   DESEJA_CANCELAR_ALTERACOES,
+  DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
+  ERRO_CAMPOS_OBRIGATORIOS,
+  NAO_ENVIOU_PROPOSTA_ANALISE,
+  PROPOSTA_CADASTRADA,
+  PROPOSTA_ENVIADA,
   REGISTRO_EXCLUIDO_SUCESSO,
 } from '~/core/constants/mensagens';
 import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoRegistro } from '~/core/enum/situacao-registro';
+import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
   alterarProposta,
   deletarProposta,
+  enviarPropostaDF,
   inserirProposta,
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
-import FormInformacoesGerais from './steps/informacoes-gerais';
-import FormularioDatas from './steps/formulario-datas';
-import FormularioDetalhamento from './steps/formulario-detalhamento';
-import FormularioProfissionais from './steps/formulario-profissionais';
 import FormularioCertificacao from './steps/formulario-certificacao';
-import dayjs, { Dayjs } from 'dayjs';
+import FormularioDatas from './steps/formulario-datas';
+import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
+import FormularioProfissionais from './steps/formulario-profissionais';
+import FormInformacoesGerais from './steps/informacoes-gerais';
 
 const FormCadastroDePropostas: React.FC = () => {
+  const [form] = useForm();
+
   const navigate = useNavigate();
   const paramsRoute = useParams();
-  const [form] = useForm();
 
   const [currentStep, setCurrentStep] = useState<StepPropostaEnum>(
     StepPropostaEnum.InformacoesGerais,
   );
-
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
   const id = paramsRoute?.id || 0;
+
+  const desabilitarTodosFormularios =
+    SituacaoRegistro.AguardandoAnaliseDF === formInitialValues?.situacao;
 
   const stepsProposta: StepProps[] = [
     {
@@ -87,6 +99,7 @@ const FormCadastroDePropostas: React.FC = () => {
       criterioCertificacao: [],
       cursoComCertificado: false,
       acaoInformativa: false,
+      situacao: SituacaoRegistro.Rascunho,
     };
 
     setFormInitialValues(valoresIniciais);
@@ -94,43 +107,44 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const carregarDados = useCallback(async () => {
     const resposta = await obterPropostaPorId(id);
+    const dados = resposta.dados;
 
     if (resposta.sucesso) {
       let publicosAlvo: number[] = [];
-      if (resposta.dados?.publicosAlvo?.length) {
-        publicosAlvo = resposta.dados.publicosAlvo.map((item) => item.cargoFuncaoId);
+      if (dados?.publicosAlvo?.length) {
+        publicosAlvo = dados.publicosAlvo.map((item) => item.cargoFuncaoId);
       }
 
       let funcoesEspecificas: number[] = [];
-      if (resposta.dados?.funcoesEspecificas?.length) {
-        funcoesEspecificas = resposta.dados.funcoesEspecificas.map((item) => item.cargoFuncaoId);
+      if (dados?.funcoesEspecificas?.length) {
+        funcoesEspecificas = dados.funcoesEspecificas.map((item) => item.cargoFuncaoId);
       }
 
       let vagasRemanecentes: number[] = [];
-      if (resposta.dados?.vagasRemanecentes?.length) {
-        vagasRemanecentes = resposta.dados.vagasRemanecentes.map((item) => item.cargoFuncaoId);
+      if (dados?.vagasRemanecentes?.length) {
+        vagasRemanecentes = dados.vagasRemanecentes.map((item) => item.cargoFuncaoId);
       }
 
       let palavrasChaves: number[] = [];
-      if (resposta.dados?.palavrasChaves?.length) {
-        palavrasChaves = resposta.dados.palavrasChaves.map((item) => item.palavraChaveId);
+      if (dados?.palavrasChaves?.length) {
+        palavrasChaves = dados.palavrasChaves.map((item) => item.palavraChaveId);
       }
 
       let criterioCertificacao: number[] = [];
-      if (resposta.dados?.criterioCertificacao?.length) {
-        criterioCertificacao = resposta.dados.criterioCertificacao.map(
+      if (dados?.criterioCertificacao?.length) {
+        criterioCertificacao = dados.criterioCertificacao.map(
           (item) => item.criterioCertificacaoId,
         );
       }
 
       let criteriosValidacaoInscricao: number[] = [];
-      if (resposta.dados?.criteriosValidacaoInscricao?.length) {
-        criteriosValidacaoInscricao = resposta.dados.criteriosValidacaoInscricao.map(
+      if (dados?.criteriosValidacaoInscricao?.length) {
+        criteriosValidacaoInscricao = dados.criteriosValidacaoInscricao.map(
           (item) => item.criterioValidacaoInscricaoId,
         );
       }
 
-      const arquivoImagemDivulgacao = resposta?.dados?.arquivoImagemDivulgacao;
+      const arquivoImagemDivulgacao = dados?.arquivoImagemDivulgacao;
       let arquivos: any[] = [];
       if (arquivoImagemDivulgacao?.arquivoId) {
         arquivos = [
@@ -144,21 +158,21 @@ const FormCadastroDePropostas: React.FC = () => {
       }
 
       let periodoRealizacao: Dayjs[] = [];
-      const dataRealizacaoInicio = resposta?.dados?.dataRealizacaoInicio;
-      const dataRealizacaoFim = resposta?.dados?.dataRealizacaoFim;
+      const dataRealizacaoInicio = dados?.dataRealizacaoInicio;
+      const dataRealizacaoFim = dados?.dataRealizacaoFim;
       if (dataRealizacaoInicio && dataRealizacaoFim) {
         periodoRealizacao = [dayjs(dataRealizacaoInicio), dayjs(dataRealizacaoFim)];
       }
 
       let periodoInscricao: Dayjs[] = [];
-      const dataInscricaoInicio = resposta?.dados?.dataInscricaoInicio;
-      const dataInscricaoFim = resposta?.dados?.dataInscricaoFim;
+      const dataInscricaoInicio = dados?.dataInscricaoInicio;
+      const dataInscricaoFim = dados?.dataInscricaoFim;
       if (dataInscricaoInicio && dataInscricaoFim) {
         periodoInscricao = [dayjs(dataInscricaoInicio), dayjs(dataInscricaoFim)];
       }
 
       const valoresIniciais: PropostaFormDTO = {
-        ...resposta.dados,
+        ...dados,
         publicosAlvo,
         funcoesEspecificas,
         vagasRemanecentes,
@@ -197,9 +211,9 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
-  const salvar = async (values: PropostaFormDTO, situacao: SituacaoRegistro) => {
-    if (!form.isFieldsTouched() && id) return true;
+  const salvar = async (novaSituacao?: SituacaoRegistro) => {
     let response = null;
+    const values: PropostaFormDTO = form.getFieldsValue();
     const clonedValues = cloneDeep(values);
 
     const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
@@ -207,6 +221,20 @@ const FormCadastroDePropostas: React.FC = () => {
 
     const dataInscricaoInicio = values?.periodoInscricao?.[0];
     const dataInscricaoFim = values.periodoInscricao?.[1];
+
+    let situacao = SituacaoRegistro.Rascunho;
+
+    if (id && !novaSituacao && !clonedValues?.situacao) {
+      situacao;
+    }
+
+    if (id && !novaSituacao && clonedValues?.situacao) {
+      situacao = clonedValues?.situacao;
+    }
+
+    if (id && novaSituacao) {
+      situacao = novaSituacao;
+    }
 
     const valoresSalvar: PropostaDTO = {
       tipoFormacao: clonedValues?.tipoFormacao,
@@ -238,6 +266,8 @@ const FormCadastroDePropostas: React.FC = () => {
       criterioCertificacao: [],
       cursoComCertificado: clonedValues.cursoComCertificado,
       acaoInformativa: clonedValues.acaoInformativa,
+      acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
+      acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
     };
 
@@ -263,13 +293,11 @@ const FormCadastroDePropostas: React.FC = () => {
         cargoFuncaoId,
       }));
     }
-
     if (clonedValues?.vagasRemanecentes?.length) {
       valoresSalvar.vagasRemanecentes = clonedValues.vagasRemanecentes.map((cargoFuncaoId) => ({
         cargoFuncaoId,
       }));
     }
-
     if (clonedValues?.criteriosValidacaoInscricao?.length) {
       valoresSalvar.criteriosValidacaoInscricao = clonedValues.criteriosValidacaoInscricao.map(
         (criterioValidacaoInscricaoId) => ({
@@ -277,78 +305,81 @@ const FormCadastroDePropostas: React.FC = () => {
         }),
       );
     }
-
     if (clonedValues?.arquivos?.length) {
       valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
     }
 
-    if (form.isFieldsTouched()) {
-      if (id) {
-        response = await alterarProposta(id, valoresSalvar);
-      } else {
-        response = await inserirProposta(valoresSalvar);
-      }
-
-      if (response.sucesso) {
-        notification.success({
-          message: 'Sucesso',
-          description: `Registro ${id ? 'alterado' : 'inserido'} com sucesso!`,
-        });
-
-        if (id) {
-          carregarDados();
-        } else {
-          const novoId = response.dados;
-          navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
-        }
-      }
-      return true;
+    if (id) {
+      response = await alterarProposta(id, valoresSalvar);
+    } else {
+      response = await inserirProposta(valoresSalvar);
     }
 
-    return false;
+    if (response.sucesso) {
+      if (situacao && situacao !== SituacaoRegistro.Rascunho) {
+        notification.success({
+          message: 'Sucesso',
+          description: PROPOSTA_CADASTRADA,
+        });
+      } else {
+        notification.success({
+          message: 'Sucesso',
+          description: `Rascunho ${id ? 'alterado' : 'inserido'} com sucesso!`,
+        });
+      }
+
+      if (id) {
+        carregarDados();
+      } else {
+        const novoId = response.dados;
+        navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
+      }
+    }
+
+    return response;
   };
 
   const proximoPasso = async () => {
-    const salvou = await salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
-    if (salvou) {
-      setCurrentStep(currentStep + 1);
+    if (form.isFieldsTouched()) {
+      await salvar();
     }
+
+    setCurrentStep(currentStep + 1);
   };
 
   const passoAnterior = async () => {
-    // TODO
     currentStep >= StepPropostaEnum.Detalhamento && setCurrentStep(currentStep - 1);
-  };
-
-  const salvarRascunho = () => {
-    salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
   };
 
   const onClickExcluir = () => {
     if (id) {
       confirmacao({
         content: DESEJA_EXCLUIR_REGISTRO,
-        onOk() {
+        async onOk() {
           deletarProposta(id).then((response) => {
-            if (response.sucesso) {
+            if (response?.sucesso) {
               notification.success({
                 message: 'Sucesso',
                 description: REGISTRO_EXCLUIDO_SUCESSO,
               });
-              navigate(ROUTES.PRINCIPAL);
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
             }
           });
         },
       });
     }
   };
+
   const onClickVoltar = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
         content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         async onOk() {
-          await salvar(form.getFieldsValue(), SituacaoRegistro.Rascunho);
-          navigate(ROUTES.PRINCIPAL);
+          await salvar().then((response) => {
+            if (response?.sucesso) {
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+            }
+          });
         },
         onCancel() {
           navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
@@ -358,6 +389,7 @@ const FormCadastroDePropostas: React.FC = () => {
       navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
     }
   };
+
   const selecionarTelaStep = (stepSelecionado: StepPropostaEnum) => {
     return (
       <>
@@ -365,7 +397,7 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormInformacoesGerais form={form} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
-          <FormularioDetalhamento form={form} />
+          <FormularioDetalhamento disabledForm={desabilitarTodosFormularios} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Datas !== stepSelecionado}>
           <FormularioDatas form={form} />
@@ -374,10 +406,84 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormularioProfissionais />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Certificacao !== stepSelecionado}>
-          <FormularioCertificacao form={form} />
+          <FormularioCertificacao form={form} disabledForm={desabilitarTodosFormularios} />
         </Form.Item>
       </>
     );
+  };
+
+  const salvarProposta = () => {
+    form
+      .validateFields()
+      .then(() => {
+        salvar(SituacaoRegistro.Cadastrada)
+          .then(() => {
+            confirmacao({
+              content: DESEJA_ENVIAR_PROPOSTA,
+              onOk() {
+                enviarProposta();
+              },
+
+              onCancel() {
+                carregarDados();
+              },
+            });
+          })
+          .catch((erro) => {
+            if (erro) {
+              notification.error({
+                message: 'Erro',
+                description: erro,
+              });
+            }
+          });
+      })
+      .catch((error: any) => {
+        if (error?.errorFields?.length) {
+          notification.error({
+            message: 'Erro',
+            description: ERRO_CAMPOS_OBRIGATORIOS,
+          });
+        }
+      });
+  };
+
+  const enviarProposta = () => {
+    confirmacao({
+      content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
+      onOk() {
+        enviarPropostaDF(id)
+          .then(() => {
+            notification.success({
+              message: 'Sucesso',
+              description: PROPOSTA_ENVIADA,
+            });
+
+            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+          })
+          .catch((erro) => {
+            if (erro) {
+              notification.error({
+                message: 'Erro',
+                description: erro,
+              });
+            }
+          });
+      },
+    });
+  };
+
+  const badgeSituacaoProposta = () => {
+    switch (formInitialValues?.situacao) {
+      case SituacaoRegistro.Ativo:
+        return SituacaoRegistroTagDisplay[SituacaoRegistro.Ativo];
+      case SituacaoRegistro.Rascunho:
+        return SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho];
+      case SituacaoRegistro.Cadastrada:
+        return SituacaoRegistroTagDisplay[SituacaoRegistro.Cadastrada];
+      case SituacaoRegistro.AguardandoAnaliseDF:
+        return SituacaoRegistroTagDisplay[SituacaoRegistro.AguardandoAnaliseDF];
+    }
   };
 
   return (
@@ -388,12 +494,28 @@ const FormCadastroDePropostas: React.FC = () => {
         autoComplete='off'
         initialValues={formInitialValues}
         validateMessages={validateMessages}
+        disabled={desabilitarTodosFormularios}
       >
         <HeaderPage title='Cadastro de Propostas'>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+                <ButtonVoltar
+                  disabled={false}
+                  onClick={() => {
+                    if (SituacaoRegistro.Cadastrada === formInitialValues?.situacao) {
+                      confirmacao({
+                        content: NAO_ENVIOU_PROPOSTA_ANALISE,
+                        onOk() {
+                          onClickVoltar();
+                        },
+                      });
+                    } else {
+                      onClickVoltar();
+                    }
+                  }}
+                  id={CF_BUTTON_VOLTAR}
+                />
               </Col>
               {id ? (
                 <Col>
@@ -447,26 +569,53 @@ const FormCadastroDePropostas: React.FC = () => {
                 <Button
                   block
                   type='primary'
-                  id={CF_BUTTON_NOVO}
-                  onClick={salvarRascunho}
+                  id={CF_BUTTON_SALVAR_RASCUNHO}
+                  onClick={() => salvar()}
                   style={{ fontWeight: 700 }}
                 >
                   Salvar rascunho
                 </Button>
               </Col>
+              {currentStep === StepPropostaEnum.Certificacao && (
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                    onClick={salvarProposta}
+                    style={{ fontWeight: 700 }}
+                  >
+                    Salvar
+                  </Button>
+                </Col>
+              )}
+              {formInitialValues?.situacao === SituacaoRegistro.Cadastrada && (
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    onClick={enviarProposta}
+                    style={{ fontWeight: 700 }}
+                    id={CF_BUTTON_ENVIAR_PROPOSTA}
+                  >
+                    Enviar
+                  </Button>
+                </Col>
+              )}
             </Row>
           </Col>
         </HeaderPage>
         <br />
         <CardInformacoesCadastrante />
         <br />
-        <CardContent>
-          <Divider orientation='left' />
-
-          <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
-          {selecionarTelaStep(currentStep)}
-          <Auditoria dados={formInitialValues?.auditoria} />
-        </CardContent>
+        <Badge.Ribbon text={badgeSituacaoProposta()}>
+          <CardContent>
+            <Divider orientation='left' />
+            <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
+            {selecionarTelaStep(currentStep)}
+            <Auditoria dados={formInitialValues?.auditoria} />
+          </CardContent>
+        </Badge.Ribbon>
       </Form>
     </Col>
   );

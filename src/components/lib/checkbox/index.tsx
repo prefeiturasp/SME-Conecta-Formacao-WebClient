@@ -1,53 +1,88 @@
-import { Form, FormInstance, Row, Switch } from 'antd';
-import { FC, useEffect, useState } from 'react';
+import { Checkbox, Form } from 'antd';
+import { FC, useCallback, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import styled from 'styled-components';
 import { obterComunicadoAcaoInformatica } from '~/core/services/proposta-service';
+import { Colors } from '~/core/styles/colors';
 
-type CheckboxAcaoInformaticaProps = {
-  form: FormInstance;
-  propostaId: number;
+type CheckboxPersonalizadoPros = {
+  hasError?: boolean;
 };
 
-const CheckboxAcaoInformatica: FC<CheckboxAcaoInformaticaProps> = ({ form, propostaId }) => {
-  const [mensagem, setMensagem] = useState('');
-  const [link, setLink] = useState('');
-  const [valueSwitch, setValueSwitch] = useState(false);
+const CheckboxContainer = styled.div<CheckboxPersonalizadoPros>`
+  .ant-checkbox-inner {
+    border-color: ${(props) => props.hasError && Colors.ERROR};
+  }
+`;
 
-  const obterDados = async () => {
-    const resposta = await obterComunicadoAcaoInformatica(propostaId);
-    if (resposta.sucesso) {
-      setMensagem(resposta.dados.descricao);
-      setLink(resposta.dados.url);
+const CheckboxAcaoInformatica: FC = () => {
+  const form = Form.useFormInstance();
+
+  const paramsRoute = useParams();
+  const propostaId = paramsRoute?.id || 0;
+
+  const [erroCheckbox, setErroCheckbox] = useState(false);
+
+  const acaoFormativaTexto = form.getFieldValue('acaoFormativaTexto');
+  const acaoFormativaLink = form.getFieldValue('acaoFormativaLink');
+
+  const limparCampos = () => {
+    form.setFieldValue('acaoFormativaTexto', '');
+    form.setFieldValue('acaoFormativaLink', '');
+  };
+
+  const obterDados = useCallback(async () => {
+    if (propostaId) {
+      const resposta = await obterComunicadoAcaoInformatica(propostaId);
+      if (resposta.sucesso) {
+        form.setFieldValue('acaoFormativaTexto', resposta.dados.descricao);
+        form.setFieldValue('acaoFormativaLink', resposta.dados.url);
+      } else {
+        limparCampos();
+      }
     } else {
-      setMensagem('');
-      setLink('');
+      limparCampos();
     }
-    setTimeout(() => {
-      setValueSwitch(form.getFieldValue('acaoInformativa'));
-    }, 1000);
-  };
-  const changeSwitch = () => {
-    setValueSwitch((valor) => !valor);
-  };
+  }, [propostaId]);
+
   useEffect(() => {
     obterDados();
-  }, []);
+  }, [obterDados]);
+
   return (
-    <Row>
-      <Form.Item name='acaoInformativa' rules={[{ required: true }]} style={{ fontWeight: 'bold' }}>
-        <Switch onChange={changeSwitch} checked={valueSwitch}></Switch>
-      </Form.Item>
-      <Form.Item>
-        <a
-          href={link}
-          target='_blank'
-          rel='noreferrer'
-          style={{ paddingLeft: '10px', color: 'black' }}
-        >
-          <span style={{ color: 'red' }}>* </span>
-          {mensagem}
-        </a>
-      </Form.Item>
-    </Row>
+    <Form.Item
+      valuePropName='checked'
+      name='acaoInformativa'
+      rules={[
+        {
+          required: true,
+          validator(_, value) {
+            if (value) {
+              setErroCheckbox(false);
+              return Promise.resolve();
+            }
+
+            setErroCheckbox(true);
+            return Promise.reject('Campo Obrigatório');
+          },
+        },
+      ]}
+    >
+      <CheckboxContainer hasError={erroCheckbox}>
+        <Checkbox>
+          <Link
+            type='link'
+            to={acaoFormativaLink}
+            target='_blank'
+            rel='noreferrer'
+            style={{ paddingLeft: '5px' }}
+          >
+            <span style={{ color: Colors.ERROR }}>* </span>
+            {acaoFormativaTexto}
+          </Link>
+        </Checkbox>
+      </CheckboxContainer>
+    </Form.Item>
   );
 };
 

@@ -28,7 +28,9 @@ const obterRoteiroPropostaFormativa = (): Promise<ApiResult<RetornoListagemDTO>>
 const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/informacoes-cadastrante`);
 
-const obterComunicadoAcaoInformatica = (id: number): Promise<ApiResult<AcaoInformativaDto>> =>
+const obterComunicadoAcaoInformatica = (
+  id: number | string,
+): Promise<ApiResult<AcaoInformativaDto>> =>
   obterRegistro(`${URL_API_PROPOSTA}/comunicado-acao-formativa/${id}`);
 
 const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
@@ -45,6 +47,9 @@ const alterarProposta = (
   params: PropostaDTO,
 ): Promise<ApiResult<PropostaDTO>> =>
   alterarRegistro<PropostaDTO>(`${URL_API_PROPOSTA}/${id}`, params);
+
+const enviarPropostaDF = (id: string | number, params?: PropostaDTO): Promise<ApiResult<number>> =>
+  alterarRegistro<number>(`${URL_API_PROPOSTA}/${id}/enviardf`, params);
 
 const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}`);
@@ -102,6 +107,7 @@ const obterPropostaTutorPorId = (id: string | number) =>
 export {
   alterarProposta,
   deletarProposta,
+  enviarPropostaDF,
   excluirRegente,
   excluirTutor,
   inserirProposta,

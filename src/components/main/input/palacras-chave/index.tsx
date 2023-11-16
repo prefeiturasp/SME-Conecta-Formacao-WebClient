@@ -48,20 +48,19 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
       rules={[
         { required: required },
         {
-          validator: (rule, value, callback) => {
+          validator: (_, value) => {
             if (value) {
               if (value.length > 5) {
-                rule;
-                callback(
+                Promise.resolve(
                   'Escolha no máximo 5 palavras-chave que definam os conceitos e campos do saber desta formação (considerar os conteúdos da formação)',
                 );
               } else if (value.length < 3) {
-                callback(
+                Promise.reject(
                   'Escolha no mínimo 3 palavras-chave que definam os conceitos e campos do saber desta formação (considerar os conteúdos da formação)',
                 );
               }
             }
-            return;
+            return Promise.resolve();
           },
         },
       ]}

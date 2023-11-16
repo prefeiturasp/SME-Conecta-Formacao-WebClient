@@ -27,6 +27,7 @@ const Select: React.FC<SelectProps> = (props) => {
       {...props}
       filterOption={filterOption}
       allowClear
+      showSearch
     />
   );
 };
