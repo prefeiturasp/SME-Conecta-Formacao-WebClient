@@ -50,25 +50,25 @@ const CheckboxAcaoInformatica: FC = () => {
   }, [obterDados]);
 
   return (
-    <Form.Item
-      valuePropName='checked'
-      name='acaoInformativa'
-      rules={[
-        {
-          required: true,
-          validator(_, value) {
-            if (value) {
-              setErroCheckbox(false);
-              return Promise.resolve();
-            }
+    <CheckboxContainer hasError={erroCheckbox}>
+      <Form.Item
+        valuePropName='checked'
+        name='acaoInformativa'
+        rules={[
+          {
+            required: true,
+            validator(_, value) {
+              if (value) {
+                setErroCheckbox(false);
+                return Promise.resolve();
+              }
 
-            setErroCheckbox(true);
-            return Promise.reject('Campo Obrigatório');
+              setErroCheckbox(true);
+              return Promise.reject('Campo Obrigatório');
+            },
           },
-        },
-      ]}
-    >
-      <CheckboxContainer hasError={erroCheckbox}>
+        ]}
+      >
         <Checkbox>
           <Link
             type='link'
@@ -81,8 +81,8 @@ const CheckboxAcaoInformatica: FC = () => {
             {acaoFormativaTexto}
           </Link>
         </Checkbox>
-      </CheckboxContainer>
-    </Form.Item>
+      </Form.Item>
+    </CheckboxContainer>
   );
 };
 
