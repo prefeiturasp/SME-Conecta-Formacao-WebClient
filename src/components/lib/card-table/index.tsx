@@ -65,7 +65,7 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
         })
         .finally(() => setLoading(false));
     },
-    [url],
+    [url, filters],
   );
   useEffect(() => {
     fetchData(tableParams);
