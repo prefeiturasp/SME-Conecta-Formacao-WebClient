@@ -43,7 +43,7 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form, disabledForm }
   useEffect(() => {
     obterDados();
     verificarCriteriosSelecionados();
-  }, []);
+  }, [verificarCriteriosSelecionados]);
 
   return (
     <>
