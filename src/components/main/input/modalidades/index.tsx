@@ -5,6 +5,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
+import { MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { obterModalidades } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
@@ -62,7 +63,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
     <Form.Item
       label='Modalidade'
       name='modalidade'
-      rules={[{ required: required }]}
+      rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
       tooltip={{
         title:
           'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',

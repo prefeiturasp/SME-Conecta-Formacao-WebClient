@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import CheckboxAcaoInformatica from '~/components/lib/checkbox';
 import SelectCriterioCertificacao from '~/components/main/input/criterio-certificacao';
 import EditorTexto from '~/components/main/input/editor-texto';
+import { DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA } from '~/core/constants/mensagens';
 type FormDatasProps = {
   form: FormInstance;
   disabledForm: boolean;
@@ -73,6 +74,7 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form, disabledForm }
               nome='descricaoDaAtividade'
               label='Descrição da atividade obrigatória para certificação'
               required={editorRequerido}
+              mensagemErro={DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA}
               mensagemTooltip='Deve ser proposta ao menos uma atividade que será considerada na atribuição do conceito ao participante, na qual o cursista se posicione criticamente sobre suas ações ou experiências no exercício da sua atuação profissional. A atividade obrigatória deve atender a diversidade e as particularidades do público-alvo.'
               disabeld={disabledForm}
             />

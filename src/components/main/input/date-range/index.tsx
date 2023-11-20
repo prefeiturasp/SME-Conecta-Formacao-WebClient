@@ -20,6 +20,7 @@ type DatePickerPeriodoProps = {
   exibirTooltip?: boolean;
   titleToolTip?: string;
   id?: string;
+  messagemErro?: string;
 };
 const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
   changeFunction,
@@ -30,6 +31,7 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
   exibirTooltip = false,
   titleToolTip,
   id,
+  messagemErro,
 }) => {
   const { RangePicker } = DatePicker;
   const dateFormat = 'DD/MM/YYYY';
@@ -45,7 +47,7 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
       <Form.Item
         label={label}
         name={name}
-        rules={[{ required }]}
+        rules={[{ required,message: messagemErro ?? 'Campo obrigatório' }]}
         tooltip={{
           title: titleToolTip,
           icon: iconTooltip,
