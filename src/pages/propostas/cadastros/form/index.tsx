@@ -589,19 +589,20 @@ const FormCadastroDePropostas: React.FC = () => {
                   </Button>
                 </Col>
               )}
-              {formInitialValues?.situacao === SituacaoRegistro.Cadastrada && (
-                <Col>
-                  <Button
-                    block
-                    type='primary'
-                    onClick={enviarProposta}
-                    style={{ fontWeight: 700 }}
-                    id={CF_BUTTON_ENVIAR_PROPOSTA}
-                  >
-                    Enviar
-                  </Button>
-                </Col>
-              )}
+              {formInitialValues?.situacao === SituacaoRegistro.Cadastrada &&
+                currentStep === StepPropostaEnum.Certificacao && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      onClick={enviarProposta}
+                      style={{ fontWeight: 700 }}
+                      id={CF_BUTTON_ENVIAR_PROPOSTA}
+                    >
+                      Enviar
+                    </Button>
+                  </Col>
+                )}
             </Row>
           </Col>
         </HeaderPage>
