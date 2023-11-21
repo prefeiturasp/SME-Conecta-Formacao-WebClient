@@ -493,7 +493,8 @@ const FormCadastroDePropostas: React.FC = () => {
         return SituacaoRegistroTagDisplay[SituacaoRegistro.AguardandoAnaliseDF];
     }
   };
-
+  const exibirBotaoRascunho =
+    !formInitialValues?.situacao || formInitialValues?.situacao == SituacaoRegistro.Rascunho;
   return (
     <Col>
       <Form
@@ -573,8 +574,7 @@ const FormCadastroDePropostas: React.FC = () => {
                   Próximo passo
                 </Button>
               </Col>
-              {(!formInitialValues?.situacao ||
-                formInitialValues?.situacao == SituacaoRegistro.Rascunho) && (
+              {exibirBotaoRascunho && (
                 <Col>
                   <Button
                     block
