@@ -12,6 +12,7 @@ export const DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA =
   'Suas alterações não foram salvas, deseja salvar agora?';
 export const REGISTRO_EXCLUIDO_SUCESSO = 'Registro excluído com sucesso!';
 export const DESEJA_ENVIAR_PROPOSTA = 'Gostaria de enviar a proposta também?';
+export const DESEJA_SALVAR_PROPOSTA = 'Gostaria de salvar a proposta também?';
 export const NAO_ENVIOU_PROPOSTA_ANALISE =
   'Você ainda não enviou sua proposta para análise. Deseja realmente sair da tela?';
 export const PROPOSTA_CADASTRADA = 'Proposta cadastrada com sucesso';

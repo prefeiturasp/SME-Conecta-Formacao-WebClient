@@ -27,6 +27,7 @@ import {
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
+  DESEJA_SALVAR_PROPOSTA,
   NAO_ENVIOU_PROPOSTA_ANALISE,
   PROPOSTA_CADASTRADA,
   PROPOSTA_ENVIADA,
@@ -216,7 +217,7 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const salvar = async (novaSituacao?: SituacaoRegistro) => {
     let response = null;
-    const values: PropostaFormDTO = form.getFieldsValue();
+    const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues = cloneDeep(values);
 
     const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
@@ -454,28 +455,41 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const enviarProposta = () => {
-    confirmacao({
-      content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
-      onOk() {
-        enviarPropostaDF(id)
-          .then(() => {
-            notification.success({
-              message: 'Sucesso',
-              description: PROPOSTA_ENVIADA,
-            });
+    if (form.isFieldsTouched()) {
+      confirmacao({
+        content: DESEJA_SALVAR_PROPOSTA,
+        onOk() {
+          salvar();
+        },
 
-            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-          })
-          .catch((erro) => {
-            if (erro) {
-              notification.error({
-                message: 'Erro',
-                description: erro,
+        onCancel() {
+          carregarDados();
+        },
+      });
+    } else {
+      confirmacao({
+        content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
+        onOk() {
+          enviarPropostaDF(id)
+            .then(() => {
+              notification.success({
+                message: 'Sucesso',
+                description: PROPOSTA_ENVIADA,
               });
-            }
-          });
-      },
-    });
+
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+            })
+            .catch((erro) => {
+              if (erro) {
+                notification.error({
+                  message: 'Erro',
+                  description: erro,
+                });
+              }
+            });
+        },
+      });
+    }
   };
 
   const badgeSituacaoProposta = () => {
