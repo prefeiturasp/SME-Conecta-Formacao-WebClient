@@ -53,11 +53,12 @@ import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-d
 import FormularioProfissionais from './steps/formulario-profissionais';
 import FormInformacoesGerais from './steps/informacoes-gerais';
 import ModalErroProposta from '~/components/lib/modal-erros-proposta';
+import { stringify } from 'jodit/esm/core/helpers';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
   const [openModalErros, setOpenModalErros] = useState(false);
-  const [listaErros, setListaErros] = useState([]);
+  const [listaErros, setListaErros] = useState<string[]>([]);
 
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
@@ -338,8 +339,8 @@ const FormCadastroDePropostas: React.FC = () => {
       }
     }
     if (response.mensagens.length) {
+      setListaErros(response.mensagens);
       showModalErros();
-      //response.mensagens.map((x) => alert(x));
     }
     return response;
   };
@@ -435,7 +436,6 @@ const FormCadastroDePropostas: React.FC = () => {
             });
           })
           .catch((erro) => {
-            console.log(erro);
             if (erro) {
               notification.error({
                 message: 'Erro',
