@@ -11,12 +11,14 @@ type EditorTextoProps = {
   required?: boolean;
   exibirTooltip?: boolean;
   disabeld?: boolean;
+  mensagemErro?: string;
 };
 
 const EditorTexto: FC<EditorTextoProps> = ({
   nome,
   label,
   mensagemTooltip,
+  mensagemErro,
   required = true,
   exibirTooltip = false,
   disabeld = false,
@@ -42,7 +44,7 @@ const EditorTexto: FC<EditorTextoProps> = ({
           <Form.Item
             name={nome}
             label={label}
-            rules={[{ required }]}
+            rules={[{ required, message: mensagemErro || 'Campo obrigatório' }]}
             tooltip={{
               title: mensagemTooltip,
               icon: iconTooltip,

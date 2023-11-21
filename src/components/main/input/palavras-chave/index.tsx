@@ -5,6 +5,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_PALAVRA_CHAVE } from '~/core/constants/ids/select';
+import { PALAVRA_CHAVE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { obterPalavrasChave } from '~/core/services/palavra-chave-service';
 import { Colors } from '~/core/styles/colors';
 
@@ -20,6 +21,7 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
   selectProps,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
+  const form = Form.useFormInstance();
   const obterDados = async () => {
     const resposta = await obterPalavrasChave();
     if (resposta.sucesso) {
@@ -46,7 +48,7 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
       label='Palavras-chave'
       name='palavrasChaves'
       rules={[
-        { required: required },
+        { required: required, message: PALAVRA_CHAVE_NAO_INFORMADA },
         {
           validator: (_, value) => {
             if (value) {
@@ -54,10 +56,17 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
                 return Promise.reject(
                   'Escolha no máximo 5 palavras-chave que definam os conceitos e campos do saber desta formação (considerar os conteúdos da formação)',
                 );
-              } else if (value.length < 3) {
+              } else if (value.length >= 1 && value.length < 3) {
                 return Promise.reject(
                   'Escolha no mínimo 3 palavras-chave que definam os conceitos e campos do saber desta formação (considerar os conteúdos da formação)',
                 );
+              } else if (value.length == 0) {
+                form.setFields([
+                  {
+                    name: 'palavrasChaves',
+                    errors: [],
+                  },
+                ]);
               }
             }
             return Promise.resolve();

@@ -27,7 +27,6 @@ import {
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-  ERRO_CAMPOS_OBRIGATORIOS,
   NAO_ENVIOU_PROPOSTA_ANALISE,
   PROPOSTA_CADASTRADA,
   PROPOSTA_ENVIADA,
@@ -53,10 +52,14 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import FormInformacoesGerais from './steps/informacoes-gerais';
+import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
+  const [openModalErros, setOpenModalErros] = useState(false);
+  const [listaErros, setListaErros] = useState<string[]>([]);
 
+  const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
   const paramsRoute = useParams();
 
@@ -314,7 +317,6 @@ const FormCadastroDePropostas: React.FC = () => {
     } else {
       response = await inserirProposta(valoresSalvar);
     }
-
     if (response.sucesso) {
       if (situacao && situacao !== SituacaoRegistro.Rascunho) {
         notification.success({
@@ -324,7 +326,7 @@ const FormCadastroDePropostas: React.FC = () => {
       } else {
         notification.success({
           message: 'Sucesso',
-          description: `Rascunho ${id ? 'alterado' : 'inserido'} com sucesso!`,
+          description: `Proposta ${id ? 'alterada' : 'inserida'} com sucesso!`,
         });
       }
 
@@ -335,7 +337,10 @@ const FormCadastroDePropostas: React.FC = () => {
         navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
       }
     }
-
+    if (response.mensagens.length) {
+      setListaErros(response.mensagens);
+      showModalErros();
+    }
     return response;
   };
 
@@ -440,10 +445,8 @@ const FormCadastroDePropostas: React.FC = () => {
       })
       .catch((error: any) => {
         if (error?.errorFields?.length) {
-          notification.error({
-            message: 'Erro',
-            description: ERRO_CAMPOS_OBRIGATORIOS,
-          });
+          setListaErros(error.errorFields.map((h: { errors: Array<string> }) => h.errors));
+          showModalErros();
         }
       });
   };
@@ -618,6 +621,9 @@ const FormCadastroDePropostas: React.FC = () => {
           </CardContent>
         </Badge.Ribbon>
       </Form>
+      {openModalErros && (
+        <ModalErroProposta closeModal={() => setOpenModalErros(false)} erros={listaErros} />
+      )}
     </Col>
   );
 };
