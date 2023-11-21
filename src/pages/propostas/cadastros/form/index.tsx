@@ -27,6 +27,7 @@ import {
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
+  DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
   NAO_ENVIOU_PROPOSTA_ANALISE,
   PROPOSTA_CADASTRADA,
   PROPOSTA_ENVIADA,
@@ -69,6 +70,9 @@ const FormCadastroDePropostas: React.FC = () => {
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
   const id = paramsRoute?.id || 0;
+
+  const exibirBotaoRascunho =
+    !formInitialValues?.situacao || formInitialValues?.situacao == SituacaoRegistro.Rascunho;
 
   const desabilitarTodosFormularios =
     SituacaoRegistro.AguardandoAnaliseDF === formInitialValues?.situacao;
@@ -216,7 +220,7 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const salvar = async (novaSituacao?: SituacaoRegistro) => {
     let response = null;
-    const values: PropostaFormDTO = form.getFieldsValue();
+    const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues = cloneDeep(values);
 
     const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
@@ -417,13 +421,13 @@ const FormCadastroDePropostas: React.FC = () => {
     );
   };
 
-  const salvarProposta = () => {
+  const salvarProposta = (confirmarAntesDeEnviarProposta: boolean) => {
     form
       .validateFields()
       .then(() => {
-        salvar(SituacaoRegistro.Cadastrada)
-          .then((response) => {
-            if (response.sucesso) {
+        salvar(SituacaoRegistro.Cadastrada).then((response) => {
+          if (response.sucesso) {
+            if (confirmarAntesDeEnviarProposta) {
               confirmacao({
                 content: DESEJA_ENVIAR_PROPOSTA,
                 onOk() {
@@ -434,16 +438,11 @@ const FormCadastroDePropostas: React.FC = () => {
                   carregarDados();
                 },
               });
+            } else {
+              enviarProposta();
             }
-          })
-          .catch((erro) => {
-            if (erro) {
-              notification.error({
-                message: 'Erro',
-                description: erro,
-              });
-            }
-          });
+          }
+        });
       })
       .catch((error: any) => {
         if (error?.errorFields?.length) {
@@ -457,25 +456,32 @@ const FormCadastroDePropostas: React.FC = () => {
     confirmacao({
       content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
       onOk() {
-        enviarPropostaDF(id)
-          .then(() => {
-            notification.success({
-              message: 'Sucesso',
-              description: PROPOSTA_ENVIADA,
-            });
-
-            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-          })
-          .catch((erro) => {
-            if (erro) {
-              notification.error({
-                message: 'Erro',
-                description: erro,
-              });
-            }
+        enviarPropostaDF(id).then(() => {
+          notification.success({
+            message: 'Sucesso',
+            description: PROPOSTA_ENVIADA,
           });
+
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+        });
       },
     });
+  };
+
+  const validarAntesEnviarProposta = () => {
+    if (form.isFieldsTouched()) {
+      confirmacao({
+        content: DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
+        onOk() {
+          salvarProposta(false);
+        },
+        onCancel() {
+          enviarProposta();
+        },
+      });
+    } else {
+      enviarProposta();
+    }
   };
 
   const badgeSituacaoProposta = () => {
@@ -570,24 +576,28 @@ const FormCadastroDePropostas: React.FC = () => {
                   Próximo passo
                 </Button>
               </Col>
-              <Col>
-                <Button
-                  block
-                  type='primary'
-                  id={CF_BUTTON_SALVAR_RASCUNHO}
-                  onClick={() => salvar()}
-                  style={{ fontWeight: 700 }}
-                >
-                  Salvar rascunho
-                </Button>
-              </Col>
+              {exibirBotaoRascunho && (
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    id={CF_BUTTON_SALVAR_RASCUNHO}
+                    onClick={() => salvar()}
+                    style={{ fontWeight: 700 }}
+                  >
+                    Salvar rascunho
+                  </Button>
+                </Col>
+              )}
               {currentStep === StepPropostaEnum.Certificacao && (
                 <Col>
                   <Button
                     block
                     type='primary'
                     id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                    onClick={salvarProposta}
+                    onClick={() => {
+                      salvarProposta(true);
+                    }}
                     style={{ fontWeight: 700 }}
                   >
                     Salvar
@@ -600,7 +610,7 @@ const FormCadastroDePropostas: React.FC = () => {
                     <Button
                       block
                       type='primary'
-                      onClick={enviarProposta}
+                      onClick={validarAntesEnviarProposta}
                       style={{ fontWeight: 700 }}
                       id={CF_BUTTON_ENVIAR_PROPOSTA}
                     >
