@@ -574,7 +574,7 @@ const FormCadastroDePropostas: React.FC = () => {
                 </Button>
               </Col>
               {!formInitialValues?.situacao ||
-                formInitialValues?.situacao == SituacaoRegistro.Rascunho && (
+                (formInitialValues?.situacao == SituacaoRegistro.Rascunho && (
                   <Col>
                     <Button
                       block
@@ -586,7 +586,7 @@ const FormCadastroDePropostas: React.FC = () => {
                       Salvar rascunho
                     </Button>
                   </Col>
-                )}
+                ))}
               {currentStep === StepPropostaEnum.Certificacao && (
                 <Col>
                   <Button
