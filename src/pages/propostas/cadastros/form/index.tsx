@@ -573,20 +573,20 @@ const FormCadastroDePropostas: React.FC = () => {
                   Próximo passo
                 </Button>
               </Col>
-              {!formInitialValues?.situacao ||
-                (formInitialValues?.situacao == SituacaoRegistro.Rascunho && (
-                  <Col>
-                    <Button
-                      block
-                      type='primary'
-                      id={CF_BUTTON_SALVAR_RASCUNHO}
-                      onClick={() => salvar()}
-                      style={{ fontWeight: 700 }}
-                    >
-                      Salvar rascunho
-                    </Button>
-                  </Col>
-                ))}
+              {(!formInitialValues?.situacao ||
+                formInitialValues?.situacao == SituacaoRegistro.Rascunho) && (
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    id={CF_BUTTON_SALVAR_RASCUNHO}
+                    onClick={() => salvar()}
+                    style={{ fontWeight: 700 }}
+                  >
+                    Salvar rascunho
+                  </Button>
+                </Col>
+              )}
               {currentStep === StepPropostaEnum.Certificacao && (
                 <Col>
                   <Button
