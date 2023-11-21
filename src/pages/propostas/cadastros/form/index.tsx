@@ -27,7 +27,7 @@ import {
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-  DESEJA_SALVAR_PROPOSTA,
+  DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
   NAO_ENVIOU_PROPOSTA_ANALISE,
   PROPOSTA_CADASTRADA,
   PROPOSTA_ENVIADA,
@@ -457,7 +457,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const enviarProposta = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
-        content: DESEJA_SALVAR_PROPOSTA,
+        content: DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
         onOk() {
           salvar();
         },
