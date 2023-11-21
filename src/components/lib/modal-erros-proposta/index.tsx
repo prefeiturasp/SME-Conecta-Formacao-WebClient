@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal } from 'antd';
 import { ERRO_CAMPOS_OBRIGATORIOS } from '~/core/constants/mensagens';
+import { Colors } from '~/core/styles/colors';
 
 type ModalErroPropostaPropos = {
   erros: Array<string>;
@@ -19,7 +20,7 @@ const ModalErroProposta: React.FC<ModalErroPropostaPropos> = ({ erros, closeModa
       cancelButtonProps={{ style: { display: 'none' } }}
     >
       {erros.map((item, index) => (
-        <p key={item} style={{ color: 'red' }}>
+        <p key={item} style={{ color: Colors.ERROR }}>
           {index + 1} - {item}
         </p>
       ))}
