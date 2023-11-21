@@ -53,7 +53,6 @@ import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-d
 import FormularioProfissionais from './steps/formulario-profissionais';
 import FormInformacoesGerais from './steps/informacoes-gerais';
 import ModalErroProposta from '~/components/lib/modal-erros-proposta';
-import { stringify } from 'jodit/esm/core/helpers';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();

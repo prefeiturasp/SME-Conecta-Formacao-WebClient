@@ -75,7 +75,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
               />
             </Form.Item>
             {criterios?.length < 3 && requerido ? (
-              <span style={{ color: '#b40c02' }}>{mensagemErro}</span>
+              <span style={{ color: Colors.ERROR }}>{mensagemErro}</span>
             ) : (
               ''
             )}
