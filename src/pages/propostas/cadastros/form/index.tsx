@@ -71,6 +71,9 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const id = paramsRoute?.id || 0;
 
+  const exibirBotaoRascunho =
+    !formInitialValues?.situacao || formInitialValues?.situacao == SituacaoRegistro.Rascunho;
+
   const desabilitarTodosFormularios =
     SituacaoRegistro.AguardandoAnaliseDF === formInitialValues?.situacao;
 
@@ -493,8 +496,7 @@ const FormCadastroDePropostas: React.FC = () => {
         return SituacaoRegistroTagDisplay[SituacaoRegistro.AguardandoAnaliseDF];
     }
   };
-  const exibirBotaoRascunho =
-    !formInitialValues?.situacao || formInitialValues?.situacao == SituacaoRegistro.Rascunho;
+
   return (
     <Col>
       <Form
