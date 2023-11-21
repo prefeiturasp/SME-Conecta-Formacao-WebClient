@@ -622,10 +622,7 @@ const FormCadastroDePropostas: React.FC = () => {
         </Badge.Ribbon>
       </Form>
       {openModalErros && (
-        <ModalErroProposta
-          closeModal={() => setOpenModalErros(false)}
-          erros={listaErros}
-        ></ModalErroProposta>
+        <ModalErroProposta closeModal={() => setOpenModalErros(false)} erros={listaErros} />
       )}
     </Col>
   );
