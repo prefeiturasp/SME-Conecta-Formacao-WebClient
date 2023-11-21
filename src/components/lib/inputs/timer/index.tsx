@@ -43,7 +43,7 @@ const InputTimer: FC<InputTimerProp> = ({
         formatarDuasCasasDecimais(e.target.value)
       }
       rules={[
-        { required, message: mensagemErro ?? 'Campo obrigatório' },
+        { required, message: mensagemErro || 'Campo obrigatório' },
         { len: 6, message: 'Informe uma hora no formato 999:99' },
       ]}
       tooltip={tooltip}

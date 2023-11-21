@@ -44,7 +44,7 @@ const EditorTexto: FC<EditorTextoProps> = ({
           <Form.Item
             name={nome}
             label={label}
-            rules={[{ required, message: mensagemErro ?? 'Campo obrigatório' }]}
+            rules={[{ required, message: mensagemErro || 'Campo obrigatório' }]}
             tooltip={{
               title: mensagemTooltip,
               icon: iconTooltip,
