@@ -422,17 +422,19 @@ const FormCadastroDePropostas: React.FC = () => {
       .validateFields()
       .then(() => {
         salvar(SituacaoRegistro.Cadastrada)
-          .then(() => {
-            confirmacao({
-              content: DESEJA_ENVIAR_PROPOSTA,
-              onOk() {
-                enviarProposta();
-              },
+          .then((response) => {
+            if (response.sucesso) {
+              confirmacao({
+                content: DESEJA_ENVIAR_PROPOSTA,
+                onOk() {
+                  enviarProposta();
+                },
 
-              onCancel() {
-                carregarDados();
-              },
-            });
+                onCancel() {
+                  carregarDados();
+                },
+              });
+            }
           })
           .catch((erro) => {
             if (erro) {
