@@ -47,7 +47,7 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
       <Form.Item
         label={label}
         name={name}
-        rules={[{ required,message: messagemErro ?? 'Campo obrigatório' }]}
+        rules={[{ required,message: messagemErro || 'Campo obrigatório' }]}
         tooltip={{
           title: titleToolTip,
           icon: iconTooltip,
