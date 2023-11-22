@@ -456,13 +456,18 @@ const FormCadastroDePropostas: React.FC = () => {
     confirmacao({
       content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
       onOk() {
-        enviarPropostaDF(id).then(() => {
-          notification.success({
-            message: 'Sucesso',
-            description: PROPOSTA_ENVIADA,
-          });
-
-          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+        enviarPropostaDF(id).then((response) => {
+          if (response.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: PROPOSTA_ENVIADA,
+            });
+            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+          }
+          if (response.mensagens.length) {
+            setListaErros(response.mensagens);
+            showModalErros();
+          }
         });
       },
     });
