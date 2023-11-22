@@ -13,7 +13,7 @@ setAutoFreeze(false);
 const persistConfig = {
   key: 'sme-conecta-formacao',
   storage,
-  whitelist: ['auth'],
+  whitelist: ['auth', 'perfil', 'roles'],
 };
 
 enableMapSet();

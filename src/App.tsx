@@ -1,6 +1,6 @@
 import { ConfigProvider } from 'antd';
 import { ConectaFormacaoTheme } from './core/config/theme';
-import ThemeProviders from './core/providers/theme-providers';
+import { ThemeProvider } from 'styled-components';
 import { Provider } from 'react-redux';
 import { persistor, store } from './core/redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -19,7 +19,7 @@ declare global {
 const App = () => {
   return (
     <ConfigProvider theme={ConectaFormacaoTheme}>
-      <ThemeProviders>
+      <ThemeProvider theme={ConectaFormacaoTheme}>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <GlobalStyle />
@@ -28,7 +28,7 @@ const App = () => {
             </Spin>
           </PersistGate>
         </Provider>
-      </ThemeProviders>
+      </ThemeProvider>
     </ConfigProvider>
   );
 };

@@ -1,7 +1,18 @@
 import { ThemeConfig } from 'antd';
 import { Colors } from '../styles/colors';
 
-export const ConectaFormacaoTheme: ThemeConfig = {
+export type ThemeConfigCustomColors = {
+  colors: {
+    colorPrimaryDark: string;
+  };
+};
+
+export type ThemeConfigSME = ThemeConfigCustomColors & ThemeConfig;
+
+export const ConectaFormacaoTheme: ThemeConfigSME = {
+  colors: {
+    colorPrimaryDark: Colors.ORANGE_CF_DARK,
+  },
   token: {
     fontFamily: 'Roboto',
     colorText: Colors.TEXT,
