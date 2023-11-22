@@ -17,7 +17,11 @@ import {
   CF_INPUT_QUANTIDADE_VAGAS_TURMA,
   CF_INPUT_TOTAL_VAGAS,
 } from '~/core/constants/ids/input';
-import { NOME_FORMACAO_NAO_INFORMADO, QUANTIDADE_DE_TURMAS_NAO_INFORMADA, QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA } from '~/core/constants/mensagens';
+import {
+  NOME_FORMACAO_NAO_INFORMADO,
+  QUANTIDADE_DE_TURMAS_NAO_INFORMADA,
+  QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA,
+} from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
 
 type FormInformacoesGeraisProps = {

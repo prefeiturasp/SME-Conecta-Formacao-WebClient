@@ -15,8 +15,8 @@ export type PropostaDTO = {
   modalidade?: Modalidade;
   tipoInscricao?: TipoInscricao;
   nomeFormacao?: string;
-  quantidadeTurmas?: number;
-  quantidadeVagasTurma?: number;
+  quantidadeTurmas?: number | null;
+  quantidadeVagasTurma?: number | null;
   funcaoEspecificaOutros: string;
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoRegistro;
