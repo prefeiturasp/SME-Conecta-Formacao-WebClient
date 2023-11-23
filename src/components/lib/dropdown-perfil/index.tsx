@@ -1,29 +1,120 @@
-import { DownOutlined } from '@ant-design/icons';
-import { Dropdown, MenuProps, Space } from 'antd';
+import { Button, Dropdown, List } from 'antd';
+import styled from 'styled-components';
+import { useAppSelector } from '~/core/hooks/use-redux';
+import { Colors } from '~/core/styles/colors';
+import autenticacaoService from '~/core/services/autenticacao-service';
+import { validarAutenticacao } from '~/core/utils/perfil';
+import { useState } from 'react';
+import { PerfilUsuarioDTO } from '~/core/dto/perfil-usuario-dto';
 
-const items: MenuProps['items'] = [
-  {
-    key: '1',
-    label: <p>Admin 001</p>,
-  },
-  {
-    key: '2',
-    label: <p>Admin 002</p>,
-  },
-  {
-    key: '3',
-    label: <p>Admin 003</p>,
-  },
-];
+const ItensPerfil = styled.div`
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  height: auto;
+  background: ${Colors.BRANCO};
+  border: solid ${Colors.BACKGROUND_DIV} 1px;
+  position: absolute;
+`;
+
+const Item = styled.tr`
+  text-align: left;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle !important;
+
+  &:not(:last-child) {
+    border-bottom: solid ${Colors.BACKGROUND_DIV} 1px !important;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: #e7e6f8;
+    font-weight: bold !important;
+  }
+
+  td {
+    height: 35px;
+    font-size: 10px;
+    padding-left: 7px;
+    width: 145px;
+  }
+
+  i {
+    font-size: 14px;
+    color: #707683;
+  }
+`;
+
+const ContainerPerfil = styled(Button)`
+  background: #f5f6f8;
+  height: 55px;
+  min-width: 161px;
+  border-radius: 4px;
+  display: flex;
+  padding: 3px 10px;
+`;
+
+const Texto = styled.div`
+  font-size: 12px;
+  color: #42474a;
+`;
 
 const DropdownPerfil: React.FC = () => {
+  const auth = useAppSelector((state) => state.auth);
+  const perfil = useAppSelector((state) => state.perfil);
+  const [openDropdow, setOpenDropdow] = useState(false);
+  const alterarPerfil = (perfilUsuarioId: string) => {
+    autenticacaoService.alterarPerfilSelecionado(perfilUsuarioId).then((response) => {
+      validarAutenticacao(response.data);
+    });
+  };
+
   return (
     <div className='position-relative'>
-      <Dropdown menu={{ items }} placement='bottomRight' trigger={['click']}>
-        <Space>
-          Adm COTIC
-          <DownOutlined />
-        </Space>
+      <Dropdown
+        placement='bottomRight'
+        trigger={['click']}
+        open={openDropdow}
+        onOpenChange={(open) => {
+          setOpenDropdow(open);
+        }}
+        dropdownRender={() => (
+          <ItensPerfil className='list-inline'>
+            <List
+              dataSource={auth.perfilUsuario}
+              renderItem={(item: PerfilUsuarioDTO) => (
+                <Item
+                  key={item.perfil}
+                  onClick={() => {
+                    alterarPerfil(item.perfil);
+                    setOpenDropdow(false);
+                  }}
+                >
+                  <td style={{ width: '300px' }}>
+                    <i>{item.perfilNome}</i>
+                  </td>
+                </Item>
+              )}
+            />
+          </ItensPerfil>
+        )}
+      >
+        <ContainerPerfil>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'start',
+              marginRight: '7px',
+              lineHeight: '16px',
+            }}
+          >
+            <Texto style={{ fontWeight: 700 }}>{`RF: ${auth.usuarioLogin}`}</Texto>
+            <Texto>{auth?.usuarioNome}</Texto>
+            <Texto>{perfil.perfilSelecionado?.perfilNome}</Texto>
+          </div>
+        </ContainerPerfil>
       </Dropdown>
     </div>
   );
