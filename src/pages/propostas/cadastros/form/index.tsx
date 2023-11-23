@@ -14,12 +14,14 @@ import Auditoria from '~/components/main/text/auditoria';
 import {
   CF_BUTTON_CADASTRAR_PROPOSTA,
   CF_BUTTON_CANCELAR,
+  CF_BUTTON_DAR_PARECER_PROPOSTA,
   CF_BUTTON_ENVIAR_PROPOSTA,
   CF_BUTTON_EXCLUIR,
   CF_BUTTON_PROXIMO_STEP,
   CF_BUTTON_SALVAR_RASCUNHO,
   CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
+  CF_BUTTON_DEVOLVER_PROPOSTA,
 } from '~/core/constants/ids/button/intex';
 import {
   APOS_ENVIAR_PROPOSTA_NAO_EDITA,
@@ -37,7 +39,7 @@ import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
+import { SituacaoRegistro } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
@@ -53,6 +55,9 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import FormInformacoesGerais from './steps/informacoes-gerais';
+import ModalValidacaoGestao from './components/modal-validacao-gestao';
+import FormularioFormacaoHomologada from './components/formulario-formacao-homologada';
+import ModalDevolver from './components/modal-devolver';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -64,6 +69,9 @@ const FormCadastroDePropostas: React.FC = () => {
     StepPropostaEnum.InformacoesGerais,
   );
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
+
+  const [openModalValidacaoGestao, setOpenModalValidacaoGestao] = useState<boolean>(false);
+  const [openModalDevolver, setOpenModalDevolver] = useState<boolean>(false);
 
   const id = paramsRoute?.id || 0;
 
@@ -473,17 +481,24 @@ const FormCadastroDePropostas: React.FC = () => {
     });
   };
 
+  const abrirModalValidacaoParecerGestao = () => {
+    setOpenModalValidacaoGestao(true);
+  };
+
+  const fecharModalValidacaoParecerGestao = () => {
+    setOpenModalValidacaoGestao(false);
+  };
+
+  const abrirModalDevolver = () => {
+    setOpenModalDevolver(true);
+  };
+
+  const fecharModalDevolver = () => {
+    setOpenModalDevolver(false);
+  };
+
   const badgeSituacaoProposta = () => {
-    switch (formInitialValues?.situacao) {
-      case SituacaoRegistro.Ativo:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Ativo];
-      case SituacaoRegistro.Rascunho:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho];
-      case SituacaoRegistro.Cadastrada:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Cadastrada];
-      case SituacaoRegistro.AguardandoAnaliseDF:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.AguardandoAnaliseDF];
-    }
+    return formInitialValues?.nomeSituacao;
   };
 
   return (
@@ -603,14 +618,54 @@ const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
+
+              {
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    onClick={abrirModalValidacaoParecerGestao}
+                    style={{ fontWeight: 700 }}
+                    id={CF_BUTTON_DAR_PARECER_PROPOSTA}
+                    disabled={form.isFieldsTouched()}
+                  >
+                    Dar parecer
+                  </Button>
+                </Col>
+              }
+
+              {
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    onClick={abrirModalDevolver}
+                    style={{ fontWeight: 700 }}
+                    id={CF_BUTTON_DEVOLVER_PROPOSTA}
+                    disabled={form.isFieldsTouched()}
+                  >
+                    Devolver
+                  </Button>
+                </Col>
+              }
             </Row>
           </Col>
         </HeaderPage>
+
+        <ModalValidacaoGestao
+          openModal={openModalValidacaoGestao}
+          onCloseModal={fecharModalValidacaoParecerGestao}
+          id={id}
+        />
+
+        <ModalDevolver openModal={openModalDevolver} onCloseModal={fecharModalDevolver} id={id} />
+
         <br />
         <CardInformacoesCadastrante />
         <br />
         <Badge.Ribbon text={badgeSituacaoProposta()}>
           <CardContent>
+            <FormularioFormacaoHomologada />
             <Divider orientation='left' />
             <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
             {selecionarTelaStep(currentStep)}

@@ -65,6 +65,7 @@ export type PropostaFormDTO = {
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
   situacao: SituacaoRegistro;
+  nomeSituacao?: string;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];
   periodoRealizacao?: Dayjs[];

@@ -3,11 +3,8 @@ export enum SituacaoRegistro {
   Rascunho = 2,
   Cadastrada = 3,
   AguardandoAnaliseDF = 4,
+  AguardandoAnaliseGestao = 5,
+  Favoravel = 6,
+  Desfavoravel = 7,
+  Devolvida = 8,
 }
-
-export const SituacaoRegistroTagDisplay: Record<SituacaoRegistro, string> = {
-  [SituacaoRegistro.Ativo]: 'Ativo',
-  [SituacaoRegistro.Rascunho]: 'Rascunho',
-  [SituacaoRegistro.Cadastrada]: 'Cadastrada',
-  [SituacaoRegistro.AguardandoAnaliseDF]: 'Aguardando Análise DF',
-};
