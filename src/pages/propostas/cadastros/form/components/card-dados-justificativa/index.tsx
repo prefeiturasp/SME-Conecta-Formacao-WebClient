@@ -54,7 +54,6 @@ const CardDadosJustificativa: FC<CardDadosJustificativaProps> = ({ id }) => {
       {parecer?.justificativa && (
         <Container>
           <Card
-            style={{ marginTop: 16 }}
             type='inner'
             title='Justificativa'
             headStyle={{ borderBottomRightRadius: 0 }}
