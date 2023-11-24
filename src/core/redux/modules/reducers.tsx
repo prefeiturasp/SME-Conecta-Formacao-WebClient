@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import auth from './auth/reducers';
 import spin from './spin/reducers';
-import perfil from './spin/reducers';
+import perfil from './perfil/reducers';
 import roles from './roles/reducers';
 import { typeSetDeslogar } from './auth/actions';
 

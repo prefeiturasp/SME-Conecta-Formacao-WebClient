@@ -6,6 +6,7 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 import SiderSME, { MenuItemSMEProps } from '../../lib/sider';
 import { MenuItemConectaProps, menus } from './menus';
 import { useNavigate } from 'react-router-dom';
+import { cloneDeep } from 'lodash';
 
 const SiderConectaFormacao: React.FC = () => {
   const navigate = useNavigate();
@@ -45,7 +46,8 @@ const SiderConectaFormacao: React.FC = () => {
 
   useEffect(() => {
     if (menus?.length && permissaoPorMenu?.length) {
-      const menusParaExibir = validarExibicaoMenus(menus);
+      const menuCloned = cloneDeep(menus);
+      const menusParaExibir = validarExibicaoMenus(menuCloned);
       const menusParaExibirComSubMenus = menusParaExibir.filter((menu) => menu?.children?.length);
 
       setItems(menusParaExibirComSubMenus);

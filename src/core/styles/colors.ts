@@ -7,6 +7,7 @@ const Colors = {
   TOOLTIP: '#086397',
   TEXTTOOLTIP: '#3a3737',
   BACKGROUND_DIV: '#DADADA',
+  BRANCO: '#FFF',
 };
 
 const BoxShadow = {
