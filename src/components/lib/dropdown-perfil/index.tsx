@@ -6,6 +6,7 @@ import autenticacaoService from '~/core/services/autenticacao-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
 import { useState } from 'react';
 import { PerfilUsuarioDTO } from '~/core/dto/perfil-usuario-dto';
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 
 const ItensPerfil = styled.div`
   border-top-left-radius: 5px;
@@ -113,6 +114,16 @@ const DropdownPerfil: React.FC = () => {
             <Texto style={{ fontWeight: 700 }}>{`RF: ${auth.usuarioLogin}`}</Texto>
             <Texto>{auth?.usuarioNome}</Texto>
             <Texto>{perfil.perfilSelecionado?.perfilNome}</Texto>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              height: '100%',
+            }}
+          >
+            {openDropdow ? <UpOutlined /> : <DownOutlined />}
           </div>
         </ContainerPerfil>
       </Dropdown>
