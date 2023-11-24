@@ -1,14 +1,17 @@
-import { Col, Divider, Form, Modal, Row } from 'antd';
+import { Col, Divider, Form, Modal, Row, notification } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { Content } from 'antd/es/layout/layout';
 import React, { useEffect } from 'react';
 import EditorTexto from '~/components/main/input/editor-texto';
 import { validateMessages } from '~/core/constants/validate-messages';
 import RadioParecer from './components/radio-parecer';
+import { PropostaParecerDTO } from '~/core/dto/proposta-parecer-dto';
+import { parecerProposta } from '~/core/services/proposta-service';
+import { PROPOSTA_PARECER } from '~/core/constants/mensagens';
 
 type ModalValidacaoGestaoProps = {
   openModal: boolean;
-  onCloseModal: () => void;
+  onCloseModal: (salvo: boolean) => void;
   id: string | 0;
 };
 
@@ -20,13 +23,32 @@ const ModalValidacaoGestao: React.FC<ModalValidacaoGestaoProps> = ({
   const [formParecer] = useForm();
 
   const salvarDados = () => {
-    onFechar();
+    const values: PropostaParecerDTO = formParecer.getFieldsValue();
+    parecerProposta(id, values)
+      .then((resposta) => {
+        if (resposta.sucesso) {
+          notification.success({
+            message: 'Sucesso',
+            description: PROPOSTA_PARECER,
+          });
+
+          onCloseModal(true);
+        }
+      })
+      .catch((erro) => {
+        if (erro) {
+          notification.error({
+            message: 'Erro',
+            description: erro,
+          });
+        }
+      });
   };
 
   const onFechar = () => {
     formParecer.resetFields();
 
-    onCloseModal();
+    onCloseModal(false);
   };
 
   const onSalvar = () => {
@@ -49,12 +71,15 @@ const ModalValidacaoGestao: React.FC<ModalValidacaoGestaoProps> = ({
           onOk={onSalvar}
           okText='Salvar'
           cancelText='Cancelar'
+          okButtonProps={{ disabled: false }}
+          cancelButtonProps={{ disabled: false }}
         >
           <Form
             form={formParecer}
             layout='vertical'
             autoComplete='off'
             validateMessages={validateMessages}
+            disabled={false}
           >
             <Content>
               <Divider orientation='left' />

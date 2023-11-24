@@ -27,7 +27,7 @@ type FormInformacoesGeraisProps = {
 const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) => {
   return (
     <Row gutter={[16, 8]}>
-      <Col xs={24} sm={12} md={12} lg={6} xl={6}>
+      <Col xs={24} sm={12} md={12} lg={6} xl={7}>
         <RadioFormacaoHomologada
           name='formacaoHomologada'
           label='Formação homologada por SME/COPED/DF'
@@ -39,7 +39,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
         <RadioTipoFormacao />
       </Col>
 
-      <Col xs={24} sm={12} md={12} lg={6} xl={9}>
+      <Col xs={24} sm={12} md={12} lg={6} xl={8}>
         <SelectModalidades form={form} />
       </Col>
 

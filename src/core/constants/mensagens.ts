@@ -19,3 +19,7 @@ export const PROPOSTA_ENVIADA = 'Proposta enviada com sucesso';
 export const ERRO_CAMPOS_OBRIGATORIOS = 'Existem campos obrigatórios não preenchidos';
 export const APOS_ENVIAR_PROPOSTA_NAO_EDITA =
   'Após o envio da proposta não será possível realizar edições, tem certeza que deseja enviar?';
+export const PROPOSTA_ATRIBUIDA_GRUPO_GESTAO =
+  'Proposta atribuida para validação da gestão com sucesso';
+export const PROPOSTA_DEVOLVIDA = 'Proposta devolvida com sucesso';
+export const PROPOSTA_PARECER = 'Parecer da proposta registrado com sucesso';

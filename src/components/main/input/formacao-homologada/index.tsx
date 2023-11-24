@@ -17,8 +17,8 @@ const RadioFormacaoHomologada: React.FC<RadioFormacaoHomologadaProps> = ({
   required,
 }) => {
   const options = [
-    { label: 'Não', value: 0 },
-    { label: 'Sim', value: 1 },
+    { label: 'Não', value: false },
+    { label: 'Sim', value: true },
   ];
 
   return (
