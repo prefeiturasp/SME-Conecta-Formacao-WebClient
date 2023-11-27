@@ -14,12 +14,15 @@ import Auditoria from '~/components/main/text/auditoria';
 import {
   CF_BUTTON_CADASTRAR_PROPOSTA,
   CF_BUTTON_CANCELAR,
+  CF_BUTTON_DAR_PARECER_PROPOSTA,
   CF_BUTTON_ENVIAR_PROPOSTA,
   CF_BUTTON_EXCLUIR,
   CF_BUTTON_PROXIMO_STEP,
   CF_BUTTON_SALVAR_RASCUNHO,
   CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
+  CF_BUTTON_DEVOLVER_PROPOSTA,
+  CF_BUTTON_ATRIBUIR_PROPOSTA_GESTAO,
 } from '~/core/constants/ids/button/intex';
 import {
   APOS_ENVIAR_PROPOSTA_NAO_EDITA,
@@ -29,6 +32,7 @@ import {
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   ERRO_CAMPOS_OBRIGATORIOS,
   NAO_ENVIOU_PROPOSTA_ANALISE,
+  PROPOSTA_ATRIBUIDA_GRUPO_GESTAO,
   PROPOSTA_CADASTRADA,
   PROPOSTA_ENVIADA,
   REGISTRO_EXCLUIDO_SUCESSO,
@@ -37,22 +41,27 @@ import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
+import { SituacaoRegistro } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
   alterarProposta,
   deletarProposta,
-  enviarPropostaDF,
+  enviarPropostaAnalise,
   inserirProposta,
   obterPropostaPorId,
+  atribuirPropostaGrupoGestao,
 } from '~/core/services/proposta-service';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import FormInformacoesGerais from './steps/informacoes-gerais';
+import ModalValidacaoGestao from './components/modal-validacao-gestao';
+import FormularioFormacaoHomologada from './components/formulario-formacao-homologada';
+import ModalDevolverGestao from './components/modal-devolver-gestao';
+import CardDadosJustificativa from './components/card-dados-justificativa';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -65,10 +74,15 @@ const FormCadastroDePropostas: React.FC = () => {
   );
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
+  const [openModalValidacaoGestao, setOpenModalValidacaoGestao] = useState<boolean>(false);
+  const [openModalDevolver, setOpenModalDevolver] = useState<boolean>(false);
+
   const id = paramsRoute?.id || 0;
 
   const desabilitarTodosFormularios =
-    SituacaoRegistro.AguardandoAnaliseDF === formInitialValues?.situacao;
+    formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
+    formInitialValues?.situacao !== SituacaoRegistro.Devolvida &&
+    formInitialValues?.situacao !== SituacaoRegistro.Cadastrada;
 
   const stepsProposta: StepProps[] = [
     {
@@ -224,19 +238,14 @@ const FormCadastroDePropostas: React.FC = () => {
 
     let situacao = SituacaoRegistro.Rascunho;
 
-    if (id && !novaSituacao && !clonedValues?.situacao) {
-      situacao;
-    }
-
-    if (id && !novaSituacao && clonedValues?.situacao) {
-      situacao = clonedValues?.situacao;
-    }
-
-    if (id && novaSituacao) {
+    if (id && !novaSituacao && formInitialValues?.situacao) {
+      situacao = formInitialValues?.situacao;
+    } else if (novaSituacao) {
       situacao = novaSituacao;
     }
 
     const valoresSalvar: PropostaDTO = {
+      formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       modalidade: clonedValues?.modalidade,
       tipoInscricao: clonedValues?.tipoInscricao,
@@ -269,6 +278,7 @@ const FormCadastroDePropostas: React.FC = () => {
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
+      grupoGestaoId: clonedValues.grupoGestaoId,
     };
 
     if (clonedValues?.publicosAlvo?.length) {
@@ -416,7 +426,12 @@ const FormCadastroDePropostas: React.FC = () => {
     form
       .validateFields()
       .then(() => {
-        salvar(SituacaoRegistro.Cadastrada)
+        const situacao =
+          formInitialValues?.situacao === SituacaoRegistro.Rascunho
+            ? SituacaoRegistro.Cadastrada
+            : formInitialValues?.situacao;
+
+        salvar(situacao)
           .then(() => {
             confirmacao({
               content: DESEJA_ENVIAR_PROPOSTA,
@@ -452,14 +467,16 @@ const FormCadastroDePropostas: React.FC = () => {
     confirmacao({
       content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
       onOk() {
-        enviarPropostaDF(id)
-          .then(() => {
-            notification.success({
-              message: 'Sucesso',
-              description: PROPOSTA_ENVIADA,
-            });
+        enviarPropostaAnalise(id)
+          .then((resposta) => {
+            if (resposta.sucesso) {
+              notification.success({
+                message: 'Sucesso',
+                description: PROPOSTA_ENVIADA,
+              });
 
-            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+            }
           })
           .catch((erro) => {
             if (erro) {
@@ -473,17 +490,54 @@ const FormCadastroDePropostas: React.FC = () => {
     });
   };
 
+  const atribuirPropostaGestao = () => {
+    form.validateFields().then(() => {
+      const values: PropostaDTO = form.getFieldsValue();
+
+      atribuirPropostaGrupoGestao(id, values)
+        .then((resposta) => {
+          if (resposta.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: PROPOSTA_ATRIBUIDA_GRUPO_GESTAO,
+            });
+
+            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+          }
+        })
+        .catch((erro) => {
+          if (erro) {
+            notification.error({
+              message: 'Erro',
+              description: erro,
+            });
+          }
+        });
+    });
+  };
+
+  const abrirModalValidacaoParecerGestao = () => {
+    setOpenModalValidacaoGestao(true);
+  };
+
+  const fecharModalValidacaoParecerGestao = (salvo: boolean) => {
+    setOpenModalValidacaoGestao(false);
+
+    if (salvo) navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+  };
+
+  const abrirModalDevolver = () => {
+    setOpenModalDevolver(true);
+  };
+
+  const fecharModalDevolver = (salvo: boolean) => {
+    setOpenModalDevolver(false);
+
+    if (salvo) navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+  };
+
   const badgeSituacaoProposta = () => {
-    switch (formInitialValues?.situacao) {
-      case SituacaoRegistro.Ativo:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Ativo];
-      case SituacaoRegistro.Rascunho:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho];
-      case SituacaoRegistro.Cadastrada:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Cadastrada];
-      case SituacaoRegistro.AguardandoAnaliseDF:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.AguardandoAnaliseDF];
-    }
+    return formInitialValues?.nomeSituacao;
   };
 
   return (
@@ -576,40 +630,120 @@ const FormCadastroDePropostas: React.FC = () => {
                   Salvar rascunho
                 </Button>
               </Col>
-              {currentStep === StepPropostaEnum.Certificacao && (
+
+              {currentStep === StepPropostaEnum.Certificacao &&
+                ((formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseDF &&
+                  formInitialValues?.formacaoHomologada) ||
+                  formInitialValues?.situacao !== SituacaoRegistro.AguardandoAnaliseDF) && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                      onClick={salvarProposta}
+                      style={{ fontWeight: 700 }}
+                    >
+                      Salvar
+                    </Button>
+                  </Col>
+                )}
+
+              {formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseDF &&
+                !formInitialValues?.formacaoHomologada && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      id={CF_BUTTON_ATRIBUIR_PROPOSTA_GESTAO}
+                      onClick={atribuirPropostaGestao}
+                      style={{ fontWeight: 700 }}
+                      disabled={formInitialValues?.formacaoHomologada}
+                    >
+                      Salvar
+                    </Button>
+                  </Col>
+                )}
+
+              {(formInitialValues?.situacao === SituacaoRegistro.Cadastrada ||
+                formInitialValues?.situacao === SituacaoRegistro.Devolvida) &&
+                currentStep === StepPropostaEnum.Certificacao && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      onClick={enviarProposta}
+                      style={{ fontWeight: 700 }}
+                      id={CF_BUTTON_ENVIAR_PROPOSTA}
+                      disabled={false}
+                    >
+                      Enviar
+                    </Button>
+                  </Col>
+                )}
+
+              {formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseGestao && (
                 <Col>
                   <Button
                     block
                     type='primary'
-                    id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                    onClick={salvarProposta}
+                    onClick={abrirModalValidacaoParecerGestao}
                     style={{ fontWeight: 700 }}
+                    id={CF_BUTTON_DAR_PARECER_PROPOSTA}
+                    disabled={form.isFieldsTouched()}
                   >
-                    Salvar
+                    Dar parecer
                   </Button>
                 </Col>
               )}
-              {formInitialValues?.situacao === SituacaoRegistro.Cadastrada && (
+
+              {formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseGestao && (
                 <Col>
                   <Button
                     block
                     type='primary'
-                    onClick={enviarProposta}
+                    onClick={abrirModalDevolver}
                     style={{ fontWeight: 700 }}
-                    id={CF_BUTTON_ENVIAR_PROPOSTA}
+                    id={CF_BUTTON_DEVOLVER_PROPOSTA}
+                    disabled={form.isFieldsTouched()}
                   >
-                    Enviar
+                    Devolver
                   </Button>
                 </Col>
               )}
             </Row>
           </Col>
         </HeaderPage>
+
+        <ModalValidacaoGestao
+          openModal={openModalValidacaoGestao}
+          onCloseModal={fecharModalValidacaoParecerGestao}
+          id={id}
+        />
+
+        <ModalDevolverGestao
+          openModal={openModalDevolver}
+          onCloseModal={fecharModalDevolver}
+          id={id}
+        />
+
         <br />
         <CardInformacoesCadastrante />
         <br />
+
+        {(formInitialValues?.situacao === SituacaoRegistro.Favoravel ||
+          formInitialValues?.situacao === SituacaoRegistro.Desfavoravel ||
+          formInitialValues?.situacao === SituacaoRegistro.Devolvida) && (
+          <>
+            <CardDadosJustificativa id={id} />
+            <br />
+          </>
+        )}
+
         <Badge.Ribbon text={badgeSituacaoProposta()}>
           <CardContent>
+            {formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseDF &&
+              !formInitialValues?.formacaoHomologada && <FormularioFormacaoHomologada />}
+
             <Divider orientation='left' />
             <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
             {selecionarTelaStep(currentStep)}

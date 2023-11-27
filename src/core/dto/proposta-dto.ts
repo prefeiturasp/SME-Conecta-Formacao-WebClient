@@ -11,6 +11,7 @@ import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 
 export type PropostaDTO = {
+  formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   modalidade?: Modalidade;
   tipoInscricao?: TipoInscricao;
@@ -44,6 +45,7 @@ export type PropostaDTO = {
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
   descricaoDaAtividade?: string;
+  grupoGestaoId?: number;
 };
 
 export type PropostaCompletoDTO = {
@@ -52,6 +54,7 @@ export type PropostaCompletoDTO = {
 } & PropostaDTO;
 
 export type PropostaFormDTO = {
+  formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   modalidade?: Modalidade;
   tipoInscricao?: TipoInscricao;
@@ -65,6 +68,7 @@ export type PropostaFormDTO = {
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
   situacao: SituacaoRegistro;
+  nomeSituacao?: string;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];
   periodoRealizacao?: Dayjs[];
@@ -84,6 +88,7 @@ export type PropostaFormDTO = {
   descricaoDaAtividade?: string;
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
+  grupoGestaoId?: number;
 };
 export type PropostaPalavraChaveDTO = {
   palavraChaveId: number;
