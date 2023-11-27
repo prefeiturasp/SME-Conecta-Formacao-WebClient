@@ -5,6 +5,7 @@ import { DefaultOptionType } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_CRITERIO_CERTIFICACAO } from '~/core/constants/ids/select';
+import { CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterCriterioCertificacao } from '~/core/services/criterio-certificacao-service';
 import { Colors } from '~/core/styles/colors';
 
@@ -14,6 +15,7 @@ type SelectCriterioCertificacaoProps = {
 
 const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({ onchange }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
+  const [mensagemErro, setMensagemErro] = useState('Indique ao menos 3 critérios.');
   const obterDados = async () => {
     const resposta = await obterCriterioCertificacao();
     if (resposta.sucesso) {
@@ -42,12 +44,15 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
             },
           ]);
         }
+        if (requerido && error.length == 0) {
+          setMensagemErro('');
+        }
         return (
           <>
             <Form.Item
               label='Critérios para certificação'
               name='criterioCertificacao'
-              rules={[{ required: requerido }]}
+              rules={[{ required: requerido, message: CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO }]}
               style={{ paddingBottom: '0px', marginBottom: '0px' }}
               tooltip={{
                 title: 'Indique ao menos 3 critérios.',
@@ -70,7 +75,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
               />
             </Form.Item>
             {criterios?.length < 3 && requerido ? (
-              <span style={{ color: '#b40c02' }}>Indique ao menos 3 critérios.</span>
+              <span style={{ color: Colors.ERROR }}>{mensagemErro}</span>
             ) : (
               ''
             )}

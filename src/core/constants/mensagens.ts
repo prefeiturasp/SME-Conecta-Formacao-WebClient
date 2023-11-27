@@ -12,6 +12,8 @@ export const DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA =
   'Suas alterações não foram salvas, deseja salvar agora?';
 export const REGISTRO_EXCLUIDO_SUCESSO = 'Registro excluído com sucesso!';
 export const DESEJA_ENVIAR_PROPOSTA = 'Gostaria de enviar a proposta também?';
+export const DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR =
+  'Existem alterações que não foram salvas, deseja salvar antes de enviar?';
 export const NAO_ENVIOU_PROPOSTA_ANALISE =
   'Você ainda não enviou sua proposta para análise. Deseja realmente sair da tela?';
 export const PROPOSTA_CADASTRADA = 'Proposta cadastrada com sucesso';
@@ -23,3 +25,32 @@ export const PROPOSTA_ATRIBUIDA_GRUPO_GESTAO =
   'Proposta atribuida para validação da gestão com sucesso';
 export const PROPOSTA_DEVOLVIDA = 'Proposta devolvida com sucesso';
 export const PROPOSTA_PARECER = 'Parecer da proposta registrado com sucesso';
+export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a modalidade';
+export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da formação';
+export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
+export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =
+  'É necessário informar os critérios de validação das inscrições da proposta';
+export const QUANTIDADE_DE_TURMAS_NAO_INFORMADA = 'É necessário informar a quantidade de turmas';
+export const QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA =
+  'É necessário informar a quantidade de vagas por turma';
+
+export const CARGA_HORARIA_NAO_INFORMADA = 'É necessário informar a carga horária presencial';
+export const JUSTIFICATIVA_NAO_INFORMADA = 'É necessário informar a justificativa';
+export const OBJETIVO_NAO_INFORMADO = 'É necessário informar os objetivos';
+export const CONTEUDO_PROGRAMATICO_NAO_INFORMADO = 'É necessário informar o conteúdo programático';
+export const PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO =
+  'É necessário informar os procedimentos metodológicos';
+export const REFERENCIA_NAO_INFORMADA = 'É necessário informar as referências';
+export const PALAVRA_CHAVE_NAO_INFORMADA =
+  'É necessário informar no mínimo 3 e no máximo 5 palavras chaves';
+
+export const PERIODO_REALIZACAO_NAO_INFORMADO =
+  'É necessário informar as datas do período de realização';
+export const PERIODO_INSCRICAO_NAO_INFORMADO =
+  'É necessário informar as datas do período de inscrição';
+
+export const CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO =
+  'É necessário informar ao menos 3 critérios para certificação';
+export const DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA =
+  'É necessario informar descrição da atividade para certificação';
+export const ACAO_INFORMATIVA_NAO_ACEITA = 'É necessário aceitar a ação formativa';

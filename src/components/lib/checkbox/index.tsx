@@ -2,6 +2,7 @@ import { Checkbox, Form } from 'antd';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { ACAO_INFORMATIVA_NAO_ACEITA } from '~/core/constants/mensagens';
 import { obterComunicadoAcaoInformatica } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
@@ -64,7 +65,7 @@ const CheckboxAcaoInformatica: FC = () => {
               }
 
               setErroCheckbox(true);
-              return Promise.reject('Campo Obrigatório');
+              return Promise.reject(ACAO_INFORMATIVA_NAO_ACEITA);
             },
           },
         ]}

@@ -5,6 +5,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_PUBLICO_ALVO } from '~/core/constants/ids/select';
+import { PUBLICO_ALVO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
 import { Colors } from '~/core/styles/colors';
 
@@ -47,7 +48,7 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
     <Form.Item
       label='Público alvo'
       name='publicosAlvo'
-      rules={[{ required: required }]}
+      rules={[{ required: required, message: PUBLICO_ALVO_NAO_INFORMADO }]}
       tooltip={{
         title: 'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
         icon: iconTooltip,
