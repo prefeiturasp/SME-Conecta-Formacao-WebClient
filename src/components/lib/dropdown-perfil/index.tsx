@@ -13,8 +13,8 @@ const ItensPerfil = styled.div`
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   height: auto;
-  background: ${Colors.BRANCO};
-  border: solid ${Colors.BACKGROUND_DIV} 1px;
+  background: ${Colors.Neutral.WHITE};
+  border: solid ${Colors.Neutral.LIGHTEST} 1px;
   position: absolute;
 `;
 
@@ -25,7 +25,7 @@ const Item = styled.tr`
   vertical-align: middle !important;
 
   &:not(:last-child) {
-    border-bottom: solid ${Colors.BACKGROUND_DIV} 1px !important;
+    border-bottom: solid ${Colors.Neutral.LIGHTEST} 1px !important;
   }
 
   &:hover {

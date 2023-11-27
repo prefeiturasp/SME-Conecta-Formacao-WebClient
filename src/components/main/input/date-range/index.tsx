@@ -37,7 +37,7 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
   const dateFormat = 'DD/MM/YYYY';
   const iconTooltip = exibirTooltip ? (
     <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
     </Tooltip>
   ) : (
     <></>

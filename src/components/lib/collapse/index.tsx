@@ -20,11 +20,11 @@ type CollapsePanelSMEProps = {
 };
 const styleTituloPanel: React.CSSProperties = {
   fontSize: 14,
-  color: Colors.ORANGE_CONECTA_FORMACAO,
+  color: Colors.SystemSME.ConectaFormacao.PRIMARY,
   fontWeight: 'bold',
 };
 const styleCollapse: React.CSSProperties = {
-  borderLeft: `10px solid ${Colors.ORANGE_CONECTA_FORMACAO}`,
+  borderLeft: `10px solid ${Colors.SystemSME.ConectaFormacao.PRIMARY}`,
 };
 const CollapsePanelSME: React.FC<CollapsePanelSMEProps> = ({
   children,
@@ -35,7 +35,7 @@ const CollapsePanelSME: React.FC<CollapsePanelSMEProps> = ({
 }) => {
   const tituloPanel = <span style={styleTituloPanel}>{panelProps.header}</span>;
   const iconTooltip = exibirTooltip ? (
-    <InfoCircleFilled style={{ color: Colors.TOOLTIP, paddingLeft: '5px' }} />
+    <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP, paddingLeft: '5px' }} />
   ) : (
     <></>
   );

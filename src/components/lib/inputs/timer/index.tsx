@@ -28,7 +28,7 @@ const InputTimer: FC<InputTimerProp> = ({
       title: textToolTip,
       icon: (
         <Tooltip>
-          <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+          <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
         </Tooltip>
       ),
     };

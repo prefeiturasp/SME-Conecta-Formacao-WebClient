@@ -106,7 +106,7 @@ const Login = () => {
                   'Informe o RF ou CPF para acessar o sistema. Caso não possua acesso procure a DF.',
                 icon: (
                   <Tooltip>
-                    <FaQuestionCircle color={Colors.TEXT} />
+                    <FaQuestionCircle color={Colors.Neutral.DARK} />
                   </Tooltip>
                 ),
               }}

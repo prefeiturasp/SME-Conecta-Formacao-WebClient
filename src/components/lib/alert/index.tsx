@@ -2,9 +2,10 @@ import { Alert } from 'antd';
 import { FC } from 'react';
 import { TipoAlerta } from '~/core/enum/tipo-alerta';
 import { Colors } from '~/core/styles/colors';
+import React from 'react';
 
 const styleAlert: React.CSSProperties = {
-  color: Colors.BRANCO,
+  // color: Colors.Neutral.WHITE,
   fontWeight: 'bold',
 };
 type AlertaPropos = {
@@ -12,15 +13,16 @@ type AlertaPropos = {
   titulo: string;
   mensagem: string;
 };
-const Alerta: FC = () => {
+const Alerta: FC<AlertaPropos> = ({ tipo, titulo, mensagem }) => {
   return (
     <Alert
-      style={{ background: Colors.FUNDO_DARK }}
-      message={<p style={styleAlert}>Sucesso</p>}
-      description={<p style={styleAlert}>Você tem apenas permissão de consulta nesta tela.</p>}
-      type={TipoAlerta.Success}
+      style={{ background: Colors.Components.BACKGROUND_ALERT }}
+      message={titulo}
+      description={mensagem}
+      type={tipo}
       showIcon
-      closeIcon={<p style={styleAlert}>X</p>}
+
+      // closeIcon={<p style={styleAlert}>X</p>}
     />
   );
 };

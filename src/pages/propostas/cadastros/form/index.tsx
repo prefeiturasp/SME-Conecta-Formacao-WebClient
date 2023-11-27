@@ -11,6 +11,7 @@ import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadas
 import ButtonVoltar from '~/components/main/button/voltar';
 import Steps from '~/components/main/steps';
 import Auditoria from '~/components/main/text/auditoria';
+import { TipoAlerta } from '~/core/enum/tipo-alerta';
 import {
   CF_BUTTON_CADASTRAR_PROPOSTA,
   CF_BUTTON_CANCELAR,
@@ -624,8 +625,8 @@ const FormCadastroDePropostas: React.FC = () => {
           </Col>
         </HeaderPage>
         <br />
-        <Alerta />
-        <Notificacao />
+        <Alerta tipo={TipoAlerta.Success} titulo={'Sucesso'} mensagem={'Deu Tudo Certo'} />
+        <Notificacao tipo={TipoAlerta.Success} titulo={'Sucesso'} mensagem={'Deu Tudo Certo'} />
         <CardInformacoesCadastrante />
         <br />
         <Badge.Ribbon text={badgeSituacaoProposta()}>

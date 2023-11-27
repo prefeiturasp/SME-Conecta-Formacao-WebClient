@@ -97,7 +97,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
         okButtonProps: { type: 'default' },
         cancelButtonProps: {
           type: 'text',
-          style: { color: Colors.TEXT },
+          style: { color: Colors.Neutral.DARK },
         },
         okText: 'Confirmar',
         cancelText: 'Cancelar'

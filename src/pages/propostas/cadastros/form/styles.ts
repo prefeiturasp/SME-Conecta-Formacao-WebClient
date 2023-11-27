@@ -3,12 +3,12 @@ import { Colors } from '~/core/styles/colors';
 
 export const TituloSecao = styled.div`
   font-size: 18px;
-  color: ${Colors.ORANGE_CONECTA_FORMACAO};
+  color: ${Colors.SystemSME.ConectaFormacao.PRIMARY};
   font-weight: bold;
 `;
 
 export const TituloListaPaginada = styled.div`
   font-size: 16px;
-  color: ${Colors.TEXT};
+  color: ${Colors.Neutral.DARK};
   font-weight: bold;
 `;

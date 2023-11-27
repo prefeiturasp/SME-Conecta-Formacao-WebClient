@@ -14,13 +14,13 @@ const confirmacao = (props: ModalFuncProps) => {
     cancelText: cancelText || 'Não',
     cancelButtonProps: {
       type: 'text',
-      style: { color: Colors.TEXT, fontWeight: 500, fontSize: 16, padding: '0px 15px' },
+      style: { color: Colors.Neutral.DARK, fontWeight: 500, fontSize: 16, padding: '0px 15px' },
     },
     okButtonProps: {
       type: 'default',
       style: {
-        color: Colors.ORANGE_CONECTA_FORMACAO,
-        border: `1px solid ${Colors.ORANGE_CONECTA_FORMACAO}`,
+        color: Colors.SystemSME.ConectaFormacao.PRIMARY,
+        border: `1px solid ${Colors.SystemSME.ConectaFormacao.PRIMARY}`,
         fontSize: 16,
         padding: '0px 15px',
         borderRadius: 4,
