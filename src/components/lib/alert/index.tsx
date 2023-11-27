@@ -7,12 +7,12 @@ const styleAlert: React.CSSProperties = {
   color: Colors.BRANCO,
   fontWeight: 'bold',
 };
-type EnbeddedAlertProps = {
+type AlertaPropos = {
   type: TipoAlerta;
   message: string;
   description: string;
 };
-const EnbeddedAlert: FC = () => {
+const Alerta: FC = () => {
   return (
     <Alert
       style={{ background: Colors.FUNDO_DARK }}
@@ -25,4 +25,4 @@ const EnbeddedAlert: FC = () => {
   );
 };
 
-export default EnbeddedAlert;
+export default Alerta;
