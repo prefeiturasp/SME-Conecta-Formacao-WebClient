@@ -14,12 +14,15 @@ import Auditoria from '~/components/main/text/auditoria';
 import {
   CF_BUTTON_CADASTRAR_PROPOSTA,
   CF_BUTTON_CANCELAR,
+  CF_BUTTON_DAR_PARECER_PROPOSTA,
   CF_BUTTON_ENVIAR_PROPOSTA,
   CF_BUTTON_EXCLUIR,
   CF_BUTTON_PROXIMO_STEP,
   CF_BUTTON_SALVAR_RASCUNHO,
   CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
+  CF_BUTTON_DEVOLVER_PROPOSTA,
+  CF_BUTTON_ATRIBUIR_PROPOSTA_GESTAO,
 } from '~/core/constants/ids/button/intex';
 import {
   APOS_ENVIAR_PROPOSTA_NAO_EDITA,
@@ -29,7 +32,8 @@ import {
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
   NAO_ENVIOU_PROPOSTA_ANALISE,
-  PROPOSTA_CADASTRADA,
+  PROPOSTA_ATRIBUIDA_GRUPO_GESTAO_SUCESSO,
+  PROPOSTA_SALVA_SUCESSO,
   PROPOSTA_ENVIADA,
   REGISTRO_EXCLUIDO_SUCESSO,
 } from '~/core/constants/mensagens';
@@ -37,22 +41,27 @@ import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
+import { SituacaoRegistro } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
   alterarProposta,
   deletarProposta,
-  enviarPropostaDF,
+  enviarPropostaAnalise,
   inserirProposta,
   obterPropostaPorId,
+  atribuirPropostaGrupoGestao,
 } from '~/core/services/proposta-service';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import FormInformacoesGerais from './steps/informacoes-gerais';
+import ModalValidacaoGestao from './components/modal-validacao-gestao';
+import FormularioFormacaoHomologada from './components/formulario-formacao-homologada';
+import ModalDevolverGestao from './components/modal-devolver-gestao';
+import CardDadosJustificativa from './components/card-dados-justificativa';
 import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 
 const FormCadastroDePropostas: React.FC = () => {
@@ -69,13 +78,44 @@ const FormCadastroDePropostas: React.FC = () => {
   );
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
+  const [openModalValidacaoGestao, setOpenModalValidacaoGestao] = useState<boolean>(false);
+  const [openModalDevolver, setOpenModalDevolver] = useState<boolean>(false);
+
   const id = paramsRoute?.id || 0;
 
   const exibirBotaoRascunho =
-    !formInitialValues?.situacao || formInitialValues?.situacao == SituacaoRegistro.Rascunho;
+    !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoRegistro.Rascunho;
+
+  const exibirBotaoSalvar =
+    currentStep === StepPropostaEnum.Certificacao &&
+    ((formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseDF &&
+      formInitialValues?.formacaoHomologada) ||
+      formInitialValues?.situacao !== SituacaoRegistro.AguardandoAnaliseDF);
+
+  const exibirBotaoSalvarAtribuicaoGestao =
+    formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseDF &&
+    !formInitialValues?.formacaoHomologada;
+
+  const exibirBotaoEnviar =
+    currentStep === StepPropostaEnum.Certificacao &&
+    (formInitialValues?.situacao === SituacaoRegistro.Cadastrada ||
+      formInitialValues?.situacao === SituacaoRegistro.Devolvida);
+
+  const exibirBotaoDarParecer =
+    formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseGestao;
+
+  const exibirBotaoDevolver =
+    formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseGestao;
 
   const desabilitarTodosFormularios =
-    SituacaoRegistro.AguardandoAnaliseDF === formInitialValues?.situacao;
+    formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
+    formInitialValues?.situacao !== SituacaoRegistro.Devolvida &&
+    formInitialValues?.situacao !== SituacaoRegistro.Cadastrada;
+
+  const exibirJustificativaParecer =
+    formInitialValues?.situacao === SituacaoRegistro.Favoravel ||
+    formInitialValues?.situacao === SituacaoRegistro.Desfavoravel ||
+    formInitialValues?.situacao === SituacaoRegistro.Devolvida;
 
   const stepsProposta: StepProps[] = [
     {
@@ -231,19 +271,14 @@ const FormCadastroDePropostas: React.FC = () => {
 
     let situacao = SituacaoRegistro.Rascunho;
 
-    if (id && !novaSituacao && !clonedValues?.situacao) {
-      situacao;
-    }
-
-    if (id && !novaSituacao && clonedValues?.situacao) {
-      situacao = clonedValues?.situacao;
-    }
-
-    if (id && novaSituacao) {
+    if (id && !novaSituacao && formInitialValues?.situacao) {
+      situacao = formInitialValues?.situacao;
+    } else if (novaSituacao) {
       situacao = novaSituacao;
     }
 
     const valoresSalvar: PropostaDTO = {
+      formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       modalidade: clonedValues?.modalidade,
       tipoInscricao: clonedValues?.tipoInscricao,
@@ -276,6 +311,7 @@ const FormCadastroDePropostas: React.FC = () => {
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
+      grupoGestaoId: clonedValues.grupoGestaoId,
     };
 
     if (clonedValues?.publicosAlvo?.length) {
@@ -325,7 +361,7 @@ const FormCadastroDePropostas: React.FC = () => {
       if (situacao && situacao !== SituacaoRegistro.Rascunho) {
         notification.success({
           message: 'Sucesso',
-          description: PROPOSTA_CADASTRADA,
+          description: PROPOSTA_SALVA_SUCESSO,
         });
       } else {
         notification.success({
@@ -349,7 +385,7 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const proximoPasso = async () => {
-    if (form.isFieldsTouched()) {
+    if (form.isFieldsTouched() && (exibirBotaoRascunho || exibirBotaoSalvar)) {
       await salvar();
     }
 
@@ -421,26 +457,27 @@ const FormCadastroDePropostas: React.FC = () => {
     );
   };
 
-  const salvarProposta = (confirmarAntesDeEnviarProposta: boolean) => {
+  const salvarProposta = () => {
     form
       .validateFields()
       .then(() => {
-        salvar(SituacaoRegistro.Cadastrada).then((response) => {
-          if (response.sucesso) {
-            if (confirmarAntesDeEnviarProposta) {
-              confirmacao({
-                content: DESEJA_ENVIAR_PROPOSTA,
-                onOk() {
-                  enviarProposta();
-                },
+        const situacao =
+          formInitialValues?.situacao === SituacaoRegistro.Rascunho
+            ? SituacaoRegistro.Cadastrada
+            : formInitialValues?.situacao;
 
-                onCancel() {
-                  carregarDados();
-                },
-              });
-            } else {
-              enviarProposta();
-            }
+        salvar(situacao).then((response) => {
+          if (response.sucesso) {
+            confirmacao({
+              content: DESEJA_ENVIAR_PROPOSTA,
+              onOk() {
+                enviarProposta();
+              },
+
+              onCancel() {
+                carregarDados();
+              },
+            });
           }
         });
       })
@@ -456,21 +493,59 @@ const FormCadastroDePropostas: React.FC = () => {
     confirmacao({
       content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
       onOk() {
-        enviarPropostaDF(id).then((response) => {
-          if (response.sucesso) {
+        enviarPropostaAnalise(id).then((resposta) => {
+          if (resposta.sucesso) {
             notification.success({
               message: 'Sucesso',
               description: PROPOSTA_ENVIADA,
             });
+
             navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-          }
-          if (response.mensagens.length) {
-            setListaErros(response.mensagens);
-            showModalErros();
           }
         });
       },
     });
+  };
+
+  const atribuirPropostaGestao = () => {
+    form.validateFields().then(() => {
+      const values: PropostaDTO = form.getFieldsValue();
+
+      atribuirPropostaGrupoGestao(id, { grupoGestaoId: values.grupoGestaoId }).then((resposta) => {
+        if (resposta.sucesso) {
+          notification.success({
+            message: 'Sucesso',
+            description: PROPOSTA_ATRIBUIDA_GRUPO_GESTAO_SUCESSO,
+          });
+
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+        }
+        if (resposta.mensagens.length) {
+          setListaErros(resposta.mensagens);
+          showModalErros();
+        }
+      });
+    });
+  };
+
+  const abrirModalValidacaoParecerGestao = () => {
+    setOpenModalValidacaoGestao(true);
+  };
+
+  const fecharModalValidacaoParecerGestao = (salvo: boolean) => {
+    setOpenModalValidacaoGestao(false);
+
+    if (salvo) navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+  };
+
+  const abrirModalDevolver = () => {
+    setOpenModalDevolver(true);
+  };
+
+  const fecharModalDevolver = (salvo: boolean) => {
+    setOpenModalDevolver(false);
+
+    if (salvo) navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
   };
 
   const validarAntesEnviarProposta = () => {
@@ -478,7 +553,7 @@ const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
         onOk() {
-          salvarProposta(false);
+          salvarProposta();
         },
         onCancel() {
           enviarProposta();
@@ -486,19 +561,6 @@ const FormCadastroDePropostas: React.FC = () => {
       });
     } else {
       enviarProposta();
-    }
-  };
-
-  const badgeSituacaoProposta = () => {
-    switch (formInitialValues?.situacao) {
-      case SituacaoRegistro.Ativo:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Ativo];
-      case SituacaoRegistro.Rascunho:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho];
-      case SituacaoRegistro.Cadastrada:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.Cadastrada];
-      case SituacaoRegistro.AguardandoAnaliseDF:
-        return SituacaoRegistroTagDisplay[SituacaoRegistro.AguardandoAnaliseDF];
     }
   };
 
@@ -581,6 +643,7 @@ const FormCadastroDePropostas: React.FC = () => {
                   Próximo passo
                 </Button>
               </Col>
+
               {exibirBotaoRascunho && (
                 <Col>
                   <Button
@@ -594,43 +657,111 @@ const FormCadastroDePropostas: React.FC = () => {
                   </Button>
                 </Col>
               )}
-              {currentStep === StepPropostaEnum.Certificacao && (
+
+              {exibirBotaoSalvar && (
                 <Col>
                   <Button
                     block
                     type='primary'
                     id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                    onClick={() => {
-                      salvarProposta(true);
-                    }}
+                    onClick={salvarProposta}
                     style={{ fontWeight: 700 }}
                   >
                     Salvar
                   </Button>
                 </Col>
               )}
-              {formInitialValues?.situacao === SituacaoRegistro.Cadastrada &&
-                currentStep === StepPropostaEnum.Certificacao && (
-                  <Col>
-                    <Button
-                      block
-                      type='primary'
-                      onClick={validarAntesEnviarProposta}
-                      style={{ fontWeight: 700 }}
-                      id={CF_BUTTON_ENVIAR_PROPOSTA}
-                    >
-                      Enviar
-                    </Button>
-                  </Col>
-                )}
+
+              {exibirBotaoSalvarAtribuicaoGestao && (
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    id={CF_BUTTON_ATRIBUIR_PROPOSTA_GESTAO}
+                    onClick={atribuirPropostaGestao}
+                    style={{ fontWeight: 700 }}
+                    disabled={formInitialValues?.formacaoHomologada}
+                  >
+                    Salvar
+                  </Button>
+                </Col>
+              )}
+
+              {exibirBotaoEnviar && (
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    onClick={validarAntesEnviarProposta}
+                    style={{ fontWeight: 700 }}
+                    id={CF_BUTTON_ENVIAR_PROPOSTA}
+                    disabled={false}
+                  >
+                    Enviar
+                  </Button>
+                </Col>
+              )}
+
+              {exibirBotaoDarParecer && (
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    onClick={abrirModalValidacaoParecerGestao}
+                    style={{ fontWeight: 700 }}
+                    id={CF_BUTTON_DAR_PARECER_PROPOSTA}
+                    disabled={form.isFieldsTouched()}
+                  >
+                    Dar parecer
+                  </Button>
+                </Col>
+              )}
+
+              {exibirBotaoDevolver && (
+                <Col>
+                  <Button
+                    block
+                    type='primary'
+                    onClick={abrirModalDevolver}
+                    style={{ fontWeight: 700 }}
+                    id={CF_BUTTON_DEVOLVER_PROPOSTA}
+                    disabled={form.isFieldsTouched()}
+                  >
+                    Devolver
+                  </Button>
+                </Col>
+              )}
             </Row>
           </Col>
         </HeaderPage>
+
+        <ModalValidacaoGestao
+          openModal={openModalValidacaoGestao}
+          onCloseModal={fecharModalValidacaoParecerGestao}
+          id={id}
+        />
+
+        <ModalDevolverGestao
+          openModal={openModalDevolver}
+          onCloseModal={fecharModalDevolver}
+          id={id}
+        />
+
         <br />
         <CardInformacoesCadastrante />
         <br />
-        <Badge.Ribbon text={badgeSituacaoProposta()}>
+
+        {exibirJustificativaParecer && (
+          <>
+            <CardDadosJustificativa id={id} />
+            <br />
+          </>
+        )}
+
+        <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
           <CardContent>
+            {exibirBotaoSalvarAtribuicaoGestao && <FormularioFormacaoHomologada />}
+
             <Divider orientation='left' />
             <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
             {selecionarTelaStep(currentStep)}
