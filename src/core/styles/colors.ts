@@ -10,6 +10,10 @@ type SystemSMEType = {
   PRIMARY_DARK: string;
 };
 type ColorsType = {
+  SuporteType: any;
+  WARNING: string | undefined;
+  INFORMATION: string | undefined;
+  SUCCESS: string | undefined;
   BACKGROUND_CONTENT: string;
   Secondary: {
     INFO: string;
