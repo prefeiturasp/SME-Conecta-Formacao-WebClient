@@ -54,6 +54,7 @@ import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-d
 import FormularioProfissionais from './steps/formulario-profissionais';
 import FormInformacoesGerais from './steps/informacoes-gerais';
 import ModalErroProposta from '~/components/lib/modal-erros-proposta';
+import EnbeddedAlert from '~/components/lib/alert/enbedded-alert';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -622,6 +623,7 @@ const FormCadastroDePropostas: React.FC = () => {
           </Col>
         </HeaderPage>
         <br />
+        <EnbeddedAlert />
         <CardInformacoesCadastrante />
         <br />
         <Badge.Ribbon text={badgeSituacaoProposta()}>

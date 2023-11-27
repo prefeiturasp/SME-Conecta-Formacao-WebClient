@@ -8,6 +8,7 @@ const Colors = {
   TEXTTOOLTIP: '#3a3737',
   BACKGROUND_DIV: '#DADADA',
   BRANCO: '#FFF',
+  FUNDO_DARK: '#3e4142',
 };
 
 const BoxShadow = {
