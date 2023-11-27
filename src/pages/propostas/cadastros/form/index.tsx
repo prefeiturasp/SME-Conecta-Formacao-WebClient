@@ -625,8 +625,8 @@ const FormCadastroDePropostas: React.FC = () => {
           </Col>
         </HeaderPage>
         <br />
-        <Alerta tipo={TipoAlerta.Success} titulo={'Sucesso'} mensagem={'Deu Tudo Certo'} />
-        <Notificacao tipo={TipoAlerta.Success} titulo={'Sucesso'} mensagem={'Deu Tudo Certo'} />
+        <Alerta tipo={TipoAlerta.Success} titulo='Sucesso' mensagem='Deu Tudo Certo' />
+        <Notificacao tipo={TipoAlerta.Success} titulo='Sucesso' mensagem='Deu Tudo Certo' />
         <CardInformacoesCadastrante />
         <br />
         <Badge.Ribbon text={badgeSituacaoProposta()}>
