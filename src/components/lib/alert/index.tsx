@@ -8,9 +8,9 @@ const styleAlert: React.CSSProperties = {
   fontWeight: 'bold',
 };
 type AlertaPropos = {
-  type: TipoAlerta;
-  message: string;
-  description: string;
+  tipo: TipoAlerta;
+  titulo: string;
+  mensagem: string;
 };
 const Alerta: FC = () => {
   return (

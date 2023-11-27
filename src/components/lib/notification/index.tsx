@@ -7,9 +7,9 @@ const styleNotificacao: React.CSSProperties = {
   fontWeight: 'bold',
 };
 type NotificacaoPropos = {
-  type: TipoAlerta;
-  message: string;
-  description: string;
+  tipo: TipoAlerta;
+  titulo: string;
+  mensagem: string;
 };
 const Notificacao: React.FC = () => {
   const [api, contextHolder] = notification.useNotification();
