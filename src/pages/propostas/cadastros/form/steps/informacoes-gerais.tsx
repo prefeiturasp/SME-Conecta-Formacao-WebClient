@@ -36,7 +36,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
         <RadioFormacaoHomologada
           name='formacaoHomologada'
           label='Formação homologada por SME/COPED/DF'
-          required={true}
+          required
         />
       </Col>
 

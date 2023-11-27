@@ -61,7 +61,7 @@ const CardDadosJustificativa: FC<CardDadosJustificativaProps> = ({ id }) => {
             loading={loading}
           >
             <Typography
-              style={{ fontSize: 16, height: 'auto', width: 'auto', textAlign: 'justify' }}
+              style={{ height: 'auto', width: 'auto', textAlign: 'justify' }}
               dangerouslySetInnerHTML={{ __html: parecer?.justificativa || '' }}
             />
           </Card>

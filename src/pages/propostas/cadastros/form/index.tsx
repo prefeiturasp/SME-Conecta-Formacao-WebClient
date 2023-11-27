@@ -32,8 +32,8 @@ import {
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
   NAO_ENVIOU_PROPOSTA_ANALISE,
-  PROPOSTA_ATRIBUIDA_GRUPO_GESTAO,
-  PROPOSTA_CADASTRADA,
+  PROPOSTA_ATRIBUIDA_GRUPO_GESTAO_SUCESSO,
+  PROPOSTA_SALVA_SUCESSO,
   PROPOSTA_ENVIADA,
   REGISTRO_EXCLUIDO_SUCESSO,
 } from '~/core/constants/mensagens';
@@ -84,10 +84,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const id = paramsRoute?.id || 0;
 
   const exibirBotaoRascunho =
-    !formInitialValues?.situacao ||
-    formInitialValues?.situacao === SituacaoRegistro.Rascunho ||
-    formInitialValues?.situacao === SituacaoRegistro.Cadastrada ||
-    formInitialValues?.situacao === SituacaoRegistro.Devolvida;
+    !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoRegistro.Rascunho;
 
   const exibirBotaoSalvar =
     currentStep === StepPropostaEnum.Certificacao &&
@@ -114,6 +111,11 @@ const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
     formInitialValues?.situacao !== SituacaoRegistro.Devolvida &&
     formInitialValues?.situacao !== SituacaoRegistro.Cadastrada;
+
+  const exibirJustificativaParecer =
+    formInitialValues?.situacao === SituacaoRegistro.Favoravel ||
+    formInitialValues?.situacao === SituacaoRegistro.Desfavoravel ||
+    formInitialValues?.situacao === SituacaoRegistro.Devolvida;
 
   const stepsProposta: StepProps[] = [
     {
@@ -359,7 +361,7 @@ const FormCadastroDePropostas: React.FC = () => {
       if (situacao && situacao !== SituacaoRegistro.Rascunho) {
         notification.success({
           message: 'Sucesso',
-          description: PROPOSTA_CADASTRADA,
+          description: PROPOSTA_SALVA_SUCESSO,
         });
       } else {
         notification.success({
@@ -383,7 +385,7 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const proximoPasso = async () => {
-    if (form.isFieldsTouched()) {
+    if (form.isFieldsTouched() && (exibirBotaoRascunho || exibirBotaoSalvar)) {
       await salvar();
     }
 
@@ -464,31 +466,20 @@ const FormCadastroDePropostas: React.FC = () => {
             ? SituacaoRegistro.Cadastrada
             : formInitialValues?.situacao;
 
-        salvar(situacao)
-          .then((response) => {
-            if (response.sucesso) {
-              confirmacao({
-                content: DESEJA_ENVIAR_PROPOSTA,
-                onOk() {
-                  enviarProposta();
-                },
+        salvar(situacao).then((response) => {
+          if (response.sucesso) {
+            confirmacao({
+              content: DESEJA_ENVIAR_PROPOSTA,
+              onOk() {
+                enviarProposta();
+              },
 
-                onCancel() {
-                  carregarDados();
-                },
-              });
-            }
-          })
-          .catch((erro) => {
-            if (erro) {
-              notification.error({
-                message: 'Erro',
-                description: erro,
-              });
-            } else {
-              enviarProposta();
-            }
-          });
+              onCancel() {
+                carregarDados();
+              },
+            });
+          }
+        });
       })
       .catch((error: any) => {
         if (error?.errorFields?.length) {
@@ -502,25 +493,16 @@ const FormCadastroDePropostas: React.FC = () => {
     confirmacao({
       content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
       onOk() {
-        enviarPropostaAnalise(id)
-          .then((resposta) => {
-            if (resposta.sucesso) {
-              notification.success({
-                message: 'Sucesso',
-                description: PROPOSTA_ENVIADA,
-              });
+        enviarPropostaAnalise(id).then((resposta) => {
+          if (resposta.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: PROPOSTA_ENVIADA,
+            });
 
-              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-            }
-          })
-          .catch((erro) => {
-            if (erro) {
-              notification.error({
-                message: 'Erro',
-                description: erro,
-              });
-            }
-          });
+            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+          }
+        });
       },
     });
   };
@@ -529,29 +511,20 @@ const FormCadastroDePropostas: React.FC = () => {
     form.validateFields().then(() => {
       const values: PropostaDTO = form.getFieldsValue();
 
-      atribuirPropostaGrupoGestao(id, values)
-        .then((resposta) => {
-          if (resposta.sucesso) {
-            notification.success({
-              message: 'Sucesso',
-              description: PROPOSTA_ATRIBUIDA_GRUPO_GESTAO,
-            });
+      atribuirPropostaGrupoGestao(id, { grupoGestaoId: values.grupoGestaoId }).then((resposta) => {
+        if (resposta.sucesso) {
+          notification.success({
+            message: 'Sucesso',
+            description: PROPOSTA_ATRIBUIDA_GRUPO_GESTAO_SUCESSO,
+          });
 
-            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-          }
-          if (resposta.mensagens.length) {
-            setListaErros(resposta.mensagens);
-            showModalErros();
-          }
-        })
-        .catch((erro) => {
-          if (erro) {
-            notification.error({
-              message: 'Erro',
-              description: erro,
-            });
-          }
-        });
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+        }
+        if (resposta.mensagens.length) {
+          setListaErros(resposta.mensagens);
+          showModalErros();
+        }
+      });
     });
   };
 
@@ -589,10 +562,6 @@ const FormCadastroDePropostas: React.FC = () => {
     } else {
       enviarProposta();
     }
-  };
-
-  const badgeSituacaoProposta = () => {
-    return formInitialValues?.nomeSituacao;
   };
 
   return (
@@ -782,19 +751,16 @@ const FormCadastroDePropostas: React.FC = () => {
         <CardInformacoesCadastrante />
         <br />
 
-        {(formInitialValues?.situacao === SituacaoRegistro.Favoravel ||
-          formInitialValues?.situacao === SituacaoRegistro.Desfavoravel ||
-          formInitialValues?.situacao === SituacaoRegistro.Devolvida) && (
+        {exibirJustificativaParecer && (
           <>
             <CardDadosJustificativa id={id} />
             <br />
           </>
         )}
 
-        <Badge.Ribbon text={badgeSituacaoProposta()}>
+        <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
           <CardContent>
-            {formInitialValues?.situacao === SituacaoRegistro.AguardandoAnaliseDF &&
-              !formInitialValues?.formacaoHomologada && <FormularioFormacaoHomologada />}
+            {exibirBotaoSalvarAtribuicaoGestao && <FormularioFormacaoHomologada />}
 
             <Divider orientation='left' />
             <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />

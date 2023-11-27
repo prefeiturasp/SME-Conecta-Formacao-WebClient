@@ -3,7 +3,7 @@ import { useForm } from 'antd/es/form/Form';
 import { Content } from 'antd/es/layout/layout';
 import React, { useEffect } from 'react';
 import EditorTexto from '~/components/main/input/editor-texto';
-import { PROPOSTA_DEVOLVIDA } from '~/core/constants/mensagens';
+import { PROPOSTA_DEVOLVIDA_SUCESSO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDevolverDTO } from '~/core/dto/proposta-devolver-dto';
 import { devolverProposta } from '~/core/services/proposta-service';
@@ -19,25 +19,16 @@ const ModalDevolverGestao: React.FC<ModalDevolverProps> = ({ openModal, onCloseM
 
   const salvarDados = () => {
     const values: PropostaDevolverDTO = formDevolver.getFieldsValue();
-    devolverProposta(id, values)
-      .then((resposta) => {
-        if (resposta.sucesso) {
-          notification.success({
-            message: 'Sucesso',
-            description: PROPOSTA_DEVOLVIDA,
-          });
+    devolverProposta(id, values).then((resposta) => {
+      if (resposta.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: PROPOSTA_DEVOLVIDA_SUCESSO,
+        });
 
-          onCloseModal(true);
-        }
-      })
-      .catch((erro) => {
-        if (erro) {
-          notification.error({
-            message: 'Erro',
-            description: erro,
-          });
-        }
-      });
+        onCloseModal(true);
+      }
+    });
   };
 
   const onFechar = () => {

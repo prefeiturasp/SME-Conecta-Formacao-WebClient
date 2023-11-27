@@ -4,10 +4,10 @@ import { Content } from 'antd/es/layout/layout';
 import React, { useEffect } from 'react';
 import EditorTexto from '~/components/main/input/editor-texto';
 import { validateMessages } from '~/core/constants/validate-messages';
-import RadioParecer from './components/radio-parecer';
 import { PropostaParecerDTO } from '~/core/dto/proposta-parecer-dto';
 import { parecerProposta } from '~/core/services/proposta-service';
-import { PROPOSTA_PARECER } from '~/core/constants/mensagens';
+import { PROPOSTA_PARECER_SUCESSO } from '~/core/constants/mensagens';
+import RadioParecer from './components/radio-parecer';
 
 type ModalValidacaoGestaoProps = {
   openModal: boolean;
@@ -24,25 +24,16 @@ const ModalValidacaoGestao: React.FC<ModalValidacaoGestaoProps> = ({
 
   const salvarDados = () => {
     const values: PropostaParecerDTO = formParecer.getFieldsValue();
-    parecerProposta(id, values)
-      .then((resposta) => {
-        if (resposta.sucesso) {
-          notification.success({
-            message: 'Sucesso',
-            description: PROPOSTA_PARECER,
-          });
+    parecerProposta(id, values).then((resposta) => {
+      if (resposta.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: PROPOSTA_PARECER_SUCESSO,
+        });
 
-          onCloseModal(true);
-        }
-      })
-      .catch((erro) => {
-        if (erro) {
-          notification.error({
-            message: 'Erro',
-            description: erro,
-          });
-        }
-      });
+        onCloseModal(true);
+      }
+    });
   };
 
   const onFechar = () => {
