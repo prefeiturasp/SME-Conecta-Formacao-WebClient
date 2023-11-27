@@ -5,10 +5,9 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_CRITERIOS_VALIDACOES_INSCRICAO_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_CRITERIOS_VALIDACOES_INSCRICAO } from '~/core/constants/ids/select';
+import { PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS } from '~/core/constants/mensagens';
 import { obterCriterioValidacaoInscricao } from '~/core/services/proposta-service';
-import {
-  validarOnChangeMultiSelectUnico,
-} from '~/core/utils/functions';
+import { validarOnChangeMultiSelectUnico } from '~/core/utils/functions';
 
 const SelectCriteriosValidacaoInscricoes: React.FC = () => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
@@ -51,7 +50,7 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
               <Form.Item
                 label='Outros'
                 name='criterioValidacaoInscricaoOutros'
-                rules={[{ required: true }]}
+                rules={[{ required: true, message: PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS }]}
               >
                 <Input
                   type='text'
@@ -69,7 +68,7 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
             <Form.Item
               label='Critérios para validação das inscrições'
               name='criteriosValidacaoInscricao'
-              rules={[{ required: true }]}
+              rules={[{ required: true, message: PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS }]}
             >
               <Select
                 allowClear

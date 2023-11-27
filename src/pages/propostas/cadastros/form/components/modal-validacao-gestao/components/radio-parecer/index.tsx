@@ -2,7 +2,7 @@ import { FormItemProps, RadioGroupProps } from 'antd';
 import React from 'react';
 import Radio from '~/components/main/radio';
 import { CF_RADIO_PARECER } from '~/core/constants/ids/radio';
-import { SituacaoRegistro } from '~/core/enum/situacao-registro';
+import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 
 type RadioParecerProps = {
   formItemProps: FormItemProps;
@@ -11,8 +11,14 @@ type RadioParecerProps = {
 
 const RadioParecer: React.FC<RadioParecerProps> = ({ formItemProps, radioGroupProps }) => {
   const options: RadioGroupProps['options'] = [
-    { label: 'Farorável', value: SituacaoRegistro.Favoravel },
-    { label: 'Desfavorável', value: SituacaoRegistro.Desfavoravel },
+    {
+      label: SituacaoRegistroTagDisplay[SituacaoRegistro.Favoravel],
+      value: SituacaoRegistro.Favoravel,
+    },
+    {
+      label: SituacaoRegistroTagDisplay[SituacaoRegistro.Desfavoravel],
+      value: SituacaoRegistro.Desfavoravel,
+    },
   ];
 
   return (

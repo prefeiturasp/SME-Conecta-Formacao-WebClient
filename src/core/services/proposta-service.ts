@@ -1,6 +1,7 @@
 import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
+import { PropostaAtribuirGestaoDTO } from '../dto/proposta-atribuir-gestao-dto';
 import { PropostaDevolverDTO } from '../dto/proposta-devolver-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
@@ -65,7 +66,7 @@ const enviarPropostaAnalise = (
 
 const atribuirPropostaGrupoGestao = (
   id: string | number,
-  params?: PropostaDTO,
+  params?: PropostaAtribuirGestaoDTO,
 ): Promise<ApiResult<number>> =>
   alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/atribuir-grupo-gestao`, params);
 

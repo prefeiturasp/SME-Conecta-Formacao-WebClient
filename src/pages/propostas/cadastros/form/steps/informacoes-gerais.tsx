@@ -18,6 +18,11 @@ import {
   CF_INPUT_QUANTIDADE_VAGAS_TURMA,
   CF_INPUT_TOTAL_VAGAS,
 } from '~/core/constants/ids/input';
+import {
+  NOME_FORMACAO_NAO_INFORMADO,
+  QUANTIDADE_DE_TURMAS_NAO_INFORMADA,
+  QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA,
+} from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
 
 type FormInformacoesGeraisProps = {
@@ -31,7 +36,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
         <RadioFormacaoHomologada
           name='formacaoHomologada'
           label='Formação homologada por SME/COPED/DF'
-          required={true}
+          required
         />
       </Col>
 
@@ -61,7 +66,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
               </Tooltip>
             ),
           }}
-          rules={[{ required: true, whitespace: true }]}
+          rules={[{ required: true, whitespace: true, message: NOME_FORMACAO_NAO_INFORMADO }]}
         >
           <Input
             type='text'
@@ -93,7 +98,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
           formItemProps={{
             label: 'Quantidade de turmas',
             name: 'quantidadeTurmas',
-            rules: [{ required: true }],
+            rules: [{ required: true, message: QUANTIDADE_DE_TURMAS_NAO_INFORMADA }],
           }}
           inputProps={{
             id: CF_INPUT_QUANTIDADE_TURMAS,
@@ -107,7 +112,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
           formItemProps={{
             label: 'Vagas por turma',
             name: 'quantidadeVagasTurma',
-            rules: [{ required: true }],
+            rules: [{ required: true, message: QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA }],
             tooltip: {
               title:
                 'Tanto nos cursos presenciais, quanto nos cursos a distância, a proporção máxima aceita será de 50 (cinquenta) cursistas por turma/tutor. Nos eventos presenciais, a quantidade de participantes poderá se adequar à capacidade do espaço. Nos eventos a distância/híbridos, a proporção máxima aceita será de 200 (duzentas) pessoas, sendo a proporção máxima de um tutor para 50 (cinquenta) participantes.',

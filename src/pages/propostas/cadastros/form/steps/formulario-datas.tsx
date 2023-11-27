@@ -7,6 +7,7 @@ import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer/drawer-form-encontro-turmas';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
+import { PERIODO_INSCRICAO_NAO_INFORMADO, PERIODO_REALIZACAO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 import { Colors } from '~/core/styles/colors';
@@ -117,6 +118,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
                 required
                 exibirTooltip
                 titleToolTip='Primeiro dia da primeira turma até o último dia da última turma.'
+                messagemErro={PERIODO_REALIZACAO_NAO_INFORMADO}
               />
             </b>
           </Col>
@@ -155,7 +157,12 @@ const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
           </Col>
           <Col xs={24} sm={10} md={7} lg={7} xl={5}>
             <b>
-              <DatePickerPeriodo label='Período de inscricao' name='periodoInscricao' required />
+              <DatePickerPeriodo
+                label='Período de inscricao'
+                name='periodoInscricao'
+                required
+                messagemErro={PERIODO_INSCRICAO_NAO_INFORMADO}
+              />
             </b>
           </Col>
         </Row>
