@@ -20,7 +20,7 @@ const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
 ];
 const contentStyle: React.CSSProperties = {
   fontSize: 18,
-  color: Colors.ORANGE_CONECTA_FORMACAO,
+  color: Colors.SystemSME.ConectaFormacao.PRIMARY,
   fontWeight: 'bold',
 };
 const stuleButtonAddData: React.CSSProperties = {

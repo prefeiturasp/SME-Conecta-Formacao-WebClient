@@ -58,7 +58,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
                 title: 'Indique ao menos 3 critérios.',
                 icon: requerido ? (
                   <Tooltip>
-                    <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                    <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
                   </Tooltip>
                 ) : (
                   <></>
@@ -75,7 +75,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
               />
             </Form.Item>
             {criterios?.length < 3 && requerido ? (
-              <span style={{ color: Colors.ERROR }}>{mensagemErro}</span>
+              <span style={{ color: Colors.Suporte.Primary.ERROR }}>{mensagemErro}</span>
             ) : (
               ''
             )}

@@ -32,7 +32,7 @@ const HeaderContentContainer = styled.div`
 const Title = styled.div`
   font-size: 23px;
   font-weight: 700;
-  color: ${Colors.TEXT};
+  color: ${Colors.Neutral.DARK};
 `;
 
 const ChildrenContainer = styled.div``;

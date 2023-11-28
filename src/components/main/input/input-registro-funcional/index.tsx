@@ -54,7 +54,7 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
 
   const iconTooltip = (
     <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
     </Tooltip>
   );
 
