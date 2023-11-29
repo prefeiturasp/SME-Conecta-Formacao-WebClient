@@ -23,6 +23,8 @@ export const APOS_ENVIAR_PROPOSTA_NAO_EDITA =
   'Após o envio da proposta não será possível realizar edições, tem certeza que deseja enviar?';
 
 export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a modalidade';
+export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
+  'É necessário Informar a formação homologada por SME/COPED/DF';
 export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da formação';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
 export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =

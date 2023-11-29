@@ -4,6 +4,7 @@ import React from 'react';
 import { CF_RADIO_FORMACAO_HOMOLOGADA } from '~/core/constants/ids/radio';
 import { Colors } from '~/core/styles/colors';
 import Radio from '../../radio';
+import { FORMACAO_HOMOLOGADA_NAO_INFORMADA } from '~/core/constants/mensagens';
 
 type RadioFormacaoHomologadaProps = {
   label?: string;
@@ -35,7 +36,7 @@ const RadioFormacaoHomologada: React.FC<RadioFormacaoHomologadaProps> = ({
             </Tooltip>
           ),
         },
-        rules: [{ required: !!required }],
+        rules: [{ required: !!required, message: FORMACAO_HOMOLOGADA_NAO_INFORMADA }],
       }}
       radioGroupProps={{
         id: CF_RADIO_FORMACAO_HOMOLOGADA,
