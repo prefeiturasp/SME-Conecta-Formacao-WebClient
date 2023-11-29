@@ -99,7 +99,7 @@ const CardInformacoesCadastrante: FC = () => {
       )}
       <Container>
         <Card
-          style={{ marginTop: 16 }}
+          style={{ marginBottom: 16 }}
           type='inner'
           title='Informações do cadastrante (Estas Informações não serão divulgadas de forma pública)'
           headStyle={{ borderBottomRightRadius: 0 }}

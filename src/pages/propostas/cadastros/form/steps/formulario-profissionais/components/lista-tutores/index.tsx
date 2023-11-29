@@ -8,7 +8,7 @@ import { CF_BUTTON_ADD_TUTOR } from '~/core/constants/ids/button/intex';
 import { PropostaTutorDTO } from '~/core/dto/proposta-tutor-dto';
 import DrawerTutor from '~/pages/propostas/cadastros/form/steps/formulario-profissionais/components/lista-tutores/drawer';
 import { TituloListaPaginada, TituloSecao } from '../../../../styles';
-import { PermissaoContext } from '~/routes/config/permissao-provider';
+import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
 
 const columns: ColumnsType<PropostaTutorDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
