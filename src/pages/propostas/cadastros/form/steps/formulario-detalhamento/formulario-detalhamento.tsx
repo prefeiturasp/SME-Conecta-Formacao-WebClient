@@ -14,7 +14,7 @@ import {
 } from '~/core/constants/mensagens';
 import { Modalidade } from '~/core/enum/modalidade';
 import InputTimerCargaHorariaTotal from './components/carga-horaria-total';
-import { PermissaoContext } from '~/routes/config/permissao-provider';
+import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
 
 const FormularioDetalhamento: React.FC = () => {
   const { desabilitarCampos } = useContext(PermissaoContext);

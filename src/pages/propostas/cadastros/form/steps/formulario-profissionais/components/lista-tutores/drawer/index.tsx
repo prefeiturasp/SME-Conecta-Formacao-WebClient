@@ -17,7 +17,7 @@ import {
   obterPropostaTutorPorId,
   salvarPropostaProfissionalTutor,
 } from '~/core/services/proposta-service';
-import { PermissaoContext } from '~/routes/config/permissao-provider';
+import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
 
 type DrawerTutorProps = {
   openModal: boolean;
