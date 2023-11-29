@@ -4,7 +4,7 @@ import CheckboxAcaoInformatica from '~/components/lib/checkbox';
 import SelectCriterioCertificacao from '~/components/main/input/criterio-certificacao';
 import EditorTexto from '~/components/main/input/editor-texto';
 import { DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA } from '~/core/constants/mensagens';
-import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 const FormularioCertificacao: React.FC = () => {
   const form = Form.useFormInstance();

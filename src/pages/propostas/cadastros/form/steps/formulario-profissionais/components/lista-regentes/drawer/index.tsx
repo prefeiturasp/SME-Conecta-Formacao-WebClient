@@ -18,7 +18,7 @@ import {
   obterPropostaRegentePorId,
   salvarPropostaProfissionalRegente,
 } from '~/core/services/proposta-service';
-import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerRegenteProps = {
   openModal: boolean;

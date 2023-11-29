@@ -8,7 +8,7 @@ import { CF_BUTTON_ADD_REGENTE } from '~/core/constants/ids/button/intex';
 import { PropostaRegenteDTO } from '~/core/dto/proposta-regente-dto';
 import DrawerRegente from '~/pages/propostas/cadastros/form/steps/formulario-profissionais/components/lista-regentes/drawer';
 import { TituloListaPaginada, TituloSecao } from '../../../../styles';
-import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 const columns: ColumnsType<PropostaRegenteDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
