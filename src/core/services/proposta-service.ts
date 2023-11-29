@@ -9,7 +9,14 @@ import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { TipoFormacao } from '../enum/tipo-formacao';
-import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
+import {
+  ApiResult,
+  alterarRegistro,
+  alterarRegistroParcial,
+  deletarRegistro,
+  inserirRegistro,
+  obterRegistro,
+} from './api';
 
 export const URL_API_PROPOSTA = 'v1/Proposta';
 
@@ -48,8 +55,11 @@ const alterarProposta = (
 ): Promise<ApiResult<PropostaDTO>> =>
   alterarRegistro<PropostaDTO>(`${URL_API_PROPOSTA}/${id}`, params);
 
-const enviarPropostaDF = (id: string | number, params?: PropostaDTO): Promise<ApiResult<number>> =>
-  alterarRegistro<number>(`${URL_API_PROPOSTA}/${id}/enviardf`, params);
+const enviarPropostaAnalise = (
+  id: string | number,
+  params?: PropostaDTO,
+): Promise<ApiResult<number>> =>
+  alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/enviar-analise`, params);
 
 const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}`);
@@ -107,7 +117,7 @@ const obterPropostaTutorPorId = (id: string | number) =>
 export {
   alterarProposta,
   deletarProposta,
-  enviarPropostaDF,
+  enviarPropostaAnalise,
   excluirRegente,
   excluirTutor,
   inserirProposta,
