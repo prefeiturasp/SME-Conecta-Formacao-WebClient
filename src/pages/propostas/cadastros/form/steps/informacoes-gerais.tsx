@@ -3,7 +3,6 @@ import { Col, Form, FormInstance, Input, Row, Tooltip } from 'antd';
 
 import React from 'react';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
-import RadioFormacaoHomologada from '~/components/main/input/formacao-homologada';
 import SelectFuncaoEspecifica from '~/components/main/input/funcao-especifica';
 import SelectModalidades from '~/components/main/input/modalidades';
 import { default as SelectPublicoAlvo } from '~/components/main/input/publico-alvo';
@@ -32,23 +31,15 @@ type FormInformacoesGeraisProps = {
 const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) => {
   return (
     <Row gutter={[16, 8]}>
-      <Col xs={24} sm={12} md={12} lg={6} xl={7}>
-        <RadioFormacaoHomologada
-          name='formacaoHomologada'
-          label='Formação homologada por SME/COPED/DF'
-          required
-        />
-      </Col>
-
-      <Col xs={24} sm={12} md={12} lg={6} xl={4}>
+      <Col xs={24} sm={10} md={7} lg={6} xl={4}>
         <RadioTipoFormacao />
       </Col>
 
-      <Col xs={24} sm={12} md={12} lg={6} xl={8}>
+      <Col xs={24} sm={14} md={7} lg={11} xl={15}>
         <SelectModalidades form={form} />
       </Col>
 
-      <Col xs={24} sm={12} md={12} lg={6} xl={5}>
+      <Col xs={24} sm={10} md={9} lg={7} xl={5}>
         <RadioTipoInscricao />
       </Col>
 

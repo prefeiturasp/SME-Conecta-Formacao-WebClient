@@ -1,25 +1,15 @@
 import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
-import { PropostaAtribuirGestaoDTO } from '../dto/proposta-atribuir-gestao-dto';
-import { PropostaDevolverDTO } from '../dto/proposta-devolver-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
 import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
 import { PropostaPaginadaDTO } from '../dto/proposta-paginada-dto';
-import { PropostaParecerDTO } from '../dto/proposta-parecer-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { TipoFormacao } from '../enum/tipo-formacao';
-import {
-  ApiResult,
-  alterarRegistro,
-  alterarRegistroParcial,
-  deletarRegistro,
-  inserirRegistro,
-  obterRegistro,
-} from './api';
+import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
 
 export const URL_API_PROPOSTA = 'v1/Proposta';
 
@@ -58,32 +48,8 @@ const alterarProposta = (
 ): Promise<ApiResult<PropostaDTO>> =>
   alterarRegistro<PropostaDTO>(`${URL_API_PROPOSTA}/${id}`, params);
 
-const enviarPropostaAnalise = (
-  id: string | number,
-  params?: PropostaDTO,
-): Promise<ApiResult<number>> =>
-  alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/enviar-analise`, params);
-
-const atribuirPropostaGrupoGestao = (
-  id: string | number,
-  params?: PropostaAtribuirGestaoDTO,
-): Promise<ApiResult<number>> =>
-  alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/atribuir-grupo-gestao`, params);
-
-const devolverProposta = (
-  id: string | number,
-  params?: PropostaDevolverDTO,
-): Promise<ApiResult<number>> =>
-  alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/devolver`, params);
-
-const parecerProposta = (
-  id: string | number,
-  params?: PropostaParecerDTO,
-): Promise<ApiResult<number>> =>
-  alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/parecer`, params);
-
-const obterParecerProposta = (id: string | number): Promise<ApiResult<PropostaParecerDTO>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/${id}/parecer`);
+const enviarPropostaDF = (id: string | number, params?: PropostaDTO): Promise<ApiResult<number>> =>
+  alterarRegistro<number>(`${URL_API_PROPOSTA}/${id}/enviardf`, params);
 
 const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}`);
@@ -141,11 +107,7 @@ const obterPropostaTutorPorId = (id: string | number) =>
 export {
   alterarProposta,
   deletarProposta,
-  enviarPropostaAnalise,
-  atribuirPropostaGrupoGestao,
-  devolverProposta,
-  parecerProposta,
-  obterParecerProposta,
+  enviarPropostaDF,
   excluirRegente,
   excluirTutor,
   inserirProposta,
