@@ -68,7 +68,7 @@ const SelectFuncaoEspecifica: React.FC = () => {
                     'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outros).',
                   icon: (
                     <Tooltip>
-                      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
                     </Tooltip>
                   ),
                 }}

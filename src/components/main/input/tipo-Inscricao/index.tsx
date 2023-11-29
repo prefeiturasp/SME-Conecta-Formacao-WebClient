@@ -34,7 +34,7 @@ const RadioTipoInscricao: React.FC = () => {
             ' Optativa: O cursista irá se inscrever por meio da plataforma. Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.',
           icon: (
             <Tooltip>
-              <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+              <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
             </Tooltip>
           ),
         },

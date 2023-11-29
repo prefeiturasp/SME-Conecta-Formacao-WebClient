@@ -1,5 +1,5 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Col, Form, FormInstance, Input, Row, Tooltip } from 'antd';
+import { Col, Form, Input, Row, Tooltip } from 'antd';
 
 import React from 'react';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
@@ -25,11 +25,9 @@ import {
 } from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
 
-type FormInformacoesGeraisProps = {
-  form: FormInstance;
-};
+const FormInformacoesGerais: React.FC = () => {
+  const form = Form.useFormInstance();
 
-const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) => {
   return (
     <Row gutter={[16, 8]}>
       <Col xs={24} sm={12} md={12} lg={6} xl={7}>
@@ -62,7 +60,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
               'O título da formação deve apresentar de forma sucinta a ideia central do tema que será tratado, indicando ao cursista a macro área do tema e a especificidade do curso proposto.',
             icon: (
               <Tooltip>
-                <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
               </Tooltip>
             ),
           }}
@@ -118,7 +116,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ form }) =
                 'Tanto nos cursos presenciais, quanto nos cursos a distância, a proporção máxima aceita será de 50 (cinquenta) cursistas por turma/tutor. Nos eventos presenciais, a quantidade de participantes poderá se adequar à capacidade do espaço. Nos eventos a distância/híbridos, a proporção máxima aceita será de 200 (duzentas) pessoas, sendo a proporção máxima de um tutor para 50 (cinquenta) participantes.',
               icon: (
                 <Tooltip>
-                  <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+                  <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
                 </Tooltip>
               ),
             },

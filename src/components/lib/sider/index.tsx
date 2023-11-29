@@ -1,96 +1,184 @@
-import { Button, Layout } from 'antd';
-import React, { useState } from 'react';
+import { Button, Menu, MenuProps } from 'antd';
+import React, { useContext } from 'react';
 
-import styled from 'styled-components';
-import { BoxShadow, Colors } from '~/core/styles/colors';
+import { CSSProperties } from 'styled-components';
 
-import { FormOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { FaUser } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '~/core/enum/routes-enum';
+import { FaAlignJustify, FaStream } from 'react-icons/fa';
 
-const SiderContainer = styled(Layout.Sider)`
-  box-shadow: ${BoxShadow.DEFAULT};
-`;
+import { IoClose } from 'react-icons/io5';
 
-const MenuContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 4px;
-`;
+import MenuItem from 'antd/es/menu/MenuItem';
+import MenuContextProvider, { MenuContext } from './provider';
+import {
+  SiderContainer,
+  SiderIconContainer,
+  SiderMenuButtonToggleStyle,
+  SiderMenuContainer,
+  SiderMenuGroup,
+  SiderMenuTitle,
+  SiderSubMenuContainer,
+} from './styles';
 
-const MenuGroup = styled.div`
-  background-color: ${Colors.ORANGE_CONECTA_FORMACAO};
-  width: 100%;
-  height: 60px;
-  margin: 4px;
-  border-radius: 4px;
-  justify-content: space-evenly;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  cursor: pointer;
+export type SiderMenuStylePros = {
+  collapsed: boolean;
+};
 
-  div {
-    font-size: 10px;
-    font-weight: 700;
-  }
-`;
-const Sider: React.FC = () => {
-  const navigate = useNavigate();
+export type SiderSubMenuStylePros = {
+  collapsed: boolean;
+  isSubMenu: boolean;
+};
 
-  const [collapsed, setCollapsed] = useState(true);
+export type MenuItemSMEProps = {
+  url?: string;
+  title: React.ReactNode;
+  key: React.Key;
+  icon?: React.ReactNode;
+  children?: MenuItemSMEProps[];
+};
+
+export const getItemMenu = (
+  url: string,
+  title: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  children?: MenuItemSMEProps[],
+): MenuItemSMEProps => {
+  return {
+    title,
+    url,
+    key,
+    icon,
+    children,
+  };
+};
+
+export type MenuSMEProps = {
+  items?: MenuItemSMEProps[];
+  menuProps?: MenuProps;
+  styleSider?: CSSProperties | undefined;
+  logoMenu?: React.ReactNode;
+  onClick: (item: MenuItemSMEProps) => void;
+  onClickMenuButtonToggle?: (collapsed: boolean) => void;
+  routePathname?: string;
+};
+
+const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
+  items,
+  menuProps,
+  styleSider = {},
+  logoMenu,
+  onClick,
+  onClickMenuButtonToggle,
+}) => {
+  const { collapsed, setCollapsed, setOpenKeys, openKeys, selectedKeys, setSelectedKeys } =
+    useContext(MenuContext);
+
+  const montarMenuItem = (item: MenuItemSMEProps) => {
+    return (
+      <MenuItem
+        key={item.key}
+        id={item?.key?.toString()}
+        onClick={() => {
+          setOpenKeys([]);
+          setSelectedKeys([item?.key?.toString()]);
+
+          if (!item?.children?.length && !collapsed) setCollapsed(!collapsed);
+
+          if (onClick) onClick(item);
+        }}
+      >
+        {item?.title}
+      </MenuItem>
+    );
+  };
+
+  const montarSubMenu = (menuItem: MenuItemSMEProps, isSubMenu = false) => (
+    <SiderSubMenuContainer
+      isSubMenu={isSubMenu}
+      collapsed={collapsed}
+      key={menuItem?.key}
+      title={
+        <SiderMenuGroup collapsed={collapsed}>
+          <SiderIconContainer collapsed={collapsed}>{menuItem?.icon}</SiderIconContainer>
+          <SiderMenuTitle collapsed={collapsed}>{menuItem?.title}</SiderMenuTitle>
+          {collapsed && (
+            <FaStream size={10} opacity={0.5} style={{ top: 6, right: 6, position: 'absolute' }} />
+          )}
+        </SiderMenuGroup>
+      }
+    >
+      <>
+        {menuItem?.children?.map((item: MenuItemSMEProps) => {
+          if (item?.children?.length) return montarSubMenu(item, true);
+          return montarMenuItem(item);
+        })}
+      </>
+    </SiderSubMenuContainer>
+  );
+
+  if (!items?.length) return <></>;
 
   return (
     <SiderContainer
-      width={collapsed ? 88 : 264}
-      style={{
-        textAlign: 'center',
-        color: '#fff',
-        backgroundColor: Colors.ORANGE_CF_DARK,
-        overflow: 'auto',
-        height: '100vh',
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 12,
-      }}
+      collapsedSider={collapsed}
+      width={collapsed ? 90 : 264}
+      style={{ ...styleSider }}
       trigger={null}
       collapsible
+      collapsed={false}
+      breakpoint='md'
+      onCollapse={() => {
+        setCollapsed(true);
+        setOpenKeys([]);
+        if (onClickMenuButtonToggle) onClickMenuButtonToggle(true);
+      }}
     >
-      <Button
-        type='text'
-        icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        onClick={() => setCollapsed(!collapsed)}
-        style={{
-          fontSize: '24px',
-          width: '100%',
-          height: '72px',
-          backgroundColor: Colors.ORANGE_CONECTA_FORMACAO,
-          color: 'white',
-          borderRadius: 0,
-        }}
-      />
-      <MenuContainer>
-        {/* TODO - O MENU VAI SER CRIADO EM OUTRO MOMENTO! */}
-        <MenuGroup onClick={() => navigate(ROUTES.MEUS_DADOS)}>
-          <FaUser size={24} />
-          <div>Meus dados</div>
-        </MenuGroup>
-        <MenuGroup onClick={() => navigate(ROUTES.AREA_PROMOTORA)}>
-          <FormOutlined size={24} />
-          <div>Área promotora</div>
-        </MenuGroup>
-        <MenuGroup onClick={() => navigate(ROUTES.CADASTRO_DE_PROPOSTAS)}>
-          <FormOutlined size={24} />
-          <div>Cadastro de propostas</div>
-        </MenuGroup>
-      </MenuContainer>
+      <SiderMenuButtonToggleStyle collapsed={collapsed}>
+        {collapsed ? null : logoMenu}
+        <Button
+          type='text'
+          icon={collapsed ? <FaAlignJustify size={24} /> : <IoClose size={24} />}
+          onClick={() => {
+            const newValue = !collapsed;
+            setCollapsed(newValue);
+
+            if (newValue) setOpenKeys([]);
+
+            if (onClickMenuButtonToggle) onClickMenuButtonToggle(newValue);
+          }}
+        />
+      </SiderMenuButtonToggleStyle>
+
+      <SiderMenuContainer collapsed={collapsed} className='secound-child-menu-and-sub-menus'>
+        <Menu
+          mode='inline'
+          {...menuProps}
+          openKeys={openKeys}
+          selectedKeys={menuProps?.selectedKeys?.length ? menuProps?.selectedKeys : selectedKeys}
+          onOpenChange={(newOpenKeys: string[]) => {
+            if (collapsed) {
+              const newValue = !collapsed;
+              setCollapsed(newValue);
+            }
+
+            setOpenKeys(newOpenKeys);
+
+            if (menuProps?.onOpenChange) {
+              menuProps.onOpenChange(newOpenKeys);
+            }
+          }}
+        >
+          <>{items?.map((menuItem: MenuItemSMEProps) => montarSubMenu(menuItem))}</>
+        </Menu>
+      </SiderMenuContainer>
     </SiderContainer>
   );
 };
+
+const Sider: React.FC<MenuSMEProps> = (props) => (
+  <MenuContextProvider>
+    <SiderChildrenProvider {...props} />
+  </MenuContextProvider>
+);
 
 export default Sider;

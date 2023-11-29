@@ -27,6 +27,7 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
       showSizeChanger: true,
       position: ['bottomCenter'],
       locale: { items_per_page: '' },
+      disabled: false,
       pageSizeOptions: [10, 20, 50, 100],
     },
   });

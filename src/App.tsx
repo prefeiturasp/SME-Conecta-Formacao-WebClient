@@ -1,14 +1,16 @@
 import { ConfigProvider } from 'antd';
-import { ConectaFormacaoTheme } from './core/config/theme';
-import ThemeProviders from './core/providers/theme-providers';
-import { Provider } from 'react-redux';
-import { persistor, store } from './core/redux';
-import { PersistGate } from 'redux-persist/integration/react';
-import Routes from './routes';
 import 'antd/dist/reset.css';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { ThemeProvider } from 'styled-components';
+import { ConectaFormacaoTheme } from './core/config/theme';
+import { persistor, store } from './core/redux';
+import Routes from './routes';
 
 import GlobalStyle from '~/core/styles/global';
 import Spin from './components/main/spin';
+
+import { App as AppAntd } from 'antd';
 
 declare global {
   interface Window {
@@ -19,16 +21,18 @@ declare global {
 const App = () => {
   return (
     <ConfigProvider theme={ConectaFormacaoTheme}>
-      <ThemeProviders>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <GlobalStyle />
-            <Spin>
-              <Routes />
-            </Spin>
-          </PersistGate>
-        </Provider>
-      </ThemeProviders>
+      <ThemeProvider theme={ConectaFormacaoTheme}>
+        <AppAntd>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <GlobalStyle />
+              <Spin>
+                <Routes />
+              </Spin>
+            </PersistGate>
+          </Provider>
+        </AppAntd>
+      </ThemeProvider>
     </ConfigProvider>
   );
 };

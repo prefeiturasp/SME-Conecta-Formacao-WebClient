@@ -11,8 +11,10 @@ import Empty from '~/components/main/empty';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
 import { CadastroAreaPromotoraDTO } from '~/core/dto/cadastro-area-promotora-dto';
+import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { obterTiposAreaPromotora } from '~/core/services/area-promotora-service';
+import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 
 const ListAreaPromotora: React.FC = () => {
   const { Option } = Select;
@@ -21,6 +23,8 @@ const ListAreaPromotora: React.FC = () => {
   const [filters, setFilters] = useState({ nome: '', tipo: 0 });
 
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
+
+  const permissao = obterPermissaoPorMenu(MenuEnum.AreaPromotora);
 
   const columns: ColumnsType<CadastroAreaPromotoraDTO> = [
     {
@@ -69,6 +73,7 @@ const ListAreaPromotora: React.FC = () => {
                 id={CF_BUTTON_NOVO}
                 style={{ fontWeight: 700 }}
                 onClick={() => onClickNovo()}
+                disabled={!permissao?.podeIncluir}
               >
                 Novo
               </Button>

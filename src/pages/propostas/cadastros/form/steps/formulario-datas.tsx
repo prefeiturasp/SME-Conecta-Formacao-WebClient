@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, Row, notification } from 'antd';
+import { Button, Col, Form, Row, notification } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Dayjs } from 'dayjs';
 import React, { useRef, useState } from 'react';
@@ -7,7 +7,10 @@ import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer/drawer-form-encontro-turmas';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
-import { PERIODO_INSCRICAO_NAO_INFORMADO, PERIODO_REALIZACAO_NAO_INFORMADO } from '~/core/constants/mensagens';
+import {
+  PERIODO_INSCRICAO_NAO_INFORMADO,
+  PERIODO_REALIZACAO_NAO_INFORMADO,
+} from '~/core/constants/mensagens';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 import { Colors } from '~/core/styles/colors';
@@ -20,7 +23,7 @@ const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
 ];
 const contentStyle: React.CSSProperties = {
   fontSize: 18,
-  color: Colors.ORANGE_CONECTA_FORMACAO,
+  color: Colors.SystemSME.ConectaFormacao.PRIMARY,
   fontWeight: 'bold',
 };
 const stuleButtonAddData: React.CSSProperties = {
@@ -36,10 +39,10 @@ const contentStyleTituloListagem: React.CSSProperties = {
   color: 'black',
   fontWeight: 'bold',
 };
-type FormularioDatasProps = {
-  form: FormInstance;
-};
-const FormularioDatas: React.FC<FormularioDatasProps> = ({ form }) => {
+
+const FormularioDatas: React.FC = () => {
+  const form = Form.useFormInstance();
+
   const [openModal, setOpenModal] = useState<boolean>(false);
   const paramsRoute = useParams();
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();

@@ -20,7 +20,7 @@ const ModalErroProposta: React.FC<ModalErroPropostaPropos> = ({ erros, closeModa
       cancelButtonProps={{ style: { display: 'none' } }}
     >
       {erros.map((item, index) => (
-        <p key={item} style={{ color: Colors.ERROR }}>
+        <p key={item} style={{ color: Colors.Suporte.Primary.ERROR }}>
           {index + 1} - {item}
         </p>
       ))}

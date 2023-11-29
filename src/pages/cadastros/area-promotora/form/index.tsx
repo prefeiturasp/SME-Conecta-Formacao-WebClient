@@ -1,6 +1,6 @@
 import { Button, Col, Form, Input, Row, Select, notification } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
@@ -38,16 +38,26 @@ import {
   obterTiposAreaPromotora,
 } from '~/core/services/area-promotora-service';
 import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
+import { obterPermissaoPorMenu } from '~/core/utils/perfil';
+import { MenuEnum } from '~/core/enum/menu-enum';
+import { PermissaoContext } from '~/routes/config/permissao-provider';
+
+const { Option } = Select;
 
 const FormCadastrosAreaPromotora: React.FC = () => {
   const [form] = useForm();
+
   const navigate = useNavigate();
   const paramsRoute = useParams();
 
-  const { Option } = Select;
-  const id = paramsRoute?.id || 0;
+  const { desabilitarCampos } = useContext(PermissaoContext);
+
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
+
+  const permissao = obterPermissaoPorMenu(MenuEnum.AreaPromotora);
+
+  const id = paramsRoute?.id || 0;
 
   const tituloPagina = paramsRoute?.id
     ? 'Alteração da Área Promotora'
@@ -195,6 +205,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
         onFinish={salvar}
         validateMessages={validateMessages}
         initialValues={formInitialValues}
+        disabled={desabilitarCampos}
       >
         <HeaderPage title={tituloPagina}>
           <Col span={24}>
@@ -204,7 +215,11 @@ const FormCadastrosAreaPromotora: React.FC = () => {
               </Col>
               {id ? (
                 <Col>
-                  <ButtonExcluir id={CF_BUTTON_EXCLUIR} onClick={onClickExcluir} />
+                  <ButtonExcluir
+                    id={CF_BUTTON_EXCLUIR}
+                    onClick={onClickExcluir}
+                    disabled={!permissao.podeExcluir}
+                  />
                 </Col>
               ) : (
                 <></>
@@ -278,8 +293,8 @@ const FormCadastrosAreaPromotora: React.FC = () => {
 
               <SelectDREAreaPromotora />
 
-              <TelefoneLista />
-              <EmailLista />
+              <TelefoneLista disabled={desabilitarCampos} />
+              <EmailLista disabled={desabilitarCampos} />
             </Row>
           </Col>
           <Auditoria dados={formInitialValues?.auditoria} />

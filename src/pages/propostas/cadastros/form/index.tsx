@@ -1,8 +1,8 @@
-import { Badge, Button, Col, Divider, Form, Row, StepProps, notification } from 'antd';
+import { App, Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import dayjs, { Dayjs } from 'dayjs';
 import { cloneDeep } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
@@ -36,6 +36,7 @@ import {
 import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
+import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
@@ -48,6 +49,8 @@ import {
   inserirProposta,
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
+import { obterPermissaoPorMenu } from '~/core/utils/perfil';
+import { PermissaoContext } from '~/routes/config/permissao-provider';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
@@ -56,8 +59,16 @@ import FormInformacoesGerais from './steps/informacoes-gerais';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
+
+  const { notification } = App.useApp();
+
+  const { desabilitarCampos, setDesabilitarCampos } = useContext(PermissaoContext);
+
   const [openModalErros, setOpenModalErros] = useState(false);
+
   const [listaErros, setListaErros] = useState<string[]>([]);
+
+  const permissao = obterPermissaoPorMenu(MenuEnum.CadastroProposta);
 
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
@@ -68,16 +79,12 @@ const FormCadastroDePropostas: React.FC = () => {
   );
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
-  const id = paramsRoute?.id || 0;
+  const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoRegistro.Rascunho;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
-
-  const desabilitarTodosFormularios =
-    formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
-    formInitialValues?.situacao !== SituacaoRegistro.Cadastrada;
 
   const stepsProposta: StepProps[] = [
     {
@@ -96,6 +103,15 @@ const FormCadastroDePropostas: React.FC = () => {
       title: STEP_PROPOSTA.CERTIFICACAO.TITULO,
     },
   ];
+
+  useEffect(() => {
+    const desabilitarTodosFormularios =
+      desabilitarCampos ||
+      (formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
+        formInitialValues?.situacao !== SituacaoRegistro.Cadastrada);
+
+    setDesabilitarCampos(desabilitarTodosFormularios);
+  }, [formInitialValues, desabilitarCampos]);
 
   const carregarValoresDefault = () => {
     const valoresIniciais: PropostaFormDTO = {
@@ -393,19 +409,19 @@ const FormCadastroDePropostas: React.FC = () => {
     return (
       <>
         <Form.Item hidden={StepPropostaEnum.InformacoesGerais !== stepSelecionado}>
-          <FormInformacoesGerais form={form} />
+          <FormInformacoesGerais />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
-          <FormularioDetalhamento disabledForm={desabilitarTodosFormularios} />
+          <FormularioDetalhamento />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Datas !== stepSelecionado}>
-          <FormularioDatas form={form} />
+          <FormularioDatas />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Profissionais !== stepSelecionado}>
           <FormularioProfissionais />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Certificacao !== stepSelecionado}>
-          <FormularioCertificacao form={form} disabledForm={desabilitarTodosFormularios} />
+          <FormularioCertificacao />
         </Form.Item>
       </>
     );
@@ -492,14 +508,13 @@ const FormCadastroDePropostas: React.FC = () => {
         autoComplete='off'
         initialValues={formInitialValues}
         validateMessages={validateMessages}
-        disabled={desabilitarTodosFormularios}
+        disabled={desabilitarCampos}
       >
         <HeaderPage title='Cadastro de Propostas'>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
                 <ButtonVoltar
-                  disabled={false}
                   onClick={() => {
                     if (SituacaoRegistro.Cadastrada === formInitialValues?.situacao) {
                       confirmacao({
@@ -517,7 +532,11 @@ const FormCadastroDePropostas: React.FC = () => {
               </Col>
               {id ? (
                 <Col>
-                  <ButtonExcluir id={CF_BUTTON_EXCLUIR} onClick={onClickExcluir} />
+                  <ButtonExcluir
+                    id={CF_BUTTON_EXCLUIR}
+                    onClick={onClickExcluir}
+                    disabled={!permissao.podeExcluir}
+                  />
                 </Col>
               ) : (
                 <></>
@@ -570,6 +589,7 @@ const FormCadastroDePropostas: React.FC = () => {
                     type='primary'
                     id={CF_BUTTON_SALVAR_RASCUNHO}
                     onClick={() => salvar()}
+                    disabled={desabilitarCampos}
                     style={{ fontWeight: 700 }}
                   >
                     Salvar rascunho
@@ -582,6 +602,7 @@ const FormCadastroDePropostas: React.FC = () => {
                     block
                     type='primary'
                     id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                    disabled={desabilitarCampos}
                     onClick={() => {
                       salvarProposta(true);
                     }}
@@ -599,6 +620,7 @@ const FormCadastroDePropostas: React.FC = () => {
                       type='primary'
                       onClick={validarAntesEnviarProposta}
                       style={{ fontWeight: 700 }}
+                      disabled={desabilitarCampos}
                       id={CF_BUTTON_ENVIAR_PROPOSTA}
                     >
                       Enviar

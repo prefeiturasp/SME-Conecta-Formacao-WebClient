@@ -21,10 +21,11 @@ import { AutenticacaoDTO } from '~/core/dto/autenticacao-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { ValidateErrorEntity } from '~/core/dto/validate-error-entity';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { setDadosLogin } from '~/core/redux/modules/auth/actions';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { Colors } from '~/core/styles/colors';
 import { CF_BUTTON_ESQUECI_SENHA } from '../../core/constants/ids/button/intex';
+
+import { validarAutenticacao } from '~/core/utils/perfil';
 
 const Login = () => {
   const dispatch = useAppDispatch();
@@ -73,7 +74,7 @@ const Login = () => {
         if (resposta?.data?.autenticado) {
           //TODO Ambiente clarity ainda será criado
           //window.clarity('identify', loginValidado);
-          dispatch(setDadosLogin(resposta.data));
+          validarAutenticacao(resposta.data);
         }
       })
       .catch(validarExibirErros)
@@ -105,7 +106,7 @@ const Login = () => {
                   'Informe o RF ou CPF para acessar o sistema. Caso não possua acesso procure a DF.',
                 icon: (
                   <Tooltip>
-                    <FaQuestionCircle color={Colors.TEXT} />
+                    <FaQuestionCircle color={Colors.Neutral.DARK} />
                   </Tooltip>
                 ),
               }}
