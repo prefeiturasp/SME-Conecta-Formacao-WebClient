@@ -136,7 +136,7 @@ const CardInformacoesCadastrante: FC = () => {
                 icon={<ExclamationCircleOutlined style={{ color: Colors.Components.TOOLTIP }} />}
                 ghost
                 style={{
-                  color: Colors.Neutral.DARKTOOLTIP,
+                  color: Colors.Neutral.DARK,
                   paddingLeft: '0px',
                   border: 'none',
                   background: 'none',
