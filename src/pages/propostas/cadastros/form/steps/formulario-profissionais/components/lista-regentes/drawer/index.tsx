@@ -18,6 +18,7 @@ import {
   obterPropostaRegentePorId,
   salvarPropostaProfissionalRegente,
 } from '~/core/services/proposta-service';
+import { PermissaoContext } from '~/routes/config/permissao-provider';
 
 type DrawerRegenteProps = {
   openModal: boolean;
@@ -27,6 +28,8 @@ type DrawerRegenteProps = {
 
 const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, id = 0 }) => {
   const { tableState } = useContext(DataTableContext);
+
+  const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [formDrawer] = useForm();
   const paramsRoute = useParams();
@@ -134,6 +137,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
             }
           }
           validateMessages={validateMessages}
+          disabled={desabilitarCampos}
         >
           <Drawer
             title='Regente'
@@ -205,7 +209,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                               name: 'nomeRegente',
                             }}
                             inputPropsRF={{
-                              disabled: !rfEhObrigatorio,
+                              disabled: desabilitarCampos || !rfEhObrigatorio,
                               onChange: (e) => {
                                 const value = e.target.value;
                                 if (!value || value.length < 7) {
@@ -215,7 +219,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                               },
                             }}
                             inputPropsNome={{
-                              disabled: rfEhObrigatorio,
+                              disabled: desabilitarCampos || rfEhObrigatorio,
                             }}
                           />
                         </Row>
@@ -230,6 +234,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                     label='Mini biografia'
                     required={false}
                     exibirTooltip={true}
+                    disabled={desabilitarCampos}
                     mensagemTooltip='Breve resumo contendo a formação e principais atividades realizadas na temática da ação de formação proposta. Indicar link do Currículo Lattes, caso tenha.'
                   />
                 </Col>

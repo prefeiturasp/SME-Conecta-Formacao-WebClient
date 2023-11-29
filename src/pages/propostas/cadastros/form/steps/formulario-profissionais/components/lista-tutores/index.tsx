@@ -1,6 +1,6 @@
 import { Button, Col, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
@@ -8,6 +8,7 @@ import { CF_BUTTON_ADD_TUTOR } from '~/core/constants/ids/button/intex';
 import { PropostaTutorDTO } from '~/core/dto/proposta-tutor-dto';
 import DrawerTutor from '~/pages/propostas/cadastros/form/steps/formulario-profissionais/components/lista-tutores/drawer';
 import { TituloListaPaginada, TituloSecao } from '../../../../styles';
+import { PermissaoContext } from '~/routes/config/permissao-provider';
 
 const columns: ColumnsType<PropostaTutorDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
@@ -17,6 +18,8 @@ const columns: ColumnsType<PropostaTutorDTO> = [
 
 const ListaTutores: React.FC = () => {
   const paramsRoute = useParams();
+
+  const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosTutorSelecionado, setDadosTutorSelecionado] = useState<PropostaTutorDTO>();
@@ -54,7 +57,12 @@ const ListaTutores: React.FC = () => {
                 <TituloSecao>Tutores</TituloSecao>
               </Col>
               <Col>
-                <Button type='primary' id={CF_BUTTON_ADD_TUTOR} onClick={abrirModal}>
+                <Button
+                  type='primary'
+                  id={CF_BUTTON_ADD_TUTOR}
+                  onClick={abrirModal}
+                  disabled={desabilitarCampos}
+                >
                   Adicionar tutores
                 </Button>
               </Col>

@@ -7,7 +7,10 @@ import InputEmail from '../email';
 
 const { useToken } = theme;
 
-const EmailLista: React.FC = () => {
+type EmailListaProps = {
+  disabled?: boolean;
+};
+const EmailLista: React.FC<EmailListaProps> = ({ disabled }) => {
   const { token } = useToken();
 
   const initialValue: EmailAreaPromotora[] = [{ email: '' }];
@@ -45,14 +48,18 @@ const EmailLista: React.FC = () => {
                         justifyContent: 'center',
                         marginTop: '24px',
                       }}
-                      disabled={fields?.length > 1}
+                      disabled={fields?.length > 1 || disabled}
                     />
                   ) : (
                     <FaTrashAlt
-                      cursor='pointer'
-                      onClick={() => remove(name)}
+                      onClick={() => {
+                        if (!disabled) {
+                          remove(name);
+                        }
+                      }}
                       style={{
-                        color: token.colorError,
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                        color: disabled ? token.colorTextDisabled : token.colorError,
                         margin: '34px 20px 0px 3px',
                       }}
                     />

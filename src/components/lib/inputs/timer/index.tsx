@@ -10,7 +10,6 @@ type InputTimerProp = {
   label: string;
   textToolTip?: WrapperTooltipProps['title'];
   required?: boolean;
-  disabled?: boolean;
   mensagemErro?: string;
 };
 const InputTimer: FC<InputTimerProp> = ({
@@ -19,7 +18,6 @@ const InputTimer: FC<InputTimerProp> = ({
   textToolTip,
   mensagemErro,
   required = false,
-  disabled = false,
 }) => {
   let tooltip: WrapperTooltipProps | undefined = undefined;
 
@@ -48,7 +46,7 @@ const InputTimer: FC<InputTimerProp> = ({
       ]}
       tooltip={tooltip}
     >
-      <Input disabled={disabled} maxLength={6} />
+      <Input maxLength={6} />
     </Form.Item>
   );
 };

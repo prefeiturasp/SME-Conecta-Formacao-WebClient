@@ -13,17 +13,14 @@ import { RolesDTO } from '~/core/dto/roles-menu-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { setPermissaoPorMenu, setRoles } from '~/core/redux/modules/roles/actions';
 
-export const verificaSomenteConsulta = (permissao: PermissaoMenusAcoesDTO) => {
+export const verificaSomenteConsulta = (permissao: PermissaoMenusAcoesDTO): boolean => {
   const somenteConsulta =
-    permissao.podeConsultar &&
-    !permissao.podeAlterar &&
-    !permissao.podeIncluir &&
-    !permissao.podeExcluir;
+    permissao?.podeConsultar &&
+    !permissao?.podeAlterar &&
+    !permissao?.podeIncluir &&
+    !permissao?.podeExcluir;
 
-  console.log(somenteConsulta);
-
-  // TODO - Criar no redux o modulo navegacao para setar este valor!
-  // store.dispatch(setSomenteConsulta(somenteConsulta));
+  return !!somenteConsulta;
 };
 
 const menuTemPermissao = (permissao: PermissaoMenusAcoesDTO) =>
@@ -47,6 +44,7 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles']) => {
             podeIncluir: true,
             podeExcluir: true,
             podeAlterar: true,
+            somenteConsulta: false,
           };
 
           let exibir = true;
@@ -59,7 +57,7 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles']) => {
 
           switch (subMenu.key) {
             case MenuEnum.MeusDados:
-              permissaoMenus.push(permissaoMenu);
+              permissaoMenus[subMenu.key] = permissaoMenu;
               break;
             default:
               if (subMenu.roles) {
@@ -68,16 +66,18 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles']) => {
                   podeIncluir: roles.includes(subMenu.roles.podeIncluir),
                   podeExcluir: roles.includes(subMenu.roles.podeExcluir),
                   podeAlterar: roles.includes(subMenu.roles.podeAlterar),
+                  customRoles: subMenu.roles.customRoles,
                 };
 
                 exibir = menuTemPermissao(permissao);
+                permissao.somenteConsulta = verificaSomenteConsulta(permissao);
 
                 permissaoMenu = {
                   key: subMenu.key,
                   permissao,
                   exibir,
                 };
-                permissaoMenus.push(permissaoMenu);
+                permissaoMenus[subMenu.key] = permissaoMenu;
               }
               break;
           }
@@ -112,3 +112,6 @@ export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
   store.dispatch(setRoles(roles));
   carregarMenusEPermissao(roles);
 };
+
+export const obterPermissaoPorMenu = (menuEnum: MenuEnum) =>
+  store.getState().roles.permissaoPorMenu[menuEnum].permissao;

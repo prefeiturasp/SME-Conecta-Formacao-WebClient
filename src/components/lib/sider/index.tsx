@@ -1,5 +1,5 @@
 import { Button, Menu, MenuProps } from 'antd';
-import React, { useState } from 'react';
+import React, { useContext, useCallback, useEffect } from 'react';
 
 import { CSSProperties } from 'styled-components';
 
@@ -8,6 +8,7 @@ import { FaAlignJustify, FaStream } from 'react-icons/fa';
 import { IoClose } from 'react-icons/io5';
 
 import MenuItem from 'antd/es/menu/MenuItem';
+import MenuContextProvider, { MenuContext } from './provider';
 import {
   SiderContainer,
   SiderIconContainer,
@@ -55,20 +56,23 @@ export type MenuSMEProps = {
   items?: MenuItemSMEProps[];
   menuProps?: MenuProps;
   styleSider?: CSSProperties | undefined;
-  logoMenu?: string | undefined;
+  logoMenu?: React.ReactNode;
   onClick: (item: MenuItemSMEProps) => void;
   onClickMenuButtonToggle?: (collapsed: boolean) => void;
+  routePathname?: string;
 };
 
-const Sider: React.FC<MenuSMEProps> = ({
+const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
   items,
   menuProps,
   styleSider = {},
   logoMenu,
   onClick,
   onClickMenuButtonToggle,
+  routePathname,
 }) => {
-  const [collapsed, setCollapsed] = useState(true);
+  const { collapsed, setCollapsed, setOpenKeys, openKeys, selectedKeys, setSelectedKeys } =
+    useContext(MenuContext);
 
   const montarMenuItem = (item: MenuItemSMEProps) => {
     return (
@@ -76,9 +80,12 @@ const Sider: React.FC<MenuSMEProps> = ({
         key={item.key}
         id={item?.key?.toString()}
         onClick={() => {
-          if (onClick) onClick(item);
+          setOpenKeys([]);
+          setSelectedKeys([item?.key?.toString()]);
 
           if (!item?.children?.length && !collapsed) setCollapsed(!collapsed);
+
+          if (onClick) onClick(item);
         }}
       >
         {item?.title}
@@ -110,6 +117,39 @@ const Sider: React.FC<MenuSMEProps> = ({
     </SiderSubMenuContainer>
   );
 
+  const validarMenuSelecionado = useCallback(() => {
+    if (items?.length && routePathname) {
+      items.forEach((item) => {
+        if (item?.children?.length) {
+          let menuAtual = item.children.find((itemChild) => {
+            if (itemChild?.children?.length) {
+              return itemChild.children.find((a) => {
+                return a?.url === routePathname;
+              });
+            }
+            return itemChild?.url === routePathname;
+          });
+
+          if (menuAtual?.children?.length) {
+            menuAtual = menuAtual.children.find((a) => {
+              return a?.url === routePathname;
+            });
+          }
+
+          if (menuAtual?.key) {
+            setSelectedKeys([menuAtual.key.toString()]);
+          }
+        }
+      });
+    }
+  }, [routePathname, items]);
+
+  useEffect(() => {
+    setSelectedKeys([]);
+
+    validarMenuSelecionado();
+  }, [routePathname, validarMenuSelecionado]);
+
   if (!items?.length) return <></>;
 
   return (
@@ -123,17 +163,21 @@ const Sider: React.FC<MenuSMEProps> = ({
       breakpoint='md'
       onCollapse={() => {
         setCollapsed(true);
+        setOpenKeys([]);
         if (onClickMenuButtonToggle) onClickMenuButtonToggle(true);
       }}
     >
       <SiderMenuButtonToggleStyle collapsed={collapsed}>
-        {collapsed ? null : <img src={logoMenu} alt='logo-menu' />}
+        {collapsed ? null : logoMenu}
         <Button
           type='text'
           icon={collapsed ? <FaAlignJustify size={24} /> : <IoClose size={24} />}
           onClick={() => {
             const newValue = !collapsed;
             setCollapsed(newValue);
+
+            if (newValue) setOpenKeys([]);
+
             if (onClickMenuButtonToggle) onClickMenuButtonToggle(newValue);
           }}
         />
@@ -143,14 +187,18 @@ const Sider: React.FC<MenuSMEProps> = ({
         <Menu
           mode='inline'
           {...menuProps}
-          onOpenChange={(openKeys: string[]) => {
+          openKeys={openKeys}
+          selectedKeys={menuProps?.selectedKeys?.length ? menuProps?.selectedKeys : selectedKeys}
+          onOpenChange={(newOpenKeys: string[]) => {
             if (collapsed) {
               const newValue = !collapsed;
               setCollapsed(newValue);
             }
 
+            setOpenKeys(newOpenKeys);
+
             if (menuProps?.onOpenChange) {
-              menuProps.onOpenChange(openKeys);
+              menuProps.onOpenChange(newOpenKeys);
             }
           }}
         >
@@ -160,5 +208,11 @@ const Sider: React.FC<MenuSMEProps> = ({
     </SiderContainer>
   );
 };
+
+const Sider: React.FC<MenuSMEProps> = (props) => (
+  <MenuContextProvider>
+    <SiderChildrenProvider {...props} />
+  </MenuContextProvider>
+);
 
 export default Sider;
