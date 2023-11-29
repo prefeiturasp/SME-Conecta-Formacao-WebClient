@@ -16,7 +16,7 @@ export const DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR =
   'Existem alterações que não foram salvas, deseja salvar antes de enviar?';
 export const NAO_ENVIOU_PROPOSTA_ANALISE =
   'Você ainda não enviou sua proposta para análise. Deseja realmente sair da tela?';
-export const PROPOSTA_CADASTRADA = 'Proposta cadastrada com sucesso';
+export const PROPOSTA_SALVA_SUCESSO = 'Proposta salva com sucesso';
 export const PROPOSTA_ENVIADA = 'Proposta enviada com sucesso';
 export const ERRO_CAMPOS_OBRIGATORIOS = 'Existem campos obrigatórios não preenchidos';
 export const APOS_ENVIAR_PROPOSTA_NAO_EDITA =

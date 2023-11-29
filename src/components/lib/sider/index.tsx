@@ -1,5 +1,5 @@
 import { Button, Menu, MenuProps } from 'antd';
-import React, { useContext, useCallback, useEffect } from 'react';
+import React, { useContext } from 'react';
 
 import { CSSProperties } from 'styled-components';
 
@@ -69,7 +69,6 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
   logoMenu,
   onClick,
   onClickMenuButtonToggle,
-  routePathname,
 }) => {
   const { collapsed, setCollapsed, setOpenKeys, openKeys, selectedKeys, setSelectedKeys } =
     useContext(MenuContext);
@@ -116,39 +115,6 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
       </>
     </SiderSubMenuContainer>
   );
-
-  const validarMenuSelecionado = useCallback(() => {
-    if (items?.length && routePathname) {
-      items.forEach((item) => {
-        if (item?.children?.length) {
-          let menuAtual = item.children.find((itemChild) => {
-            if (itemChild?.children?.length) {
-              return itemChild.children.find((a) => {
-                return a?.url === routePathname;
-              });
-            }
-            return itemChild?.url === routePathname;
-          });
-
-          if (menuAtual?.children?.length) {
-            menuAtual = menuAtual.children.find((a) => {
-              return a?.url === routePathname;
-            });
-          }
-
-          if (menuAtual?.key) {
-            setSelectedKeys([menuAtual.key.toString()]);
-          }
-        }
-      });
-    }
-  }, [routePathname, items]);
-
-  useEffect(() => {
-    setSelectedKeys([]);
-
-    validarMenuSelecionado();
-  }, [routePathname, validarMenuSelecionado]);
 
   if (!items?.length) return <></>;
 

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
 
 import { cloneDeep } from 'lodash';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import SiderSME, { MenuItemSMEProps } from '../../lib/sider';
@@ -11,7 +11,6 @@ import { MenuItemConectaProps, menus } from './menus';
 
 const SiderConectaFormacao: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const permissaoPorMenu = useAppSelector((state) => state.roles.permissaoPorMenu);
 
@@ -63,7 +62,6 @@ const SiderConectaFormacao: React.FC = () => {
 
   return (
     <SiderSME
-      routePathname={location.pathname}
       onClick={itemMenuEscolhido}
       onClickMenuButtonToggle={() => console.log('onClickMenuButtonToggle')}
       styleSider={{ zIndex: 12 }}
