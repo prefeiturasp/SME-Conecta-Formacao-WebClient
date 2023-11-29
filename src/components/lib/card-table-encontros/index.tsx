@@ -28,6 +28,7 @@ const DataTableEncontros = forwardRef(
         showSizeChanger: true,
         position: ['bottomCenter'],
         locale: { items_per_page: '' },
+        disabled: false,
         pageSizeOptions: [10, 20, 50, 100],
       },
     });
