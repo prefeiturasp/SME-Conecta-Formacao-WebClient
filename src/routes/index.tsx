@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import PageForbidden from '~/pages/403';
@@ -16,8 +17,8 @@ import FormCadastroDePropostas from '~/pages/propostas/cadastros/form';
 import ListCadastroDePropostas from '~/pages/propostas/cadastros/list';
 import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
-import Auth from './config/auth';
-import { MenuEnum } from '~/core/enum/menu-enum';
+import GuardAutenticacao from './config/guard/autenticacao';
+import GuardPermissao from './config/guard/permissao';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -37,39 +38,43 @@ const RoutesConfig = () => {
       {autenticado ? (
         <>
           <Routes>
-            <Route path={ROUTES.PRINCIPAL} element={principalPage}>
-              <Route path='*' element={notFoundPage} />
-              <Route path={ROUTES.SEM_PERMISSAO} element={forbiddenPage} />
-              <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
-              <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
+            <Route element={<GuardAutenticacao />}>
+              <Route path={ROUTES.PRINCIPAL} element={principalPage}>
+                <Route path='*' element={notFoundPage} />
+                <Route path={ROUTES.SEM_PERMISSAO} element={forbiddenPage} />
+                <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
+                <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
+                <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
 
-              <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
+                <Route
+                  path={ROUTES.AREA_PROMOTORA}
+                  element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}
+                >
+                  <Route path='' element={<ListAreaPromotora />} />
+                  <Route
+                    path={ROUTES.AREA_PROMOTORA_NOVO}
+                    element={<FormCadastrosAreaPromotora />}
+                  />
+                  <Route
+                    path={ROUTES.AREA_PROMOTORA_EDITAR}
+                    element={<FormCadastrosAreaPromotora />}
+                  />
+                </Route>
 
-              <Route
-                path={ROUTES.AREA_PROMOTORA}
-                element={<Auth menuKey={MenuEnum.AreaPromotora} />}
-              >
-                <Route path='' element={<ListAreaPromotora />} />
-                <Route path={ROUTES.AREA_PROMOTORA_NOVO} element={<FormCadastrosAreaPromotora />} />
                 <Route
-                  path={ROUTES.AREA_PROMOTORA_EDITAR}
-                  element={<FormCadastrosAreaPromotora />}
-                />
-              </Route>
-
-              <Route
-                path={ROUTES.CADASTRO_DE_PROPOSTAS}
-                element={<Auth menuKey={MenuEnum.CadastroProposta} />}
-              >
-                <Route path='' element={<ListCadastroDePropostas />} />
-                <Route
-                  path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
-                  element={<FormCadastroDePropostas />}
-                />
-                <Route
-                  path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
-                  element={<FormCadastroDePropostas />}
-                />
+                  path={ROUTES.CADASTRO_DE_PROPOSTAS}
+                  element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}
+                >
+                  <Route path='' element={<ListCadastroDePropostas />} />
+                  <Route
+                    path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
+                    element={<FormCadastroDePropostas />}
+                  />
+                  <Route
+                    path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
+                    element={<FormCadastroDePropostas />}
+                  />
+                </Route>
               </Route>
             </Route>
           </Routes>

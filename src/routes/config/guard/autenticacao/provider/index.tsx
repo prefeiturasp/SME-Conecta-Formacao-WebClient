@@ -39,7 +39,7 @@ const PermissaoContextProvider: React.FC<PermissaoContextProviderProps> = ({ men
       }
     }
 
-    setDesabilitarCampos(desabilitar);
+    setDesabilitarCampos(true);
   }, [menu, id]);
 
   return (

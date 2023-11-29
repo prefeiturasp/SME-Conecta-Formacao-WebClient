@@ -40,7 +40,7 @@ import {
 import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { MenuEnum } from '~/core/enum/menu-enum';
-import { PermissaoContext } from '~/routes/config/permissao-provider';
+import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
 
 const { Option } = Select;
 

@@ -50,7 +50,7 @@ import {
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
-import { PermissaoContext } from '~/routes/config/permissao-provider';
+import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
@@ -630,9 +630,9 @@ const FormCadastroDePropostas: React.FC = () => {
             </Row>
           </Col>
         </HeaderPage>
-        <br />
+
         <CardInformacoesCadastrante />
-        <br />
+
         <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
           <CardContent>
             <Divider orientation='left' />
