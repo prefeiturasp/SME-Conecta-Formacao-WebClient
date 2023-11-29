@@ -1,6 +1,6 @@
 import { Button, Col, Form, Input, Row, Select, notification } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
-import React, { useCallback, useEffect, useState, useContext } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
@@ -28,6 +28,7 @@ import {
   TelefoneAreaPromotora,
 } from '~/core/dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
+import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
@@ -37,10 +38,9 @@ import {
   obterAreaPromotoraPorId,
   obterTiposAreaPromotora,
 } from '~/core/services/area-promotora-service';
-import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
-import { MenuEnum } from '~/core/enum/menu-enum';
-import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
 
 const { Option } = Select;
 
