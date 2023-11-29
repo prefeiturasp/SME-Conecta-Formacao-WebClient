@@ -35,7 +35,6 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles']) => {
   if (menus?.length) {
     const permissaoMenus: PermissaoPorMenuDTO[] = [];
 
-    // TODO - Rever se é possível otimizar!
     menus.forEach((menu) => {
       if (menu.children?.length) {
         menu.children.forEach((subMenu) => {
