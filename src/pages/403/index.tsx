@@ -2,15 +2,15 @@ import { Button, Result } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '~/core/enum/routes-enum';
 
-const PageNotFound = () => {
+const PageForbidden = () => {
   const navigate = useNavigate();
   const voltar = () => navigate(ROUTES.PRINCIPAL);
 
   return (
     <Result
-      status='404'
-      title='404'
-      subTitle='Desculpe, a página que você visitou não existe.'
+      status='403'
+      title='403'
+      subTitle='Você não tem permissão a esta funcionalidade!'
       extra={
         <Button type='primary' onClick={() => voltar()}>
           Voltar
@@ -20,4 +20,4 @@ const PageNotFound = () => {
   );
 };
 
-export default PageNotFound;
+export default PageForbidden;

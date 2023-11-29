@@ -1,15 +1,16 @@
-import { Col, Form, FormInstance, Radio, RadioChangeEvent, Row } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Col, Form, Radio, RadioChangeEvent, Row } from 'antd';
+import React, { useEffect, useState, useContext } from 'react';
 import CheckboxAcaoInformatica from '~/components/lib/checkbox';
 import SelectCriterioCertificacao from '~/components/main/input/criterio-certificacao';
 import EditorTexto from '~/components/main/input/editor-texto';
 import { DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA } from '~/core/constants/mensagens';
-type FormDatasProps = {
-  form: FormInstance;
-  disabledForm: boolean;
-};
+import { PermissaoContext } from '~/routes/config/permissao-provider';
 
-const FormularioCertificacao: React.FC<FormDatasProps> = ({ form, disabledForm }) => {
+const FormularioCertificacao: React.FC = () => {
+  const form = Form.useFormInstance();
+
+  const { desabilitarCampos } = useContext(PermissaoContext);
+
   const [valuePossuiCertificado, setValuePossuiCertificado] = useState(false);
   const [editorRequerido, setEditorRequerido] = useState(false);
   const obterPossuiCertificado = (e: RadioChangeEvent) => {
@@ -22,6 +23,7 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form, disabledForm }
       setValuePossuiCertificado(form.getFieldValue('cursoComCertificado'));
     }, 2000);
   };
+
   const verificarCriteriosSelecionados = () => {
     const atividadeObrigatorioCodigo = 4;
     const criteriosSelecionados: number[] = form.getFieldValue('criterioCertificacao');
@@ -76,7 +78,7 @@ const FormularioCertificacao: React.FC<FormDatasProps> = ({ form, disabledForm }
               required={editorRequerido}
               mensagemErro={DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA}
               mensagemTooltip='Deve ser proposta ao menos uma atividade que será considerada na atribuição do conceito ao participante, na qual o cursista se posicione criticamente sobre suas ações ou experiências no exercício da sua atuação profissional. A atividade obrigatória deve atender a diversidade e as particularidades do público-alvo.'
-              disabeld={disabledForm}
+              disabled={desabilitarCampos}
             />
           </Col>
           <Col span={24}>

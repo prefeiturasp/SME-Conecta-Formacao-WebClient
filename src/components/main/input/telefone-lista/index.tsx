@@ -7,7 +7,10 @@ import InputTelefone from '../telefone';
 
 const { useToken } = theme;
 
-const TelefoneLista: React.FC = () => {
+type TelefoneListaProps = {
+  disabled?: boolean;
+};
+const TelefoneLista: React.FC<TelefoneListaProps> = ({ disabled = false }) => {
   const { token } = useToken();
 
   const initialValue: TelefoneAreaPromotora[] = [{ telefone: '' }];
@@ -38,6 +41,7 @@ const TelefoneLista: React.FC = () => {
                       block
                       icon={<FaPlus />}
                       onClick={() => add()}
+                      disabled={disabled}
                       style={{
                         fontSize: 16,
                         width: '43px',
@@ -49,10 +53,14 @@ const TelefoneLista: React.FC = () => {
                     />
                   ) : (
                     <FaTrashAlt
-                      cursor='pointer'
-                      onClick={() => remove(name)}
+                      onClick={() => {
+                        if (!disabled) {
+                          remove(name);
+                        }
+                      }}
                       style={{
-                        color: token.colorError,
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                        color: disabled ? token.colorTextDisabled : token.colorError,
                         margin: '34px 20px 0px 3px',
                       }}
                     />

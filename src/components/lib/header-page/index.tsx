@@ -44,7 +44,7 @@ type HeaderPage = {
 const HeaderPage: React.FC<HeaderPage> = ({ title, children }) => {
   return (
     <AffixContainer>
-      <Affix offsetTop={72}>
+      <Affix offsetTop={70}>
         <HeaderContainer>
           <HeaderContentContainer>
             <Title>{title}</Title>

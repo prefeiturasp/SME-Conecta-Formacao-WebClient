@@ -1,6 +1,6 @@
 import { Button, Col, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
@@ -8,6 +8,7 @@ import { CF_BUTTON_ADD_REGENTE } from '~/core/constants/ids/button/intex';
 import { PropostaRegenteDTO } from '~/core/dto/proposta-regente-dto';
 import DrawerRegente from '~/pages/propostas/cadastros/form/steps/formulario-profissionais/components/lista-regentes/drawer';
 import { TituloListaPaginada, TituloSecao } from '../../../../styles';
+import { PermissaoContext } from '~/routes/config/permissao-provider';
 
 const columns: ColumnsType<PropostaRegenteDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
@@ -17,6 +18,8 @@ const columns: ColumnsType<PropostaRegenteDTO> = [
 
 const ListaRegentes: React.FC = () => {
   const paramsRoute = useParams();
+
+  const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosRegentSelecionado, setDadosRegentSelecionado] = useState<PropostaRegenteDTO>();
@@ -54,7 +57,12 @@ const ListaRegentes: React.FC = () => {
                 <TituloSecao>Regentes</TituloSecao>
               </Col>
               <Col>
-                <Button type='primary' id={CF_BUTTON_ADD_REGENTE} onClick={abrirModal}>
+                <Button
+                  type='primary'
+                  id={CF_BUTTON_ADD_REGENTE}
+                  onClick={abrirModal}
+                  disabled={desabilitarCampos}
+                >
                   Adicionar regentes
                 </Button>
               </Col>

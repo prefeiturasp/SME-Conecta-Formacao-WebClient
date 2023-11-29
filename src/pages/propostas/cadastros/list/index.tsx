@@ -23,14 +23,22 @@ import {
 import { PropostaFormListDTO } from '~/core/dto/proposta-from-list-dto';
 import { PropostaPaginadaDTO } from '~/core/dto/proposta-paginada-dto';
 import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
+import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { obterPermissaoPorMenu } from '~/core/utils/perfil';
+
 const ListCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
+
+  const permissao = obterPermissaoPorMenu(MenuEnum.CadastroProposta);
+
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormListDTO>();
   const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
   const onClickNovo = () => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO);
+
   const url = 'v1/Proposta';
+
   const [filters, setFilters] = useState({
     areaPromotoraId: null,
     modalidade: null,
@@ -42,6 +50,7 @@ const ListCadastroDePropostas: React.FC = () => {
     periodoRealizacaoFim: null,
     situacao: null,
   });
+
   const columns: ColumnsType<PropostaPaginadaDTO> = [
     {
       key: 'tipoFormacao',
@@ -89,6 +98,7 @@ const ListCadastroDePropostas: React.FC = () => {
       dataIndex: 'situacao',
     },
   ];
+
   const onClickEditar = (id: number) =>
     navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${id}`, { replace: true });
 
@@ -114,6 +124,7 @@ const ListCadastroDePropostas: React.FC = () => {
       situacao: form.getFieldValue('situacaoProposta'),
     });
   };
+
   const carregarValoresDefault = () => {
     const valoreIniciais: PropostaFormListDTO = {
       areaPromotora: 0,
@@ -124,9 +135,11 @@ const ListCadastroDePropostas: React.FC = () => {
     };
     setFormInitialValues(valoreIniciais);
   };
+
   useEffect(() => {
     carregarValoresDefault();
   }, [form]);
+
   return (
     <Col>
       <HeaderPage title='Cadastro de Propostas'>
@@ -141,10 +154,11 @@ const ListCadastroDePropostas: React.FC = () => {
                 type='primary'
                 htmlType='submit'
                 id={CF_BUTTON_NOVO}
+                disabled={!permissao.podeIncluir}
                 onClick={() => onClickNovo()}
                 style={{ fontWeight: 700 }}
               >
-                {'Novo'}
+                Novo
               </Button>
             </Col>
           </Row>

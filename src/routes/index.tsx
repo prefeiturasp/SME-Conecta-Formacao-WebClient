@@ -3,7 +3,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
-import PagNotFound from '~/pages/404';
+import PageForbidden from '~/pages/403';
+import PageNotFound from '~/pages/404';
 import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
 import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import Home from '~/pages/home';
@@ -12,18 +13,20 @@ import Login from '~/pages/login';
 import MeusDados from '~/pages/meus-dados';
 import Principal from '~/pages/principal/index';
 import FormCadastroDePropostas from '~/pages/propostas/cadastros/form';
+import ListCadastroDePropostas from '~/pages/propostas/cadastros/list';
 import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import Auth from './config/auth';
-import ListCadastroDePropostas from '~/pages/propostas/cadastros/list';
+import { MenuEnum } from '~/core/enum/menu-enum';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
 
   const homePage = createElement(Home);
   const loginPage = createElement(Login);
-  const pagNotFound = createElement(PagNotFound);
+  const notFoundPage = createElement(PageNotFound);
   const principalPage = createElement(Principal);
+  const forbiddenPage = createElement(PageForbidden);
   const iniciallPage = createElement(Inicial);
   const meusDadosPage = createElement(MeusDados);
   const redefinirSenhaPage = createElement(RedefinirSenha);
@@ -35,36 +38,38 @@ const RoutesConfig = () => {
         <>
           <Routes>
             <Route path={ROUTES.PRINCIPAL} element={principalPage}>
-              <Route element={<Auth />}>
-                <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
-                <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
+              <Route path='*' element={notFoundPage} />
+              <Route path={ROUTES.SEM_PERMISSAO} element={forbiddenPage} />
+              <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
+              <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
 
-                <Route path={ROUTES.AREA_PROMOTORA}>
-                  <Route path='' element={<ListAreaPromotora />} />
-                  <Route
-                    path={ROUTES.AREA_PROMOTORA_NOVO}
-                    element={<FormCadastrosAreaPromotora />}
-                  />
-                  <Route
-                    path={ROUTES.AREA_PROMOTORA_EDITAR}
-                    element={<FormCadastrosAreaPromotora />}
-                  />
-                </Route>
+              <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
 
-                <Route path={ROUTES.CADASTRO_DE_PROPOSTAS}>
-                  <Route path='' element={<ListCadastroDePropostas />} />
-                  <Route
-                    path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
-                    element={<FormCadastroDePropostas />}
-                  />
-                  <Route
-                    path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
-                    element={<FormCadastroDePropostas />}
-                  />
-                </Route>
+              <Route
+                path={ROUTES.AREA_PROMOTORA}
+                element={<Auth menuKey={MenuEnum.AreaPromotora} />}
+              >
+                <Route path='' element={<ListAreaPromotora />} />
+                <Route path={ROUTES.AREA_PROMOTORA_NOVO} element={<FormCadastrosAreaPromotora />} />
+                <Route
+                  path={ROUTES.AREA_PROMOTORA_EDITAR}
+                  element={<FormCadastrosAreaPromotora />}
+                />
+              </Route>
 
-                <Route path='*' element={pagNotFound} />
-                <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
+              <Route
+                path={ROUTES.CADASTRO_DE_PROPOSTAS}
+                element={<Auth menuKey={MenuEnum.CadastroProposta} />}
+              >
+                <Route path='' element={<ListCadastroDePropostas />} />
+                <Route
+                  path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
+                  element={<FormCadastroDePropostas />}
+                />
+                <Route
+                  path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
+                  element={<FormCadastroDePropostas />}
+                />
               </Route>
             </Route>
           </Routes>

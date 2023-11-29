@@ -17,6 +17,7 @@ import {
   obterPropostaTutorPorId,
   salvarPropostaProfissionalTutor,
 } from '~/core/services/proposta-service';
+import { PermissaoContext } from '~/routes/config/permissao-provider';
 
 type DrawerTutorProps = {
   openModal: boolean;
@@ -26,6 +27,8 @@ type DrawerTutorProps = {
 
 const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id = 0 }) => {
   const { tableState } = useContext(DataTableContext);
+
+  const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [formDrawer] = useForm();
   const paramsRoute = useParams();
@@ -133,6 +136,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
             }
           }
           validateMessages={validateMessages}
+          disabled={desabilitarCampos}
         >
           <Drawer
             title='Tutor'
@@ -200,7 +204,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                           <InputRegistroFuncional
                             formItemPropsRF={{ rules: [{ required: rfEhObrigatorio }] }}
                             formItemPropsNome={{
-                              rules: [{ required: !rfEhObrigatorio }],
+                              rules: [{ required: desabilitarCampos || !rfEhObrigatorio }],
                               name: 'nomeTutor',
                             }}
                             inputPropsRF={{
@@ -214,7 +218,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                               },
                             }}
                             inputPropsNome={{
-                              disabled: rfEhObrigatorio,
+                              disabled: desabilitarCampos || rfEhObrigatorio,
                             }}
                           />
                         </Row>

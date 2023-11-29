@@ -43,12 +43,12 @@ const Item = styled.tr`
 
   i {
     font-size: 14px;
-    color: #707683;
+    color: ${Colors.Neutral.DARK};
   }
 `;
 
 const ContainerPerfil = styled(Button)`
-  background: #f5f6f8;
+  background: ${Colors.Neutral.LIGHTEST};
   height: 55px;
   min-width: 161px;
   border-radius: 4px;
@@ -58,7 +58,7 @@ const ContainerPerfil = styled(Button)`
 
 const Texto = styled.div`
   font-size: 12px;
-  color: #42474a;
+  color: ${Colors.Neutral.DARK};
 `;
 
 const DropdownPerfil: React.FC = () => {

@@ -10,7 +10,7 @@ type EditorTextoProps = {
   mensagemTooltip?: string;
   required?: boolean;
   exibirTooltip?: boolean;
-  disabeld?: boolean;
+  disabled?: boolean;
   mensagemErro?: string;
 };
 
@@ -21,11 +21,11 @@ const EditorTexto: FC<EditorTextoProps> = ({
   mensagemErro,
   required = true,
   exibirTooltip = false,
-  disabeld = false,
+  disabled = false,
 }) => {
   const config = {
     placeholder: label || '',
-    disabled: disabeld,
+    disabled,
   };
 
   const iconTooltip = exibirTooltip ? (
