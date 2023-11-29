@@ -12,7 +12,7 @@ type CheckboxPersonalizadoPros = {
 
 const CheckboxContainer = styled.div<CheckboxPersonalizadoPros>`
   .ant-checkbox-inner {
-    border-color: ${(props) => props.hasError && Colors.ERROR};
+    border-color: ${(props) => props.hasError && Colors.Suporte.Primary.ERROR};
   }
 `;
 
@@ -78,7 +78,7 @@ const CheckboxAcaoInformatica: FC = () => {
             rel='noreferrer'
             style={{ paddingLeft: '5px' }}
           >
-            <span style={{ color: Colors.ERROR }}>* </span>
+            <span style={{ color: Colors.Suporte.Primary.ERROR }}>* </span>
             {acaoFormativaTexto}
           </Link>
         </Checkbox>

@@ -38,7 +38,7 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
 
   const iconTooltip = exibirTooltip ? (
     <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.TOOLTIP }} />
+      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
     </Tooltip>
   ) : (
     <></>

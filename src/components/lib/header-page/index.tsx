@@ -32,7 +32,7 @@ const HeaderContentContainer = styled.div`
 const Title = styled.div`
   font-size: 23px;
   font-weight: 700;
-  color: ${Colors.TEXT};
+  color: ${Colors.Neutral.DARK};
 `;
 
 const ChildrenContainer = styled.div``;
@@ -44,7 +44,7 @@ type HeaderPage = {
 const HeaderPage: React.FC<HeaderPage> = ({ title, children }) => {
   return (
     <AffixContainer>
-      <Affix offsetTop={72}>
+      <Affix offsetTop={70}>
         <HeaderContainer>
           <HeaderContentContainer>
             <Title>{title}</Title>

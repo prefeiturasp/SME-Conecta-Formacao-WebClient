@@ -12,7 +12,13 @@ const autenticar = (dados: AutenticacaoDTO): Promise<AxiosResponse<RetornoPerfil
 const autenticarRevalidar = (token: string): Promise<AxiosResponse> =>
   api.post(URL_AUTENTICACAO_REVALIDAR, { token });
 
+const alterarPerfilSelecionado = (
+  perfilUsuarioId: string,
+): Promise<AxiosResponse<RetornoPerfilUsuarioDTO>> =>
+  api.put(`${URL_DEFAULT}/perfis/${perfilUsuarioId}`);
+
 export default {
   autenticar,
   autenticarRevalidar,
+  alterarPerfilSelecionado,
 };

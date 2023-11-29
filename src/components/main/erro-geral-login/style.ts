@@ -9,9 +9,9 @@ export const ContainerErroGeralLogin = styled.div`
   font-stretch: normal;
   line-height: normal;
   letter-spacing: 0.28px;
-  color: ${Colors.ERROR};
+  color: ${Colors.Suporte.Primary.ERROR};
   border-radius: 4px;
-  border: solid 2px ${Colors.ERROR};
+  border: solid 2px ${Colors.Suporte.Primary.ERROR};
   text-align: center;
   margin-bottom: 24px;
 

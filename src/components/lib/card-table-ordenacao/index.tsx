@@ -18,7 +18,12 @@ type DataTableProps<T> = {
   url: string;
 } & TableProps<T>;
 
-const DataTableOrdenacao = <T extends object>({ filters, url, columns, ...rest }: DataTableProps<T>) => {
+const DataTableOrdenacao = <T extends object>({
+  filters,
+  url,
+  columns,
+  ...rest
+}: DataTableProps<T>) => {
   const [data, setData] = useState<T[]>();
   const [loading, setLoading] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
@@ -27,6 +32,7 @@ const DataTableOrdenacao = <T extends object>({ filters, url, columns, ...rest }
       pageSize: 10,
       showSizeChanger: true,
       locale: { items_per_page: '' },
+      disabled: false,
       pageSizeOptions: [10, 20, 50, 100],
     },
     order: TipoOrdenacaoEnum.DATA,

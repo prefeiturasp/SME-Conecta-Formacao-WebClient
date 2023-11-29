@@ -12,7 +12,7 @@ type EditorContainerPros = {
 const EditorContainer = styled.div<EditorContainerPros>`
   .jodit-container {
     border-color: ${(props) =>
-      props?.hasError ? props.theme?.antd?.colorError : '#dadada'} !important;
+      props?.hasError ? props.theme?.token?.colorError : '#dadada'} !important;
   }
 
   .jodit-status-bar-link {

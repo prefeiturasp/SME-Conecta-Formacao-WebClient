@@ -10,6 +10,7 @@ const ButtonVoltar: React.FC<ButtonProps> = ({ ...rest }) => {
       icon={<FaArrowLeft />}
       style={{ width: '43px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       {...rest}
+      disabled={false}
     />
   );
 };

@@ -1,9 +1,10 @@
 import { Button, Result } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '~/core/enum/routes-enum';
 
-const PagNotFound = () => {
+const PageNotFound = () => {
   const navigate = useNavigate();
-  const voltar = () => navigate('/');
+  const voltar = () => navigate(ROUTES.PRINCIPAL);
 
   return (
     <Result
@@ -19,4 +20,4 @@ const PagNotFound = () => {
   );
 };
 
-export default PagNotFound;
+export default PageNotFound;
