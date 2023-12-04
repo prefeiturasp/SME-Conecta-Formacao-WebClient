@@ -1,17 +1,18 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, FormInstance, Tooltip } from 'antd';
+import { Form, FormInstance, FormItemProps, Tooltip } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_FORMATO } from '~/core/constants/ids/select';
-import { MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
+import { FORMATO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { obterFormato } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectFormatoProps = {
   form: FormInstance;
+  formItemProps?: FormItemProps;
   required?: boolean | true;
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;
@@ -19,6 +20,7 @@ type SelectFormatoProps = {
 
 const SelectFormato: React.FC<SelectFormatoProps> = ({
   form,
+  formItemProps,
   selectProps,
   required = true,
   exibirTooltip = true,
@@ -63,12 +65,13 @@ const SelectFormato: React.FC<SelectFormatoProps> = ({
     <Form.Item
       label='Formato'
       name='formato'
-      rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
+      rules={[{ required: required, message: FORMATO_NAO_INFORMADO }]}
       tooltip={{
         title:
           'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
         icon: iconTooltip,
       }}
+      {...formItemProps}
     >
       <Select {...selectProps} options={options} placeholder='Formato' id={CF_SELECT_FORMATO} />
     </Form.Item>

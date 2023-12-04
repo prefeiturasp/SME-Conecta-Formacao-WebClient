@@ -66,7 +66,7 @@ export type PropostaFormDTO = {
   vagasRemanecentes?: number[];
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
-  situacao: SituacaoRegistro;
+  situacao?: SituacaoRegistro;
   nomeSituacao?: string;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];

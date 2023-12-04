@@ -38,7 +38,7 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoRegistro } from '~/core/enum/situacao-registro';
+import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
@@ -77,6 +77,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<StepPropostaEnum>(
     StepPropostaEnum.InformacoesGerais,
   );
+
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
@@ -126,7 +127,7 @@ const FormCadastroDePropostas: React.FC = () => {
       criterioCertificacao: [],
       cursoComCertificado: false,
       acaoInformativa: false,
-      situacao: SituacaoRegistro.Rascunho,
+      nomeSituacao: SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho],
     };
 
     setFormInitialValues(valoresIniciais);

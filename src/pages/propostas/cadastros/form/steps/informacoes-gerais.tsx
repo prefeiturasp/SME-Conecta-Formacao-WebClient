@@ -2,10 +2,13 @@ import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, Input, Row, Tooltip } from 'antd';
 
 import React from 'react';
+import SelectAnoEtapa from '~/components/main/input/ano-etapa';
+import SelectComponenteCurricular from '~/components/main/input/componente-curricular';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
 import RadioFormacaoHomologada from '~/components/main/input/formacao-homologada';
 import SelectFormato from '~/components/main/input/formato';
 import SelectFuncaoEspecifica from '~/components/main/input/funcao-especifica';
+import SelectModalidades from '~/components/main/input/modalidades';
 import { default as SelectPublicoAlvo } from '~/components/main/input/publico-alvo';
 import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
@@ -76,11 +79,23 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <SelectPublicoAlvo />
+        <SelectPublicoAlvo form={form} />
       </Col>
 
       <Col span={24}>
         <SelectFuncaoEspecifica />
+      </Col>
+
+      <Col span={24}>
+        <SelectModalidades form={form} />
+      </Col>
+
+      <Col span={24}>
+        <SelectAnoEtapa />
+      </Col>
+
+      <Col span={24}>
+        <SelectComponenteCurricular />
       </Col>
 
       <Col xs={24}>

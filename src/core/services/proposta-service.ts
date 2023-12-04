@@ -1,4 +1,6 @@
 import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
+import { AnoEtapaDTO } from '../dto/ano-etapa-dto';
+import { ComponenteCurricularDTO } from '../dto/componente-curricular-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
@@ -8,6 +10,8 @@ import { PropostaPaginadaDTO } from '../dto/proposta-paginada-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
+import { AnoEtapaEnum } from '../enum/ano-etapa-enum';
+import { ComponenteCurricularEnum } from '../enum/componente-curricular-enum';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import {
   ApiResult,
@@ -23,6 +27,22 @@ export const URL_API_PROPOSTA = 'v1/Proposta';
 const obterCriterioValidacaoInscricao = (): Promise<ApiResult<CriterioValidacaoInscricaoDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/criterio-validacao-inscricao?exibirOpcaoOutros=true`);
 
+//TODO: AJUSTAR ENDPOINT
+const obterAnoEtapa = (): Promise<ApiResult<AnoEtapaDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/anoEtapa/${AnoEtapaEnum.a}?exibirOpcaoTodos=true`);
+
+//TODO: AJUSTAR ENDPOINT
+const obterComponenteCurricular = (): Promise<ApiResult<ComponenteCurricularDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/anoEtapa/${ComponenteCurricularEnum.a}?exibirOpcaoTodos=true`);
+
+const obterFormacaoHomologada = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/formacao-homologada`);
+
+//TODO: AJUSTAR ENDPOINT
+const obterModalidades = (tipoFormacao: TipoFormacao): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/modalidades/tipo-formacao/${tipoFormacao}`);
+
+//TODO: AJUSTAR ENDPOINT
 const obterFormato = (tipoFormacao: TipoFormacao): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/formato/tipo-formacao/${tipoFormacao}`);
 
@@ -59,7 +79,7 @@ const enviarPropostaAnalise = (
   id: string | number,
   params?: PropostaDTO,
 ): Promise<ApiResult<number>> =>
-  alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/enviar-analise`, params);
+  alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/enviar`, params);
 
 const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}`);
@@ -121,10 +141,14 @@ export {
   excluirRegente,
   excluirTutor,
   inserirProposta,
+  obterAnoEtapa,
+  obterComponenteCurricular,
   obterComunicadoAcaoInformatica,
   obterCriterioValidacaoInscricao,
   obterDadosCadastrante,
+  obterFormacaoHomologada,
   obterFormato,
+  obterModalidades,
   obterNomeProfissional,
   obterPropostaEncontrosPaginado,
   obterPropostaPaginada,
