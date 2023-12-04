@@ -4,20 +4,20 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
-import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
+import { CF_SELECT_FORMATO } from '~/core/constants/ids/select';
 import { MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { obterModalidades } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
-type SelectModalidadesProps = {
+type SelectFormatoProps = {
   form: FormInstance;
   required?: boolean | true;
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;
 };
 
-const SelectModalidades: React.FC<SelectModalidadesProps> = ({
+const SelectFormato: React.FC<SelectFormatoProps> = ({
   form,
   selectProps,
   required = true,
@@ -37,9 +37,9 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
           value: item.id,
         }));
 
-        const modalidade = form.getFieldValue('modalidade');
-        if (!newOptions.some((t) => t.value === modalidade)) {
-          form.setFieldValue('modalidade', null);
+        const formato = form.getFieldValue('formato');
+        if (!newOptions.some((t) => t.value === formato)) {
+          form.setFieldValue('formato', null);
         }
 
         setOptions(newOptions);
@@ -61,8 +61,8 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
 
   return (
     <Form.Item
-      label='Modalidade'
-      name='modalidade'
+      label='Formato'
+      name='formato'
       rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
       tooltip={{
         title:
@@ -70,14 +70,9 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
         icon: iconTooltip,
       }}
     >
-      <Select
-        {...selectProps}
-        options={options}
-        placeholder='Modalidade'
-        id={CF_SELECT_MODALIDADE}
-      />
+      <Select {...selectProps} options={options} placeholder='Formato' id={CF_SELECT_FORMATO} />
     </Form.Item>
   );
 };
 
-export default SelectModalidades;
+export default SelectFormato;

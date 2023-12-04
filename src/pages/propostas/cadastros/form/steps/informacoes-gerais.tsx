@@ -4,8 +4,8 @@ import { Col, Form, Input, Row, Tooltip } from 'antd';
 import React from 'react';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
 import RadioFormacaoHomologada from '~/components/main/input/formacao-homologada';
+import SelectFormato from '~/components/main/input/formato';
 import SelectFuncaoEspecifica from '~/components/main/input/funcao-especifica';
-import SelectModalidades from '~/components/main/input/modalidades';
 import { default as SelectPublicoAlvo } from '~/components/main/input/publico-alvo';
 import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
@@ -43,7 +43,7 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col xs={24} sm={12} md={12} lg={6} xl={8}>
-        <SelectModalidades form={form} />
+        <SelectFormato form={form} />
       </Col>
 
       <Col xs={24} sm={12} md={12} lg={6} xl={5}>
