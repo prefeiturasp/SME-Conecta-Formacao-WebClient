@@ -7,7 +7,7 @@ import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_FORMATO } from '~/core/constants/ids/select';
 import { MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
-import { obterModalidades } from '~/core/services/proposta-service';
+import { obterFormato } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectFormatoProps = {
@@ -30,7 +30,7 @@ const SelectFormato: React.FC<SelectFormatoProps> = ({
     tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
 
     if (tipoFormacao) {
-      const resposta = await obterModalidades(tipoFormacao);
+      const resposta = await obterFormato(tipoFormacao);
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
           label: item.descricao,

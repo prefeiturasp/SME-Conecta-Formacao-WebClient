@@ -23,8 +23,8 @@ export const URL_API_PROPOSTA = 'v1/Proposta';
 const obterCriterioValidacaoInscricao = (): Promise<ApiResult<CriterioValidacaoInscricaoDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/criterio-validacao-inscricao?exibirOpcaoOutros=true`);
 
-const obterModalidades = (tipoFormacao: TipoFormacao): Promise<ApiResult<RetornoListagemDTO[]>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/modalidades/tipo-formacao/${tipoFormacao}`);
+const obterFormato = (tipoFormacao: TipoFormacao): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/formato/tipo-formacao/${tipoFormacao}`);
 
 const obterSituacoes = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/situacao`);
@@ -124,7 +124,7 @@ export {
   obterComunicadoAcaoInformatica,
   obterCriterioValidacaoInscricao,
   obterDadosCadastrante,
-  obterModalidades,
+  obterFormato,
   obterNomeProfissional,
   obterPropostaEncontrosPaginado,
   obterPropostaPaginada,
