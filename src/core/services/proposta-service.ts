@@ -10,8 +10,6 @@ import { PropostaPaginadaDTO } from '../dto/proposta-paginada-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { AnoEtapaEnum } from '../enum/ano-etapa-enum';
-import { ComponenteCurricularEnum } from '../enum/componente-curricular-enum';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import {
   ApiResult,
@@ -29,11 +27,11 @@ const obterCriterioValidacaoInscricao = (): Promise<ApiResult<CriterioValidacaoI
 
 //TODO: AJUSTAR ENDPOINT
 const obterAnoEtapa = (): Promise<ApiResult<AnoEtapaDTO[]>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/anoEtapa/${AnoEtapaEnum.a}?exibirOpcaoTodos=true`);
+  obterRegistro(`${URL_API_PROPOSTA}/anoEtapa/?exibirOpcaoTodos=true`);
 
 //TODO: AJUSTAR ENDPOINT
 const obterComponenteCurricular = (): Promise<ApiResult<ComponenteCurricularDTO[]>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/anoEtapa/${ComponenteCurricularEnum.a}?exibirOpcaoTodos=true`);
+  obterRegistro(`${URL_API_PROPOSTA}/anoEtapa/?exibirOpcaoTodos=true`);
 
 const obterFormacaoHomologada = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/formacao-homologada`);
@@ -42,9 +40,8 @@ const obterFormacaoHomologada = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
 const obterModalidades = (tipoFormacao: TipoFormacao): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/modalidades/tipo-formacao/${tipoFormacao}`);
 
-//TODO: AJUSTAR ENDPOINT
 const obterFormato = (tipoFormacao: TipoFormacao): Promise<ApiResult<RetornoListagemDTO[]>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/formato/tipo-formacao/${tipoFormacao}`);
+  obterRegistro(`${URL_API_PROPOSTA}/formatos/tipo-formacao/${tipoFormacao}`);
 
 const obterSituacoes = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/situacao`);

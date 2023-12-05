@@ -1,8 +1,8 @@
-import { AnoEtapaEnum } from '../enum/ano-etapa-enum';
+import { Modalidade } from '../enum/modalidade';
 
 export type AnoEtapaDTO = {
-  id: number;
-  nome: string;
-  tipo: AnoEtapaEnum;
-  todos?: boolean;
+  codigoEOL: string;
+  descricao: string;
+  codigoSerieEnsino: number;
+  modalidade: Modalidade;
 };

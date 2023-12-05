@@ -1,8 +1,6 @@
-import { ComponenteCurricularEnum } from '../enum/componente-curricular-enum';
-
 export type ComponenteCurricularDTO = {
-  id: number;
+  anoId: number;
+  codigoEOL: string;
   nome: string;
-  tipo: ComponenteCurricularEnum;
-  todos?: boolean;
+  ano: string;
 };
