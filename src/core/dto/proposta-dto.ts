@@ -1,5 +1,5 @@
 import { Dayjs } from 'dayjs';
-import { Modalidade } from '../enum/modalidade';
+import { Formato } from '../enum/formato';
 import { SituacaoRegistro } from '../enum/situacao-registro';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { TipoInscricao } from '../enum/tipo-inscricao';
@@ -13,7 +13,7 @@ import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 export type PropostaDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
-  modalidade?: Modalidade;
+  formato?: Formato;
   tipoInscricao?: TipoInscricao;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
@@ -55,7 +55,7 @@ export type PropostaCompletoDTO = {
 export type PropostaFormDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
-  modalidade?: Modalidade;
+  formato?: Formato;
   tipoInscricao?: TipoInscricao;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
