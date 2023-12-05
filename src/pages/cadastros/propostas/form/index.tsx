@@ -261,7 +261,7 @@ const FormCadastroDePropostas: React.FC = () => {
     const valoresSalvar: PropostaDTO = {
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
-      modalidade: clonedValues?.modalidade,
+      formato: clonedValues?.formato,
       tipoInscricao: clonedValues?.tipoInscricao,
       nomeFormacao: clonedValues?.nomeFormacao,
       quantidadeTurmas: clonedValues?.quantidadeTurmas || null,
