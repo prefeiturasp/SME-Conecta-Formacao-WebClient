@@ -51,11 +51,11 @@ import {
 } from '~/core/services/proposta-service';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
-import FormInformacoesGerais from './steps/informacoes-gerais';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();

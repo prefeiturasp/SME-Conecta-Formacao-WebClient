@@ -10,7 +10,7 @@ import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectPublicoAlvoProps = {
-  form: FormInstance;
+  form?: FormInstance;
   formItemProps?: FormItemProps;
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;

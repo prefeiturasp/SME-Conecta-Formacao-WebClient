@@ -189,7 +189,7 @@ const ListCadastroDePropostas: React.FC = () => {
                     <b>
                       <SelectPublicoAlvo
                         selectProps={{ onChange: obterFiltros }}
-                        required={false}
+                        formItemProps={{ required: false }}
                         exibirTooltip={false}
                       />
                     </b>

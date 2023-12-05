@@ -27,6 +27,7 @@ import {
   QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA,
 } from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
+import { SelectDRECadastroPropostas } from './components/select-dre';
 
 const FormInformacoesGerais: React.FC = () => {
   const form = Form.useFormInstance();
@@ -51,6 +52,10 @@ const FormInformacoesGerais: React.FC = () => {
 
       <Col xs={24} sm={12} md={12} lg={6} xl={5}>
         <RadioTipoInscricao />
+      </Col>
+
+      <Col span={24}>
+        <SelectDRECadastroPropostas />
       </Col>
 
       <Col xs={24} sm={14} md={24}>
@@ -120,6 +125,7 @@ const FormInformacoesGerais: React.FC = () => {
           }}
         />
       </Col>
+
       <Col xs={24} sm={12} md={8}>
         <InputNumero
           formItemProps={{
@@ -143,6 +149,7 @@ const FormInformacoesGerais: React.FC = () => {
           }}
         />
       </Col>
+
       <Col xs={24} sm={12} md={8}>
         <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
           {(form) => {
@@ -166,6 +173,7 @@ const FormInformacoesGerais: React.FC = () => {
           }}
         </Form.Item>
       </Col>
+
       <Col span={24}>
         <UploadArquivosConectaFormacao
           form={form}
