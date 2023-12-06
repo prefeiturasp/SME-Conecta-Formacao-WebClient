@@ -6,8 +6,8 @@ import type { FormInstance } from 'antd/es/form';
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
 interface Item {
-  key: string;
-  name: string;
+  id: string;
+  nome: string;
 }
 
 interface EditableRowProps {
@@ -79,11 +79,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
         rules={[
           {
             required: true,
-            message: `${title} is required.`,
+            message: `${title} é requerido`,
           },
         ]}
       >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+        <Input
+          ref={inputRef}
+          //  onPressEnter={save} onBlur={save}
+        />
       </Form.Item>
     ) : (
       <div className='editable-cell-value-wrap' style={{ paddingRight: 24 }} onClick={toggleEdit}>
@@ -98,8 +101,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
 type EditableTableProps = Parameters<typeof Table>[0];
 
 interface DataType {
-  key: React.Key;
-  name: string;
+  id: React.Key;
+  nome: string;
 }
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
@@ -107,8 +110,8 @@ type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
 const TabelaTurmas: React.FC = () => {
   const [dataSource, setDataSource] = useState<DataType[]>([
     {
-      key: '1',
-      name: 'Turma 1',
+      id: '1',
+      nome: 'Turma 1',
     },
   ]);
 
@@ -122,16 +125,16 @@ const TabelaTurmas: React.FC = () => {
   const defaultColumns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[] = [
     {
       title: 'Turma',
-      dataIndex: 'name',
-      width: '30%',
+      dataIndex: 'nome',
+      width: '60%',
       editable: true,
     },
   ];
 
   const handleAdd = () => {
     const newData: DataType = {
-      key: count,
-      name: `Turma ${count}`,
+      id: count,
+      nome: `Turma ${count}`,
     };
     setDataSource([...dataSource, newData]);
     setCount(count + 1);
@@ -139,7 +142,7 @@ const TabelaTurmas: React.FC = () => {
 
   const handleSave = (row: DataType) => {
     const newData = [...dataSource];
-    const index = newData.findIndex((item) => row.key === item.key);
+    const index = newData.findIndex((item) => row.id === item.id);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
@@ -164,7 +167,7 @@ const TabelaTurmas: React.FC = () => {
       onCell: (record: DataType) => ({
         record,
         editable: col.editable,
-        dataIndex: col.dataIndex,
+        dataIndex: col.dataIndex + Math.random(),
         title: col.title,
         handleSave,
       }),
