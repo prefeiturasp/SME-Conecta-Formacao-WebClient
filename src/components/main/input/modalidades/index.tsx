@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
-import { obterModalidades } from '~/core/services/proposta-service';
 
 type SelectModalidadesProps = {
   form: FormInstance;
@@ -20,25 +19,42 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
   const tipoFormacao = Form.useWatch('tipoFormacao', form);
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
+  const dados = [
+    {
+      codigoEOL: 'a',
+      descricao: 'a',
+    },
+  ];
+
   const obterDados = async (tipoFormacao: TipoFormacao) => {
     tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
 
-    if (tipoFormacao) {
-      const resposta = await obterModalidades(tipoFormacao);
-      if (resposta.sucesso) {
-        const newOptions = resposta.dados.map((item) => ({
-          label: item.descricao,
-          value: item.id,
-        }));
+    // if (tipoFormacao) {
+    //   const resposta = await obterModalidades(tipoFormacao);
+    //   if (resposta.sucesso) {
+    //     const newOptions = resposta.dados.map((item) => ({
+    //       label: item.descricao,
+    //       value: item.id,
+    //     }));
 
-        const modalidade = form.getFieldValue('modalidade');
-        if (!newOptions.some((t) => t.value === modalidade)) {
-          form.setFieldValue('modalidade', null);
-        }
+    //     const modalidade = form.getFieldValue('modalidade');
+    //     if (!newOptions.some((t) => t.value === modalidade)) {
+    //       form.setFieldValue('modalidade', null);
+    //     }
 
-        setOptions(newOptions);
-        return;
-      }
+    //     setOptions(newOptions);
+    //     return;
+    //   }
+    // }
+
+    if (dados.length) {
+      const newOptions = dados.map((item) => ({
+        ...item,
+        value: item?.codigoEOL,
+        label: item?.descricao,
+      }));
+
+      setOptions(newOptions);
     }
   };
 
