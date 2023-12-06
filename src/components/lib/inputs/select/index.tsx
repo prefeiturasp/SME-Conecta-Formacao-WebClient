@@ -1,8 +1,13 @@
 import { Empty, Select as SelectAnt, SelectProps } from 'antd';
-import { DefaultOptionType } from 'antd/es/select';
+import { DefaultOptionType, RefSelectProps } from 'antd/es/select';
 import React from 'react';
 
-const Select: React.FC<SelectProps> = (props) => {
+
+interface SelectAntProps {
+  selectAntProps: SelectProps;
+}
+
+const Select: React.FC<SelectAntProps> = ({selectAntProps}) => {
   const filterOption = (input: string, option?: DefaultOptionType) => {
     const value = option?.value?.toString()?.toLowerCase();
     const drescription = option?.label?.toString()?.toLowerCase();
@@ -24,7 +29,7 @@ const Select: React.FC<SelectProps> = (props) => {
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />
       }
-      {...props}
+      {...selectAntProps}
       filterOption={filterOption}
       allowClear
       showSearch

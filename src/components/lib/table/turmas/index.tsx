@@ -1,14 +1,34 @@
-import type { InputRef } from 'antd';
-import { Form, Input, Table } from 'antd';
-
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { EditableContext, EditarLinhaTabela } from '../provider';
+import type { InputRef, TablePaginationConfig } from 'antd';
+import { Button, Form, Input, Popconfirm, Select, Table } from 'antd';
+import type { FormInstance } from 'antd/es/form';
+import { OpcaoListagem } from '~/core/enum/opcao-listagem';
+import { SelectDRECadastroPropostas } from '~/pages/cadastros/propostas/form/steps/formulario-informacoes-gerais/components/select-dre';
+import { SelectDRE } from '~/components/main/input/dre';
+
+const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
 interface Item {
   key: string;
-  nome: string;
+  name: string;
 }
-interface EditarCelulaProps {
+
+interface EditableRowProps {
+  index: number;
+}
+
+const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
+  const [form] = Form.useForm();
+  return (
+    <Form form={form} component={false}>
+      <EditableContext.Provider value={form}>
+        <tr {...props} />
+      </EditableContext.Provider>
+    </Form>
+  );
+};
+
+interface EditableCellProps {
   title: React.ReactNode;
   editable: boolean;
   children: React.ReactNode;
@@ -17,7 +37,7 @@ interface EditarCelulaProps {
   handleSave: (record: Item) => void;
 }
 
-const EditarCelula: React.FC<EditarCelulaProps> = ({
+const EditableCell: React.FC<EditableCellProps> = ({
   title,
   editable,
   children,
@@ -43,10 +63,10 @@ const EditarCelula: React.FC<EditarCelulaProps> = ({
 
   const save = async () => {
     try {
-      // const values = await form.validateFields();
+      const values = await form.validateFields();
 
       toggleEdit();
-      handleSave({ ...record });
+      handleSave({ ...record, ...values });
     } catch (errInfo) {
       console.log('Save failed:', errInfo);
     }
@@ -62,11 +82,14 @@ const EditarCelula: React.FC<EditarCelulaProps> = ({
         rules={[
           {
             required: true,
-            message: `${title} é obrigatório`,
+            message: `${title} é obrigatório.`,
           },
         ]}
       >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+        {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
+        <SelectDRE formItemProps={{label: ''}} selectProps={{
+          ref: inputRef
+        }}  />
       </Form.Item>
     ) : (
       <div className='editable-cell-value-wrap' style={{ paddingRight: 24 }} onClick={toggleEdit}>
@@ -82,41 +105,72 @@ type EditableTableProps = Parameters<typeof Table>[0];
 
 interface DataType {
   key: React.Key;
-  nome: string;
+  name: string;
+  dre: number
+}
+
+interface TableParams {
+  pagination?: TablePaginationConfig;
 }
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
 
 const TabelaEditavel: React.FC = () => {
   const form = Form.useFormInstance();
+  const dreIdPropostas = Form?.useWatch('dreIdPropostas', form);
   const quantidadeTurmas = Form?.useWatch('quantidadeTurmas', form);
 
-  const [indexTurmas, setIndexTurmas] = useState<number>(1);
-  const [dataSource, setDataSource] = useState<DataType[]>([]);
 
-  const defaultColumns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[] = [
+
+
+  const [count, setCount] = useState(1);
+  const [dataSource, setDataSource] = useState<DataType[]>([]);
+  const [tableParams, setTableParams] = useState<TableParams>({
+        pagination: {
+          locale: { items_per_page: '' },
+          hideOnSinglePage: true
+        },
+      });
+
+
+  const defaultColumns: (ColumnTypes[number] & {
+    editable?: boolean;
+    dataIndex: string;
+  })[] = [
     {
+      title: 'Turma',
+      dataIndex: 'name',
       editable: true,
-      title: 'Turmas',
-      dataIndex: 'nome',
+    },
+    {
+      title: 'DRE',
+      dataIndex: 'dre',
+      editable: dreIdPropostas?.value === 1,
+      // editable: dreIdPropostas === OpcaoListagem.Todos,
     },
   ];
+
+ 
 
   const adicionarRemoverLinhas = () => {
     if (quantidadeTurmas) {
       const novasLinhas: DataType[] = [];
       for (let i = 0; i < quantidadeTurmas; i++) {
         const newData: DataType = {
-          id: indexTurmas + i,
-          nome: `Turma ${indexTurmas + i}`,
+          key: count + i,
+          name: `Turma ${count + i}`,
+          dre: dreIdPropostas?.label
         };
         novasLinhas.push(newData);
       }
-      setDataSource([...dataSource, ...novasLinhas]);
-      setIndexTurmas(indexTurmas + quantidadeTurmas);
-    } else if (quantidadeTurmas <= 0) {
+
+
+        setDataSource([...dataSource, ...novasLinhas]);
+        setCount(count + quantidadeTurmas);
+      
+    } else if (quantidadeTurmas <= 0 || quantidadeTurmas === undefined) {
       setDataSource([]);
-      setIndexTurmas(1);
+      setCount(1);
     }
   };
 
@@ -125,24 +179,22 @@ const TabelaEditavel: React.FC = () => {
       adicionarRemoverLinhas();
     }, 500);
   }, [quantidadeTurmas]);
-
+  
   const handleSave = (row: DataType) => {
     const newData = [...dataSource];
-
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
-
     setDataSource(newData);
   };
 
   const components = {
     body: {
-      row: EditarLinhaTabela,
-      cell: EditarCelula,
+      row: EditableRow,
+      cell: EditableCell,
     },
   };
 
@@ -163,14 +215,17 @@ const TabelaEditavel: React.FC = () => {
   });
 
   return (
-    <Table
-      bordered
-      dataSource={dataSource}
-      components={components}
-      columns={columns as ColumnTypes}
-      rowClassName={() => 'editable-row'}
-      locale={{ emptyText: 'Sem dados' }}
-    />
+    <div>
+      <Table
+        components={components}
+        rowClassName={() => 'editable-row'}
+        bordered
+        dataSource={dataSource}
+        columns={columns as ColumnTypes}
+        locale={{ emptyText: 'Sem dados' }}
+              pagination={tableParams.pagination}
+      />
+    </div>
   );
 };
 
