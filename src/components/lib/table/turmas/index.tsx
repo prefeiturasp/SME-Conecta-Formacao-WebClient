@@ -1,31 +1,14 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
 import type { InputRef } from 'antd';
-import { Button, Form, Input, Table } from 'antd';
-import type { FormInstance } from 'antd/es/form';
+import { Form, Input, Table } from 'antd';
 
-const EditableContext = React.createContext<FormInstance<any> | null>(null);
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { EditableContext, EditarLinhaTabela } from '../provider';
 
 interface Item {
-  id: string;
+  key: string;
   nome: string;
 }
-
-interface EditableRowProps {
-  index: number;
-}
-
-const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
-  const form = Form.useFormInstance();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
-
-interface EditableCellProps {
+interface EditarCelulaProps {
   title: React.ReactNode;
   editable: boolean;
   children: React.ReactNode;
@@ -34,7 +17,7 @@ interface EditableCellProps {
   handleSave: (record: Item) => void;
 }
 
-const EditableCell: React.FC<EditableCellProps> = ({
+const EditarCelula: React.FC<EditarCelulaProps> = ({
   title,
   editable,
   children,
@@ -60,10 +43,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
 
   const save = async () => {
     try {
-      const values = await form.validateFields();
+      // const values = await form.validateFields();
 
       toggleEdit();
-      handleSave({ ...record, ...values });
+      handleSave({ ...record });
     } catch (errInfo) {
       console.log('Save failed:', errInfo);
     }
@@ -79,14 +62,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
         rules={[
           {
             required: true,
-            message: `${title} é requerido`,
+            message: `${title} é obrigatório`,
           },
         ]}
       >
-        <Input
-          ref={inputRef}
-          //  onPressEnter={save} onBlur={save}
-        />
+        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
       </Form.Item>
     ) : (
       <div className='editable-cell-value-wrap' style={{ paddingRight: 24 }} onClick={toggleEdit}>
@@ -101,60 +81,68 @@ const EditableCell: React.FC<EditableCellProps> = ({
 type EditableTableProps = Parameters<typeof Table>[0];
 
 interface DataType {
-  id: React.Key;
+  key: React.Key;
   nome: string;
 }
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
 
-const TabelaTurmas: React.FC = () => {
-  const [dataSource, setDataSource] = useState<DataType[]>([
-    {
-      id: '1',
-      nome: 'Turma 1',
-    },
-  ]);
+const TabelaEditavel: React.FC = () => {
+  const form = Form.useFormInstance();
+  const quantidadeTurmas = Form?.useWatch('quantidadeTurmas', form);
 
-  const [count, setCount] = useState(2);
-
-  //   const handleDelete = (key: React.Key) => {
-  //     const newData = dataSource.filter((item) => item.key !== key);
-  //     setDataSource(newData);
-  //   };
+  const [indexTurmas, setIndexTurmas] = useState<number>(1);
+  const [dataSource, setDataSource] = useState<DataType[]>([]);
 
   const defaultColumns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[] = [
     {
-      title: 'Turma',
-      dataIndex: 'nome',
-      width: '60%',
       editable: true,
+      title: 'Turmas',
+      dataIndex: 'nome',
     },
   ];
 
-  const handleAdd = () => {
-    const newData: DataType = {
-      id: count,
-      nome: `Turma ${count}`,
-    };
-    setDataSource([...dataSource, newData]);
-    setCount(count + 1);
+  const adicionarRemoverLinhas = () => {
+    if (quantidadeTurmas) {
+      const novasLinhas: DataType[] = [];
+      for (let i = 0; i < quantidadeTurmas; i++) {
+        const newData: DataType = {
+          id: indexTurmas + i,
+          nome: `Turma ${indexTurmas + i}`,
+        };
+        novasLinhas.push(newData);
+      }
+      setDataSource([...dataSource, ...novasLinhas]);
+      setIndexTurmas(indexTurmas + quantidadeTurmas);
+    } else if (quantidadeTurmas <= 0) {
+      setDataSource([]);
+      setIndexTurmas(1);
+    }
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      adicionarRemoverLinhas();
+    }, 500);
+  }, [quantidadeTurmas]);
 
   const handleSave = (row: DataType) => {
     const newData = [...dataSource];
-    const index = newData.findIndex((item) => row.id === item.id);
+
+    const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
+
     setDataSource(newData);
   };
 
   const components = {
     body: {
-      row: EditableRow,
-      cell: EditableCell,
+      row: EditarLinhaTabela,
+      cell: EditarCelula,
     },
   };
 
@@ -167,7 +155,7 @@ const TabelaTurmas: React.FC = () => {
       onCell: (record: DataType) => ({
         record,
         editable: col.editable,
-        dataIndex: col.dataIndex + Math.random(),
+        dataIndex: col.dataIndex,
         title: col.title,
         handleSave,
       }),
@@ -175,19 +163,15 @@ const TabelaTurmas: React.FC = () => {
   });
 
   return (
-    <div>
-      <Button onClick={handleAdd} type='primary' style={{ marginBottom: 16 }}>
-        Adicionar Turma
-      </Button>
-      <Table
-        components={components}
-        rowClassName={() => 'editable-row'}
-        bordered
-        dataSource={dataSource}
-        columns={columns as ColumnTypes}
-      />
-    </div>
+    <Table
+      bordered
+      dataSource={dataSource}
+      components={components}
+      columns={columns as ColumnTypes}
+      rowClassName={() => 'editable-row'}
+      locale={{ emptyText: 'Sem dados' }}
+    />
   );
 };
 
-export default TabelaTurmas;
+export default TabelaEditavel;
