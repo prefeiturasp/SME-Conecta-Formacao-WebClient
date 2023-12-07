@@ -6,7 +6,7 @@ import { PermissaoPorMenuDTO } from '~/core/dto/permissao-por-menu-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
-import PermissaoContextProvider from '../autenticacao/provider';
+import PermissaoContextProvider from './provider';
 
 type GuardPermissaoPros = {
   menuKey?: MenuEnum;

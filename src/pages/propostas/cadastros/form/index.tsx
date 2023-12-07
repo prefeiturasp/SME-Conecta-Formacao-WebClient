@@ -50,7 +50,7 @@ import {
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
-import { PermissaoContext } from '~/routes/config/guard/autenticacao/provider';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
@@ -105,12 +105,14 @@ const FormCadastroDePropostas: React.FC = () => {
   ];
 
   useEffect(() => {
-    const desabilitarTodosFormularios =
-      desabilitarCampos ||
-      (formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
-        formInitialValues?.situacao !== SituacaoRegistro.Cadastrada);
+    if (formInitialValues?.situacao) {
+      const desabilitarTodosFormularios =
+        desabilitarCampos ||
+        (formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
+          formInitialValues?.situacao !== SituacaoRegistro.Cadastrada);
 
-    setDesabilitarCampos(desabilitarTodosFormularios);
+      setDesabilitarCampos(desabilitarTodosFormularios);
+    }
   }, [formInitialValues, desabilitarCampos]);
 
   const carregarValoresDefault = () => {

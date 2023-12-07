@@ -149,7 +149,7 @@ const DataTableEncontros = forwardRef(
           },
         };
       },
-      [url],
+      [url,fetchData],
     );
 
     return (

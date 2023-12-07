@@ -46,34 +46,40 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
 
-                <Route
-                  path={ROUTES.AREA_PROMOTORA}
-                  element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}
-                >
-                  <Route path='' element={<ListAreaPromotora />} />
-                  <Route
-                    path={ROUTES.AREA_PROMOTORA_NOVO}
-                    element={<FormCadastrosAreaPromotora />}
-                  />
-                  <Route
-                    path={ROUTES.AREA_PROMOTORA_EDITAR}
-                    element={<FormCadastrosAreaPromotora />}
-                  />
+                <Route path={ROUTES.AREA_PROMOTORA}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
+                    <Route path='' element={<ListAreaPromotora />} />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
+                    <Route
+                      path={ROUTES.AREA_PROMOTORA_NOVO}
+                      element={<FormCadastrosAreaPromotora />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
+                    <Route
+                      path={ROUTES.AREA_PROMOTORA_EDITAR}
+                      element={<FormCadastrosAreaPromotora />}
+                    />
+                  </Route>
                 </Route>
 
-                <Route
-                  path={ROUTES.CADASTRO_DE_PROPOSTAS}
-                  element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}
-                >
-                  <Route path='' element={<ListCadastroDePropostas />} />
-                  <Route
-                    path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
-                    element={<FormCadastroDePropostas />}
-                  />
-                  <Route
-                    path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
-                    element={<FormCadastroDePropostas />}
-                  />
+                <Route path={ROUTES.CADASTRO_DE_PROPOSTAS}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
+                    <Route path='' element={<ListCadastroDePropostas />} />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
+                    <Route
+                      path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
+                      element={<FormCadastroDePropostas />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
+                    <Route
+                      path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
+                      element={<FormCadastroDePropostas />}
+                    />
+                  </Route>
                 </Route>
               </Route>
             </Route>

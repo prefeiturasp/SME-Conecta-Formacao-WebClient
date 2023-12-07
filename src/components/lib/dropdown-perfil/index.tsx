@@ -93,7 +93,7 @@ const DropdownPerfil: React.FC = () => {
                   }}
                 >
                   <td style={{ width: '300px' }}>
-                    <i>{item.perfilNome}</i>
+                    <p>{item.perfilNome}</p>
                   </td>
                 </Item>
               )}
