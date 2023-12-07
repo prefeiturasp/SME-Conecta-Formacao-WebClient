@@ -135,6 +135,7 @@ type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
 const TabelaEditavel: React.FC = () => {
   const form = Form.useFormInstance();
   const dreIdPropostas = Form?.useWatch('dreIdPropostas', form);
+
   const quantidadeTurmas = Form?.useWatch('quantidadeTurmas', form);
   const [count, setCount] = useState(1);
   const [dataSource, setDataSource] = useState<DataType[]>([]);
