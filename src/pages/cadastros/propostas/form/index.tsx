@@ -263,6 +263,7 @@ const FormCadastroDePropostas: React.FC = () => {
       tipoFormacao: clonedValues?.tipoFormacao,
       formato: clonedValues?.formato,
       tipoInscricao: clonedValues?.tipoInscricao,
+      dreIdPropostas: clonedValues?.dreIdPropostas || null,
       nomeFormacao: clonedValues?.nomeFormacao,
       quantidadeTurmas: clonedValues?.quantidadeTurmas || null,
       quantidadeVagasTurma: clonedValues?.quantidadeVagasTurma || null,
