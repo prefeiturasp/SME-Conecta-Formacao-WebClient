@@ -15,6 +15,7 @@ export type PropostaDTO = {
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
   tipoInscricao?: TipoInscricao;
+  dreIdPropostas: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
   quantidadeVagasTurma?: number | null;
@@ -57,6 +58,7 @@ export type PropostaFormDTO = {
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
   tipoInscricao?: TipoInscricao;
+  dreIdPropostas?: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
   quantidadeVagasTurma?: number | null;

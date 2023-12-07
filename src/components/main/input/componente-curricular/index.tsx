@@ -4,7 +4,6 @@ import { DefaultOptionType } from 'antd/es/select';
 import React, { useCallback, useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_COMPONENTE_CURRICULAR } from '~/core/constants/ids/select';
-import { obterComponenteCurricular } from '~/core/services/proposta-service';
 
 type SelectComponenteCurricularProps = {
   mostrarOpcaoTodas?: boolean;
@@ -13,25 +12,39 @@ type SelectComponenteCurricularProps = {
 const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
   mostrarOpcaoTodas = true,
 }) => {
-  // const form = Form.useFormInstance();
+  const form = Form.useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
+  const dados = [
+    {
+      codigoEOL: 'a',
+      descricao: 'a',
+    },
+  ];
+
   const obterDados = useCallback(async () => {
-    const resposta = await obterComponenteCurricular();
-    if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item) => ({
-        label: item.nome,
-        value: item.codigoEOL,
+    // const resposta = await obterComponenteCurricular();
+
+    if (dados.length) {
+      const newOptions = dados.map((item) => ({
+        ...item,
+        value: item?.codigoEOL,
+        label: item?.descricao,
       }));
+      // if (resposta.sucesso) {
+      //   const newOptions = resposta.dados.map((item) => ({
+      //     label: item.nome,
+      //     value: item.codigoEOL,
+      //   }));
 
       //TODO: AGUARDAR ENDPOINT FICAR PRONTO
-      // if (newOptions?.length === 1) {
-      //   const fieldValue = newOptions[0];
-      //   form.setFieldValue(descricao, fieldValue);
-      // } else if (mostrarOpcaoTodas) {
-      //   const OPCAO_TODAS_DRE = { value: OpcaoListagem.Todos, label: 'Todas' };
-      //   newOptions.unshift(OPCAO_TODAS_DRE);
-      // }
+      if (dados.length === 1) {
+        const fieldValue = dados[0];
+        form.setFieldValue('anoEtapa', fieldValue);
+      } else if (mostrarOpcaoTodas) {
+        const OPCAO_TODAS_DRE = { value: '-99', label: 'Todos', codigoEOL: 'a', descricao: 'a' };
+        newOptions.unshift(OPCAO_TODAS_DRE);
+      }
 
       setOptions(newOptions);
     } else {

@@ -43,7 +43,10 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
   }, []);
 
   const campoEhObrigatorio = () => {
-    if (funcoesEspecificas?.length || (anoEtapa && modalidade && componenteCurricular)) {
+    if (
+      funcoesEspecificas?.length ||
+      (anoEtapa?.length && modalidade?.length && componenteCurricular?.length)
+    ) {
       return false;
     }
 
