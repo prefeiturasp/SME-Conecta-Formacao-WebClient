@@ -1,4 +1,4 @@
-import { FormInstance } from 'antd';
+import { FormInstance, FormItemProps, SelectProps } from 'antd';
 import jwt_decode from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import { SelectDRE } from '~/components/main/input/dre';
@@ -9,9 +9,15 @@ import { obterDREs } from '~/core/services/dre-service';
 
 type SelectDRECadastroPropostasProps = {
   form: FormInstance;
+  formItemProps?: FormItemProps;
+  selectProps?: SelectProps;
 };
 
-export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProps> = ({ form }) => {
+export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProps> = ({
+  form,
+  formItemProps,
+  selectProps,
+}) => {
   const token = useAppSelector((store) => store.auth.token);
   const decodeToken: JWTDecodeDTO = jwt_decode(token);
 
@@ -34,7 +40,6 @@ export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProp
           setAutoSetValues(descricoes);
         }
       };
-
       obterDescricoesDRE();
     }
   }, [dresIdsDoToken, desabilitarCampoDRE]);
@@ -48,12 +53,13 @@ export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProp
   return (
     <SelectDRE
       formItemProps={{
-        label: 'DRE',
+        ...formItemProps,
+        label: formItemProps?.label ?? 'DRE',
         name: 'dreIdPropostas',
       }}
       selectProps={{
         mode: 'multiple',
-        disabled: desabilitarCampoDRE,
+        disabled: selectProps?.disabled ?? desabilitarCampoDRE,
         id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
       }}
     />

@@ -1,7 +1,8 @@
 import type { InputRef, TablePaginationConfig } from 'antd';
 import { Form, Input, Select, Table } from 'antd';
 import type { FormInstance } from 'antd/es/form';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { Children, useContext, useEffect, useRef, useState } from 'react';
+import { SelectDRECadastroPropostas } from '~/pages/cadastros/propostas/form/steps/formulario-informacoes-gerais/components/select-dre';
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
@@ -48,11 +49,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext)!;
 
-  useEffect(() => {
-    if (editing) {
-      inputRef?.current!.focus();
-    }
-  }, [editing]);
+  // useEffect(() => {
+  //   if (editing) {
+  //     inputRef?.current!.focus();
+  //   }
+  // }, [editing]);
 
   const toggleEdit = () => {
     setEditing(!editing);
@@ -85,14 +86,26 @@ const EditableCell: React.FC<EditableCellProps> = ({
         ]}
       >
         {dataIndex === 'dre' ? (
-          <Select ref={inputRef} />
+          <SelectDRECadastroPropostas
+            form={form}
+            formItemProps={{ label: '' }}
+            selectProps={{ disabled: false }}
+          />
         ) : (
           <Input ref={inputRef} onPressEnter={save} onBlur={save} />
         )}
       </Form.Item>
     ) : (
       <div className='editable-cell-value-wrap' style={{ paddingRight: 24 }} onClick={toggleEdit}>
-        {children}
+        {dataIndex === 'dre' ? (
+          <SelectDRECadastroPropostas
+            form={form}
+            formItemProps={{ label: '' }}
+            selectProps={{ disabled: true }}
+          />
+        ) : (
+          children
+        )}
       </div>
     );
   }
@@ -105,7 +118,7 @@ type EditableTableProps = Parameters<typeof Table>[0];
 interface DataType {
   key: React.Key;
   name: string;
-  dre: number;
+  dre: number[];
 }
 
 interface TableParams {
@@ -118,7 +131,6 @@ const TabelaEditavel: React.FC = () => {
   const form = Form.useFormInstance();
   const dreIdPropostas = Form?.useWatch('dreIdPropostas', form);
   const quantidadeTurmas = Form?.useWatch('quantidadeTurmas', form);
-
   const [count, setCount] = useState(1);
   const [dataSource, setDataSource] = useState<DataType[]>([]);
   const [tableParams, setTableParams] = useState<TableParams>({
@@ -140,8 +152,8 @@ const TabelaEditavel: React.FC = () => {
     {
       title: 'DRE',
       dataIndex: 'dre',
-      editable: dreIdPropostas === 1,
-      // editable: dreIdPropostas === OpcaoListagem.Todos,
+      editable: true,
+      // editable: dreIdPropostas.includes(OpcaoListagem.Todos),
     },
   ];
 
