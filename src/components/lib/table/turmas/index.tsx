@@ -49,11 +49,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext)!;
 
-  // useEffect(() => {
-  //   if (editing) {
-  //     inputRef?.current!.focus();
-  //   }
-  // }, [editing]);
+  useEffect(() => {
+    if (editing) {
+      inputRef?.current?.focus();
+    }
+  }, [editing]);
 
   const toggleEdit = () => {
     setEditing(!editing);
@@ -102,15 +102,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         aria-hidden='true'
         onClick={toggleEdit}
       >
-        {dataIndex === 'dre' ? (
-          <SelectDRECadastroPropostas
-            form={form}
-            formItemProps={{ label: '' }}
-            selectProps={{ disabled: true }}
-          />
-        ) : (
-          children
-        )}
+        {children}
       </div>
     );
   }
@@ -123,7 +115,7 @@ type EditableTableProps = Parameters<typeof Table>[0];
 interface DataType {
   key: React.Key;
   name: string;
-  dre: number[];
+  dre: { label: string; value: number };
 }
 
 interface TableParams {
@@ -135,8 +127,11 @@ type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
 const TabelaEditavel: React.FC = () => {
   const form = Form.useFormInstance();
   const dreIdPropostas = Form?.useWatch('dreIdPropostas', form);
-
   const quantidadeTurmas = Form?.useWatch('quantidadeTurmas', form);
+
+  //TODO: verificar o retorno do dado para SUBSTITUIR O 15 PELO -99 OU OPCAOLISTAGEM.TODOS
+  const dreOpcoesEhTodas = dreIdPropostas?.filter((item) => item.value === 15);
+
   const [count, setCount] = useState(1);
   const [dataSource, setDataSource] = useState<DataType[]>([]);
   const [tableParams, setTableParams] = useState<TableParams>({
@@ -158,7 +153,7 @@ const TabelaEditavel: React.FC = () => {
     {
       title: 'DRE',
       dataIndex: 'dre',
-      editable: true,
+      editable: !!dreOpcoesEhTodas?.length,
       // editable: dreIdPropostas.includes(OpcaoListagem.Todos),
     },
   ];
@@ -170,7 +165,7 @@ const TabelaEditavel: React.FC = () => {
         const newData: DataType = {
           key: count + i,
           name: `Turma ${count + i}`,
-          dre: dreIdPropostas,
+          dre: dreIdPropostas?.map((item: { label: string; value: number }) => item.label),
         };
         novasLinhas.push(newData);
       }

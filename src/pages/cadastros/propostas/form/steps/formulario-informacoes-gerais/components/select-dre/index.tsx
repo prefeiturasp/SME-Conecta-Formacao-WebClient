@@ -1,4 +1,5 @@
 import { FormInstance, FormItemProps, SelectProps } from 'antd';
+import { DefaultOptionType } from 'antd/es/select';
 import jwt_decode from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import { SelectDRE } from '~/components/main/input/dre';
@@ -21,11 +22,12 @@ export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProp
   const token = useAppSelector((store) => store.auth.token);
   const decodeToken: JWTDecodeDTO = jwt_decode(token);
 
-  const newToken = { ...decodeToken, dres: [1, 2, 3] };
+  //TODO: verificar o retorno do dado para SUBSTITUIR O 15 PELO -99 OU OPCAOLISTAGEM.TODOS
+  const newToken = { ...decodeToken, dres: [15] };
   const dresIdsDoToken = newToken?.dres;
 
   const [desabilitarCampoDRE, setDesabilitarCampoDRE] = useState<boolean>(false);
-  const [autoSetValues, setAutoSetValues] = useState<string[]>([]);
+  const [autoSetValues, setAutoSetValues] = useState<DefaultOptionType[]>([]);
 
   useEffect(() => {
     if (dresIdsDoToken && dresIdsDoToken.length > 0 && !desabilitarCampoDRE) {
@@ -33,7 +35,10 @@ export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProp
         const resposta = await obterDREs();
         const descricoes = resposta.dados
           .filter((item) => dresIdsDoToken.includes(item.id))
-          .map((dre) => dre.descricao);
+          .map((item) => ({
+            label: item.descricao,
+            value: item.id,
+          }));
 
         if (descricoes.length > 0) {
           setDesabilitarCampoDRE(true);
