@@ -1,5 +1,5 @@
 import { Form, FormItemProps, SelectProps } from 'antd';
-import { DefaultOptionType, RefSelectProps } from 'antd/es/select';
+import { DefaultOptionType } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_DRE } from '~/core/constants/ids/select';
@@ -10,7 +10,7 @@ interface SelectDREProps {
   selectProps?: SelectProps;
 }
 
-export const SelectDRE: React.FC<SelectDREProps> = ({  formItemProps, selectProps }) => {
+export const SelectDRE: React.FC<SelectDREProps> = ({ formItemProps, selectProps }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDRE = async () => {
@@ -28,14 +28,7 @@ export const SelectDRE: React.FC<SelectDREProps> = ({  formItemProps, selectProp
 
   return (
     <Form.Item label='DRE' key='dreId' name='dreId' rules={[{ required: true }]} {...formItemProps}>
-      <Select    
-        selectAntProps={{
-          ...selectProps,
-          options: options,
-          id: CF_SELECT_DRE,
-          placeholder:'Selecione a DRE'
-        }}
-      />
+      <Select {...selectProps} options={options} id={CF_SELECT_DRE} placeholder='Selecione a DRE' />
     </Form.Item>
   );
 };
