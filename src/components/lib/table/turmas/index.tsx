@@ -1,7 +1,7 @@
 import type { InputRef, TablePaginationConfig } from 'antd';
-import { Form, Input, Select, Table } from 'antd';
+import { Form, Input, Table } from 'antd';
 import type { FormInstance } from 'antd/es/form';
-import React, { Children, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SelectDRECadastroPropostas } from '~/pages/cadastros/propostas/form/steps/formulario-informacoes-gerais/components/select-dre';
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
@@ -96,7 +96,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
         )}
       </Form.Item>
     ) : (
-      <div className='editable-cell-value-wrap' style={{ paddingRight: 24 }} onClick={toggleEdit}>
+      <div
+        className='editable-cell-value-wrap'
+        style={{ paddingRight: 24 }}
+        aria-hidden='true'
+        onClick={toggleEdit}
+      >
         {dataIndex === 'dre' ? (
           <SelectDRECadastroPropostas
             form={form}
