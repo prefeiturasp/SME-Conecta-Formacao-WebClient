@@ -1,39 +1,24 @@
 import { Form, Input, Table, TablePaginationConfig, Typography } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { SelectDRECadastroPropostas } from '~/pages/cadastros/propostas/form/steps/formulario-informacoes-gerais/components/select-dre';
 
 interface Item {
+  id?: number;
   key: string;
   turma: string;
-  dreIdPropostas: string[];
+  dreIdPropostas: string;
 }
 
-const originData: Item[] = [];
-for (let i = 0; i < 20; i++) {
-  originData.push({
-    key: i.toString(),
-    turma: `Turma ${i}`,
-    dreIdPropostas: [],
-  });
-}
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
-  title: any;
-  inputType: 'number' | 'text';
-  record: Item;
-  index: number;
   children: React.ReactNode;
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
   editing,
   dataIndex,
-  title,
-  inputType,
-  record,
-  index,
   children,
   ...restProps
 }) => {
@@ -73,19 +58,43 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const TabelaEditavel: React.FC = () => {
-  const [form] = Form.useForm();
-  const [data, setData] = useState(originData);
+  const formProposta = Form.useFormInstance();
+
+  const [formRow] = Form.useForm();
+  const isEditing = (record: Item) => record.key === editingKey;
+
   const [editingKey, setEditingKey] = useState('');
+
+  const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
+
+  // TODO - Quando alterar remontar a tabela!
+  // const alterouQtdTurmas = quantidadeTurmas && turmas?.length !== quantidadeTurmas;
+
+  useEffect(() => {
+    if (quantidadeTurmas) {
+      const originData: Item[] = [];
+
+      for (let i = 0; i < quantidadeTurmas; i++) {
+        originData.push({
+          key: i.toString(),
+          turma: `Turma ${i}`,
+          dreIdPropostas: '',
+        });
+
+        formProposta.setFieldValue('turmas', [...originData]);
+      }
+    } else {
+      formProposta.setFieldValue('turmas', []);
+    }
+  }, [quantidadeTurmas, formProposta]);
 
   const pagination: TablePaginationConfig = {
     locale: { items_per_page: '' },
     hideOnSinglePage: true,
   };
 
-  const isEditing = (record: Item) => record.key === editingKey;
-
   const edit = (record: Partial<Item> & { key: React.Key }) => {
-    form.setFieldsValue({ turma: '', dreIdPropostas: [], ...record });
+    formRow.setFieldsValue({ turma: '', dreIdPropostas: undefined, ...record });
     setEditingKey(record.key);
   };
 
@@ -94,27 +103,29 @@ const TabelaEditavel: React.FC = () => {
   };
 
   const save = async (key: React.Key) => {
-    try {
-      const row = (await form.validateFields()) as Item;
+    formRow.validateFields().then((row) => {
+      const newData = formProposta.getFieldValue('turmas');
 
-      const newData = [...data];
-      const index = newData.findIndex((item) => key === item.key);
+      const index = newData.findIndex((item: Item) => key === item.key);
+
       if (index > -1) {
         const item = newData[index];
+
         newData.splice(index, 1, {
           ...item,
           ...row,
         });
-        setData(newData);
+
+        formProposta.setFieldValue('turmas', newData);
+
         setEditingKey('');
       } else {
         newData.push(row);
-        setData(newData);
+        formProposta.setFieldValue('turmas', newData);
+
         setEditingKey('');
       }
-    } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
-    }
+    });
   };
 
   const columns = [
@@ -128,7 +139,7 @@ const TabelaEditavel: React.FC = () => {
       title: 'DRE',
       dataIndex: 'dreIdPropostas',
       editable: true,
-      render: (dre: any) => dre?.label,
+      render: (dreIdPropostas: any) => dreIdPropostas?.label,
     },
     {
       title: 'Operação',
@@ -161,30 +172,38 @@ const TabelaEditavel: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex,
-        dataIndex: col.dataIndex,
         title: col.title,
+        dataIndex: col.dataIndex,
         editing: isEditing(record),
       }),
     };
   });
 
   return (
-    <Form form={form} component={false} validateMessages={validateMessages}>
-      <Table
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        bordered
-        dataSource={data}
-        columns={mergedColumns}
-        rowClassName='editable-row'
-        pagination={pagination}
-        locale={{ emptyText: 'Sem dados' }}
-      />
-    </Form>
+    <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
+      {(formTeste) => {
+        const turmas: Item[] = formTeste.getFieldValue('turmas');
+
+        return (
+          <Form form={formRow} component={false} validateMessages={validateMessages}>
+            <Table
+              rowKey='key'
+              components={{
+                body: {
+                  cell: EditableCell,
+                },
+              }}
+              bordered
+              dataSource={[...turmas]}
+              columns={mergedColumns}
+              rowClassName='editable-row'
+              pagination={pagination}
+              locale={{ emptyText: 'Sem dados' }}
+            />
+          </Form>
+        );
+      }}
+    </Form.Item>
   );
 };
 

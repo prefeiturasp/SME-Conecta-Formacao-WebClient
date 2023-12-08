@@ -5,8 +5,6 @@ import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscric
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
-import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
-import { PropostaPaginadaDTO } from '../dto/proposta-paginada-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
@@ -83,10 +81,6 @@ const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaComp
 const deletarProposta = (id: string | number): Promise<ApiResult<boolean>> =>
   deletarRegistro(`${URL_API_PROPOSTA}/${id}`);
 
-const obterPropostaPaginada = (
-  params?: PropostaFiltrosDTO,
-): Promise<ApiResult<PropostaPaginadaDTO[]>> => obterRegistro(URL_API_PROPOSTA, params);
-
 const obterTurmasDaProposta = (id: number): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}/turma`);
 
@@ -147,7 +141,6 @@ export {
   obterModalidades,
   obterNomeProfissional,
   obterPropostaEncontrosPaginado,
-  obterPropostaPaginada,
   obterPropostaPorId,
   obterPropostaRegentePorId,
   obterPropostaTutorPorId,

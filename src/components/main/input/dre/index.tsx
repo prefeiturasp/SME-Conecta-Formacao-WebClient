@@ -8,13 +8,18 @@ import { obterDREs } from '~/core/services/dre-service';
 interface SelectDREProps {
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
+  exibirOpcaoOutros?: boolean;
 }
 
-export const SelectDRE: React.FC<SelectDREProps> = ({ formItemProps, selectProps }) => {
+export const SelectDRE: React.FC<SelectDREProps> = ({
+  formItemProps,
+  selectProps,
+  exibirOpcaoOutros,
+}) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDRE = async () => {
-    const resposta = await obterDREs();
+    const resposta = await obterDREs(exibirOpcaoOutros);
 
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));

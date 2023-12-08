@@ -56,7 +56,7 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <SelectDRECadastroPropostas />
+        <SelectDRECadastroPropostas formItemProps={{ label: 'DRE' }} />
       </Col>
 
       <Col xs={24} sm={14} md={24}>
@@ -176,7 +176,9 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <TabelaEditavel />
+        <Form.Item style={{ marginBottom: 0, marginTop: 0 }}>
+          <TabelaEditavel />
+        </Form.Item>
       </Col>
 
       <Col span={24}>

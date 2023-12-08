@@ -57,9 +57,10 @@ export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProp
 
   return (
     <SelectDRE
+      exibirOpcaoOutros
       formItemProps={{
         ...formItemProps,
-        label: formItemProps?.label ?? 'DRE',
+        label: formItemProps?.label,
         name: 'dreIdPropostas',
         getValueFromEvent: (_, value) => value,
       }}
