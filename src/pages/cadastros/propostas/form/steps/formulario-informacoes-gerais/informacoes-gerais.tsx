@@ -2,7 +2,6 @@ import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, Input, Row, Tooltip } from 'antd';
 
 import React from 'react';
-import TabelaEditavel from '~/components/lib/table/turmas';
 import SelectAnoEtapa from '~/components/main/input/ano-etapa';
 import SelectComponenteCurricular from '~/components/main/input/componente-curricular';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
@@ -29,6 +28,7 @@ import {
 } from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
 import { SelectDRECadastroPropostas } from './components/select-dre';
+import TabelaEditavel from './components/table/turmas';
 
 const FormInformacoesGerais: React.FC = () => {
   const form = Form.useFormInstance();
