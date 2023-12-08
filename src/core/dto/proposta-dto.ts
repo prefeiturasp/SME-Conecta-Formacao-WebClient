@@ -46,6 +46,8 @@ export type PropostaDTO = {
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
   descricaoDaAtividade?: string;
+  turmas?: PropostaTurmaDTO[];
+  dres?: number[];
 };
 
 export type PropostaCompletoDTO = {
@@ -89,6 +91,8 @@ export type PropostaFormDTO = {
   descricaoDaAtividade?: string;
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
+  turmas?: PropostaTurmaDTO[];
+  dres?: number[];
 };
 export type PropostaPalavraChaveDTO = {
   palavraChaveId: number;
@@ -96,4 +100,9 @@ export type PropostaPalavraChaveDTO = {
 
 export type CriterioCertificacaoDTO = {
   criterioCertificacaoId: number;
+};
+
+export type PropostaTurmaDTO = {
+  id?: number;
+  nome: string;
 };

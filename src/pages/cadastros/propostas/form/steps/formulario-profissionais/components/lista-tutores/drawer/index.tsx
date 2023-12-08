@@ -61,7 +61,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
   const salvarDados = async (values: PropostaTutorDTO) => {
     const dtoTutor: PropostaTutorDTO = {
       ...values,
-      turmas: values.turmas.map((turma: any) => ({ turma })),
+      turmas: values.turmas.map((turmaId: any) => ({ turmaId })),
       id,
     };
 
@@ -94,7 +94,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
 
       if (response.sucesso) {
         if (response.dados?.turmas?.length) {
-          response.dados.turmas = response.dados.turmas.map((item) => item?.turma);
+          response.dados.turmas = response.dados.turmas.map((item) => item?.turmaId);
         }
 
         setFormInitialValues({ ...response.dados });
