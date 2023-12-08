@@ -1,235 +1,190 @@
-import type { InputRef, TablePaginationConfig } from 'antd';
-import { Form, Input, Table } from 'antd';
-import type { FormInstance } from 'antd/es/form';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Form, Input, Table, TablePaginationConfig, Typography } from 'antd';
+import React, { useState } from 'react';
+import { validateMessages } from '~/core/constants/validate-messages';
 import { SelectDRECadastroPropostas } from '~/pages/cadastros/propostas/form/steps/formulario-informacoes-gerais/components/select-dre';
-
-const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
 interface Item {
   key: string;
-  name: string;
-  dre: string;
+  turma: string;
+  dreIdPropostas: string[];
 }
 
-interface EditableRowProps {
-  index: number;
+const originData: Item[] = [];
+for (let i = 0; i < 20; i++) {
+  originData.push({
+    key: i.toString(),
+    turma: `Turma ${i}`,
+    dreIdPropostas: [],
+  });
 }
-
-const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
-  const [form] = Form.useForm();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
-
-interface EditableCellProps {
-  title: React.ReactNode;
-  editable: boolean;
-  children: React.ReactNode;
-  dataIndex: keyof Item;
+interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
+  editing: boolean;
+  dataIndex: string;
+  title: any;
+  inputType: 'number' | 'text';
   record: Item;
-  handleSave: (record: Item) => void;
+  index: number;
+  children: React.ReactNode;
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
-  title,
-  editable,
-  children,
+  editing,
   dataIndex,
+  title,
+  inputType,
   record,
-  handleSave,
+  index,
+  children,
   ...restProps
 }) => {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef<InputRef>(null);
-  const form = useContext(EditableContext)!;
-
-  useEffect(() => {
-    if (editing) {
-      inputRef?.current?.focus();
-    }
-  }, [editing]);
-
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
-  };
-
-  const save = async () => {
-    try {
-      const values = await form.validateFields();
-
-      toggleEdit();
-      handleSave({ ...record, ...values });
-    } catch (errInfo) {
-      console.log('Save failed:', errInfo);
-    }
-  };
-
-  let childNode = children;
-
-  if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{ margin: 0 }}
-        name={dataIndex}
-        rules={[
-          {
-            required: true,
-            message: `${title} é obrigatório.`,
-          },
-        ]}
-      >
-        {dataIndex === 'dre' ? (
-          <SelectDRECadastroPropostas
-            form={form}
-            formItemProps={{ label: '' }}
-            selectProps={{ disabled: false }}
-          />
-        ) : (
-          <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-        )}
-      </Form.Item>
+  const inputNode =
+    dataIndex === 'dreIdPropostas' ? (
+      <SelectDRECadastroPropostas
+        formItemProps={{
+          label: '',
+          required: false,
+          style: { marginTop: 25 },
+        }}
+        selectProps={{ mode: undefined }}
+      />
     ) : (
-      <div
-        className='editable-cell-value-wrap'
-        style={{ paddingRight: 24 }}
-        aria-hidden='true'
-        onClick={toggleEdit}
-      >
-        {children}
-      </div>
+      <Input />
     );
-  }
 
-  return <td {...restProps}>{childNode}</td>;
+  return (
+    <td {...restProps}>
+      {editing ? (
+        <Form.Item
+          name={dataIndex}
+          style={{ margin: 0 }}
+          rules={[
+            {
+              required: dataIndex === 'turma',
+            },
+          ]}
+        >
+          {inputNode}
+        </Form.Item>
+      ) : (
+        children
+      )}
+    </td>
+  );
 };
 
-type EditableTableProps = Parameters<typeof Table>[0];
-
-interface DataType {
-  key: React.Key;
-  name: string;
-  dre: { label: string; value: number };
-}
-
-interface TableParams {
-  pagination?: TablePaginationConfig;
-}
-
-type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
-
 const TabelaEditavel: React.FC = () => {
-  const form = Form.useFormInstance();
-  const dreIdPropostas = Form?.useWatch('dreIdPropostas', form);
-  const quantidadeTurmas = Form?.useWatch('quantidadeTurmas', form);
+  const [form] = Form.useForm();
+  const [data, setData] = useState(originData);
+  const [editingKey, setEditingKey] = useState('');
 
-  //TODO: verificar o retorno do dado para SUBSTITUIR O 15 PELO -99 OU OPCAOLISTAGEM.TODOS
-  const dreOpcoesEhTodas = dreIdPropostas?.filter((item) => item.value === 15);
+  const pagination: TablePaginationConfig = {
+    locale: { items_per_page: '' },
+    hideOnSinglePage: true,
+  };
 
-  const [count, setCount] = useState(1);
-  const [dataSource, setDataSource] = useState<DataType[]>([]);
-  const [tableParams, setTableParams] = useState<TableParams>({
-    pagination: {
-      locale: { items_per_page: '' },
-      hideOnSinglePage: true,
-    },
-  });
+  const isEditing = (record: Item) => record.key === editingKey;
 
-  const defaultColumns: (ColumnTypes[number] & {
-    editable?: boolean;
-    dataIndex: string;
-  })[] = [
+  const edit = (record: Partial<Item> & { key: React.Key }) => {
+    form.setFieldsValue({ turma: '', dreIdPropostas: [], ...record });
+    setEditingKey(record.key);
+  };
+
+  const cancel = () => {
+    setEditingKey('');
+  };
+
+  const save = async (key: React.Key) => {
+    try {
+      const row = (await form.validateFields()) as Item;
+
+      const newData = [...data];
+      const index = newData.findIndex((item) => key === item.key);
+      if (index > -1) {
+        const item = newData[index];
+        newData.splice(index, 1, {
+          ...item,
+          ...row,
+        });
+        setData(newData);
+        setEditingKey('');
+      } else {
+        newData.push(row);
+        setData(newData);
+        setEditingKey('');
+      }
+    } catch (errInfo) {
+      console.log('Validate Failed:', errInfo);
+    }
+  };
+
+  const columns = [
     {
       title: 'Turma',
-      dataIndex: 'name',
+      dataIndex: 'turma',
+      width: '20%',
       editable: true,
     },
     {
       title: 'DRE',
-      dataIndex: 'dre',
-      editable: !!dreOpcoesEhTodas?.length,
-      // editable: dreIdPropostas.includes(OpcaoListagem.Todos),
+      dataIndex: 'dreIdPropostas',
+      editable: true,
+      render: (dre: any) => dre?.label,
+    },
+    {
+      title: 'Operação',
+      dataIndex: 'operacao',
+      width: '15%',
+      render: (_: any, record: Item) => {
+        const editable = isEditing(record);
+
+        return editable ? (
+          <span>
+            <Typography.Link onClick={() => save(record.key)} style={{ marginRight: 8 }}>
+              Salvar
+            </Typography.Link>
+            <Typography.Link onClick={cancel}>Cancelar</Typography.Link>
+          </span>
+        ) : (
+          <Typography.Link disabled={!!editingKey} onClick={() => edit(record)}>
+            Editar
+          </Typography.Link>
+        );
+      },
     },
   ];
 
-  const adicionarRemoverLinhas = () => {
-    if (quantidadeTurmas) {
-      const novasLinhas: DataType[] = [];
-      for (let i = 0; i < quantidadeTurmas; i++) {
-        const newData: DataType = {
-          key: count + i,
-          name: `Turma ${count + i}`,
-          dre: dreIdPropostas?.map((item: { label: string; value: number }) => item.label),
-        };
-        novasLinhas.push(newData);
-      }
-
-      setDataSource([...dataSource, ...novasLinhas]);
-      setCount(count + quantidadeTurmas);
-    } else if (quantidadeTurmas <= 0 || quantidadeTurmas === undefined) {
-      setDataSource([]);
-      setCount(1);
-    }
-  };
-
-  useEffect(() => {
-    setTimeout(() => {
-      adicionarRemoverLinhas();
-    }, 500);
-  }, [quantidadeTurmas]);
-
-  const handleSave = (row: DataType) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => row.key === item.key);
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setDataSource(newData);
-  };
-
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-
-  const columns = defaultColumns.map((col) => {
+  const mergedColumns = columns.map((col) => {
     if (!col.editable) {
       return col;
     }
     return {
       ...col,
-      onCell: (record: DataType) => ({
+      onCell: (record: Item) => ({
         record,
-        editable: col.editable,
+        inputType: col.dataIndex,
         dataIndex: col.dataIndex,
         title: col.title,
-        handleSave,
+        editing: isEditing(record),
       }),
     };
   });
 
   return (
-    <div>
+    <Form form={form} component={false} validateMessages={validateMessages}>
       <Table
+        components={{
+          body: {
+            cell: EditableCell,
+          },
+        }}
         bordered
-        components={components}
-        dataSource={dataSource}
-        columns={columns as ColumnTypes}
-        rowClassName={() => 'editable-row'}
+        dataSource={data}
+        columns={mergedColumns}
+        rowClassName='editable-row'
+        pagination={pagination}
         locale={{ emptyText: 'Sem dados' }}
-        pagination={tableParams.pagination}
       />
-    </div>
+    </Form>
   );
 };
 

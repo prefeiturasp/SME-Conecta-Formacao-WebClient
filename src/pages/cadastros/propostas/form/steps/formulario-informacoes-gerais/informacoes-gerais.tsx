@@ -56,7 +56,7 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <SelectDRECadastroPropostas form={form} />
+        <SelectDRECadastroPropostas />
       </Col>
 
       <Col xs={24} sm={14} md={24}>
