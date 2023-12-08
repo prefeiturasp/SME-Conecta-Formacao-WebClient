@@ -28,13 +28,7 @@ export const SelectDRE: React.FC<SelectDREProps> = ({ formItemProps, selectProps
 
   return (
     <Form.Item label='DRE' key='dreId' name='dreId' rules={[{ required: true }]} {...formItemProps}>
-      <Select
-        allowClear
-        {...selectProps}
-        options={options}
-        id={CF_SELECT_DRE}
-        placeholder='Selecione a DRE'
-      />
+      <Select {...selectProps} options={options} id={CF_SELECT_DRE} placeholder='Selecione a DRE' />
     </Form.Item>
   );
 };

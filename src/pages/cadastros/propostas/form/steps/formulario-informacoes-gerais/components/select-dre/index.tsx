@@ -1,60 +1,74 @@
-import { FormInstance } from 'antd';
-import jwt_decode from 'jwt-decode';
-import React, { useEffect, useState } from 'react';
+import { FormItemProps, SelectProps } from 'antd';
+import React from 'react';
 import { SelectDRE } from '~/components/main/input/dre';
 import { CF_SELECT_DRE_CADASTRO_PROPOSTAS } from '~/core/constants/ids/select';
-import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
-import { useAppSelector } from '~/core/hooks/use-redux';
-import { obterDREs } from '~/core/services/dre-service';
 
-type SelectDRECadastroPropostasProps = {
-  form: FormInstance;
+export type InitialValueConfig = {
+  value: any;
+  loaded: boolean;
 };
 
-export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProps> = ({ form }) => {
-  const token = useAppSelector((store) => store.auth.token);
-  const decodeToken: JWTDecodeDTO = jwt_decode(token);
+type SelectDRECadastroPropostasProps = {
+  formItemProps?: FormItemProps;
+  selectProps?: SelectProps;
+};
 
-  const newToken = { ...decodeToken, dres: [1, 2, 3] };
-  const dresIdsDoToken = newToken?.dres;
+export const SelectDRECadastroPropostas: React.FC<SelectDRECadastroPropostasProps> = ({
+  formItemProps,
+  selectProps,
+}) => {
+  // const form = useFormInstance();
 
-  const [desabilitarCampoDRE, setDesabilitarCampoDRE] = useState<boolean>(false);
-  const [autoSetValues, setAutoSetValues] = useState<string[]>([]);
+  // const token = useAppSelector((store) => store.auth.token);
+  // const decodeToken: JWTDecodeDTO = jwt_decode(token);
 
-  useEffect(() => {
-    if (dresIdsDoToken && dresIdsDoToken.length > 0 && !desabilitarCampoDRE) {
-      const obterDescricoesDRE = async () => {
-        const resposta = await obterDREs();
-        const descricoes = resposta.dados
-          .filter((item) => dresIdsDoToken.includes(item.id))
-          .map((dre) => dre.descricao);
+  //TODO: verificar o retorno do dado para SUBSTITUIR O 15 PELO -99 OU OPCAOLISTAGEM.TODOS
+  // const newToken = { ...decodeToken, dres: [15] };
+  // const dresIdsDoToken = newToken?.dres;
 
-        if (descricoes.length > 0) {
-          setDesabilitarCampoDRE(true);
-          setAutoSetValues(descricoes);
-        }
-      };
+  // const [desabilitarCampoDRE, setDesabilitarCampoDRE] = useState<boolean>(false);
+  // const [autoSetValues, setAutoSetValues] = useState<DefaultOptionType[]>([]);
 
-      obterDescricoesDRE();
-    }
-  }, [dresIdsDoToken, desabilitarCampoDRE]);
+  // useEffect(() => {
+  //   if (dresIdsDoToken && dresIdsDoToken.length > 0 && !desabilitarCampoDRE) {
+  //     const obterDescricoesDRE = async () => {
+  //       const resposta = await obterDREs();
+  //       const descricoes = resposta.dados
+  //         .filter((item) => dresIdsDoToken.includes(item.id))
+  //         .map((item) => ({
+  //           label: item.descricao,
+  //           value: item.id,
+  //         }));
 
-  useEffect(() => {
-    if (autoSetValues.length > 0) {
-      form?.setFieldValue('dreIdPropostas', autoSetValues);
-    }
-  }, [autoSetValues, form]);
+  //       if (descricoes.length > 0) {
+  //         setDesabilitarCampoDRE(true);
+  //         setAutoSetValues(descricoes);
+  //       }
+  //     };
+  //     obterDescricoesDRE();
+  //   }
+  // }, [dresIdsDoToken, desabilitarCampoDRE]);
+
+  // useEffect(() => {
+  //   if (autoSetValues.length > 0) {
+  //     form?.setFieldValue('dreIdPropostas', autoSetValues);
+  //   }
+  // }, [autoSetValues, form]);
 
   return (
     <SelectDRE
       formItemProps={{
-        label: 'DRE',
+        ...formItemProps,
+        label: formItemProps?.label ?? 'DRE',
         name: 'dreIdPropostas',
+        getValueFromEvent: (_, value) => value,
       }}
       selectProps={{
         mode: 'multiple',
-        disabled: desabilitarCampoDRE,
+        labelInValue: true,
+        disabled: selectProps?.disabled,
         id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
+        ...selectProps,
       }}
     />
   );

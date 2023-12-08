@@ -27,11 +27,10 @@ const obterCriterioValidacaoInscricao = (): Promise<ApiResult<CriterioValidacaoI
 
 //TODO: AJUSTAR ENDPOINT
 const obterAnoEtapa = (): Promise<ApiResult<AnoEtapaDTO[]>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/anoEtapa/?exibirOpcaoTodos=true`);
+  obterRegistro(`${URL_API_PROPOSTA}/ano`);
 
-//TODO: AJUSTAR ENDPOINT
 const obterComponenteCurricular = (): Promise<ApiResult<ComponenteCurricularDTO[]>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/anoEtapa/?exibirOpcaoTodos=true`);
+  obterRegistro(`${URL_API_PROPOSTA}/componentes-curriculares`);
 
 const obterFormacaoHomologada = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/formacao-homologada`);

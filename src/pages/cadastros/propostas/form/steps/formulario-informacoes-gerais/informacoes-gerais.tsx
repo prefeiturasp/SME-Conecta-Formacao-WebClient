@@ -28,6 +28,7 @@ import {
 } from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
 import { SelectDRECadastroPropostas } from './components/select-dre';
+import TabelaEditavel from './components/table/turmas';
 
 const FormInformacoesGerais: React.FC = () => {
   const form = Form.useFormInstance();
@@ -55,7 +56,7 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <SelectDRECadastroPropostas form={form} />
+        <SelectDRECadastroPropostas />
       </Col>
 
       <Col xs={24} sm={14} md={24}>
@@ -172,6 +173,10 @@ const FormInformacoesGerais: React.FC = () => {
             );
           }}
         </Form.Item>
+      </Col>
+
+      <Col span={24}>
+        <TabelaEditavel />
       </Col>
 
       <Col span={24}>
