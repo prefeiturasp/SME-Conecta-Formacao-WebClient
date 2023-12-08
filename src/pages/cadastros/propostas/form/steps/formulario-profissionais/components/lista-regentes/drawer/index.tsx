@@ -62,7 +62,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
   const salvarDados = async (values: PropostaRegenteDTO) => {
     const dtoRegente: PropostaRegenteDTO = {
       ...values,
-      turmas: values.turmas.map((turma: any) => ({ turma })),
+      turmas: values.turmas.map((turmaId: any) => ({ turmaId })),
       id,
     };
 
@@ -95,11 +95,10 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
 
       if (response.sucesso) {
         if (response.dados?.turmas?.length) {
-          response.dados.turmas = response.dados.turmas.map((item) => item?.turma);
+          response.dados.turmas = response.dados.turmas.map((item) => item?.turmaId);
         }
 
         setFormInitialValues({ ...response.dados });
-
         return;
       }
     }

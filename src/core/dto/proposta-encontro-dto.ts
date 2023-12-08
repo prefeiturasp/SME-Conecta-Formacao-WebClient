@@ -17,7 +17,8 @@ export type PropostaEncontroPaginadoDTO = {
 } & PropostaEncontroDTO;
 
 export type PropostaEncontroTurmaDTO = {
-  turma: number;
+  turmaId: number;
+  nome?: string;
 };
 
 export type PropostaEncontroDataDTO = {

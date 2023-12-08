@@ -293,6 +293,14 @@ const FormCadastroDePropostas: React.FC = () => {
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
+      turmas: [
+        { id: 1, nome: 'Turma 1' },
+        { id: 2, nome: 'Turma 2' },
+        { id: 3, nome: 'Turma 3' },
+        { id: 4, nome: 'Turma 4' },
+        { id: 5, nome: 'Turma 5' },
+      ],
+      dres: [],
     };
 
     if (clonedValues?.publicosAlvo?.length) {
