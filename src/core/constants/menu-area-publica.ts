@@ -1,34 +1,45 @@
+export enum AreaPublicaEnum {
+  Home = 0,
+  EventosExternos = 1,
+  EventoEscola = 2,
+  Faq = 3,
+  QuemSomos = 4,
+  SejaParceiro = 5,
+  Contato = 6,
+  Login = 7,
+}
+
 export const MENU_AREA_PUBLICA = {
   HOME: {
     LABEL: 'Home',
-    KEY: 'home',
+    KEY: AreaPublicaEnum.Home,
   },
   EVENTOS_EXTERNO: {
     LABEL: 'Eventos externos',
-    KEY: 'eventos-externos',
+    KEY: AreaPublicaEnum.EventosExternos,
   },
   EVENTOS_ESCOLA: {
     LABEL: 'Eventos na escola',
-    KEY: 'eventos-escola',
+    KEY: AreaPublicaEnum.EventoEscola,
   },
   FAQ: {
     LABEL: 'FAQ',
-    KEY: 'faq',
+    KEY: AreaPublicaEnum.Faq,
   },
   QUEM_SOMOS: {
     LABEL: 'Quem Somos',
-    KEY: 'quem-somos',
+    KEY: AreaPublicaEnum.QuemSomos,
   },
   SEJA_PARCEITO: {
     LABEL: 'Seja Parceiro',
-    KEY: 'seja-parceito',
+    KEY: AreaPublicaEnum.SejaParceiro,
   },
   CONTATO: {
     LABEL: 'Contato',
-    KEY: 'contato',
+    KEY: AreaPublicaEnum.Contato,
   },
   LOGIN: {
     LABEL: 'Login',
-    KEY: 'login',
+    KEY: AreaPublicaEnum.Login,
   },
 };
