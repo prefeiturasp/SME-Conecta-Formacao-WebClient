@@ -19,6 +19,7 @@ import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
+import AreaPublica from '~/pages/area-publica';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -32,12 +33,14 @@ const RoutesConfig = () => {
   const meusDadosPage = createElement(MeusDados);
   const redefinirSenhaPage = createElement(RedefinirSenha);
   const redefinirSenhaTokenPage = createElement(RedefinirSenhaToken);
+  const areaPublicaPage = createElement(AreaPublica);
 
   return (
     <BrowserRouter>
       {autenticado ? (
         <>
           <Routes>
+            <Route path={ROUTES.AREA_PUBLICA} element={areaPublicaPage} />
             <Route element={<GuardAutenticacao />}>
               <Route path={ROUTES.PRINCIPAL} element={principalPage}>
                 <Route path='*' element={notFoundPage} />
@@ -87,6 +90,7 @@ const RoutesConfig = () => {
         </>
       ) : (
         <Routes>
+          <Route path={ROUTES.AREA_PUBLICA} element={areaPublicaPage} />
           <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />
           <Route element={homePage}>
             <Route path={ROUTES.LOGIN} element={loginPage} />
