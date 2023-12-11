@@ -4,39 +4,40 @@ import { LoginOutlined } from '@ant-design/icons';
 import { Colors, BoxShadow } from '~/core/styles/colors';
 import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { MENU_AREA_PUBLICA } from '~/core/constants/menu-area-publica';
 
 const items: MenuProps['items'] = [
   {
-    label: 'Home',
-    key: 'home',
+    label: MENU_AREA_PUBLICA.HOME.LABEL,
+    key: MENU_AREA_PUBLICA.HOME.KEY,
   },
   {
-    label: 'Eventos externos',
-    key: 'eventos-externos',
+    label: MENU_AREA_PUBLICA.EVENTOS_EXTERNO.LABEL,
+    key: MENU_AREA_PUBLICA.EVENTOS_EXTERNO.KEY,
   },
   {
-    label: 'Eventos na escola',
-    key: 'eventos-escola',
+    label: MENU_AREA_PUBLICA.EVENTOS_ESCOLA.LABEL,
+    key: MENU_AREA_PUBLICA.EVENTOS_ESCOLA.KEY,
   },
   {
-    label: 'FAQ',
-    key: 'faq',
+    label: MENU_AREA_PUBLICA.FAQ.LABEL,
+    key: MENU_AREA_PUBLICA.FAQ.KEY,
   },
   {
-    label: 'Quem Somos',
-    key: 'quem-somos',
+    label: MENU_AREA_PUBLICA.QUEM_SOMOS.LABEL,
+    key: MENU_AREA_PUBLICA.QUEM_SOMOS.KEY,
   },
   {
-    label: 'Seja Parceiro',
-    key: 'seja-parceito',
+    label: MENU_AREA_PUBLICA.SEJA_PARCEITO.LABEL,
+    key: MENU_AREA_PUBLICA.SEJA_PARCEITO.KEY,
   },
   {
-    label: 'Contato',
-    key: 'contato',
+    label: MENU_AREA_PUBLICA.CONTATO.LABEL,
+    key: MENU_AREA_PUBLICA.CONTATO.KEY,
   },
   {
-    label: <a href={ROUTES.LOGIN}>Login</a>,
-    key: 'login',
+    label: <a href={ROUTES.LOGIN}>{MENU_AREA_PUBLICA.LOGIN.LABEL}</a>,
+    key: MENU_AREA_PUBLICA.LOGIN.KEY,
     icon: <LoginOutlined />,
   },
 ];
@@ -52,10 +53,9 @@ const contentStyle: React.CSSProperties = {
   boxShadow: BoxShadow.DEFAULT,
 };
 const AreaPublica: FC = () => {
-  const [current, setCurrent] = useState('home');
+  const [current, setCurrent] = useState(MENU_AREA_PUBLICA.HOME.LABEL);
 
   const onClick: MenuProps['onClick'] = (e) => {
-    console.log('click ', e);
     setCurrent(e.key);
   };
   return (
