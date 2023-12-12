@@ -122,7 +122,7 @@ const FormCadastroDePropostas: React.FC = () => {
       tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
       dres: [],
-      modalidades: [],
+      modalidades: undefined,
       componentesCurriculares: [],
       anosTurmas: [],
       funcoesEspecificas: [],
@@ -147,9 +147,10 @@ const FormCadastroDePropostas: React.FC = () => {
         dres = dados.dres.map((item) => item.dreId);
       }
 
-      let modalidades: number[] = [];
+      let modalidades: number | undefined = undefined;
+
       if (dados?.modalidades?.length) {
-        modalidades = dados.modalidades.map((item) => item.modalidade);
+        modalidades = dados.modalidades[0]?.modalidade;
       }
 
       let anosTurmas: number[] = [];
@@ -278,7 +279,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const salvar = async (novaSituacao?: SituacaoRegistro) => {
     let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
-    const clonedValues = cloneDeep(values);
+    const clonedValues: PropostaFormDTO = cloneDeep(values);
 
     const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
     const dataRealizacaoFim = values.periodoRealizacao?.[1];
@@ -338,7 +339,7 @@ const FormCadastroDePropostas: React.FC = () => {
 
     if (clonedValues?.dres?.length) {
       valoresSalvar.dres = clonedValues.dres.map((dreId) => ({
-        dreId: dreId.value,
+        dreId,
       }));
     }
 
@@ -361,8 +362,9 @@ const FormCadastroDePropostas: React.FC = () => {
     }
 
     if (clonedValues?.turmas?.length) {
+      console.log(clonedValues.turmas);
       valoresSalvar.turmas = clonedValues.turmas.map((turma) => ({
-        nome: turma.turma,
+        nome: turma.nome,
         dreId: turma.dreId,
       }));
     }

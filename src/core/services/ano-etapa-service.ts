@@ -1,18 +1,24 @@
+import queryString from 'query-string';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { ApiResult, obterRegistro } from './api';
+import { obterRegistro } from './api';
 
-export const URL_DEFAULT = 'v1';
+export const URL_ANO_ETAPA = 'v1/AnoTurma';
 
-const obterAnoEtapa = (
-  anoLetivo: string,
-  AnoLetivo: number,
-  Modalidade: number,
-  ExibirOpcaoTodos?: boolean,
-): Promise<ApiResult<RetornoListagemDTO[]>> => {
-  const adicionarModalidade = AnoLetivo ? `?${`Modalidade=${Modalidade}`}` : '';
-
-  return obterRegistro(`${URL_DEFAULT}/Ano/ano-letivo/${anoLetivo}${adicionarModalidade}`, {
-    params: { AnoLetivo, ExibirOpcaoTodos },
+const obterAnoEtapa = (AnoLetivo: number, Modalidade: number, ExibirOpcaoTodos?: boolean) => {
+  return obterRegistro<RetornoListagemDTO[]>(URL_ANO_ETAPA, {
+    params: { AnoLetivo, Modalidade, ExibirOpcaoTodos },
+    paramsSerializer: {
+      serialize: (params: {
+        AnoLetivo: number;
+        Modalidade: number;
+        ExibirOpcaoTodos?: boolean;
+      }) => {
+        return queryString.stringify(params, {
+          skipNull: true,
+          skipEmptyString: true,
+        });
+      },
+    },
   });
 };
 

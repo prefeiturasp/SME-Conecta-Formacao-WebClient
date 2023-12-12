@@ -1,5 +1,4 @@
 import { Form, FormItemProps } from 'antd';
-import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
@@ -12,7 +11,6 @@ type SelectModalidadesProps = {
 };
 
 const SelectModalidades: React.FC<SelectModalidadesProps> = ({ selectProps, formItemProps }) => {
-  const form = useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -37,10 +35,6 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({ selectProps, form
         options={options}
         placeholder='Modalidade'
         id={CF_SELECT_MODALIDADE}
-        onChange={() => {
-          form.setFieldValue('anosTurmas', []);
-          form.setFieldValue('componentesCurriculares', []);
-        }}
         {...selectProps}
       />
     </Form.Item>

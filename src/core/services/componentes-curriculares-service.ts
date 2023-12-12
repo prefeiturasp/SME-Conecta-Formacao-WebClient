@@ -1,18 +1,20 @@
+import queryString from 'query-string';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { ApiResult, obterRegistro } from './api';
+import { obterRegistro } from './api';
 
-export const URL_DEFAULT = 'v1';
+const URL_API_COMPONENTE_CURRICULAR = 'v1/componentes-curriculares';
 
-const obterComponenteCurricular = (
-  AnoTurmaId: number[],
-  ExibirOpcaoTodos?: boolean,
-): Promise<ApiResult<RetornoListagemDTO[]>> => {
-  const adicionarAnosTurmaId = AnoTurmaId?.length
-    ? `?${AnoTurmaId.map((item) => `AnoTurmaId=${item}`).join('&')}`
-    : '';
-
-  return obterRegistro(`${URL_DEFAULT}/componentes-curriculares${adicionarAnosTurmaId}`, {
-    params: { ExibirOpcaoTodos },
+const obterComponenteCurricular = (anoTurmaId: number[], exibirOpcaoTodos?: boolean) => {
+  return obterRegistro<RetornoListagemDTO[]>(URL_API_COMPONENTE_CURRICULAR, {
+    params: { exibirOpcaoTodos, anoTurmaId },
+    paramsSerializer: {
+      serialize: (params: { anoTurmaId: number[]; exibirOpcaoTodos?: boolean }) => {
+        return queryString.stringify(params, {
+          skipNull: true,
+          skipEmptyString: true,
+        });
+      },
+    },
   });
 };
 

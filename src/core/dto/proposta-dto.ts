@@ -100,7 +100,7 @@ export type PropostaFormDTO = {
   acaoFormativaLink?: string;
   turmas?: PropostaTurmaDTO[];
   dres?: number[];
-  modalidades?: number[];
+  modalidades?: number;
   anosTurmas?: number[];
   componentesCurriculares?: number[];
 };
