@@ -86,7 +86,11 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
         allowClear
         mode='multiple'
         options={options}
-        placeholder='Escolha no mínimo 3 palavras-chave e no máximo 5 palavras-chave'
+        placeholder={
+          areaPublica
+            ? 'Palavras-chave'
+            : 'Escolha no mínimo 3 palavras-chave e no máximo 5 palavras-chave'
+        }
         {...selectProps}
         id={CF_SELECT_PALAVRA_CHAVE}
       />
