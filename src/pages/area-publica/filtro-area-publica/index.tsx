@@ -21,7 +21,6 @@ const FiltroAreaPublica: FC<FiltroAreaPublicaProps> = ({ onChange }) => {
     >
       <Card
         style={{
-          //background: Colors.Neutral.LIGHT,
           marginLeft: '8%',
           marginRight: '3%',
           alignItems: 'center',

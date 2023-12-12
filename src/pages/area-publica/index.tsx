@@ -70,7 +70,7 @@ const AreaPublica: FC = () => {
   };
   const buscarInformacoes = () => {
     //Chamar o Endpoint de lista paginada aqui
-    console.log(filters); // exibindo se esta preenchendo todo o filtre
+    console.log(filters); // exibindo se esta preenchendo todo o filters
   };
   const obterFiltros = () => {
     const dataInicio =
