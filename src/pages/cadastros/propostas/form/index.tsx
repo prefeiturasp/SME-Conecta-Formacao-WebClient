@@ -121,6 +121,10 @@ const FormCadastroDePropostas: React.FC = () => {
       tipoFormacao: TipoFormacao.Curso,
       tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
+      dres: [],
+      modalidades: [],
+      componentesCurriculares: [],
+      anosTurmas: [],
       funcoesEspecificas: [],
       vagasRemanecentes: [],
       criteriosValidacaoInscricao: [],
@@ -138,6 +142,33 @@ const FormCadastroDePropostas: React.FC = () => {
     const dados = resposta.dados;
 
     if (resposta.sucesso) {
+      let dres: number[] = [];
+      if (dados?.dres?.length) {
+        dres = dados.dres.map((item) => item.dreId);
+      }
+
+      let modalidades: number[] = [];
+      if (dados?.modalidades?.length) {
+        modalidades = dados.modalidades.map((item) => item.modalidade);
+      }
+
+      let anosTurmas: number[] = [];
+      if (dados?.anosTurmas?.length) {
+        anosTurmas = dados.anosTurmas.map((item) => item.anoTurmaId);
+      }
+
+      let componentesCurriculares: number[] = [];
+      if (dados?.componentesCurriculares?.length) {
+        componentesCurriculares = dados.componentesCurriculares.map(
+          (item) => item.componenteCurricularId,
+        );
+      }
+
+      let turmas: any[] = [];
+      if (dados?.turmas?.length) {
+        turmas = dados.turmas.map((item) => item);
+      }
+
       let publicosAlvo: number[] = [];
       if (dados?.publicosAlvo?.length) {
         publicosAlvo = dados.publicosAlvo.map((item) => item.cargoFuncaoId);
@@ -202,6 +233,11 @@ const FormCadastroDePropostas: React.FC = () => {
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
+        dres,
+        modalidades,
+        componentesCurriculares,
+        anosTurmas,
+        turmas,
         funcoesEspecificas,
         vagasRemanecentes,
         criteriosValidacaoInscricao,
@@ -293,9 +329,45 @@ const FormCadastroDePropostas: React.FC = () => {
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
-      turmas: [],
       dres: [],
+      turmas: [],
+      modalidades: [],
+      anosTurmas: [],
+      componentesCurriculares: [],
     };
+
+    if (clonedValues?.dres?.length) {
+      valoresSalvar.dres = clonedValues.dres.map((dreId) => ({
+        dreId: dreId.value,
+      }));
+    }
+
+    console.log(clonedValues.modalidades?.length);
+
+    if (clonedValues?.modalidades?.length) {
+      valoresSalvar.modalidades = { modalidade: clonedValues.modalidades };
+    }
+
+    if (clonedValues?.anosTurmas?.length) {
+      valoresSalvar.anosTurmas = clonedValues.anosTurmas.map((anoTurmaId) => ({
+        anoTurmaId,
+      }));
+    }
+
+    if (clonedValues?.componentesCurriculares?.length) {
+      valoresSalvar.componentesCurriculares = clonedValues.componentesCurriculares.map(
+        (componenteCurricularId) => ({
+          componenteCurricularId,
+        }),
+      );
+    }
+
+    if (clonedValues?.turmas?.length) {
+      valoresSalvar.turmas = clonedValues.turmas.map((turma) => ({
+        nome: turma.turma,
+        dreId: turma.dreId,
+      }));
+    }
 
     if (clonedValues?.publicosAlvo?.length) {
       valoresSalvar.publicosAlvo = clonedValues.publicosAlvo.map((cargoFuncaoId) => ({

@@ -1,77 +1,74 @@
 import { Col, Form } from 'antd';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType } from 'antd/es/select';
+import dayjs from 'dayjs';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_ANO_ETAPA } from '~/core/constants/ids/select';
+import { obterAnoEtapa } from '~/core/services/ano-etapa-service';
 
 type SelectAnoEtapaProps = {
-  mostrarOpcaoTodas?: boolean;
+  exibirOpcaoTodos?: boolean;
 };
 
-const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ mostrarOpcaoTodas = true }) => {
-  const form = Form.useFormInstance();
+const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true }) => {
+  const form = useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
-  const dados = [
-    {
-      codigoEOL: 'a',
-      descricao: 'a',
-    },
-  ];
+  const modalidades = Form.useWatch('modalidades', form);
+  const obterValorModalidade = form.getFieldValue('modalidades');
 
-  const obterDados = useCallback(async () => {
-    // const resposta = await obterAnoEtapa();
+  const valorModalidadesValido =
+    typeof modalidades === 'number' || (Array.isArray(modalidades) && modalidades.length > 0);
 
-    if (dados.length) {
-      const newOptions = dados.map((item) => ({
-        ...item,
-        value: item?.codigoEOL,
-        label: item?.descricao,
-      }));
+  const obterValorModalidadeValido =
+    typeof obterValorModalidade === 'number' ||
+    (Array.isArray(obterValorModalidade) && obterValorModalidade.length > 0);
 
-      // if (resposta.sucesso) {
+  const obterDados = async () => {
+    const anoLetivoAtual = dayjs().year();
 
-      //   const newOptions = resposta.dados.map((item) => ({
-      //     ...item,
-      //     value: item?.codigoEOL,
-      //     label: item?.descricao,
-      //   }));
+    if (valorModalidadesValido || obterValorModalidadeValido) {
+      const resposta = await obterAnoEtapa(
+        anoLetivoAtual.toString(),
+        anoLetivoAtual,
+        modalidades,
+        exibirOpcaoTodos,
+      );
 
-      //TODO: AGUARDAR ENDPOINT FICAR PRONTO
-      if (dados.length === 1) {
-        const fieldValue = dados[0];
-        form.setFieldValue('anoEtapa', fieldValue);
-      } else if (mostrarOpcaoTodas) {
-        const OPCAO_TODAS_DRE = {
-          value: '-99',
-          label: 'Todos',
-          codigoEOL: 'a',
-          descricao: 'a',
-        };
-        newOptions.unshift(OPCAO_TODAS_DRE);
+      if (resposta.sucesso) {
+        const newOptions = resposta.dados.map((item) => ({
+          label: item.descricao,
+          value: item.id,
+        }));
+        setOptions(newOptions);
+      } else {
+        setOptions([]);
       }
-
-      setOptions(newOptions);
-    } else {
-      setOptions([]);
     }
-  }, [mostrarOpcaoTodas]);
+  };
 
   useEffect(() => {
     obterDados();
-  }, []);
+  }, [modalidades]);
 
   return (
     <Form.Item style={{ marginBottom: 0 }}>
       <Col span={24}>
-        <Form.Item label='Ano/Etapa' name='anoEtapa'>
+        <Form.Item label='Ano/Etapa' name='anosTurmas'>
           <Select
             allowClear
             mode='multiple'
             options={options}
             placeholder='Ano/Etapa'
             id={CF_SELECT_ANO_ETAPA}
+            // labelInValue
+            // onChange={(event) => {
+            //   event.find((ehTodos: any) => {
+            //     ehTodos.label === 'Todos' && form.setFieldValue('anosTurmas', ehTodos);
+            //   });
+            // }}
           />
         </Form.Item>
       </Col>

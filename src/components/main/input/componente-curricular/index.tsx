@@ -1,71 +1,55 @@
 import { Col, Form } from 'antd';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType } from 'antd/es/select';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_COMPONENTE_CURRICULAR } from '~/core/constants/ids/select';
+import { obterComponenteCurricular } from '~/core/services/componentes-curriculares-service';
 
 type SelectComponenteCurricularProps = {
-  mostrarOpcaoTodas?: boolean;
+  exibirOpcaoTodos?: boolean;
 };
 
 const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
-  mostrarOpcaoTodas = true,
+  exibirOpcaoTodos = true,
 }) => {
-  const form = Form.useFormInstance();
+  const form = useFormInstance();
+  const anoTurmaId = Form.useWatch('anosTurmas', form);
+
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
-  const dados = [
-    {
-      codigoEOL: 'a',
-      descricao: 'a',
-    },
-  ];
+  const obterDados = async () => {
+    const resposta = await obterComponenteCurricular(anoTurmaId, exibirOpcaoTodos);
 
-  const obterDados = useCallback(async () => {
-    // const resposta = await obterComponenteCurricular();
-
-    if (dados.length) {
-      const newOptions = dados.map((item) => ({
-        ...item,
-        value: item?.codigoEOL,
-        label: item?.descricao,
-      }));
-      // if (resposta.sucesso) {
-      //   const newOptions = resposta.dados.map((item) => ({
-      //     label: item.nome,
-      //     value: item.codigoEOL,
-      //   }));
-
-      //TODO: AGUARDAR ENDPOINT FICAR PRONTO
-      if (dados.length === 1) {
-        const fieldValue = dados[0];
-        form.setFieldValue('anoEtapa', fieldValue);
-      } else if (mostrarOpcaoTodas) {
-        const OPCAO_TODAS_DRE = { value: '-99', label: 'Todos', codigoEOL: 'a', descricao: 'a' };
-        newOptions.unshift(OPCAO_TODAS_DRE);
-      }
-
+    if (resposta.sucesso) {
+      const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
       setOptions(newOptions);
     } else {
       setOptions([]);
     }
-  }, [mostrarOpcaoTodas]);
+  };
 
   useEffect(() => {
-    obterDados();
-  }, []);
+    if (anoTurmaId?.length) obterDados();
+  }, [anoTurmaId]);
 
   return (
-    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+    <Form.Item style={{ marginBottom: 0 }}>
       <Col span={24}>
-        <Form.Item label='Componente Curricular' name='componenteCurricular'>
+        <Form.Item label='Componente Curricular' name='componentesCurriculares'>
           <Select
             allowClear
             mode='multiple'
             options={options}
             placeholder='Componente Curricular'
             id={CF_SELECT_COMPONENTE_CURRICULAR}
+            // labelInValue
+            // onChange={(event) => {
+            //   event.find((ehTodos) => {
+            //     ehTodos.label === 'Todos' && form.setFieldValue('componentesCurriculares', ehTodos);
+            //   });
+            // }}
           />
         </Form.Item>
       </Col>

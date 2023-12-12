@@ -4,9 +4,13 @@ import { SituacaoRegistro } from '../enum/situacao-registro';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { TipoInscricao } from '../enum/tipo-inscricao';
 import { AuditoriaDTO } from './auditoria-dto';
+import { PropostaAnoTurmaDTO } from './proposta-ano-turmas-dto';
+import { PropostaComponenteCurricularDTO } from './proposta-componente-curriculares-dto';
 import { PropostaCriterioValidacaoInscricaoDTO } from './proposta-criterio-validacao-inscricao-dto';
+import { PropostaDresDTO } from './proposta-dres-dto';
 import { PropostaFuncaoEspecificaDTO } from './proposta-funcao-especifica-dto';
 import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
+import { PropostaModalidadeDTO } from './proposta-modalidade-dto';
 import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 
@@ -47,7 +51,10 @@ export type PropostaDTO = {
   acaoFormativaLink?: string;
   descricaoDaAtividade?: string;
   turmas?: PropostaTurmaDTO[];
-  dres?: number[];
+  dres?: PropostaDresDTO[];
+  modalidades?: PropostaModalidadeDTO[];
+  anosTurmas?: PropostaAnoTurmaDTO[];
+  componentesCurriculares?: PropostaComponenteCurricularDTO[];
 };
 
 export type PropostaCompletoDTO = {
@@ -93,6 +100,9 @@ export type PropostaFormDTO = {
   acaoFormativaLink?: string;
   turmas?: PropostaTurmaDTO[];
   dres?: number[];
+  modalidades?: number[];
+  anosTurmas?: number[];
+  componentesCurriculares?: number[];
 };
 export type PropostaPalavraChaveDTO = {
   palavraChaveId: number;
@@ -105,4 +115,5 @@ export type CriterioCertificacaoDTO = {
 export type PropostaTurmaDTO = {
   id?: number;
   nome: string;
+  dreId: number;
 };

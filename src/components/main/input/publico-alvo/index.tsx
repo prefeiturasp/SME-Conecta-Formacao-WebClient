@@ -1,5 +1,6 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, FormInstance, FormItemProps, Tooltip } from 'antd';
+import { Form, FormItemProps, Tooltip } from 'antd';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -10,22 +11,23 @@ import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectPublicoAlvoProps = {
-  form?: FormInstance;
   formItemProps?: FormItemProps;
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;
 };
 
 const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
-  form,
   selectProps,
   formItemProps,
   exibirTooltip = true,
 }) => {
-  const anoEtapa = Form.useWatch('anoEtapa', form);
-  const modalidade = Form.useWatch('modalidade', form);
+  const form = useFormInstance();
+  const anosTurmas = Form.useWatch('anosTurmas', form);
+  const modalidades = Form.useWatch('modalidades', form);
   const funcoesEspecificas = Form.useWatch('funcoesEspecificas', form);
-  const componenteCurricular = Form.useWatch('componenteCurricular', form);
+
+  const componentesCurriculares = Form.useWatch('componentesCurriculares', form);
+
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -45,7 +47,7 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
   const campoEhObrigatorio = () => {
     if (
       funcoesEspecificas?.length ||
-      (anoEtapa?.length && modalidade?.length && componenteCurricular?.length)
+      (anosTurmas?.length && modalidades?.length && componentesCurriculares?.length)
     ) {
       return false;
     }
