@@ -1,16 +1,13 @@
-import { Button, Card, Col, Form, Input, Row } from 'antd';
+import { Button, Card, Col, Row } from 'antd';
 import { FC } from 'react';
+import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import DatePickerPeriodo from '~/components/main/input/date-range';
-import SelectAreaPromotoraPublico from '~/components/public/select/area-promotora';
+import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
+import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
+import InputTexto from '~/components/main/text/input-text';
 import SelectFormatoPublico from '~/components/public/select/formato';
-import SelectPalavrasChavesPublico from '~/components/public/select/palavra-chave';
-import SelectPublicoAlvoPublico from '~/components/public/select/publico-alvo';
 
-type FiltroAreaPublicaProps = {
-  onChange: () => void;
-};
-
-const FiltroAreaPublica: FC<FiltroAreaPublicaProps> = ({ onChange }) => {
+const FiltroAreaPublica: FC = () => {
   return (
     <Col
       style={{
@@ -29,30 +26,34 @@ const FiltroAreaPublica: FC<FiltroAreaPublicaProps> = ({ onChange }) => {
       >
         <Row gutter={[16, 8]}>
           <Col xs={24} sm={12} md={7} lg={7} xl={9}>
-            <SelectPublicoAlvoPublico
-              selectProps={{ onChange: onChange }}
-              required={false}
-              exibirTooltip={false}
+            <SelectPublicoAlvo required={false} exibirTooltip={false} areaPublica={true} />
+          </Col>
+          <Col xs={24} sm={12} md={7} lg={7} xl={5}>
+            <InputTexto
+              formItemProps={{
+                label: 'Título',
+                name: 'titulo',
+                rules: [{ required: false }],
+              }}
+              inputProps={{
+                placeholder: 'Título',
+                maxLength: 100,
+              }}
             />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <Form.Item label='Título' name='titulo'>
-              <Input onChange={onChange} />
-            </Form.Item>
+            <SelectAreaPromotora areaPublica={true} />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <SelectAreaPromotoraPublico selectProps={{ onChange: onChange }} />
-          </Col>
-          <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <DatePickerPeriodo label='Data' name='data' changeFunction={onChange} />
+            <DatePickerPeriodo label='Data' name='data' />
           </Col>
         </Row>
         <Row gutter={[16, 8]}>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <SelectPalavrasChavesPublico selectProps={{ onChange: onChange }} />
+            <SelectPalavrasChaves areaPublica={true} required={false} exibirTooltip={false} />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <SelectFormatoPublico selectProps={{ onChange: onChange }} />
+            <SelectFormatoPublico />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={9}></Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>

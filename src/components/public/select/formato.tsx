@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_FORMATO } from '~/core/constants/ids/select';
 import { FORMATO_NAO_INFORMADO } from '~/core/constants/mensagens';
-import { obterFormato } from '~/core/services/area-publica-service';
+import { obterFormatoPublico } from '~/core/services/area-publica-service';
 
 type SelectFormatoPublicoProps = {
   required?: boolean | true;
@@ -18,7 +18,7 @@ const SelectFormatoPublico: React.FC<SelectFormatoPublicoProps> = ({
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const obterDados = async () => {
-    const resposta = await obterFormato();
+    const resposta = await obterFormatoPublico();
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
       setOptions(newOptions);
