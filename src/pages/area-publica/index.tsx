@@ -1,11 +1,12 @@
 import { FC, useState } from 'react';
-import { Layout, Menu, MenuProps, Row, Space } from 'antd';
+import { Form, Layout, Menu, MenuProps, Row, Space } from 'antd';
 import { LoginOutlined } from '@ant-design/icons';
 import { Colors, BoxShadow } from '~/core/styles/colors';
 import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { MENU_AREA_PUBLICA } from '~/core/constants/menu-area-publica';
 import FiltroAreaPublica from './filtro-area-publica';
+import { useForm } from 'antd/es/form/Form';
 
 const items: MenuProps['items'] = [
   {
@@ -54,11 +55,15 @@ const contentStyle: React.CSSProperties = {
   boxShadow: BoxShadow.DEFAULT,
 };
 const AreaPublica: FC = () => {
-  const [current, setCurrent] = useState(MENU_AREA_PUBLICA.HOME.LABEL);
+  const [menu, setMenu] = useState(MENU_AREA_PUBLICA.HOME.LABEL);
 
-  const onClick: MenuProps['onClick'] = (e) => {
-    setCurrent(e.key);
+  const alterarMenu: MenuProps['onClick'] = (e) => {
+    setMenu(e.key);
   };
+  const buscarInformacoes = () => {
+    console.log(form.getFieldsValue());
+  };
+  const [form] = useForm();
   return (
     <>
       <Layout.Header style={contentStyle}>
@@ -66,11 +71,19 @@ const AreaPublica: FC = () => {
           <img style={{ height: '50px' }} src={ConectaLogo} alt='Conecta Formação LOGO' />
         </a>
         <Row justify='end' style={{ width: '100%' }}>
-          <Menu onClick={onClick} selectedKeys={[current]} mode='horizontal' items={items} />
+          <Menu onClick={alterarMenu} selectedKeys={[menu]} mode='horizontal' items={items} />
         </Row>
       </Layout.Header>
       <Row justify='center' style={{ width: '100%' }}>
-        <FiltroAreaPublica />
+        <Form
+          form={form}
+          layout='vertical'
+          autoComplete='off'
+          style={{ width: '100%' }}
+          onFinish={buscarInformacoes}
+        >
+          <FiltroAreaPublica />
+        </Form>
       </Row>
     </>
   );
