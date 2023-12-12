@@ -7,7 +7,7 @@ interface Item {
   id?: number;
   key: string;
   turma: string;
-  dreIdPropostas: string;
+  dreId: number;
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -23,8 +23,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
   ...restProps
 }) => {
   const inputNode =
-    dataIndex === 'dreIdPropostas' ? (
+    dataIndex === 'dreId' ? (
       <SelectDRECadastroPropostas
+        exibirOpcaoOutros={false}
         formItemProps={{
           label: '',
           required: false,
@@ -78,7 +79,7 @@ const TabelaEditavel: React.FC = () => {
         originData.push({
           key: i.toString(),
           turma: `Turma ${i}`,
-          dreIdPropostas: '',
+          dreId: 0,
         });
 
         formProposta.setFieldValue('turmas', [...originData]);
@@ -94,7 +95,7 @@ const TabelaEditavel: React.FC = () => {
   };
 
   const edit = (record: Partial<Item> & { key: React.Key }) => {
-    formRow.setFieldsValue({ turma: '', dreIdPropostas: undefined, ...record });
+    formRow.setFieldsValue({ turma: '', dreId: undefined, ...record });
     setEditingKey(record.key);
   };
 
@@ -137,9 +138,9 @@ const TabelaEditavel: React.FC = () => {
     },
     {
       title: 'DRE',
-      dataIndex: 'dreIdPropostas',
+      dataIndex: 'dreId',
       editable: true,
-      render: (dreIdPropostas: any) => dreIdPropostas?.label,
+      render: (dreId: any) => dreId,
     },
     {
       title: 'Operação',
@@ -182,7 +183,7 @@ const TabelaEditavel: React.FC = () => {
   return (
     <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
       {(formTeste) => {
-        const turmas: Item[] = formTeste.getFieldValue('turmas');
+        const turmas: Item[] = formTeste?.getFieldValue('turmas');
 
         return (
           <Form form={formRow} component={false} validateMessages={validateMessages}>
@@ -194,7 +195,7 @@ const TabelaEditavel: React.FC = () => {
                 },
               }}
               bordered
-              dataSource={[...turmas]}
+              dataSource={turmas ? [...turmas] : []}
               columns={mergedColumns}
               rowClassName='editable-row'
               pagination={pagination}
