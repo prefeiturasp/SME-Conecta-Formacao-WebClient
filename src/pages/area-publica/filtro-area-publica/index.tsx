@@ -1,9 +1,17 @@
 import { Button, Card, Col, Form, Input, Row, Select } from 'antd';
 import { FC } from 'react';
 import DatePickerPeriodo from '~/components/main/input/date-range';
+import SelectAreaPromotoraPublico from '~/components/public/select/area-promotora';
+import SelectFormatoPublico from '~/components/public/select/formato';
+import SelectPalavrasChavesPublico from '~/components/public/select/palavra-chave';
+import SelectPublicoAlvoPublico from '~/components/public/select/publico-alvo';
 import { Colors } from '~/core/styles/colors';
 
-const FiltroAreaPublica: FC = () => {
+type FiltroAreaPublicaProps = {
+  onChange: () => void;
+};
+
+const FiltroAreaPublica: FC<FiltroAreaPublicaProps> = ({ onChange }) => {
   return (
     <Col
       style={{
@@ -23,34 +31,30 @@ const FiltroAreaPublica: FC = () => {
       >
         <Row gutter={[16, 8]}>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <Form.Item label='Publico alvo' name='publico-alvo'>
-              <Select />
-            </Form.Item>
+            <SelectPublicoAlvoPublico
+              selectProps={{ onChange: onChange }}
+              required={false}
+              exibirTooltip={false}
+            />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
             <Form.Item label='Título' name='titulo'>
-              <Input />
+              <Input onChange={onChange} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <Form.Item label='Área Promotora' name='area-promotora'>
-              <Select />
-            </Form.Item>
+            <SelectAreaPromotoraPublico selectProps={{ onChange: onChange }} />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <DatePickerPeriodo label='Data' name='data' />
+            <DatePickerPeriodo label='Data' name='data' changeFunction={onChange} />
           </Col>
         </Row>
         <Row gutter={[16, 8]}>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <Form.Item label='Formato' name='formato'>
-              <Select />
-            </Form.Item>
+            <SelectPalavrasChavesPublico selectProps={{ onChange: onChange }} />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <Form.Item label='Palavra chave' name='palavra-chave'>
-              <Select />
-            </Form.Item>
+            <SelectFormatoPublico selectProps={{ onChange: onChange }} />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}></Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>

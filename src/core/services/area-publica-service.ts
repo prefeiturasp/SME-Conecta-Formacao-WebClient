@@ -1,10 +1,12 @@
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ApiResult, obterRegistro } from '~/core/services/api';
+import { CargoFuncaoTipo } from '../enum/cargo-funcao-tipo';
+import { CargoFuncaoDTO } from '../dto/cargo-funcao-dto';
 
-const URL_DEFAULT = 'v1/dados-publico';
+const URL_DEFAULT = 'v1/publico';
 
-const obterPublicoAlvo = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
-  obterRegistro(`${URL_DEFAULT}/publico-alvo`);
+const obterPublicoAlvo = (): Promise<ApiResult<CargoFuncaoDTO[]>> =>
+  obterRegistro(`${URL_DEFAULT}/cargo-funcao/tipo/${CargoFuncaoTipo.Cargo}`);
 
 const obterPalavraChave = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_DEFAULT}/palavra-chave`);

@@ -56,12 +56,36 @@ const contentStyle: React.CSSProperties = {
 };
 const AreaPublica: FC = () => {
   const [menu, setMenu] = useState(MENU_AREA_PUBLICA.HOME.LABEL);
-
+  const [filters, setFilters] = useState({
+    areaPromotoraId: null,
+    titulo: null,
+    publicoAlvoIds: null,
+    formato: null,
+    dataInicio: null,
+    dataFim: null,
+    palavraChave: null,
+  });
   const alterarMenu: MenuProps['onClick'] = (e) => {
     setMenu(e.key);
   };
   const buscarInformacoes = () => {
-    console.log(form.getFieldsValue());
+    console.log(filters);
+  };
+  const obterFiltros = () => {
+    const dataInicio =
+      form?.getFieldValue('data') != undefined ? form?.getFieldValue('data')[0] : null;
+    const dataFim =
+      form?.getFieldValue('data') != undefined ? form?.getFieldValue('data')[1] : null;
+
+    setFilters({
+      areaPromotoraId: form.getFieldValue('area-promotora'),
+      titulo: form.getFieldValue('titulo'),
+      publicoAlvoIds: form.getFieldValue('publico-alvo'),
+      dataInicio: dataInicio,
+      dataFim: dataFim,
+      formato: form.getFieldValue('formato'),
+      palavraChave: form.getFieldValue('palavra-chave'),
+    });
   };
   const [form] = useForm();
   return (
@@ -82,7 +106,7 @@ const AreaPublica: FC = () => {
           style={{ width: '100%' }}
           onFinish={buscarInformacoes}
         >
-          <FiltroAreaPublica />
+          <FiltroAreaPublica onChange={obterFiltros} />
         </Form>
       </Row>
     </>
