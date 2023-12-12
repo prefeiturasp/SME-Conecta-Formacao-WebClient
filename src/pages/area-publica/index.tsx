@@ -69,7 +69,8 @@ const AreaPublica: FC = () => {
     setMenu(e.key);
   };
   const buscarInformacoes = () => {
-    console.log(filters);
+    //Chamar o Endpoint de lista paginada aqui
+    console.log(filters); // exibindo se esta preenchendo todo o filtre
   };
   const obterFiltros = () => {
     const dataInicio =

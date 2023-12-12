@@ -30,7 +30,7 @@ const FiltroAreaPublica: FC<FiltroAreaPublicaProps> = ({ onChange }) => {
         }}
       >
         <Row gutter={[16, 8]}>
-          <Col xs={24} sm={12} md={7} lg={7} xl={5}>
+          <Col xs={24} sm={12} md={7} lg={7} xl={9}>
             <SelectPublicoAlvoPublico
               selectProps={{ onChange: onChange }}
               required={false}
