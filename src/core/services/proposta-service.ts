@@ -1,5 +1,4 @@
 import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
-import { ComponenteCurricularDTO } from '../dto/componente-curricular-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
