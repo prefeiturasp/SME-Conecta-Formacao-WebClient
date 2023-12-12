@@ -342,10 +342,8 @@ const FormCadastroDePropostas: React.FC = () => {
       }));
     }
 
-    console.log(clonedValues.modalidades?.length);
-
-    if (clonedValues?.modalidades?.length) {
-      valoresSalvar.modalidades = { modalidade: clonedValues.modalidades };
+    if (clonedValues?.modalidades) {
+      valoresSalvar.modalidades = [{ modalidade: clonedValues.modalidades }];
     }
 
     if (clonedValues?.anosTurmas?.length) {
