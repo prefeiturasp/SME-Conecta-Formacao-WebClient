@@ -1,7 +1,7 @@
 import { FC } from 'react';
-import FiltroAreaPublica from './filtro-area-publica';
+import FiltroAreaPublica from './components/filtro';
 import { useForm } from 'antd/es/form/Form';
-import HeaderAreaPublica from './header-area-publica';
+import HeaderAreaPublica from './components/header';
 import { Form, Row } from 'antd';
 
 const AreaPublica: FC = () => {

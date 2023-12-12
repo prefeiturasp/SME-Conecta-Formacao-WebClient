@@ -1,13 +1,14 @@
-import { Button, Card, Col, Row } from 'antd';
+import { Button, Card, Col, Form, Row } from 'antd';
 import { FC } from 'react';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import DatePickerPeriodo from '~/components/main/input/date-range';
+import SelectModalidades from '~/components/main/input/modalidades';
 import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
 import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
 import InputTexto from '~/components/main/text/input-text';
-import SelectFormatoPublico from '~/components/public/select/formato';
 
 const FiltroAreaPublica: FC = () => {
+  const form = Form.useFormInstance();
   return (
     <Col
       style={{
@@ -53,7 +54,13 @@ const FiltroAreaPublica: FC = () => {
             <SelectPalavrasChaves areaPublica={true} required={false} exibirTooltip={false} />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-            <SelectFormatoPublico />
+            <SelectModalidades
+              formItemProps={{ name: 'formato', label: 'Formato' }}
+              required={false}
+              areaPublica={true}
+              exibirTooltip={false}
+              form={form}
+            />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={9}></Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
