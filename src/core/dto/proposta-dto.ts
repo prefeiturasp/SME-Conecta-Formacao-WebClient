@@ -98,7 +98,7 @@ export type PropostaFormDTO = {
   descricaoDaAtividade?: string;
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
-  turmas?: PropostaTurmaDTO[];
+  turmas?: PropostaTurmaFormDTO[];
   dres?: number[];
   modalidades?: number;
   anosTurmas?: number[];
@@ -115,5 +115,13 @@ export type CriterioCertificacaoDTO = {
 export type PropostaTurmaDTO = {
   id?: number;
   nome: string;
-  dreId: number;
+  dreId?: number;
+};
+
+export type PropostaTurmaFormDTO = {
+  key: number;
+  id?: number;
+  nome: string;
+  dreNome?: string;
+  dreId?: number;
 };

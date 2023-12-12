@@ -35,7 +35,12 @@ import {
 } from '~/core/constants/mensagens';
 import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
 import { validateMessages } from '~/core/constants/validate-messages';
-import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
+import {
+  PropostaDTO,
+  PropostaFormDTO,
+  PropostaTurmaDTO,
+  PropostaTurmaFormDTO,
+} from '~/core/dto/proposta-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
@@ -167,7 +172,12 @@ const FormCadastroDePropostas: React.FC = () => {
 
       let turmas: any[] = [];
       if (dados?.turmas?.length) {
-        turmas = dados.turmas.map((item) => item);
+        turmas = dados.turmas.map(
+          (item, index): PropostaTurmaFormDTO => ({
+            ...item,
+            key: index,
+          }),
+        );
       }
 
       let publicosAlvo: number[] = [];
@@ -362,11 +372,20 @@ const FormCadastroDePropostas: React.FC = () => {
     }
 
     if (clonedValues?.turmas?.length) {
-      console.log(clonedValues.turmas);
-      valoresSalvar.turmas = clonedValues.turmas.map((turma) => ({
-        nome: turma.nome,
-        dreId: turma.dreId,
-      }));
+      valoresSalvar.turmas = clonedValues.turmas.map((item) => {
+        const turma: PropostaTurmaDTO = {
+          nome: item.nome,
+        };
+
+        if (item.dreId) {
+          turma.dreId = item.dreId;
+        }
+
+        if (item.id) {
+          turma.id = item.id;
+        }
+        return turma;
+      });
     }
 
     if (clonedValues?.publicosAlvo?.length) {
