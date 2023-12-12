@@ -18,7 +18,6 @@ type SelectPublicoAlvoProps = {
 const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
   selectProps,
   formItemProps,
-  exibirTooltip = true,
 }) => {
   const form = useFormInstance();
   const anosTurmas = Form.useWatch('anosTurmas', form);
