@@ -1,11 +1,10 @@
-import { Button, Card, Col, Form, Input, Row, Select } from 'antd';
+import { Button, Card, Col, Form, Input, Row } from 'antd';
 import { FC } from 'react';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import SelectAreaPromotoraPublico from '~/components/public/select/area-promotora';
 import SelectFormatoPublico from '~/components/public/select/formato';
 import SelectPalavrasChavesPublico from '~/components/public/select/palavra-chave';
 import SelectPublicoAlvoPublico from '~/components/public/select/publico-alvo';
-import { Colors } from '~/core/styles/colors';
 
 type FiltroAreaPublicaProps = {
   onChange: () => void;
@@ -56,7 +55,7 @@ const FiltroAreaPublica: FC<FiltroAreaPublicaProps> = ({ onChange }) => {
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
             <SelectFormatoPublico selectProps={{ onChange: onChange }} />
           </Col>
-          <Col xs={24} sm={12} md={7} lg={7} xl={5}></Col>
+          <Col xs={24} sm={12} md={7} lg={7} xl={9}></Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
             <Row justify='end' style={{ marginTop: 15 }}>
               <Button shape='round' type='primary' htmlType='submit'>

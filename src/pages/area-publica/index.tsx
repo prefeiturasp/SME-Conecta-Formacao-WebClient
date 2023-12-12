@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { Form, Layout, Menu, MenuProps, Row, Space } from 'antd';
+import { Form, Layout, Menu, MenuProps, Row } from 'antd';
 import { LoginOutlined } from '@ant-design/icons';
 import { Colors, BoxShadow } from '~/core/styles/colors';
 import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
