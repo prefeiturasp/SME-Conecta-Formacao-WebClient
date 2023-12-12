@@ -56,7 +56,7 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <SelectDRECadastroPropostas formItemProps={{ label: 'DRE' }} />
+        <SelectDRECadastroPropostas exibirOpcaoOutros formItemProps={{ label: 'DRE' }} />
       </Col>
 
       <Col xs={24} sm={14} md={24}>
@@ -85,7 +85,7 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <SelectPublicoAlvo form={form} />
+        <SelectPublicoAlvo />
       </Col>
 
       <Col span={24}>
@@ -93,7 +93,7 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <SelectModalidades form={form} />
+        <SelectModalidades />
       </Col>
 
       <Col span={24}>
