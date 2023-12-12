@@ -1,11 +1,13 @@
 import { Form, FormItemProps } from 'antd';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
+import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import { CF_SELECT_PUBLICO_ALVO } from '~/core/constants/ids/select';
+import { PUBLICO_ALVO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
-import { getTooltipFormInfoCircleFilled } from '../../tooltip';
 
 type SelectPublicoAlvoProps = {
   formItemProps?: FormItemProps;
@@ -13,7 +15,17 @@ type SelectPublicoAlvoProps = {
   selectProps?: SelectProps;
 };
 
-const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({ selectProps, formItemProps }) => {
+const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
+  selectProps,
+  formItemProps,
+  exibirTooltip = true,
+}) => {
+  const form = useFormInstance();
+  const anosTurmas = Form.useWatch('anosTurmas', form);
+  const modalidades = Form.useWatch('modalidades', form);
+  const funcoesEspecificas = Form.useWatch('funcoesEspecificas', form);
+  const componentesCurriculares = Form.useWatch('componentesCurriculares', form);
+
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -30,10 +42,22 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({ selectProps, form
     obterDados();
   }, []);
 
+  const campoEhObrigatorio = () => {
+    if (
+      funcoesEspecificas?.length ||
+      (anosTurmas?.length && modalidades && componentesCurriculares?.length)
+    ) {
+      return false;
+    }
+
+    return true;
+  };
+
   return (
     <Form.Item
       label='Público alvo'
       name='publicosAlvo'
+      rules={[{ required: campoEhObrigatorio(), message: PUBLICO_ALVO_NAO_INFORMADO }]}
       tooltip={getTooltipFormInfoCircleFilled(
         'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
       )}
@@ -51,4 +75,4 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({ selectProps, form
   );
 };
 
-export default SelectPublicoAlvo;
+export default SelectPublicoAlvoCadastroProposta;

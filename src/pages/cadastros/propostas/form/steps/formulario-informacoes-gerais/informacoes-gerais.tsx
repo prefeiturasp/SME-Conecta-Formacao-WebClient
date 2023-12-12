@@ -2,11 +2,14 @@ import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, Input, Row, Tooltip } from 'antd';
 
 import React from 'react';
+import SelectAnoEtapa from '~/components/main/input/ano-etapa';
+import SelectComponenteCurricular from '~/components/main/input/componente-curricular';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
+import { SelectDRE } from '~/components/main/input/dre';
 import RadioFormacaoHomologada from '~/components/main/input/formacao-homologada';
+import SelectFormato from '~/components/main/input/formato';
 import SelectFuncaoEspecifica from '~/components/main/input/funcao-especifica';
 import SelectModalidades from '~/components/main/input/modalidades';
-import { default as SelectPublicoAlvo } from '~/components/main/input/publico-alvo';
 import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
 import SelectVagasRemanescentes from '~/components/main/input/vagas-remanescentes';
@@ -18,12 +21,15 @@ import {
   CF_INPUT_QUANTIDADE_VAGAS_TURMA,
   CF_INPUT_TOTAL_VAGAS,
 } from '~/core/constants/ids/input';
+import { CF_SELECT_DRE_CADASTRO_PROPOSTAS } from '~/core/constants/ids/select';
 import {
   NOME_FORMACAO_NAO_INFORMADO,
   QUANTIDADE_DE_TURMAS_NAO_INFORMADA,
   QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA,
 } from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
+import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
+import TabelaEditavel from './components/table/turmas';
 
 const FormInformacoesGerais: React.FC = () => {
   const form = Form.useFormInstance();
@@ -43,11 +49,24 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col xs={24} sm={12} md={12} lg={6} xl={8}>
-        <SelectModalidades form={form} />
+        <SelectFormato form={form} />
       </Col>
 
       <Col xs={24} sm={12} md={12} lg={6} xl={5}>
         <RadioTipoInscricao />
+      </Col>
+
+      <Col span={24}>
+        <SelectDRE
+          exibirOpcaoTodos
+          formItemProps={{
+            name: 'dres',
+          }}
+          selectProps={{
+            mode: 'multiple',
+            id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
+          }}
+        />
       </Col>
 
       <Col xs={24} sm={14} md={24}>
@@ -76,11 +95,23 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col span={24}>
-        <SelectPublicoAlvo />
+        <SelectPublicoAlvoCadastroProposta />
       </Col>
 
       <Col span={24}>
         <SelectFuncaoEspecifica />
+      </Col>
+
+      <Col span={24}>
+        <SelectModalidades />
+      </Col>
+
+      <Col span={24}>
+        <SelectAnoEtapa />
+      </Col>
+
+      <Col span={24}>
+        <SelectComponenteCurricular />
       </Col>
 
       <Col xs={24}>
@@ -105,6 +136,7 @@ const FormInformacoesGerais: React.FC = () => {
           }}
         />
       </Col>
+
       <Col xs={24} sm={12} md={8}>
         <InputNumero
           formItemProps={{
@@ -128,6 +160,7 @@ const FormInformacoesGerais: React.FC = () => {
           }}
         />
       </Col>
+
       <Col xs={24} sm={12} md={8}>
         <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
           {(form) => {
@@ -151,6 +184,13 @@ const FormInformacoesGerais: React.FC = () => {
           }}
         </Form.Item>
       </Col>
+
+      <Col span={24}>
+        <Form.Item style={{ marginBottom: 0, marginTop: 0 }}>
+          <TabelaEditavel />
+        </Form.Item>
+      </Col>
+
       <Col span={24}>
         <UploadArquivosConectaFormacao
           form={form}
