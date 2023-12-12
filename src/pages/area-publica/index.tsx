@@ -1,10 +1,11 @@
 import { FC, useState } from 'react';
-import { Layout, Menu, MenuProps, Row } from 'antd';
+import { Layout, Menu, MenuProps, Row, Space } from 'antd';
 import { LoginOutlined } from '@ant-design/icons';
 import { Colors, BoxShadow } from '~/core/styles/colors';
 import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { MENU_AREA_PUBLICA } from '~/core/constants/menu-area-publica';
+import FiltroAreaPublica from './filtro-area-publica';
 
 const items: MenuProps['items'] = [
   {
@@ -59,14 +60,19 @@ const AreaPublica: FC = () => {
     setCurrent(e.key);
   };
   return (
-    <Layout.Header style={contentStyle}>
-      <a href={ROUTES.PRINCIPAL}>
-        <img style={{ height: '50px' }} src={ConectaLogo} alt='Conecta Formação LOGO' />
-      </a>
-      <Row justify='end' style={{ width: '100%' }}>
-        <Menu onClick={onClick} selectedKeys={[current]} mode='horizontal' items={items} />
+    <>
+      <Layout.Header style={contentStyle}>
+        <a href={ROUTES.PRINCIPAL}>
+          <img style={{ height: '50px' }} src={ConectaLogo} alt='Conecta Formação LOGO' />
+        </a>
+        <Row justify='end' style={{ width: '100%' }}>
+          <Menu onClick={onClick} selectedKeys={[current]} mode='horizontal' items={items} />
+        </Row>
+      </Layout.Header>
+      <Row justify='center' style={{ width: '100%' }}>
+        <FiltroAreaPublica />
       </Row>
-    </Layout.Header>
+    </>
   );
 };
 
