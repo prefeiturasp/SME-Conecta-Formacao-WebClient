@@ -4,8 +4,16 @@ import Meta from 'antd/es/card/Meta';
 import { FC } from 'react';
 import { IoLocationOutline } from 'react-icons/io5';
 import { INSCRICAO_ENCERRADA } from '~/core/constants/mensagens';
-import { Colors } from '~/core/styles/colors';
-
+import {
+  bodyStyle,
+  cardStyle,
+  descriptionStyle,
+  headStyle,
+  titleStyle,
+  tituloHeadStyleBorder,
+  turmaEncerradaStyle,
+  turmaEncerradaStyleBackground,
+} from './styles';
 type CardTurmasPublicoProps = {
   tituloHead: string;
   titulo: string;
@@ -23,69 +31,26 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
     <>
       <Card
         hoverable
-        style={{
-          border: 1,
-          width: 230,
-          padding: 10,
-        }}
-        headStyle={{
-          backgroundColor: Colors.SystemSME.ConectaFormacao.PRIMARY,
-          border: 1,
-          fontSize: 22,
-          color: Colors.Neutral.WHITE,
-          paddingTop: 30,
-        }}
-        bodyStyle={{
-          backgroundColor: Colors.BACKGROUND_CONTENT,
-          border: 1,
-          padding: 0,
-          paddingTop: 0,
-        }}
-        title={
-          <p
-            style={{
-              border: 'solid',
-              borderColor: Colors.Neutral.WHITE,
-              padding: 10,
-              paddingLeft: 30,
-            }}
-          >
-            {tituloHead}
-          </p>
-        }
+        style={cardStyle}
+        headStyle={headStyle}
+        bodyStyle={bodyStyle}
+        title={<p style={tituloHeadStyleBorder}>{tituloHead}</p>}
       >
         {turmaEncerrada ? (
-          <div
-            style={{
-              background: Colors.Neutral.RED,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'left',
-            }}
-          >
-            <div
-              style={{
-                background: Colors.Neutral.RED,
-                color: Colors.Neutral.WHITE,
-                fontWeight: 'bolder',
-              }}
-            >
-              {INSCRICAO_ENCERRADA}
-            </div>
+          <div style={turmaEncerradaStyle}>
+            <div style={turmaEncerradaStyleBackground}>{INSCRICAO_ENCERRADA}</div>
           </div>
         ) : (
           <></>
         )}
         <Meta
           title={
-            <p style={{ paddingTop: 15, paddingLeft: 10, paddingRight: 10 }}>
+            <p style={titleStyle}>
               <CalendarOutlined /> {titulo}
             </p>
           }
           description={
-            <p style={{ paddingLeft: 10, paddingRight: 10, paddingBottom: 5 }}>
+            <p style={descriptionStyle}>
               <IoLocationOutline /> {descricao}
             </p>
           }
