@@ -12,7 +12,6 @@ import { obterModalidades } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectModalidadesProps = {
-  form: FormInstance;
   required?: boolean | true;
   areaPublica?: boolean;
   exibirTooltip?: boolean | true;
@@ -21,16 +20,15 @@ type SelectModalidadesProps = {
 };
 
 const SelectModalidades: React.FC<SelectModalidadesProps> = ({
-  form,
   selectProps,
   required = true,
   exibirTooltip = true,
   areaPublica = false,
   formItemProps,
 }) => {
+  const form = Form.useFormInstance();
   const tipoFormacao = Form.useWatch('tipoFormacao', form);
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
-
   const obterDados = async (tipoFormacao: TipoFormacao) => {
     tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
 

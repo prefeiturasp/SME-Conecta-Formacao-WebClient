@@ -60,7 +60,6 @@ const FiltroAreaPublica: FC = () => {
               required={false}
               areaPublica={true}
               exibirTooltip={false}
-              form={form}
             />
           </Col>
           <Col xs={24} sm={12} md={7} lg={7} xl={9}></Col>
