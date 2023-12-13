@@ -29,7 +29,6 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true
 
   const obterDados = useCallback(async () => {
     const anoLetivoAtual = dayjs().year();
-
     if (valorModalidadesValido || obterValorModalidadeValido) {
       const resposta = await obterAnoEtapa(anoLetivoAtual, modalidadesWatch, exibirOpcaoTodos);
 
@@ -53,6 +52,7 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true
   useEffect(() => {
     if (form.isFieldTouched('modalidades')) {
       form.setFieldValue('anosTurmas', []);
+      setOptions([]);
     }
   }, [form, modalidadesWatch]);
 
