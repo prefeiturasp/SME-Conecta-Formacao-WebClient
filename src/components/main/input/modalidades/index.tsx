@@ -4,7 +4,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
-import { CF_SELECT_FORMATO, CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
+import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
 import { MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { obterFormatoPublico } from '~/core/services/area-publica-service';
