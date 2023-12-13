@@ -68,8 +68,8 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
 
   return (
     <Form.Item
-      label={formItemProps?.label ?? 'Modalidade'}
-      name={formItemProps?.name ?? 'modalidade'}
+      label={formItemProps?.label}
+      name={formItemProps?.name}
       rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
       tooltip={{
         title:
@@ -80,7 +80,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
       <Select
         {...selectProps}
         options={options}
-        placeholder={areaPublica ? 'Formato' : 'Modalidade'}
+        placeholder={areaPublica}
         id={areaPublica ? CF_SELECT_FORMATO : CF_SELECT_MODALIDADE}
       />
     </Form.Item>

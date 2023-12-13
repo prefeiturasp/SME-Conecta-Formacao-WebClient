@@ -3,9 +3,22 @@ import { Card } from 'antd';
 import Meta from 'antd/es/card/Meta';
 import { FC } from 'react';
 import { IoLocationOutline } from 'react-icons/io5';
+import { INSCRICAO_ENCERRADA } from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
 
-const CardTurmasPublico: FC = () => {
+type CardTurmasPublicoProps = {
+  tituloHead: string;
+  titulo: string;
+  turmaEncerrada: boolean;
+  descricao: string;
+};
+
+const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
+  tituloHead,
+  titulo,
+  turmaEncerrada,
+  descricao,
+}) => {
   return (
     <>
       <Card
@@ -19,7 +32,8 @@ const CardTurmasPublico: FC = () => {
           backgroundColor: Colors.SystemSME.ConectaFormacao.PRIMARY,
           border: 1,
           fontSize: 22,
-          color: 'white',
+          color: Colors.Neutral.WHITE,
+          paddingTop: 30,
         }}
         bodyStyle={{
           backgroundColor: Colors.BACKGROUND_CONTENT,
@@ -27,19 +41,52 @@ const CardTurmasPublico: FC = () => {
           padding: 0,
           paddingTop: 0,
         }}
-        title='Turma C'
+        title={
+          <p
+            style={{
+              border: 'solid',
+              borderColor: Colors.Neutral.WHITE,
+              padding: 10,
+              paddingLeft: 30,
+            }}
+          >
+            {tituloHead}
+          </p>
+        }
       >
-        <div style={{ background: '#D32F2F', color: 'white' }}>Incrições Encerradas</div>
+        {turmaEncerrada ? (
+          <div
+            style={{
+              background: Colors.Neutral.RED,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'left',
+            }}
+          >
+            <div
+              style={{
+                background: Colors.Neutral.RED,
+                color: Colors.Neutral.WHITE,
+                fontWeight: 'bolder',
+              }}
+            >
+              {INSCRICAO_ENCERRADA}
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
         <Meta
           title={
             <p style={{ paddingTop: 15, paddingLeft: 10, paddingRight: 10 }}>
-              <CalendarOutlined /> 20 até 27 de Fevereiro
+              <CalendarOutlined /> {titulo}
             </p>
           }
           description={
             <p style={{ paddingLeft: 10, paddingRight: 10, paddingBottom: 5 }}>
-              <IoLocationOutline /> Unip Barra Funda Av. Marques de São Vicente, 3001 - Água Branca,
-              São Paulo
+              <IoLocationOutline /> {descricao}
             </p>
           }
         />

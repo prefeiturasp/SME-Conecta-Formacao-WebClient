@@ -56,6 +56,7 @@ const FiltroAreaPublica: FC = () => {
           <Col xs={24} sm={12} md={7} lg={7} xl={5}>
             <SelectModalidades
               formItemProps={{ name: 'formato', label: 'Formato' }}
+              selectProps={{ placeholder: 'Formato' }}
               required={false}
               areaPublica={true}
               exibirTooltip={false}

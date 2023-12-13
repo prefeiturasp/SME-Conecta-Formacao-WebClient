@@ -43,7 +43,11 @@ const FormInformacoesGerais: React.FC = () => {
       </Col>
 
       <Col xs={24} sm={12} md={12} lg={6} xl={8}>
-        <SelectModalidades form={form} />
+        <SelectModalidades
+          form={form}
+          selectProps={{ placeholder: 'Modalidade' }}
+          formItemProps={{ name: 'modalidade', label: 'Modalidade' }}
+        />
       </Col>
 
       <Col xs={24} sm={12} md={12} lg={6} xl={5}>
