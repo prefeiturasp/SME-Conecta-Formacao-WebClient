@@ -3,6 +3,8 @@ import FiltroAreaPublica from './components/filtro';
 import { useForm } from 'antd/es/form/Form';
 import HeaderAreaPublica from './components/header';
 import { Form, Row } from 'antd';
+import DadosDestaque from './components/dados-destaque';
+import CardTurmasPublico from './components/card-turmas';
 
 const AreaPublica: FC = () => {
   const buscarInformacoes = () => {
@@ -39,6 +41,21 @@ const AreaPublica: FC = () => {
           <FiltroAreaPublica />
         </Form>
       </Row>
+      {/* <DadosDestaque />
+      <Row>
+        <CardTurmasPublico
+          tituloHead='Turma A'
+          titulo='29 ate 30 de Dezembro'
+          descricao='Centro da cidade jhfsadfhuasdhfuds adhfjsadhfjasdhfjas adhfjsadhfjasdhfjas adhfjsadhfjasdhfjas'
+          turmaEncerrada={true}
+        />
+        <CardTurmasPublico
+          tituloHead='Turma A'
+          titulo='29 ate 30 de Dezembro'
+          descricao='Centro da cidade'
+          turmaEncerrada={false}
+        />
+      </Row> */}
     </>
   );
 };
