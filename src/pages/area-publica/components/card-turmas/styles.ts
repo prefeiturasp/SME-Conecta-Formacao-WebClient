@@ -1,9 +1,12 @@
 import { Colors } from '~/core/styles/colors';
 
 const cardStyle: React.CSSProperties = {
-  border: 1,
   width: 230,
   padding: 10,
+  paddingBottom: 10,
+  paddingLeft: 10,
+  margin: 10,
+  backgroundColor: Colors.BACKGROUND_CONTENT,
 };
 const headStyle: React.CSSProperties = {
   backgroundColor: Colors.SystemSME.ConectaFormacao.PRIMARY,
