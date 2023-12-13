@@ -68,15 +68,22 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
 
   return (
     <Form.Item
-      {...formItemProps}
+      label={'Modalidade'}
+      name={'modalidade'}
       rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
       tooltip={{
         title:
           'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
         icon: iconTooltip,
       }}
+      {...formItemProps}
     >
-      <Select {...selectProps} options={options} id={CF_SELECT_MODALIDADE} />
+      <Select
+        placeholder={'Modalidade'}
+        options={options}
+        id={CF_SELECT_MODALIDADE}
+        {...selectProps}
+      />
     </Form.Item>
   );
 };
