@@ -1,11 +1,10 @@
 import { Dayjs } from "dayjs";
 
-export type FiltroFormacaoDTO = {
+export type FiltroFormacaoFormDTO = {
   publicosAlvosIds?: number[];
   titulo?: string;
   areasPromotorasIds?: number[];
-  dataInicial?: Dayjs;
-  dataFinal?: Dayjs;
+  data?: Dayjs[];
   formatosIds?: number[];
   palavrasChavesIds?: number[];
 };

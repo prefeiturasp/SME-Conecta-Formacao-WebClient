@@ -8,6 +8,7 @@ import { useForm } from 'antd/es/form/Form';
 import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
 import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
 import { PaginationConfig } from 'antd/es/pagination';
+import { FiltroFormacaoFormDTO } from '~/core/dto/filtro-formacao-form-dto';
 
 type ListParams = {
   pagination?: PaginationConfig;
@@ -32,8 +33,13 @@ export const ListFormacao: React.FC = () => {
 
   const [formAreaPublica] = useForm();
 
-  const buscarInformacoes = (values: FiltroFormacaoDTO) => {
-    setFiltroFormacao(values);
+  const buscarInformacoes = (values: FiltroFormacaoFormDTO) => {
+    const filtro: FiltroFormacaoDTO = { ...values };
+
+    filtro.dataInicial = values?.data?.[0];
+    filtro.dataFinal = values?.data?.[1];
+
+    setFiltroFormacao(filtro);
   };
 
   const carregarDados = (listParams: ListParams, filtroFormacao: FiltroFormacaoDTO) => {
