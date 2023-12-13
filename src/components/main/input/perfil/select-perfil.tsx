@@ -39,7 +39,7 @@ const SelectPerfil = () => {
         labelInValue
         options={listaGrupos}
         placeholder='Selecione o Perfil'
-        onChange={() => form.resetFields(['dreId'])}
+        onChange={() => form.resetFields(['dreIdPropostas'])}
       />
     </Form.Item>
   );

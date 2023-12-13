@@ -9,15 +9,15 @@ import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import DatePickerPeriodo from '~/components/main/input/date-range';
-import SelectModalidades from '~/components/main/input/modalidades';
+import SelectFormato from '~/components/main/input/formato';
 import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
 import SelectSituacaoProposta from '~/components/main/input/situacao-proposta';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
-  CF_INPUT_NOME_FORMACAO,
   CF_INPUT_CODIGO_FORMACAO,
+  CF_INPUT_NOME_FORMACAO,
   CF_INPUT_NUMERO_HOMOLOGACAO,
 } from '~/core/constants/ids/input';
 import { PropostaFormListDTO } from '~/core/dto/proposta-from-list-dto';
@@ -41,7 +41,7 @@ const ListCadastroDePropostas: React.FC = () => {
 
   const [filters, setFilters] = useState({
     areaPromotoraId: null,
-    modalidade: null,
+    formato: null,
     nomeFormacao: null,
     id: null,
     publicoAlvoIds: null,
@@ -63,9 +63,9 @@ const ListCadastroDePropostas: React.FC = () => {
       dataIndex: 'areaPromotora',
     },
     {
-      key: 'modalidade',
-      title: 'Modalidade',
-      dataIndex: 'modalidade',
+      key: 'formato',
+      title: 'Formato',
+      dataIndex: 'formato',
     },
     {
       key: 'id',
@@ -115,7 +115,7 @@ const ListCadastroDePropostas: React.FC = () => {
     setFilters({
       numeroHomologacao: form.getFieldValue('numeroHomologacao'),
       areaPromotoraId: form.getFieldValue('areaPromotora'),
-      modalidade: form.getFieldValue('modalidade'),
+      formato: form.getFieldValue('formato'),
       nomeFormacao: form.getFieldValue('nomeFormacao'),
       id: form.getFieldValue('codigoFormacao'),
       periodoRealizacaoInicio: dataInicio,
@@ -177,7 +177,7 @@ const ListCadastroDePropostas: React.FC = () => {
                   </Col>
                   <Col xs={24} sm={10} md={7} lg={7} xl={12}>
                     <b>
-                      <SelectModalidades
+                      <SelectFormato
                         selectProps={{ onChange: obterFiltros }}
                         required={false}
                         form={form}
@@ -189,7 +189,7 @@ const ListCadastroDePropostas: React.FC = () => {
                     <b>
                       <SelectPublicoAlvo
                         selectProps={{ onChange: obterFiltros }}
-                        required={false}
+                        formItemProps={{ required: false }}
                         exibirTooltip={false}
                       />
                     </b>
