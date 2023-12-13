@@ -1,4 +1,4 @@
-import { Button, Card, Col, Form, Row } from 'antd';
+import { Button, Card, Col, Row } from 'antd';
 import { FC } from 'react';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import DatePickerPeriodo from '~/components/main/input/date-range';
@@ -8,7 +8,6 @@ import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
 import InputTexto from '~/components/main/text/input-text';
 
 const FiltroAreaPublica: FC = () => {
-  const form = Form.useFormInstance();
   return (
     <Col
       style={{
