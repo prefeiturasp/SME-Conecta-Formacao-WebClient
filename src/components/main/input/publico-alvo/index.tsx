@@ -1,19 +1,25 @@
-import { Form, FormItemProps } from 'antd';
+import { InfoCircleFilled } from '@ant-design/icons';
+import { Form, Tooltip } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_PUBLICO_ALVO } from '~/core/constants/ids/select';
+import { PUBLICO_ALVO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
-import { getTooltipFormInfoCircleFilled } from '../../tooltip';
+import { Colors } from '~/core/styles/colors';
 
 type SelectPublicoAlvoProps = {
-  formItemProps?: FormItemProps;
+  required?: boolean | true;
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;
 };
 
-const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({ selectProps, formItemProps }) => {
+const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
+  required = true,
+  exibirTooltip = true,
+  selectProps,
+}) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -30,14 +36,23 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({ selectProps, form
     obterDados();
   }, []);
 
+  const iconTooltip = exibirTooltip ? (
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+    </Tooltip>
+  ) : (
+    <></>
+  );
+
   return (
     <Form.Item
       label='Público alvo'
       name='publicosAlvo'
-      tooltip={getTooltipFormInfoCircleFilled(
-        'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
-      )}
-      {...formItemProps}
+      rules={[{ required: required, message: PUBLICO_ALVO_NAO_INFORMADO }]}
+      tooltip={{
+        title: 'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
+        icon: iconTooltip,
+      }}
     >
       <Select
         allowClear

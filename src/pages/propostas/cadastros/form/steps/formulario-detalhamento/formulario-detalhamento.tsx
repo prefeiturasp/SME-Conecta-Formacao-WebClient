@@ -12,9 +12,9 @@ import {
   PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO,
   REFERENCIA_NAO_INFORMADA,
 } from '~/core/constants/mensagens';
-import { Formato } from '~/core/enum/formato';
-import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import { Modalidade } from '~/core/enum/modalidade';
 import InputTimerCargaHorariaTotal from './components/carga-horaria-total';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 const FormularioDetalhamento: React.FC = () => {
   const { desabilitarCampos } = useContext(PermissaoContext);
@@ -74,8 +74,8 @@ const FormularioDetalhamento: React.FC = () => {
             <Col xs={24} sm={12}>
               <Form.Item shouldUpdate style={{ margin: 0 }}>
                 {(form) => {
-                  const valor: Formato = form.getFieldValue('modalidade');
-                  const requerido = valor === Formato.Presencial;
+                  const valor: Modalidade = form.getFieldValue('modalidade');
+                  const requerido = valor === Modalidade.Presencial;
 
                   return (
                     <InputTimer

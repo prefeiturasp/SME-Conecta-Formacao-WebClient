@@ -1,25 +1,20 @@
 import { Dayjs } from 'dayjs';
-import { Formato } from '../enum/formato';
+import { Modalidade } from '../enum/modalidade';
 import { SituacaoRegistro } from '../enum/situacao-registro';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { TipoInscricao } from '../enum/tipo-inscricao';
 import { AuditoriaDTO } from './auditoria-dto';
-import { PropostaAnoTurmaDTO } from './proposta-ano-turmas-dto';
-import { PropostaComponenteCurricularDTO } from './proposta-componente-curriculares-dto';
 import { PropostaCriterioValidacaoInscricaoDTO } from './proposta-criterio-validacao-inscricao-dto';
-import { PropostaDresDTO } from './proposta-dres-dto';
 import { PropostaFuncaoEspecificaDTO } from './proposta-funcao-especifica-dto';
 import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
-import { PropostaModalidadeDTO } from './proposta-modalidade-dto';
 import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 
 export type PropostaDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
-  formato?: Formato;
+  modalidade?: Modalidade;
   tipoInscricao?: TipoInscricao;
-  dreIdPropostas: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
   quantidadeVagasTurma?: number | null;
@@ -50,11 +45,6 @@ export type PropostaDTO = {
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
   descricaoDaAtividade?: string;
-  turmas?: PropostaTurmaDTO[];
-  dres?: PropostaDresDTO[];
-  modalidades?: PropostaModalidadeDTO[];
-  anosTurmas?: PropostaAnoTurmaDTO[];
-  componentesCurriculares?: PropostaComponenteCurricularDTO[];
 };
 
 export type PropostaCompletoDTO = {
@@ -65,9 +55,8 @@ export type PropostaCompletoDTO = {
 export type PropostaFormDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
-  formato?: Formato;
+  modalidade?: Modalidade;
   tipoInscricao?: TipoInscricao;
-  dreIdPropostas?: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
   quantidadeVagasTurma?: number | null;
@@ -77,7 +66,7 @@ export type PropostaFormDTO = {
   vagasRemanecentes?: number[];
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
-  situacao?: SituacaoRegistro;
+  situacao: SituacaoRegistro;
   nomeSituacao?: string;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];
@@ -98,11 +87,6 @@ export type PropostaFormDTO = {
   descricaoDaAtividade?: string;
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
-  turmas?: PropostaTurmaFormDTO[];
-  dres?: number[];
-  modalidades?: number;
-  anosTurmas?: number[];
-  componentesCurriculares?: number[];
 };
 export type PropostaPalavraChaveDTO = {
   palavraChaveId: number;
@@ -110,18 +94,4 @@ export type PropostaPalavraChaveDTO = {
 
 export type CriterioCertificacaoDTO = {
   criterioCertificacaoId: number;
-};
-
-export type PropostaTurmaDTO = {
-  id?: number;
-  nome: string;
-  dreId?: number;
-};
-
-export type PropostaTurmaFormDTO = {
-  key: number;
-  id?: number;
-  nome: string;
-  dreNome?: string;
-  dreId?: number;
 };

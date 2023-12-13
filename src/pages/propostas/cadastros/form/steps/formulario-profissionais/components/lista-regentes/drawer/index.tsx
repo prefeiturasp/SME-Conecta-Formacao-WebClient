@@ -4,28 +4,29 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DataTableContext } from '~/components/lib/card-table/provider';
 import ButtonExcluir from '~/components/lib/excluir-button';
+import EditorTexto from '~/components/main/input/editor-texto';
 import InputRegistroFuncional from '~/components/main/input/input-registro-funcional';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CF_BUTTON_EXCLUIR, CF_BUTTON_MODAL_CANCELAR } from '~/core/constants/ids/button/intex';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
-import { PropostaTutorDTO } from '~/core/dto/proposta-tutor-dto';
+import { PropostaRegenteDTO } from '~/core/dto/proposta-regente-dto';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
-  excluirTutor,
-  obterPropostaTutorPorId,
-  salvarPropostaProfissionalTutor,
+  excluirRegente,
+  obterPropostaRegentePorId,
+  salvarPropostaProfissionalRegente,
 } from '~/core/services/proposta-service';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
-type DrawerTutorProps = {
+type DrawerRegenteProps = {
   openModal: boolean;
   onCloseModal: () => void;
   id?: number;
 };
 
-const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id = 0 }) => {
+const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, id = 0 }) => {
   const { tableState } = useContext(DataTableContext);
 
   const { desabilitarCampos } = useContext(PermissaoContext);
@@ -33,7 +34,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
   const [formDrawer] = useForm();
   const paramsRoute = useParams();
 
-  const [formInitialValues, setFormInitialValues] = useState<PropostaTutorDTO>();
+  const [formInitialValues, setFormInitialValues] = useState<PropostaRegenteDTO>();
 
   const propostaId = paramsRoute?.id || 0;
 
@@ -58,14 +59,14 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
     }
   };
 
-  const salvarDados = async (values: PropostaTutorDTO) => {
-    const dtoTutor: PropostaTutorDTO = {
+  const salvarDados = async (values: PropostaRegenteDTO) => {
+    const dtoRegente: PropostaRegenteDTO = {
       ...values,
-      turmas: values.turmas.map((turmaId: any) => ({ turmaId })),
+      turmas: values.turmas.map((turma: any) => ({ turma })),
       id,
     };
 
-    const response = await salvarPropostaProfissionalTutor(dtoTutor, propostaId);
+    const response = await salvarPropostaProfissionalRegente(dtoRegente, propostaId);
 
     if (response.sucesso) {
       notification.success({
@@ -77,7 +78,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
   };
 
   const excluirDados = async () => {
-    const response = await excluirTutor(id);
+    const response = await excluirRegente(id);
 
     if (response.sucesso) {
       notification.success({
@@ -90,11 +91,11 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
 
   const obterDados = useCallback(async () => {
     if (id) {
-      const response = await obterPropostaTutorPorId(id);
+      const response = await obterPropostaRegentePorId(id);
 
       if (response.sucesso) {
         if (response.dados?.turmas?.length) {
-          response.dados.turmas = response.dados.turmas.map((item) => item?.turmaId);
+          response.dados.turmas = response.dados.turmas.map((item) => item?.turma);
         }
 
         setFormInitialValues({ ...response.dados });
@@ -139,7 +140,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
           disabled={desabilitarCampos}
         >
           <Drawer
-            title='Tutor'
+            title='Regente'
             size='large'
             onClose={() => fecharModal()}
             open
@@ -186,9 +187,9 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                     }}
                     radioGroupProps={{
                       onChange: () => {
-                        formDrawer.resetFields(['registroFuncional', 'nomeTutor']);
+                        formDrawer.resetFields(['registroFuncional', 'nomeRegente']);
                         formDrawer.setFieldValue('registroFuncional', '');
-                        formDrawer.setFieldValue('nomeTutor', '');
+                        formDrawer.setFieldValue('nomeRegente', '');
                       },
                     }}
                   />
@@ -204,16 +205,16 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                           <InputRegistroFuncional
                             formItemPropsRF={{ rules: [{ required: rfEhObrigatorio }] }}
                             formItemPropsNome={{
-                              rules: [{ required: desabilitarCampos || !rfEhObrigatorio }],
-                              name: 'nomeTutor',
+                              rules: [{ required: !rfEhObrigatorio }],
+                              name: 'nomeRegente',
                             }}
                             inputPropsRF={{
-                              disabled: !rfEhObrigatorio,
+                              disabled: desabilitarCampos || !rfEhObrigatorio,
                               onChange: (e) => {
                                 const value = e.target.value;
                                 if (!value || value.length < 7) {
-                                  formDrawer.resetFields(['nomeTutor']);
-                                  formDrawer.setFieldValue('nomeTutor', '');
+                                  formDrawer.resetFields(['nomeRegente']);
+                                  formDrawer.setFieldValue('nomeRegente', '');
                                 }
                               },
                             }}
@@ -226,6 +227,18 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                     }}
                   </Form.Item>
                 </Col>
+
+                <Col xs={24}>
+                  <EditorTexto
+                    nome='miniBiografia'
+                    label='Mini biografia'
+                    required={false}
+                    exibirTooltip={true}
+                    disabled={desabilitarCampos}
+                    mensagemTooltip='Breve resumo contendo a formação e principais atividades realizadas na temática da ação de formação proposta. Indicar link do Currículo Lattes, caso tenha.'
+                  />
+                </Col>
+
                 <Col xs={24}>
                   <SelectTurmaEncontros idProposta={propostaId} exibirTooltip={false} />
                 </Col>
@@ -240,4 +253,4 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
   );
 };
 
-export default DrawerTutor;
+export default DrawerRegente;

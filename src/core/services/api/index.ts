@@ -10,11 +10,11 @@ import dayjs from 'dayjs';
 
 import { setDeslogar } from '~/core/redux/modules/auth/actions';
 
-import { notification } from 'antd';
-import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
-import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { store } from '../../redux';
 import autenticacaoService, { URL_AUTENTICACAO_REVALIDAR } from '../autenticacao-service';
+import { setSpinning } from '~/core/redux/modules/spin/actions';
+import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
+import { notification } from 'antd';
 
 const config: AxiosRequestConfig = {
   baseURL: import.meta.env.VITE_SME_CF_API,
@@ -148,7 +148,11 @@ export type ApiResult<T> = {
 export const obterRegistro = async <T>(url: string, params?: any): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
-    .get(url, params)
+    .get(url, {
+      params: {
+        params: params,
+      },
+    })
     .then((response: AxiosResponse<T>): ApiResult<T> => {
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })

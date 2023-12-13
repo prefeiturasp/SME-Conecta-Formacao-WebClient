@@ -1,12 +1,10 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { AbstractCheckboxGroupProps } from 'antd/es/checkbox/Group';
 import Tooltip from 'antd/es/tooltip';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { CF_RADIO_FORMACAO_HOMOLOGADA } from '~/core/constants/ids/radio';
-import { FORMACAO_HOMOLOGADA_NAO_INFORMADA } from '~/core/constants/mensagens';
-import { obterFormacaoHomologada } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 import Radio from '../../radio';
+import { FORMACAO_HOMOLOGADA_NAO_INFORMADA } from '~/core/constants/mensagens';
 
 type RadioFormacaoHomologadaProps = {
   label?: string;
@@ -19,21 +17,10 @@ const RadioFormacaoHomologada: React.FC<RadioFormacaoHomologadaProps> = ({
   label,
   required,
 }) => {
-  const [options, setOptions] = useState<AbstractCheckboxGroupProps['options']>([]);
-
-  const obterDados = async () => {
-    const resposta = await obterFormacaoHomologada();
-    if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
-      setOptions(newOptions);
-    } else {
-      setOptions([]);
-    }
-  };
-
-  useEffect(() => {
-    obterDados();
-  }, []);
+  const options = [
+    { label: 'Não', value: false },
+    { label: 'Sim', value: true },
+  ];
 
   return (
     <Radio

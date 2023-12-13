@@ -78,12 +78,10 @@ const DataTableEncontros = forwardRef(
             listaDatasFormatadas.push(dataFormatada);
           });
         });
-
-        const turmaIds = lista[index].turmas.map((t) => t.turmaId);
-        const turmasLista = lista[index].turmas.map((t) => t.nome);
+        const turmasLista = lista[index].turmas.map((t) => t.turma);
         const listaTurmasFormatadas = Array<string>();
         turmasLista.forEach((turma) => {
-          listaTurmasFormatadas.push(`${turma}`);
+          listaTurmasFormatadas.push(`Turma ${turma}`);
         });
         const horaInicio = lista[index].horaInicio!.substring(0, 2);
         const minutoInicio = lista[index].horaInicio!.substring(3, 5);
@@ -99,7 +97,7 @@ const DataTableEncontros = forwardRef(
 
         const cronograma: CronogramaEncontrosPaginadoDto = {
           id: lista[index].id!,
-          turmasId: turmaIds,
+          turmasId: turmasLista,
           horarios: [horaDataInicial, horaDataFinal],
           turmas: listaTurmasFormatadas.join(', '),
           datas: listaDatasFormatadas.join(', '),
@@ -151,7 +149,7 @@ const DataTableEncontros = forwardRef(
           },
         };
       },
-      [url, fetchData],
+      [url,fetchData],
     );
 
     return (

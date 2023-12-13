@@ -91,7 +91,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       dataInicio: d.dataInicio,
       dataFim: values?.datas[0]?.dataFim?.toString()?.length ? d.dataFim : null,
     }));
-    const turmas = values.turmas.map((turmaId) => ({ turmaId }));
+    const turmas = values.turmas.map((turma) => ({ turma }));
 
     const encontro: PropostaEncontroDTO = {
       id: dadosEncontro?.id || 0,

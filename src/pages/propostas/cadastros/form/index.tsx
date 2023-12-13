@@ -35,15 +35,10 @@ import {
 } from '~/core/constants/mensagens';
 import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
 import { validateMessages } from '~/core/constants/validate-messages';
-import {
-  PropostaDTO,
-  PropostaFormDTO,
-  PropostaTurmaDTO,
-  PropostaTurmaFormDTO,
-} from '~/core/dto/proposta-dto';
+import { PropostaDTO, PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
+import { SituacaoRegistro } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
@@ -56,11 +51,11 @@ import {
 } from '~/core/services/proposta-service';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
-import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
+import FormInformacoesGerais from './steps/informacoes-gerais';
 
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -82,7 +77,6 @@ const FormCadastroDePropostas: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<StepPropostaEnum>(
     StepPropostaEnum.InformacoesGerais,
   );
-
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
@@ -126,17 +120,13 @@ const FormCadastroDePropostas: React.FC = () => {
       tipoFormacao: TipoFormacao.Curso,
       tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
-      dres: [],
-      modalidades: undefined,
-      componentesCurriculares: [],
-      anosTurmas: [],
       funcoesEspecificas: [],
       vagasRemanecentes: [],
       criteriosValidacaoInscricao: [],
       criterioCertificacao: [],
       cursoComCertificado: false,
       acaoInformativa: false,
-      nomeSituacao: SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho],
+      situacao: SituacaoRegistro.Rascunho,
     };
 
     setFormInitialValues(valoresIniciais);
@@ -147,39 +137,6 @@ const FormCadastroDePropostas: React.FC = () => {
     const dados = resposta.dados;
 
     if (resposta.sucesso) {
-      let dres: number[] = [];
-      if (dados?.dres?.length) {
-        dres = dados.dres.map((item) => item.dreId);
-      }
-
-      let modalidades: number | undefined = undefined;
-
-      if (dados?.modalidades?.length) {
-        modalidades = dados.modalidades[0]?.modalidade;
-      }
-
-      let anosTurmas: number[] = [];
-      if (dados?.anosTurmas?.length) {
-        anosTurmas = dados.anosTurmas.map((item) => item.anoTurmaId);
-      }
-
-      let componentesCurriculares: number[] = [];
-      if (dados?.componentesCurriculares?.length) {
-        componentesCurriculares = dados.componentesCurriculares.map(
-          (item) => item.componenteCurricularId,
-        );
-      }
-
-      let turmas: any[] = [];
-      if (dados?.turmas?.length) {
-        turmas = dados.turmas.map(
-          (item, index): PropostaTurmaFormDTO => ({
-            ...item,
-            key: index,
-          }),
-        );
-      }
-
       let publicosAlvo: number[] = [];
       if (dados?.publicosAlvo?.length) {
         publicosAlvo = dados.publicosAlvo.map((item) => item.cargoFuncaoId);
@@ -244,11 +201,6 @@ const FormCadastroDePropostas: React.FC = () => {
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
-        dres,
-        modalidades,
-        componentesCurriculares,
-        anosTurmas,
-        turmas,
         funcoesEspecificas,
         vagasRemanecentes,
         criteriosValidacaoInscricao,
@@ -289,7 +241,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const salvar = async (novaSituacao?: SituacaoRegistro) => {
     let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
-    const clonedValues: PropostaFormDTO = cloneDeep(values);
+    const clonedValues = cloneDeep(values);
 
     const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
     const dataRealizacaoFim = values.periodoRealizacao?.[1];
@@ -308,9 +260,8 @@ const FormCadastroDePropostas: React.FC = () => {
     const valoresSalvar: PropostaDTO = {
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
-      formato: clonedValues?.formato,
+      modalidade: clonedValues?.modalidade,
       tipoInscricao: clonedValues?.tipoInscricao,
-      dreIdPropostas: clonedValues?.dreIdPropostas || null,
       nomeFormacao: clonedValues?.nomeFormacao,
       quantidadeTurmas: clonedValues?.quantidadeTurmas || null,
       quantidadeVagasTurma: clonedValues?.quantidadeVagasTurma || null,
@@ -340,53 +291,7 @@ const FormCadastroDePropostas: React.FC = () => {
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
-      dres: [],
-      turmas: [],
-      modalidades: [],
-      anosTurmas: [],
-      componentesCurriculares: [],
     };
-
-    if (clonedValues?.dres?.length) {
-      valoresSalvar.dres = clonedValues.dres.map((dreId) => ({
-        dreId,
-      }));
-    }
-
-    if (clonedValues?.modalidades) {
-      valoresSalvar.modalidades = [{ modalidade: clonedValues.modalidades }];
-    }
-
-    if (clonedValues?.anosTurmas?.length) {
-      valoresSalvar.anosTurmas = clonedValues.anosTurmas.map((anoTurmaId) => ({
-        anoTurmaId,
-      }));
-    }
-
-    if (clonedValues?.componentesCurriculares?.length) {
-      valoresSalvar.componentesCurriculares = clonedValues.componentesCurriculares.map(
-        (componenteCurricularId) => ({
-          componenteCurricularId,
-        }),
-      );
-    }
-
-    if (clonedValues?.turmas?.length) {
-      valoresSalvar.turmas = clonedValues.turmas.map((item) => {
-        const turma: PropostaTurmaDTO = {
-          nome: item.nome,
-        };
-
-        if (item.dreId) {
-          turma.dreId = item.dreId;
-        }
-
-        if (item.id) {
-          turma.id = item.id;
-        }
-        return turma;
-      });
-    }
 
     if (clonedValues?.publicosAlvo?.length) {
       valoresSalvar.publicosAlvo = clonedValues.publicosAlvo.map((cargoFuncaoId) => ({
