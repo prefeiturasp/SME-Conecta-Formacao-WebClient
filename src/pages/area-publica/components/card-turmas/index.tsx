@@ -28,35 +28,33 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
   descricao,
 }) => {
   return (
-    <>
-      <Card
-        hoverable
-        style={cardStyle}
-        headStyle={headStyle}
-        bodyStyle={bodyStyle}
-        title={<p style={tituloHeadStyleBorder}>{tituloHead}</p>}
-      >
-        {turmaEncerrada ? (
-          <div style={turmaEncerradaStyle}>
-            <div style={turmaEncerradaStyleBackground}>{INSCRICAO_ENCERRADA}</div>
-          </div>
-        ) : (
-          <></>
-        )}
-        <Meta
-          title={
-            <p style={titleStyle}>
-              <CalendarOutlined /> {titulo}
-            </p>
-          }
-          description={
-            <p style={descriptionStyle}>
-              <IoLocationOutline /> {descricao}
-            </p>
-          }
-        />
-      </Card>
-    </>
+    <Card
+      hoverable
+      style={cardStyle}
+      headStyle={headStyle}
+      bodyStyle={bodyStyle}
+      title={<p style={tituloHeadStyleBorder}>{tituloHead}</p>}
+    >
+      {turmaEncerrada ? (
+        <div style={turmaEncerradaStyle}>
+          <div style={turmaEncerradaStyleBackground}>{INSCRICAO_ENCERRADA}</div>
+        </div>
+      ) : (
+        <></>
+      )}
+      <Meta
+        title={
+          <p style={titleStyle}>
+            <CalendarOutlined /> {titulo}
+          </p>
+        }
+        description={
+          <p style={descriptionStyle}>
+            <IoLocationOutline /> {descricao}
+          </p>
+        }
+      />
+    </Card>
   );
 };
 
