@@ -81,7 +81,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
         {...selectProps}
         options={options}
         placeholder={areaPublica}
-        id={areaPublica ? CF_SELECT_FORMATO : CF_SELECT_MODALIDADE}
+        id={CF_SELECT_MODALIDADE}
       />
     </Form.Item>
   );
