@@ -40,7 +40,9 @@ const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
   }, [anosTurmas]);
 
   useEffect(() => {
-    form.setFieldValue('componentesCurriculares', []);
+    if (form.isFieldTouched('modalidades')) {
+      form.setFieldValue('componentesCurriculares', []);
+    }
   }, [form, anosTurmas]);
 
   return (
