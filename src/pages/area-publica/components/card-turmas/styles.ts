@@ -25,7 +25,7 @@ const tituloHeadStyleBorder: React.CSSProperties = {
   paddingLeft: 30,
 };
 const turmaEncerradaStyle: React.CSSProperties = {
-  background: Colors.Neutral.RED,
+  background: Colors.Suporte.Primary.ERROR,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -33,7 +33,7 @@ const turmaEncerradaStyle: React.CSSProperties = {
   textAlign: 'left',
 };
 const turmaEncerradaStyleBackground: React.CSSProperties = {
-  background: Colors.Neutral.RED,
+  background: Colors.Suporte.Primary.ERROR,
   color: Colors.Neutral.WHITE,
   fontWeight: 'bolder',
 };

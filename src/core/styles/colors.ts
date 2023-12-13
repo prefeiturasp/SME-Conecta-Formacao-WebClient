@@ -31,7 +31,6 @@ type ColorsType = {
     LIGHT: string;
     LIGHTEST: string;
     WHITE: string;
-    RED: string;
   };
 };
 
@@ -70,7 +69,6 @@ const Colors: ColorsType = {
     LIGHT: '#BFBFBF',
     LIGHTEST: '#F5F6F8',
     WHITE: '#FFFFFF',
-    RED: '#B40C02',
   },
 };
 
