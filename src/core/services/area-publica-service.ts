@@ -2,6 +2,9 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ApiResult, obterRegistro } from '~/core/services/api';
 import { CargoFuncaoTipo } from '../enum/cargo-funcao-tipo';
 import { CargoFuncaoDTO } from '../dto/cargo-funcao-dto';
+import { FormacaoDTO } from '../dto/formacao-dto';
+import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
+import { FiltroFormacaoDTO } from '../dto/filtro-formacao-dto';
 
 const URL_DEFAULT = 'v1/publico';
 
@@ -17,9 +20,20 @@ const obterAreaPromotoraPublico = (): Promise<ApiResult<RetornoListagemDTO[]>> =
 const obterFormatoPublico = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_DEFAULT}/formato`);
 
+const obterFormacaoPaginada = (
+  filtro: FiltroFormacaoDTO,
+  numeroPagina: number | undefined,
+  numeroRegistros: number | undefined,
+): Promise<ApiResult<PaginacaoResultadoDTO<FormacaoDTO[]>>> =>
+  obterRegistro(`${URL_DEFAULT}/listagem-formacao`, filtro, {
+    numeroPagina,
+    numeroRegistros,
+  });
+
 export {
   obterPublicoAlvoPublico,
   obterPalavraChavePublico,
   obterAreaPromotoraPublico,
   obterFormatoPublico,
+  obterFormacaoPaginada,
 };

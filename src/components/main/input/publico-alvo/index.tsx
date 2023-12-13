@@ -1,5 +1,5 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, Tooltip } from 'antd';
+import { Form, FormItemProps, Tooltip } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -15,6 +15,7 @@ type SelectPublicoAlvoProps = {
   exibirTooltip?: boolean | true;
   areaPublica?: boolean;
   selectProps?: SelectProps;
+  formItemProps?: FormItemProps;
 };
 
 const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
@@ -22,6 +23,7 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
   exibirTooltip = true,
   selectProps,
   areaPublica = false,
+  formItemProps = {},
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -51,6 +53,7 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
     <Form.Item
       label='Público alvo'
       name='publicosAlvo'
+      {...formItemProps}
       rules={[{ required: required, message: PUBLICO_ALVO_NAO_INFORMADO }]}
       tooltip={{
         title: 'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',

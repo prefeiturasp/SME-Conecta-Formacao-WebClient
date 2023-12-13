@@ -1,75 +1,102 @@
-import { List } from 'antd';
-import React from 'react';
+import { Form, List } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { CardFormacao } from './components/card-formacao';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { DivTitulo, TextTitulo } from './styles';
+import { CardFiltroFormacao } from './components/card-filtro-formacao';
+import { useForm } from 'antd/es/form/Form';
+import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
+import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
+import { PaginationConfig } from 'antd/es/pagination';
+
+type ListParams = {
+  pagination?: PaginationConfig;
+};
 
 export const ListFormacao: React.FC = () => {
-  const data: FormacaoDTO[] = [
-    {
-      id: 1,
-      titulo: 'História em quadrinhos: uso e criação',
-      periodo: '20 até 27 de Novembro',
-      areaPromotora: 'CODAE',
-      tipoFormacao: 1,
-      tipoFormacaoDescricao: 'Curso',
-      formato: 1,
-      formatoDescricao: 'Precencial',
-      inscricaoEncerrada: false,
-      imagemUrl:
-        'https://dev-arquivos.sme.prefeitura.sp.gov.br/cdep/27c9fd83-b211-43c7-8eeb-77aabb3c1469.jpg',
+  const [loading, setLoading] = useState<boolean>(false);
+  const [formacoes, setFormacoes] = useState<FormacaoDTO[]>([]);
+  const [filtroFormacao, setFiltroFormacao] = useState<FiltroFormacaoDTO>({});
+  const [listParams, setListParams] = useState<ListParams>({
+    pagination: {
+      current: 1,
+      pageSize: 12,
+      showSizeChanger: true,
+      position: 'bottom',
+      align: 'center',
+      locale: { items_per_page: '' },
+      disabled: false,
+      pageSizeOptions: [12, 20, 52, 104],
     },
-    {
-      id: 2,
-      titulo: 'Rádio escolar e podcast na educação',
-      periodo: '20 até 27 de Novembro',
-      areaPromotora: 'CODAE',
-      tipoFormacao: 1,
-      tipoFormacaoDescricao: 'Curso',
-      formato: 1,
-      formatoDescricao: 'Precencial',
-      inscricaoEncerrada: false,
-      imagemUrl:
-        'https://dev-arquivos.sme.prefeitura.sp.gov.br/cdep/27c9fd83-b211-43c7-8eeb-77aabb3c1469.jpg',
-    },
-    {
-      id: 3,
-      titulo: 'Trânsito Seguro: ensinando crianças com diversão',
-      periodo: '20 até 27 de Novembro',
-      areaPromotora: 'COCEU',
-      tipoFormacao: 2,
-      tipoFormacaoDescricao: 'Evento',
-      formato: 2,
-      formatoDescricao: 'Online',
-      inscricaoEncerrada: false,
-      imagemUrl:
-        'https://dev-arquivos.sme.prefeitura.sp.gov.br/cdep/27c9fd83-b211-43c7-8eeb-77aabb3c1469.jpg',
-    },
-    {
-      id: 4,
-      titulo: 'O jogo da onça e outras brincadeiras indígenas',
-      periodo: '20 até 27 de Novembro',
-      areaPromotora: 'COCEU',
-      tipoFormacao: 2,
-      tipoFormacaoDescricao: 'Evento',
-      formato: 2,
-      formatoDescricao: 'Online',
-      inscricaoEncerrada: true,
-      imagemUrl:
-        'https://dev-arquivos.sme.prefeitura.sp.gov.br/cdep/27c9fd83-b211-43c7-8eeb-77aabb3c1469.jpg',
-    },
-  ];
+  });
+
+  const [formAreaPublica] = useForm();
+
+  const buscarInformacoes = (values: FiltroFormacaoDTO) => {
+    setFiltroFormacao(values);
+  };
+
+  const carregarDados = (listParams: ListParams, filtroFormacao: FiltroFormacaoDTO) => {
+    const numeroPagina = listParams.pagination?.current;
+    const numeroRegistros = listParams.pagination?.pageSize;
+
+    setLoading(true);
+    console.log(filtroFormacao);
+    obterFormacaoPaginada(filtroFormacao, numeroPagina, numeroRegistros)
+      .then((response) => {
+        if (response?.dados.items) {
+          setFormacoes(response.dados.items);
+          setListParams({
+            ...listParams,
+            pagination: {
+              ...listParams.pagination,
+              total: response.dados.totalRegistros,
+            },
+          });
+        }
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    carregarDados(listParams, filtroFormacao);
+  }, [filtroFormacao]);
+
+  const onListChange = (current: number, pageSize: number) => {
+    const newListParams = {
+      ...listParams,
+      pagination: {
+        ...listParams.pagination,
+        current,
+        pageSize,
+      },
+    };
+
+    carregarDados(newListParams, filtroFormacao);
+  };
 
   return (
     <>
+      <Form
+        form={formAreaPublica}
+        layout='vertical'
+        autoComplete='off'
+        style={{ width: '100%' }}
+        onFinish={buscarInformacoes}
+      >
+        <CardFiltroFormacao />
+      </Form>
+
       <DivTitulo>
         <TextTitulo>Próximas formações</TextTitulo>
       </DivTitulo>
 
       <List
         grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4, xl: 4, xxl: 4 }}
-        pagination={{ position: 'bottom', align: 'center', pageSize: 12 }}
-        dataSource={data}
+        pagination={{ ...listParams.pagination, onChange: onListChange }}
+        dataSource={formacoes}
+        loading={loading}
+        locale={{ emptyText: 'Nenhuma formação encontrada' }}
         renderItem={(item) => (
           <List.Item>
             <CardFormacao formacao={item}></CardFormacao>
