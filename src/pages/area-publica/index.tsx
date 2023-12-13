@@ -39,13 +39,6 @@ const AreaPublica: FC = () => {
         >
           <FiltroAreaPublica />
         </Form>
-        <CardTurmasPublico
-          tituloHead='TURMA C'
-          titulo='20 até 27 de Fevereiro'
-          descricao='Unip Barra Funda Av. Marques de São Vicente, 3001 - Água Branca,
-              São Paulo'
-          turmaEncerrada={true}
-        />
       </Row>
     </>
   );
