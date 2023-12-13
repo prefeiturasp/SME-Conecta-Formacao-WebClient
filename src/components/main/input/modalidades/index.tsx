@@ -4,7 +4,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
-import { CF_SELECT_FORMATO, CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
+import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
 import { MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { obterFormatoPublico } from '~/core/services/area-publica-service';
@@ -12,7 +12,6 @@ import { obterModalidades } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectModalidadesProps = {
-  form: FormInstance;
   required?: boolean | true;
   areaPublica?: boolean;
   exibirTooltip?: boolean | true;
@@ -21,16 +20,15 @@ type SelectModalidadesProps = {
 };
 
 const SelectModalidades: React.FC<SelectModalidadesProps> = ({
-  form,
   selectProps,
   required = true,
   exibirTooltip = true,
   areaPublica = false,
   formItemProps,
 }) => {
+  const form = Form.useFormInstance();
   const tipoFormacao = Form.useWatch('tipoFormacao', form);
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
-
   const obterDados = async (tipoFormacao: TipoFormacao) => {
     tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
 
@@ -68,20 +66,21 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
 
   return (
     <Form.Item
-      label={formItemProps?.label ?? 'Modalidade'}
-      name={formItemProps?.name ?? 'modalidade'}
+      label='Modalidade'
+      name='modalidade'
       rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
       tooltip={{
         title:
           'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
         icon: iconTooltip,
       }}
+      {...formItemProps}
     >
       <Select
-        {...selectProps}
+        placeholder='Modalidade'
         options={options}
-        placeholder={areaPublica ? 'Formato' : 'Modalidade'}
-        id={areaPublica ? CF_SELECT_FORMATO : CF_SELECT_MODALIDADE}
+        id={CF_SELECT_MODALIDADE}
+        {...selectProps}
       />
     </Form.Item>
   );
