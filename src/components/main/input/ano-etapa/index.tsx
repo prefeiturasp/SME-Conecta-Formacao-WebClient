@@ -51,7 +51,9 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true
   }, [modalidadesWatch, obterDados]);
 
   useEffect(() => {
-    form.setFieldValue('anosTurmas', []);
+    if (form.isFieldTouched('modalidades')) {
+      form.setFieldValue('anosTurmas', []);
+    }
   }, [form, modalidadesWatch]);
 
   return (
