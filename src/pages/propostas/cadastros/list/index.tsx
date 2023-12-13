@@ -177,7 +177,11 @@ const ListCadastroDePropostas: React.FC = () => {
                   </Col>
                   <Col xs={24} sm={10} md={7} lg={7} xl={12}>
                     <b>
-                      <SelectModalidades required={false} exibirTooltip={false} />
+                      <SelectModalidades
+                        required={false}
+                        exibirTooltip={false}
+                        selectProps={{ onChange: obterFiltros }}
+                      />
                     </b>
                   </Col>
                   <Col span={8}>
