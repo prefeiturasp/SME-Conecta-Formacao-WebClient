@@ -1,8 +1,7 @@
 import React from 'react';
-import { Button, Flex, Row, Typography } from 'antd';
+import { Flex, Row, Typography } from 'antd';
 import { CalendarOutlined, SolutionOutlined } from '@ant-design/icons';
 import { IoLocationOutline } from 'react-icons/io5';
-import { ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
 import { FlexDestaque, ImagemDestaque, TagDestaque } from './styles';
 
 type DadosDestaqueProps = {
