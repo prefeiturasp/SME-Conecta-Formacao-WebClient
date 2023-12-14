@@ -28,17 +28,6 @@ const AreaPublica: FC = () => {
   return (
     <>
       <HeaderAreaPublica />
-      <Row justify='center' style={{ width: '100%' }}>
-        <Form
-          form={formAreaPublica}
-          layout='vertical'
-          autoComplete='off'
-          style={{ width: '100%' }}
-          onFinish={buscarInformacoes}
-        >
-          <FiltroAreaPublica />
-        </Form>
-      </Row>
     </>
   );
 };
