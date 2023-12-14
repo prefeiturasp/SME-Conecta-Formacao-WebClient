@@ -41,28 +41,6 @@ const AreaPublica: FC = () => {
           <FiltroAreaPublica />
         </Form>
       </Row>
-      <DadosDestaque
-        srcImagem='https://fia.com.br/wp-content/uploads/2022/06/pod.jpg'
-        titulo='Rádio escolar e podcast na educação'
-        areaPromotra='CODAE'
-        tipoFormacao='Curso'
-        formato='Presencial'
-        datas='20 até 27 Fevereiro'
-      />
-      <Row style={{ margin: 40 }}>
-        <CardTurmasPublico
-          tituloHead='Turma A'
-          titulo='29 ate 30 de Dezembro'
-          descricao='Centro da cidade jhfsadfhuasdhfuds adhfjsadhfjasdhfjas adhfjsadhfjasdhfjas adhfjsadhfjasdhfjas'
-          turmaEncerrada={true}
-        />
-        <CardTurmasPublico
-          tituloHead='Turma A'
-          titulo='29 ate 30 de Dezembro'
-          descricao='Centro da cidade'
-          turmaEncerrada={false}
-        />
-      </Row>
     </>
   );
 };
