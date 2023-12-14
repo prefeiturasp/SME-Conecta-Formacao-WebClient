@@ -3,8 +3,6 @@ import FiltroAreaPublica from './components/filtro';
 import { useForm } from 'antd/es/form/Form';
 import HeaderAreaPublica from './components/header';
 import { Form, Row } from 'antd';
-import DadosDestaque from './components/dados-destaque';
-import CardTurmasPublico from './components/card-turmas';
 
 const AreaPublica: FC = () => {
   const buscarInformacoes = () => {
