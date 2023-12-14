@@ -1,5 +1,6 @@
-import { Form, Input, Table, TablePaginationConfig, Typography } from 'antd';
+import { Button, Flex, Form, Input, Table, TablePaginationConfig, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { SelectDRE } from '~/components/main/input/dre';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
@@ -8,24 +9,35 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   children: React.ReactNode;
+  dreTodos: boolean;
+  dresIds: any;
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
   editing,
   dataIndex,
   children,
+  dreTodos,
+  dresIds,
   ...restProps
 }) => {
   const inputNode =
     dataIndex === 'dreNome' ? (
       <SelectDRE
+        labelInValue
+        exibirOpcaoTodos
         formItemProps={{
           label: '',
           name: 'dre',
-          required: false,
+          initialValue: dresIds,
           style: { marginTop: 25 },
+          rules: [
+            {
+              required: false,
+            },
+          ],
         }}
-        selectProps={{ mode: undefined, labelInValue: true }}
+        selectProps={{ mode: 'multiple', labelInValue: true, disabled: dreTodos }}
       />
     ) : (
       <Input />
@@ -53,12 +65,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const TabelaEditavel: React.FC = () => {
+  const paramsRoute = useParams();
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
   const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
 
   const [editingKey, setEditingKey] = useState<number | undefined>();
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
+
+  const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
   const pagination: TablePaginationConfig = {
@@ -69,25 +84,34 @@ const TabelaEditavel: React.FC = () => {
   // TODO - Quando alterar remontar a tabela!
   // const alterouQtdTurmas = quantidadeTurmas && turmas?.length !== quantidadeTurmas;
 
-  useEffect(() => {
-    if (formProposta.isFieldTouched('quantidadeTurmas')) {
-      if (quantidadeTurmas) {
-        const originData: PropostaTurmaFormDTO[] = [];
-        for (let i = 0; i < quantidadeTurmas; i++) {
-          originData.push({
-            key: i,
-            nome: `Turma ${i}`,
-            id: undefined,
-            dreId: undefined,
-            dreNome: '',
-          });
+  //TODO - Validar quando a DRE da proposta tiver com a OPCAO TODOS, habilitar o select na tabela
 
-          formProposta.setFieldValue('turmas', [...originData]);
-        }
-      } else {
-        formProposta.setFieldValue('turmas', []);
+  useEffect(() => {
+    // if (formProposta.isFieldTouched('quantidadeTurmas')) {
+    const dresAutomaticas = formProposta.getFieldValue('dres');
+    const turmas = formProposta.getFieldValue('turmas');
+
+    if (quantidadeTurmas) {
+      const originData: PropostaTurmaFormDTO[] = [];
+      for (let i = 0; i < quantidadeTurmas; i++) {
+        const turma = turmas?.[i];
+        const existeTurma = id && turma;
+
+        originData.push({
+          key: existeTurma ? turma.key : i,
+          nome: existeTurma ? turma.nome : `Turma ${i + 1}`,
+          id: existeTurma ? turma.id : undefined,
+          dresIds: dresAutomaticas.map((item: any) => item.value),
+          dreNome: dresAutomaticas.map((item: any) => item.label),
+          todos: dresAutomaticas.map((item: any) => item.todos),
+        });
+
+        formProposta.setFieldValue('turmas', [...originData]);
       }
+    } else {
+      formProposta.setFieldValue('turmas', []);
     }
+    // }
   }, [quantidadeTurmas, formProposta]);
 
   const edit = (record: PropostaTurmaFormDTO) => {
@@ -104,15 +128,15 @@ const TabelaEditavel: React.FC = () => {
   const save = async (key: React.Key) => {
     formRow.validateFields().then((row) => {
       const newData: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas');
+
       const index = newData.findIndex((item: PropostaTurmaFormDTO) => key === item.key);
+
       if (index > -1) {
         const item = newData[index];
 
         newData.splice(index, 1, {
           ...item,
           ...row,
-          dreId: row?.dre?.value,
-          dreNome: row?.dre?.label,
         });
 
         formProposta.setFieldValue('turmas', [...newData]);
@@ -137,20 +161,29 @@ const TabelaEditavel: React.FC = () => {
     {
       title: 'Operação',
       width: '20%',
+      align: 'center' as const,
       render: (_: any, record: PropostaTurmaFormDTO) => {
         const editable = isEditing(record);
 
         return editable ? (
-          <span>
-            <Typography.Link onClick={() => save(record.key)} style={{ marginRight: 8 }}>
-              Salvar
-            </Typography.Link>
-            <Typography.Link onClick={cancel}>Cancelar</Typography.Link>
-          </span>
+          <Flex gap={2}>
+            <Typography onClick={() => save(record.key)} style={{ marginRight: 8 }}>
+              <Button type='primary' size='small'>
+                Salvar
+              </Button>
+            </Typography>
+            <Typography onClick={cancel}>
+              <Button type='default' size='small'>
+                Cancelar
+              </Button>
+            </Typography>
+          </Flex>
         ) : (
-          <Typography.Link disabled={!!editingKey || editingKey === 0} onClick={() => edit(record)}>
-            Editar
-          </Typography.Link>
+          <Typography onClick={() => edit(record)}>
+            <Button type='primary' size='small' disabled={!!editingKey || editingKey === 0}>
+              Editar
+            </Button>
+          </Typography>
         );
       },
     },
@@ -164,8 +197,11 @@ const TabelaEditavel: React.FC = () => {
       ...col,
       onCell: (record: PropostaTurmaFormDTO) => ({
         record,
+        align: col.align,
         title: col.title,
         dataIndex: col.dataIndex,
+        dreTodos: record.todos,
+        dresIds: record.dresIds,
         editing: isEditing(record),
       }),
     };
@@ -173,8 +209,8 @@ const TabelaEditavel: React.FC = () => {
 
   return (
     <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
-      {(formTeste) => {
-        const turmas: PropostaTurmaFormDTO[] = formTeste?.getFieldValue('turmas');
+      {(formItem) => {
+        const turmas: PropostaTurmaFormDTO[] = formItem?.getFieldValue('turmas');
         const dataSource = turmas?.length ? turmas : [];
         return (
           <Form

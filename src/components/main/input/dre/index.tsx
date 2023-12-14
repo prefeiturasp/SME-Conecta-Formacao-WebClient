@@ -11,12 +11,14 @@ interface SelectDREProps {
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
   exibirOpcaoTodos?: boolean;
+  labelInValue?: boolean;
 }
 
 export const SelectDRE: React.FC<SelectDREProps> = ({
   formItemProps,
   selectProps,
   exibirOpcaoTodos,
+  labelInValue,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -46,10 +48,14 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
       normalize={(value: number[], prevValue: number[]) => {
         if (exibirOpcaoTodos) {
           const opcaoTodos = options.find((item) => !!item.todos);
-
           const valorTodosComparacao = opcaoTodos?.value;
+          const retornaNumero = labelInValue ? value.map((item: any) => item.value) : value;
 
-          const newValue = onchangeMultiSelectOpcaoTodos(value, prevValue, valorTodosComparacao);
+          const newValue = onchangeMultiSelectOpcaoTodos(
+            retornaNumero,
+            prevValue,
+            valorTodosComparacao,
+          );
 
           return newValue;
         }

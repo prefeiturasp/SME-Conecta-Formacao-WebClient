@@ -1,6 +1,7 @@
 import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, Input, Row, Tooltip } from 'antd';
 
+import jwt_decode from 'jwt-decode';
 import React from 'react';
 import SelectAnoEtapa from '~/components/main/input/ano-etapa';
 import SelectComponenteCurricular from '~/components/main/input/componente-curricular';
@@ -27,12 +28,22 @@ import {
   QUANTIDADE_DE_TURMAS_NAO_INFORMADA,
   QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA,
 } from '~/core/constants/mensagens';
+import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
+import { useAppSelector } from '~/core/hooks/use-redux';
 import { Colors } from '~/core/styles/colors';
 import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
 import TabelaEditavel from './components/table/turmas';
 
 const FormInformacoesGerais: React.FC = () => {
   const form = Form.useFormInstance();
+
+  const token = useAppSelector((store) => store.auth.token);
+  const decodeObject: JWTDecodeDTO = jwt_decode(token);
+  const dresVinculadas = decodeObject?.dres;
+
+  const temDreVinculada =
+    typeof dresVinculadas === 'string' ||
+    (Array.isArray(dresVinculadas) && dresVinculadas.length > 0);
 
   return (
     <Row gutter={[16, 8]}>
@@ -65,6 +76,7 @@ const FormInformacoesGerais: React.FC = () => {
           selectProps={{
             mode: 'multiple',
             id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
+            disabled: temDreVinculada,
           }}
         />
       </Col>

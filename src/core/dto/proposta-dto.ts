@@ -1,3 +1,4 @@
+import { DefaultOptionType } from 'antd/es/select';
 import { Dayjs } from 'dayjs';
 import { Formato } from '../enum/formato';
 import { SituacaoRegistro } from '../enum/situacao-registro';
@@ -99,7 +100,7 @@ export type PropostaFormDTO = {
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
   turmas?: PropostaTurmaFormDTO[];
-  dres?: number[];
+  dres?: number[] | DefaultOptionType[];
   modalidades?: number;
   anosTurmas?: number[];
   componentesCurriculares?: number[];
@@ -115,7 +116,7 @@ export type CriterioCertificacaoDTO = {
 export type PropostaTurmaDTO = {
   id?: number;
   nome: string;
-  dreId?: number;
+  dresIds?: number;
 };
 
 export type PropostaTurmaFormDTO = {
@@ -123,5 +124,6 @@ export type PropostaTurmaFormDTO = {
   id?: number;
   nome: string;
   dreNome?: string;
-  dreId?: number;
+  dresIds?: number;
+  todos?: boolean;
 };
