@@ -6,6 +6,10 @@ const cardStyle: React.CSSProperties = {
   margin: 8,
   border: 0,
   backgroundColor: Colors.BACKGROUND_CONTENT,
+  borderLeft: '1px solid',
+  borderRight: '1px solid',
+  borderTop: '1px solid',
+  borderBottom: '1px solid',
 };
 const headStyle: React.CSSProperties = {
   backgroundColor: Colors.SystemSME.ConectaFormacao.PRIMARY,
@@ -16,7 +20,6 @@ const headStyle: React.CSSProperties = {
 };
 const bodyStyle: React.CSSProperties = {
   backgroundColor: Colors.BACKGROUND_CONTENT,
-  border: 1,
   padding: 0,
   paddingTop: 0,
 };

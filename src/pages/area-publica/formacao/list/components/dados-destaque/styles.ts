@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import { Colors } from '~/core/styles/colors';
 
 const ImagemDestaque = styled.img.attrs(({ src }) => ({ src: src }))`
-  width: 460px;
+  width: 500px;
   display: 'block';
 `;
 const FlexDestaque = styled(Flex)`
-  padding: 50px 50px 50px 50px;
+  padding: 0px 0px 0px 0px;
 `;
 const TagDestaque = styled(Tag)`
   font-size: 14px;
@@ -16,7 +16,7 @@ const TagDestaque = styled(Tag)`
   margin-top: 10px;
   margin-bottom: 10px;
   border: none;
-  background-color: ${Colors.Neutral.LIGHTEST};
+  background-color: ${Colors.Neutral.LIGHT};
 `;
 
 export { ImagemDestaque, FlexDestaque, TagDestaque };
