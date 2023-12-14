@@ -1,12 +1,13 @@
 import { Menu } from 'antd';
 import { MenuProps } from 'antd/es/menu';
 import { useState } from 'react';
-import { MENU_AREA_PUBLICA } from '~/core/constants/menu-area-publica';
+import { AreaPublicaEnum, MENU_AREA_PUBLICA } from '~/core/constants/menu-area-publica';
 import { ROUTES } from '~/core/enum/routes-enum';
 import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
 import { LoginOutlined } from '@ant-design/icons';
 import { Colors, BoxShadow } from '~/core/styles/colors';
 import { Header } from 'antd/es/layout/layout';
+import { useNavigate } from 'react-router-dom';
 
 const items: MenuProps['items'] = [
   {
@@ -60,7 +61,13 @@ const HeaderAreaPublica = () => {
   const [menu, setMenu] = useState(MENU_AREA_PUBLICA.HOME.LABEL);
   const alterarMenu: MenuProps['onClick'] = (e) => {
     setMenu(e.key);
+    if (e.key === AreaPublicaEnum.Home.toString()) {
+      irParaHome();
+    }
   };
+  const navigate = useNavigate();
+
+  const irParaHome = () => navigate(ROUTES.AREA_PUBLICA, { replace: true });
   return (
     <Header style={contentStyle}>
       <a href={ROUTES.AREA_PUBLICA}>
