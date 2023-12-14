@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Card, Flex, Typography } from 'antd';
 import { Colors } from '~/core/styles/colors';
+import { ROUTES } from '~/core/enum/routes-enum';
 
 const cardStyle: React.CSSProperties = {
   width: 1100,
@@ -30,7 +31,7 @@ const DadosDestaque: React.FC = () => (
         <Typography.Title level={5}>Área Promotora: CODAE</Typography.Title>
         <Typography.Title level={5}>Área Promotora: CODAE</Typography.Title>
         <Typography.Title level={5}>Área Promotora: CODAE</Typography.Title>
-        <Button type='primary' shape='round' href='/'>
+        <Button type='primary' shape='round' href={ROUTES.PRINCIPAL}>
           Enviar inscrição
         </Button>
       </Flex>

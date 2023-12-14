@@ -43,7 +43,7 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
           </TagTipoFormacaoFormato>
         </Col>
       </Row>
-      <Button type='primary' shape='round' size={'large'} block>
+      <Button type='primary' shape='round' size='large' block>
         Saiba Mais
       </Button>
     </Card>

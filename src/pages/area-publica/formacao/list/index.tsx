@@ -47,10 +47,9 @@ export const ListFormacao: React.FC = () => {
     const numeroRegistros = listParams.pagination?.pageSize;
 
     setLoading(true);
-    console.log(filtroFormacao);
     obterFormacaoPaginada(filtroFormacao, numeroPagina, numeroRegistros)
       .then((response) => {
-        if (response?.dados.items) {
+        if (response.sucesso) {
           setFormacoes(response.dados.items);
           setListParams({
             ...listParams,

@@ -24,8 +24,8 @@ const obterFormacaoPaginada = (
   filtro: FiltroFormacaoDTO,
   numeroPagina: number | undefined,
   numeroRegistros: number | undefined,
-): Promise<ApiResult<PaginacaoResultadoDTO<FormacaoDTO[]>>> =>
-  obterRegistro(`${URL_DEFAULT}/listagem-formacao`, filtro, {
+) =>
+  obterRegistro<PaginacaoResultadoDTO<FormacaoDTO[]>>(`${URL_DEFAULT}/listagem-formacao`, filtro, {
     numeroPagina,
     numeroRegistros,
   });

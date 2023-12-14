@@ -15,8 +15,8 @@ export const CardFiltroFormacao: FC = () => {
           <SelectPublicoAlvo
             required={false}
             exibirTooltip={false}
-            areaPublica={true}
-            formItemProps={{ name: 'publicosAlvosIds' }}
+            areaPublica
+            formItemProps={{ name: 'publicosAlvosIds', rules: [] }}
           />
         </Col>
         <Col xs={24} sm={12} md={7} lg={7} xl={5}>
@@ -34,7 +34,7 @@ export const CardFiltroFormacao: FC = () => {
         </Col>
         <Col xs={24} sm={12} md={7} lg={7} xl={5}>
           <SelectAreaPromotora
-            areaPublica={true}
+            areaPublica
             formItemProps={{ name: 'areasPromotorasIds' }}
             selectProps={{ mode: 'multiple' }}
           />
@@ -44,19 +44,18 @@ export const CardFiltroFormacao: FC = () => {
         </Col>
 
         <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-          <SelectPalavrasChaves areaPublica={true} required={false} exibirTooltip={false} />
+          <SelectPalavrasChaves areaPublica required={false} exibirTooltip={false} />
         </Col>
         <Col xs={24} sm={12} md={7} lg={7} xl={5}>
           <SelectModalidades
             formItemProps={{ name: 'formatosIds', label: 'Formato' }}
             selectProps={{ placeholder: 'Formato' }}
             required={false}
-            areaPublica={true}
+            areaPublica
             exibirTooltip={false}
           />
         </Col>
-        <Col xs={24} sm={12} md={7} lg={7} xl={9}></Col>
-        <Col xs={24} sm={12} md={7} lg={7} xl={5}>
+        <Col xs={24} sm={12} md={14}>
           <Row justify='end' style={{ marginTop: 15 }}>
             <Button shape='round' type='primary' htmlType='submit'>
               Buscar formações

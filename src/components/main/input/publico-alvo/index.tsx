@@ -11,8 +11,8 @@ import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectPublicoAlvoProps = {
-  required?: boolean | true;
-  exibirTooltip?: boolean | true;
+  required?: boolean;
+  exibirTooltip?: boolean;
   areaPublica?: boolean;
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
