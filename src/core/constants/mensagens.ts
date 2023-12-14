@@ -55,3 +55,4 @@ export const DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA =
 export const ACAO_INFORMATIVA_NAO_ACEITA = 'É necessário aceitar a ação formativa';
 export const FORMATO_NAO_INFORMADO = 'Formato não informado';
 export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
+export const ENVIAR_INSCRICAO = 'Enviar inscrição';
