@@ -4,12 +4,9 @@ const cardStyle: React.CSSProperties = {
   width: 230,
   padding: 0,
   margin: 8,
-  border: 0,
   backgroundColor: Colors.BACKGROUND_CONTENT,
-  borderLeft: '1px solid',
-  borderRight: '1px solid',
-  borderTop: '1px solid',
-  borderBottom: '1px solid',
+  borderColor: Colors.Neutral.LIGHT,
+  border: '1px solid',
 };
 const headStyle: React.CSSProperties = {
   backgroundColor: Colors.SystemSME.ConectaFormacao.PRIMARY,
