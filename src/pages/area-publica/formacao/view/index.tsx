@@ -75,6 +75,14 @@ const publicosAlvos = [
   'Coord. Esportes e Lazer',
   'Prof. Ens. Fund. 2 e Med. - Ed.Física',
 ];
+const destaque = {
+  srcImagem: 'https://fia.com.br/wp-content/uploads/2022/06/pod.jpg',
+  areaPromotra: 'CODAE',
+  formato: 'Presencial',
+  tipoFormacao: 'Curso',
+  datas: '20 ate 27 de Novembro ',
+  titulo: 'Rádio e podcast na educação',
+};
 const sobreOEvento = `Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece
 of classical Latin literature from 45 BC, making it over 2000 years old. Richard
 McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the
@@ -91,16 +99,16 @@ original form, accompanied by English versions from the 1914 translation by H. R
 const VisualizarFormacao: FC = () => {
   const paramsRoute = useParams();
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
-  console.log(id);
+  console.info(id);
   return (
     <>
       <DadosDestaque
-        srcImagem='https://fia.com.br/wp-content/uploads/2022/06/pod.jpg'
-        areaPromotra='CODAE'
-        formato='Presencial'
-        tipoFormacao='Curso'
-        datas='20 ate 27 de Novembro '
-        titulo='Rádio e podcast na educação'
+        srcImagem={destaque.srcImagem}
+        areaPromotra={destaque.areaPromotra}
+        formato={destaque.formato}
+        tipoFormacao={destaque.tipoFormacao}
+        datas={destaque.datas}
+        titulo={destaque.titulo}
       />
       <Row>
         <Typography.Title level={3} style={{ paddingTop: 25 }}>
