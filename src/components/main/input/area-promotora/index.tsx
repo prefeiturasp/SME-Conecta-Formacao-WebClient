@@ -1,4 +1,4 @@
-import { Form } from 'antd';
+import { Form, FormItemProps } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -9,10 +9,15 @@ import { obterAreaPromotoraPublico } from '~/core/services/area-publica-service'
 
 type SelectAreaPromotoraProps = {
   selectProps?: SelectProps;
+  formItemProps?: FormItemProps;
   areaPublica?: boolean;
 };
 
-const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({ selectProps, areaPublica }) => {
+const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
+  selectProps,
+  formItemProps,
+  areaPublica,
+}) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -33,7 +38,7 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({ selectProps, 
 
   return (
     <>
-      <Form.Item label='Área promotora' name='areaPromotora' rules={[{ required: false }]}>
+      <Form.Item {...formItemProps} label='Área promotora' rules={[{ required: false }]}>
         <Select
           {...selectProps}
           options={options}

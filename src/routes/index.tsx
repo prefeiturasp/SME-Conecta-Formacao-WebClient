@@ -20,6 +20,7 @@ import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
 import AreaPublica from '~/pages/area-publica';
+import { ListFormacao } from '~/pages/area-publica/formacao/list';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -33,14 +34,18 @@ const RoutesConfig = () => {
   const meusDadosPage = createElement(MeusDados);
   const redefinirSenhaPage = createElement(RedefinirSenha);
   const redefinirSenhaTokenPage = createElement(RedefinirSenhaToken);
+
   const areaPublicaPage = createElement(AreaPublica);
+  const listFormacaoPage = createElement(ListFormacao);
 
   return (
     <BrowserRouter>
-      {autenticado ? (
-        <>
-          <Routes>
-            <Route path={ROUTES.AREA_PUBLICA} element={areaPublicaPage} />
+      <Routes>
+        <Route path={ROUTES.AREA_PUBLICA} element={areaPublicaPage}>
+          <Route path={ROUTES.AREA_PUBLICA} element={listFormacaoPage} />
+        </Route>
+        {autenticado ? (
+          <>
             <Route element={<GuardAutenticacao />}>
               <Route path={ROUTES.PRINCIPAL} element={principalPage}>
                 <Route path='*' element={notFoundPage} />
@@ -86,19 +91,18 @@ const RoutesConfig = () => {
                 </Route>
               </Route>
             </Route>
-          </Routes>
-        </>
-      ) : (
-        <Routes>
-          <Route path={ROUTES.AREA_PUBLICA} element={areaPublicaPage} />
-          <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />
-          <Route element={homePage}>
-            <Route path={ROUTES.LOGIN} element={loginPage} />
-            <Route path={ROUTES.REDEFINIR_SENHA} element={redefinirSenhaPage} />
-            <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
-          </Route>
-        </Routes>
-      )}
+          </>
+        ) : (
+          <>
+            <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />
+            <Route element={homePage}>
+              <Route path={ROUTES.LOGIN} element={loginPage} />
+              <Route path={ROUTES.REDEFINIR_SENHA} element={redefinirSenhaPage} />
+              <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
+            </Route>
+          </>
+        )}
+      </Routes>
     </BrowserRouter>
   );
 };

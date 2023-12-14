@@ -1,4 +1,4 @@
-import { Layout, Row, Menu } from 'antd';
+import { Menu } from 'antd';
 import { MenuProps } from 'antd/es/menu';
 import { useState } from 'react';
 import { MENU_AREA_PUBLICA } from '~/core/constants/menu-area-publica';
@@ -6,6 +6,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
 import { LoginOutlined } from '@ant-design/icons';
 import { Colors, BoxShadow } from '~/core/styles/colors';
+import { Header } from 'antd/es/layout/layout';
 
 const items: MenuProps['items'] = [
   {
@@ -42,16 +43,17 @@ const items: MenuProps['items'] = [
     icon: <LoginOutlined />,
   },
 ];
+
 const contentStyle: React.CSSProperties = {
   position: 'sticky',
   top: 0,
   zIndex: 11,
   width: '100%',
-  height: '70px',
   display: 'flex',
   alignItems: 'center',
   backgroundColor: Colors.Neutral.WHITE,
   boxShadow: BoxShadow.DEFAULT,
+  justifyContent: 'space-between',
 };
 
 const HeaderAreaPublica = () => {
@@ -60,14 +62,12 @@ const HeaderAreaPublica = () => {
     setMenu(e.key);
   };
   return (
-    <Layout.Header style={contentStyle}>
-      <a href={ROUTES.PRINCIPAL}>
+    <Header style={contentStyle}>
+      <a href={ROUTES.AREA_PUBLICA}>
         <img style={{ height: '50px' }} src={ConectaLogo} alt='Conecta Formação LOGO' />
       </a>
-      <Row justify='end' style={{ width: '100%' }}>
-        <Menu onClick={alterarMenu} selectedKeys={[menu]} mode='horizontal' items={items} />
-      </Row>
-    </Layout.Header>
+      <Menu onClick={alterarMenu} selectedKeys={[menu]} mode='horizontal' items={items} />
+    </Header>
   );
 };
 

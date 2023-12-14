@@ -15,6 +15,7 @@ import autenticacaoService, { URL_AUTENTICACAO_REVALIDAR } from '../autenticacao
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { notification } from 'antd';
+import queryString from 'query-string';
 
 const config: AxiosRequestConfig = {
   baseURL: import.meta.env.VITE_SME_CF_API,
@@ -145,12 +146,23 @@ export type ApiResult<T> = {
   mensagens: string[];
 };
 
-export const obterRegistro = async <T>(url: string, params?: any): Promise<ApiResult<T>> => {
+export const obterRegistro = async <T>(
+  url: string,
+  params?: any,
+  headers?: any,
+): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
     .get(url, {
-      params: {
-        params: params,
+      headers,
+      params: params,
+      paramsSerializer: {
+        serialize: (params) => {
+          return queryString.stringify(params, {
+            skipNull: true,
+            skipEmptyString: true,
+          });
+        },
       },
     })
     .then((response: AxiosResponse<T>): ApiResult<T> => {
