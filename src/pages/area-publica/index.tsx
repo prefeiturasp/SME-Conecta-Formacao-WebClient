@@ -25,11 +25,7 @@ const AreaPublica: FC = () => {
   const palavrasChaves = Form.useWatch('palavrasChaves', formAreaPublica);
   const publicosAlvo = Form.useWatch('publicosAlvo', formAreaPublica);
   const titulo = Form.useWatch('titulo', formAreaPublica);
-  return (
-    <>
-      <HeaderAreaPublica />
-    </>
-  );
+  return <></>;
 };
 
 export default AreaPublica;
