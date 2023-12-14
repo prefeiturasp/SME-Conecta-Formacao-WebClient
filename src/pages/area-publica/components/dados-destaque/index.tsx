@@ -32,10 +32,6 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({
       <Typography.Title level={5}>
         <CalendarOutlined /> {datas}
       </Typography.Title>
-      {/* Evento de Click do Botão ainda não definido com back */}
-      {/* <Button type='primary' shape='round'>
-        {ENVIAR_INSCRICAO}
-      </Button> */}
     </Flex>
   </FlexDestaque>
 );
