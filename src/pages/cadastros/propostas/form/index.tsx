@@ -1,6 +1,7 @@
 import { App, Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import dayjs, { Dayjs } from 'dayjs';
+import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -35,6 +36,7 @@ import {
 } from '~/core/constants/mensagens';
 import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
 import { validateMessages } from '~/core/constants/validate-messages';
+import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
   PropostaDTO,
   PropostaFormDTO,
@@ -46,7 +48,9 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
+import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
+import { obterDREs } from '~/core/services/dre-service';
 import {
   alterarProposta,
   deletarProposta,
@@ -66,12 +70,34 @@ const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
   const { notification } = App.useApp();
-
   const { desabilitarCampos, setDesabilitarCampos } = useContext(PermissaoContext);
 
   const [openModalErros, setOpenModalErros] = useState(false);
-
   const [listaErros, setListaErros] = useState<string[]>([]);
+
+  const token = useAppSelector((store) => store.auth.token);
+  const decodeObject: JWTDecodeDTO = jwt_decode(token);
+  const dresVinculadaDoToken = decodeObject?.dres;
+
+  const temDreVinculada =
+    typeof dresVinculadaDoToken === 'string' ||
+    (Array.isArray(dresVinculadaDoToken) && dresVinculadaDoToken.length > 0);
+
+  const obterDREVinculada = async () => {
+    const resposta = await obterDREs(true);
+
+    if (resposta.sucesso) {
+      return resposta.dados
+        .filter((item: any) => item.codigo === dresVinculadaDoToken)
+        .map((item) => ({
+          ...item,
+          label: item.descricao,
+          value: item.id,
+        }));
+    }
+
+    return [];
+  };
 
   const permissao = obterPermissaoPorMenu(MenuEnum.CadastroProposta);
 
@@ -121,12 +147,14 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   }, [formInitialValues, desabilitarCampos]);
 
-  const carregarValoresDefault = () => {
+  const carregarValoresDefault = async () => {
+    const valoresDre = await obterDREVinculada();
+
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
       tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
-      dres: [],
+      dres: temDreVinculada ? valoresDre : [],
       modalidades: undefined,
       componentesCurriculares: [],
       anosTurmas: [],
@@ -348,9 +376,7 @@ const FormCadastroDePropostas: React.FC = () => {
     };
 
     if (clonedValues?.dres?.length) {
-      valoresSalvar.dres = clonedValues.dres.map((dreId) => ({
-        dreId,
-      }));
+      valoresSalvar.dres = clonedValues.dres.map((item: any) => ({ dreId: item.value }));
     }
 
     if (clonedValues?.modalidades) {
@@ -377,8 +403,8 @@ const FormCadastroDePropostas: React.FC = () => {
           nome: item.nome,
         };
 
-        if (item.dreId) {
-          turma.dreId = item.dreId;
+        if (item.dresIds) {
+          turma.dresIds = item.dresIds;
         }
 
         if (item.id) {

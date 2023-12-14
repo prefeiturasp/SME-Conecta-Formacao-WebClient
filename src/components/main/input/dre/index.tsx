@@ -3,6 +3,7 @@ import { DefaultOptionType } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_DRE } from '~/core/constants/ids/select';
+import { PROPOSTA_DRE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { obterDREs } from '~/core/services/dre-service';
 import { onchangeMultiSelectOpcaoTodos } from '~/core/utils/functions';
 
@@ -10,12 +11,14 @@ interface SelectDREProps {
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
   exibirOpcaoTodos?: boolean;
+  labelInValue?: boolean;
 }
 
 export const SelectDRE: React.FC<SelectDREProps> = ({
   formItemProps,
   selectProps,
   exibirOpcaoTodos,
+  labelInValue,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -41,14 +44,18 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
       label='DRE'
       key='dreId'
       name='dreId'
-      rules={[{ required: true }]}
+      rules={[{ required: true, message: PROPOSTA_DRE_NAO_INFORMADA }]}
       normalize={(value: number[], prevValue: number[]) => {
         if (exibirOpcaoTodos) {
           const opcaoTodos = options.find((item) => !!item.todos);
-
           const valorTodosComparacao = opcaoTodos?.value;
+          const retornaNumero = labelInValue ? value.map((item: any) => item.value) : value;
 
-          const newValue = onchangeMultiSelectOpcaoTodos(value, prevValue, valorTodosComparacao);
+          const newValue = onchangeMultiSelectOpcaoTodos(
+            retornaNumero,
+            prevValue,
+            valorTodosComparacao,
+          );
 
           return newValue;
         }

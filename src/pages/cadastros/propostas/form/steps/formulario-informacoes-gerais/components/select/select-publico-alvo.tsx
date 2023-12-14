@@ -56,7 +56,13 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
     <Form.Item
       label='Público alvo'
       name='publicosAlvo'
-      rules={[{ required: campoEhObrigatorio(), message: PUBLICO_ALVO_NAO_INFORMADO }]}
+      dependencies={['funcoesEspecificas', 'modalidades', 'anosTurmas', 'componentesCurriculares']}
+      rules={[
+        {
+          required: campoEhObrigatorio(),
+          message: PUBLICO_ALVO_NAO_INFORMADO,
+        },
+      ]}
       tooltip={getTooltipFormInfoCircleFilled(
         'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
       )}
