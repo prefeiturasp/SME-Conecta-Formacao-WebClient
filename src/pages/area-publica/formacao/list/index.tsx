@@ -9,6 +9,8 @@ import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
 import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
 import { PaginationConfig } from 'antd/es/pagination';
 import { FiltroFormacaoFormDTO } from '~/core/dto/filtro-formacao-form-dto';
+import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { Modalidade } from '~/core/enum/modalidade';
 
 type ListParams = {
   pagination?: PaginationConfig;
@@ -17,6 +19,7 @@ type ListParams = {
 export const ListFormacao: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [formacoes, setFormacoes] = useState<FormacaoDTO[]>([]);
+
   const [filtroFormacao, setFiltroFormacao] = useState<FiltroFormacaoDTO>({});
   const [listParams, setListParams] = useState<ListParams>({
     pagination: {

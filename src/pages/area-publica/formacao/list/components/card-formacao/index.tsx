@@ -10,6 +10,9 @@ type CardFormacaoProps = {
 };
 
 export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
+  const abrirFormacao = () => {
+    alert(formacao.id);
+  };
   return (
     <Card
       cover={
@@ -43,7 +46,7 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
           </TagTipoFormacaoFormato>
         </Col>
       </Row>
-      <Button type='primary' shape='round' size='large' block>
+      <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
         Saiba Mais
       </Button>
     </Card>
