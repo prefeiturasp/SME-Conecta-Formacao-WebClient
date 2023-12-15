@@ -89,9 +89,9 @@ const VisualizarFormacao: FC = () => {
           return (
             <CardTurmasPublico
               key={i}
-              tituloHead={turma.nome}
-              titulo={turma?.periodos?.join(' , ')}
-              descricao={turma.local}
+              titulo={turma.nome}
+              datas={turma?.periodos?.join(' , ')}
+              local={turma.local}
               turmaEncerrada={turma.inscricaoEncerrada}
             />
           );
