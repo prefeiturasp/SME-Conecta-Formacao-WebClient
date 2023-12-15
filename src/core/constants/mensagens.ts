@@ -21,7 +21,6 @@ export const PROPOSTA_ENVIADA = 'Proposta enviada com sucesso';
 export const ERRO_CAMPOS_OBRIGATORIOS = 'Existem campos obrigatórios não preenchidos';
 export const APOS_ENVIAR_PROPOSTA_NAO_EDITA =
   'Após o envio da proposta não será possível realizar edições, tem certeza que deseja enviar?';
-
 export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a modalidade';
 export const FORMATO_NAO_INFORMADO = 'É necessário informar o formato';
 export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
@@ -33,7 +32,6 @@ export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =
 export const QUANTIDADE_DE_TURMAS_NAO_INFORMADA = 'É necessário informar a quantidade de turmas';
 export const QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA =
   'É necessário informar a quantidade de vagas por turma';
-
 export const CARGA_HORARIA_NAO_INFORMADA = 'É necessário informar a carga horária presencial';
 export const JUSTIFICATIVA_NAO_INFORMADA = 'É necessário informar a justificativa';
 export const OBJETIVO_NAO_INFORMADO = 'É necessário informar os objetivos';
@@ -43,12 +41,10 @@ export const PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO =
 export const REFERENCIA_NAO_INFORMADA = 'É necessário informar as referências';
 export const PALAVRA_CHAVE_NAO_INFORMADA =
   'É necessário informar no mínimo 3 e no máximo 5 palavras chaves';
-
 export const PERIODO_REALIZACAO_NAO_INFORMADO =
   'É necessário informar as datas do período de realização';
 export const PERIODO_INSCRICAO_NAO_INFORMADO =
   'É necessário informar as datas do período de inscrição';
-
 export const CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO =
   'É necessário informar ao menos 3 critérios para certificação';
 export const DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA =
@@ -56,9 +52,6 @@ export const DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA =
 export const ACAO_INFORMATIVA_NAO_ACEITA = 'É necessário aceitar a ação formativa';
 export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
 export const ENVIAR_INSCRICAO = 'Enviar inscrição';
-
 export const SOBRE_ESTE_EVENTO = 'Sobre este evento';
-
 export const PUBLICO_ALVO = 'Público-alvo';
-
 export const PALAVRAS_CHAVES = 'Palavras-chave';
