@@ -15,17 +15,17 @@ import {
   turmaEncerradaStyleBackground,
 } from './styles';
 type CardTurmasPublicoProps = {
-  tituloHead: string;
   titulo: string;
+  datas: string;
   turmaEncerrada: boolean;
-  descricao: string;
+  local: string;
 };
 
 const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
-  tituloHead,
   titulo,
+  datas,
   turmaEncerrada,
-  descricao,
+  local,
 }) => {
   return (
     <Card
@@ -33,7 +33,7 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
       style={cardStyle}
       headStyle={headStyle}
       bodyStyle={bodyStyle}
-      title={<p style={tituloHeadStyleBorder}>{tituloHead}</p>}
+      title={<p style={tituloHeadStyleBorder}>{titulo}</p>}
     >
       {turmaEncerrada ? (
         <div style={turmaEncerradaStyle}>
@@ -45,12 +45,12 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
       <Meta
         title={
           <p style={titleStyle}>
-            <CalendarOutlined /> {titulo}
+            <CalendarOutlined /> {datas}
           </p>
         }
         description={
           <p style={descriptionStyle}>
-            <IoLocationOutline /> {descricao}
+            <IoLocationOutline /> {local}
           </p>
         }
       />

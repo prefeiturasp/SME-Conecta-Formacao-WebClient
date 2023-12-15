@@ -4,12 +4,18 @@ import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { TagTipoFormacaoFormato, TextAreaPromotora, TextPeriodo, TextTitulo } from './styles';
 import { ImgFormacao } from '../img-formacao';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
+import { ROUTES } from '~/core/enum/routes-enum';
+import { useNavigate } from 'react-router-dom';
 
 type CardFormacaoProps = {
   formacao: FormacaoDTO;
 };
 
 export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
+  const navigate = useNavigate();
+
+  const abrirFormacao = () =>
+    navigate(`${ROUTES.AREA_PUBLICA}/visualizar/${formacao.id}`, { replace: true });
   return (
     <Card
       cover={
@@ -43,7 +49,7 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
           </TagTipoFormacaoFormato>
         </Col>
       </Row>
-      <Button type='primary' shape='round' size='large' block>
+      <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
         Saiba Mais
       </Button>
     </Card>

@@ -5,12 +5,12 @@ import { IoLocationOutline } from 'react-icons/io5';
 import { FlexDestaque, ImagemDestaque, TagDestaque } from './styles';
 
 type DadosDestaqueProps = {
-  srcImagem: string;
-  titulo: string;
-  areaPromotra: string;
-  tipoFormacao: string;
-  formato: string;
-  datas: string;
+  srcImagem?: string;
+  titulo?: string;
+  areaPromotra?: string;
+  tipoFormacao?: string;
+  formato?: string;
+  datas?: string;
 };
 const DadosDestaque: React.FC<DadosDestaqueProps> = ({
   srcImagem,
@@ -23,7 +23,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({
   <FlexDestaque justify='left'>
     <ImagemDestaque src={srcImagem} />
     <Flex vertical align='flex-start' justify='space-between' style={{ padding: 15 }}>
-      <Typography.Title level={2}>{titulo}</Typography.Title>
+      <Typography.Title level={1}>{titulo}</Typography.Title>
       <Typography.Title level={5}>Área Promotora: {areaPromotra}</Typography.Title>
       <Row>
         <TagDestaque icon={<SolutionOutlined />}>{tipoFormacao}</TagDestaque>

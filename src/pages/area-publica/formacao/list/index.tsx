@@ -17,6 +17,7 @@ type ListParams = {
 export const ListFormacao: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [formacoes, setFormacoes] = useState<FormacaoDTO[]>([]);
+
   const [filtroFormacao, setFiltroFormacao] = useState<FiltroFormacaoDTO>({});
   const [listParams, setListParams] = useState<ListParams>({
     pagination: {

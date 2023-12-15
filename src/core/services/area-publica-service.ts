@@ -5,6 +5,7 @@ import { CargoFuncaoDTO } from '../dto/cargo-funcao-dto';
 import { FormacaoDTO } from '../dto/formacao-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
 import { FiltroFormacaoDTO } from '../dto/filtro-formacao-dto';
+import { RetornoDetalheFormacaoDTO } from '../dto/dados-formacao-area-publica-dto';
 
 const URL_DEFAULT = 'v1/publico';
 
@@ -25,10 +26,13 @@ const obterFormacaoPaginada = (
   numeroPagina: number | undefined,
   numeroRegistros: number | undefined,
 ) =>
-  obterRegistro<PaginacaoResultadoDTO<FormacaoDTO[]>>(`${URL_DEFAULT}/listagem-formacao`, filtro, {
+  obterRegistro<PaginacaoResultadoDTO<FormacaoDTO[]>>(`${URL_DEFAULT}/formacao-listagem`, filtro, {
     numeroPagina,
     numeroRegistros,
   });
+
+const obterDadosFormacao = (propostaId: number) =>
+  obterRegistro<RetornoDetalheFormacaoDTO>(`${URL_DEFAULT}/formacao-detalhada/${propostaId}`);
 
 export {
   obterPublicoAlvoPublico,
@@ -36,4 +40,5 @@ export {
   obterAreaPromotoraPublico,
   obterFormatoPublico,
   obterFormacaoPaginada,
+  obterDadosFormacao,
 };

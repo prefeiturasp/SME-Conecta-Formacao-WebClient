@@ -21,6 +21,7 @@ import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
 import AreaPublica from '~/pages/area-publica';
 import { ListFormacao } from '~/pages/area-publica/formacao/list';
+import VisualizarFormacao from '~/pages/area-publica/formacao/view';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -37,12 +38,14 @@ const RoutesConfig = () => {
 
   const areaPublicaPage = createElement(AreaPublica);
   const listFormacaoPage = createElement(ListFormacao);
+  const visualizarAreaPublica = createElement(VisualizarFormacao);
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path={ROUTES.AREA_PUBLICA} element={areaPublicaPage}>
           <Route path={ROUTES.AREA_PUBLICA} element={listFormacaoPage} />
+          <Route path={ROUTES.VISUALIZAR_FORMACAO} element={visualizarAreaPublica} />
         </Route>
         {autenticado ? (
           <>
