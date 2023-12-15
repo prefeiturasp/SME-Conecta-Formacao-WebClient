@@ -8,7 +8,7 @@ import { CF_SELECT_PUBLICO_ALVO } from '~/core/constants/ids/select';
 import { PUBLICO_ALVO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterPublicoAlvoPublico } from '~/core/services/area-publica-service';
 import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
-import { Colors } from '~/core/styles/colors';
+import { getTooltipFormInfoCircleFilled } from '../../tooltip';
 
 type SelectPublicoAlvoProps = {
   required?: boolean;
@@ -40,14 +40,6 @@ const SelectPublicoAlvo: React.FC<SelectPublicoAlvoProps> = ({
   useEffect(() => {
     obterDados();
   }, []);
-
-  const iconTooltip = exibirTooltip ? (
-    <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
-    </Tooltip>
-  ) : (
-    <></>
-  );
 
   return (
     <Form.Item

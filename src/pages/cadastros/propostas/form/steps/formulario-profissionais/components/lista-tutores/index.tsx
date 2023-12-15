@@ -1,28 +1,28 @@
 import { Button, Col, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
-import { CF_BUTTON_ADD_REGENTE } from '~/core/constants/ids/button/intex';
-import { PropostaRegenteDTO } from '~/core/dto/proposta-regente-dto';
-import DrawerRegente from '~/pages/propostas/cadastros/form/steps/formulario-profissionais/components/lista-regentes/drawer';
-import { TituloListaPaginada, TituloSecao } from '../../../../styles';
+import { CF_BUTTON_ADD_TUTOR } from '~/core/constants/ids/button/intex';
+import { PropostaTutorDTO } from '~/core/dto/proposta-tutor-dto';
+import DrawerTutor from '~/pages/cadastros/propostas/form/steps/formulario-profissionais/components/lista-tutores/drawer';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import { TituloListaPaginada, TituloSecao } from '../../../../styles';
 
-const columns: ColumnsType<PropostaRegenteDTO> = [
+const columns: ColumnsType<PropostaTutorDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
-  { title: 'Regente', dataIndex: 'nomeRegente' },
+  { title: 'Tutor', dataIndex: 'nomeTutor' },
   { title: 'Turmas', dataIndex: 'nomesTurmas' },
 ];
 
-const ListaRegentes: React.FC = () => {
+const ListaTutores: React.FC = () => {
   const paramsRoute = useParams();
 
   const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [dadosRegentSelecionado, setDadosRegentSelecionado] = useState<PropostaRegenteDTO>();
+  const [dadosTutorSelecionado, setDadosTutorSelecionado] = useState<PropostaTutorDTO>();
 
   const id = paramsRoute?.id || 0;
 
@@ -32,52 +32,52 @@ const ListaRegentes: React.FC = () => {
 
   const onCloseModal = () => {
     setOpenModal(false);
-    setDadosRegentSelecionado(undefined);
+    setDadosTutorSelecionado(undefined);
   };
 
-  const onClickEditar = (regente: PropostaRegenteDTO) => {
+  const onClickEditar = (tutor: PropostaTutorDTO) => {
     setOpenModal(true);
-    setDadosRegentSelecionado(regente);
+    setDadosTutorSelecionado(tutor);
   };
 
   return (
     <DataTableContextProvider>
       {openModal && (
-        <DrawerRegente
+        <DrawerTutor
           openModal={openModal}
           onCloseModal={onCloseModal}
-          id={dadosRegentSelecionado?.id}
+          id={dadosTutorSelecionado?.id}
         />
       )}
       <Col>
-        <Row gutter={[16, 8]}>
+        <Row gutter={[16, 8]} style={{ paddingTop: '20px' }}>
           <Col xs={24}>
             <Row wrap={false} justify='space-between'>
               <Col>
-                <TituloSecao>Regentes</TituloSecao>
+                <TituloSecao>Tutores</TituloSecao>
               </Col>
               <Col>
                 <Button
                   type='primary'
-                  id={CF_BUTTON_ADD_REGENTE}
+                  id={CF_BUTTON_ADD_TUTOR}
                   onClick={abrirModal}
                   disabled={desabilitarCampos}
                 >
-                  Adicionar regentes
+                  Adicionar tutores
                 </Button>
               </Col>
             </Row>
           </Col>
 
           <Col xs={24} sm={14} md={24}>
-            <TituloListaPaginada>Lista de regentes</TituloListaPaginada>
+            <TituloListaPaginada>Lista de tutores</TituloListaPaginada>
           </Col>
 
           <Col span={24}>
             <DataTable
-              url={`v1/proposta/${id}/regente`}
+              url={`v1/proposta/${id}/tutor`}
               columns={columns}
-              onRow={(row: PropostaRegenteDTO) => ({
+              onRow={(row: PropostaTutorDTO) => ({
                 onClick: () => {
                   onClickEditar(row);
                 },
@@ -90,4 +90,4 @@ const ListaRegentes: React.FC = () => {
   );
 };
 
-export default ListaRegentes;
+export default ListaTutores;

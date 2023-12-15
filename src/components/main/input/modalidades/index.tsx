@@ -1,7 +1,6 @@
 import { InfoCircleFilled } from '@ant-design/icons';
 import { Form, FormItemProps, Tooltip } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
-
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
@@ -53,16 +52,9 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
     }
   };
 
-  const iconTooltip = exibirTooltip ? (
-    <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
-    </Tooltip>
-  ) : (
-    <></>
-  );
   useEffect(() => {
-    obterDados(tipoFormacao);
-  }, [tipoFormacao]);
+    obterDados();
+  }, []);
 
   return (
     <Form.Item
@@ -71,13 +63,14 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
       rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
       tooltip={{
         title:
-          'Para propostas de formaÃ§Ãµes a distÃ¢ncia Ã© obrigatÃ³rio conter o mÃ­nimo de 20% e mÃ¡ximo de 40% em atividades presenciais ou aulas sÃ­ncronas.',
+          'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
         icon: iconTooltip,
       }}
       {...formItemProps}
     >
       <Select
         placeholder='Modalidade'
+        allowClear
         options={options}
         id={CF_SELECT_MODALIDADE}
         {...selectProps}

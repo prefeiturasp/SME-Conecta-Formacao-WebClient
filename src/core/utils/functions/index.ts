@@ -43,3 +43,23 @@ export const validarOnChangeMultiSelectUnico = (valoresNovos: any, valoreAtuais:
 
   return valorParaSetar.map((item) => item?.value);
 };
+
+export const onchangeMultiSelectOpcaoTodos = (
+  valores: any[],
+  valorAtual: any[],
+  valorTodosComparacao: any = OpcaoListagem.Todos,
+) => {
+  let valorParaSetar = valores;
+  const valorAtualTemOpcaoTodos = valorAtual?.includes(valorTodosComparacao);
+  const valoresTemOpcaoTodos = valores.includes(valorTodosComparacao);
+
+  if (valorAtualTemOpcaoTodos) {
+    const listaSemOpcaoTodos = valores.filter((valor) => valor !== valorTodosComparacao);
+    valorParaSetar = listaSemOpcaoTodos;
+  }
+  if (!valorAtualTemOpcaoTodos && valoresTemOpcaoTodos) {
+    valorParaSetar = [valorTodosComparacao];
+  }
+
+  return valorParaSetar;
+};
