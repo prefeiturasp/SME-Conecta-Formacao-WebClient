@@ -23,8 +23,8 @@ const obterFormatoPublico = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
 
 const obterFormacaoPaginada = (
   filtro: FiltroFormacaoDTO,
-  numeroPagina: number | undefined,
-  numeroRegistros: number | undefined,
+  numeroPagina?: number,
+  numeroRegistros?: number,
 ) =>
   obterRegistro<PaginacaoResultadoDTO<FormacaoDTO[]>>(`${URL_DEFAULT}/formacao-listagem`, filtro, {
     numeroPagina,
