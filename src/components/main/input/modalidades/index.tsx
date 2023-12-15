@@ -69,7 +69,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
       rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
       tooltip={{
         title:
-          'Para propostas de forma��es a dist�ncia � obrigat�rio conter o m�nimo de 20% e m�ximo de 40% em atividades presenciais ou aulas s�ncronas.',
+          'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
         icon: iconTooltip,
       }}
       {...formItemProps}
