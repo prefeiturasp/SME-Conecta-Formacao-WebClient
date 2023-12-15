@@ -41,10 +41,6 @@ export const CardFiltroFormacao: FC = () => {
       <Col xs={24} sm={12} md={7} lg={7} xl={5}>
         <DatePickerPeriodo label='Data' name='data' />
       </Col>
-
-      <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-        <SelectPalavrasChaves areaPublica required={false} exibirTooltip={false} />
-      </Col>
       <Col xs={24} sm={12} md={7} lg={7} xl={5}>
         <SelectModalidades
           formItemProps={{ name: 'formatosIds', label: 'Formato' }}
@@ -52,6 +48,14 @@ export const CardFiltroFormacao: FC = () => {
           required={false}
           areaPublica
           exibirTooltip={false}
+        />
+      </Col>
+      <Col xs={24} sm={12} md={7} lg={7} xl={5}>
+        <SelectPalavrasChaves
+          areaPublica
+          required={false}
+          exibirTooltip={false}
+          formItemProps={{ name: 'palavrasChavesIds' }}
         />
       </Col>
       <Col xs={24} sm={12} md={14}>

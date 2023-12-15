@@ -40,7 +40,7 @@ const turmaEncerradaStyleBackground: React.CSSProperties = {
   fontWeight: 'bolder',
 };
 const titleStyle: React.CSSProperties = {
-  paddingTop: 15,
+  paddingTop: 10,
   paddingLeft: 10,
   paddingRight: 10,
 };

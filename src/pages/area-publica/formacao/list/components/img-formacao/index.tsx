@@ -1,4 +1,5 @@
 import React from 'react';
+import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
 
 import styled from 'styled-components';
 import { Colors } from '~/core/styles/colors';
@@ -18,11 +19,9 @@ type ImgFormacaoProps = {
   inscricaoEncerrada?: boolean;
 };
 
-export const ImgFormacao: React.FC<ImgFormacaoProps> = ({ url, inscricaoEncerrada }) => {
-  return (
-    <>
-      <img alt='divulgacao' src={url} height={200} />
-      {inscricaoEncerrada && <DivInscricaoEncerrada>Inscrições encerradas</DivInscricaoEncerrada>}
-    </>
-  );
-};
+export const ImgFormacao: React.FC<ImgFormacaoProps> = ({ url, inscricaoEncerrada }) => (
+  <>
+    <img alt='divulgacao' src={url ?? imagemFormacao} height={200} />
+    {inscricaoEncerrada && <DivInscricaoEncerrada>Inscrições encerradas</DivInscricaoEncerrada>}
+  </>
+);

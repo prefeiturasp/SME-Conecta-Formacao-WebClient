@@ -11,32 +11,8 @@ import { useNavigate, Link } from 'react-router-dom';
 
 const items: MenuProps['items'] = [
   {
-    label: MENU_AREA_PUBLICA.HOME.LABEL,
+    label: <Link to={ROUTES.AREA_PUBLICA}>{MENU_AREA_PUBLICA.HOME.LABEL}</Link>,
     key: MENU_AREA_PUBLICA.HOME.KEY,
-  },
-  {
-    label: MENU_AREA_PUBLICA.EVENTOS_EXTERNO.LABEL,
-    key: MENU_AREA_PUBLICA.EVENTOS_EXTERNO.KEY,
-  },
-  {
-    label: MENU_AREA_PUBLICA.EVENTOS_ESCOLA.LABEL,
-    key: MENU_AREA_PUBLICA.EVENTOS_ESCOLA.KEY,
-  },
-  {
-    label: MENU_AREA_PUBLICA.FAQ.LABEL,
-    key: MENU_AREA_PUBLICA.FAQ.KEY,
-  },
-  {
-    label: MENU_AREA_PUBLICA.QUEM_SOMOS.LABEL,
-    key: MENU_AREA_PUBLICA.QUEM_SOMOS.KEY,
-  },
-  {
-    label: MENU_AREA_PUBLICA.SEJA_PARCEITO.LABEL,
-    key: MENU_AREA_PUBLICA.SEJA_PARCEITO.KEY,
-  },
-  {
-    label: MENU_AREA_PUBLICA.CONTATO.LABEL,
-    key: MENU_AREA_PUBLICA.CONTATO.KEY,
   },
   {
     label: <Link to={ROUTES.LOGIN}>{MENU_AREA_PUBLICA.LOGIN.LABEL}</Link>,

@@ -1,5 +1,5 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, Tooltip } from 'antd';
+import { Form, FormItemProps, Tooltip } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -15,6 +15,7 @@ type SelectPalavrasChavesProps = {
   exibirTooltip?: boolean | true;
   areaPublica?: boolean;
   selectProps?: SelectProps;
+  formItemProps?: FormItemProps;
 };
 
 const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
@@ -22,6 +23,7 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
   exibirTooltip = true,
   selectProps,
   areaPublica = false,
+  formItemProps,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const form = Form.useFormInstance();
@@ -81,6 +83,7 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
           'Escolher entre 3 e 5 palavras-chave que definam os conceitos e campos do saber desta formação (considerar os conteúdos da formação)',
         icon: iconTooltip,
       }}
+      {...formItemProps}
     >
       <Select
         allowClear
