@@ -13,7 +13,7 @@ export type RetornoDetalheFormacaoDTO = {
   publicosAlvo?: string[];
   palavrasChaves?: string[];
   inscricaoEncerrada: boolean;
-  imagemUrl?: string | '';
+  imagemUrl?: string;
   turmas: RetornoTurmaDetalheDTO[];
 };
 export type RetornoTurmaDetalheDTO = {
