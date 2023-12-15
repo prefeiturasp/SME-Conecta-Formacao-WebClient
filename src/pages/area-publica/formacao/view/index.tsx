@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import CardTurmasPublico from '../../components/card-turmas';
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
-import { PALAVRAS_CHAVES, PUBLICO_ALVO, SOBRE_O_EVENTO } from '~/core/constants/mensagens';
+import { PALAVRAS_CHAVES, PUBLICO_ALVO, SOBRE_ESTE_EVENTO } from '~/core/constants/mensagens';
 
 const PalavraChave = styled(Tag)`
   font-size: 14px;
@@ -31,11 +31,6 @@ const VisualizarFormacao: FC = () => {
     const formacao = await obterDadosFormacao(id);
     if (formacao.sucesso) {
       setDadosFormacao(formacao.dados);
-    } else {
-      notification.error({
-        message: 'Erro',
-        description: 'Formação não encontrada',
-      });
     }
   }, [id]);
 
@@ -56,7 +51,7 @@ const VisualizarFormacao: FC = () => {
       />
       <Row>
         <Typography.Title level={3} style={{ paddingTop: 25 }}>
-          {SOBRE_O_EVENTO}
+          {SOBRE_ESTE_EVENTO}
         </Typography.Title>
         <Typography.Text>{dadosFormacao?.justificativa} </Typography.Text>
       </Row>
