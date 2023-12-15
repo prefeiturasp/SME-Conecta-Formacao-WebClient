@@ -5,12 +5,12 @@ import { IoLocationOutline } from 'react-icons/io5';
 import { FlexDestaque, ImagemDestaque, TagDestaque } from './styles';
 
 type DadosDestaqueProps = {
-  srcImagem: string;
-  titulo: string;
-  areaPromotra: string;
-  tipoFormacao: string;
-  formato: string;
-  datas: string;
+  srcImagem?: string;
+  titulo?: string;
+  areaPromotra?: string;
+  tipoFormacao?: string;
+  formato?: string;
+  datas?: string;
 };
 const DadosDestaque: React.FC<DadosDestaqueProps> = ({
   srcImagem,

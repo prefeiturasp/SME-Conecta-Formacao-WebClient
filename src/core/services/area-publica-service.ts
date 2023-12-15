@@ -26,13 +26,13 @@ const obterFormacaoPaginada = (
   numeroPagina: number | undefined,
   numeroRegistros: number | undefined,
 ) =>
-  obterRegistro<PaginacaoResultadoDTO<FormacaoDTO[]>>(`${URL_DEFAULT}/listagem-formacao`, filtro, {
+  obterRegistro<PaginacaoResultadoDTO<FormacaoDTO[]>>(`${URL_DEFAULT}/formacao-listagem`, filtro, {
     numeroPagina,
     numeroRegistros,
   });
 
 const obterDadosFormacao = (propostaId: number) =>
-  obterRegistro<RetornoDetalheFormacaoDTO>(`${URL_DEFAULT}/detalhes-formacao/${propostaId}`);
+  obterRegistro<RetornoDetalheFormacaoDTO>(`${URL_DEFAULT}/formacao-detalhada/${propostaId}`);
 
 export {
   obterPublicoAlvoPublico,
