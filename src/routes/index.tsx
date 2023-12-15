@@ -45,7 +45,7 @@ const RoutesConfig = () => {
       <Routes>
         <Route path={ROUTES.AREA_PUBLICA} element={areaPublicaPage}>
           <Route path={ROUTES.AREA_PUBLICA} element={listFormacaoPage} />
-          <Route path={ROUTES.VISUALIZAR_FORMACAO} element={visualizarAreaPublica} />
+          <Route path={ROUTES.AREA_PUBLICA_VISUALIZAR_FORMACAO} element={visualizarAreaPublica} />
         </Route>
         {autenticado ? (
           <>
