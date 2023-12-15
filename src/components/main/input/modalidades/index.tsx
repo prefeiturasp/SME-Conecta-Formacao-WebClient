@@ -11,9 +11,9 @@ import { obterModalidades } from '~/core/services/modalidade-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectModalidadesProps = {
-  required?: boolean | true;
+  required?: boolean;
   areaPublica?: boolean;
-  exibirTooltip?: boolean | true;
+  exibirTooltip?: boolean;
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
 };
