@@ -7,7 +7,7 @@ import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
 import { LoginOutlined } from '@ant-design/icons';
 import { Colors, BoxShadow } from '~/core/styles/colors';
 import { Header } from 'antd/es/layout/layout';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const items: MenuProps['items'] = [
   {
@@ -39,7 +39,7 @@ const items: MenuProps['items'] = [
     key: MENU_AREA_PUBLICA.CONTATO.KEY,
   },
   {
-    label: <a href={ROUTES.LOGIN}>{MENU_AREA_PUBLICA.LOGIN.LABEL}</a>,
+    label: <Link to={ROUTES.LOGIN}>{MENU_AREA_PUBLICA.LOGIN.LABEL}</Link>,
     key: MENU_AREA_PUBLICA.LOGIN.KEY,
     icon: <LoginOutlined />,
   },
@@ -70,9 +70,9 @@ const HeaderAreaPublica = () => {
   const irParaHome = () => navigate(ROUTES.AREA_PUBLICA, { replace: true });
   return (
     <Header style={contentStyle}>
-      <a href={ROUTES.AREA_PUBLICA}>
+      <Link to={ROUTES.AREA_PUBLICA}>
         <img style={{ height: '50px' }} src={ConectaLogo} alt='Conecta Formação LOGO' />
-      </a>
+      </Link>
       <Menu onClick={alterarMenu} selectedKeys={[menu]} mode='horizontal' items={items} />
     </Header>
   );
