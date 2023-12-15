@@ -15,9 +15,6 @@ import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { store } from '../../redux';
 import autenticacaoService, { URL_AUTENTICACAO_REVALIDAR } from '../autenticacao-service';
-import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
-import { notification } from 'antd';
 import queryString from 'query-string';
 
 const config: AxiosRequestConfig = {

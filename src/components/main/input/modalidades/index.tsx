@@ -7,7 +7,7 @@ import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
 import { MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { obterFormatoPublico } from '~/core/services/area-publica-service';
-import { obterModalidades } from '~/core/services/proposta-service';
+import { obterModalidades } from '~/core/services/modalidade-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectModalidadesProps = {
@@ -32,9 +32,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
     tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
 
     if (tipoFormacao) {
-      const resposta = areaPublica
-        ? await obterFormatoPublico()
-        : await obterModalidades(tipoFormacao);
+      const resposta = areaPublica ? await obterFormatoPublico() : await obterModalidades();
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
           label: item.descricao,
@@ -53,8 +51,16 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
   };
 
   useEffect(() => {
-    obterDados();
+    obterDados(tipoFormacao);
   }, []);
+
+  const iconTooltip = exibirTooltip ? (
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+    </Tooltip>
+  ) : (
+    <></>
+  );
 
   return (
     <Form.Item
@@ -63,7 +69,7 @@ const SelectModalidades: React.FC<SelectModalidadesProps> = ({
       rules={[{ required: required, message: MODALIDADE_NAO_INFORMADA }]}
       tooltip={{
         title:
-          'Para propostas de formações a distância é obrigatório conter o mínimo de 20% e máximo de 40% em atividades presenciais ou aulas síncronas.',
+          'Para propostas de formaï¿½ï¿½es a distï¿½ncia ï¿½ obrigatï¿½rio conter o mï¿½nimo de 20% e mï¿½ximo de 40% em atividades presenciais ou aulas sï¿½ncronas.',
         icon: iconTooltip,
       }}
       {...formItemProps}

@@ -7,7 +7,6 @@ import SelectComponenteCurricular from '~/components/main/input/componente-curri
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
 import { SelectDRE } from '~/components/main/input/dre';
 import RadioFormacaoHomologada from '~/components/main/input/formacao-homologada';
-import SelectFormato from '~/components/main/input/formato';
 import SelectFuncaoEspecifica from '~/components/main/input/funcao-especifica';
 import SelectModalidades from '~/components/main/input/modalidades';
 import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';

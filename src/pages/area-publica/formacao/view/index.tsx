@@ -1,7 +1,7 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 import DadosDestaque from '../list/components/dados-destaque';
 import { useParams } from 'react-router-dom';
-import { Col, Row, Space, Tag, Typography, notification } from 'antd';
+import { Col, Row, Space, Tag, Typography } from 'antd';
 import { Colors } from '~/core/styles/colors';
 import styled from 'styled-components';
 import CardTurmasPublico from '../../components/card-turmas';
