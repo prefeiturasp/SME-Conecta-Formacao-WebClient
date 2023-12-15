@@ -6,12 +6,14 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_PALAVRA_CHAVE } from '~/core/constants/ids/select';
 import { PALAVRA_CHAVE_NAO_INFORMADA } from '~/core/constants/mensagens';
+import { obterPalavraChavePublico } from '~/core/services/area-publica-service';
 import { obterPalavrasChave } from '~/core/services/palavra-chave-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectPalavrasChavesProps = {
   required?: boolean | true;
   exibirTooltip?: boolean | true;
+  areaPublica?: boolean;
   selectProps?: SelectProps;
 };
 
@@ -19,11 +21,12 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
   required = true,
   exibirTooltip = true,
   selectProps,
+  areaPublica = false,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const form = Form.useFormInstance();
   const obterDados = async () => {
-    const resposta = await obterPalavrasChave();
+    const resposta = areaPublica ? await obterPalavraChavePublico() : await obterPalavrasChave();
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
       setOptions(newOptions);
@@ -51,7 +54,7 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
         { required: required, message: PALAVRA_CHAVE_NAO_INFORMADA },
         {
           validator: (_, value) => {
-            if (value) {
+            if (value && !areaPublica) {
               if (value.length > 5) {
                 return Promise.reject(
                   'Escolha no máximo 5 palavras-chave que definam os conceitos e campos do saber desta formação (considerar os conteúdos da formação)',
@@ -83,7 +86,11 @@ const SelectPalavrasChaves: React.FC<SelectPalavrasChavesProps> = ({
         allowClear
         mode='multiple'
         options={options}
-        placeholder='Escolha no mínimo 3 palavras-chave e no máximo 5 palavras-chave'
+        placeholder={
+          areaPublica
+            ? 'Palavras-chave'
+            : 'Escolha no mínimo 3 palavras-chave e no máximo 5 palavras-chave'
+        }
         {...selectProps}
         id={CF_SELECT_PALAVRA_CHAVE}
       />
