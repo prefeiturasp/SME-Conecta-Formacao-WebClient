@@ -10,7 +10,7 @@ const AreaPublica: FC = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <HeaderAreaPublica />
-      <Content style={{ margin: '16px 32px', marginLeft: '88px' }}>
+      <Content style={{ margin: '16px 32px', marginLeft: '32px' }}>
         <Outlet />
       </Content>
       <Footer />

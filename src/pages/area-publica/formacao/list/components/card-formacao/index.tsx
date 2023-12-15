@@ -50,7 +50,7 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
         </Col>
       </Row>
       <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
-        Saiba Mais
+        Saiba mais
       </Button>
     </Card>
   );
