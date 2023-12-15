@@ -71,6 +71,7 @@ const TabelaEditavel: React.FC = () => {
   const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
 
   const [editingKey, setEditingKey] = useState<number | undefined>();
+  const [setarDreAutomatica, setSetarDreAutomatica] = useState();
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
@@ -90,6 +91,7 @@ const TabelaEditavel: React.FC = () => {
     // if (formProposta.isFieldTouched('quantidadeTurmas')) {
     const dresAutomaticas = formProposta.getFieldValue('dres');
     const turmas = formProposta.getFieldValue('turmas');
+    // obterDREVinculada(dresAutomaticas);
 
     if (quantidadeTurmas) {
       const originData: PropostaTurmaFormDTO[] = [];
@@ -101,8 +103,12 @@ const TabelaEditavel: React.FC = () => {
           key: existeTurma ? turma.key : i,
           nome: existeTurma ? turma.nome : `Turma ${i + 1}`,
           id: existeTurma ? turma.id : undefined,
-          dresIds: dresAutomaticas.map((item: any) => item.value),
-          dreNome: dresAutomaticas.map((item: any) => item.label),
+          dresIds: existeTurma
+            ? turma?.dres?.map((item: any) => item.dreId)
+            : dresAutomaticas.map((item: any) => item.value),
+          dreNome: existeTurma
+            ? turma?.dres?.map((item: any) => item.nome)
+            : dresAutomaticas.map((item: any) => item.label),
           todos: dresAutomaticas.map((item: any) => item.todos),
         });
 

@@ -100,7 +100,7 @@ export type PropostaFormDTO = {
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
   turmas?: PropostaTurmaFormDTO[];
-  dres?: number[] | DefaultOptionType[];
+  dres?: DefaultOptionType[];
   modalidades?: number;
   anosTurmas?: number[];
   componentesCurriculares?: number[];
@@ -123,6 +123,7 @@ export type PropostaTurmaFormDTO = {
   key: number;
   id?: number;
   nome: string;
+  dres?: { dreId: number; nome: string };
   dreNome?: string;
   dresIds?: number;
   todos?: boolean;

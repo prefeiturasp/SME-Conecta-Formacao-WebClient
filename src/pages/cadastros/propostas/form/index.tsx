@@ -175,9 +175,9 @@ const FormCadastroDePropostas: React.FC = () => {
     const dados = resposta.dados;
 
     if (resposta.sucesso) {
-      let dres: number[] = [];
+      let dres: PropostaFormDTO['dres'] = [];
       if (dados?.dres?.length) {
-        dres = dados.dres.map((item) => item.dreId);
+        dres = dados.dres.map((item) => [{ value: item.dreId, label: '' }]);
       }
 
       let modalidades: number | undefined = undefined;
@@ -376,7 +376,11 @@ const FormCadastroDePropostas: React.FC = () => {
     };
 
     if (clonedValues?.dres?.length) {
-      valoresSalvar.dres = clonedValues.dres.map((item: any) => ({ dreId: item.value }));
+      if (id) {
+        valoresSalvar.dres = clonedValues.dres.map((dreId) => ({ dreId }));
+      } else {
+        valoresSalvar.dres = clonedValues.dres.map((item: any) => ({ dreId: item.value }));
+      }
     }
 
     if (clonedValues?.modalidades) {

@@ -75,8 +75,9 @@ const FormInformacoesGerais: React.FC = () => {
           }}
           selectProps={{
             mode: 'multiple',
-            id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
+            labelInValue: true,
             disabled: temDreVinculada,
+            id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
           }}
         />
       </Col>
