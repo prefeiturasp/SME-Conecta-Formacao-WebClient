@@ -33,7 +33,11 @@ import { Colors } from '~/core/styles/colors';
 import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
 import TabelaEditavel from './components/table/turmas';
 
-const FormInformacoesGerais: React.FC = () => {
+type FormInformacoesGeraisProps = {
+  listaDres: any[];
+};
+
+const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ listaDres }) => {
   const form = Form.useFormInstance();
 
   const token = useAppSelector((store) => store.auth.token);
@@ -68,14 +72,17 @@ const FormInformacoesGerais: React.FC = () => {
 
       <Col span={24}>
         <SelectDRE
+          carregarDadosAutomaticamente={false}
           exibirOpcaoTodos
           formItemProps={{
             name: 'dres',
           }}
           selectProps={{
             mode: 'multiple',
-            id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
+            labelInValue: true,
+            options: listaDres,
             disabled: temDreVinculada,
+            id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
           }}
         />
       </Col>
@@ -198,7 +205,7 @@ const FormInformacoesGerais: React.FC = () => {
 
       <Col span={24}>
         <Form.Item style={{ marginBottom: 0, marginTop: 0 }}>
-          <TabelaEditavel />
+          <TabelaEditavel listaDres={listaDres} />
         </Form.Item>
       </Col>
 

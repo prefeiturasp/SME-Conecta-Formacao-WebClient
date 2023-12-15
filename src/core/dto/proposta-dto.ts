@@ -1,4 +1,3 @@
-import { DefaultOptionType } from 'antd/es/select';
 import { Dayjs } from 'dayjs';
 import { Formato } from '../enum/formato';
 import { SituacaoRegistro } from '../enum/situacao-registro';
@@ -14,6 +13,7 @@ import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
 import { PropostaModalidadeDTO } from './proposta-modalidade-dto';
 import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
+import { DreDTO } from './retorno-listagem-dto';
 
 export type PropostaDTO = {
   formacaoHomologada?: boolean;
@@ -100,11 +100,13 @@ export type PropostaFormDTO = {
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
   turmas?: PropostaTurmaFormDTO[];
-  dres?: number[] | DefaultOptionType[];
+  dres?: DreDTO[];
   modalidades?: number;
   anosTurmas?: number[];
   componentesCurriculares?: number[];
+  listaDres?: DreDTO[];
 };
+
 export type PropostaPalavraChaveDTO = {
   palavraChaveId: number;
 };
@@ -116,14 +118,14 @@ export type CriterioCertificacaoDTO = {
 export type PropostaTurmaDTO = {
   id?: number;
   nome: string;
-  dresIds?: number;
+  dresIds?: number[];
 };
 
 export type PropostaTurmaFormDTO = {
   key: number;
   id?: number;
   nome: string;
-  dreNome?: string;
-  dresIds?: number;
+  dres?: DreDTO[];
   todos?: boolean;
+  tagsDres?: React.ReactNode;
 };

@@ -11,14 +11,15 @@ interface SelectDREProps {
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
   exibirOpcaoTodos?: boolean;
-  labelInValue?: boolean;
+  carregarDadosAutomaticamente?: boolean;
+  // dados?: DreDTO[];
 }
 
 export const SelectDRE: React.FC<SelectDREProps> = ({
   formItemProps,
   selectProps,
   exibirOpcaoTodos,
-  labelInValue,
+  carregarDadosAutomaticamente = true,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -31,13 +32,16 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
         label: item.descricao,
         value: item.id,
       }));
+
       setOptions(newOptions);
     }
   };
 
   useEffect(() => {
-    obterDRE();
-  }, []);
+    if (carregarDadosAutomaticamente) {
+      obterDRE();
+    }
+  }, [carregarDadosAutomaticamente]);
 
   return (
     <Form.Item
@@ -49,7 +53,9 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
         if (exibirOpcaoTodos) {
           const opcaoTodos = options.find((item) => !!item.todos);
           const valorTodosComparacao = opcaoTodos?.value;
-          const retornaNumero = labelInValue ? value.map((item: any) => item.value) : value;
+          const retornaNumero = selectProps?.labelInValue
+            ? value.map((item: any) => item.value)
+            : value;
 
           const newValue = onchangeMultiSelectOpcaoTodos(
             retornaNumero,
@@ -64,7 +70,7 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
       }}
       {...formItemProps}
     >
-      <Select {...selectProps} options={options} id={CF_SELECT_DRE} placeholder='Selecione a DRE' />
+      <Select options={options} id={CF_SELECT_DRE} placeholder='Selecione a DRE' {...selectProps} />
     </Form.Item>
   );
 };

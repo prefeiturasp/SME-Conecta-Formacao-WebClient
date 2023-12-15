@@ -43,6 +43,7 @@ import {
   PropostaTurmaDTO,
   PropostaTurmaFormDTO,
 } from '~/core/dto/proposta-dto';
+import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
@@ -75,6 +76,8 @@ const FormCadastroDePropostas: React.FC = () => {
   const [openModalErros, setOpenModalErros] = useState(false);
   const [listaErros, setListaErros] = useState<string[]>([]);
 
+  const [listaDres, setListaDres] = useState<any[]>([]);
+
   const token = useAppSelector((store) => store.auth.token);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadaDoToken = decodeObject?.dres;
@@ -83,17 +86,9 @@ const FormCadastroDePropostas: React.FC = () => {
     typeof dresVinculadaDoToken === 'string' ||
     (Array.isArray(dresVinculadaDoToken) && dresVinculadaDoToken.length > 0);
 
-  const obterDREVinculada = async () => {
-    const resposta = await obterDREs(true);
-
-    if (resposta.sucesso) {
-      return resposta.dados
-        .filter((item: any) => item.codigo === dresVinculadaDoToken)
-        .map((item) => ({
-          ...item,
-          label: item.descricao,
-          value: item.id,
-        }));
+  const obterDREVinculada = async (listaDres: DreDTO[]) => {
+    if (listaDres?.length) {
+      return listaDres.filter((item: any) => item.codigo === dresVinculadaDoToken);
     }
 
     return [];
@@ -148,13 +143,21 @@ const FormCadastroDePropostas: React.FC = () => {
   }, [formInitialValues, desabilitarCampos]);
 
   const carregarValoresDefault = async () => {
-    const valoresDre = await obterDREVinculada();
+    const retornolistaDres = await obterDREs(true);
+
+    const listaDres = retornolistaDres.dados.map((dre) => ({
+      ...dre,
+      value: dre.id,
+      label: dre.descricao,
+    }));
+
+    const dresVinculadas = await obterDREVinculada(listaDres);
 
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
       tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
-      dres: temDreVinculada ? valoresDre : [],
+      dres: temDreVinculada ? dresVinculadas : [],
       modalidades: undefined,
       componentesCurriculares: [],
       anosTurmas: [],
@@ -167,6 +170,8 @@ const FormCadastroDePropostas: React.FC = () => {
       nomeSituacao: SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho],
     };
 
+    setListaDres(listaDres);
+
     setFormInitialValues(valoresIniciais);
   };
 
@@ -175,13 +180,22 @@ const FormCadastroDePropostas: React.FC = () => {
     const dados = resposta.dados;
 
     if (resposta.sucesso) {
-      let dres: number[] = [];
+      const retornolistaDres = await obterDREs(true);
+
+      const listaDres = retornolistaDres.dados.map((dre) => ({
+        ...dre,
+        value: dre.id,
+        label: dre.descricao,
+      }));
+
+      let dres: PropostaFormDTO['dres'] = [];
       if (dados?.dres?.length) {
-        dres = dados.dres.map((item) => item.dreId);
+        const originData = dados.dres.map((item) => item.dreId);
+        const newData = listaDres.filter((item) => originData.includes(item.id));
+        dres = newData;
       }
 
       let modalidades: number | undefined = undefined;
-
       if (dados?.modalidades?.length) {
         modalidades = dados.modalidades[0]?.modalidade;
       }
@@ -287,6 +301,7 @@ const FormCadastroDePropostas: React.FC = () => {
         criterioCertificacao,
       };
 
+      setListaDres(listaDres);
       setFormInitialValues({ ...valoresIniciais });
     }
   }, [id]);
@@ -376,7 +391,7 @@ const FormCadastroDePropostas: React.FC = () => {
     };
 
     if (clonedValues?.dres?.length) {
-      valoresSalvar.dres = clonedValues.dres.map((item: any) => ({ dreId: item.value }));
+      valoresSalvar.dres = clonedValues.dres.map((dre) => ({ dreId: dre?.value }));
     }
 
     if (clonedValues?.modalidades) {
@@ -403,8 +418,8 @@ const FormCadastroDePropostas: React.FC = () => {
           nome: item.nome,
         };
 
-        if (item.dresIds) {
-          turma.dresIds = item.dresIds;
+        if (item.dres?.length) {
+          turma.dresIds = item.dres.map((dre) => dre.id);
         }
 
         if (item.id) {
@@ -532,7 +547,7 @@ const FormCadastroDePropostas: React.FC = () => {
     return (
       <>
         <Form.Item hidden={StepPropostaEnum.InformacoesGerais !== stepSelecionado}>
-          <FormInformacoesGerais />
+          <FormInformacoesGerais listaDres={listaDres} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
           <FormularioDetalhamento />
