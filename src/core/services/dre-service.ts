@@ -1,9 +1,9 @@
-import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { ApiResult, obterRegistro } from './api';
+import { DreDTO } from '../dto/retorno-listagem-dto';
+import { obterRegistro } from './api';
 
 const URL_DEFAULT = 'v1/Dre';
 
-const obterDREs = (exibirOpcaoTodos?: boolean): Promise<ApiResult<RetornoListagemDTO[]>> =>
-  obterRegistro(URL_DEFAULT, { params: { exibirOpcaoTodos } });
+const obterDREs = (exibirOpcaoTodos?: boolean) =>
+  obterRegistro<DreDTO[]>(URL_DEFAULT, { params: { exibirOpcaoTodos } });
 
 export { obterDREs };

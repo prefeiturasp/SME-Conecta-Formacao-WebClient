@@ -1,35 +1,68 @@
-import { Form, Input, Table, TablePaginationConfig, Typography } from 'antd';
+import {
+  Button,
+  Col,
+  Flex,
+  Form,
+  Input,
+  Row,
+  Table,
+  TablePaginationConfig,
+  Tag,
+  Typography,
+} from 'antd';
+import { cloneDeep } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { SelectDRE } from '~/components/main/input/dre';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
+import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   children: React.ReactNode;
+  dres: DreDTO[];
+  listaDres: any;
+  todosSelecionado: boolean;
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
   editing,
   dataIndex,
   children,
+  dres,
+  listaDres,
+  todosSelecionado,
   ...restProps
 }) => {
-  const inputNode =
-    dataIndex === 'dreNome' ? (
+  let inputNode = <Input />;
+
+  if (dataIndex === 'dres') {
+    const options = cloneDeep(listaDres)?.filter((dre: DreDTO) => !dre.todos);
+
+    inputNode = (
       <SelectDRE
+        carregarDadosAutomaticamente={false}
         formItemProps={{
           label: '',
-          name: 'dre',
-          required: false,
+          name: 'dres',
+          initialValue: dres,
           style: { marginTop: 25 },
+          rules: [
+            {
+              required: false,
+            },
+          ],
         }}
-        selectProps={{ mode: undefined, labelInValue: true }}
+        selectProps={{
+          mode: 'multiple',
+          labelInValue: true,
+          disabled: !todosSelecionado,
+          options,
+        }}
       />
-    ) : (
-      <Input />
     );
+  }
 
   return (
     <td {...restProps}>
@@ -52,43 +85,68 @@ const EditableCell: React.FC<EditableCellProps> = ({
   );
 };
 
-const TabelaEditavel: React.FC = () => {
+type TabelaEditavelProps = {
+  listaDres: DreDTO[];
+};
+
+const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
+
   const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
+  const dresWatch = Form.useWatch('dres', formProposta);
 
   const [editingKey, setEditingKey] = useState<number | undefined>();
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
+
   const pagination: TablePaginationConfig = {
     locale: { items_per_page: '' },
     hideOnSinglePage: true,
   };
 
-  // TODO - Quando alterar remontar a tabela!
-  // const alterouQtdTurmas = quantidadeTurmas && turmas?.length !== quantidadeTurmas;
-
   useEffect(() => {
-    if (formProposta.isFieldTouched('quantidadeTurmas')) {
+    const quantidadeTurmasEmEdicao = formProposta.isFieldTouched('quantidadeTurmas');
+    if (quantidadeTurmasEmEdicao) {
       if (quantidadeTurmas) {
         const originData: PropostaTurmaFormDTO[] = [];
+        const dres = formProposta.getFieldValue('dres');
+
         for (let i = 0; i < quantidadeTurmas; i++) {
           originData.push({
             key: i,
-            nome: `Turma ${i}`,
+            nome: `Turma ${i + 1}`,
             id: undefined,
-            dreId: undefined,
-            dreNome: '',
+            dres,
           });
-
-          formProposta.setFieldValue('turmas', [...originData]);
         }
+        formProposta.setFieldValue('turmas', [...originData]);
       } else {
         formProposta.setFieldValue('turmas', []);
       }
     }
-  }, [quantidadeTurmas, formProposta]);
+  }, [quantidadeTurmas]);
+
+  useEffect(() => {
+    const dresEmEdicao = formProposta.isFieldTouched('dres');
+    if (dresEmEdicao) {
+      const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
+
+      const turmas: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas');
+
+      const temOpcaoTodas = newDresTurmas.find((dre) => dre?.todos);
+
+      if (turmas?.length) {
+        const newTurmas = turmas.map((turma) => ({
+          ...turma,
+          dres: temOpcaoTodas ? [] : newDresTurmas,
+        }));
+
+        formProposta.setFieldValue('turmas', [...newTurmas]);
+      }
+    }
+  }, [dresWatch]);
 
   const edit = (record: PropostaTurmaFormDTO) => {
     setEditInValues({ ...record });
@@ -105,16 +163,14 @@ const TabelaEditavel: React.FC = () => {
     formRow.validateFields().then((row) => {
       const newData: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas');
       const index = newData.findIndex((item: PropostaTurmaFormDTO) => key === item.key);
+
       if (index > -1) {
         const item = newData[index];
 
         newData.splice(index, 1, {
           ...item,
           ...row,
-          dreId: row?.dre?.value,
-          dreNome: row?.dre?.label,
         });
-
         formProposta.setFieldValue('turmas', [...newData]);
 
         cancel();
@@ -126,31 +182,53 @@ const TabelaEditavel: React.FC = () => {
     {
       title: 'Turma',
       dataIndex: 'nome',
-      width: '20%',
+      width: '200px',
       editable: true,
     },
     {
       title: 'DRE',
-      dataIndex: 'dreNome',
+      dataIndex: 'dres',
       editable: true,
+      render: (dresExibicao: DreDTO[]) => {
+        if (!dresExibicao?.length) return <></>;
+
+        return (
+          <Col>
+            <Row gutter={[8, 8]}>
+              {dresExibicao.map((dre: DreDTO, i: number) => (
+                <Tag key={i}>{dre?.label}</Tag>
+              ))}
+            </Row>
+          </Col>
+        );
+      },
     },
     {
       title: 'Operação',
-      width: '20%',
+      width: '200px',
+      align: 'center' as const,
       render: (_: any, record: PropostaTurmaFormDTO) => {
         const editable = isEditing(record);
 
         return editable ? (
-          <span>
-            <Typography.Link onClick={() => save(record.key)} style={{ marginRight: 8 }}>
-              Salvar
-            </Typography.Link>
-            <Typography.Link onClick={cancel}>Cancelar</Typography.Link>
-          </span>
+          <Flex gap={2}>
+            <Typography onClick={() => save(record.key)} style={{ marginRight: 8 }}>
+              <Button type='primary' size='small'>
+                Salvar
+              </Button>
+            </Typography>
+            <Typography onClick={cancel}>
+              <Button type='default' size='small'>
+                Cancelar
+              </Button>
+            </Typography>
+          </Flex>
         ) : (
-          <Typography.Link disabled={!!editingKey || editingKey === 0} onClick={() => edit(record)}>
-            Editar
-          </Typography.Link>
+          <Typography onClick={() => edit(record)}>
+            <Button type='primary' size='small' disabled={!!editingKey || editingKey === 0}>
+              Editar
+            </Button>
+          </Typography>
         );
       },
     },
@@ -162,19 +240,27 @@ const TabelaEditavel: React.FC = () => {
     }
     return {
       ...col,
-      onCell: (record: PropostaTurmaFormDTO) => ({
-        record,
-        title: col.title,
-        dataIndex: col.dataIndex,
-        editing: isEditing(record),
-      }),
+      onCell: (record: PropostaTurmaFormDTO) => {
+        const todosSelecionado = dresWatch?.find((dre: DreDTO) => dre?.todos);
+
+        return {
+          record,
+          align: col.align,
+          title: col.title,
+          dataIndex: col.dataIndex,
+          dres: record.dres,
+          editing: isEditing(record),
+          listaDres,
+          todosSelecionado,
+        };
+      },
     };
   });
 
   return (
     <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
-      {(formTeste) => {
-        const turmas: PropostaTurmaFormDTO[] = formTeste?.getFieldValue('turmas');
+      {(formItem) => {
+        const turmas: PropostaTurmaFormDTO[] = formItem?.getFieldValue('turmas');
         const dataSource = turmas?.length ? turmas : [];
         return (
           <Form

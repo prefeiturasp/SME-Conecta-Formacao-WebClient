@@ -1,16 +1,10 @@
 import { Button, Col, DatePicker, Form, Row, theme } from 'antd';
 import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
-import dayjs, { Dayjs } from 'dayjs';
-import localeDayjs from 'dayjs/locale/pt-br';
-import localeData from 'dayjs/plugin/localeData';
-import weekday from 'dayjs/plugin/weekday';
+import { Dayjs } from '~/core/date/dayjs';
 import React from 'react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { CF_INPUT_DATA } from '~/core/constants/ids/input';
 import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
-dayjs.extend(weekday);
-dayjs.extend(localeData);
-dayjs.locale(localeDayjs);
 
 const { useToken } = theme;
 
@@ -69,6 +63,7 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
                         locale={localeDatePicker}
                         format={dateFormat}
                         disabledDate={disabledDate}
+
                         getPopupContainer={(trigger: HTMLElement) => popupContainer(trigger)}
                         style={{
                           width: '100%',

@@ -25,6 +25,7 @@ export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a modalidade';
 export const FORMATO_NAO_INFORMADO = 'É necessário informar o formato';
 export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
   'É necessário Informar a formação homologada por SME/COPED/DF';
+export const PROPOSTA_DRE_NAO_INFORMADA = 'É necessário Informar a DRE';
 export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da formação';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
 export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =

@@ -21,7 +21,7 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
 }) => {
   const form = useFormInstance();
   const anosTurmas = Form.useWatch('anosTurmas', form);
-  const modalidades = Form.useWatch('modalidades', form);
+  const modalidade = Form.useWatch('modalidade', form);
   const funcoesEspecificas = Form.useWatch('funcoesEspecificas', form);
   const componentesCurriculares = Form.useWatch('componentesCurriculares', form);
 
@@ -44,7 +44,7 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
   const campoEhObrigatorio = () => {
     if (
       funcoesEspecificas?.length ||
-      (anosTurmas?.length && modalidades && componentesCurriculares?.length)
+      (anosTurmas?.length && modalidade && componentesCurriculares?.length)
     ) {
       return false;
     }
@@ -56,7 +56,13 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
     <Form.Item
       label='Público alvo'
       name='publicosAlvo'
-      rules={[{ required: campoEhObrigatorio(), message: PUBLICO_ALVO_NAO_INFORMADO }]}
+      dependencies={['funcoesEspecificas', 'modalidade', 'anosTurmas', 'componentesCurriculares']}
+      rules={[
+        {
+          required: campoEhObrigatorio(),
+          message: PUBLICO_ALVO_NAO_INFORMADO,
+        },
+      ]}
       tooltip={getTooltipFormInfoCircleFilled(
         'Indicar somente aqueles que têm relação com o tema e objetivos da formação.',
       )}

@@ -13,6 +13,7 @@ import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
 import { PropostaModalidadeDTO } from './proposta-modalidade-dto';
 import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
+import { DreDTO } from './retorno-listagem-dto';
 
 export type PropostaDTO = {
   formacaoHomologada?: boolean;
@@ -27,10 +28,10 @@ export type PropostaDTO = {
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoRegistro;
   arquivoImagemDivulgacaoId?: number;
-  dataRealizacaoInicio?: Dayjs;
-  dataRealizacaoFim?: Dayjs;
-  dataInscricaoInicio?: Dayjs;
-  dataInscricaoFim?: Dayjs;
+  dataRealizacaoInicio?: string;
+  dataRealizacaoFim?: string;
+  dataInscricaoInicio?: string;
+  dataInscricaoFim?: string;
   publicosAlvo: PropostaPublicoAlvoDTO[];
   funcoesEspecificas: PropostaFuncaoEspecificaDTO[];
   vagasRemanecentes: PropostaVagaRemanecenteDTO[];
@@ -99,11 +100,13 @@ export type PropostaFormDTO = {
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
   turmas?: PropostaTurmaFormDTO[];
-  dres?: number[];
-  modalidades?: number;
+  dres?: DreDTO[];
+  modalidade?: number;
   anosTurmas?: number[];
   componentesCurriculares?: number[];
+  listaDres?: DreDTO[];
 };
+
 export type PropostaPalavraChaveDTO = {
   palavraChaveId: number;
 };
@@ -115,13 +118,12 @@ export type CriterioCertificacaoDTO = {
 export type PropostaTurmaDTO = {
   id?: number;
   nome: string;
-  dreId?: number;
+  dresIds?: number[];
 };
 
 export type PropostaTurmaFormDTO = {
   key: number;
   id?: number;
   nome: string;
-  dreNome?: string;
-  dreId?: number;
+  dres?: DreDTO[];
 };

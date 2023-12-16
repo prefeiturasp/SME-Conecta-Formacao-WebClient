@@ -16,7 +16,7 @@ import {
 } from './styles';
 type CardTurmasPublicoProps = {
   titulo: string;
-  datas: string;
+  datas: string[];
   turmaEncerrada: boolean;
   local: string;
 };
@@ -29,7 +29,6 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
 }) => {
   return (
     <Card
-      hoverable
       style={cardStyle}
       headStyle={headStyle}
       bodyStyle={bodyStyle}
@@ -43,15 +42,19 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
         <></>
       )}
       <Meta
-        title={
-          <p style={titleStyle}>
-            <CalendarOutlined /> {datas}
-          </p>
-        }
+        title={datas.map((r) => (
+          <>
+            <p style={titleStyle}>
+              <CalendarOutlined /> {r}
+            </p>
+          </>
+        ))}
         description={
-          <p style={descriptionStyle}>
-            <IoLocationOutline /> {local}
-          </p>
+          local && (
+            <p style={descriptionStyle}>
+              <IoLocationOutline size={16} /> {local}
+            </p>
+          )
         }
       />
     </Card>

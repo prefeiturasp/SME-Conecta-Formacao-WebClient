@@ -98,7 +98,7 @@ export const ListFormacao: React.FC = () => {
       </DivTitulo>
 
       <List
-        grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4, xl: 4, xxl: 4 }}
+        grid={{ gutter: 16, xs: 1, sm: 2, md: 2, lg: 4, xl: 4, xxl: 4 }}
         pagination={{ ...listParams.pagination, onChange: onListChange }}
         dataSource={formacoes}
         loading={loading}

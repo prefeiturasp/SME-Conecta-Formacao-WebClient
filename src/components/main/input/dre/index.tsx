@@ -3,19 +3,25 @@ import { DefaultOptionType } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_DRE } from '~/core/constants/ids/select';
+import { PROPOSTA_DRE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { obterDREs } from '~/core/services/dre-service';
-import { onchangeMultiSelectOpcaoTodos } from '~/core/utils/functions';
+import {
+  onchangeMultiSelectLabelInValueOpcaoTodos,
+  onchangeMultiSelectOpcaoTodos,
+} from '~/core/utils/functions';
 
 interface SelectDREProps {
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
   exibirOpcaoTodos?: boolean;
+  carregarDadosAutomaticamente?: boolean;
 }
 
 export const SelectDRE: React.FC<SelectDREProps> = ({
   formItemProps,
   selectProps,
   exibirOpcaoTodos,
+  carregarDadosAutomaticamente = true,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -28,27 +34,51 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
         label: item.descricao,
         value: item.id,
       }));
+
       setOptions(newOptions);
     }
   };
 
   useEffect(() => {
-    obterDRE();
-  }, []);
+    if (carregarDadosAutomaticamente) {
+      obterDRE();
+    }
+  }, [carregarDadosAutomaticamente]);
 
   return (
     <Form.Item
       label='DRE'
       key='dreId'
       name='dreId'
-      rules={[{ required: true }]}
+      rules={[{ required: true, message: PROPOSTA_DRE_NAO_INFORMADA }]}
+      getValueFromEvent={(_, value) => value}
       normalize={(value: number[], prevValue: number[]) => {
-        if (exibirOpcaoTodos) {
-          const opcaoTodos = options.find((item) => !!item.todos);
+        const dres = carregarDadosAutomaticamente ? options : selectProps?.options;
+
+        if (selectProps?.mode === 'multiple' && exibirOpcaoTodos && dres?.length) {
+          const opcaoTodos = dres.find((item) => !!item.todos);
 
           const valorTodosComparacao = opcaoTodos?.value;
 
-          const newValue = onchangeMultiSelectOpcaoTodos(value, prevValue, valorTodosComparacao);
+          if (selectProps?.labelInValue) {
+            const newValue = onchangeMultiSelectLabelInValueOpcaoTodos(
+              value,
+              prevValue,
+              valorTodosComparacao,
+            );
+
+            return newValue;
+          }
+
+          const listaNumeros = selectProps?.labelInValue
+            ? value.map((item: any) => item.value)
+            : value;
+
+          const newValue = onchangeMultiSelectOpcaoTodos(
+            listaNumeros,
+            prevValue,
+            valorTodosComparacao,
+          );
 
           return newValue;
         }
@@ -57,7 +87,7 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
       }}
       {...formItemProps}
     >
-      <Select {...selectProps} options={options} id={CF_SELECT_DRE} placeholder='Selecione a DRE' />
+      <Select options={options} id={CF_SELECT_DRE} placeholder='Selecione a DRE' {...selectProps} />
     </Form.Item>
   );
 };

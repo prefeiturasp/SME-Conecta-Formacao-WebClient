@@ -14,7 +14,7 @@ const SelectFuncaoEspecifica: React.FC = () => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
-    const resposta = await obterFuncaoEspecifica();
+    const resposta = await obterFuncaoEspecifica(true);
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item) => ({
         label: item.nome,

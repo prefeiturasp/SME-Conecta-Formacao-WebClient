@@ -1,6 +1,7 @@
 import { App, Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import dayjs, { Dayjs } from 'dayjs';
+import { dayjs, Dayjs } from '~/core/date/dayjs';
+import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -35,18 +36,22 @@ import {
 } from '~/core/constants/mensagens';
 import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
 import { validateMessages } from '~/core/constants/validate-messages';
+import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
   PropostaDTO,
   PropostaFormDTO,
   PropostaTurmaDTO,
   PropostaTurmaFormDTO,
 } from '~/core/dto/proposta-dto';
+import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
+import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
+import { obterDREs } from '~/core/services/dre-service';
 import {
   alterarProposta,
   deletarProposta,
@@ -66,12 +71,28 @@ const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
   const { notification } = App.useApp();
-
   const { desabilitarCampos, setDesabilitarCampos } = useContext(PermissaoContext);
 
   const [openModalErros, setOpenModalErros] = useState(false);
-
   const [listaErros, setListaErros] = useState<string[]>([]);
+
+  const [listaDres, setListaDres] = useState<any[]>([]);
+
+  const token = useAppSelector((store) => store.auth.token);
+  const decodeObject: JWTDecodeDTO = jwt_decode(token);
+  const dresVinculadaDoToken = decodeObject?.dres;
+
+  const temDreVinculada =
+    typeof dresVinculadaDoToken === 'string' ||
+    (Array.isArray(dresVinculadaDoToken) && dresVinculadaDoToken.length > 0);
+
+  const obterDREVinculada = async (listaDres: DreDTO[]) => {
+    if (listaDres?.length) {
+      return listaDres.filter((item: any) => item.codigo === dresVinculadaDoToken);
+    }
+
+    return [];
+  };
 
   const permissao = obterPermissaoPorMenu(MenuEnum.CadastroProposta);
 
@@ -121,13 +142,23 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   }, [formInitialValues, desabilitarCampos]);
 
-  const carregarValoresDefault = () => {
+  const carregarValoresDefault = async () => {
+    const retornolistaDres = await obterDREs(true);
+
+    const listaDres = retornolistaDres.dados.map((dre) => ({
+      ...dre,
+      value: dre.id,
+      label: dre.descricao,
+    }));
+
+    const dresVinculadas = await obterDREVinculada(listaDres);
+
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
       tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
-      dres: [],
-      modalidades: undefined,
+      dres: temDreVinculada ? dresVinculadas : [],
+      modalidade: undefined,
       componentesCurriculares: [],
       anosTurmas: [],
       funcoesEspecificas: [],
@@ -139,6 +170,8 @@ const FormCadastroDePropostas: React.FC = () => {
       nomeSituacao: SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho],
     };
 
+    setListaDres(listaDres);
+
     setFormInitialValues(valoresIniciais);
   };
 
@@ -147,15 +180,24 @@ const FormCadastroDePropostas: React.FC = () => {
     const dados = resposta.dados;
 
     if (resposta.sucesso) {
-      let dres: number[] = [];
+      const retornolistaDres = await obterDREs(true);
+
+      const listaDres = retornolistaDres.dados.map((dre) => ({
+        ...dre,
+        value: dre.id,
+        label: dre.descricao,
+      }));
+
+      let dres: PropostaFormDTO['dres'] = [];
       if (dados?.dres?.length) {
-        dres = dados.dres.map((item) => item.dreId);
+        const originData = dados.dres.map((item) => item.dreId);
+        const newData = cloneDeep(listaDres).filter((item) => originData.includes(item.id));
+        dres = newData;
       }
 
-      let modalidades: number | undefined = undefined;
-
+      let modalidade: number | undefined = undefined;
       if (dados?.modalidades?.length) {
-        modalidades = dados.modalidades[0]?.modalidade;
+        modalidade = dados.modalidades[0]?.modalidade;
       }
 
       let anosTurmas: number[] = [];
@@ -170,14 +212,22 @@ const FormCadastroDePropostas: React.FC = () => {
         );
       }
 
-      let turmas: any[] = [];
+      let turmas: PropostaTurmaFormDTO[] = [];
       if (dados?.turmas?.length) {
-        turmas = dados.turmas.map(
-          (item, index): PropostaTurmaFormDTO => ({
-            ...item,
+        turmas = dados.turmas.map((turma: any, index): PropostaTurmaFormDTO => {
+          let newDres: DreDTO[] = [];
+
+          if (turma?.dres?.length) {
+            const originData = turma.dres.map((dre: any) => dre?.dreId);
+            newDres = cloneDeep(listaDres).filter((item) => originData.includes(item.id));
+          }
+
+          return {
+            ...turma,
+            dres: newDres,
             key: index,
-          }),
-        );
+          };
+        });
       }
 
       let publicosAlvo: number[] = [];
@@ -231,21 +281,21 @@ const FormCadastroDePropostas: React.FC = () => {
       const dataRealizacaoInicio = dados?.dataRealizacaoInicio;
       const dataRealizacaoFim = dados?.dataRealizacaoFim;
       if (dataRealizacaoInicio && dataRealizacaoFim) {
-        periodoRealizacao = [dayjs(dataRealizacaoInicio), dayjs(dataRealizacaoFim)];
+        periodoRealizacao = [dayjs.tz(dataRealizacaoInicio), dayjs.tz(dataRealizacaoFim)];
       }
 
       let periodoInscricao: Dayjs[] = [];
       const dataInscricaoInicio = dados?.dataInscricaoInicio;
       const dataInscricaoFim = dados?.dataInscricaoFim;
       if (dataInscricaoInicio && dataInscricaoFim) {
-        periodoInscricao = [dayjs(dataInscricaoInicio), dayjs(dataInscricaoFim)];
+        periodoInscricao = [dayjs.tz(dataInscricaoInicio), dayjs.tz(dataInscricaoFim)];
       }
 
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
         dres,
-        modalidades,
+        modalidade,
         componentesCurriculares,
         anosTurmas,
         turmas,
@@ -259,6 +309,7 @@ const FormCadastroDePropostas: React.FC = () => {
         criterioCertificacao,
       };
 
+      setListaDres(listaDres);
       setFormInitialValues({ ...valoresIniciais });
     }
   }, [id]);
@@ -291,11 +342,21 @@ const FormCadastroDePropostas: React.FC = () => {
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
 
-    const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
-    const dataRealizacaoFim = values.periodoRealizacao?.[1];
+    const dataRealizacaoInicio = values?.periodoRealizacao?.[0]
+      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
+      : undefined;
 
-    const dataInscricaoInicio = values?.periodoInscricao?.[0];
-    const dataInscricaoFim = values.periodoInscricao?.[1];
+    const dataRealizacaoFim = values?.periodoRealizacao?.[1]
+      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
+      : undefined;
+
+    const dataInscricaoInicio = values?.periodoInscricao?.[0]
+      ? values?.periodoInscricao?.[0].format('YYYY-MM-DD')
+      : undefined;
+
+    const dataInscricaoFim = values?.periodoInscricao?.[1]
+      ? values?.periodoInscricao?.[0].format('YYYY-MM-DD')
+      : undefined;
 
     let situacao = SituacaoRegistro.Rascunho;
 
@@ -348,13 +409,11 @@ const FormCadastroDePropostas: React.FC = () => {
     };
 
     if (clonedValues?.dres?.length) {
-      valoresSalvar.dres = clonedValues.dres.map((dreId) => ({
-        dreId,
-      }));
+      valoresSalvar.dres = clonedValues.dres.map((dre) => ({ dreId: dre?.value }));
     }
 
-    if (clonedValues?.modalidades) {
-      valoresSalvar.modalidades = [{ modalidade: clonedValues.modalidades }];
+    if (clonedValues?.modalidade) {
+      valoresSalvar.modalidades = [{ modalidade: clonedValues.modalidade }];
     }
 
     if (clonedValues?.anosTurmas?.length) {
@@ -376,9 +435,10 @@ const FormCadastroDePropostas: React.FC = () => {
         const turma: PropostaTurmaDTO = {
           nome: item.nome,
         };
-
-        if (item.dreId) {
-          turma.dreId = item.dreId;
+        if (item.dres?.length) {
+          turma.dresIds = item.dres.map((dre) => dre.value);
+        } else {
+          turma.dresIds = [];
         }
 
         if (item.id) {
@@ -506,7 +566,7 @@ const FormCadastroDePropostas: React.FC = () => {
     return (
       <>
         <Form.Item hidden={StepPropostaEnum.InformacoesGerais !== stepSelecionado}>
-          <FormInformacoesGerais />
+          <FormInformacoesGerais listaDres={listaDres} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
           <FormularioDetalhamento />

@@ -9,7 +9,7 @@ import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import DatePickerPeriodo from '~/components/main/input/date-range';
-import SelectModalidades from '~/components/main/input/modalidades';
+import SelectFormato from '~/components/main/input/formato';
 import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
 import SelectSituacaoProposta from '~/components/main/input/situacao-proposta';
 import InputNumero from '~/components/main/numero';
@@ -177,9 +177,8 @@ const ListCadastroDePropostas: React.FC = () => {
                   </Col>
                   <Col xs={24} sm={10} md={7} lg={7} xl={12}>
                     <b>
-                      <SelectModalidades
-                        required={false}
-                        exibirTooltip={false}
+                      <SelectFormato
+                        formItemProps={{ rules: [{ required: false }] }}
                         selectProps={{ onChange: obterFiltros }}
                       />
                     </b>
