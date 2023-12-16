@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import { dayjs } from '~/core/date/dayjs';
 import { cloneDeep } from 'lodash';
 import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 
