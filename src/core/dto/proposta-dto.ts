@@ -126,6 +126,4 @@ export type PropostaTurmaFormDTO = {
   id?: number;
   nome: string;
   dres?: DreDTO[];
-  todos?: boolean;
-  tagsDres?: React.ReactNode;
 };
