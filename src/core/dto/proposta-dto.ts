@@ -28,10 +28,10 @@ export type PropostaDTO = {
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoRegistro;
   arquivoImagemDivulgacaoId?: number;
-  dataRealizacaoInicio?: Dayjs;
-  dataRealizacaoFim?: Dayjs;
-  dataInscricaoInicio?: Dayjs;
-  dataInscricaoFim?: Dayjs;
+  dataRealizacaoInicio?: string;
+  dataRealizacaoFim?: string;
+  dataInscricaoInicio?: string;
+  dataInscricaoFim?: string;
   publicosAlvo: PropostaPublicoAlvoDTO[];
   funcoesEspecificas: PropostaFuncaoEspecificaDTO[];
   vagasRemanecentes: PropostaVagaRemanecenteDTO[];

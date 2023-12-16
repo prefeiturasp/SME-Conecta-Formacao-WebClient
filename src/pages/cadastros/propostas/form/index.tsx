@@ -342,11 +342,21 @@ const FormCadastroDePropostas: React.FC = () => {
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
 
-    const dataRealizacaoInicio = values?.periodoRealizacao?.[0];
-    const dataRealizacaoFim = values.periodoRealizacao?.[1];
+    const dataRealizacaoInicio = values?.periodoRealizacao?.[0]
+      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
+      : undefined;
 
-    const dataInscricaoInicio = values?.periodoInscricao?.[0];
-    const dataInscricaoFim = values.periodoInscricao?.[1];
+    const dataRealizacaoFim = values?.periodoRealizacao?.[1]
+      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
+      : undefined;
+
+    const dataInscricaoInicio = values?.periodoInscricao?.[0]
+      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
+      : undefined;
+
+    const dataInscricaoFim = values?.periodoInscricao?.[1]
+      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
+      : undefined;
 
     let situacao = SituacaoRegistro.Rascunho;
 
