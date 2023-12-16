@@ -191,7 +191,7 @@ const FormCadastroDePropostas: React.FC = () => {
       let dres: PropostaFormDTO['dres'] = [];
       if (dados?.dres?.length) {
         const originData = dados.dres.map((item) => item.dreId);
-        const newData = listaDres.filter((item) => originData.includes(item.id));
+        const newData = cloneDeep(listaDres).filter((item) => originData.includes(item.id));
         dres = newData;
       }
 
@@ -214,16 +214,16 @@ const FormCadastroDePropostas: React.FC = () => {
 
       let turmas: PropostaTurmaFormDTO[] = [];
       if (dados?.turmas?.length) {
-        turmas = dados.turmas.map((item, index): PropostaTurmaFormDTO => {
+        turmas = dados.turmas.map((turma: any, index): PropostaTurmaFormDTO => {
           let newDres: DreDTO[] = [];
 
-          if (item.dresIds?.length) {
-            const originData = item.dresIds.map((dre: any) => dre?.dreId);
-            newDres = listaDres.filter((item) => originData.includes(item.id));
+          if (turma?.dres?.length) {
+            const originData = turma.dres.map((dre: any) => dre?.dreId);
+            newDres = cloneDeep(listaDres).filter((item) => originData.includes(item.id));
           }
 
           return {
-            ...item,
+            ...turma,
             dres: newDres,
             key: index,
           };

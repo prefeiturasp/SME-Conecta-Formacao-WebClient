@@ -73,6 +73,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ listaDres
 
       <Col span={24}>
         <SelectDRE
+          exibirOpcaoTodos
           carregarDadosAutomaticamente={false}
           formItemProps={{
             name: 'dres',
