@@ -13,7 +13,7 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
-    const resposta = await obterCriterioValidacaoInscricao();
+    const resposta = await obterCriterioValidacaoInscricao(true);
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item) => ({
         label: item.nome,

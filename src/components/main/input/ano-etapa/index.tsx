@@ -17,20 +17,20 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true
   const form = useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
-  const modalidadesWatch = Form.useWatch('modalidades', form);
-  const modalidades = form.getFieldValue('modalidades');
+  const modalidadeWatch = Form.useWatch('modalidade', form);
+  const modalidade = form.getFieldValue('modalidade');
 
-  const valorModalidadesValido =
-    typeof modalidadesWatch === 'number' ||
-    (Array.isArray(modalidadesWatch) && modalidadesWatch.length > 0);
+  const valormodalidadeValido =
+    typeof modalidadeWatch === 'number' ||
+    (Array.isArray(modalidadeWatch) && modalidadeWatch.length > 0);
 
   const obterValorModalidadeValido =
-    typeof modalidades === 'number' || (Array.isArray(modalidades) && modalidades.length > 0);
+    typeof modalidade === 'number' || (Array.isArray(modalidade) && modalidade.length > 0);
 
   const obterDados = useCallback(async () => {
     const anoLetivoAtual = dayjs().year();
-    if (valorModalidadesValido || obterValorModalidadeValido) {
-      const resposta = await obterAnoEtapa(anoLetivoAtual, modalidadesWatch, exibirOpcaoTodos);
+    if (valormodalidadeValido || obterValorModalidadeValido) {
+      const resposta = await obterAnoEtapa(anoLetivoAtual, modalidadeWatch, exibirOpcaoTodos);
 
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
@@ -43,18 +43,18 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true
         setOptions([]);
       }
     }
-  }, [valorModalidadesValido, obterValorModalidadeValido, modalidadesWatch, exibirOpcaoTodos]);
+  }, [valormodalidadeValido, obterValorModalidadeValido, modalidadeWatch, exibirOpcaoTodos]);
 
   useEffect(() => {
     obterDados();
-  }, [modalidadesWatch, obterDados]);
+  }, [modalidadeWatch, obterDados]);
 
   useEffect(() => {
-    if (form.isFieldTouched('modalidades')) {
+    if (form.isFieldTouched('modalidade')) {
       form.setFieldValue('anosTurmas', []);
       setOptions([]);
     }
-  }, [form, modalidadesWatch]);
+  }, [form, modalidadeWatch]);
 
   return (
     <Form.Item

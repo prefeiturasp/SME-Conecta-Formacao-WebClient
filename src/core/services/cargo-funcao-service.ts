@@ -10,7 +10,9 @@ const obterCargosFuncoes = (): Promise<ApiResult<CargoFuncaoDTO[]>> =>
 const obterPublicoAlvo = (): Promise<ApiResult<CargoFuncaoDTO[]>> =>
   obterRegistro(`${URL_API_CARGO_FUNCAO}/tipo/${CargoFuncaoTipo.Cargo}`);
 
-const obterFuncaoEspecifica = (): Promise<ApiResult<CargoFuncaoDTO[]>> =>
-  obterRegistro(`${URL_API_CARGO_FUNCAO}/tipo/${CargoFuncaoTipo.Funcao}?exibirOpcaoOutros=true`);
+const obterFuncaoEspecifica = (exibirOpcaoOutros: boolean): Promise<ApiResult<CargoFuncaoDTO[]>> =>
+  obterRegistro(`${URL_API_CARGO_FUNCAO}/tipo/${CargoFuncaoTipo.Funcao}`, {
+    params: { exibirOpcaoOutros },
+  });
 
 export { obterCargosFuncoes, obterFuncaoEspecifica, obterPublicoAlvo };

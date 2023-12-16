@@ -12,7 +12,6 @@ interface SelectDREProps {
   selectProps?: SelectProps;
   exibirOpcaoTodos?: boolean;
   carregarDadosAutomaticamente?: boolean;
-  // dados?: DreDTO[];
 }
 
 export const SelectDRE: React.FC<SelectDREProps> = ({
@@ -50,8 +49,10 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
       name='dreId'
       rules={[{ required: true, message: PROPOSTA_DRE_NAO_INFORMADA }]}
       normalize={(value: number[], prevValue: number[]) => {
-        if (exibirOpcaoTodos) {
-          const opcaoTodos = options.find((item) => !!item.todos);
+        const dres = carregarDadosAutomaticamente ? options : selectProps?.options;
+
+        if (exibirOpcaoTodos && dres?.length) {
+          const opcaoTodos = dres.find((item) => !!item.todos);
           const valorTodosComparacao = opcaoTodos?.value;
           const retornaNumero = selectProps?.labelInValue
             ? value.map((item: any) => item.value)

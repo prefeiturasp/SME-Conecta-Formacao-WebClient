@@ -158,7 +158,7 @@ const FormCadastroDePropostas: React.FC = () => {
       tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
       dres: temDreVinculada ? dresVinculadas : [],
-      modalidades: undefined,
+      modalidade: undefined,
       componentesCurriculares: [],
       anosTurmas: [],
       funcoesEspecificas: [],
@@ -195,9 +195,9 @@ const FormCadastroDePropostas: React.FC = () => {
         dres = newData;
       }
 
-      let modalidades: number | undefined = undefined;
+      let modalidade: number | undefined = undefined;
       if (dados?.modalidades?.length) {
-        modalidades = dados.modalidades[0]?.modalidade;
+        modalidade = dados.modalidades[0]?.modalidade;
       }
 
       let anosTurmas: number[] = [];
@@ -212,14 +212,22 @@ const FormCadastroDePropostas: React.FC = () => {
         );
       }
 
-      let turmas: any[] = [];
+      let turmas: PropostaTurmaFormDTO[] = [];
       if (dados?.turmas?.length) {
-        turmas = dados.turmas.map(
-          (item, index): PropostaTurmaFormDTO => ({
+        turmas = dados.turmas.map((item, index): PropostaTurmaFormDTO => {
+          let newDres: DreDTO[] = [];
+
+          if (item.dresIds?.length) {
+            const originData = item.dresIds.map((dre: any) => dre?.dreId);
+            newDres = listaDres.filter((item) => originData.includes(item.id));
+          }
+
+          return {
             ...item,
+            dres: newDres,
             key: index,
-          }),
-        );
+          };
+        });
       }
 
       let publicosAlvo: number[] = [];
@@ -287,7 +295,7 @@ const FormCadastroDePropostas: React.FC = () => {
         ...dados,
         publicosAlvo,
         dres,
-        modalidades,
+        modalidade,
         componentesCurriculares,
         anosTurmas,
         turmas,
@@ -394,8 +402,8 @@ const FormCadastroDePropostas: React.FC = () => {
       valoresSalvar.dres = clonedValues.dres.map((dre) => ({ dreId: dre?.value }));
     }
 
-    if (clonedValues?.modalidades) {
-      valoresSalvar.modalidades = [{ modalidade: clonedValues.modalidades }];
+    if (clonedValues?.modalidade) {
+      valoresSalvar.modalidades = [{ modalidade: clonedValues.modalidade }];
     }
 
     if (clonedValues?.anosTurmas?.length) {
@@ -417,9 +425,10 @@ const FormCadastroDePropostas: React.FC = () => {
         const turma: PropostaTurmaDTO = {
           nome: item.nome,
         };
-
         if (item.dres?.length) {
-          turma.dresIds = item.dres.map((dre) => dre.id);
+          turma.dresIds = item.dres.map((dre) => dre.value);
+        } else {
+          turma.dresIds = [];
         }
 
         if (item.id) {

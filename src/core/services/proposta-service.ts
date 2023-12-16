@@ -18,8 +18,12 @@ import {
 
 export const URL_API_PROPOSTA = 'v1/Proposta';
 
-const obterCriterioValidacaoInscricao = (): Promise<ApiResult<CriterioValidacaoInscricaoDTO[]>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/criterio-validacao-inscricao?exibirOpcaoOutros=true`);
+const obterCriterioValidacaoInscricao = (
+  exibirOpcaoOutros: boolean,
+): Promise<ApiResult<CriterioValidacaoInscricaoDTO[]>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/criterio-validacao-inscricao`, {
+    params: { exibirOpcaoOutros },
+  });
 
 const obterFormacaoHomologada = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/formacao-homologada`);
