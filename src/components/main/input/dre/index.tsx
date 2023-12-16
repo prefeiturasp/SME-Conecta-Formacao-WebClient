@@ -5,7 +5,10 @@ import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_DRE } from '~/core/constants/ids/select';
 import { PROPOSTA_DRE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { obterDREs } from '~/core/services/dre-service';
-import { onchangeMultiSelectOpcaoTodos } from '~/core/utils/functions';
+import {
+  onchangeMultiSelectLabelInValueOpcaoTodos,
+  onchangeMultiSelectOpcaoTodos,
+} from '~/core/utils/functions';
 
 interface SelectDREProps {
   formItemProps?: FormItemProps;
@@ -48,18 +51,31 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
       key='dreId'
       name='dreId'
       rules={[{ required: true, message: PROPOSTA_DRE_NAO_INFORMADA }]}
+      getValueFromEvent={(_, value) => value}
       normalize={(value: number[], prevValue: number[]) => {
         const dres = carregarDadosAutomaticamente ? options : selectProps?.options;
 
-        if (exibirOpcaoTodos && dres?.length) {
+        if (selectProps?.mode === 'multiple' && exibirOpcaoTodos && dres?.length) {
           const opcaoTodos = dres.find((item) => !!item.todos);
+
           const valorTodosComparacao = opcaoTodos?.value;
-          const retornaNumero = selectProps?.labelInValue
+
+          if (selectProps?.labelInValue) {
+            const newValue = onchangeMultiSelectLabelInValueOpcaoTodos(
+              value,
+              prevValue,
+              valorTodosComparacao,
+            );
+
+            return newValue;
+          }
+
+          const listaNumeros = selectProps?.labelInValue
             ? value.map((item: any) => item.value)
             : value;
 
           const newValue = onchangeMultiSelectOpcaoTodos(
-            retornaNumero,
+            listaNumeros,
             prevValue,
             valorTodosComparacao,
           );
