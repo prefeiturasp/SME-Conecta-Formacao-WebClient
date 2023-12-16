@@ -1,9 +1,10 @@
-import React from 'react';
+import { CalendarOutlined } from '@ant-design/icons';
 import { Button, Flex, Row, Typography } from 'antd';
-import { CalendarOutlined, SolutionOutlined } from '@ant-design/icons';
-import { IoLocationOutline } from 'react-icons/io5';
-import { FlexDestaque, ImagemDestaque, TagDestaque, TextDestaque } from './styles';
+import React from 'react';
+import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
 import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
+import { TagTipoFormacaoFormato } from '../card-formacao/styles';
+import { FlexDestaque, ImagemDestaque, TextDestaque } from './styles';
 
 type DadosDestaqueProps = {
   srcImagem?: string;
@@ -24,11 +25,17 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({
   <FlexDestaque justify='left'>
     <ImagemDestaque src={srcImagem ?? imagemFormacao} />
     <Flex vertical align='flex-start' justify='space-between' style={{ padding: 15 }}>
-      <Typography.Title level={1}>{titulo}</Typography.Title>
+      <Typography.Title level={1} style={{ color: '#1C2833', fontWeight: 700 }}>
+        {titulo}
+      </Typography.Title>
       <TextDestaque>Área Promotora: {areaPromotra}</TextDestaque>
       <Row>
-        <TagDestaque icon={<SolutionOutlined />}>{tipoFormacao}</TagDestaque>
-        <TagDestaque icon={<IoLocationOutline />}>{formato}</TagDestaque>
+        <TagTipoFormacaoFormato icon={<FaGraduationCap size={22} />} style={{ fontSize: 22 }}>
+          {tipoFormacao}
+        </TagTipoFormacaoFormato>
+        <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={22} />} style={{ fontSize: 22 }}>
+          {formato}
+        </TagTipoFormacaoFormato>
       </Row>
       <TextDestaque>
         <CalendarOutlined /> {datas}

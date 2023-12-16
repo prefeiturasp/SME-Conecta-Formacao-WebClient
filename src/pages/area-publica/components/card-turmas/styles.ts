@@ -6,7 +6,7 @@ const cardStyle: React.CSSProperties = {
   margin: 8,
   backgroundColor: Colors.BACKGROUND_CONTENT,
   borderColor: Colors.Neutral.LIGHT,
-  border: '1px solid',
+  border: '1px solid #D8D8D8',
 };
 const headStyle: React.CSSProperties = {
   backgroundColor: Colors.SystemSME.ConectaFormacao.PRIMARY,
@@ -43,11 +43,17 @@ const titleStyle: React.CSSProperties = {
   paddingTop: 10,
   paddingLeft: 10,
   paddingRight: 10,
+  fontWeight: 500,
 };
 const descriptionStyle: React.CSSProperties = {
   paddingLeft: 10,
   paddingRight: 10,
   paddingBottom: 5,
+  display: 'flex',
+  alignItems: 'center',
+  color: Colors.Neutral.DARK,
+  fontWeight: 500,
+  gap: '5px',
 };
 
 export {

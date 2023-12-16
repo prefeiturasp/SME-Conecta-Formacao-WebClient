@@ -21,37 +21,49 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
       cover={
         <ImgFormacao url={formacao.imagemUrl} inscricaoEncerrada={formacao.inscricaoEncerrada} />
       }
+      bodyStyle={{ height: '336px' }}
     >
-      <Row>
-        <Col>
-          <TextPeriodo>{formacao.periodo}</TextPeriodo>
-        </Col>
+      <Row
+        gutter={[10, 10]}
+        justify='space-between'
+        wrap={false}
+        style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+      >
+        <Row gutter={[16, 16]}>
+          <Col xs={24}>
+            <TextPeriodo>{formacao.periodo}</TextPeriodo>
+          </Col>
+
+          <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
+            <TextTitulo>{formacao.titulo}</TextTitulo>
+          </Col>
+        </Row>
+        <Row gutter={[16, 16]}>
+          <Col xs={24}>
+            <TextAreaPromotora>Área promotora: {formacao.areaPromotora}</TextAreaPromotora>
+          </Col>
+
+          <Col xs={24}>
+            <Row gutter={[10, 10]} wrap={false}>
+              <Col>
+                <TagTipoFormacaoFormato icon={<FaGraduationCap size={16} />}>
+                  {formacao.tipoFormacaoDescricao}
+                </TagTipoFormacaoFormato>
+              </Col>
+              <Col>
+                <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={16} />}>
+                  {formacao.formatoDescricao}
+                </TagTipoFormacaoFormato>
+              </Col>
+            </Row>
+          </Col>
+          <Col xs={24}>
+            <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
+              Saiba mais
+            </Button>
+          </Col>
+        </Row>
       </Row>
-      <Row>
-        <Col>
-          <TextTitulo>{formacao.titulo}</TextTitulo>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <TextAreaPromotora>Área promotora: {formacao.areaPromotora}</TextAreaPromotora>
-        </Col>
-      </Row>
-      <Row gutter={10}>
-        <Col>
-          <TagTipoFormacaoFormato icon={<FaGraduationCap />}>
-            {formacao.tipoFormacaoDescricao}
-          </TagTipoFormacaoFormato>
-        </Col>
-        <Col>
-          <TagTipoFormacaoFormato icon={<FaMapMarkerAlt />}>
-            {formacao.formatoDescricao}
-          </TagTipoFormacaoFormato>
-        </Col>
-      </Row>
-      <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
-        Saiba mais
-      </Button>
     </Card>
   );
 };

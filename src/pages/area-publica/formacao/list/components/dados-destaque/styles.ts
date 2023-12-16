@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Colors } from '~/core/styles/colors';
 
 const ImagemDestaque = styled.img.attrs(({ src }) => ({ src: src }))`
-  width: 600px;
+  min-width: 600px;
   height: 400px;
   display: 'block';
 `;
@@ -22,7 +22,8 @@ const TagDestaque = styled(Tag)`
 `;
 
 export const TextDestaque = styled(Typography.Text)`
-  font-size: 24px;
+  font-size: 22px;
+  font-weight: 500;
 `;
 
 export { ImagemDestaque, FlexDestaque, TagDestaque };
