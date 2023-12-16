@@ -88,12 +88,12 @@ type TabelaEditavelProps = {
 const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
+
   const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
+  const dresWatch = Form.useWatch('dres', formProposta);
 
   const [editingKey, setEditingKey] = useState<number | undefined>();
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
-
-  const values = formProposta.getFieldsValue(true);
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
   const pagination: TablePaginationConfig = {
@@ -102,26 +102,41 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   };
 
   useEffect(() => {
-    const dres = values?.dres;
+    const quantidadeTurmasEmEdicao = formProposta.isFieldTouched('quantidadeTurmas');
 
-    if (quantidadeTurmas) {
-      const originData: PropostaTurmaFormDTO[] = [];
+    if (quantidadeTurmasEmEdicao) {
+      if (quantidadeTurmas) {
+        const originData: PropostaTurmaFormDTO[] = [];
+        const dres = formProposta.getFieldValue('dres');
 
-      for (let i = 0; i < quantidadeTurmas; i++) {
-        originData.push({
-          key: i,
-          nome: `Turma ${i + 1}`,
-          id: undefined,
-          dres,
-          todos: false,
-        });
+        for (let i = 0; i < quantidadeTurmas; i++) {
+          originData.push({
+            key: i,
+            nome: `Turma ${i + 1}`,
+            id: undefined,
+            dres,
+            todos: false,
+          });
 
-        formProposta.setFieldValue('turmas', [...originData]);
+          formProposta.setFieldValue('turmas', [...originData]);
+        }
+      } else {
+        formProposta.setFieldValue('turmas', []);
       }
-    } else {
-      formProposta.setFieldValue('turmas', []);
     }
   }, [quantidadeTurmas]);
+
+  useEffect(() => {
+    const newDresTurmas = dresWatch?.length ? dresWatch : [];
+
+    const turmas: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas');
+
+    if (turmas?.length) {
+      const newTurmas = turmas.map((turma) => ({ ...turma, dres: newDresTurmas }));
+
+      formProposta.setFieldValue('turmas', newTurmas);
+    }
+  }, [dresWatch]);
 
   const edit = (record: PropostaTurmaFormDTO) => {
     setEditInValues({ ...record });

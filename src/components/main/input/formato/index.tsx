@@ -1,5 +1,6 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, FormInstance, FormItemProps, Tooltip } from 'antd';
+import { Form, FormItemProps, Tooltip } from 'antd';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -11,7 +12,6 @@ import { obterFormato } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
 type SelectFormatoProps = {
-  form: FormInstance;
   formItemProps?: FormItemProps;
   required?: boolean | true;
   exibirTooltip?: boolean | true;
@@ -19,12 +19,13 @@ type SelectFormatoProps = {
 };
 
 const SelectFormato: React.FC<SelectFormatoProps> = ({
-  form,
   formItemProps,
   selectProps,
   required = true,
   exibirTooltip = true,
 }) => {
+  const form = useFormInstance();
+
   const tipoFormacao = Form.useWatch('tipoFormacao', form);
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 

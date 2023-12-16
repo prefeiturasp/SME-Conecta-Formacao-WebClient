@@ -1,3 +1,3 @@
 export type PropostaModalidadeDTO = {
-  modalidade: number;
+  modalidade?: number;
 };
