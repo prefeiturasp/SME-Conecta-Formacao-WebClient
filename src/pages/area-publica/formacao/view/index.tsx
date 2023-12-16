@@ -8,6 +8,7 @@ import CardTurmasPublico from '../../components/card-turmas';
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { PALAVRAS_CHAVES, PUBLICO_ALVO, SOBRE_ESTE_EVENTO } from '~/core/constants/mensagens';
+import { DivTitulo, TextTitulo } from '../list/styles';
 
 const PalavraChave = styled(Tag)`
   font-size: 14px;
@@ -53,6 +54,8 @@ const VisualizarFormacao: FC = () => {
         <Typography.Title level={3} style={{ paddingTop: 25 }}>
           {SOBRE_ESTE_EVENTO}
         </Typography.Title>
+      </Row>
+      <Row>
         <Typography.Text>{dadosFormacao?.justificativa} </Typography.Text>
       </Row>
       <Space style={{ paddingTop: 20 }}>
@@ -79,13 +82,17 @@ const VisualizarFormacao: FC = () => {
           </Row>
         </Typography.Title>
       </Space>
+
+      <DivTitulo>
+        <TextTitulo>Turmas</TextTitulo>
+      </DivTitulo>
       <Row>
         {dadosFormacao?.turmas?.map((turma, i) => {
           return (
             <CardTurmasPublico
               key={i}
               titulo={turma.nome}
-              datas={turma?.periodos?.join(' , ')}
+              datas={turma?.periodos}
               local={turma.local}
               turmaEncerrada={turma.inscricaoEncerrada}
             />

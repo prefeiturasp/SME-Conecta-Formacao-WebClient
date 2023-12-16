@@ -1,8 +1,9 @@
 import React from 'react';
-import { Flex, Row, Typography } from 'antd';
+import { Button, Flex, Row, Typography } from 'antd';
 import { CalendarOutlined, SolutionOutlined } from '@ant-design/icons';
 import { IoLocationOutline } from 'react-icons/io5';
-import { FlexDestaque, ImagemDestaque, TagDestaque } from './styles';
+import { FlexDestaque, ImagemDestaque, TagDestaque, TextDestaque } from './styles';
+import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
 
 type DadosDestaqueProps = {
   srcImagem?: string;
@@ -21,17 +22,20 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({
   datas,
 }) => (
   <FlexDestaque justify='left'>
-    <ImagemDestaque src={srcImagem} />
+    <ImagemDestaque src={srcImagem ?? imagemFormacao} />
     <Flex vertical align='flex-start' justify='space-between' style={{ padding: 15 }}>
       <Typography.Title level={1}>{titulo}</Typography.Title>
-      <Typography.Title level={5}>Área Promotora: {areaPromotra}</Typography.Title>
+      <TextDestaque>Área Promotora: {areaPromotra}</TextDestaque>
       <Row>
         <TagDestaque icon={<SolutionOutlined />}>{tipoFormacao}</TagDestaque>
         <TagDestaque icon={<IoLocationOutline />}>{formato}</TagDestaque>
       </Row>
-      <Typography.Title level={5}>
+      <TextDestaque>
         <CalendarOutlined /> {datas}
-      </Typography.Title>
+      </TextDestaque>
+      <Button type='primary' shape='round' size='large'>
+        Enviar inscrição
+      </Button>
     </Flex>
   </FlexDestaque>
 );
