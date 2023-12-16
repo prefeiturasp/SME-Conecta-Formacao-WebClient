@@ -6,7 +6,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 
-import dayjs from 'dayjs';
+import { dayjs } from '~/core/date/dayjs';
 
 import { setDeslogar } from '~/core/redux/modules/auth/actions';
 

@@ -1,6 +1,6 @@
 import { App, Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import dayjs, { Dayjs } from 'dayjs';
+import { dayjs, Dayjs } from '~/core/date/dayjs';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -281,14 +281,14 @@ const FormCadastroDePropostas: React.FC = () => {
       const dataRealizacaoInicio = dados?.dataRealizacaoInicio;
       const dataRealizacaoFim = dados?.dataRealizacaoFim;
       if (dataRealizacaoInicio && dataRealizacaoFim) {
-        periodoRealizacao = [dayjs(dataRealizacaoInicio), dayjs(dataRealizacaoFim)];
+        periodoRealizacao = [dayjs.tz(dataRealizacaoInicio), dayjs.tz(dataRealizacaoFim)];
       }
 
       let periodoInscricao: Dayjs[] = [];
       const dataInscricaoInicio = dados?.dataInscricaoInicio;
       const dataInscricaoFim = dados?.dataInscricaoFim;
       if (dataInscricaoInicio && dataInscricaoFim) {
-        periodoInscricao = [dayjs(dataInscricaoInicio), dayjs(dataInscricaoFim)];
+        periodoInscricao = [dayjs.tz(dataInscricaoInicio), dayjs.tz(dataInscricaoFim)];
       }
 
       const valoresIniciais: PropostaFormDTO = {

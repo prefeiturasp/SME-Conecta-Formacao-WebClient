@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import { dayjs } from '~/core/date/dayjs';
 import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 
 export const removerTudoQueNaoEhDigito = (value: any) => `${value}`.replace(/\D/g, '');

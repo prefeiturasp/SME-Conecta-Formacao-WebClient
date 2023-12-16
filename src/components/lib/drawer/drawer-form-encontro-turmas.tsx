@@ -2,10 +2,7 @@ import { Button, Col, Drawer, Form, Input, Row, Space, TimePicker, notification 
 import { RangePickerProps } from 'antd/es/date-picker';
 import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
-import dayjs from 'dayjs';
-import locale from 'dayjs/locale/pt-br';
-import localeData from 'dayjs/plugin/localeData';
-import weekday from 'dayjs/plugin/weekday';
+import { dayjs } from '~/core/date/dayjs';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ButtonExcluir from '~/components/lib/excluir-button';
@@ -29,10 +26,6 @@ type DrawerFormularioEncontroTurmasProps = {
   dadosEncontro?: CronogramaEncontrosPaginadoDto;
 };
 
-dayjs.extend(weekday);
-dayjs.extend(localeData);
-dayjs.locale(locale);
-
 const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasProps> = ({
   openModal,
   onCloseModal,
@@ -50,8 +43,8 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 
   const carregarDados = useCallback(() => {
     const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroDataDTO) => ({
-      dataInicio: dayjs(item?.dataInicio),
-      dataFim: item?.dataFim ? dayjs(item?.dataFim) : null,
+      dataInicio: dayjs.tz(item?.dataInicio),
+      dataFim: item?.dataFim ? dayjs.tz(item?.dataFim) : null,
     }));
 
     const valoresIniciais = {

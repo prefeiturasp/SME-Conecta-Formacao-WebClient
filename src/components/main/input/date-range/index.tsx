@@ -1,15 +1,9 @@
 import { DatePicker, Form, Tooltip } from 'antd';
 import { FC } from 'react';
-import dayjs from 'dayjs';
-import weekday from 'dayjs/plugin/weekday';
-import localeData from 'dayjs/plugin/localeData';
-import locale from 'dayjs/locale/pt-br';
+
 import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
 import { InfoCircleFilled } from '@ant-design/icons';
 import { Colors } from '~/core/styles/colors';
-dayjs.extend(weekday);
-dayjs.extend(localeData);
-dayjs.locale(locale);
 
 type DatePickerPeriodoProps = {
   changeFunction?: VoidFunction;
@@ -47,7 +41,7 @@ const DatePickerPeriodo: FC<DatePickerPeriodoProps> = ({
       <Form.Item
         label={label}
         name={name}
-        rules={[{ required,message: messagemErro || 'Campo obrigatório' }]}
+        rules={[{ required, message: messagemErro || 'Campo obrigatório' }]}
         tooltip={{
           title: titleToolTip,
           icon: iconTooltip,
