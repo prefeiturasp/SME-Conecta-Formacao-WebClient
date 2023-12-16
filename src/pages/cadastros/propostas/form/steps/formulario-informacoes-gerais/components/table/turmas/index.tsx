@@ -10,6 +10,7 @@ import {
   Tag,
   Typography,
 } from 'antd';
+import { cloneDeep } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { SelectDRE } from '~/components/main/input/dre';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -20,9 +21,9 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   children: React.ReactNode;
-  dres: any[];
+  dres: DreDTO[];
   listaDres: any;
-  tagsDres: React.ReactNode[];
+  todosSelecionado: boolean;
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -31,13 +32,17 @@ const EditableCell: React.FC<EditableCellProps> = ({
   children,
   dres,
   listaDres,
+  todosSelecionado,
   ...restProps
 }) => {
-  const inputNode =
-    dataIndex === 'dres' ? (
+  let inputNode = <Input />;
+
+  if (dataIndex === 'dres') {
+    const options = cloneDeep(listaDres)?.filter((dre: DreDTO) => !dre.todos);
+
+    inputNode = (
       <SelectDRE
         carregarDadosAutomaticamente={false}
-        exibirOpcaoTodos
         formItemProps={{
           label: '',
           name: 'dres',
@@ -52,13 +57,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
         selectProps={{
           mode: 'multiple',
           labelInValue: true,
-          disabled: true,
-          options: listaDres,
+          disabled: !todosSelecionado,
+          options,
         }}
       />
-    ) : (
-      <Input />
     );
+  }
 
   return (
     <td {...restProps}>
@@ -96,6 +100,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
+
   const pagination: TablePaginationConfig = {
     locale: { items_per_page: '' },
     hideOnSinglePage: true,
@@ -103,7 +108,6 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
 
   useEffect(() => {
     const quantidadeTurmasEmEdicao = formProposta.isFieldTouched('quantidadeTurmas');
-
     if (quantidadeTurmasEmEdicao) {
       if (quantidadeTurmas) {
         const originData: PropostaTurmaFormDTO[] = [];
@@ -115,11 +119,9 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
             nome: `Turma ${i + 1}`,
             id: undefined,
             dres,
-            todos: false,
           });
-
-          formProposta.setFieldValue('turmas', [...originData]);
         }
+        formProposta.setFieldValue('turmas', [...originData]);
       } else {
         formProposta.setFieldValue('turmas', []);
       }
@@ -127,14 +129,22 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   }, [quantidadeTurmas]);
 
   useEffect(() => {
-    const newDresTurmas = dresWatch?.length ? dresWatch : [];
+    const dresEmEdicao = formProposta.isFieldTouched('dres');
+    if (dresEmEdicao) {
+      const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
 
-    const turmas: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas');
+      const turmas: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas');
 
-    if (turmas?.length) {
-      const newTurmas = turmas.map((turma) => ({ ...turma, dres: newDresTurmas }));
+      const temOpcaoTodas = newDresTurmas.find((dre) => dre?.todos);
 
-      formProposta.setFieldValue('turmas', newTurmas);
+      if (turmas?.length) {
+        const newTurmas = turmas.map((turma) => ({
+          ...turma,
+          dres: temOpcaoTodas ? [] : newDresTurmas,
+        }));
+
+        formProposta.setFieldValue('turmas', [...newTurmas]);
+      }
     }
   }, [dresWatch]);
 
@@ -231,6 +241,8 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
     return {
       ...col,
       onCell: (record: PropostaTurmaFormDTO) => {
+        const todosSelecionado = dresWatch?.find((dre: DreDTO) => dre?.todos);
+
         return {
           record,
           align: col.align,
@@ -239,6 +251,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
           dres: record.dres,
           editing: isEditing(record),
           listaDres,
+          todosSelecionado,
         };
       },
     };
