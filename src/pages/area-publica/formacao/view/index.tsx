@@ -50,31 +50,42 @@ const VisualizarFormacao: FC = () => {
         datas={dadosFormacao?.periodo}
         titulo={dadosFormacao?.titulo}
       />
+
       <Row>
-        <Typography.Title level={3} style={{ paddingTop: 25 }}>
+        <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>
           {SOBRE_ESTE_EVENTO}
         </Typography.Title>
       </Row>
       <Row>
-        <Typography.Text>{dadosFormacao?.justificativa} </Typography.Text>
+        <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
+          {dadosFormacao?.justificativa}
+        </Typography.Text>
       </Row>
       <Space style={{ paddingTop: 20 }}>
         <Typography.Title level={4} style={{ paddingRight: 80 }}>
-          {PUBLICO_ALVO}
+          <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>
+            {PUBLICO_ALVO}
+          </Typography.Title>
+
           <Col>
             <ListaPublicAlvo>
               {dadosFormacao?.publicosAlvo?.map((publico, i) => {
                 return (
                   <li key={i}>
-                    <Typography.Text>{publico}</Typography.Text>
+                    <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
+                      {publico}
+                    </Typography.Text>
                   </li>
                 );
               })}
             </ListaPublicAlvo>
           </Col>
         </Typography.Title>
+
         <Typography.Title level={4} style={{ paddingLeft: 180 }}>
-          {PALAVRAS_CHAVES}
+          <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
+            {PALAVRAS_CHAVES}
+          </Typography.Title>
           <Row>
             {dadosFormacao?.palavrasChaves?.map((palavra, i) => {
               return <PalavraChave key={i}>{palavra}</PalavraChave>;

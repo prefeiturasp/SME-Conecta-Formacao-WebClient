@@ -29,7 +29,6 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
 }) => {
   return (
     <Card
-      hoverable
       style={cardStyle}
       headStyle={headStyle}
       bodyStyle={bodyStyle}
@@ -53,7 +52,7 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
         description={
           local && (
             <p style={descriptionStyle}>
-              <IoLocationOutline /> {local}
+              <IoLocationOutline size={16} /> {local}
             </p>
           )
         }

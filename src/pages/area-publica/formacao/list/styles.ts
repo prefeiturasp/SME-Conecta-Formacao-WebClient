@@ -9,7 +9,7 @@ export const DivTitulo = styled.div`
 `;
 
 export const TextTitulo = styled(Typography.Text)`
-  font-size: 30px;
+  font-size: 32px;
   font-weight: bold;
   color: #0097a7;
 `;
