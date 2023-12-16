@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { cloneDeep } from 'lodash';
 import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 
 export const removerTudoQueNaoEhDigito = (value: any) => `${value}`.replace(/\D/g, '');
@@ -59,6 +60,29 @@ export const onchangeMultiSelectOpcaoTodos = (
   }
   if (!valorAtualTemOpcaoTodos && valoresTemOpcaoTodos) {
     valorParaSetar = [valorTodosComparacao];
+  }
+
+  return valorParaSetar;
+};
+
+export const onchangeMultiSelectLabelInValueOpcaoTodos = (
+  valores: any[],
+  valorAtual: any[],
+  valorTodosComparacao: any = OpcaoListagem.Todos,
+) => {
+  let valorParaSetar = valores;
+  const valorAtualTemOpcaoTodos = valorAtual?.find((item) => item?.value === valorTodosComparacao);
+  const valoresTemOpcaoTodos = valores?.find((item) => item?.value === valorTodosComparacao);
+
+  if (valorAtualTemOpcaoTodos) {
+    const listaSemOpcaoTodos = cloneDeep(valores).filter(
+      (item) => item?.value !== valorTodosComparacao,
+    );
+
+    valorParaSetar = listaSemOpcaoTodos;
+  }
+  if (!valorAtualTemOpcaoTodos && valoresTemOpcaoTodos) {
+    valorParaSetar = [valoresTemOpcaoTodos];
   }
 
   return valorParaSetar;
