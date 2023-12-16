@@ -351,11 +351,11 @@ const FormCadastroDePropostas: React.FC = () => {
       : undefined;
 
     const dataInscricaoInicio = values?.periodoInscricao?.[0]
-      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
+      ? values?.periodoInscricao?.[0].format('YYYY-MM-DD')
       : undefined;
 
     const dataInscricaoFim = values?.periodoInscricao?.[1]
-      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
+      ? values?.periodoInscricao?.[0].format('YYYY-MM-DD')
       : undefined;
 
     let situacao = SituacaoRegistro.Rascunho;
