@@ -83,7 +83,7 @@ const InputRegistroFuncional: React.FC<InputRegistroFuncionalProps> = ({
       </Col>
 
       <Col xs={12}>
-        <Form.Item label='Nome' name='nome' {...formItemPropsNome}>
+        <Form.Item label='Nome' name='nome' {...formItemPropsNome} rules={[{ required: true }]}>
           <Input
             id='INPUT_NOME'
             placeholder='Nome'
