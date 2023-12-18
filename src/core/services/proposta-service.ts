@@ -57,8 +57,9 @@ const inserirProposta = (params: PropostaDTO): Promise<ApiResult<number>> =>
 const alterarProposta = (
   id: string | number,
   params: PropostaDTO,
+  mostrarNotificacao: boolean,
 ): Promise<ApiResult<PropostaDTO>> =>
-  alterarRegistro<PropostaDTO>(`${URL_API_PROPOSTA}/${id}`, params);
+  alterarRegistro<PropostaDTO>(`${URL_API_PROPOSTA}/${id}`, params, mostrarNotificacao);
 
 const enviarPropostaAnalise = (
   id: string | number,

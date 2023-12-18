@@ -1,5 +1,5 @@
-import React from 'react';
 import { Modal } from 'antd';
+import React from 'react';
 import { ERRO_CAMPOS_OBRIGATORIOS } from '~/core/constants/mensagens';
 import { Colors } from '~/core/styles/colors';
 
@@ -15,6 +15,7 @@ const ModalErroProposta: React.FC<ModalErroPropostaPropos> = ({ erros, closeModa
       centered
       open
       onOk={closeModal}
+      onCancel={closeModal}
       closeIcon
       width={1000}
       cancelButtonProps={{ style: { display: 'none' } }}

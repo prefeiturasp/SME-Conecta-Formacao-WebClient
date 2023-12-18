@@ -1,6 +1,5 @@
 import { App, Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { dayjs, Dayjs } from '~/core/date/dayjs';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -36,6 +35,7 @@ import {
 } from '~/core/constants/mensagens';
 import { STEP_PROPOSTA, StepPropostaEnum } from '~/core/constants/steps-proposta';
 import { validateMessages } from '~/core/constants/validate-messages';
+import { Dayjs, dayjs } from '~/core/date/dayjs';
 import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
   PropostaDTO,
@@ -487,10 +487,11 @@ const FormCadastroDePropostas: React.FC = () => {
     }
 
     if (id) {
-      response = await alterarProposta(id, valoresSalvar);
+      response = await alterarProposta(id, valoresSalvar, false);
     } else {
       response = await inserirProposta(valoresSalvar);
     }
+
     if (response.sucesso) {
       notification.success({
         message: 'Sucesso',
@@ -504,6 +505,7 @@ const FormCadastroDePropostas: React.FC = () => {
         navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
       }
     }
+
     if (response.mensagens.length) {
       setListaErros(response.mensagens);
       showModalErros();
