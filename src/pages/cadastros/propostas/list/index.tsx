@@ -83,14 +83,14 @@ const ListCadastroDePropostas: React.FC = () => {
       dataIndex: 'numeroHomologacao',
     },
     {
-      key: 'periodoRealizacaoInicio',
+      key: 'dataRealizacaoInicio',
       title: 'Início',
-      dataIndex: 'periodoRealizacaoInicio',
+      dataIndex: 'dataRealizacaoInicio',
     },
     {
-      key: 'periodoRealizacaoFim',
+      key: 'dataRealizacaoFim',
       title: 'Fim',
-      dataIndex: 'periodoRealizacaoFim',
+      dataIndex: 'dataRealizacaoFim',
     },
     {
       key: 'situacao',
