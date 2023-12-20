@@ -53,6 +53,7 @@ export const DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA =
 export const ACAO_INFORMATIVA_NAO_ACEITA = 'É necessário aceitar a ação formativa';
 export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
 export const ENVIAR_INSCRICAO = 'Enviar inscrição';
+export const SAIBA_MAIS = 'Saiba mais';
 export const SOBRE_ESTE_EVENTO = 'Sobre este evento';
 export const PUBLICO_ALVO = 'Público-alvo';
 export const PALAVRAS_CHAVES = 'Palavras-chave';
