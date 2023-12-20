@@ -6,6 +6,10 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import PageForbidden from '~/pages/403';
 import PageNotFound from '~/pages/404';
+import AreaPublica from '~/pages/area-publica';
+import { ListFormacao } from '~/pages/area-publica/formacao/list';
+import VisualizarFormacao from '~/pages/area-publica/formacao/view';
+import { Inscricao } from '~/pages/area-publica/inscricao';
 import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
 import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import FormCadastroDePropostas from '~/pages/cadastros/propostas/form';
@@ -19,9 +23,6 @@ import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
-import AreaPublica from '~/pages/area-publica';
-import { ListFormacao } from '~/pages/area-publica/formacao/list';
-import VisualizarFormacao from '~/pages/area-publica/formacao/view';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -56,6 +57,7 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
+                <Route path={ROUTES.INSCRICAO} element={<Inscricao />} />
 
                 <Route path={ROUTES.AREA_PROMOTORA}>
                   <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>

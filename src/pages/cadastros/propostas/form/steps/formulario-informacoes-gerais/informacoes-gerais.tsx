@@ -15,6 +15,7 @@ import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
 import SelectVagasRemanescentes from '~/components/main/input/vagas-remanescentes';
 import InputNumero from '~/components/main/numero';
+import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import UploadArquivosConectaFormacao from '~/components/main/upload';
 import {
   CF_INPUT_NOME_FORMACAO,
@@ -118,7 +119,13 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ listaDres
       </Col>
 
       <Col span={24}>
-        <SelectFuncaoEspecifica />
+        <SelectFuncaoEspecifica
+          formItemProps={{
+            tooltip: getTooltipFormInfoCircleFilled(
+              'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outros).',
+            ),
+          }}
+        />
       </Col>
 
       <Col span={24}>
