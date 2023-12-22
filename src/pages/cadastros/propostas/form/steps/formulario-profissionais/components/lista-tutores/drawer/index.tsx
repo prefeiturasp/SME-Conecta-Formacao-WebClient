@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DataTableContext } from '~/components/lib/card-table/provider';
 import ButtonExcluir from '~/components/lib/excluir-button';
-import InputRegistroFuncional from '~/components/main/input/input-registro-funcional';
+import InputRegistroFuncionalNome from '~/components/main/input/input-registro-funcional-nome';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CF_BUTTON_EXCLUIR, CF_BUTTON_MODAL_CANCELAR } from '~/core/constants/ids/button/intex';
@@ -201,7 +201,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
 
                       return (
                         <Row gutter={[16, 8]}>
-                          <InputRegistroFuncional
+                          <InputRegistroFuncionalNome
                             formItemPropsRF={{ rules: [{ required: rfEhObrigatorio }] }}
                             formItemPropsNome={{
                               rules: [{ required: desabilitarCampos || !rfEhObrigatorio }],
