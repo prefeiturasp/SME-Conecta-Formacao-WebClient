@@ -14,5 +14,6 @@ export enum ROUTES {
   SEM_PERMISSAO = '/sem-permissao',
   AREA_PUBLICA = '/area-publica',
   AREA_PUBLICA_VISUALIZAR_FORMACAO = '/area-publica/visualizar/:id',
+  MINHAS_INSCRICOES = '/minhas-inscricoes',
   INSCRICAO = '/inscricao',
 }
