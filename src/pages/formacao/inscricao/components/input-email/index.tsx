@@ -8,11 +8,7 @@ type InputEmailInscricaoProps = {
   validacaoEmail?: boolean;
 };
 
-const InputEmailInscricao: React.FC<InputEmailInscricaoProps> = ({
-  inputProps,
-  formItemProps,
-  validacaoEmail,
-}) => {
+const InputEmailInscricao: React.FC<InputEmailInscricaoProps> = ({ inputProps, formItemProps }) => {
   const [required, setRequired] = useState<boolean>(false);
 
   return (
@@ -30,10 +26,6 @@ const InputEmailInscricao: React.FC<InputEmailInscricaoProps> = ({
                   setRequired(true);
                 } else {
                   setRequired(false);
-                }
-
-                if (validacaoEmail && email && !email.includes('@edu')) {
-                  return Promise.reject('O e-mail deve conter a extensão @edu');
                 }
 
                 return Promise.resolve();

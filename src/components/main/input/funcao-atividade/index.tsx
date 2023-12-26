@@ -20,6 +20,7 @@ const SelectFuncaoAtividade: React.FC<SelectFuncaoAtividadeProps> = ({
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
+    // TODO - adicionar endpoint
     const resposta = await serviceAPI();
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item: any) => ({

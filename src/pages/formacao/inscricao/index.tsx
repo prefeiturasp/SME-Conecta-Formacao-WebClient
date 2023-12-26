@@ -43,8 +43,7 @@ export const Inscricao = () => {
 
   // TODO - POR ENQUANTO VERIFICANDO SE TEM RF É SERVIDOR, DEPOIS TERA A INFORMACAO NO LOGIN DE USUARIO EXTERNO E INTERNO
   const ehServidorTemRF = !!perfil.usuarioLogin;
-  // TODO - AJUSTAR VARIAVEL QUANDO FOR USUARIO DA REDE PARCEIRA
-  const ehRedeParceira = true;
+
   const nomeFormacao = inscricao && inscricao.titulo ? `- ${inscricao.titulo}` : '';
 
   const carregarPerfil = useCallback(async () => {
@@ -138,6 +137,18 @@ export const Inscricao = () => {
     */
     }
 
+    {
+      /*
+    Critério 9 - Inscrições encerradas
+    Dado que sou cursista
+    Quando eu estiver na lista de formações para formações não homologadas
+    Caso as vagas de todas as turmas estejam completas então deverá ser apresentada
+    a mensagem de inscrições encerradas e não deverá mais ser possível enviar inscrições
+    Caso as vagas de apenas uma turma estejam encerradas então ao clicar no enviar
+    inscrição deverá ser apresentada a mensagem "Esta turma já está com todas as vagas ocupadas."
+    */
+    }
+
     // if (id) {
     //   response = await alterarAreaPromotora(id, valoresSalvar, true);
     // } else {
@@ -213,16 +224,10 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                E-mail: Carregar do CoreSSO, permitindo alteração e se estiver vazio ou com conteúdo
-                inválido deve ser obrigatório. Deve atualizar no CoreSSO quando alterado ou
-                preenchido. Para os usuários da rede parceira deve validar o domínio @edu
-                <InputEmailInscricao validacaoEmail={ehRedeParceira} />
+                <InputEmailInscricao />
               </Col>
 
               <Col xs={24} sm={8}>
-                Cargo: Para servidores deve vir preenchido e pode ser que tenha mais de um. Para
-                parceiros permitir a digitação obrigatória de até 50 caractares. Considerar cargo
-                sobreposto, caso houver.
                 {ehServidorTemRF ? (
                   <SelectCargo />
                 ) : (
@@ -238,8 +243,6 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                Turma: Apresentar a lista de turmas com as datas sendo que a seleção de uma é
-                obrigatória.
                 <SelectTurma />
               </Col>
 

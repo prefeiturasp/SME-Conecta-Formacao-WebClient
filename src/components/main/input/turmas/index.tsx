@@ -16,6 +16,7 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, s
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
+    // TODO - adicionar endpoint
     const resposta = await serviceAPI();
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item: any) => ({
@@ -36,7 +37,16 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, s
     <Form.Item
       label='Turma'
       name='turmas'
-      rules={[{ message: 'Selecione uma Turma' }]}
+      rules={[
+        { message: 'Selecione uma Turma' },
+        {
+          validator(_, value) {
+            if (value.length >= 1) {
+              return Promise.reject('A seleção de no mínimo uma turma é obrigatória.');
+            }
+          },
+        },
+      ]}
       {...formItemProps}
     >
       <Select
