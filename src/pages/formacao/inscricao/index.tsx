@@ -198,28 +198,28 @@ export const Inscricao = () => {
         <CardContent>
           <Col span={24}>
             <Row gutter={[16, 8]}>
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={8}>
                 <Form.Item label='Nome' key='nome' name='nome'>
                   <Input type='text' maxLength={50} id={CF_INPUT_NOME} placeholder='Nome' />
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={8}>
                 <InputRegistroFuncional />
               </Col>
 
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={8}>
                 <InputCPF />
               </Col>
 
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={8}>
                 E-mail: Carregar do CoreSSO, permitindo alteração e se estiver vazio ou com conteúdo
                 inválido deve ser obrigatório. Deve atualizar no CoreSSO quando alterado ou
                 preenchido. Para os usuários da rede parceira deve validar o domínio @edu
                 <InputEmailInscricao validacaoEmail={ehRedeParceira} />
               </Col>
 
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={8}>
                 Cargo: Para servidores deve vir preenchido e pode ser que tenha mais de um. Para
                 parceiros permitir a digitação obrigatória de até 50 caractares. Considerar cargo
                 sobreposto, caso houver.
@@ -233,17 +233,17 @@ export const Inscricao = () => {
                 )}
               </Col>
 
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={8}>
                 {ehServidorTemRF && <SelectFuncaoAtividade />}
               </Col>
 
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={8}>
                 Turma: Apresentar a lista de turmas com as datas sendo que a seleção de uma é
                 obrigatória.
                 <SelectTurma />
               </Col>
 
-              <Col xs={24} sm={12}>
+              <Col xs={24}>
                 <UploadArquivosConectaFormacao
                   form={form}
                   formItemProps={{

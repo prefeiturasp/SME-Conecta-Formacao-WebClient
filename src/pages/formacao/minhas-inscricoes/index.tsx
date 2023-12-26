@@ -1,15 +1,24 @@
 import { Button, Col, Form, Row } from 'antd';
-import { ColumnsType } from 'antd/es/table';
+import Table, { ColumnsType } from 'antd/es/table';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
-import DataTable from '~/components/lib/card-table';
 import HeaderPage from '~/components/lib/header-page';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import { ENVIAR_INSCRICAO, NOVA_INSCRICAO } from '~/core/constants/mensagens';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
+
+export interface Inscricao {
+  registroFuncional: string;
+  tituloFormacao: string;
+  turma: string;
+  datas: string;
+  cargoFuncao: string;
+  situacao: string;
+  acoes: React.ReactNode;
+}
 
 export const MinhasInscricoes = () => {
   const navigate = useNavigate();
@@ -19,19 +28,41 @@ export const MinhasInscricoes = () => {
   const labelButton = enviouInscricao ? NOVA_INSCRICAO : ENVIAR_INSCRICAO;
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
-  //TODO - mudar tipagem das columns
-  const columns: ColumnsType<any> = [
-    { title: 'Código da formação', dataIndex: 'registroFuncional' },
-    { title: 'Título da formação', dataIndex: 'tituloFormacao' },
-    { title: 'Turma', dataIndex: 'turma' },
-    { title: 'Datas', dataIndex: 'datas' },
-    { title: 'Cargo/Função', dataIndex: 'cargoFuncao' },
+  const dataSource: Inscricao[] = [
     {
-      title: 'Situação',
-      dataIndex: 'situacao',
-      render: () => {
+      registroFuncional: 'aaa',
+      tituloFormacao: 'aaa',
+      turma: 'aaa',
+      datas: 'aaa',
+      cargoFuncao: 'aaa',
+      situacao: 'aaa',
+      acoes: false,
+    },
+    {
+      registroFuncional: 'bbb',
+      tituloFormacao: 'bbb',
+      turma: 'bbb',
+      datas: 'bbb',
+      cargoFuncao: 'bbb',
+      situacao: 'bbb',
+      acoes: true,
+    },
+  ];
+
+  const columns: ColumnsType<Inscricao> = [
+    { title: 'Código da formação', dataIndex: 'registroFuncional', width: '6%' },
+    { title: 'Título da formação', dataIndex: 'tituloFormacao', width: '10%' },
+    { title: 'Turma', dataIndex: 'turma', width: '10%' },
+    { title: 'Datas', dataIndex: 'datas', width: '10%' },
+    { title: 'Cargo/Função', dataIndex: 'cargoFuncao', width: '10%' },
+    { title: 'Situação', dataIndex: 'situacao', width: '10%' },
+    {
+      title: 'Ações',
+      dataIndex: 'acoes',
+      width: '2%',
+      render: (desabilitarSituacao) => {
         return (
-          <Button type='default' size='small'>
+          <Button type='default' size='small' disabled={desabilitarSituacao}>
             Cancelar inscrição
           </Button>
         );
@@ -78,7 +109,9 @@ export const MinhasInscricoes = () => {
 
         <CardContent>
           <Col span={24}>
-            <DataTable url={`v1/`} columns={columns} />
+            {/* TODO - trocar pra datatable quando tiver enpoint */}
+            {/* <DataTable url={`v1/`} columns={columns} /> */}
+            <Table bordered dataSource={dataSource} columns={columns} />
           </Col>
         </CardContent>
       </Form>
