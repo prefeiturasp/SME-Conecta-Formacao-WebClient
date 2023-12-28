@@ -1,5 +1,4 @@
-import { Form } from 'antd';
-import { FormItemInputProps } from 'antd/es/form/FormItemInput';
+import { Form, FormItemProps } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -8,7 +7,7 @@ import { CF_SELECT_TURMA_CRONOGRAMA } from '~/core/constants/ids/select';
 
 type SelectFuncaoAtividadeProps = {
   selectProps?: SelectProps;
-  formItemProps?: FormItemInputProps;
+  formItemProps?: FormItemProps;
   serviceAPI?: any;
 };
 
@@ -40,7 +39,7 @@ const SelectFuncaoAtividade: React.FC<SelectFuncaoAtividadeProps> = ({
   return (
     <Form.Item
       label='Função/Atividade'
-      name='cargo'
+      name='funcoes'
       rules={[{ message: 'Selecione uma Função/Atividade' }]}
       {...formItemProps}
     >

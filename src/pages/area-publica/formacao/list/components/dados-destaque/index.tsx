@@ -38,6 +38,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
     }
   };
 
+  // TODO - trocar pelo endpoint
   const dadosFormacao = {
     titulo: 'Formação de Teste Conecta',
     areaPromotora: 'teste dre 5',
@@ -104,17 +105,6 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
   };
 
   const desabilitarInscricao = () => {
-    {
-      /*
-    Dado que sou cursista
-    Quando eu estiver na lista de formações para formações não homologadas
-    Caso as vagas de todas as turmas estejam completas então deverá ser apresentada
-    a mensagem de inscrições encerradas e não deverá mais ser possível enviar inscrições
-    Caso as vagas de apenas uma turma estejam encerradas então ao clicar no enviar
-    inscrição deverá ser apresentada a mensagem "Esta turma já está com todas as vagas ocupadas."
-    */
-    }
-
     if (dadosFormacao?.inscricaoEncerrada) {
       return true;
     }

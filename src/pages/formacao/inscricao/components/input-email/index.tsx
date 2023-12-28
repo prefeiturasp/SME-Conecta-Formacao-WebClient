@@ -1,4 +1,4 @@
-import { Form, FormItemProps, InputProps } from 'antd';
+import { FormItemProps, InputProps } from 'antd';
 import React, { useState } from 'react';
 import InputEmail from '~/components/main/input/email';
 
@@ -12,29 +12,28 @@ const InputEmailInscricao: React.FC<InputEmailInscricaoProps> = ({ inputProps, f
   const [required, setRequired] = useState<boolean>(false);
 
   return (
-    <Form.Item {...formItemProps}>
-      <InputEmail
-        inputProps={inputProps}
-        formItemProps={{
-          rules: [
-            { required: required },
-            ({ getFieldValue }) => ({
-              validator() {
-                const email = getFieldValue('email');
+    <InputEmail
+      inputProps={inputProps}
+      formItemProps={{
+        rules: [
+          { required: required },
+          ({ getFieldValue }) => ({
+            validator() {
+              const email = getFieldValue('usuarioEmail');
 
-                if (!email) {
-                  setRequired(true);
-                } else {
-                  setRequired(false);
-                }
+              if (!email) {
+                setRequired(true);
+              } else {
+                setRequired(false);
+              }
 
-                return Promise.resolve();
-              },
-            }),
-          ],
-        }}
-      />
-    </Form.Item>
+              return Promise.resolve();
+            },
+          }),
+        ],
+        ...formItemProps,
+      }}
+    />
   );
 };
 

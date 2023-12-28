@@ -1,6 +1,7 @@
 import { Button, Col, Form, Input, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { HttpStatusCode } from 'axios';
+import { cloneDeep } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
@@ -25,9 +26,12 @@ import {
   ENVIAR_INSCRICAO,
 } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
+import { DadosUsuarioInscricaoDTO } from '~/core/dto/dados-usuario-inscricao-dto';
+import { InscricaoDTO } from '~/core/dto/inscricao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
+import { inserirInscricao } from '~/core/services/inscricao-service';
 import usuarioService from '~/core/services/usuario-service';
 import InputEmailInscricao from './components/input-email';
 import { ModalInscricao } from './components/modal';
@@ -44,24 +48,20 @@ export const Inscricao = () => {
   // TODO - POR ENQUANTO VERIFICANDO SE TEM RF É SERVIDOR, DEPOIS TERA A INFORMACAO NO LOGIN DE USUARIO EXTERNO E INTERNO
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
-  const nomeFormacao = inscricao && inscricao.titulo ? `- ${inscricao.titulo}` : '';
+  const formacaoNome = inscricao && inscricao.titulo ? `- ${inscricao.titulo}` : '';
 
   const carregarPerfil = useCallback(async () => {
     usuarioService.obterMeusDados(perfil.usuarioLogin).then((resposta) => {
       if (resposta?.status === HttpStatusCode.Ok) {
         const valores = resposta.data;
-        const registroFuncional = ehServidorTemRF ? resposta.data.login : '';
-        const publicosAlvo = ehServidorTemRF ? undefined : '';
 
-        const valoresIniciais = {
-          nome: valores.nome,
-          registroFuncional,
-          cpf: valores.cpf,
-          email: valores.email,
-          publicosAlvo,
-          funcoesEspecificas: undefined,
-          turma: undefined,
-          upload: undefined,
+        const valoresIniciais: DadosUsuarioInscricaoDTO = {
+          usuarioNome: valores.nome,
+          usuarioRf: ehServidorTemRF ? valores.login : '',
+          usuarioCpf: valores.cpf,
+          usuarioEmail: valores.email,
+          usuarioCargos: ehServidorTemRF ? [] : '',
+          usuarioFuncoes: ehServidorTemRF ? [] : [],
         };
 
         setFormInitialValues(valoresIniciais);
@@ -105,7 +105,45 @@ export const Inscricao = () => {
   };
 
   const enviarInscricao = async () => {
-    // const response = null;
+    let response = null;
+    const values: DadosUsuarioInscricaoDTO = form.getFieldsValue(true);
+    const clonedValues: DadosUsuarioInscricaoDTO = cloneDeep(values);
+
+    const valoresSalvar: InscricaoDTO = {
+      propostaTurmaId: [],
+      email: clonedValues?.usuarioEmail,
+      cargoId: [] || '',
+      funcaoId: [],
+      arquivoId: [],
+    };
+
+    if (clonedValues?.propostaTurmaId?.length) {
+      valoresSalvar.propostaTurmaId = clonedValues.propostaTurmaId.map((propostaTurmaId) => ({
+        propostaTurmaId,
+      }));
+    }
+
+    if (clonedValues?.usuarioCargos) {
+      if (Array.isArray(clonedValues.usuarioCargos)) {
+        valoresSalvar.cargoId = clonedValues.usuarioCargos.map((cargoId) => ({
+          cargoId,
+        }));
+      } else {
+        valoresSalvar.cargoId = clonedValues.usuarioCargos;
+      }
+    }
+
+    if (clonedValues?.usuarioFuncoes?.length) {
+      valoresSalvar.funcaoId = clonedValues.usuarioFuncoes.map((funcaoId) => ({
+        funcaoId,
+      }));
+    }
+
+    if (clonedValues?.arquivoId?.length) {
+      valoresSalvar.arquivoId = clonedValues.arquivoId.map((arquivoId) => ({
+        arquivoId,
+      }));
+    }
 
     {
       /*
@@ -149,15 +187,11 @@ export const Inscricao = () => {
     */
     }
 
-    // if (id) {
-    //   response = await alterarAreaPromotora(id, valoresSalvar, true);
-    // } else {
-    //   response = await inserirAreaPromotora(valoresSalvar);
-    // }
+    response = await inserirInscricao(valoresSalvar);
 
-    // if (response.sucesso) {
-    //   setOpenModal(true);
-    // }
+    if (response.sucesso) {
+      setOpenModal(true);
+    }
   };
 
   return (
@@ -170,7 +204,7 @@ export const Inscricao = () => {
         initialValues={initialValues}
         validateMessages={validateMessages}
       >
-        <HeaderPage title={`Inscrição ${nomeFormacao}`}>
+        <HeaderPage title={`Inscrição ${formacaoNome}`}>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
@@ -210,36 +244,38 @@ export const Inscricao = () => {
           <Col span={24}>
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={8}>
-                <Form.Item label='Nome' key='nome' name='nome'>
+                <Form.Item label='Nome' key='usuarioNome' name='usuarioNome'>
                   <Input type='text' maxLength={50} id={CF_INPUT_NOME} placeholder='Nome' />
                 </Form.Item>
               </Col>
 
               <Col xs={24} sm={8}>
-                <InputRegistroFuncional />
+                <InputRegistroFuncional formItemProps={{ name: 'usuarioRf' }} />
               </Col>
 
               <Col xs={24} sm={8}>
-                <InputCPF />
+                <InputCPF formItemProps={{ name: 'usuarioCpf' }} />
               </Col>
 
               <Col xs={24} sm={8}>
-                <InputEmailInscricao />
+                <InputEmailInscricao formItemProps={{ name: 'usuarioEmail' }} />
               </Col>
 
               <Col xs={24} sm={8}>
                 {ehServidorTemRF ? (
-                  <SelectCargo />
+                  <SelectCargo formItemProps={{ name: 'usuarioCargos' }} />
                 ) : (
                   <InputTexto
-                    formItemProps={{ name: 'publicosAlvo' }}
-                    inputProps={{ maxLength: 50, placeholder: 'Público Alvo' }}
+                    formItemProps={{ name: 'usuarioCargos' }}
+                    inputProps={{ maxLength: 50, placeholder: 'Cargo' }}
                   />
                 )}
               </Col>
 
               <Col xs={24} sm={8}>
-                {ehServidorTemRF && <SelectFuncaoAtividade />}
+                {ehServidorTemRF && (
+                  <SelectFuncaoAtividade formItemProps={{ name: 'usuarioFuncoes' }} />
+                )}
               </Col>
 
               <Col xs={24} sm={8}>

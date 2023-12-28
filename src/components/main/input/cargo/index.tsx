@@ -1,5 +1,4 @@
-import { Form } from 'antd';
-import { FormItemInputProps } from 'antd/es/form/FormItemInput';
+import { Form, FormItemProps } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -8,7 +7,7 @@ import { CF_SELECT_TURMA_CRONOGRAMA } from '~/core/constants/ids/select';
 
 type SelectCargoProps = {
   selectProps?: SelectProps;
-  formItemProps?: FormItemInputProps;
+  formItemProps?: FormItemProps;
   serviceAPI?: any;
 };
 
@@ -36,7 +35,7 @@ const SelectCargo: React.FC<SelectCargoProps> = ({ selectProps, formItemProps, s
   return (
     <Form.Item
       label='Cargo'
-      name='cargo'
+      name='cargos'
       rules={[{ message: 'Selecione um cargo' }]}
       {...formItemProps}
     >
