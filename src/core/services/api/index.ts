@@ -181,7 +181,7 @@ export const obterRegistro = async <T>(
 
 export const alterarRegistro = async <T>(
   url: string,
-  params: any,
+  params?: any,
   mostrarNotificacao?: boolean,
 ): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));

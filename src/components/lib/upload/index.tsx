@@ -60,6 +60,7 @@ type UploadArquivosProps = {
   formItemProps: FormItemProps & { name: string };
   tiposArquivosPermitidos?: string;
   tamanhoMaxUploadPorArquivo?: number;
+  subTitulo?: string;
   downloadService: (codigosArquivo: string) => any;
   uploadService: (formData: FormData, configuracaoHeader: any) => any;
 };
@@ -73,6 +74,7 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
     formItemProps,
     uploadService,
     downloadService,
+    subTitulo,
     tiposArquivosPermitidos = '',
     tamanhoMaxUploadPorArquivo = TAMANHO_PADRAO_MAXIMO_UPLOAD,
   } = props;
@@ -229,7 +231,9 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
           <InboxOutlined />
         </p>
         <p className='ant-upload-text'>Clique ou arraste para fazer o upload do arquivo</p>
-        <p className='ant-upload-hint'>Deve permitir apenas imagens com no máximo 5MB cada</p>
+        <p className='ant-upload-hint'>
+          {subTitulo ?? 'Deve permitir apenas imagens com no máximo 5MB cada'}
+        </p>
       </ContainerDraggerUpload>
     </Form.Item>
   );

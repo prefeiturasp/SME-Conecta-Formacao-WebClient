@@ -1,16 +1,22 @@
-import { InfoCircleFilled } from '@ant-design/icons';
-import { Col, Form, Input, Tooltip } from 'antd';
-import { DefaultOptionType } from 'antd/es/select';
+import { Col, Form, FormItemProps, Input } from 'antd';
+import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_FUNCAO_ESPECIFICA_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_FUNCAO_ESPECIFICA } from '~/core/constants/ids/select';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
-import { Colors } from '~/core/styles/colors';
 import { validarOnChangeMultiSelectOutros } from '~/core/utils/functions';
 
-const SelectFuncaoEspecifica: React.FC = () => {
+type SelectFuncaoEspecifica = {
+  formItemProps?: FormItemProps;
+  selectProps?: SelectProps;
+};
+
+const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
+  formItemProps,
+  selectProps,
+}) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -60,19 +66,7 @@ const SelectFuncaoEspecifica: React.FC = () => {
         return (
           <>
             <Col span={24}>
-              <Form.Item
-                label='Função específica'
-                name='funcoesEspecificas'
-                tooltip={{
-                  title:
-                    'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outros).',
-                  icon: (
-                    <Tooltip>
-                      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
-                    </Tooltip>
-                  ),
-                }}
-              >
+              <Form.Item label='Função específica' name='funcoesEspecificas' {...formItemProps}>
                 <Select
                   allowClear
                   mode='multiple'
@@ -84,6 +78,7 @@ const SelectFuncaoEspecifica: React.FC = () => {
                     form.setFieldValue('funcoesEspecificas', values);
                     form.setFieldValue('funcaoEspecificaOutros', '');
                   }}
+                  {...selectProps}
                 />
               </Form.Item>
             </Col>
