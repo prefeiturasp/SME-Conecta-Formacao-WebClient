@@ -179,7 +179,11 @@ export const obterRegistro = async <T>(
     .finally(() => store.dispatch(setSpinning(false)));
 };
 
-export const alterarRegistro = async <T>(url: string, params: any): Promise<ApiResult<T>> => {
+export const alterarRegistro = async <T>(
+  url: string,
+  params?: any,
+  mostrarNotificacao?: boolean,
+): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
     .put(url, params)
@@ -192,7 +196,9 @@ export const alterarRegistro = async <T>(url: string, params: any): Promise<ApiR
         : [];
 
       // TODO modal error
-      openNotificationError(mensagens);
+      if (mostrarNotificacao) {
+        openNotificationError(mensagens);
+      }
 
       return { sucesso: false, mensagens, dados: null };
     })

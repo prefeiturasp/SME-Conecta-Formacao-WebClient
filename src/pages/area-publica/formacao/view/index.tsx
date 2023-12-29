@@ -1,13 +1,13 @@
-import { FC, useCallback, useEffect, useState } from 'react';
-import DadosDestaque from '../list/components/dados-destaque';
-import { useParams } from 'react-router-dom';
 import { Col, Row, Space, Tag, Typography } from 'antd';
-import { Colors } from '~/core/styles/colors';
+import { FC, useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import CardTurmasPublico from '../../components/card-turmas';
-import { obterDadosFormacao } from '~/core/services/area-publica-service';
-import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { PALAVRAS_CHAVES, PUBLICO_ALVO, SOBRE_ESTE_EVENTO } from '~/core/constants/mensagens';
+import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
+import { obterDadosFormacao } from '~/core/services/area-publica-service';
+import { Colors } from '~/core/styles/colors';
+import CardTurmasPublico from '../../components/card-turmas';
+import DadosDestaque from '../list/components/dados-destaque';
 import { DivTitulo, TextTitulo } from '../list/styles';
 
 const PalavraChave = styled(Tag)`
@@ -27,7 +27,9 @@ const ListaPublicAlvo = styled.ul`
 const VisualizarFormacao: FC = () => {
   const paramsRoute = useParams();
   const [dadosFormacao, setDadosFormacao] = useState<RetornoDetalheFormacaoDTO>();
+
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
+
   const carregarDados = useCallback(async () => {
     const formacao = await obterDadosFormacao(id);
     if (formacao.sucesso) {
@@ -40,16 +42,10 @@ const VisualizarFormacao: FC = () => {
       carregarDados();
     }
   }, [carregarDados, id]);
+
   return (
     <>
-      <DadosDestaque
-        srcImagem={dadosFormacao?.imagemUrl}
-        areaPromotra={dadosFormacao?.areaPromotora}
-        formato={dadosFormacao?.formatoDescricao}
-        tipoFormacao={dadosFormacao?.tipoFormacaoDescricao}
-        datas={dadosFormacao?.periodo}
-        titulo={dadosFormacao?.titulo}
-      />
+      <DadosDestaque dadosFormacao={dadosFormacao} />
 
       <Row>
         <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>

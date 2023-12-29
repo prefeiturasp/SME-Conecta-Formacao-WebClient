@@ -180,6 +180,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       <SelectFormato
                         formItemProps={{ rules: [{ required: false }] }}
                         selectProps={{ onChange: obterFiltros }}
+                        exibirTooltip={false}
                       />
                     </b>
                   </Col>

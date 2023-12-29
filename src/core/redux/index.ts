@@ -1,6 +1,6 @@
-import { persistStore, persistReducer } from 'redux-persist';
-import thunk from 'redux-thunk';
+import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import thunk from 'redux-thunk';
 
 import { configureStore } from '@reduxjs/toolkit';
 import { enableMapSet, setAutoFreeze } from 'immer';
@@ -13,7 +13,7 @@ setAutoFreeze(false);
 const persistConfig = {
   key: 'sme-conecta-formacao',
   storage,
-  whitelist: ['auth', 'perfil', 'roles'],
+  whitelist: ['auth', 'perfil', 'roles', 'inscricao'],
 };
 
 enableMapSet();
@@ -32,4 +32,4 @@ export type AppDispatch = typeof store.dispatch;
 
 export type AppState = ReturnType<typeof rootReducer>;
 
-export { store, persistor };
+export { persistor, store };

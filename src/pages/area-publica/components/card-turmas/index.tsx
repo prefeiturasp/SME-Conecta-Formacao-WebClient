@@ -14,13 +14,20 @@ import {
   turmaEncerradaStyle,
   turmaEncerradaStyleBackground,
 } from './styles';
+import styled from 'styled-components';
+
+const CardContainer = styled(Card)`
+  .ant-card-head-title {
+    white-space: wrap;
+  }
+`;
+
 type CardTurmasPublicoProps = {
   titulo: string;
   datas: string[];
   turmaEncerrada: boolean;
   local: string;
 };
-
 const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
   titulo,
   datas,
@@ -28,7 +35,7 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
   local,
 }) => {
   return (
-    <Card
+    <CardContainer
       style={cardStyle}
       headStyle={headStyle}
       bodyStyle={bodyStyle}
@@ -52,12 +59,15 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
         description={
           local && (
             <p style={descriptionStyle}>
-              <IoLocationOutline size={16} /> {local}
+              <div>
+                <IoLocationOutline size={24} />
+              </div>
+              {local}
             </p>
           )
         }
       />
-    </Card>
+    </CardContainer>
   );
 };
 

@@ -1,11 +1,12 @@
-import React from 'react';
 import { Button, Card, Col, Row } from 'antd';
-import { FormacaoDTO } from '~/core/dto/formacao-dto';
-import { TagTipoFormacaoFormato, TextAreaPromotora, TextPeriodo, TextTitulo } from './styles';
-import { ImgFormacao } from '../img-formacao';
+import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
-import { ROUTES } from '~/core/enum/routes-enum';
 import { useNavigate } from 'react-router-dom';
+import { SAIBA_MAIS } from '~/core/constants/mensagens';
+import { FormacaoDTO } from '~/core/dto/formacao-dto';
+import { ROUTES } from '~/core/enum/routes-enum';
+import { ImgFormacao } from '../img-formacao';
+import { TagTipoFormacaoFormato, TextAreaPromotora, TextPeriodo, TextTitulo } from './styles';
 
 type CardFormacaoProps = {
   formacao: FormacaoDTO;
@@ -15,7 +16,11 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
   const navigate = useNavigate();
 
   const abrirFormacao = () =>
-    navigate(`${ROUTES.AREA_PUBLICA}/visualizar/${formacao.id}`, { replace: true });
+    navigate(`${ROUTES.AREA_PUBLICA}/visualizar/${formacao.id}`, {
+      replace: true,
+      state: { location: formacao },
+    });
+
   return (
     <Card
       cover={
@@ -59,7 +64,7 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
           </Col>
           <Col xs={24}>
             <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
-              Saiba mais
+              {SAIBA_MAIS}
             </Button>
           </Col>
         </Row>
