@@ -95,11 +95,11 @@ export const Inscricao = () => {
           form.submit();
         },
         onCancel() {
-          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+          navigate(ROUTES.AREA_PUBLICA);
         },
       });
     } else {
-      navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+      navigate(ROUTES.AREA_PUBLICA);
     }
   };
 
