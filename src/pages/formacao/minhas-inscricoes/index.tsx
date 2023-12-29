@@ -1,23 +1,30 @@
-import { Button, Col, Form, Row } from 'antd';
-import Table, { ColumnsType } from 'antd/es/table';
+import { Button, Col, Form, Row, notification } from 'antd';
+import { ColumnsType } from 'antd/es/table';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
+import DataTable from '~/components/lib/card-table';
 import HeaderPage from '~/components/lib/header-page';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
-import { ENVIAR_INSCRICAO, NOVA_INSCRICAO } from '~/core/constants/mensagens';
+import {
+  DESEJA_CANCELAR_INSCRICAO,
+  ENVIAR_INSCRICAO,
+  NOVA_INSCRICAO,
+} from '~/core/constants/mensagens';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
+import { confirmacao } from '~/core/services/alerta-service';
+import { cancelarInscricao } from '~/core/services/inscricao-service';
 
-export interface Inscricao {
-  registroFuncional: string;
-  tituloFormacao: string;
-  turma: string;
+export interface InscricaoProps {
+  id: number;
+  nomeFormacao: string;
+  nomeTurma: string;
   datas: string;
   cargoFuncao: string;
   situacao: string;
-  acoes: React.ReactNode;
+  podeCancelar: boolean;
 }
 
 export const MinhasInscricoes = () => {
@@ -28,41 +35,35 @@ export const MinhasInscricoes = () => {
   const labelButton = enviouInscricao ? NOVA_INSCRICAO : ENVIAR_INSCRICAO;
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
-  const dataSource: Inscricao[] = [
-    {
-      registroFuncional: 'aaa',
-      tituloFormacao: 'aaa',
-      turma: 'aaa',
-      datas: 'aaa',
-      cargoFuncao: 'aaa',
-      situacao: 'aaa',
-      acoes: false,
-    },
-    {
-      registroFuncional: 'bbb',
-      tituloFormacao: 'bbb',
-      turma: 'bbb',
-      datas: 'bbb',
-      cargoFuncao: 'bbb',
-      situacao: 'bbb',
-      acoes: true,
-    },
-  ];
-
-  const columns: ColumnsType<Inscricao> = [
-    { title: 'Código da formação', dataIndex: 'registroFuncional', width: '6%' },
-    { title: 'Título da formação', dataIndex: 'tituloFormacao', width: '10%' },
-    { title: 'Turma', dataIndex: 'turma', width: '10%' },
+  const columns: ColumnsType<InscricaoProps> = [
+    { title: 'Código da formação', dataIndex: 'id', width: '6%' },
+    { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '10%' },
+    { title: 'Turma', dataIndex: 'nomeTurma', width: '10%' },
     { title: 'Datas', dataIndex: 'datas', width: '10%' },
     { title: 'Cargo/Função', dataIndex: 'cargoFuncao', width: '10%' },
     { title: 'Situação', dataIndex: 'situacao', width: '10%' },
     {
       title: 'Ações',
-      dataIndex: 'acoes',
+      dataIndex: 'podeCancelar',
       width: '2%',
-      render: (desabilitarSituacao) => {
+      render: (_, record) => {
+        const cancelar = async () => {
+          confirmacao({
+            content: DESEJA_CANCELAR_INSCRICAO,
+            onOk: async () => {
+              const response = await cancelarInscricao(record.id);
+              if (response.sucesso) {
+                notification.success({
+                  message: 'Sucesso',
+                  description: 'Inscrição cancelada com sucesso!',
+                });
+              }
+            },
+          });
+        };
+
         return (
-          <Button type='default' size='small' disabled={desabilitarSituacao}>
+          <Button type='default' size='small' disabled={!record.podeCancelar} onClick={cancelar}>
             Cancelar inscrição
           </Button>
         );
@@ -109,9 +110,7 @@ export const MinhasInscricoes = () => {
 
         <CardContent>
           <Col span={24}>
-            {/* TODO - trocar pra datatable quando tiver enpoint */}
-            {/* <DataTable url={`v1/`} columns={columns} /> */}
-            <Table bordered dataSource={dataSource} columns={columns} />
+            <DataTable url={`v1/Inscricao`} columns={columns} />
           </Col>
         </CardContent>
       </Form>

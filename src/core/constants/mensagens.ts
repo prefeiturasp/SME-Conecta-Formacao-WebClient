@@ -54,6 +54,7 @@ export const ACAO_INFORMATIVA_NAO_ACEITA = 'É necessário aceitar a ação form
 export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
 export const ENVIAR_INSCRICAO = 'Enviar inscrição';
 export const NOVA_INSCRICAO = 'Nova inscrição';
+export const DESEJA_CANCELAR_INSCRICAO = 'Você realmente deseja cancelar essa inscrição?';
 export const SAIBA_MAIS = 'Saiba mais';
 export const SOBRE_ESTE_EVENTO = 'Sobre este evento';
 export const PUBLICO_ALVO = 'Público-alvo';
