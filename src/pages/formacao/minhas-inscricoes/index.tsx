@@ -18,6 +18,7 @@ import { cancelarInscricao, obterInscricao } from '~/core/services/inscricao-ser
 
 export interface InscricaoProps {
   id: number;
+  codigoFormacao: number;
   nomeFormacao: string;
   nomeTurma: string;
   datas: string;
@@ -36,7 +37,7 @@ export const MinhasInscricoes = () => {
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
   const columns: ColumnsType<InscricaoProps> = [
-    { title: 'Código da formação', dataIndex: 'id', width: '6%' },
+    { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '6%' },
     { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '10%' },
     { title: 'Turma', dataIndex: 'nomeTurma', width: '10%' },
     { title: 'Datas', dataIndex: 'datas', width: '10%' },
