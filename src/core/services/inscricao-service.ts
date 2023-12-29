@@ -1,16 +1,33 @@
+import { DadosInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
-import { inserirRegistro, obterRegistro } from './api';
+import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
+import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
 
 export const URL_INSCRICAO = 'v1/Inscricao';
 
-const obterInscricao = (propostaId: number) => {
-  return obterRegistro<number>(`${URL_INSCRICAO}/inscricao/${propostaId}`);
-};
-
 const inserirInscricao = (params: InscricaoDTO) => {
-  return inserirRegistro(URL_INSCRICAO, {
-    params,
-  });
+  return inserirRegistro(URL_INSCRICAO, params);
 };
 
-export { inserirInscricao, obterInscricao };
+const obterDadosInscricao = () => {
+  return obterRegistro<DadosInscricaoDTO>(`${URL_INSCRICAO}/dados-inscricao`);
+};
+
+const obterInscricao = () => {
+  return obterRegistro(URL_INSCRICAO);
+};
+
+const cancelarInscricao = (id: number) => {
+  return alterarRegistro(`${URL_INSCRICAO}/${id}/cancelar`);
+};
+
+const obterTurmasInscricao = (propostaId: number): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_INSCRICAO}/turmas/${propostaId}`);
+
+export {
+  cancelarInscricao,
+  inserirInscricao,
+  obterDadosInscricao,
+  obterInscricao,
+  obterTurmasInscricao,
+};

@@ -1,33 +1,37 @@
-import { Form } from 'antd';
-import { FormItemInputProps } from 'antd/es/form/FormItemInput';
+import { Form, FormItemProps } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_TURMA_CRONOGRAMA } from '~/core/constants/ids/select';
+import { useAppSelector } from '~/core/hooks/use-redux';
+import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 
 type SelectTurmaProps = {
   selectProps?: SelectProps;
-  formItemProps?: FormItemInputProps;
-  serviceAPI?: any;
+  formItemProps?: FormItemProps;
 };
 
-const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, serviceAPI }) => {
+const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps }) => {
+  const propostaId = useAppSelector((state) => state.inscricao.id);
+
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
-  const obterDados = async () => {
-    // TODO - adicionar endpoint
-    const resposta = await serviceAPI();
-    if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item: any) => ({
-        label: item.descricao,
-        value: item.id,
-      }));
-      setOptions(newOptions);
-    } else {
-      setOptions([]);
+  const obterDados = useCallback(async () => {
+    if (propostaId) {
+      const resposta = await obterTurmasInscricao(propostaId);
+
+      if (resposta.sucesso) {
+        const newOptions = resposta.dados.map((item) => ({
+          label: item.descricao,
+          value: item.id,
+        }));
+        setOptions(newOptions);
+      } else {
+        setOptions([]);
+      }
     }
-  };
+  }, [propostaId]);
 
   useEffect(() => {
     obterDados();
@@ -38,12 +42,14 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, s
       label='Turma'
       name='turmas'
       rules={[
-        { message: 'Selecione uma Turma' },
+        { required: true, message: 'Selecione uma Turma' },
         {
           validator(_, value) {
-            if (value.length >= 1) {
+            if (!value) {
               return Promise.reject('A seleção de no mínimo uma turma é obrigatória.');
             }
+
+            return Promise.resolve();
           },
         },
       ]}
@@ -51,7 +57,6 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, s
     >
       <Select
         allowClear
-        mode='multiple'
         options={options}
         placeholder='Selecione uma Turma'
         {...selectProps}

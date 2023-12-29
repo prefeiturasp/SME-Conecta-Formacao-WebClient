@@ -1,6 +1,5 @@
 import { Button, Col, Form, Input, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { HttpStatusCode } from 'axios';
 import { cloneDeep } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +11,6 @@ import InputCPF from '~/components/main/input/cpf';
 import SelectFuncaoAtividade from '~/components/main/input/funcao-atividade';
 import InputRegistroFuncional from '~/components/main/input/input-registro-funcional';
 import SelectTurma from '~/components/main/input/turmas';
-import InputTexto from '~/components/main/text/input-text';
 import UploadArquivosConectaFormacao from '~/components/main/upload';
 import {
   CF_BUTTON_CANCELAR,
@@ -26,13 +24,15 @@ import {
   ENVIAR_INSCRICAO,
 } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
-import { DadosUsuarioInscricaoDTO } from '~/core/dto/dados-usuario-inscricao-dto';
+import {
+  DadosInscricaoCargoEolDTO,
+  DadosInscricaoDTO,
+} from '~/core/dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '~/core/dto/inscricao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
-import { inserirInscricao } from '~/core/services/inscricao-service';
-import usuarioService from '~/core/services/usuario-service';
+import { inserirInscricao, obterDadosInscricao } from '~/core/services/inscricao-service';
 import InputEmailInscricao from './components/input-email';
 import { ModalInscricao } from './components/modal';
 
@@ -45,28 +45,38 @@ export const Inscricao = () => {
   const [initialValues, setFormInitialValues] = useState({});
   const [openModal, setOpenModal] = useState<boolean>(false);
 
-  // TODO - POR ENQUANTO VERIFICANDO SE TEM RF É SERVIDOR, DEPOIS TERA A INFORMACAO NO LOGIN DE USUARIO EXTERNO E INTERNO
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
   const formacaoNome = inscricao && inscricao.titulo ? `- ${inscricao.titulo}` : '';
 
   const carregarPerfil = useCallback(async () => {
-    usuarioService.obterMeusDados(perfil.usuarioLogin).then((resposta) => {
-      if (resposta?.status === HttpStatusCode.Ok) {
-        const valores = resposta.data;
+    const obterDados = await obterDadosInscricao();
+    const dados = obterDados.dados;
 
-        const valoresIniciais: DadosUsuarioInscricaoDTO = {
-          usuarioNome: valores.nome,
-          usuarioRf: ehServidorTemRF ? valores.login : '',
-          usuarioCpf: valores.cpf,
-          usuarioEmail: valores.email,
-          usuarioCargos: ehServidorTemRF ? [] : '',
-          usuarioFuncoes: ehServidorTemRF ? [] : [],
-        };
-
-        setFormInitialValues(valoresIniciais);
+    if (obterDados.sucesso) {
+      let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
+      if (ehServidorTemRF && Array.isArray(dados.usuarioCargos)) {
+        usuarioCargos = dados.usuarioCargos.map((item) => item);
       }
-    });
+
+      let funcoes: DadosInscricaoCargoEolDTO['funcoes'] = [];
+      if (ehServidorTemRF && dados.usuarioCargos?.length) {
+        const temFuncoes = dados.usuarioCargos.map((item) => item.funcoes);
+
+        funcoes = temFuncoes.find((item) => ({ item }));
+      }
+
+      const valoresIniciais = {
+        usuarioNome: dados.usuarioNome,
+        usuarioRf: ehServidorTemRF ? dados.usuarioRf : '',
+        usuarioCpf: dados.usuarioCpf,
+        usuarioEmail: dados.usuarioEmail,
+        usuarioCargos,
+        funcoes,
+      };
+
+      setFormInitialValues(valoresIniciais);
+    }
   }, [initialValues]);
 
   useEffect(() => {
@@ -106,85 +116,40 @@ export const Inscricao = () => {
 
   const enviarInscricao = async () => {
     let response = null;
-    const values: DadosUsuarioInscricaoDTO = form.getFieldsValue(true);
-    const clonedValues: DadosUsuarioInscricaoDTO = cloneDeep(values);
+    const values: DadosInscricaoDTO = form.getFieldsValue(true);
+    const clonedValues: DadosInscricaoDTO = cloneDeep(values);
 
     const valoresSalvar: InscricaoDTO = {
-      propostaTurmaId: [],
+      propostaTurmaId: clonedValues.propostaTurmaId,
       email: clonedValues?.usuarioEmail,
-      cargoId: [] || '',
-      funcaoId: [],
-      arquivoId: [],
+      cargoCodigo: undefined,
+      cargoDreCodigo: undefined,
+      cargoUeCodigo: undefined,
+      funcaoCodigo: undefined,
+      funcaoDreCodigo: undefined,
+      funcaoUeCodigo: undefined,
     };
 
-    if (clonedValues?.propostaTurmaId?.length) {
-      valoresSalvar.propostaTurmaId = clonedValues.propostaTurmaId.map((propostaTurmaId) => ({
-        propostaTurmaId,
-      }));
+    if (Array.isArray(clonedValues?.arquivoId)) {
+      valoresSalvar.arquivoId = clonedValues?.arquivoId?.[0]?.id;
     }
 
     if (clonedValues?.usuarioCargos) {
-      if (Array.isArray(clonedValues.usuarioCargos)) {
-        valoresSalvar.cargoId = clonedValues.usuarioCargos.map((cargoId) => ({
-          cargoId,
-        }));
-      } else {
-        valoresSalvar.cargoId = clonedValues.usuarioCargos;
+      const item = clonedValues.usuarioCargos.find((item) => item);
+
+      valoresSalvar.cargoCodigo = item?.codigo;
+      valoresSalvar.cargoDreCodigo = item?.dreCodigo;
+      valoresSalvar.cargoUeCodigo = item?.ueCodigo;
+    }
+
+    if (clonedValues?.usuarioCargos?.length) {
+      const item = clonedValues.usuarioCargos.find((item) => item.funcoes);
+
+      if (item) {
+        valoresSalvar.funcaoCodigo = item.codigo;
+        valoresSalvar.funcaoDreCodigo = item.dreCodigo;
+        valoresSalvar.funcaoUeCodigo = item.ueCodigo;
       }
-    }
-
-    if (clonedValues?.usuarioFuncoes?.length) {
-      valoresSalvar.funcaoId = clonedValues.usuarioFuncoes.map((funcaoId) => ({
-        funcaoId,
-      }));
-    }
-
-    if (clonedValues?.arquivoId?.length) {
-      valoresSalvar.arquivoId = clonedValues.arquivoId.map((arquivoId) => ({
-        arquivoId,
-      }));
-    }
-
-    {
-      /*
-    Critério 4 - Validação do cargo
-    se for servidor
-    Quando eu clicar em enviar
-    Então caso meu cargo (base ou sobreposto) ou função atividade não esteja dentro do
-    público alvo então deverá ser apresentada uma mensagem de erro
-    "Você não possui o cargo definido no público alvo, sendo assim, não será possível inserir a sua inscrição."
-    */
-    }
-
-    {
-      /*
-    Critério 5 - Validação da DRE
-    Quando eu clicar em enviar
-    Então caso a minha DRE seja diferente da DRE da turma deverá ser apresentada
-    uma mensagem de erro "Sua lotação/local de trabalho não corresponde com a DRE
-    desta turma, sendo assim, não será possível inserir sua inscrição."
-    */
-    }
-
-    {
-      /*
-    Critério 6 - Inscrição duplicada
-    Quando eu clicar em enviar
-    Então caso eu já esteja inscrito na formação deverá apresentar uma mensagem
-    de erro "Você já está matriculado nesta formação. Confira mais detalhes em "Minhas inscrições"."
-    */
-    }
-
-    {
-      /*
-    Critério 9 - Inscrições encerradas
-    Dado que sou cursista
-    Quando eu estiver na lista de formações para formações não homologadas
-    Caso as vagas de todas as turmas estejam completas então deverá ser apresentada
-    a mensagem de inscrições encerradas e não deverá mais ser possível enviar inscrições
-    Caso as vagas de apenas uma turma estejam encerradas então ao clicar no enviar
-    inscrição deverá ser apresentada a mensagem "Esta turma já está com todas as vagas ocupadas."
-    */
     }
 
     response = await inserirInscricao(valoresSalvar);
@@ -262,14 +227,16 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                {ehServidorTemRF ? (
+                <SelectCargo formItemProps={{ name: 'usuarioCargos' }} />
+                {/* TODO: Quando houver usuarios externos, mudar habilitar o codigo abaixo */}
+                {/* {ehServidorTemRF ? (
                   <SelectCargo formItemProps={{ name: 'usuarioCargos' }} />
                 ) : (
                   <InputTexto
                     formItemProps={{ name: 'usuarioCargos' }}
                     inputProps={{ maxLength: 50, placeholder: 'Cargo' }}
                   />
-                )}
+                )} */}
               </Col>
 
               <Col xs={24} sm={8}>
@@ -279,14 +246,14 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                <SelectTurma />
+                <SelectTurma formItemProps={{ name: 'propostaTurmaId' }} />
               </Col>
 
               <Col xs={24}>
                 <UploadArquivosConectaFormacao
                   form={form}
                   formItemProps={{
-                    name: 'arquivos',
+                    name: 'arquivoId',
                     label: 'Upload',
                   }}
                   tipoArquivosPermitidos=',.pdf'
@@ -300,10 +267,10 @@ export const Inscricao = () => {
         {openModal && (
           <ModalInscricao
             labelConfirmButton='OK'
-            modalProps={{
-              onCancel: () => setOpenModal(false),
+            onConfirmButton={() => {
+              setOpenModal(false);
+              navigate(ROUTES.MINHAS_INSCRICOES);
             }}
-            onConfirmButton={() => setOpenModal(false)}
             mensagem='Sua inscrição foi enviada com sucesso. Em breve você receberá a devolutiva por
                 e-mail. Certifique-se que seu e-mail está atualizado no sistema em "Meus
                 dados".'

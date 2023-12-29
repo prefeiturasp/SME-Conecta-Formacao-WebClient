@@ -4,21 +4,21 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_TURMA_CRONOGRAMA } from '~/core/constants/ids/select';
+import { obterDadosInscricao } from '~/core/services/inscricao-service';
 
 type SelectCargoProps = {
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
-  serviceAPI?: any;
 };
 
-const SelectCargo: React.FC<SelectCargoProps> = ({ selectProps, formItemProps, serviceAPI }) => {
+const SelectCargo: React.FC<SelectCargoProps> = ({ selectProps, formItemProps }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
-    // TODO - adicionar endpoint
-    const resposta = await serviceAPI();
+    const resposta = await obterDadosInscricao();
+
     if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item: any) => ({
+      const newOptions = resposta.dados.usuarioCargos.map((item: any) => ({
         label: item.descricao,
         value: item.id,
       }));
@@ -33,15 +33,9 @@ const SelectCargo: React.FC<SelectCargoProps> = ({ selectProps, formItemProps, s
   }, []);
 
   return (
-    <Form.Item
-      label='Cargo'
-      name='cargos'
-      rules={[{ message: 'Selecione um cargo' }]}
-      {...formItemProps}
-    >
+    <Form.Item label='Cargo' name='cargos' {...formItemProps}>
       <Select
         allowClear
-        mode='multiple'
         options={options}
         placeholder='Selecione um cargo'
         {...selectProps}

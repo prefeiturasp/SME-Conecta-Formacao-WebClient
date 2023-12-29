@@ -1,12 +1,11 @@
-import { InscricaoArquivoDTO } from './inscricao-arquivo-dto';
-import { IncricaoCargoDTO } from './inscricao-cargo-dto';
-import { IncricaoFuncaoDTO } from './inscricao-funcao-dto';
-import { InscricaoTurmaDTO } from './inscricao-turma-dto';
-
 export type InscricaoDTO = {
-  propostaTurmaId: InscricaoTurmaDTO[];
+  propostaTurmaId: number | undefined;
   email: string;
-  cargoId: IncricaoCargoDTO[] | string;
-  funcaoId: IncricaoFuncaoDTO[];
-  arquivoId: InscricaoArquivoDTO[];
+  cargoCodigo: string | undefined;
+  cargoDreCodigo: string | undefined;
+  cargoUeCodigo: string | undefined;
+  funcaoCodigo: string | undefined;
+  funcaoDreCodigo: string | undefined;
+  funcaoUeCodigo: string | undefined;
+  arquivoId?: number;
 };
