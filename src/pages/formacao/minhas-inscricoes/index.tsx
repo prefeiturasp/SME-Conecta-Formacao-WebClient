@@ -1,9 +1,8 @@
 import { Button, Col, Form, Row, notification } from 'antd';
-import { ColumnsType } from 'antd/es/table';
-import { useEffect } from 'react';
+import Table, { ColumnsType } from 'antd/es/table';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
-import DataTable from '~/components/lib/card-table';
 import HeaderPage from '~/components/lib/header-page';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import {
@@ -15,7 +14,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
-import { cancelarInscricao } from '~/core/services/inscricao-service';
+import { cancelarInscricao, obterInscricao } from '~/core/services/inscricao-service';
 
 export interface InscricaoProps {
   id: number;
@@ -31,6 +30,7 @@ export const MinhasInscricoes = () => {
   const navigate = useNavigate();
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
+  const [data, setData] = useState<InscricaoProps[]>([]);
   const enviouInscricao = true;
   const labelButton = enviouInscricao ? NOVA_INSCRICAO : ENVIAR_INSCRICAO;
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
@@ -57,6 +57,8 @@ export const MinhasInscricoes = () => {
                   message: 'Sucesso',
                   description: 'Inscrição cancelada com sucesso!',
                 });
+
+                dataSource();
               }
             },
           });
@@ -70,6 +72,20 @@ export const MinhasInscricoes = () => {
       },
     },
   ];
+
+  const dataSource = async () => {
+    const response = await obterInscricao();
+
+    if (response.sucesso) {
+      const dados = response.dados.items;
+
+      return setData(dados);
+    }
+  };
+
+  useEffect(() => {
+    dataSource();
+  }, []);
 
   useEffect(() => {
     if (!ehCursista) {
@@ -110,7 +126,7 @@ export const MinhasInscricoes = () => {
 
         <CardContent>
           <Col span={24}>
-            <DataTable url={`v1/Inscricao`} columns={columns} />
+            <Table bordered dataSource={data} columns={columns} />
           </Col>
         </CardContent>
       </Form>

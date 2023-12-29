@@ -1,5 +1,7 @@
+import { InscricaoProps } from '~/pages/formacao/minhas-inscricoes';
 import { DadosInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
+import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
 
@@ -14,7 +16,7 @@ const obterDadosInscricao = () => {
 };
 
 const obterInscricao = () => {
-  return obterRegistro(URL_INSCRICAO);
+  return obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(URL_INSCRICAO);
 };
 
 const cancelarInscricao = (id: number) => {
