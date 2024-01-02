@@ -16,5 +16,5 @@ export type DadosInscricaoDTO = {
   usuarioEmail: string;
   usuarioCargos: DadosInscricaoCargoEolDTO[];
   arquivoId?: number;
-  propostaTurmaId: number;
+  propostaTurmaId?: number;
 };

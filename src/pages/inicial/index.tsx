@@ -11,13 +11,17 @@ const Inicial: React.FC = () => {
   const inscricao = useAppSelector((state) => state.inscricao);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
+  const [first, setfirst] = useState(second);
+
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
   const podeConsultaInscricao = ehCursista && verificaSeTemPermissao(PermissaoEnum.Inscricao_C);
 
-  if (inscricao?.id) {
+  if (inscricao?.formacao?.id) {
     return <Navigate to={ROUTES.INSCRICAO} />;
   }
+
+  const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
   if (podeConsultaInscricao) {
     return <MinhasInscricoes />;

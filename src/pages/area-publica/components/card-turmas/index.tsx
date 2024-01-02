@@ -1,8 +1,9 @@
 import { CalendarOutlined } from '@ant-design/icons';
 import { Card } from 'antd';
 import Meta from 'antd/es/card/Meta';
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { IoLocationOutline } from 'react-icons/io5';
+import styled from 'styled-components';
 import { INSCRICAO_ENCERRADA } from '~/core/constants/mensagens';
 import {
   bodyStyle,
@@ -14,7 +15,6 @@ import {
   turmaEncerradaStyle,
   turmaEncerradaStyleBackground,
 } from './styles';
-import styled from 'styled-components';
 
 const CardContainer = styled(Card)`
   .ant-card-head-title {
@@ -49,12 +49,12 @@ const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
         <></>
       )}
       <Meta
-        title={datas.map((r) => (
-          <>
+        title={datas.map((r, i) => (
+          <React.Fragment key={i}>
             <p style={titleStyle}>
               <CalendarOutlined /> {r}
             </p>
-          </>
+          </React.Fragment>
         ))}
         description={
           local && (

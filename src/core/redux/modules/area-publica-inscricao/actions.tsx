@@ -1,15 +1,15 @@
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 
-export const typeSetDadosInscricao = '@auth/SetDadosInscricao';
+export const typeSetDadosFormacao = '@auth/SetDadosFormacao';
 
-export interface SetDadosInscricao {
-  type: typeof typeSetDadosInscricao;
+export interface SetDadosFormacao {
+  type: typeof typeSetDadosFormacao;
   payload: FormacaoDTO;
 }
 
-export const setDadosInscricao = (payload: FormacaoDTO): SetDadosInscricao => {
+export const setDadosFormacao = (payload: FormacaoDTO): SetDadosFormacao => {
   return {
-    type: typeSetDadosInscricao,
+    type: typeSetDadosFormacao,
     payload,
   };
 };

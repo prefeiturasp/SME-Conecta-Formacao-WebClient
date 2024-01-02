@@ -1,12 +1,12 @@
-import { Button, Col, Form, Input, Row } from 'antd';
+import { Button, Col, Form, Input, Row, Select } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { cloneDeep } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
-import SelectCargo from '~/components/main/input/cargo';
 import InputCPF from '~/components/main/input/cpf';
 import SelectFuncaoAtividade from '~/components/main/input/funcao-atividade';
 import InputRegistroFuncional from '~/components/main/input/input-registro-funcional';
@@ -18,6 +18,7 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
+import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
 import {
   DESEJA_CANCELAR_ALTERACOES,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -28,9 +29,11 @@ import {
   DadosInscricaoCargoEolDTO,
   DadosInscricaoDTO,
 } from '~/core/dto/dados-usuario-inscricao-dto';
+import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { InscricaoDTO } from '~/core/dto/inscricao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
+import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import { confirmacao } from '~/core/services/alerta-service';
 import { inserirInscricao, obterDadosInscricao } from '~/core/services/inscricao-service';
 import InputEmailInscricao from './components/input-email';
@@ -38,32 +41,35 @@ import { ModalInscricao } from './components/modal';
 
 export const Inscricao = () => {
   const [form] = useForm();
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const perfil = useAppSelector((state) => state.auth);
   const inscricao = useAppSelector((state) => state.inscricao);
 
-  const [initialValues, setFormInitialValues] = useState({});
+  const [initialValues, setFormInitialValues] = useState<DadosInscricaoDTO>();
   const [openModal, setOpenModal] = useState<boolean>(false);
+
+  const [formacaoState, setFormacaoState] = useState<FormacaoDTO>();
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
-  const formacaoNome = inscricao && inscricao.titulo ? `- ${inscricao.titulo}` : '';
+  const formacaoNome = formacaoState?.titulo ? `- ${formacaoState?.titulo}` : '';
 
   const carregarPerfil = useCallback(async () => {
     const obterDados = await obterDadosInscricao();
+
     const dados = obterDados.dados;
 
     if (obterDados.sucesso) {
       let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
       if (ehServidorTemRF && Array.isArray(dados.usuarioCargos)) {
-        usuarioCargos = dados.usuarioCargos.map((item) => item);
-      }
-
-      let funcoes: DadosInscricaoCargoEolDTO['funcoes'] = [];
-      if (ehServidorTemRF && dados.usuarioCargos?.length) {
-        const temFuncoes = dados.usuarioCargos.map((item) => item.funcoes);
-
-        funcoes = temFuncoes.find((item) => ({ item }));
+        usuarioCargos = dados.usuarioCargos.map((item) => ({
+          ...item,
+          value: item.codigo,
+          label: item.descricao,
+        }));
       }
 
       const valoresIniciais = {
@@ -72,7 +78,6 @@ export const Inscricao = () => {
         usuarioCpf: dados.usuarioCpf,
         usuarioEmail: dados.usuarioEmail,
         usuarioCargos,
-        funcoes,
       };
 
       setFormInitialValues(valoresIniciais);
@@ -82,6 +87,13 @@ export const Inscricao = () => {
   useEffect(() => {
     carregarPerfil();
   }, []);
+
+  useEffect(() => {
+    if (inscricao?.formacao?.id) {
+      setFormacaoState({ ...inscricao.formacao });
+      dispatch(setDadosFormacao({}));
+    }
+  }, [dispatch, inscricao]);
 
   useEffect(() => {
     form.resetFields();
@@ -116,8 +128,8 @@ export const Inscricao = () => {
 
   const enviarInscricao = async () => {
     let response = null;
-    const values: DadosInscricaoDTO = form.getFieldsValue(true);
-    const clonedValues: DadosInscricaoDTO = cloneDeep(values);
+    const values: any = form.getFieldsValue(true);
+    const clonedValues: any = cloneDeep(values);
 
     const valoresSalvar: InscricaoDTO = {
       propostaTurmaId: clonedValues.propostaTurmaId,
@@ -134,21 +146,15 @@ export const Inscricao = () => {
       valoresSalvar.arquivoId = clonedValues?.arquivoId?.[0]?.id;
     }
 
-    if (clonedValues?.usuarioCargos) {
-      const item = clonedValues.usuarioCargos.find((item) => item);
+    if (clonedValues?.usuarioCargos?.codigo) {
+      valoresSalvar.cargoCodigo = clonedValues.usuarioCargos?.codigo;
+      valoresSalvar.cargoDreCodigo = clonedValues.usuarioCargos?.dreCodigo;
+      valoresSalvar.cargoUeCodigo = clonedValues.usuarioCargos?.ueCodigo;
 
-      valoresSalvar.cargoCodigo = item?.codigo;
-      valoresSalvar.cargoDreCodigo = item?.dreCodigo;
-      valoresSalvar.cargoUeCodigo = item?.ueCodigo;
-    }
-
-    if (clonedValues?.usuarioCargos?.length) {
-      const item = clonedValues.usuarioCargos.find((item) => item.funcoes);
-
-      if (item) {
-        valoresSalvar.funcaoCodigo = item.codigo;
-        valoresSalvar.funcaoDreCodigo = item.dreCodigo;
-        valoresSalvar.funcaoUeCodigo = item.ueCodigo;
+      if (clonedValues?.usuarioFuncoes?.codigo) {
+        valoresSalvar.funcaoCodigo = clonedValues.usuarioFuncoes?.codigo;
+        valoresSalvar.funcaoDreCodigo = clonedValues.usuarioFuncoes?.dreCodigo;
+        valoresSalvar.funcaoUeCodigo = clonedValues.usuarioFuncoes?.ueCodigo;
       }
     }
 
@@ -156,6 +162,7 @@ export const Inscricao = () => {
 
     if (response.sucesso) {
       setOpenModal(true);
+      dispatch(setDadosFormacao({}));
     }
   };
 
@@ -227,10 +234,39 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                <SelectCargo formItemProps={{ name: 'usuarioCargos' }} />
+                <Form.Item
+                  label='Cargo'
+                  name='usuarioCargos'
+                  getValueFromEvent={(_, value) => value}
+                >
+                  <Select
+                    allowClear
+                    options={
+                      initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
+                    }
+                    placeholder='Selecione um cargo'
+                    id={CF_SELECT_CARGO}
+                    labelInValue
+                  />
+                </Form.Item>
+
                 {/* TODO: Quando houver usuarios externos, mudar habilitar o codigo abaixo */}
                 {/* {ehServidorTemRF ? (
-                  <SelectCargo formItemProps={{ name: 'usuarioCargos' }} />
+                     <Form.Item
+                  label='Cargo'
+                  name='usuarioCargos'
+                  getValueFromEvent={(_, value) => value}
+                >
+                  <Select
+                    allowClear
+                    options={
+                      initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
+                    }
+                    placeholder='Selecione um cargo'
+                    id={CF_SELECT_CARGO}
+                    labelInValue
+                  />
+                </Form.Item>
                 ) : (
                   <InputTexto
                     formItemProps={{ name: 'usuarioCargos' }}
@@ -240,13 +276,11 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                {ehServidorTemRF && (
-                  <SelectFuncaoAtividade formItemProps={{ name: 'usuarioFuncoes' }} />
-                )}
+                {ehServidorTemRF && <SelectFuncaoAtividade />}
               </Col>
 
               <Col xs={24} sm={8}>
-                <SelectTurma formItemProps={{ name: 'propostaTurmaId' }} />
+                <SelectTurma propostaId={formacaoState?.id} />
               </Col>
 
               <Col xs={24}>
