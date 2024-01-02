@@ -3,7 +3,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
-import { CF_SELECT_TURMA_CRONOGRAMA } from '~/core/constants/ids/select';
+import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
 import { obterDadosInscricao } from '~/core/services/inscricao-service';
 
 type SelectCargoProps = {
@@ -20,7 +20,7 @@ const SelectCargo: React.FC<SelectCargoProps> = ({ selectProps, formItemProps })
     if (resposta.sucesso) {
       const newOptions = resposta.dados.usuarioCargos.map((item: any) => ({
         label: item.descricao,
-        value: item.id,
+        value: item.codigo,
       }));
       setOptions(newOptions);
     } else {
@@ -39,7 +39,7 @@ const SelectCargo: React.FC<SelectCargoProps> = ({ selectProps, formItemProps })
         options={options}
         placeholder='Selecione um cargo'
         {...selectProps}
-        id={CF_SELECT_TURMA_CRONOGRAMA}
+        id={CF_SELECT_CARGO}
       />
     </Form.Item>
   );
