@@ -14,7 +14,6 @@ import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import FormCadastroDePropostas from '~/pages/cadastros/propostas/form';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
 import { Inscricao } from '~/pages/formacao/inscricao';
-import { MinhasInscricoes } from '~/pages/formacao/minhas-inscricoes';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
