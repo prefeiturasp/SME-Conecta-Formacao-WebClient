@@ -63,7 +63,6 @@ const SiderConectaFormacao: React.FC = () => {
   return (
     <SiderSME
       onClick={itemMenuEscolhido}
-      onClickMenuButtonToggle={() => console.log('onClickMenuButtonToggle')}
       styleSider={{ zIndex: 12 }}
       items={items}
       logoMenu={
