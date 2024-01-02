@@ -1,10 +1,9 @@
 import { Form, FormItemProps } from 'antd';
-import { DefaultOptionType, SelectProps } from 'antd/es/select';
+import { SelectProps } from 'antd/es/select';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Select from '~/components/lib/inputs/select';
-import { CF_SELECT_TURMA_CRONOGRAMA } from '~/core/constants/ids/select';
-import { obterDadosInscricao } from '~/core/services/inscricao-service';
+import { CF_SELECT_FUNCAO_ATIVIDADE } from '~/core/constants/ids/select';
 
 type SelectFuncaoAtividadeProps = {
   selectProps?: SelectProps;
@@ -15,40 +14,42 @@ const SelectFuncaoAtividade: React.FC<SelectFuncaoAtividadeProps> = ({
   selectProps,
   formItemProps,
 }) => {
-  const [options, setOptions] = useState<DefaultOptionType[] | undefined>([]);
-
-  const obterDados = async () => {
-    const resposta = await obterDadosInscricao();
-
-    if (resposta.sucesso) {
-      const item = resposta.dados.usuarioCargos.find((item: any) => item);
-
-      if (item) {
-        const newOptions = item?.funcoes?.map((item: any) => ({
-          label: item.descricao,
-          value: item.id,
-        }));
-
-        setOptions(newOptions);
-      } else {
-        setOptions([]);
-      }
-    }
-  };
-
-  useEffect(() => {
-    obterDados();
-  }, []);
-
   return (
-    <Form.Item label='Função/Atividade' name='funcoes' {...formItemProps}>
-      <Select
-        allowClear
-        options={options}
-        placeholder='Selecione uma Função/Atividade'
-        {...selectProps}
-        id={CF_SELECT_TURMA_CRONOGRAMA}
-      />
+    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+      {(form) => {
+        const usuarioCargoSelecionado = form.getFieldsValue(true)?.usuarioCargoSelecionado;
+        const usuarioCargos = form.getFieldsValue(true)?.usuarioCargos;
+
+        const usuarioFuncoes: any = [];
+        let options = [];
+
+        if (usuarioCargoSelecionado) {
+          const usuarioCargo = usuarioCargos?.find(
+            (item: any) => item?.codigo === usuarioCargoSelecionado,
+          );
+          options = usuarioCargo?.funcoes?.length ? usuarioCargo?.funcoes : [];
+        }
+
+        if (usuarioFuncoes?.length) {
+          options = usuarioFuncoes.map((item: any) => ({
+            ...item,
+            label: item.descricao,
+            value: item.codigo,
+          }));
+        }
+
+        return (
+          <Form.Item {...formItemProps} label='Função/Atividade' name='usuarioFuncaoSelecionado'>
+            <Select
+              {...selectProps}
+              allowClear
+              options={options}
+              placeholder='Selecione uma Função/Atividade'
+              id={CF_SELECT_FUNCAO_ATIVIDADE}
+            />
+          </Form.Item>
+        );
+      }}
     </Form.Item>
   );
 };

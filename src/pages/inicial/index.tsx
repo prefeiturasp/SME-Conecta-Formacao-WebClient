@@ -1,21 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { PermissaoEnum } from '~/core/enum/permissao-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
-import { verificaSeTemPermissao } from '~/core/utils/perfil';
 import { MinhasInscricoes } from '../formacao/minhas-inscricoes';
 
 const Inicial: React.FC = () => {
   const inscricao = useAppSelector((state) => state.inscricao);
+
+  const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
-  const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
+  const [podeConsultaInscricao, setPodeConsultaInscricao] = useState<boolean>(false);
 
-  const podeConsultaInscricao = ehCursista && verificaSeTemPermissao(PermissaoEnum.Inscricao_C);
+  useEffect(() => {
+    // TODO - Alinhar com PO como verificar o perfil!
+    const perfis = perfilUsuario.map((perfil) => {
+      return perfil.perfilNome;
+    });
 
-  if (inscricao?.id) {
+    const possuiPerfilCursista = perfis.includes(TipoPerfilTagDisplay[TipoPerfilEnum.Cursista]);
+
+    setPodeConsultaInscricao(possuiPerfilCursista);
+  }, [perfilSelecionado, perfilUsuario]);
+
+  if (inscricao?.formacao.id) {
     return <Navigate to={ROUTES.INSCRICAO} />;
   }
 

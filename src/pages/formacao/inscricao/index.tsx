@@ -1,12 +1,12 @@
-import { Button, Col, Form, Input, Row } from 'antd';
+import { Button, Col, Form, Input, Row, Select } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { cloneDeep } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
-import SelectCargo from '~/components/main/input/cargo';
 import InputCPF from '~/components/main/input/cpf';
 import SelectFuncaoAtividade from '~/components/main/input/funcao-atividade';
 import InputRegistroFuncional from '~/components/main/input/input-registro-funcional';
@@ -18,6 +18,7 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
+import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
 import {
   DESEJA_CANCELAR_ALTERACOES,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -28,9 +29,11 @@ import {
   DadosInscricaoCargoEolDTO,
   DadosInscricaoDTO,
 } from '~/core/dto/dados-usuario-inscricao-dto';
+import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { InscricaoDTO } from '~/core/dto/inscricao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
+import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import { confirmacao } from '~/core/services/alerta-service';
 import { inserirInscricao, obterDadosInscricao } from '~/core/services/inscricao-service';
 import InputEmailInscricao from './components/input-email';
@@ -39,15 +42,17 @@ import { ModalInscricao } from './components/modal';
 export const Inscricao = () => {
   const [form] = useForm();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const perfil = useAppSelector((state) => state.auth);
   const inscricao = useAppSelector((state) => state.inscricao);
 
-  const [initialValues, setFormInitialValues] = useState({});
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [formacaoState, setFormacaoState] = useState<FormacaoDTO>();
+  const [initialValues, setFormInitialValues] = useState<DadosInscricaoDTO>();
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
-  const formacaoNome = inscricao && inscricao.titulo ? `- ${inscricao.titulo}` : '';
+  const formacaoNome = formacaoState?.titulo ? `- ${formacaoState?.titulo}` : '';
 
   const carregarPerfil = useCallback(async () => {
     const obterDados = await obterDadosInscricao();
@@ -55,15 +60,29 @@ export const Inscricao = () => {
 
     if (obterDados.sucesso) {
       let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
+
+      let usuarioCargoSelecionado: DadosInscricaoDTO['usuarioCargoSelecionado'] = undefined;
+
       if (ehServidorTemRF && Array.isArray(dados.usuarioCargos)) {
-        usuarioCargos = dados.usuarioCargos.map((item) => item);
-      }
+        usuarioCargos = cloneDeep(dados.usuarioCargos).map((item) => {
+          let funcoes: DadosInscricaoCargoEolDTO[] = [];
 
-      let funcoes: DadosInscricaoCargoEolDTO['funcoes'] = [];
-      if (ehServidorTemRF && dados.usuarioCargos?.length) {
-        const temFuncoes = dados.usuarioCargos.map((item) => item.funcoes);
+          if (item?.funcoes?.length) {
+            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo }));
+          }
 
-        funcoes = temFuncoes.find((item) => ({ item }));
+          return {
+            ...item,
+            value: item.codigo,
+            label: item.descricao,
+            funcoes,
+          };
+        });
+
+        if (usuarioCargos?.length === 1) {
+          const cargoSelecionado = cloneDeep(usuarioCargos[0]);
+          usuarioCargoSelecionado = cargoSelecionado?.codigo;
+        }
       }
 
       const valoresIniciais = {
@@ -72,7 +91,7 @@ export const Inscricao = () => {
         usuarioCpf: dados.usuarioCpf,
         usuarioEmail: dados.usuarioEmail,
         usuarioCargos,
-        funcoes,
+        usuarioCargoSelecionado,
       };
 
       setFormInitialValues(valoresIniciais);
@@ -82,6 +101,13 @@ export const Inscricao = () => {
   useEffect(() => {
     carregarPerfil();
   }, []);
+
+  useEffect(() => {
+    if (inscricao?.formacao?.id) {
+      setFormacaoState({ ...inscricao.formacao });
+      dispatch(setDadosFormacao({}));
+    }
+  }, [dispatch, inscricao]);
 
   useEffect(() => {
     form.resetFields();
@@ -134,21 +160,22 @@ export const Inscricao = () => {
       valoresSalvar.arquivoId = clonedValues?.arquivoId?.[0]?.id;
     }
 
-    if (clonedValues?.usuarioCargos) {
-      const item = clonedValues.usuarioCargos.find((item) => item);
+    if (clonedValues?.usuarioCargoSelecionado) {
+      const itemCargos = clonedValues?.usuarioCargos?.find(
+        (item: any) => item?.codigo === clonedValues?.usuarioCargoSelecionado,
+      );
+      valoresSalvar.cargoCodigo = itemCargos?.codigo;
+      valoresSalvar.cargoDreCodigo = itemCargos?.dreCodigo;
+      valoresSalvar.cargoUeCodigo = itemCargos?.ueCodigo;
 
-      valoresSalvar.cargoCodigo = item?.codigo;
-      valoresSalvar.cargoDreCodigo = item?.dreCodigo;
-      valoresSalvar.cargoUeCodigo = item?.ueCodigo;
-    }
+      if (clonedValues?.usuarioFuncaoSelecionado && itemCargos?.funcoes?.length) {
+        const itemFuncoes = itemCargos?.funcoes?.find(
+          (item) => item?.codigo === clonedValues.usuarioFuncaoSelecionado,
+        );
 
-    if (clonedValues?.usuarioCargos?.length) {
-      const item = clonedValues.usuarioCargos.find((item) => item.funcoes);
-
-      if (item) {
-        valoresSalvar.funcaoCodigo = item.codigo;
-        valoresSalvar.funcaoDreCodigo = item.dreCodigo;
-        valoresSalvar.funcaoUeCodigo = item.ueCodigo;
+        valoresSalvar.funcaoCodigo = itemFuncoes?.codigo;
+        valoresSalvar.funcaoDreCodigo = itemFuncoes?.dreCodigo;
+        valoresSalvar.funcaoUeCodigo = itemFuncoes?.ueCodigo;
       }
     }
 
@@ -156,6 +183,7 @@ export const Inscricao = () => {
 
     if (response.sucesso) {
       setOpenModal(true);
+      dispatch(setDadosFormacao({}));
     }
   };
 
@@ -227,10 +255,31 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                <SelectCargo formItemProps={{ name: 'usuarioCargos' }} />
+                <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
+                  <Select
+                    allowClear
+                    options={
+                      initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
+                    }
+                    onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
+                    placeholder='Selecione um cargo'
+                    id={CF_SELECT_CARGO}
+                  />
+                </Form.Item>
+
                 {/* TODO: Quando houver usuarios externos, mudar habilitar o codigo abaixo */}
                 {/* {ehServidorTemRF ? (
-                  <SelectCargo formItemProps={{ name: 'usuarioCargos' }} />
+                  <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
+                  <Select
+                    allowClear
+                    options={
+                      initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
+                    }
+                    onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
+                    placeholder='Selecione um cargo'
+                    id={CF_SELECT_CARGO}
+                  />
+                </Form.Item>
                 ) : (
                   <InputTexto
                     formItemProps={{ name: 'usuarioCargos' }}
@@ -240,13 +289,11 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                {ehServidorTemRF && (
-                  <SelectFuncaoAtividade formItemProps={{ name: 'usuarioFuncoes' }} />
-                )}
+                {ehServidorTemRF && <SelectFuncaoAtividade />}
               </Col>
 
               <Col xs={24} sm={8}>
-                <SelectTurma formItemProps={{ name: 'propostaTurmaId' }} />
+                <SelectTurma propostaId={formacaoState?.id} />
               </Col>
 
               <Col xs={24}>

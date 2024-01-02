@@ -1,15 +1,21 @@
 import { produce } from 'immer';
 
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
-import { SetDadosInscricao, typeSetDadosInscricao } from './actions';
+import { SetDadosFormacao, typeSetDadosFormacao } from './actions';
 
-const initialValues: FormacaoDTO = {};
+type InitialValuesProps = {
+  formacao: FormacaoDTO;
+};
 
-const inscricao = (state: FormacaoDTO = initialValues, action: SetDadosInscricao) => {
+const initialValues: InitialValuesProps = {
+  formacao: {},
+};
+
+const inscricao = (state: InitialValuesProps = initialValues, action: SetDadosFormacao) => {
   return produce(state, (draft) => {
     switch (action.type) {
-      case typeSetDadosInscricao:
-        return { ...draft, ...action.payload };
+      case typeSetDadosFormacao:
+        return { ...draft, formacao: action.payload };
       default:
         return draft;
     }
