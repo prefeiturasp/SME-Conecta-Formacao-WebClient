@@ -146,15 +146,17 @@ export const Inscricao = () => {
       valoresSalvar.arquivoId = clonedValues?.arquivoId?.[0]?.id;
     }
 
-    if (clonedValues?.usuarioCargos?.codigo) {
-      valoresSalvar.cargoCodigo = clonedValues.usuarioCargos?.codigo;
-      valoresSalvar.cargoDreCodigo = clonedValues.usuarioCargos?.dreCodigo;
-      valoresSalvar.cargoUeCodigo = clonedValues.usuarioCargos?.ueCodigo;
+    if (clonedValues?.usuarioCargos?.length) {
+      const itemCargos = clonedValues.usuarioCargos.find((item: any) => item);
+      valoresSalvar.cargoCodigo = itemCargos?.codigo;
+      valoresSalvar.cargoDreCodigo = itemCargos?.dreCodigo;
+      valoresSalvar.cargoUeCodigo = itemCargos?.ueCodigo;
 
-      if (clonedValues?.usuarioFuncoes?.codigo) {
-        valoresSalvar.funcaoCodigo = clonedValues.usuarioFuncoes?.codigo;
-        valoresSalvar.funcaoDreCodigo = clonedValues.usuarioFuncoes?.dreCodigo;
-        valoresSalvar.funcaoUeCodigo = clonedValues.usuarioFuncoes?.ueCodigo;
+      if (clonedValues?.usuarioFuncoes) {
+        const itemFuncoes = clonedValues.usuarioCargos.find((item: any) => item.funcoes);
+        valoresSalvar.funcaoCodigo = itemFuncoes?.codigo;
+        valoresSalvar.funcaoDreCodigo = itemFuncoes?.dreCodigo;
+        valoresSalvar.funcaoUeCodigo = itemFuncoes?.ueCodigo;
       }
     }
 
