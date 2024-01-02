@@ -9,7 +9,7 @@ import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 type SelectTurmaProps = {
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
-  propostaId: number;
+  propostaId: number | undefined;
 };
 
 const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, propostaId }) => {
