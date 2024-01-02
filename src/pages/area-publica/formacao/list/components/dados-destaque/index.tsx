@@ -8,7 +8,7 @@ import { ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
-import { setDadosInscricao } from '~/core/redux/modules/area-publica-inscricao/actions';
+import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import { TagTipoFormacaoFormato } from '../card-formacao/styles';
 import { FlexDestaque, ImagemDestaque, TextDestaque } from './styles';
 
@@ -24,7 +24,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
 
   const setarDadosInscricao = () => {
-    dispatch(setDadosInscricao(dadosInscricao));
+    dispatch(setDadosFormacao(dadosInscricao));
 
     if (autenticado) {
       navigate(ROUTES.INSCRICAO, {

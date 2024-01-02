@@ -15,7 +15,7 @@ const Inicial: React.FC = () => {
 
   const podeConsultaInscricao = ehCursista && verificaSeTemPermissao(PermissaoEnum.Inscricao_C);
 
-  if (inscricao?.id) {
+  if (inscricao?.formacao?.id) {
     return <Navigate to={ROUTES.INSCRICAO} />;
   }
 
