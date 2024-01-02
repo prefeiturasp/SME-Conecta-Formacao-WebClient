@@ -58,7 +58,6 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
-                <Route path={ROUTES.MINHAS_INSCRICOES} element={<MinhasInscricoes />} />
                 <Route path={ROUTES.INSCRICAO} element={<Inscricao />} />
 
                 <Route path={ROUTES.AREA_PROMOTORA}>

@@ -269,7 +269,7 @@ export const Inscricao = () => {
             labelConfirmButton='OK'
             onConfirmButton={() => {
               setOpenModal(false);
-              navigate(ROUTES.MINHAS_INSCRICOES);
+              navigate(ROUTES.PRINCIPAL);
             }}
             mensagem='Sua inscrição foi enviada com sucesso. Em breve você receberá a devolutiva por
                 e-mail. Certifique-se que seu e-mail está atualizado no sistema em "Meus

@@ -6,11 +6,12 @@ import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import { RetornoPerfilUsuarioDTO } from '~/core/dto/retorno-perfil-usuario-dto';
 import { setPerfilSelecionado, setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
 
-import { menus } from '~/components/main/sider/menus';
+import { RolesMenu, menus } from '~/components/main/sider/menus';
 import { PermissaoMenusAcoesDTO } from '~/core/dto/permissao-menu-acoes-dto';
 import { PermissaoPorMenuDTO } from '~/core/dto/permissao-por-menu-dto';
 import { RolesDTO } from '~/core/dto/roles-menu-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
+import { PermissaoEnum } from '~/core/enum/permissao-enum';
 import { setPermissaoPorMenu, setRoles } from '~/core/redux/modules/roles/actions';
 
 export const verificaSomenteConsulta = (permissao: PermissaoMenusAcoesDTO): boolean => {
@@ -113,4 +114,22 @@ export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
 };
 
 export const obterPermissaoPorMenu = (menuEnum: MenuEnum) =>
-  store.getState().roles.permissaoPorMenu[menuEnum].permissao;
+  store.getState().roles.permissaoPorMenu[menuEnum]?.permissao;
+
+export const verificaSeTemPermissao = (permissaoEnum: PermissaoEnum): boolean => {
+  const roles = store.getState().roles.roles;
+
+  return roles.includes(permissaoEnum);
+};
+
+export const obterPermissaoPorRolesMenu = (rolesMenu: RolesMenu): PermissaoMenusAcoesDTO => {
+  const roles = store.getState().roles.roles;
+
+  return {
+    podeConsultar: roles.includes(rolesMenu.podeConsultar),
+    podeIncluir: roles.includes(rolesMenu.podeIncluir),
+    podeExcluir: roles.includes(rolesMenu.podeExcluir),
+    podeAlterar: roles.includes(rolesMenu.podeAlterar),
+    customRoles: rolesMenu.customRoles,
+  };
+};

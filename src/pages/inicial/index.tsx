@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { PermissaoEnum } from '~/core/enum/permissao-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
+import { verificaSeTemPermissao } from '~/core/utils/perfil';
+import { MinhasInscricoes } from '../formacao/minhas-inscricoes';
 
 const Inicial: React.FC = () => {
   const inscricao = useAppSelector((state) => state.inscricao);
@@ -10,23 +13,17 @@ const Inicial: React.FC = () => {
 
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
-  const setarPaginaInicial = () => {
-    if (inscricao.id) {
-      return <Navigate to={ROUTES.INSCRICAO} />;
-    }
+  const podeConsultaInscricao = ehCursista && verificaSeTemPermissao(PermissaoEnum.Inscricao_C);
 
-    if (ehCursista) {
-      return <Navigate to={ROUTES.MINHAS_INSCRICOES} />;
-    }
+  if (inscricao?.id) {
+    return <Navigate to={ROUTES.INSCRICAO} />;
+  }
 
-    return <>Página inicial</>;
-  };
+  if (podeConsultaInscricao) {
+    return <MinhasInscricoes />;
+  }
 
-  useEffect(() => {
-    setarPaginaInicial();
-  }, [perfilSelecionado]);
-
-  return setarPaginaInicial();
+  return <>Página inicial</>;
 };
 
 export default Inicial;

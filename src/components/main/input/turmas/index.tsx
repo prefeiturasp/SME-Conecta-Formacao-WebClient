@@ -3,7 +3,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
-import { CF_SELECT_TURMA_CRONOGRAMA } from '~/core/constants/ids/select';
+import { CF_SELECT_TURMA_INSCRICAO } from '~/core/constants/ids/select';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 
@@ -60,7 +60,7 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps })
         options={options}
         placeholder='Selecione uma Turma'
         {...selectProps}
-        id={CF_SELECT_TURMA_CRONOGRAMA}
+        id={CF_SELECT_TURMA_INSCRICAO}
       />
     </Form.Item>
   );
