@@ -1,4 +1,4 @@
-import { App, Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
+import { Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
@@ -8,6 +8,7 @@ import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
 import ModalErroProposta from '~/components/lib/modal-erros-proposta';
+import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
 import Steps from '~/components/main/steps';
@@ -44,6 +45,7 @@ import {
   PropostaTurmaFormDTO,
 } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
+import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
@@ -70,13 +72,14 @@ import FormularioProfissionais from './steps/formulario-profissionais';
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
-  const { notification } = App.useApp();
   const { desabilitarCampos, setDesabilitarCampos } = useContext(PermissaoContext);
 
   const [openModalErros, setOpenModalErros] = useState(false);
   const [listaErros, setListaErros] = useState<string[]>([]);
 
   const [listaDres, setListaDres] = useState<any[]>([]);
+
+  const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
 
   const token = useAppSelector((store) => store.auth.token);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
@@ -406,6 +409,7 @@ const FormCadastroDePropostas: React.FC = () => {
       modalidades: [],
       anosTurmas: [],
       componentesCurriculares: [],
+      integrarNoSGA: clonedValues?.integrarNoSGA,
     };
 
     if (clonedValues?.dres?.length) {
@@ -568,7 +572,7 @@ const FormCadastroDePropostas: React.FC = () => {
     return (
       <>
         <Form.Item hidden={StepPropostaEnum.InformacoesGerais !== stepSelecionado}>
-          <FormInformacoesGerais listaDres={listaDres} />
+          <FormInformacoesGerais listaDres={listaDres} tipoInstituicao={tipoInstituicao} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
           <FormularioDetalhamento />
@@ -790,7 +794,7 @@ const FormCadastroDePropostas: React.FC = () => {
           </Col>
         </HeaderPage>
 
-        <CardInformacoesCadastrante />
+        <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
         <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
           <CardContent>

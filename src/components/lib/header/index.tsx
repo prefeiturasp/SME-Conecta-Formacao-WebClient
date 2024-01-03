@@ -60,9 +60,9 @@ const Header: React.FC = () => {
 
   return (
     <Layout.Header style={contentStyle}>
-      <a href={rotaEhAreaPublica ? ROUTES.AREA_PUBLICA : ROUTES.PRINCIPAL}>
+      <Link to={rotaEhAreaPublica ? ROUTES.AREA_PUBLICA : ROUTES.PRINCIPAL}>
         <img style={{ height: '50px' }} src={ConectaLogo} alt='Conecta Formação LOGO' />
-      </a>
+      </Link>
 
       <Row justify='end' style={{ width: '100%' }}>
         <Flex gap={16}>

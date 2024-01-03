@@ -83,14 +83,14 @@ const ListCadastroDePropostas: React.FC = () => {
       dataIndex: 'numeroHomologacao',
     },
     {
-      key: 'periodoRealizacaoInicio',
+      key: 'dataRealizacaoInicio',
       title: 'Início',
-      dataIndex: 'periodoRealizacaoInicio',
+      dataIndex: 'dataRealizacaoInicio',
     },
     {
-      key: 'periodoRealizacaoFim',
+      key: 'dataRealizacaoFim',
       title: 'Fim',
-      dataIndex: 'periodoRealizacaoFim',
+      dataIndex: 'dataRealizacaoFim',
     },
     {
       key: 'situacao',
@@ -172,7 +172,10 @@ const ListCadastroDePropostas: React.FC = () => {
                 <Row gutter={[16, 8]}>
                   <Col xs={24} sm={10} md={7} lg={7} xl={12}>
                     <b>
-                      <SelectAreaPromotora selectProps={{ onChange: obterFiltros }} />
+                      <SelectAreaPromotora
+                        formItemProps={{ name: 'areaPromotora' }}
+                        selectProps={{ onChange: obterFiltros }}
+                      />
                     </b>
                   </Col>
                   <Col xs={24} sm={10} md={7} lg={7} xl={12}>

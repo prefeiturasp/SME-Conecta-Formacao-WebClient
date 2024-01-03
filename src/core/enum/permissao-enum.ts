@@ -7,4 +7,8 @@ export enum PermissaoEnum {
   Proposta_I = '290',
   Proposta_E = '291',
   Proposta_A = '292',
+  Inscricao_C = '293',
+  Inscricao_I = '294',
+  Inscricao_E = '295',
+  Inscricao_A = '296',
 }

@@ -14,7 +14,6 @@ import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import FormCadastroDePropostas from '~/pages/cadastros/propostas/form';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
 import { Inscricao } from '~/pages/formacao/inscricao';
-import { MinhasInscricoes } from '~/pages/formacao/minhas-inscricoes';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
@@ -58,7 +57,6 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
-                <Route path={ROUTES.MINHAS_INSCRICOES} element={<MinhasInscricoes />} />
                 <Route path={ROUTES.INSCRICAO} element={<Inscricao />} />
 
                 <Route path={ROUTES.AREA_PROMOTORA}>

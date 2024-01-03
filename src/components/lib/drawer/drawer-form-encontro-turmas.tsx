@@ -1,16 +1,17 @@
-import { Button, Col, Drawer, Form, Input, Row, Space, TimePicker, notification } from 'antd';
+import { Button, Col, Drawer, Form, Input, Row, Space, TimePicker } from 'antd';
 import { RangePickerProps } from 'antd/es/date-picker';
 import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
-import { dayjs } from '~/core/date/dayjs';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ButtonExcluir from '~/components/lib/excluir-button';
+import { notification } from '~/components/lib/notification';
 import DatePickerMultiplos from '~/components/main/input/data-lista';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CF_BUTTON_EXCLUIR } from '~/core/constants/ids/button/intex';
 import { validateMessages } from '~/core/constants/validate-messages';
+import { dayjs } from '~/core/date/dayjs';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { DataEncontro, FormularioDrawerEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 import { PropostaEncontroDTO, PropostaEncontroDataDTO } from '~/core/dto/proposta-encontro-dto';
@@ -34,6 +35,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 }) => {
   const [formDrawer] = useForm();
   const paramsRoute = useParams();
+
   const [tipoEncontroSelecionado, setTipoEncontroSelecionado] = useState(undefined);
   const [formInitialValues, setFormInitialValues] = useState<any>({
     datas: [{ dataInicio: '', dataFim: '' }],

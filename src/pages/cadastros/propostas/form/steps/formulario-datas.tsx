@@ -1,10 +1,11 @@
-import { Button, Col, Form, Row, notification } from 'antd';
+import { Button, Col, Form, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Dayjs } from 'dayjs';
 import React, { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer/drawer-form-encontro-turmas';
+import { notification } from '~/components/lib/notification';
 import DatePickerPeriodo from '~/components/main/input/date-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import {
@@ -42,7 +43,6 @@ const contentStyleTituloListagem: React.CSSProperties = {
 
 const FormularioDatas: React.FC = () => {
   const form = Form.useFormInstance();
-
   const [openModal, setOpenModal] = useState<boolean>(false);
   const paramsRoute = useParams();
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
@@ -61,7 +61,7 @@ const FormularioDatas: React.FC = () => {
 
   const abrirModal = () => {
     setDadosEncontro(undefined);
-    const permiteAbrirModal = validiarPeriodo();
+    const permiteAbrirModal = validarPeriodo();
 
     if (permiteAbrirModal) {
       setOpenModal(true);
@@ -70,7 +70,7 @@ const FormularioDatas: React.FC = () => {
     return false;
   };
 
-  const validiarPeriodo = () => {
+  const validarPeriodo = () => {
     if (!dataInicio || !dataFim || !dataInicio?.isValid() || !dataFim?.isValid()) {
       notification.warning({
         message: 'Atenção',

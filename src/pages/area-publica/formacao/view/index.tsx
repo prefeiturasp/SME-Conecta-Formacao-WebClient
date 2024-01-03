@@ -57,28 +57,35 @@ const VisualizarFormacao: FC = () => {
           {dadosFormacao?.justificativa}
         </Typography.Text>
       </Row>
-      <Space style={{ paddingTop: 20 }}>
-        <Typography.Title level={4} style={{ paddingRight: 80 }}>
-          <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>
-            {PUBLICO_ALVO}
+      <Space style={{ paddingTop: 20 }} size={180}>
+        {dadosFormacao?.publicosAlvo?.length ? (
+          <Typography.Title level={4} style={{ paddingRight: 80 }}>
+            <Typography.Title
+              level={3}
+              style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}
+            >
+              {PUBLICO_ALVO}
+            </Typography.Title>
+
+            <Col>
+              <ListaPublicAlvo>
+                {dadosFormacao?.publicosAlvo?.map((publico, i) => {
+                  return (
+                    <li key={i}>
+                      <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
+                        {publico}
+                      </Typography.Text>
+                    </li>
+                  );
+                })}
+              </ListaPublicAlvo>
+            </Col>
           </Typography.Title>
+        ) : (
+          <></>
+        )}
 
-          <Col>
-            <ListaPublicAlvo>
-              {dadosFormacao?.publicosAlvo?.map((publico, i) => {
-                return (
-                  <li key={i}>
-                    <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
-                      {publico}
-                    </Typography.Text>
-                  </li>
-                );
-              })}
-            </ListaPublicAlvo>
-          </Col>
-        </Typography.Title>
-
-        <Typography.Title level={4} style={{ paddingLeft: 180 }}>
+        <Typography.Title level={4}>
           <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
             {PALAVRAS_CHAVES}
           </Typography.Title>

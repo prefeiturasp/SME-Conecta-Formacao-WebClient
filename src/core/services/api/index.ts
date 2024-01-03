@@ -10,8 +10,8 @@ import { dayjs } from '~/core/date/dayjs';
 
 import { setDeslogar } from '~/core/redux/modules/auth/actions';
 
-import { notification } from 'antd';
 import queryString from 'query-string';
+import { notification } from '~/components/lib/notification';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { store } from '../../redux';
