@@ -44,6 +44,7 @@ import {
   PropostaTurmaFormDTO,
 } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
+import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
@@ -77,6 +78,8 @@ const FormCadastroDePropostas: React.FC = () => {
   const [listaErros, setListaErros] = useState<string[]>([]);
 
   const [listaDres, setListaDres] = useState<any[]>([]);
+
+  const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
 
   const token = useAppSelector((store) => store.auth.token);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
@@ -406,6 +409,7 @@ const FormCadastroDePropostas: React.FC = () => {
       modalidades: [],
       anosTurmas: [],
       componentesCurriculares: [],
+      integrarNoSGA: clonedValues?.integrarNoSGA,
     };
 
     if (clonedValues?.dres?.length) {
@@ -568,7 +572,7 @@ const FormCadastroDePropostas: React.FC = () => {
     return (
       <>
         <Form.Item hidden={StepPropostaEnum.InformacoesGerais !== stepSelecionado}>
-          <FormInformacoesGerais listaDres={listaDres} />
+          <FormInformacoesGerais listaDres={listaDres} tipoInstituicao={tipoInstituicao} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
           <FormularioDetalhamento />
@@ -790,7 +794,7 @@ const FormCadastroDePropostas: React.FC = () => {
           </Col>
         </HeaderPage>
 
-        <CardInformacoesCadastrante />
+        <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
         <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
           <CardContent>

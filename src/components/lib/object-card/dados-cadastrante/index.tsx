@@ -3,12 +3,13 @@ import { Button, Card, Modal, Typography } from 'antd';
 import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { PropostaInformacoesCadastranteDTO } from '~/core/dto/informacoes-cadastrante-dto';
-import { Colors } from '~/core/styles/colors';
+import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
+import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import {
   obterDadosCadastrante,
   obterRoteiroPropostaFormativa,
 } from '~/core/services/proposta-service';
-import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
+import { Colors } from '~/core/styles/colors';
 const Container = styled.div`
   .ant-card-head {
     min-height: auto;
@@ -40,7 +41,13 @@ const DadosCadastrante = styled.div`
     margin-bottom: 0;
   }
 `;
-const CardInformacoesCadastrante: FC = () => {
+
+type CardInformacoesCadastranteProps = {
+  setTipoInstituicao?: React.Dispatch<React.SetStateAction<AreaPromotoraTipoEnum | undefined>>;
+};
+const CardInformacoesCadastrante: FC<CardInformacoesCadastranteProps> = ({
+  setTipoInstituicao,
+}) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [dados, setDados] = useState<PropostaInformacoesCadastranteDTO>();
@@ -56,6 +63,7 @@ const CardInformacoesCadastrante: FC = () => {
     const resposta = await obterDadosCadastrante();
     if (resposta.sucesso) {
       setDados(resposta.dados);
+      setTipoInstituicao && setTipoInstituicao(resposta.dados.areaPromotoraTipoId);
     }
     setLoading(false);
   };
