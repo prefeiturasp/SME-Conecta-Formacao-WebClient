@@ -56,6 +56,7 @@ export type PropostaDTO = {
   modalidades?: PropostaModalidadeDTO[];
   anosTurmas?: PropostaAnoTurmaDTO[];
   componentesCurriculares?: PropostaComponenteCurricularDTO[];
+  integrarNoSGA?: boolean;
 };
 
 export type PropostaCompletoDTO = {
@@ -105,6 +106,7 @@ export type PropostaFormDTO = {
   anosTurmas?: number[];
   componentesCurriculares?: number[];
   listaDres?: DreDTO[];
+  integrarNoSGA?: boolean;
 };
 
 export type PropostaPalavraChaveDTO = {

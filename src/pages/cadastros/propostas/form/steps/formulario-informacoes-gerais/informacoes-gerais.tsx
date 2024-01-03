@@ -11,6 +11,7 @@ import RadioFormacaoHomologada from '~/components/main/input/formacao-homologada
 import SelectFormato from '~/components/main/input/formato';
 import SelectFuncaoEspecifica from '~/components/main/input/funcao-especifica';
 import SelectModalidade from '~/components/main/input/modalidades';
+import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
 import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
 import SelectVagasRemanescentes from '~/components/main/input/vagas-remanescentes';
@@ -23,6 +24,7 @@ import {
   CF_INPUT_QUANTIDADE_VAGAS_TURMA,
   CF_INPUT_TOTAL_VAGAS,
 } from '~/core/constants/ids/input';
+import { CF_RADIO_INTEGRA_NO_SGA } from '~/core/constants/ids/radio';
 import { CF_SELECT_DRE_CADASTRO_PROPOSTAS } from '~/core/constants/ids/select';
 import {
   NOME_FORMACAO_NAO_INFORMADO,
@@ -30,6 +32,7 @@ import {
   QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA,
 } from '~/core/constants/mensagens';
 import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
+import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { Colors } from '~/core/styles/colors';
 import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
@@ -37,9 +40,13 @@ import TabelaEditavel from './components/table/turmas';
 
 type FormInformacoesGeraisProps = {
   listaDres: any[];
+  tipoInstituicao?: AreaPromotoraTipoEnum;
 };
 
-const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ listaDres }) => {
+const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
+  listaDres,
+  tipoInstituicao,
+}) => {
   const form = Form.useFormInstance();
 
   const token = useAppSelector((store) => store.auth.token);
@@ -52,7 +59,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ listaDres
 
   return (
     <Row gutter={[16, 8]}>
-      <Col xs={24} sm={12} md={12} lg={6} xl={7}>
+      <Col xs={24} sm={24} md={16} lg={10}>
         <RadioFormacaoHomologada
           name='formacaoHomologada'
           label='Formação homologada por SME/COPED/DF'
@@ -60,17 +67,34 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({ listaDres
         />
       </Col>
 
-      <Col xs={24} sm={12} md={12} lg={6} xl={4}>
+      <Col xs={24} sm={12} md={8} lg={4}>
         <RadioTipoFormacao />
       </Col>
 
-      <Col xs={24} sm={12} md={12} lg={6} xl={8}>
+      <Col xs={24} sm={12} md={14} lg={10}>
         <SelectFormato />
       </Col>
 
-      <Col xs={24} sm={12} md={12} lg={6} xl={5}>
+      <Col xs={24} sm={12} md={10} lg={6}>
         <RadioTipoInscricao />
       </Col>
+
+      {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
+        <Col xs={24} sm={12} md={6} lg={6}>
+          <RadioSimNao
+            formItemProps={{
+              initialValue: true,
+              name: 'integrarNoSGA',
+              label: 'Integrar no SGA',
+            }}
+            radioGroupProps={{
+              id: CF_RADIO_INTEGRA_NO_SGA,
+            }}
+          />
+        </Col>
+      ) : (
+        <></>
+      )}
 
       <Col span={24}>
         <SelectDRE
