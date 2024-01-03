@@ -41,17 +41,14 @@ import { ModalInscricao } from './components/modal';
 
 export const Inscricao = () => {
   const [form] = useForm();
-
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const perfil = useAppSelector((state) => state.auth);
   const inscricao = useAppSelector((state) => state.inscricao);
 
-  const [initialValues, setFormInitialValues] = useState<DadosInscricaoDTO>();
   const [openModal, setOpenModal] = useState<boolean>(false);
-
   const [formacaoState, setFormacaoState] = useState<FormacaoDTO>();
+  const [initialValues, setFormInitialValues] = useState<DadosInscricaoDTO>();
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
@@ -59,17 +56,33 @@ export const Inscricao = () => {
 
   const carregarPerfil = useCallback(async () => {
     const obterDados = await obterDadosInscricao();
-
     const dados = obterDados.dados;
 
     if (obterDados.sucesso) {
       let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
+
+      let usuarioCargoSelecionado: DadosInscricaoDTO['usuarioCargoSelecionado'] = undefined;
+
       if (ehServidorTemRF && Array.isArray(dados.usuarioCargos)) {
-        usuarioCargos = dados.usuarioCargos.map((item) => ({
-          ...item,
-          value: item.codigo,
-          label: item.descricao,
-        }));
+        usuarioCargos = cloneDeep(dados.usuarioCargos).map((item) => {
+          let funcoes: DadosInscricaoCargoEolDTO[] = [];
+
+          if (item?.funcoes?.length) {
+            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo }));
+          }
+
+          return {
+            ...item,
+            value: item.codigo,
+            label: item.descricao,
+            funcoes,
+          };
+        });
+
+        if (usuarioCargos?.length === 1) {
+          const cargoSelecionado = cloneDeep(usuarioCargos[0]);
+          usuarioCargoSelecionado = cargoSelecionado?.codigo;
+        }
       }
 
       const valoresIniciais = {
@@ -78,6 +91,7 @@ export const Inscricao = () => {
         usuarioCpf: dados.usuarioCpf,
         usuarioEmail: dados.usuarioEmail,
         usuarioCargos,
+        usuarioCargoSelecionado,
       };
 
       setFormInitialValues(valoresIniciais);
@@ -128,8 +142,8 @@ export const Inscricao = () => {
 
   const enviarInscricao = async () => {
     let response = null;
-    const values: any = form.getFieldsValue(true);
-    const clonedValues: any = cloneDeep(values);
+    const values: DadosInscricaoDTO = form.getFieldsValue(true);
+    const clonedValues: DadosInscricaoDTO = cloneDeep(values);
 
     const valoresSalvar: InscricaoDTO = {
       propostaTurmaId: clonedValues.propostaTurmaId,
@@ -146,14 +160,19 @@ export const Inscricao = () => {
       valoresSalvar.arquivoId = clonedValues?.arquivoId?.[0]?.id;
     }
 
-    if (clonedValues?.usuarioCargos?.length) {
-      const itemCargos = clonedValues.usuarioCargos.find((item: any) => item);
+    if (clonedValues?.usuarioCargoSelecionado) {
+      const itemCargos = clonedValues?.usuarioCargos?.find(
+        (item: any) => item?.codigo === clonedValues?.usuarioCargoSelecionado,
+      );
       valoresSalvar.cargoCodigo = itemCargos?.codigo;
       valoresSalvar.cargoDreCodigo = itemCargos?.dreCodigo;
       valoresSalvar.cargoUeCodigo = itemCargos?.ueCodigo;
 
-      if (clonedValues?.usuarioFuncoes) {
-        const itemFuncoes = clonedValues.usuarioCargos.find((item: any) => item.funcoes);
+      if (clonedValues?.usuarioFuncaoSelecionado && itemCargos?.funcoes?.length) {
+        const itemFuncoes = itemCargos?.funcoes?.find(
+          (item) => item?.codigo === clonedValues.usuarioFuncaoSelecionado,
+        );
+
         valoresSalvar.funcaoCodigo = itemFuncoes?.codigo;
         valoresSalvar.funcaoDreCodigo = itemFuncoes?.dreCodigo;
         valoresSalvar.funcaoUeCodigo = itemFuncoes?.ueCodigo;
@@ -236,37 +255,29 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                <Form.Item
-                  label='Cargo'
-                  name='usuarioCargos'
-                  getValueFromEvent={(_, value) => value}
-                >
+                <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
                   <Select
                     allowClear
                     options={
                       initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
                     }
+                    onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
                     placeholder='Selecione um cargo'
                     id={CF_SELECT_CARGO}
-                    labelInValue
                   />
                 </Form.Item>
 
                 {/* TODO: Quando houver usuarios externos, mudar habilitar o codigo abaixo */}
                 {/* {ehServidorTemRF ? (
-                     <Form.Item
-                  label='Cargo'
-                  name='usuarioCargos'
-                  getValueFromEvent={(_, value) => value}
-                >
+                  <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
                   <Select
                     allowClear
                     options={
                       initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
                     }
+                    onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
                     placeholder='Selecione um cargo'
                     id={CF_SELECT_CARGO}
-                    labelInValue
                   />
                 </Form.Item>
                 ) : (

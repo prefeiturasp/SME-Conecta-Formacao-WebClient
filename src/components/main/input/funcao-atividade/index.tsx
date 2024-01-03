@@ -17,12 +17,21 @@ const SelectFuncaoAtividade: React.FC<SelectFuncaoAtividadeProps> = ({
   return (
     <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
       {(form) => {
-        const usuarioCargos = form.getFieldValue('usuarioCargos');
+        const usuarioCargoSelecionado = form.getFieldsValue(true)?.usuarioCargoSelecionado;
+        const usuarioCargos = form.getFieldsValue(true)?.usuarioCargos;
 
-        let options = usuarioCargos?.funcoes ? usuarioCargos?.funcoes : [];
+        const usuarioFuncoes: any = [];
+        let options = [];
 
-        if (options?.length) {
-          options = options.map((item: any) => ({
+        if (usuarioCargoSelecionado) {
+          const usuarioCargo = usuarioCargos?.find(
+            (item: any) => item?.codigo === usuarioCargoSelecionado,
+          );
+          options = usuarioCargo?.funcoes?.length ? usuarioCargo?.funcoes : [];
+        }
+
+        if (usuarioFuncoes?.length) {
+          options = usuarioFuncoes.map((item: any) => ({
             ...item,
             label: item.descricao,
             value: item.codigo,
@@ -30,12 +39,12 @@ const SelectFuncaoAtividade: React.FC<SelectFuncaoAtividadeProps> = ({
         }
 
         return (
-          <Form.Item label='Função/Atividade' name='usuarioFuncoes' {...formItemProps}>
+          <Form.Item {...formItemProps} label='Função/Atividade' name='usuarioFuncaoSelecionado'>
             <Select
+              {...selectProps}
               allowClear
               options={options}
               placeholder='Selecione uma Função/Atividade'
-              {...selectProps}
               id={CF_SELECT_FUNCAO_ATIVIDADE}
             />
           </Form.Item>
