@@ -1,10 +1,11 @@
-import { Button, Col, Form, Input, Row, Select, notification } from 'antd';
+import { Button, Col, Form, Input, Row, Select } from 'antd';
 import { FormProps, useForm } from 'antd/es/form/Form';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
+import { notification } from '~/components/lib/notification';
 import ButtonVoltar from '~/components/main/button/voltar';
 import EmailLista from '~/components/main/input/email-lista';
 import SelectPerfil from '~/components/main/input/perfil/select-perfil';

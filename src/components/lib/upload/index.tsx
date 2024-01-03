@@ -1,8 +1,9 @@
 import { InboxOutlined } from '@ant-design/icons';
-import { Form, FormInstance, FormItemProps, Upload, notification } from 'antd';
+import { Form, FormInstance, FormItemProps, Upload } from 'antd';
 import { DraggerProps, RcFile, UploadFile } from 'antd/es/upload';
 import React from 'react';
 import styled from 'styled-components';
+import { notification } from '~/components/lib/notification';
 
 const { Dragger } = Upload;
 

@@ -1,8 +1,9 @@
-import { Button, notification } from 'antd';
+import { Button } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useContext } from 'react';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
+import { notification } from '~/components/lib/notification';
 import { DESEJA_CANCELAR_INSCRICAO } from '~/core/constants/mensagens';
 import { confirmacao } from '~/core/services/alerta-service';
 import { URL_INSCRICAO, cancelarInscricao } from '~/core/services/inscricao-service';

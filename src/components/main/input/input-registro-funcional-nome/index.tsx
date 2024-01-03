@@ -1,7 +1,8 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Col, Form, FormItemProps, Input, InputProps, Tooltip, notification } from 'antd';
+import { Col, Form, FormItemProps, Input, InputProps, Tooltip } from 'antd';
 import { Rule } from 'antd/es/form';
 import React, { useEffect, useState } from 'react';
+import { notification } from '~/components/lib/notification';
 import { obterNomeProfissional } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
