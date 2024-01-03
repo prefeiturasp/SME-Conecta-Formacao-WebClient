@@ -1,9 +1,10 @@
-import { Button, Col, Drawer, Form, Row, Space, notification } from 'antd';
+import { Button, Col, Drawer, Form, Row, Space } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DataTableContext } from '~/components/lib/card-table/provider';
 import ButtonExcluir from '~/components/lib/excluir-button';
+import { notification } from '~/components/lib/notification';
 import InputRegistroFuncionalNome from '~/components/main/input/input-registro-funcional-nome';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';

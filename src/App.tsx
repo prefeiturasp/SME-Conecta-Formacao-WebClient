@@ -3,6 +3,7 @@ import 'antd/dist/reset.css';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { ThemeProvider } from 'styled-components';
+import NotificationStorage from './components/lib/notification/index';
 import { ConectaFormacaoTheme } from './core/config/theme';
 import { persistor, store } from './core/redux';
 import Routes from './routes';
@@ -23,6 +24,7 @@ const App = () => {
     <ConfigProvider theme={ConectaFormacaoTheme}>
       <ThemeProvider theme={ConectaFormacaoTheme}>
         <AppAntd>
+          <NotificationStorage />
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
               <GlobalStyle />

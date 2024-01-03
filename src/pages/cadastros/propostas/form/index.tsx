@@ -1,4 +1,4 @@
-import { App, Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
+import { Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
@@ -8,6 +8,7 @@ import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
 import ModalErroProposta from '~/components/lib/modal-erros-proposta';
+import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
 import Steps from '~/components/main/steps';
@@ -71,7 +72,6 @@ import FormularioProfissionais from './steps/formulario-profissionais';
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
-  const { notification } = App.useApp();
   const { desabilitarCampos, setDesabilitarCampos } = useContext(PermissaoContext);
 
   const [openModalErros, setOpenModalErros] = useState(false);

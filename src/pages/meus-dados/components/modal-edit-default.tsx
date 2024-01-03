@@ -1,8 +1,9 @@
-import { Modal as ModalAntd, Spin, notification } from 'antd';
+import { Modal as ModalAntd, Spin } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import React, { PropsWithChildren, useState } from 'react';
 import Modal from '~/components/lib/modal';
+import { notification } from '~/components/lib/notification';
 import {
   CF_BUTTON_MODAL_ALTERAR,
   CF_BUTTON_MODAL_CANCELAR,
@@ -100,7 +101,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
           style: { color: Colors.Neutral.DARK },
         },
         okText: 'Confirmar',
-        cancelText: 'Cancelar'
+        cancelText: 'Cancelar',
       });
     } else {
       handleCancel();
