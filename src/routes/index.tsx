@@ -13,7 +13,8 @@ import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
 import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import FormCadastroDePropostas from '~/pages/cadastros/propostas/form';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
-import { Inscricao } from '~/pages/formacao/inscricao';
+import { Inscricao } from '~/pages/formacao-cursista/inscricao';
+import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
@@ -92,6 +93,12 @@ const RoutesConfig = () => {
                       path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
                       element={<FormCadastroDePropostas />}
                     />
+                  </Route>
+                </Route>
+
+                <Route path={ROUTES.FORMACAOES_INSCRICOES}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Formacoes} />}>
+                    <Route path='' element={<Inscricoes />} />
                   </Route>
                 </Route>
               </Route>
