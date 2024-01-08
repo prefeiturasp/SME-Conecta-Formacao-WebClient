@@ -7,18 +7,18 @@ import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputNumero from '~/components/main/numero';
+import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
-import { CF_INPUT_CODIGO_FORMACAO, CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
-import { DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA } from '~/core/constants/mensagens';
+import {
+  CF_INPUT_CODIGO_FORMACAO,
+  CF_INPUT_NOME_FORMACAO,
+  CF_INPUT_NUMERO_HOMOLOGACAO,
+} from '~/core/constants/ids/input';
 import { validateMessages } from '~/core/constants/validate-messages';
-import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { confirmacao } from '~/core/services/alerta-service';
-import { obterPermissaoPorMenu } from '~/core/utils/perfil';
-import SelectNomeFormacao from './components/input/nome-formacao';
-import { MinhasInscricoesListaPaginada } from './listagem';
+import { InscricoesListaPaginada } from './listagem';
 
-export interface FiltersProps {
+export interface FiltroInscricoesProps {
   id: number | null;
   nomeFormacao: string | null;
   numeroHomologacao: number | null;
@@ -28,9 +28,7 @@ export const Inscricoes = () => {
   const [form] = useForm();
   const navigate = useNavigate();
 
-  const permissao = obterPermissaoPorMenu(MenuEnum.Formacoes);
-
-  const [filters, setFilters] = useState<FiltersProps>({
+  const [filters, setFilters] = useState<FiltroInscricoesProps>({
     id: null,
     nomeFormacao: null,
     numeroHomologacao: null,
@@ -40,21 +38,7 @@ export const Inscricoes = () => {
     form.resetFields();
   }, [form]);
 
-  const onClickVoltar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          form.submit();
-        },
-        onCancel() {
-          navigate(ROUTES.AREA_PUBLICA);
-        },
-      });
-    } else {
-      navigate(ROUTES.AREA_PUBLICA);
-    }
-  };
+  const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
 
   const obterFiltros = () => {
     setFilters({
@@ -67,7 +51,7 @@ export const Inscricoes = () => {
   return (
     <Col>
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
-        <HeaderPage title={`Inscrições`}>
+        <HeaderPage title='Inscrições'>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
@@ -85,6 +69,7 @@ export const Inscricoes = () => {
                   formItemProps={{
                     label: 'Código',
                     name: 'codigoFormacao',
+                    style: { fontWeight: 'bold' },
                     rules: [{ required: false }],
                   }}
                   inputProps={{
@@ -97,7 +82,20 @@ export const Inscricoes = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                <SelectNomeFormacao />
+                <InputTexto
+                  formItemProps={{
+                    label: 'Nome da formação',
+                    name: 'nomeFormacao',
+                    style: { fontWeight: 'bold' },
+                    rules: [{ required: false }],
+                  }}
+                  inputProps={{
+                    id: CF_INPUT_NOME_FORMACAO,
+                    placeholder: 'Nome da formação',
+                    maxLength: 100,
+                    onChange: obterFiltros,
+                  }}
+                />
               </Col>
 
               <Col xs={24} sm={8}>
@@ -105,6 +103,7 @@ export const Inscricoes = () => {
                   formItemProps={{
                     label: 'Número de homologação',
                     name: 'numeroHomologacao',
+                    style: { fontWeight: 'bold' },
                     rules: [{ required: false }],
                   }}
                   inputProps={{
@@ -120,7 +119,7 @@ export const Inscricoes = () => {
                 <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>
                   Listagem de cursos/turmas
                 </Typography>
-                <MinhasInscricoesListaPaginada filters={filters} />
+                <InscricoesListaPaginada filters={filters} />
               </Col>
             </Row>
           </Col>

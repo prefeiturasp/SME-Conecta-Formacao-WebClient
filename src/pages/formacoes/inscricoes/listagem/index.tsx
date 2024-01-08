@@ -1,10 +1,12 @@
 import { ColumnsType } from 'antd/es/table';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
-import { FiltersProps } from '..';
+import { ROUTES } from '~/core/enum/routes-enum';
+import { FiltroInscricoesProps } from '..';
 
-interface MinhasInscricoesListaPaginadaProps {
-  filters?: FiltersProps;
+interface InscricoesListaPaginadaProps {
+  filters?: FiltroInscricoesProps;
 }
 
 interface InscricoesProps {
@@ -62,13 +64,16 @@ const dataMock: InscricoesProps[] = [
   },
 ];
 
-export const MinhasInscricoesListaPaginada: React.FC<MinhasInscricoesListaPaginadaProps> = ({
-  filters,
-}) => {
+export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = ({ filters }) => {
+  const navigate = useNavigate();
+
   const columns: ColumnsType<InscricoesProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao' },
     { title: 'Nome da formação', dataIndex: 'nomeFormacao' },
   ];
+
+  const onClickEditar = (row: InscricoesProps) =>
+    navigate(`${ROUTES.FORMACAOES_INSCRICOES}/editar/${row.id}`, { replace: true, state: row });
 
   const expandedRowRender = (record: InscricoesProps) => {
     const columns: ColumnsType<TurmasProps> = [
@@ -91,6 +96,11 @@ export const MinhasInscricoesListaPaginada: React.FC<MinhasInscricoesListaPagina
       expandable={{
         expandedRowRender,
       }}
+      onRow={(row) => ({
+        onClick: () => {
+          onClickEditar(row);
+        },
+      })}
     />
   );
 };

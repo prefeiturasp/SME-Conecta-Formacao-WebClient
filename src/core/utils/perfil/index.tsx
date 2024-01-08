@@ -106,8 +106,6 @@ export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
   let roles: RolesDTO['roles'] = [];
 
   if (decodeObject.roles?.length) {
-    //TODO - REMOVER PUSH DE TESTE DE PERMISSAO
-    decodeObject.roles.push('305');
     roles = decodeObject.roles;
   }
 

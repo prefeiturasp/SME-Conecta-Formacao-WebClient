@@ -11,10 +11,4 @@ export enum PermissaoEnum {
   Inscricao_I = '294',
   Inscricao_E = '295',
   Inscricao_A = '296',
-  //TODO - VERIFICAR COM O BACK SE VAI CRIAR PERMISSOES NOVAS
-  //OU VAI USAR A INSCRICAO QUE JA TEM
-  Inscricoes_C = '305',
-  Inscricoes_I = '306',
-  Inscricoes_E = '307',
-  Inscricoes_A = '308',
 }
