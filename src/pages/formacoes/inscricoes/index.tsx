@@ -19,7 +19,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { InscricoesListaPaginada } from './listagem';
 
 export interface FiltroInscricoesProps {
-  id: number | null;
+  codigoFormacao: number | null;
   nomeFormacao: string | null;
   numeroHomologacao: number | null;
 }
@@ -29,7 +29,7 @@ export const Inscricoes = () => {
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState<FiltroInscricoesProps>({
-    id: null,
+    codigoFormacao: null,
     nomeFormacao: null,
     numeroHomologacao: null,
   });
@@ -42,7 +42,7 @@ export const Inscricoes = () => {
 
   const obterFiltros = () => {
     setFilters({
-      id: form.getFieldValue('codigoFormacao'),
+      codigoFormacao: form.getFieldValue('codigoFormacao'),
       nomeFormacao: form.getFieldValue('nomeFormacao'),
       numeroHomologacao: form.getFieldValue('numeroHomologacao'),
     });

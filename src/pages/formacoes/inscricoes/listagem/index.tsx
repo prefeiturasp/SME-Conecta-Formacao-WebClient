@@ -1,3 +1,4 @@
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,47 +24,6 @@ interface TurmasProps {
   quantidadeInscricoes: number;
 }
 
-const dataMock: InscricoesProps[] = [
-  {
-    id: 1,
-    codigoFormacao: 1,
-    nomeFormacao: 'Formacao 001',
-    turmas: [
-      {
-        nomeTurma: 'Turma 1',
-        data: '2023-10-01',
-        quantidadeVagas: 10,
-        quantidadeInscricoes: 3,
-      },
-      {
-        nomeTurma: 'Turma 1',
-        data: '2023-10-01',
-        quantidadeVagas: 10,
-        quantidadeInscricoes: 3,
-      },
-    ],
-  },
-  {
-    id: 2,
-    codigoFormacao: 2,
-    nomeFormacao: 'Formacao 002',
-    turmas: [
-      {
-        nomeTurma: 'Turma 2',
-        data: '2023-10-01',
-        quantidadeVagas: 10,
-        quantidadeInscricoes: 3,
-      },
-      {
-        nomeTurma: 'Turma 2',
-        data: '2023-10-01',
-        quantidadeVagas: 10,
-        quantidadeInscricoes: 3,
-      },
-    ],
-  },
-];
-
 export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = ({ filters }) => {
   const navigate = useNavigate();
 
@@ -86,15 +46,29 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
     return <DataTable dataSource={record.turmas} columns={columns} />;
   };
 
-  //TODO - USAR URL NA TABLE
   return (
     <DataTable
-      url=''
+      url='v1/Inscricao/formacao-turmas'
       filters={filters}
-      dataSource={dataMock}
       columns={columns}
       expandable={{
         expandedRowRender,
+        expandIcon: ({ expanded, onExpand, record }) =>
+          expanded ? (
+            <UpOutlined
+              onClick={(e) => {
+                onExpand(record, e);
+                e.stopPropagation();
+              }}
+            />
+          ) : (
+            <DownOutlined
+              onClick={(e) => {
+                onExpand(record, e);
+                e.stopPropagation();
+              }}
+            />
+          ),
       }}
       onRow={(row) => ({
         onClick: () => {
