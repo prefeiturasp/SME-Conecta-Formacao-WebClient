@@ -42,9 +42,16 @@ export const ModalInscricao: React.FC<ModalInscricaoProps> = ({
         return <CheckCircleTwoTone style={styleIcon} twoToneColor={corPadraoConecta} />;
     }
   };
-
   return (
-    <Modal open centered cancelText footer={null} destroyOnClose {...modalProps}>
+    <Modal
+      open
+      centered
+      cancelText
+      footer={null}
+      destroyOnClose
+      {...modalProps}
+      onCancel={onConfirmButton}
+    >
       <Flex justify='center' align='center' vertical>
         {obterIcone(typeIcon)}
 
