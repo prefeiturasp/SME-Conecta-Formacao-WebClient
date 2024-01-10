@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
-import { MinhasInscricoes } from '../formacao/minhas-inscricoes';
+import { MinhasInscricoes } from '../formacao-cursista/minhas-inscricoes';
 
 const Inicial: React.FC = () => {
   const inscricao = useAppSelector((state) => state.inscricao);

@@ -1,4 +1,4 @@
-import { InscricaoProps } from '~/pages/formacao/minhas-inscricoes/listagem';
+import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/listagem';
 import { DadosInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
