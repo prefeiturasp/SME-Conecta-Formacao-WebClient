@@ -74,7 +74,7 @@ const FormularioDetalhamento: React.FC = () => {
             <Col xs={24} sm={12}>
               <Form.Item shouldUpdate style={{ margin: 0 }}>
                 {(form) => {
-                  const valor: Formato = form.getFieldValue('modalidade');
+                  const valor: Formato = form.getFieldValue('formato');
                   const requerido = valor === Formato.Presencial;
 
                   return (
