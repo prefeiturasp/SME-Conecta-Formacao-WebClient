@@ -4,6 +4,7 @@ import Typography from 'antd/es/typography/Typography';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
+import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputNumero from '~/components/main/numero';
@@ -97,7 +98,7 @@ export const TurmasInscricoes = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                <InputNumero
+                <InputTexto
                   formItemProps={{
                     label: 'Nome do cursista',
                     name: 'nomeCursista',
@@ -116,7 +117,9 @@ export const TurmasInscricoes = () => {
                 <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>
                   Listagem de inscrições por turma
                 </Typography>
-                <TurmasInscricoesListaPaginada filters={filters} />
+                <DataTableContextProvider>
+                  <TurmasInscricoesListaPaginada filters={filters} />
+                </DataTableContextProvider>
               </Col>
             </Row>
           </Col>
