@@ -4,4 +4,6 @@ export enum MenuEnum {
   Cadastros,
   AreaPromotora,
   CadastroProposta,
+  Formacoes,
+  Inscricoes,
 }

@@ -12,7 +12,7 @@ interface TableParams {
 
 type DataTableProps<T> = {
   filters?: any;
-  url: string;
+  url?: string;
 } & TableProps<T>;
 
 const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTableProps<T>) => {
@@ -34,6 +34,8 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
 
   const fetchData = useCallback(
     (newParams: TableParams) => {
+      if (!url) return;
+
       setLoading(true);
 
       api
@@ -68,6 +70,7 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
     },
     [url, filters],
   );
+
   useEffect(() => {
     fetchData(tableParams);
     setTableState({
@@ -92,18 +95,27 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
     }
   };
 
+  const handleTableChangeDefaultTable = (pagination: TablePaginationConfig) => {
+    const newParams = {
+      ...tableParams,
+      pagination,
+    };
+
+    setTableParams(newParams);
+  };
+
   return (
     <Table
       bordered
       rowKey='id'
       size='small'
-      dataSource={data}
       columns={columns}
       loading={loading}
-      onChange={handleTableChange}
       pagination={tableParams.pagination}
       locale={{ emptyText: 'Sem dados' }}
+      onChange={url ? handleTableChange : handleTableChangeDefaultTable}
       {...rest}
+      dataSource={url ? data : rest.dataSource}
     />
   );
 };
