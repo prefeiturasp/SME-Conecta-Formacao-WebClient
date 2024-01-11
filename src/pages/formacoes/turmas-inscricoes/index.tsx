@@ -54,7 +54,7 @@ export const TurmasInscricoes = () => {
   return (
     <Col>
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
-        <HeaderPage title={nomeFormacao}>
+        <HeaderPage title={nomeFormacao} tooltipTitle={nomeFormacao}>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
