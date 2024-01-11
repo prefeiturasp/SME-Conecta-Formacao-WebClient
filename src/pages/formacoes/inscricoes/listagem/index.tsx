@@ -40,7 +40,7 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
       { title: 'Turma', dataIndex: 'nomeTurma' },
       { title: 'Data', dataIndex: 'data' },
       { title: 'Quantidade de vagas', dataIndex: 'quantidadeVagas' },
-      { title: 'Quantidade de inscricoes', dataIndex: 'quantidadeInscricoes' },
+      { title: 'Quantidade de inscrições', dataIndex: 'quantidadeInscricoes' },
     ];
 
     return <DataTable dataSource={record.turmas} columns={columns} />;
