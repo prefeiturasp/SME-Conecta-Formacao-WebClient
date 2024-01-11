@@ -73,12 +73,5 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     },
   ];
 
-  return (
-    <DataTable
-      url={`v1/Inscricao/${id}`}
-      rowKey='registroFuncional'
-      columns={columns}
-      filters={filters}
-    />
-  );
+  return <DataTable url={`v1/Inscricao/${id}`} columns={columns} filters={filters} />;
 };
