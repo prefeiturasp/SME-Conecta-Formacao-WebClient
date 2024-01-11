@@ -116,7 +116,7 @@ const Login = () => {
               rules={[{ required: true }, { min: 5 }]}
             >
               <Input
-                placeholder='Informe o usuário'
+                placeholder='Informe o usuário!!!!!!!!!!!!!'
                 suffix={<span />}
                 maxLength={100}
                 id={CF_INPUT_LOGIN}
