@@ -17,6 +17,7 @@ import { TurmasInscricoesListaPaginada } from './listagem';
 
 export interface FiltroTurmaInscricoesProps {
   cpf: number | null;
+  nomeTurma: string | null;
   nomeCursista: string | null;
   registroFuncional: number | null;
 }
@@ -30,6 +31,7 @@ export const TurmasInscricoes = () => {
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
+    nomeTurma: null,
     nomeCursista: null,
     registroFuncional: null,
   });
@@ -43,6 +45,7 @@ export const TurmasInscricoes = () => {
   const obterFiltros = () => {
     setFilters({
       cpf: form.getFieldValue('cpf'),
+      nomeTurma: form.getFieldValue('nomeTurma'),
       nomeCursista: form.getFieldValue('nomeCursista'),
       registroFuncional: form.getFieldValue('registroFuncional'),
     });
@@ -64,7 +67,23 @@ export const TurmasInscricoes = () => {
         <CardContent>
           <Col span={24}>
             <Row gutter={[16, 8]}>
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={6}>
+                <InputTexto
+                  formItemProps={{
+                    label: 'Turma',
+                    name: 'nomeTurma',
+                    style: { fontWeight: 'bold' },
+                    rules: [{ required: false }],
+                  }}
+                  inputProps={{
+                    onChange: obterFiltros,
+                    placeholder: 'Turma',
+                    id: CF_INPUT_NOME,
+                  }}
+                />
+              </Col>
+
+              <Col xs={24} sm={6}>
                 <InputNumero
                   formItemProps={{
                     label: 'RF',
@@ -81,7 +100,7 @@ export const TurmasInscricoes = () => {
                 />
               </Col>
 
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={6}>
                 <InputTexto
                   formItemProps={{
                     label: 'CPF',
@@ -97,7 +116,7 @@ export const TurmasInscricoes = () => {
                 />
               </Col>
 
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={6}>
                 <InputTexto
                   formItemProps={{
                     label: 'Nome do cursista',
