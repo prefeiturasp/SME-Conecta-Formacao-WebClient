@@ -1,4 +1,4 @@
-import { Affix } from 'antd';
+import { Affix, Col, Typography } from 'antd';
 import React, { PropsWithChildren } from 'react';
 import styled from 'styled-components';
 import { BoxShadow, Colors } from '~/core/styles/colors';
@@ -22,14 +22,14 @@ const HeaderContainer = styled.div`
 const HeaderContentContainer = styled.div`
   width: 100%;
   display: flex;
-  flex-flow: row wrap;
   margin-left: 32px;
   margin-right: 32px;
   justify-content: space-between;
   align-items: end;
+  overflow: hidden;
 `;
 
-const Title = styled.div`
+const Title = styled(Typography.Text)`
   font-size: 23px;
   font-weight: 700;
   color: ${Colors.Neutral.DARK};
@@ -39,15 +39,18 @@ const ChildrenContainer = styled.div``;
 
 type HeaderPage = {
   title: string;
+  tooltipTitle?: string;
 } & PropsWithChildren;
 
-const HeaderPage: React.FC<HeaderPage> = ({ title, children }) => {
+const HeaderPage: React.FC<HeaderPage> = ({ title, children, tooltipTitle }) => {
   return (
     <AffixContainer>
       <Affix offsetTop={70}>
         <HeaderContainer>
           <HeaderContentContainer>
-            <Title>{title}</Title>
+            <Col xs={18}>
+              <Title ellipsis={{ tooltip: tooltipTitle }}>{title}</Title>
+            </Col>
             <ChildrenContainer>{children}</ChildrenContainer>
           </HeaderContentContainer>
         </HeaderContainer>
