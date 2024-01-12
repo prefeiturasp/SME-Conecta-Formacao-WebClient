@@ -238,16 +238,25 @@ export const Inscricao = () => {
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={8}>
                 <Form.Item label='Nome' key='usuarioNome' name='usuarioNome'>
-                  <Input type='text' maxLength={50} id={CF_INPUT_NOME} placeholder='Nome' />
+                  <Input
+                    disabled
+                    type='text'
+                    maxLength={50}
+                    id={CF_INPUT_NOME}
+                    placeholder='Nome'
+                  />
                 </Form.Item>
               </Col>
 
               <Col xs={24} sm={8}>
-                <InputRegistroFuncional formItemProps={{ name: 'usuarioRf' }} />
+                <InputRegistroFuncional
+                  inputProps={{ disabled: true }}
+                  formItemProps={{ name: 'usuarioRf' }}
+                />
               </Col>
 
               <Col xs={24} sm={8}>
-                <InputCPF formItemProps={{ name: 'usuarioCpf' }} />
+                <InputCPF inputProps={{ disabled: true }} formItemProps={{ name: 'usuarioCpf' }} />
               </Col>
 
               <Col xs={24} sm={8}>
