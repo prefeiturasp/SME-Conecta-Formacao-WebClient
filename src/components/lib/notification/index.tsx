@@ -10,4 +10,16 @@ export default () => {
   return null;
 };
 
-export { notification };
+// TODO
+const openNotificationErrors = (mensagens: string[]) => {
+  if (mensagens?.length) {
+    mensagens.forEach((description) => {
+      notification.error({
+        message: 'Erro',
+        description,
+      });
+    });
+  }
+};
+
+export { notification, openNotificationErrors };

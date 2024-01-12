@@ -11,7 +11,7 @@ import { dayjs } from '~/core/date/dayjs';
 import { setDeslogar } from '~/core/redux/modules/auth/actions';
 
 import queryString from 'query-string';
-import { notification } from '~/components/lib/notification';
+import { openNotificationErrors } from '~/components/lib/notification';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { store } from '../../redux';
@@ -129,17 +129,6 @@ api.interceptors.response.use(
   },
 );
 
-const openNotificationError = (mensagens: string[]) => {
-  if (mensagens?.length) {
-    mensagens.forEach((description) => {
-      notification.error({
-        message: 'Erro',
-        description,
-      });
-    });
-  }
-};
-
 export type ApiResult<T> = {
   dados: T;
   sucesso: boolean;
@@ -172,7 +161,7 @@ export const obterRegistro = async <T>(
         : [];
 
       // TODO modal error
-      openNotificationError(mensagens);
+      openNotificationErrors(mensagens);
 
       return { sucesso: false, mensagens, dados: null };
     })
@@ -197,7 +186,7 @@ export const alterarRegistro = async <T>(
 
       // TODO modal error
       if (mostrarNotificacao) {
-        openNotificationError(mensagens);
+        openNotificationErrors(mensagens);
       }
 
       return { sucesso: false, mensagens, dados: null };
@@ -221,7 +210,7 @@ export const alterarRegistroParcial = async <T>(
         : [];
 
       // TODO modal error
-      openNotificationError(mensagens);
+      openNotificationErrors(mensagens);
 
       return { sucesso: false, mensagens, dados: null };
     })
@@ -245,7 +234,7 @@ export const inserirRegistro = async <T>(
         : [];
 
       // TODO modal error
-      openNotificationError(mensagens);
+      openNotificationErrors(mensagens);
 
       return { sucesso: false, mensagens, dados: null };
     })
@@ -264,8 +253,7 @@ export const deletarRegistro = async <T>(url: string): Promise<ApiResult<T>> => 
         ? error?.response?.data?.mensagens
         : [];
 
-      // TODO modal error
-      openNotificationError(mensagens);
+      openNotificationErrors(mensagens);
 
       return { sucesso: false, mensagens, dados: null };
     })

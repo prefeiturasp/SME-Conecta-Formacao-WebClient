@@ -3,7 +3,7 @@ import { FormInstance } from 'antd/es/form/Form';
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import React, { PropsWithChildren, useState } from 'react';
 import Modal from '~/components/lib/modal';
-import { notification } from '~/components/lib/notification';
+import { notification, openNotificationErrors } from '~/components/lib/notification';
 import {
   CF_BUTTON_MODAL_ALTERAR,
   CF_BUTTON_MODAL_CANCELAR,
@@ -39,15 +39,6 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const openNotificationError = (mensagens: string[]) => {
-    mensagens.forEach((description) => {
-      notification.error({
-        message: 'Erro',
-        description,
-      });
-    });
-  };
-
   const openNotificationSuccess = () => {
     notification.success({
       message: 'Sucesso',
@@ -68,7 +59,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
       })
       .catch((erro) => {
         if (erro?.response?.data?.mensagens?.length) {
-          openNotificationError(erro.response.data.mensagens);
+          openNotificationErrors(erro.response.data.mensagens);
         }
       })
       .finally(() => setLoading(false));

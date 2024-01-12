@@ -1,9 +1,12 @@
 import { Table } from 'antd';
 import { TablePaginationConfig, TableProps } from 'antd/es/table';
+import { AxiosError } from 'axios';
 import queryString from 'query-string';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
+import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import api from '~/core/services/api';
+import { openNotificationErrors } from '../notification';
 import { DataTableContext } from './provider';
 
 interface TableParams {
@@ -65,6 +68,13 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
               },
             });
           }
+        })
+        .catch((error: AxiosError<RetornoBaseDTO>) => {
+          const mensagens = error?.response?.data?.mensagens?.length
+            ? error?.response?.data?.mensagens
+            : [];
+
+          openNotificationErrors(mensagens);
         })
         .finally(() => setLoading(false));
     },
