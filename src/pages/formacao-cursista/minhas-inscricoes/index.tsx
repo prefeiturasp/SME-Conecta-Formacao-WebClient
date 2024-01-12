@@ -50,7 +50,7 @@ export const MinhasInscricoes = () => {
                 id={CF_BUTTON_NOVO}
                 style={{ fontWeight: 700 }}
                 onClick={novaInscricao}
-                disabled={!permissaoTela?.podeIncluir}
+                disabled={permissaoTela?.podeIncluir}
               >
                 {NOVA_INSCRICAO}
               </Button>
