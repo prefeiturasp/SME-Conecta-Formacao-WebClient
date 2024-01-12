@@ -1,6 +1,5 @@
-import { Col, Form, Row } from 'antd';
+import { Col, Form, Row, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import Typography from 'antd/es/typography/Typography';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
@@ -54,7 +53,7 @@ export const TurmasInscricoes = () => {
   return (
     <Col>
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
-        <HeaderPage title={nomeFormacao} tooltipTitle={nomeFormacao}>
+        <HeaderPage title='Lista de inscrições'>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
@@ -65,6 +64,9 @@ export const TurmasInscricoes = () => {
         </HeaderPage>
 
         <CardContent>
+          <Typography.Title level={5} style={{ marginBottom: 24 }}>
+            {nomeFormacao}
+          </Typography.Title>
           <Col span={24}>
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={6}>
