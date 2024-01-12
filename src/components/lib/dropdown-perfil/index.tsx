@@ -1,12 +1,14 @@
-import { Button, Dropdown, List } from 'antd';
-import styled from 'styled-components';
-import { useAppSelector } from '~/core/hooks/use-redux';
-import { Colors } from '~/core/styles/colors';
-import autenticacaoService from '~/core/services/autenticacao-service';
-import { validarAutenticacao } from '~/core/utils/perfil';
-import { useState } from 'react';
-import { PerfilUsuarioDTO } from '~/core/dto/perfil-usuario-dto';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { Button, Dropdown, List } from 'antd';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { PerfilUsuarioDTO } from '~/core/dto/perfil-usuario-dto';
+import { ROUTES } from '~/core/enum/routes-enum';
+import { useAppSelector } from '~/core/hooks/use-redux';
+import autenticacaoService from '~/core/services/autenticacao-service';
+import { Colors } from '~/core/styles/colors';
+import { validarAutenticacao } from '~/core/utils/perfil';
 
 const ItensPerfil = styled.div`
   border-top-left-radius: 5px;
@@ -63,9 +65,12 @@ const Texto = styled.div`
 
 const DropdownPerfil: React.FC = () => {
   const auth = useAppSelector((state) => state.auth);
+  const navigate = useNavigate();
   const perfil = useAppSelector((state) => state.perfil);
   const [openDropdow, setOpenDropdow] = useState(false);
+
   const alterarPerfil = (perfilUsuarioId: string) => {
+    navigate(ROUTES.PRINCIPAL);
     autenticacaoService.alterarPerfilSelecionado(perfilUsuarioId).then((response) => {
       validarAutenticacao(response.data);
     });

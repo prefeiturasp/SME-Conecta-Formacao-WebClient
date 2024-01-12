@@ -29,7 +29,6 @@ import {
   TelefoneAreaPromotora,
 } from '~/core/dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
-import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import {
@@ -39,7 +38,6 @@ import {
   obterAreaPromotoraPorId,
   obterTiposAreaPromotora,
 } from '~/core/services/area-promotora-service';
-import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
 
@@ -51,12 +49,10 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   const navigate = useNavigate();
   const paramsRoute = useParams();
 
-  const { desabilitarCampos } = useContext(PermissaoContext);
+  const { desabilitarCampos, permissao } = useContext(PermissaoContext);
 
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
   const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
-
-  const permissao = obterPermissaoPorMenu(MenuEnum.AreaPromotora);
 
   const id = paramsRoute?.id || 0;
 
