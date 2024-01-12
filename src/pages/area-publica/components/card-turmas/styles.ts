@@ -1,7 +1,6 @@
 import { Colors } from '~/core/styles/colors';
 
 const cardStyle: React.CSSProperties = {
-  width: 230,
   padding: 0,
   margin: 8,
   backgroundColor: Colors.BACKGROUND_CONTENT,
