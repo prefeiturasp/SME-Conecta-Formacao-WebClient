@@ -98,10 +98,10 @@ const RoutesConfig = () => {
                 </Route>
 
                 <Route path={ROUTES.FORMACAOES_INSCRICOES}>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.Formacoes} />}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
                     <Route path='' element={<Inscricoes />} />
                   </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.Formacoes} />}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
                     <Route
                       path={ROUTES.FORMACAOES_INSCRICOES_EDITAR}
                       element={<TurmasInscricoes />}
