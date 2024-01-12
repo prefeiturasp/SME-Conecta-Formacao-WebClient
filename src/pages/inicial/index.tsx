@@ -14,14 +14,9 @@ const Inicial: React.FC = () => {
   const [podeConsultaInscricao, setPodeConsultaInscricao] = useState<boolean>(false);
 
   useEffect(() => {
-    // TODO - Alinhar com PO como verificar o perfil!
-    const perfis = perfilUsuario.map((perfil) => {
-      return perfil.perfilNome;
-    });
+    const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
-    const possuiPerfilCursista = perfis.includes(TipoPerfilTagDisplay[TipoPerfilEnum.Cursista]);
-
-    setPodeConsultaInscricao(possuiPerfilCursista);
+    setPodeConsultaInscricao(ehCursista);
   }, [perfilSelecionado, perfilUsuario]);
 
   if (inscricao?.formacao.id) {
