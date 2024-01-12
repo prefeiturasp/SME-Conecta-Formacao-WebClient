@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
-import api, { ApiResult } from '~/core/services/api';
+import api from '~/core/services/api';
 import { openNotificationErrors } from '../notification';
 import { DataTableContext } from './provider';
 
@@ -69,14 +69,12 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
             });
           }
         })
-        .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
+        .catch((error: AxiosError<RetornoBaseDTO>) => {
           const mensagens = error?.response?.data?.mensagens?.length
             ? error?.response?.data?.mensagens
             : [];
 
           openNotificationErrors(mensagens);
-
-          return { sucesso: false, mensagens, dados: null };
         })
         .finally(() => setLoading(false));
     },
