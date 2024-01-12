@@ -1,4 +1,4 @@
-import { Affix, Col, Typography } from 'antd';
+import { Affix, Col, Row, Typography } from 'antd';
 import React, { PropsWithChildren } from 'react';
 import styled from 'styled-components';
 import { BoxShadow, Colors } from '~/core/styles/colors';
@@ -7,26 +7,6 @@ const AffixContainer = styled.div`
   .ant-affix {
     box-shadow: ${BoxShadow.DEFAULT};
   }
-`;
-
-const HeaderContainer = styled.div`
-  height: 53px;
-  display: flex;
-  align-items: end;
-  margin-left: -32px;
-  margin-right: -32px;
-  padding-bottom: 8px;
-  background-color: ${Colors.BACKGROUND_CONTENT};
-`;
-
-const HeaderContentContainer = styled.div`
-  width: 100%;
-  display: flex;
-  margin-left: 32px;
-  margin-right: 32px;
-  justify-content: space-between;
-  align-items: end;
-  overflow: hidden;
 `;
 
 const Title = styled(Typography.Text)`
@@ -46,14 +26,17 @@ const HeaderPage: React.FC<HeaderPage> = ({ title, children, tooltipTitle }) => 
   return (
     <AffixContainer>
       <Affix offsetTop={70}>
-        <HeaderContainer>
-          <HeaderContentContainer>
-            <Col xs={18}>
-              <Title ellipsis={{ tooltip: tooltipTitle }}>{title}</Title>
-            </Col>
+        <Row
+          justify='space-between'
+          style={{ marginBottom: 8, background: Colors.BACKGROUND_CONTENT }}
+        >
+          <Col xs={18} sm={16}>
+            <Title ellipsis={{ tooltip: tooltipTitle }}>{title}</Title>
+          </Col>
+          <Col>
             <ChildrenContainer>{children}</ChildrenContainer>
-          </HeaderContentContainer>
-        </HeaderContainer>
+          </Col>
+        </Row>
       </Affix>
     </AffixContainer>
   );
