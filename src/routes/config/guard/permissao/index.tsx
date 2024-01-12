@@ -29,7 +29,7 @@ const GuardPermissao: React.FC<GuardPermissaoPros> = ({ menuKey }) => {
         <>
           <AlertaSomenteConsulta somenteConsulta={menu?.permissao?.somenteConsulta} />
           <PermissaoContextProvider menu={menu}>
-            <Outlet />;
+            <Outlet />
           </PermissaoContextProvider>
         </>
       ) : (
