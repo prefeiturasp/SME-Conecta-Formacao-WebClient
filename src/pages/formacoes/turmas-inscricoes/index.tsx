@@ -1,6 +1,5 @@
-import { Col, Form, Row } from 'antd';
+import { Col, Form, Row, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import Typography from 'antd/es/typography/Typography';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
@@ -17,6 +16,7 @@ import { TurmasInscricoesListaPaginada } from './listagem';
 
 export interface FiltroTurmaInscricoesProps {
   cpf: number | null;
+  nomeTurma: string | null;
   nomeCursista: string | null;
   registroFuncional: number | null;
 }
@@ -30,6 +30,7 @@ export const TurmasInscricoes = () => {
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
+    nomeTurma: null,
     nomeCursista: null,
     registroFuncional: null,
   });
@@ -43,6 +44,7 @@ export const TurmasInscricoes = () => {
   const obterFiltros = () => {
     setFilters({
       cpf: form.getFieldValue('cpf'),
+      nomeTurma: form.getFieldValue('nomeTurma'),
       nomeCursista: form.getFieldValue('nomeCursista'),
       registroFuncional: form.getFieldValue('registroFuncional'),
     });
@@ -51,7 +53,7 @@ export const TurmasInscricoes = () => {
   return (
     <Col>
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
-        <HeaderPage title={nomeFormacao}>
+        <HeaderPage title='Lista de inscrições'>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
@@ -62,9 +64,28 @@ export const TurmasInscricoes = () => {
         </HeaderPage>
 
         <CardContent>
+          <Typography.Title level={5} style={{ marginBottom: 24 }}>
+            {nomeFormacao}
+          </Typography.Title>
           <Col span={24}>
             <Row gutter={[16, 8]}>
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={6}>
+                <InputTexto
+                  formItemProps={{
+                    label: 'Turma',
+                    name: 'nomeTurma',
+                    style: { fontWeight: 'bold' },
+                    rules: [{ required: false }],
+                  }}
+                  inputProps={{
+                    onChange: obterFiltros,
+                    placeholder: 'Turma',
+                    id: CF_INPUT_NOME,
+                  }}
+                />
+              </Col>
+
+              <Col xs={24} sm={6}>
                 <InputNumero
                   formItemProps={{
                     label: 'RF',
@@ -81,7 +102,7 @@ export const TurmasInscricoes = () => {
                 />
               </Col>
 
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={6}>
                 <InputTexto
                   formItemProps={{
                     label: 'CPF',
@@ -97,7 +118,7 @@ export const TurmasInscricoes = () => {
                 />
               </Col>
 
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={6}>
                 <InputTexto
                   formItemProps={{
                     label: 'Nome do cursista',

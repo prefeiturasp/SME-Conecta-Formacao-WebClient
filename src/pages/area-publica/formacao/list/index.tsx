@@ -1,14 +1,14 @@
 import { Form, List } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { CardFormacao } from './components/card-formacao';
-import { FormacaoDTO } from '~/core/dto/formacao-dto';
-import { DivTitulo, TextTitulo } from './styles';
-import { CardFiltroFormacao } from './components/card-filtro-formacao';
 import { useForm } from 'antd/es/form/Form';
-import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
-import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
 import { PaginationConfig } from 'antd/es/pagination';
+import React, { useEffect, useState } from 'react';
+import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
 import { FiltroFormacaoFormDTO } from '~/core/dto/filtro-formacao-form-dto';
+import { FormacaoDTO } from '~/core/dto/formacao-dto';
+import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
+import { CardFiltroFormacao } from './components/card-filtro-formacao';
+import { CardFormacao } from './components/card-formacao';
+import { DivTitulo, TextTitulo } from './styles';
 
 type ListParams = {
   pagination?: PaginationConfig;
@@ -105,7 +105,7 @@ export const ListFormacao: React.FC = () => {
         locale={{ emptyText: 'Nenhuma formação encontrada' }}
         renderItem={(item) => (
           <List.Item>
-            <CardFormacao formacao={item}></CardFormacao>
+            <CardFormacao formacao={item} />
           </List.Item>
         )}
       />

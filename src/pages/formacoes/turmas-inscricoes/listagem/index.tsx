@@ -1,9 +1,10 @@
-import { Button, notification } from 'antd';
+import { Button } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
+import { notification } from '~/components/lib/notification';
 import { CANCELAR_INSCRICAO } from '~/core/constants/mensagens';
 import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situacao-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
@@ -73,12 +74,5 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     },
   ];
 
-  return (
-    <DataTable
-      url={`v1/Inscricao/${id}`}
-      rowKey='registroFuncional'
-      columns={columns}
-      filters={filters}
-    />
-  );
+  return <DataTable url={`v1/Inscricao/${id}`} columns={columns} filters={filters} />;
 };
