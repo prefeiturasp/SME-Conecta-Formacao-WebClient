@@ -1,4 +1,4 @@
-import { Affix, Col } from 'antd';
+import { Affix } from 'antd';
 import React, { PropsWithChildren } from 'react';
 import styled from 'styled-components';
 import { BoxShadow, Colors } from '~/core/styles/colors';
@@ -47,9 +47,7 @@ const HeaderPage: React.FC<HeaderPage> = ({ title, children }) => {
       <Affix offsetTop={70}>
         <HeaderContainer>
           <HeaderContentContainer>
-            <Col xs={18} sm={16}>
-              <Title>{title}</Title>
-            </Col>
+            <Title>{title}</Title>
             <ChildrenContainer>{children}</ChildrenContainer>
           </HeaderContentContainer>
         </HeaderContainer>
