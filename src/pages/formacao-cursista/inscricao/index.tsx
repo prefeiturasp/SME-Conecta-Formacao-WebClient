@@ -292,7 +292,7 @@ export const Inscricao = () => {
                 {ehServidorTemRF && <SelectFuncaoAtividade />}
               </Col>
 
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={24}>
                 <SelectTurma propostaId={formacaoState?.id} />
               </Col>
 

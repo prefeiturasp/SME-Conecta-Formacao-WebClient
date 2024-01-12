@@ -58,7 +58,7 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, p
         options={options}
         placeholder='Selecione uma Turma'
         {...selectProps}
-        id={CF_SELECT_TURMA_INSCRICAO}
+        id={CF_SELECT_TURMA_INSCRICAO}        
       />
     </Form.Item>
   );
