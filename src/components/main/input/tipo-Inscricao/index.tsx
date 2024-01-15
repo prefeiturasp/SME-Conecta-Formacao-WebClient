@@ -49,7 +49,6 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
       }}
     >
       <Select
-        // mode='multiple'
         options={options}
         placeholder='Tipo de inscrição'
         id={CF_SELECT_TIPO_INSCRICAO}
