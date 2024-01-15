@@ -11,11 +11,12 @@ import {
   Typography,
 } from 'antd';
 import { cloneDeep } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { SelectDRE } from '~/components/main/input/dre';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -92,6 +93,8 @@ type TabelaEditavelProps = {
 const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
+
+  const { desabilitarCampos } = useContext(PermissaoContext);
 
   const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
   const dresWatch = Form.useWatch('dres', formProposta);
@@ -225,7 +228,11 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
           </Flex>
         ) : (
           <Typography onClick={() => edit(record)}>
-            <Button type='primary' size='small' disabled={!!editingKey || editingKey === 0}>
+            <Button
+              type='primary'
+              size='small'
+              disabled={!!editingKey || editingKey === 0 || desabilitarCampos}
+            >
               Editar
             </Button>
           </Typography>
