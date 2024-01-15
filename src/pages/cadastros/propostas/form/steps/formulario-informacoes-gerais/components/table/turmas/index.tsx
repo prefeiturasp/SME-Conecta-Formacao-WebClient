@@ -102,6 +102,9 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [editingKey, setEditingKey] = useState<number | undefined>();
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
 
+  const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
+  const temOpcaoTodas = newDresTurmas.find((dre) => dre?.todos);
+
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
 
   const pagination: TablePaginationConfig = {
@@ -134,11 +137,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   useEffect(() => {
     const dresEmEdicao = formProposta.isFieldTouched('dres');
     if (dresEmEdicao) {
-      const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
-
       const turmas: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas');
-
-      const temOpcaoTodas = newDresTurmas.find((dre) => dre?.todos);
 
       if (turmas?.length) {
         const newTurmas = turmas.map((turma) => ({
@@ -152,7 +151,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   }, [dresWatch]);
 
   const edit = (record: PropostaTurmaFormDTO) => {
-    setEditInValues({ ...record });
+    setEditInValues({ ...record, dres: temOpcaoTodas ? [] : newDresTurmas });
     setEditingKey(record.key);
   };
 
@@ -198,14 +197,19 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
         return (
           <Col>
             <Row gutter={[8, 8]}>
-              {dresExibicao.map((dre: DreDTO, i: number) => (
-                <Tag key={i}>{dre?.label}</Tag>
-              ))}
+              {dresExibicao.map((dre: DreDTO, i: number) => {
+                if (dre.descricao === 'TODOS') {
+                  return <React.Fragment key={i} />;
+                }
+
+                return <Tag key={i}>{dre?.label}</Tag>;
+              })}
             </Row>
           </Col>
         );
       },
     },
+
     {
       title: 'Operação',
       width: '200px',
