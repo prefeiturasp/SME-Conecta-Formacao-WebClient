@@ -158,7 +158,7 @@ const FormCadastroDePropostas: React.FC = () => {
 
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
-      tiposInscricao: [TipoInscricao.Optativa],
+      tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
       dres: temDreVinculada ? dresVinculadas : [],
       modalidade: undefined,
@@ -373,7 +373,7 @@ const FormCadastroDePropostas: React.FC = () => {
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       formato: clonedValues?.formato,
-      tiposInscricao: clonedValues?.tiposInscricao,
+      tipoInscricao: clonedValues?.tipoInscricao,
       dreIdPropostas: clonedValues?.dreIdPropostas || null,
       nomeFormacao: clonedValues?.nomeFormacao,
       quantidadeTurmas: clonedValues?.quantidadeTurmas || null,
