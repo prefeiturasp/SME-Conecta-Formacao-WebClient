@@ -158,7 +158,7 @@ const FormCadastroDePropostas: React.FC = () => {
 
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
-      tipoInscricao: [TipoInscricao.Optativa],
+      tipoInscricao: TipoInscricao.Optativa,
       publicosAlvo: [],
       dres: temDreVinculada ? dresVinculadas : [],
       modalidade: undefined,

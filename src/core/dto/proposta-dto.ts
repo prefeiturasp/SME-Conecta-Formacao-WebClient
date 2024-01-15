@@ -19,7 +19,7 @@ export type PropostaDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
-  tipoInscricao?: TipoInscricao[];
+  tipoInscricao?: TipoInscricao;
   dreIdPropostas: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
@@ -68,7 +68,7 @@ export type PropostaFormDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
-  tipoInscricao?: TipoInscricao[];
+  tipoInscricao?: TipoInscricao;
   dreIdPropostas?: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
