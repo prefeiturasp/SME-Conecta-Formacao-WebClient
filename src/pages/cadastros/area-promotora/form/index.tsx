@@ -156,7 +156,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
     }
 
     if (id) {
-      response = await alterarAreaPromotora(id, valoresSalvar, true);
+      response = await alterarAreaPromotora(id, valoresSalvar);
     } else {
       response = await inserirAreaPromotora(valoresSalvar);
     }
