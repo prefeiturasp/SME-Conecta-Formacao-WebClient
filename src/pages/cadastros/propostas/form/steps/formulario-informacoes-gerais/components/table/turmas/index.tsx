@@ -62,6 +62,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
         }}
       />
     );
+  } else if (dataIndex === 'nome') {
+    inputNode = (
+      <Input
+        maxLength={200} 
+      />
+    );
   }
 
   return (
@@ -182,8 +188,8 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
     {
       title: 'Turma',
       dataIndex: 'nome',
-      width: '200px',
       editable: true,
+      render: (turmaNome: string) => <div style={{ wordBreak: 'break-word', width: 450}}>{turmaNome}</div>
     },
     {
       title: 'DRE',
