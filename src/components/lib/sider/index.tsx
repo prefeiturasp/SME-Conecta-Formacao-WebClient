@@ -132,6 +132,10 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
         setOpenKeys([]);
         if (onClickMenuButtonToggle) onClickMenuButtonToggle(true);
       }}
+      onMouseLeave={() => {
+        setOpenKeys([]);
+        setCollapsed(true);
+      }}
     >
       <SiderMenuButtonToggleStyle collapsed={collapsed}>
         {collapsed ? null : logoMenu}
