@@ -21,8 +21,8 @@ import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
 import {
   DESEJA_CANCELAR_ALTERACOES,
-  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   ENVIAR_INSCRICAO,
+  SUA_INSCRICAO_NAO_FOI_ENVIADA,
 } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
@@ -116,7 +116,7 @@ export const Inscricao = () => {
   const onClickVoltar = () => {
     if (form.isFieldsTouched()) {
       confirmacao({
-        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
+        content: SUA_INSCRICAO_NAO_FOI_ENVIADA,
         onOk() {
           form.submit();
         },

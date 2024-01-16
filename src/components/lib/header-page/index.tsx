@@ -27,6 +27,7 @@ const HeaderContentContainer = styled.div`
   justify-content: space-between;
   align-items: end;
   overflow: hidden;
+  padding-top: 8px;
 `;
 
 const Title = styled.div`
