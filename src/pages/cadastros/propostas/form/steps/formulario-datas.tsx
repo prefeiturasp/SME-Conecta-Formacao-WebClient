@@ -158,7 +158,7 @@ const FormularioDatas: React.FC = () => {
           <Col xs={24} sm={14} md={24} style={contentStyle}>
             Inscrição
           </Col>
-          <Col xs={24} sm={10} md={7} lg={7} xl={5}>
+          <Col sm={24} md={12} lg={8}>
             <b>
               <DatePickerPeriodo
                 label='Período de inscricao'
