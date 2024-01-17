@@ -3,8 +3,8 @@ import { Navigate } from 'react-router-dom';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
-import { store } from '~/core/redux';
-import { setPerfilSelecionado } from '~/core/redux/modules/perfil/actions';
+import autenticacaoService from '~/core/services/autenticacao-service';
+import { validarAutenticacao } from '~/core/utils/perfil';
 import { MinhasInscricoes } from '../formacao-cursista/minhas-inscricoes';
 
 const Inicial: React.FC = () => {
@@ -26,7 +26,12 @@ const Inicial: React.FC = () => {
   );
 
   if (inscricao?.formacao.id && temPerfilCursista) {
-    store.dispatch(setPerfilSelecionado(temPerfilCursista[0]));
+    const perfilUsuarioId = temPerfilCursista[0].perfil;
+
+    autenticacaoService.alterarPerfilSelecionado(perfilUsuarioId).then((response) => {
+      validarAutenticacao(response.data);
+    });
+
     return <Navigate to={ROUTES.INSCRICAO} />;
   }
 
