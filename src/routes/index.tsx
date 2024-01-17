@@ -1,9 +1,10 @@
-import { createElement } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { createElement, useEffect } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
+import { scrollNoInicio } from '~/core/utils/functions';
 import PageForbidden from '~/pages/403';
 import PageNotFound from '~/pages/404';
 import AreaPublica from '~/pages/area-publica';
@@ -43,8 +44,19 @@ const RoutesConfig = () => {
   const listFormacaoPage = createElement(ListFormacao);
   const visualizarAreaPublica = createElement(VisualizarFormacao);
 
+  const ScrollToTop = () => {
+    const { pathname } = useLocation();
+
+    useEffect(() => {
+      scrollNoInicio();
+    }, [pathname]);
+
+    return null;
+  };
+
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path={ROUTES.AREA_PUBLICA} element={areaPublicaPage}>
           <Route path={ROUTES.AREA_PUBLICA} element={listFormacaoPage} />

@@ -1,6 +1,8 @@
-import { dayjs } from '~/core/date/dayjs';
 import { cloneDeep } from 'lodash';
+import { dayjs } from '~/core/date/dayjs';
 import { OpcaoListagem } from '~/core/enum/opcao-listagem';
+
+export const scrollNoInicio = () => window.scrollTo(0, 0);
 
 export const removerTudoQueNaoEhDigito = (value: any) => `${value}`.replace(/\D/g, '');
 
