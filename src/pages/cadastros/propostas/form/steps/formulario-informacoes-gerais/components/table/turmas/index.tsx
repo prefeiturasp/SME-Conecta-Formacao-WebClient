@@ -194,12 +194,14 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       title: 'Turma',
       dataIndex: 'nome',
       editable: true,
+      width: '40%',
       render: (turmaNome: string) => <div style={{ wordBreak: 'break-word', width: 380}}>{turmaNome}</div>
     },
     {
       title: 'DRE',
       dataIndex: 'dres',
       editable: true,
+      width: '40%',
       render: (dresExibicao: DreDTO[]) => {
         if (!dresExibicao?.length) return <></>;
         const filteredDres = dresExibicao.filter(dre => dre.descricao !== 'TODOS');
@@ -217,7 +219,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
 
     {
       title: 'Operação',
-      width: '200px',
+      width: '20%',
       align: 'center' as const,
       render: (_: any, record: PropostaTurmaFormDTO) => {
         const editable = isEditing(record);
