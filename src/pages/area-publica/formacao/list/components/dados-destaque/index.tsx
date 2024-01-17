@@ -7,8 +7,11 @@ import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
 import { ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
+import autenticacaoService from '~/core/services/autenticacao-service';
+import { validarAutenticacao } from '~/core/utils/perfil';
 import { TagTipoFormacaoFormato } from '../card-formacao/styles';
 import { FlexDestaque, ImagemDestaque, TextDestaque } from './styles';
 
@@ -22,11 +25,22 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
   const dispatch = useAppDispatch();
   const dadosInscricao = location.state.location;
   const autenticado = useAppSelector((state) => state.auth.autenticado);
+  const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
 
   const setarDadosInscricao = () => {
     dispatch(setDadosFormacao(dadosInscricao));
 
+    const temPerfilCursista = perfilUsuario.filter((item) =>
+      item.perfilNome.includes(TipoPerfilTagDisplay[TipoPerfilEnum.Cursista]),
+    );
+
+    const perfilUsuarioId = temPerfilCursista[0].perfil;
+
     if (autenticado) {
+      autenticacaoService.alterarPerfilSelecionado(perfilUsuarioId).then((response) => {
+        validarAutenticacao(response.data);
+      });
+
       navigate(ROUTES.INSCRICAO, {
         replace: true,
       });
