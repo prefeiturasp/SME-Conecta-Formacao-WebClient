@@ -157,14 +157,13 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   }, [dresWatch]);
 
   const edit = (record: PropostaTurmaFormDTO) => {    
-    let filteredRecord:any;
-    if(record){
-      filteredRecord = record?.dres.filter(item => item.descricao !== "TODOS");
+    if (record && record.dres) {
+      const filteredRecord = record.dres.filter(item => item.descricao !== "TODOS");
       setEditInValues({ ...record, dres: filteredRecord });
       setEditingKey(record.key);
     }
   };
-
+  
   useEffect(() => {
     formRow.resetFields();
   }, [formRow, editInValues]);
