@@ -60,6 +60,7 @@ import {
   inserirProposta,
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
+import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
@@ -314,6 +315,7 @@ const FormCadastroDePropostas: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
+    scrollNoInicio();
     if (id) {
       carregarDados();
     } else {
@@ -324,6 +326,10 @@ const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     form.resetFields();
   }, [form, formInitialValues]);
+
+  useEffect(() => {
+    scrollNoInicio();
+  }, [currentStep]);
 
   const onClickCancelar = () => {
     if (form.isFieldsTouched()) {
