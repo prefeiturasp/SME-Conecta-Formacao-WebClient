@@ -156,9 +156,13 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
     }
   }, [dresWatch]);
 
-  const edit = (record: PropostaTurmaFormDTO) => {
-    setEditInValues({ ...record, dres: temOpcaoTodas ? [] : newDresTurmas });
-    setEditingKey(record.key);
+  const edit = (record: PropostaTurmaFormDTO) => {    
+    let filteredRecord:any;
+    if(record){
+      filteredRecord = record?.dres.filter(item => item.descricao !== "TODOS");
+      setEditInValues({ ...record, dres: filteredRecord });
+      setEditingKey(record.key);
+    }
   };
 
   useEffect(() => {
@@ -191,7 +195,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       title: 'Turma',
       dataIndex: 'nome',
       editable: true,
-      render: (turmaNome: string) => <div style={{ wordBreak: 'break-word', width: 450}}>{turmaNome}</div>
+      render: (turmaNome: string) => <div style={{ wordBreak: 'break-word', width: 380}}>{turmaNome}</div>
     },
     {
       title: 'DRE',
@@ -199,17 +203,13 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       editable: true,
       render: (dresExibicao: DreDTO[]) => {
         if (!dresExibicao?.length) return <></>;
-
+        const filteredDres = dresExibicao.filter(dre => dre.descricao !== 'TODOS');
         return (
           <Col>
             <Row gutter={[8, 8]}>
-              {dresExibicao.map((dre: DreDTO, i: number) => {
-                if (dre.descricao === 'TODOS') {
-                  return <React.Fragment key={i} />;
-                }
-
-                return <Tag key={i}>{dre?.label}</Tag>;
-              })}
+            {filteredDres.map((dre: DreDTO, i: number) => (
+              <Tag key={i}>{dre?.label}</Tag>
+            ))}
             </Row>
           </Col>
         );
