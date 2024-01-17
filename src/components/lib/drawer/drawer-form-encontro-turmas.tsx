@@ -16,7 +16,9 @@ import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-
 import { DataEncontro, FormularioDrawerEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 import { PropostaEncontroDTO, PropostaEncontroDataDTO } from '~/core/dto/proposta-encontro-dto';
 import { TipoEncontro } from '~/core/enum/tipo-encontro';
+import { confirmacao } from '~/core/services/alerta-service';
 import { removerPropostaEncontro, salvarPropostaEncontro } from '~/core/services/proposta-service';
+import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 
 const { TextArea } = Input;
 
@@ -120,8 +122,13 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   };
 
   const fecharModal = (recarregarLista?: boolean) => {
-    formDrawer.resetFields();
-    onCloseModal(!!recarregarLista);
+    confirmacao({
+      content: DESEJA_CANCELAR_ALTERACOES,
+      onOk() {
+        onCloseModal(!!recarregarLista);
+        formDrawer.resetFields();
+      },
+    });
   };
 
   const excluirEncontro = async () => {
