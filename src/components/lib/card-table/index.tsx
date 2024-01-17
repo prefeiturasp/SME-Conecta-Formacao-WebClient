@@ -6,6 +6,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import api from '~/core/services/api';
+import { scrollNoInicio } from '~/core/utils/functions';
 import { openNotificationErrors } from '../notification';
 import { DataTableContext } from './provider';
 
@@ -113,6 +114,10 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
 
     setTableParams(newParams);
   };
+
+  useEffect(() => {
+    scrollNoInicio();
+  }, [tableParams.pagination?.current, !tableParams.pagination?.pageSize]);
 
   return (
     <Table

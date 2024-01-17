@@ -7,6 +7,7 @@ import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
 import { FiltroFormacaoFormDTO } from '~/core/dto/filtro-formacao-form-dto';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
+import { scrollNoInicio } from '~/core/utils/functions';
 import { CardFiltroFormacao } from './components/card-filtro-formacao';
 import { CardFormacao } from './components/card-formacao';
 import { DivTitulo, TextTitulo } from './styles';
@@ -90,6 +91,10 @@ export const ListFormacao: React.FC = () => {
 
     carregarDados(newListParams, filtroFormacao);
   };
+
+  useEffect(() => {
+    scrollNoInicio();
+  }, [listParams.pagination?.current, !listParams.pagination?.pageSize]);
 
   return (
     <>
