@@ -34,7 +34,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
       item.perfilNome.includes(TipoPerfilTagDisplay[TipoPerfilEnum.Cursista]),
     );
 
-    const perfilUsuarioId = temPerfilCursista[0].perfil;
+    const perfilUsuarioId = temPerfilCursista[0]?.perfil;
 
     if (autenticado) {
       autenticacaoService.alterarPerfilSelecionado(perfilUsuarioId).then((response) => {
