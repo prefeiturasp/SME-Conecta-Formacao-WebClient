@@ -12,7 +12,7 @@ import SelectFormato from '~/components/main/input/formato';
 import SelectFuncaoEspecifica from '~/components/main/input/funcao-especifica';
 import SelectModalidade from '~/components/main/input/modalidades';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
-import RadioTipoInscricao from '~/components/main/input/tipo-Inscricao';
+import SelectTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
 import SelectVagasRemanescentes from '~/components/main/input/vagas-remanescentes';
 import InputNumero from '~/components/main/numero';
@@ -78,8 +78,8 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         <SelectFormato />
       </Col>
 
-      <Col xs={24} sm={12} md={10} lg={6}>
-        <RadioTipoInscricao />
+      <Col xs={24} md={10}>
+        <SelectTipoInscricao />
       </Col>
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (

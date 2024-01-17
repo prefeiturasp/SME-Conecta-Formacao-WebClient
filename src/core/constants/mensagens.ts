@@ -62,3 +62,4 @@ export const SAIBA_MAIS = 'Saiba mais';
 export const SOBRE_ESTE_EVENTO = 'Sobre este evento';
 export const PUBLICO_ALVO = 'Público-alvo';
 export const PALAVRAS_CHAVES = 'Palavras-chave';
+export const TIPO_INSCRICAO_NAO_INFORMADA = 'É necessário informar o tipo de inscrição';
