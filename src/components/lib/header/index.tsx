@@ -1,5 +1,5 @@
 import { LoginOutlined } from '@ant-design/icons';
-import { Flex, Layout, Menu, MenuProps, Row, Space } from 'antd';
+import { Layout, Menu, MenuProps, Row, Space } from 'antd';
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ConectaLogo from '~/assets/conecta-formacao-logo.svg';
@@ -65,28 +65,30 @@ const Header: React.FC = () => {
       </Link>
 
       <Row justify='end' style={{ width: '100%' }}>
-        <Flex gap={16}>
-          {rotaEhAreaPublica && (
-            <Menu
-              onClick={alterarMenu}
-              selectedKeys={[menu]}
-              mode='horizontal'
-              items={filteredMenuItems}
-              style={{ height: 70 }}
-            />
-          )}
+        {rotaEhAreaPublica && (
+          <Menu
+            disabledOverflow
+            mode='horizontal'
+            onClick={alterarMenu}
+            selectedKeys={[menu]}
+            style={{
+              height: 70,
+              display: 'flex',
+            }}
+            items={filteredMenuItems}
+          />
+        )}
 
-          {autenticado && (
-            <Space>
-              <DropdownPerfil />
-              <ExitButton
-                onClick={() => {
-                  store.dispatch(setDeslogar());
-                }}
-              />
-            </Space>
-          )}
-        </Flex>
+        {autenticado && (
+          <Space>
+            <DropdownPerfil />
+            <ExitButton
+              onClick={() => {
+                store.dispatch(setDeslogar());
+              }}
+            />
+          </Space>
+        )}
       </Row>
     </Layout.Header>
   );
