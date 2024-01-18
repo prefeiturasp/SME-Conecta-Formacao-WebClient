@@ -122,13 +122,17 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   };
 
   const fecharModal = (recarregarLista?: boolean) => {
-    confirmacao({
-      content: DESEJA_CANCELAR_ALTERACOES,
-      onOk() {
-        onCloseModal(!!recarregarLista);
-        formDrawer.resetFields();
-      },
-    });
+    if(recarregarLista){
+      onCloseModal(!!recarregarLista);
+    }else{
+      confirmacao({
+        content: DESEJA_CANCELAR_ALTERACOES,
+        onOk() {
+          onCloseModal(!!recarregarLista);
+          formDrawer.resetFields();
+        },
+      });
+    }
   };
 
   const excluirEncontro = async () => {
