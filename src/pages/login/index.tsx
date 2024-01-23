@@ -87,6 +87,8 @@ const Login = () => {
     }
   };
 
+  const onClickCriarConta = () => navigate(ROUTES.CADASTRO_DE_USUARIO);
+
   return (
     <Col span={14}>
       <Form
@@ -171,6 +173,16 @@ const Login = () => {
           ) : (
             <></>
           )}
+          <Col span={24}>
+            <Button
+              block
+              style={{ fontWeight: 700 }}
+              id={CF_BUTTON_ACESSAR}
+              onClick={() => onClickCriarConta()}
+            >
+              Cadastre-se
+            </Button>
+          </Col>
         </Row>
       </Form>
     </Col>

@@ -10,6 +10,7 @@ import PageNotFound from '~/pages/404';
 import AreaPublica from '~/pages/area-publica';
 import { ListFormacao } from '~/pages/area-publica/formacao/list';
 import VisualizarFormacao from '~/pages/area-publica/formacao/view';
+import { CadastroDeUsuario } from '~/pages/cadastro-de-usuario';
 import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
 import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import FormCadastroDePropostas from '~/pages/cadastros/propostas/form';
@@ -128,6 +129,7 @@ const RoutesConfig = () => {
             <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />
             <Route element={homePage}>
               <Route path={ROUTES.LOGIN} element={loginPage} />
+              <Route path={ROUTES.CADASTRO_DE_USUARIO} element={<CadastroDeUsuario />} />
               <Route path={ROUTES.REDEFINIR_SENHA} element={redefinirSenhaPage} />
               <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
             </Route>
