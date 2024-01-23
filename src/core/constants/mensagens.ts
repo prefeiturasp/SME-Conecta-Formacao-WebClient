@@ -63,3 +63,5 @@ export const SOBRE_ESTE_EVENTO = 'Sobre este evento';
 export const PUBLICO_ALVO = 'Público-alvo';
 export const PALAVRAS_CHAVES = 'Palavras-chave';
 export const TIPO_INSCRICAO_NAO_INFORMADA = 'É necessário informar o tipo de inscrição';
+export const ENVIAR_EMAIL_PARA_VALIDACAO =
+  'Ao continuar iremos enviar um e-mail com um link para validação do seu cadastro.';

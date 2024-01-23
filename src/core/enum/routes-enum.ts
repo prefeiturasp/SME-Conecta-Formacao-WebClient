@@ -1,6 +1,7 @@
 export enum ROUTES {
   PRINCIPAL = '/',
   LOGIN = '/login',
+  CADASTRO_DE_USUARIO = '/cadastre-se',
   MEUS_DADOS = '/meus-dados',
   REDEFINIR_SENHA = '/redefinir-senha',
   REDEFINIR_SENHA_TOKEN = '/redefinir-senha/:token',
