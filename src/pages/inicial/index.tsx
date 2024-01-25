@@ -6,6 +6,7 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 import autenticacaoService from '~/core/services/autenticacao-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
 import { MinhasInscricoes } from '../formacao-cursista/minhas-inscricoes';
+import FiltroPaginaInicial from './components/filtro';
 
 const Inicial: React.FC = () => {
   const inscricao = useAppSelector((state) => state.inscricao);
@@ -39,7 +40,7 @@ const Inicial: React.FC = () => {
     return <MinhasInscricoes />;
   }
 
-  return <>Página inicial</>;
+  return <FiltroPaginaInicial />;
 };
 
 export default Inicial;
