@@ -1,7 +1,7 @@
 import { Button, Col, Row } from 'antd';
 import { FC } from 'react';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
-import DatePickerPeriodo from '~/components/main/input/date-range';
+import { DatePickerPeriodo } from '~/components/main/input/date-range';
 import SelectFormato from '~/components/main/input/formato';
 import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
 import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
@@ -39,7 +39,7 @@ export const CardFiltroFormacao: FC = () => {
         />
       </Col>
       <Col xs={24} sm={12} md={7} lg={7} xl={5}>
-        <DatePickerPeriodo label='Data' name='data' />
+        <DatePickerPeriodo formItemProps={{ label: 'Data', name: 'data' }} />
       </Col>
       <Col xs={24} sm={12} md={7} lg={7} xl={5}>
         <SelectFormato
