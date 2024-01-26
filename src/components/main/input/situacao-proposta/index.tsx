@@ -1,4 +1,4 @@
-import { Form } from 'antd';
+import { Form, FormItemProps } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -8,9 +8,13 @@ import { obterSituacoes } from '~/core/services/proposta-service';
 
 type SelectSituacaoPropostaProps = {
   selectProps?: SelectProps;
+  formItemProps?: FormItemProps;
 };
 
-const SelectSituacaoProposta: React.FC<SelectSituacaoPropostaProps> = ({ selectProps }) => {
+const SelectSituacaoProposta: React.FC<SelectSituacaoPropostaProps> = ({
+  selectProps,
+  formItemProps,
+}) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
@@ -28,7 +32,12 @@ const SelectSituacaoProposta: React.FC<SelectSituacaoPropostaProps> = ({ selectP
   }, []);
 
   return (
-    <Form.Item label='Situação' name='situacaoProposta' rules={[{ required: false }]}>
+    <Form.Item
+      label='Situação'
+      name='situacaoProposta'
+      rules={[{ required: false }]}
+      {...formItemProps}
+    >
       <Select {...selectProps} options={options} placeholder='Situação' id={CF_SELECT_SITUACAO} />
     </Form.Item>
   );

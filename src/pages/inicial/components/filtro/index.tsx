@@ -1,7 +1,7 @@
 import { Col, Form, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
@@ -32,7 +32,7 @@ export type FilterStateLocationProps = {
   situacao: number | null;
 };
 
-const FiltroPaginaInicial: React.FC = () => {
+export const FiltroPaginaInicial: React.FC = () => {
   const [form] = useForm();
 
   const areaPromotora = useAppSelector((state) => state.perfil.perfilSelecionado?.perfilNome);
@@ -49,7 +49,7 @@ const FiltroPaginaInicial: React.FC = () => {
     situacao: null,
   });
 
-  const obterFiltros = () => {
+  const obterFiltros = useCallback(() => {
     setFilters({
       numeroHomologacao: form.getFieldValue('numeroHomologacao'),
       areaPromotoraId: form.getFieldValue('areaPromotoraId'),
@@ -65,7 +65,7 @@ const FiltroPaginaInicial: React.FC = () => {
       ),
       situacao: form.getFieldValue('situacaoProposta'),
     });
-  };
+  }, [form]);
 
   const camposFiltroJSX = () => {
     const styleFormLabel = { fontWeight: 'bold' };
@@ -150,7 +150,10 @@ const FiltroPaginaInicial: React.FC = () => {
           />
         </Col>
         <Col xs={24} md={12} lg={8}>
-          <SelectSituacaoProposta selectProps={{ onChange: obterFiltros }} />
+          <SelectSituacaoProposta
+            selectProps={{ onChange: obterFiltros }}
+            formItemProps={{ style: styleFormLabel }}
+          />
         </Col>
       </>
     );
@@ -192,5 +195,3 @@ const FiltroPaginaInicial: React.FC = () => {
     </Col>
   );
 };
-
-export default FiltroPaginaInicial;
