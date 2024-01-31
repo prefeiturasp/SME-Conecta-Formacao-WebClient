@@ -19,7 +19,7 @@ export type PropostaDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
-  tiposInscricao?: TipoInscricao[];
+  tiposInscricao?: TipoInscricaoType[];
   dreIdPropostas: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
@@ -59,7 +59,7 @@ export type PropostaDTO = {
   integrarNoSGA?: boolean;
 };
 
-export type TipoInscricao = {
+export type TipoInscricaoType = {
   tipoInscricao: TiposInscricao;
 }
 
@@ -72,7 +72,7 @@ export type PropostaFormDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
-  tiposInscricao?: TipoInscricao[];
+  tiposInscricao?: TipoInscricaoType[];
   dreIdPropostas?: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
