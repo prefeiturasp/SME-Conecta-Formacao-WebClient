@@ -3,17 +3,20 @@ import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErroGeralLogin from '~/components/main/erro-geral-login';
+import InputCodigoEolUE from '~/components/main/input/codigo-eol-ue';
 import InputCPF from '~/components/main/input/cpf';
+import InputEmail from '~/components/main/input/email';
 import SenhaCadastro from '~/components/main/input/senha-cadastro';
+import SelectUEs from '~/components/main/input/ue';
 import { CF_BUTTON_CONTINUAR, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
-  CF_INPUT_CODIGO_EOL,
   CF_INPUT_CONFIRMAR_SENHA,
   CF_INPUT_CPF,
   CF_INPUT_EMAIL,
   CF_INPUT_NOME,
   CF_INPUT_NOME_UE,
   CF_INPUT_SENHA,
+  CF_INPUT_UE,
 } from '~/core/constants/ids/input';
 import { ENVIAR_EMAIL_PARA_VALIDACAO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -21,7 +24,6 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
-import InputEmail from '../formacao-cursista/inscricao/components/input-email';
 
 export const CadastroDeUsuario = () => {
   const [form] = useForm();
@@ -58,6 +60,13 @@ export const CadastroDeUsuario = () => {
   const validaCPFExistente = (value: string) => {
     setCPFExistente([]);
     setLoadingCPF(true);
+
+    {
+      /* Quando eu digitar o meu CPF
+              E eu possuir um contrato externo válido
+              Então já deverão ser carregados os campos de nome e código e nome da UE */
+    }
+
     // usuarioService
     //   .validaCPFExistente(value)
     //   .then((resposta) => {
@@ -156,15 +165,16 @@ export const CadastroDeUsuario = () => {
           </Col>
           <Col span={24}>
             {/* Código EOL da UE: Deverá validar no EOL se é válido */}
-            <Form.Item label='Código EOL da UE' name='codigoEolUe' rules={[{ required: true }]}>
-              <Input id={CF_INPUT_CODIGO_EOL} placeholder='Informe o código EOL da UE' />
-            </Form.Item>
+            <InputCodigoEolUE />
           </Col>
           <Col span={24}>
             {/* Nome da UE: Carregar o nome da UE cujo código foi informado com a sigla do tipo */}
             <Form.Item label='Nome da UE' name='nomeUE' rules={[{ required: true }]}>
               <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Informe o nome completo' />
             </Form.Item>
+          </Col>
+          <Col span={24}>
+            <SelectUEs selectProps={{ id: CF_INPUT_UE }} />
           </Col>
           <Col span={24}>
             <SenhaCadastro inputProps={{ id: CF_INPUT_SENHA }} />
