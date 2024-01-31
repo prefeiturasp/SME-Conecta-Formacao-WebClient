@@ -79,7 +79,11 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col xs={24} md={10}>
-        <SelectTipoInscricao />
+        <SelectTipoInscricao 
+          selectProps={{
+            mode: 'multiple'            
+          }}
+        />
       </Col>
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
