@@ -49,7 +49,7 @@ import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
-import { TipoInscricao } from '~/core/enum/tipo-inscricao';
+import { TiposInscricao } from '~/core/enum/tipo-inscricao';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { obterDREs } from '~/core/services/dre-service';
@@ -155,7 +155,10 @@ const FormCadastroDePropostas: React.FC = () => {
 
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
-      tipoInscricao: TipoInscricao.Optativa,
+      tiposInscricao: [
+        { tipoInscricao: TiposInscricao.Optativa },
+        { tipoInscricao: TiposInscricao.Automatica },
+      ],
       publicosAlvo: [],
       dres: temDreVinculada ? dresVinculadas : [],
       modalidade: undefined,
@@ -375,7 +378,7 @@ const FormCadastroDePropostas: React.FC = () => {
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       formato: clonedValues?.formato,
-      tipoInscricao: clonedValues?.tipoInscricao,
+      tiposInscricao: clonedValues?.tiposInscricao,      
       dreIdPropostas: clonedValues?.dreIdPropostas || null,
       nomeFormacao: clonedValues?.nomeFormacao,
       quantidadeTurmas: clonedValues?.quantidadeTurmas || null,
