@@ -170,7 +170,7 @@ export const CadastroDeUsuario = () => {
           <Col span={24}>
             {/* Nome da UE: Carregar o nome da UE cujo código foi informado com a sigla do tipo */}
             <Form.Item label='Nome da UE' name='nomeUE' rules={[{ required: true }]}>
-              <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Informe o nome completo' />
+              <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Informe o nome completo' disabled/>
             </Form.Item>
           </Col>
           <Col span={24}>

@@ -24,11 +24,12 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
     <Form.Item
       label='Código EOL da UE'
       name='codigoEolUe'
+
       dependencies={['ues']}
       rules={[{ required: campoEhObrigatorio() }]}
       {...formItemProps}
     >
-      <Input id={CF_INPUT_CODIGO_EOL} placeholder='Informe o código EOL da UE' {...inputProps} />
+      <Input.Search id={CF_INPUT_CODIGO_EOL} placeholder='Informe o código EOL da UE' onSearch={()=>alert('chamar endpoint de consulta')} {...inputProps} />
     </Form.Item>
   );
 };
