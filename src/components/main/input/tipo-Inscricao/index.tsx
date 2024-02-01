@@ -35,7 +35,7 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
   return (
     <Form.Item
       label='Tipo de inscrição'
-      name='tipoInscricao'
+      name='tiposInscricao'
       rules={[{ required: true, message: TIPO_INSCRICAO_NAO_INFORMADA }]}
       {...formItemProps}
       tooltip={{
