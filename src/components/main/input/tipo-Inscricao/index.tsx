@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_TIPO_INSCRICAO } from '~/core/constants/ids/select';
 import { TIPO_INSCRICAO_NAO_INFORMADA } from '~/core/constants/mensagens';
+import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { obterTipoInscricao } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 
@@ -38,10 +39,10 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
   };
 
   const filterOptions = () => {
-    return options.map((option) => {
+    return options.map((option) => {      
       if (
-        (selectedValues.includes(2) && option.value === 3) ||
-        (selectedValues.includes(3) && option.value === 2)
+        (selectedValues.includes(TipoInscricao.Automatica) && option.value === 3) ||
+        (selectedValues.includes(TipoInscricao.AutomaticaJEIF) && option.value === 2)
       ) {
         return { ...option, disabled: true };
       }
