@@ -17,6 +17,7 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
   selectProps,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
+  const [selectedValues, setSelectedValues] = useState<number[]>([]);
 
   const obterDados = async () => {
     const resposta = await obterTipoInscricao();
@@ -31,6 +32,22 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
   useEffect(() => {
     obterDados();
   }, []);
+
+  const handleSelectChange = (values: number[]) => {
+    setSelectedValues(values);
+  };
+
+  const filterOptions = () => {
+    return options.map((option) => {
+      if (
+        (selectedValues.includes(2) && option.value === 3) ||
+        (selectedValues.includes(3) && option.value === 2)
+      ) {
+        return { ...option, disabled: true };
+      }
+      return option;
+    });
+  };
 
   return (
     <Form.Item
@@ -49,10 +66,12 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
       }}
     >
       <Select
-        options={options}
+        options={filterOptions()}
         placeholder='Tipo de inscrição'
         id={CF_SELECT_TIPO_INSCRICAO}
         {...selectProps}
+        onChange={handleSelectChange}
+        value={selectedValues}
       />
     </Form.Item>
   );
