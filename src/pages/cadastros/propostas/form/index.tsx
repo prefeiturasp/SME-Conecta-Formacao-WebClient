@@ -49,7 +49,6 @@ import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
-import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { obterDREs } from '~/core/services/dre-service';
