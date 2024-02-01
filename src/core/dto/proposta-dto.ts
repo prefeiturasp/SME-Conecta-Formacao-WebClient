@@ -60,7 +60,7 @@ export type PropostaDTO = {
 };
 
 export type TipoInscricaoType = {
-  tipoInscricao: TipoInscricao;
+  tipoInscricao: number;
 }
 
 export type PropostaCompletoDTO = {
@@ -72,7 +72,7 @@ export type PropostaFormDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
-  tiposInscricao?: TipoInscricaoType[];
+  tiposInscricao?: number[];
   dreIdPropostas?: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
