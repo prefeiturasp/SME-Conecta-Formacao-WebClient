@@ -2,7 +2,6 @@ import { Dayjs } from 'dayjs';
 import { Formato } from '../enum/formato';
 import { SituacaoRegistro } from '../enum/situacao-registro';
 import { TipoFormacao } from '../enum/tipo-formacao';
-import { TipoInscricao } from '../enum/tipo-inscricao';
 import { AuditoriaDTO } from './auditoria-dto';
 import { PropostaAnoTurmaDTO } from './proposta-ano-turmas-dto';
 import { PropostaComponenteCurricularDTO } from './proposta-componente-curriculares-dto';
