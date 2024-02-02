@@ -2,6 +2,7 @@ export const ERRO_LOGIN_SENHA_INCORRETOS = 'Usuário ou senha incorretos';
 export const ERRO_INFORMAR_USUARIO_SENHA =
   'Você precisa informar um usuário e senha para acessar o sistema';
 export const ERRO_LOGIN = 'Erro ao tentar autenticar no servidor';
+export const ERRO_CADASTRO_USUARIO = 'Erro ao tentar cadastrar usuário';
 export const DESEJA_CANCELAR_ALTERACOES =
   'Você não salvou as informações preenchidas. Deseja realmente cancelar as alterações?';
 export const ERRO_INFORMAR_LOGIN_RECUPERACAO_SENHA =
@@ -65,3 +66,5 @@ export const PALAVRAS_CHAVES = 'Palavras-chave';
 export const TIPO_INSCRICAO_NAO_INFORMADA = 'É necessário informar o tipo de inscrição';
 export const ENVIAR_EMAIL_PARA_VALIDACAO =
   'Ao continuar iremos enviar um e-mail com um link para validação do seu cadastro.';
+export const CADASTRO_ENVIADO =
+  'Cadastro inserido com sucesso. Enviamos um e-mail para validação do seu cadastro. Confira a sua caixa de entrada!';

@@ -1,9 +1,10 @@
 import { AxiosResponse } from 'axios';
+import { CadastroUsuarioDTO } from '../dto/cadastro-usuario-dto';
 import { DadosUsuarioDTO } from '../dto/dados-usuario-dto';
 import { RecuperacaoSenhaDTO } from '../dto/recuperacao-senha-dto';
 import { RetornoPerfilUsuarioDTO } from '../dto/retorno-perfil-usuario-dto';
 import { SenhaNovaDTO } from '../dto/senha-nova-dto';
-import api from './api';
+import api, { inserirRegistro } from './api';
 
 const URL_DEFAULT = 'v1/usuario';
 
@@ -27,6 +28,9 @@ const alterarSenhaComTokenRecuperacao = (
 const tokenRecuperacaoSenhaEstaValido = (token: string): Promise<AxiosResponse<boolean>> =>
   api.get(`${URL_DEFAULT}/valida-token-recuperacao-senha/${token}`);
 
+const cadastrarUsuarioExterno = (login: CadastroUsuarioDTO) =>
+  inserirRegistro<CadastroUsuarioDTO>(URL_DEFAULT, { ...login });
+
 export default {
   obterMeusDados,
   alterarEmail,
@@ -34,4 +38,5 @@ export default {
   solicitarRecuperacaoSenha,
   alterarSenhaComTokenRecuperacao,
   tokenRecuperacaoSenhaEstaValido,
+  cadastrarUsuarioExterno,
 };
