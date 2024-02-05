@@ -4,9 +4,8 @@ import { useState } from 'react';
 import { useForm, useWatch } from 'antd/es/form/Form';
 
 import { useAppDispatch } from '~/core/hooks/use-redux';
-import autenticacaoService from '~/core/services/autenticacao-service';
 
-import { AxiosError } from 'axios';
+import { AxiosError, HttpStatusCode } from 'axios';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import ErroGeralLogin from '~/components/main/erro-geral-login';
@@ -21,22 +20,24 @@ import { AutenticacaoDTO } from '~/core/dto/autenticacao-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { ValidateErrorEntity } from '~/core/dto/validate-error-entity';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { Colors } from '~/core/styles/colors';
 import { CF_BUTTON_ESQUECI_SENHA } from '../../core/constants/ids/button/intex';
 
+import { setSpinning } from '~/core/redux/modules/spin/actions';
+import { confirmacao } from '~/core/services/alerta-service';
+import autenticacaoService from '~/core/services/autenticacao-service';
+import usuarioService from '~/core/services/usuario-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
 
 const Login = () => {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-
-  const [erroGeral, setErroGeral] = useState<string[]>();
-
   const [form] = useForm();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const login = useWatch('login', form);
   const senha = useWatch('senha', form);
+
+  const [erroGeral, setErroGeral] = useState<string[]>();
 
   const validateMessages = {
     required: 'Campo obrigatório',
@@ -45,13 +46,23 @@ const Login = () => {
     },
   };
 
+  const onClickCriarConta = () => navigate(ROUTES.CADASTRO_DE_USUARIO);
   const onClickEsqueciSenha = () => navigate(ROUTES.REDEFINIR_SENHA, { state: login });
   const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
-    if (erro?.response?.status === 401) {
+    const dataErro = erro?.response?.data;
+
+    if (erro?.response?.status === HttpStatusCode.Unauthorized) {
       setErroGeral([ERRO_LOGIN_SENHA_INCORRETOS]);
+      confirmacao({
+        content: dataErro?.mensagens,
+        onOk() {
+          usuarioService.reenviarEmail(login);
+        },
+        okText: 'Reenviar',
+        cancelText: 'Cancelar',
+      });
       return;
     }
-    const dataErro = erro?.response?.data;
 
     if (typeof dataErro === 'string') {
       setErroGeral([dataErro]);
@@ -171,6 +182,16 @@ const Login = () => {
           ) : (
             <></>
           )}
+          <Col span={24}>
+            <Button
+              block
+              style={{ fontWeight: 700 }}
+              id={CF_BUTTON_ACESSAR}
+              onClick={() => onClickCriarConta()}
+            >
+              Cadastre-se
+            </Button>
+          </Col>
         </Row>
       </Form>
     </Col>
