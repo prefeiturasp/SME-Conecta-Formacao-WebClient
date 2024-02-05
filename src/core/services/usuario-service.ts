@@ -31,13 +31,17 @@ const tokenRecuperacaoSenhaEstaValido = (token: string): Promise<AxiosResponse<b
 const cadastrarUsuarioExterno = (login: CadastroUsuarioDTO) =>
   inserirRegistro<CadastroUsuarioDTO>(URL_DEFAULT, { ...login });
 
-const validaEmailToken = (token: string) => obterRegistro(`${URL_DEFAULT}/validar-email/${token}`);
+const validaEmailToken = (token: string) =>
+  obterRegistro<RetornoPerfilUsuarioDTO>(`${URL_DEFAULT}/validar-email/${token}`);
+
+const reenviarEmail = (login: string) => obterRegistro(`${URL_DEFAULT}/${login}/reenviar-email`);
 
 export default {
   obterMeusDados,
   alterarEmail,
   alterarSenha,
   validaEmailToken,
+  reenviarEmail,
   solicitarRecuperacaoSenha,
   alterarSenhaComTokenRecuperacao,
   tokenRecuperacaoSenhaEstaValido,
