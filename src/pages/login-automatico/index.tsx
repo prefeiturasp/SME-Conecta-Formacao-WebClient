@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Spin from '~/components/main/spin';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { validarAutenticacao } from '~/core/utils/perfil';
 
 const LoginAutomatico = () => {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ const LoginAutomatico = () => {
       .then((resposta) => {
         if (resposta.sucesso) {
           setTokenValido(true);
+          validarAutenticacao(resposta.dados);
+          navigate(ROUTES.PRINCIPAL);
         } else {
           setTokenValido(false);
         }

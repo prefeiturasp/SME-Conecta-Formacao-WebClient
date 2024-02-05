@@ -26,6 +26,7 @@ import { CF_BUTTON_ESQUECI_SENHA } from '../../core/constants/ids/button/intex';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao } from '~/core/services/alerta-service';
 import autenticacaoService from '~/core/services/autenticacao-service';
+import usuarioService from '~/core/services/usuario-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
 
 const Login = () => {
@@ -48,11 +49,20 @@ const Login = () => {
   const onClickCriarConta = () => navigate(ROUTES.CADASTRO_DE_USUARIO);
   const onClickEsqueciSenha = () => navigate(ROUTES.REDEFINIR_SENHA, { state: login });
   const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
+    const dataErro = erro?.response?.data;
+
     if (erro?.response?.status === HttpStatusCode.Unauthorized) {
       setErroGeral([ERRO_LOGIN_SENHA_INCORRETOS]);
+      confirmacao({
+        content: dataErro?.mensagens,
+        onOk() {
+          usuarioService.reenviarEmail(login);
+        },
+        okText: 'Reenviar',
+        cancelText: 'Cancelar',
+      });
       return;
     }
-    const dataErro = erro?.response?.data;
 
     if (typeof dataErro === 'string') {
       setErroGeral([dataErro]);
@@ -61,13 +71,6 @@ const Login = () => {
 
     if (dataErro?.mensagens?.length) {
       setErroGeral(dataErro.mensagens);
-      confirmacao({
-        content:
-          'Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão "Reenviar".',
-        onOk() {},
-        okText: 'Reenviar',
-        cancelText: 'Cancelar',
-      });
       return;
     }
 
