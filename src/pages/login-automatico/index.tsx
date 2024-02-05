@@ -18,6 +18,7 @@ const LoginAutomatico = () => {
 
   const [tokenValido, setTokenValido] = useState<boolean>(false);
   const [validandoToken, setValidandoToken] = useState<boolean>(!!token);
+  const [erroGeral, setErroGeral] = useState<string[]>();
 
   const validarToken = useCallback(() => {
     setValidandoToken(true);
@@ -31,6 +32,7 @@ const LoginAutomatico = () => {
           navigate(ROUTES.PRINCIPAL);
         } else {
           setTokenValido(false);
+          setErroGeral(resposta.mensagens);
         }
       })
       .catch(() => {
@@ -48,7 +50,7 @@ const LoginAutomatico = () => {
   if (!validandoToken && !tokenValido)
     return (
       <Result
-        title='MOSTRAR MSG DO BACK'
+        title={erroGeral}
         status='500'
         extra={[
           <Button
