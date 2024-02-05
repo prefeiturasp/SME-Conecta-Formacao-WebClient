@@ -16,7 +16,7 @@ const LoginAutomatico = () => {
 
   const token = paramsRoute?.token || '';
 
-  const [tokenValido, setTokenValido] = useState<boolean>(true);
+  const [tokenValido, setTokenValido] = useState<boolean>(false);
   const [validandoToken, setValidandoToken] = useState<boolean>(!!token);
   const [erroGeral, setErroGeral] = useState<string[]>();
 
