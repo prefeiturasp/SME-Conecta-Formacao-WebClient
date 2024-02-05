@@ -77,6 +77,7 @@ const InputRegistroFuncionalNome: React.FC<InputRegistroFuncionalNomeProps> = ({
             maxLength={7}
             loading={loading}
             onSearch={obterDadosPofissional}
+            onBlur={obterDadosPofissional}
             placeholder='Registro Funcional (RF)'
             {...inputPropsRF}
           />

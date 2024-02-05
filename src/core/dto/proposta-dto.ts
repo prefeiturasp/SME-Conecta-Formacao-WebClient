@@ -2,7 +2,6 @@ import { Dayjs } from 'dayjs';
 import { Formato } from '../enum/formato';
 import { SituacaoRegistro } from '../enum/situacao-registro';
 import { TipoFormacao } from '../enum/tipo-formacao';
-import { TipoInscricao } from '../enum/tipo-inscricao';
 import { AuditoriaDTO } from './auditoria-dto';
 import { PropostaAnoTurmaDTO } from './proposta-ano-turmas-dto';
 import { PropostaComponenteCurricularDTO } from './proposta-componente-curriculares-dto';
@@ -19,7 +18,7 @@ export type PropostaDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
-  tipoInscricao?: TipoInscricao;
+  tiposInscricao?: TipoInscricaoType[];
   dreIdPropostas: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
@@ -59,6 +58,10 @@ export type PropostaDTO = {
   integrarNoSGA?: boolean;
 };
 
+export type TipoInscricaoType = {
+  tipoInscricao: number;
+}
+
 export type PropostaCompletoDTO = {
   auditoria: AuditoriaDTO;
   arquivoImagemDivulgacao?: PropostaImagemDivulgacaoDTO;
@@ -68,7 +71,7 @@ export type PropostaFormDTO = {
   formacaoHomologada?: boolean;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
-  tipoInscricao?: TipoInscricao;
+  tiposInscricao?: number[];
   dreIdPropostas?: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;

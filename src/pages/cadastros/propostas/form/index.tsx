@@ -49,7 +49,6 @@ import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
-import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { obterDREs } from '~/core/services/dre-service';
@@ -142,7 +141,7 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   }, [formInitialValues, desabilitarCampos]);
 
-  const carregarValoresDefault = async () => {
+  const carregarValoresDefault = async () => {    
     const retornolistaDres = await obterDREs(true);
 
     const listaDres = retornolistaDres.dados.map((dre) => ({
@@ -155,7 +154,8 @@ const FormCadastroDePropostas: React.FC = () => {
 
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
-      tipoInscricao: TipoInscricao.Optativa,
+      tiposInscricao: [
+      ],
       publicosAlvo: [],
       dres: temDreVinculada ? dresVinculadas : [],
       modalidade: undefined,
@@ -178,7 +178,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const carregarDados = useCallback(async () => {
     const resposta = await obterPropostaPorId(id);
     const dados = resposta.dados;
-
+    
     if (resposta.sucesso) {
       const retornolistaDres = await obterDREs(true);
 
@@ -203,6 +203,12 @@ const FormCadastroDePropostas: React.FC = () => {
       let anosTurmas: number[] = [];
       if (dados?.anosTurmas?.length) {
         anosTurmas = dados.anosTurmas.map((item) => item.anoTurmaId);
+      }
+
+      let tiposInscricao:  number[] = [];
+
+      if (dados?.tiposInscricao?.length) {
+        tiposInscricao = dados?.tiposInscricao.map(item => item.tipoInscricao);        
       }
 
       let componentesCurriculares: number[] = [];
@@ -307,6 +313,7 @@ const FormCadastroDePropostas: React.FC = () => {
         periodoInscricao,
         palavrasChaves,
         criterioCertificacao,
+        tiposInscricao,
       };
 
       setListaDres(listaDres);
@@ -375,7 +382,7 @@ const FormCadastroDePropostas: React.FC = () => {
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       formato: clonedValues?.formato,
-      tipoInscricao: clonedValues?.tipoInscricao,
+      tiposInscricao: [],
       dreIdPropostas: clonedValues?.dreIdPropostas || null,
       nomeFormacao: clonedValues?.nomeFormacao,
       quantidadeTurmas: clonedValues?.quantidadeTurmas || null,
@@ -457,6 +464,11 @@ const FormCadastroDePropostas: React.FC = () => {
     if (clonedValues?.publicosAlvo?.length) {
       valoresSalvar.publicosAlvo = clonedValues.publicosAlvo.map((cargoFuncaoId) => ({
         cargoFuncaoId,
+      }));
+    }
+    if (clonedValues?.tiposInscricao?.length) {
+      valoresSalvar.tiposInscricao = clonedValues.tiposInscricao.map((tipoInscricao) => ({
+        tipoInscricao,
       }));
     }
     if (clonedValues?.palavrasChaves?.length) {
