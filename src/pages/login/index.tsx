@@ -24,6 +24,7 @@ import { Colors } from '~/core/styles/colors';
 import { CF_BUTTON_ESQUECI_SENHA } from '../../core/constants/ids/button/intex';
 
 import { setSpinning } from '~/core/redux/modules/spin/actions';
+import { confirmacao } from '~/core/services/alerta-service';
 import autenticacaoService from '~/core/services/autenticacao-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
 
@@ -60,6 +61,13 @@ const Login = () => {
 
     if (dataErro?.mensagens?.length) {
       setErroGeral(dataErro.mensagens);
+      confirmacao({
+        content:
+          'Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão "Reenviar".',
+        onOk() {},
+        okText: 'Reenviar',
+        cancelText: 'Cancelar',
+      });
       return;
     }
 
@@ -79,17 +87,6 @@ const Login = () => {
       })
       .catch(validarExibirErros)
       .finally(() => dispatch(setSpinning(false)));
-
-    // TODO: VERIFICAR COMO INTERCEPTAR O ERRO DO BACK DE EMAIL NAO VALIDADO
-    // confirmacao({
-    //   content:
-    //     'Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão "Reenviar".',
-    //   onOk() {
-    //     setAbrirModal(false);
-    //   },
-    //   okText: 'Reenviar',
-    //   cancelText: 'Cancelar',
-    // });
   };
 
   const onFinishFailed = ({ values }: ValidateErrorEntity<AutenticacaoDTO>) => {

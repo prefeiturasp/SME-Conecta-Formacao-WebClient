@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import usuarioService from '~/core/services/usuario-service';
 
-import { HttpStatusCode } from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import Spin from '~/components/main/spin';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
@@ -23,15 +22,15 @@ const LoginAutomatico = () => {
     setValidandoToken(true);
 
     usuarioService
-      .tokenRecuperacaoSenhaEstaValido(token)
+      .validaEmailToken(token)
       .then((resposta) => {
-        if (resposta.status === HttpStatusCode.Ok && resposta.data) {
+        if (resposta.sucesso) {
           setTokenValido(true);
         } else {
           setTokenValido(false);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         setTokenValido(false);
       })
       .finally(() => setValidandoToken(false));
