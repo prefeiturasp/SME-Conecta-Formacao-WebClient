@@ -77,7 +77,6 @@ export const CadastroDeUsuario = () => {
     funcionarioExternoService
       .obterFuncionarioExterno(cpf)
       .then((resposta: any) => {
-        console.log(resposta)
         const data = resposta?.dados;
 
         if(!resposta.sucesso){
@@ -96,7 +95,6 @@ export const CadastroDeUsuario = () => {
         !resposta.dados && form.getFieldInstance('nome').focus();
       })
       .catch((erro: AxiosError<RetornoBaseDTO>) => {
-        console.log(erro)
         const dataErro = erro?.response?.data;
 
         if (dataErro?.mensagens?.length) {
