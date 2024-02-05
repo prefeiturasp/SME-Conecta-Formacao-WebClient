@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Modal, Row } from 'antd';
+import { Button, Col, Form, Input, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -30,7 +30,7 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { confirmacao } from '~/core/services/alerta-service';
+import { confirmacao, sucesso } from '~/core/services/alerta-service';
 import funcionarioExternoService from '~/core/services/funcionario-externo-service';
 import usuarioService from '~/core/services/usuario-service';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
@@ -88,7 +88,6 @@ export const CadastroDeUsuario = () => {
 
         !resposta.dados && form.getFieldInstance('nome').focus();
       })
-
       .catch((erro: AxiosError<RetornoBaseDTO>) => {
         const dataErro = erro?.response?.data;
 
@@ -118,7 +117,7 @@ export const CadastroDeUsuario = () => {
           })
           .then((resposta) => {
             if (resposta.dados) {
-              Modal.success({
+              sucesso({
                 content: CADASTRO_ENVIADO,
                 okText: 'Continuar',
                 onOk() {

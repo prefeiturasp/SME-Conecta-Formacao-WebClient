@@ -21,6 +21,7 @@ import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
+import LoginAutomatico from '~/pages/login-automatico';
 import MeusDados from '~/pages/meus-dados';
 import Principal from '~/pages/principal/index';
 import RedefinirSenha from '~/pages/redefinir-senha';
@@ -129,6 +130,7 @@ const RoutesConfig = () => {
             <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />
             <Route element={homePage}>
               <Route path={ROUTES.LOGIN} element={loginPage} />
+              <Route path={ROUTES.LOGIN_AUTOMATICO_PELO_TOKEN} element={<LoginAutomatico />} />
               <Route path={ROUTES.CADASTRO_DE_USUARIO} element={<CadastroDeUsuario />} />
               <Route path={ROUTES.REDEFINIR_SENHA} element={redefinirSenhaPage} />
               <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
