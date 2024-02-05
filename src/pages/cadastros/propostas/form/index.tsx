@@ -46,7 +46,6 @@ import {
 } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
-import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
@@ -61,7 +60,7 @@ import {
   inserirProposta,
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
-import { obterPermissaoPorMenu } from '~/core/utils/perfil';
+import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
@@ -72,7 +71,7 @@ import FormularioProfissionais from './steps/formulario-profissionais';
 const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
-  const { desabilitarCampos, setDesabilitarCampos } = useContext(PermissaoContext);
+  const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
 
   const [openModalErros, setOpenModalErros] = useState(false);
   const [listaErros, setListaErros] = useState<string[]>([]);
@@ -96,8 +95,6 @@ const FormCadastroDePropostas: React.FC = () => {
 
     return [];
   };
-
-  const permissao = obterPermissaoPorMenu(MenuEnum.CadastroProposta);
 
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
@@ -318,6 +315,7 @@ const FormCadastroDePropostas: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
+    scrollNoInicio();
     if (id) {
       carregarDados();
     } else {
@@ -328,6 +326,10 @@ const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     form.resetFields();
   }, [form, formInitialValues]);
+
+  useEffect(() => {
+    scrollNoInicio();
+  }, [currentStep]);
 
   const onClickCancelar = () => {
     if (form.isFieldsTouched()) {

@@ -1,9 +1,10 @@
 import { Button, Col, DatePicker, Form, Row, theme } from 'antd';
 import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
-import { Dayjs } from '~/core/date/dayjs';
-import React from 'react';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
+import React, { useEffect } from 'react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { CF_INPUT_DATA } from '~/core/constants/ids/input';
+import { Dayjs } from '~/core/date/dayjs';
 import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 
 const { useToken } = theme;
@@ -13,7 +14,9 @@ type DatePickerMultiplosProps = {
 };
 const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate }) => {
   const { token } = useToken();
+  const form = useFormInstance();
   const dateFormat = 'DD/MM/YYYY';
+  const datasWatch = Form.useWatch('datas');
 
   const validarDataInicioFim = (mensagem: string, dataInicio?: Dayjs, dataFim?: Dayjs) => {
     let dataInicioMaiorQueFim = false;
@@ -24,9 +27,17 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
 
     return dataInicioMaiorQueFim ? Promise.reject(mensagem) : Promise.resolve();
   };
+
   const popupContainer = (trigger: HTMLElement) => {
     return trigger.parentNode as HTMLElement;
   };
+
+  useEffect(() => {
+    if (form.isFieldTouched('datas')) {
+      form.validateFields({ dirty: true });
+    }
+  }, [datasWatch]);
+
   return (
     <Form.List name='datas'>
       {(fields, { add, remove }) => (
@@ -46,7 +57,6 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
                           validator() {
                             const datas: DataEncontro[] = getFieldValue('datas');
                             const dataInicio = datas[name]?.dataInicio;
-
                             const dataFim = datas[name]?.dataFim;
 
                             return validarDataInicioFim(
@@ -63,7 +73,6 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
                         locale={localeDatePicker}
                         format={dateFormat}
                         disabledDate={disabledDate}
-
                         getPopupContainer={(trigger: HTMLElement) => popupContainer(trigger)}
                         style={{
                           width: '100%',
@@ -86,7 +95,6 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
                             validator() {
                               const datas: DataEncontro[] = getFieldValue('datas');
                               const dataInicio = datas[name]?.dataInicio;
-
                               const dataFim = datas[name]?.dataFim;
 
                               return validarDataInicioFim(

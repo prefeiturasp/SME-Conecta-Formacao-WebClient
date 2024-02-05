@@ -1,11 +1,13 @@
 import { Form, List } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { PaginationConfig } from 'antd/es/pagination';
+import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
 import { FiltroFormacaoFormDTO } from '~/core/dto/filtro-formacao-form-dto';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
+import { scrollNoInicio } from '~/core/utils/functions';
 import { CardFiltroFormacao } from './components/card-filtro-formacao';
 import { CardFormacao } from './components/card-formacao';
 import { DivTitulo, TextTitulo } from './styles';
@@ -35,10 +37,19 @@ export const ListFormacao: React.FC = () => {
   const [formAreaPublica] = useForm();
 
   const buscarInformacoes = (values: FiltroFormacaoFormDTO) => {
-    const filtro: FiltroFormacaoDTO = { ...values };
+    const [dataInicial, dataFinal] = (values?.data ?? []).map((data) =>
+      dayjs(data).format('YYYY-MM-DD'),
+    );
 
-    filtro.dataInicial = values?.data?.[0];
-    filtro.dataFinal = values?.data?.[1];
+    const filtro: FiltroFormacaoDTO = {
+      areasPromotorasIds: values.areasPromotorasIds,
+      dataInicial,
+      dataFinal,
+      formatosIds: values.formatosIds,
+      palavrasChavesIds: values.palavrasChavesIds,
+      publicosAlvosIds: values.publicosAlvosIds,
+      titulo: values.titulo,
+    };
 
     setFiltroFormacao(filtro);
   };
@@ -80,6 +91,10 @@ export const ListFormacao: React.FC = () => {
 
     carregarDados(newListParams, filtroFormacao);
   };
+
+  useEffect(() => {
+    scrollNoInicio();
+  }, [listParams.pagination?.current, !listParams.pagination?.pageSize]);
 
   return (
     <>

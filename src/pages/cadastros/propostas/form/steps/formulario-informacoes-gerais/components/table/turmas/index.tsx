@@ -11,11 +11,12 @@ import {
   Typography,
 } from 'antd';
 import { cloneDeep } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { SelectDRE } from '~/components/main/input/dre';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -62,6 +63,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
         }}
       />
     );
+  } else if (dataIndex === 'nome') {
+    inputNode = (
+      <Input
+        maxLength={200} 
+      />
+    );
   }
 
   return (
@@ -93,11 +100,16 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
 
+  const { desabilitarCampos } = useContext(PermissaoContext);
+
   const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
   const dresWatch = Form.useWatch('dres', formProposta);
 
   const [editingKey, setEditingKey] = useState<number | undefined>();
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
+
+  const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
+  const temOpcaoTodas = newDresTurmas.find((dre) => dre?.todos);
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
 
@@ -131,11 +143,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   useEffect(() => {
     const dresEmEdicao = formProposta.isFieldTouched('dres');
     if (dresEmEdicao) {
-      const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
-
       const turmas: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas');
-
-      const temOpcaoTodas = newDresTurmas.find((dre) => dre?.todos);
 
       if (turmas?.length) {
         const newTurmas = turmas.map((turma) => ({
@@ -148,11 +156,14 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
     }
   }, [dresWatch]);
 
-  const edit = (record: PropostaTurmaFormDTO) => {
-    setEditInValues({ ...record });
-    setEditingKey(record.key);
+  const edit = (record: PropostaTurmaFormDTO) => {    
+    if (record && record.dres) {
+      const filteredRecord = record.dres.filter(item => item.descricao !== "TODOS");
+      setEditInValues({ ...record, dres: filteredRecord });
+      setEditingKey(record.key);
+    }
   };
-
+  
   useEffect(() => {
     formRow.resetFields();
   }, [formRow, editInValues]);
@@ -182,30 +193,33 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
     {
       title: 'Turma',
       dataIndex: 'nome',
-      width: '200px',
       editable: true,
+      width: '40%',
+      render: (turmaNome: string) => <div style={{ wordBreak: 'break-word', width: 380}}>{turmaNome}</div>
     },
     {
       title: 'DRE',
       dataIndex: 'dres',
       editable: true,
+      width: '40%',
       render: (dresExibicao: DreDTO[]) => {
         if (!dresExibicao?.length) return <></>;
-
+        const filteredDres = dresExibicao.filter(dre => dre.descricao !== 'TODOS');
         return (
           <Col>
             <Row gutter={[8, 8]}>
-              {dresExibicao.map((dre: DreDTO, i: number) => (
-                <Tag key={i}>{dre?.label}</Tag>
-              ))}
+            {filteredDres.map((dre: DreDTO, i: number) => (
+              <Tag key={i}>{dre?.label}</Tag>
+            ))}
             </Row>
           </Col>
         );
       },
     },
+
     {
       title: 'Operação',
-      width: '200px',
+      width: '20%',
       align: 'center' as const,
       render: (_: any, record: PropostaTurmaFormDTO) => {
         const editable = isEditing(record);
@@ -225,7 +239,11 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
           </Flex>
         ) : (
           <Typography onClick={() => edit(record)}>
-            <Button type='primary' size='small' disabled={!!editingKey || editingKey === 0}>
+            <Button
+              type='primary'
+              size='small'
+              disabled={!!editingKey || editingKey === 0 || desabilitarCampos}
+            >
               Editar
             </Button>
           </Typography>

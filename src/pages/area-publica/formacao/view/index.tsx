@@ -100,7 +100,7 @@ const VisualizarFormacao: FC = () => {
       <DivTitulo>
         <TextTitulo>Turmas</TextTitulo>
       </DivTitulo>
-      <Row>
+      <Col>
         {dadosFormacao?.turmas?.map((turma, i) => {
           return (
             <CardTurmasPublico
@@ -112,7 +112,7 @@ const VisualizarFormacao: FC = () => {
             />
           );
         })}
-      </Row>
+      </Col>
     </>
   );
 };

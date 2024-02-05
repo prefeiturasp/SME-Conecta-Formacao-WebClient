@@ -3,6 +3,8 @@ import { Navigate } from 'react-router-dom';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
+import autenticacaoService from '~/core/services/autenticacao-service';
+import { validarAutenticacao } from '~/core/utils/perfil';
 import { MinhasInscricoes } from '../formacao-cursista/minhas-inscricoes';
 
 const Inicial: React.FC = () => {
@@ -14,17 +16,22 @@ const Inicial: React.FC = () => {
   const [podeConsultaInscricao, setPodeConsultaInscricao] = useState<boolean>(false);
 
   useEffect(() => {
-    // TODO - Alinhar com PO como verificar o perfil!
-    const perfis = perfilUsuario.map((perfil) => {
-      return perfil.perfilNome;
-    });
+    const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
-    const possuiPerfilCursista = perfis.includes(TipoPerfilTagDisplay[TipoPerfilEnum.Cursista]);
-
-    setPodeConsultaInscricao(possuiPerfilCursista);
+    setPodeConsultaInscricao(ehCursista);
   }, [perfilSelecionado, perfilUsuario]);
 
-  if (inscricao?.formacao.id) {
+  const temPerfilCursista = perfilUsuario.filter((item) =>
+    item.perfilNome.includes(TipoPerfilTagDisplay[TipoPerfilEnum.Cursista]),
+  );
+
+  if (inscricao?.formacao.id && temPerfilCursista) {
+    const perfilUsuarioId = temPerfilCursista[0].perfil;
+
+    autenticacaoService.alterarPerfilSelecionado(perfilUsuarioId).then((response) => {
+      validarAutenticacao(response.data);
+    });
+
     return <Navigate to={ROUTES.INSCRICAO} />;
   }
 

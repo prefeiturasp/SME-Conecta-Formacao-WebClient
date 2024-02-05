@@ -1,5 +1,5 @@
-import { Colors } from '../styles/colors';
 import { Modal, ModalFuncProps } from 'antd';
+import { Colors } from '../styles/colors';
 
 const confirmacao = (props: ModalFuncProps) => {
   const { title, content, okText, cancelText } = props;
@@ -29,4 +29,24 @@ const confirmacao = (props: ModalFuncProps) => {
   });
 };
 
-export { confirmacao };
+const sucesso = (props: ModalFuncProps) => {
+  const { content, okText } = props;
+
+  Modal.success({
+    ...props,
+    content: content,
+    okText: okText || 'Sim',
+    okButtonProps: {
+      type: 'default',
+      style: {
+        color: Colors.SystemSME.ConectaFormacao.PRIMARY,
+        border: `1px solid ${Colors.SystemSME.ConectaFormacao.PRIMARY}`,
+        fontSize: 16,
+        padding: '0px 15px',
+        borderRadius: 4,
+      },
+    },
+  });
+};
+
+export { confirmacao, sucesso };

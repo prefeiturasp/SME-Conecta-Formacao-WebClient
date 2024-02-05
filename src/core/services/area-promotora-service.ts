@@ -17,9 +17,8 @@ const obterAreaPromotoraPorId = (id: string | number): Promise<ApiResult<AreaPro
 const alterarAreaPromotora = (
   id: string | number,
   params: AreaPromotoraDTO,
-  mostrarNotificacao?: boolean,
 ): Promise<ApiResult<AreaPromotoraDTO>> =>
-  alterarRegistro<AreaPromotoraDTO>(`${URL_DEFAULT}/${id}`, params, mostrarNotificacao);
+  alterarRegistro<AreaPromotoraDTO>(`${URL_DEFAULT}/${id}`, params);
 
 const inserirAreaPromotora = (params: AreaPromotoraDTO): Promise<ApiResult<AreaPromotoraDTO>> =>
   inserirRegistro<AreaPromotoraDTO>(URL_DEFAULT, params);

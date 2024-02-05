@@ -2,7 +2,7 @@ import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, Input, Row, Tooltip } from 'antd';
 
 import jwt_decode from 'jwt-decode';
-import React from 'react';
+import React, { useContext } from 'react';
 import SelectAnoEtapa from '~/components/main/input/ano-etapa';
 import SelectComponenteCurricular from '~/components/main/input/componente-curricular';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
@@ -37,6 +37,7 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 import { Colors } from '~/core/styles/colors';
 import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
 import TabelaEditavel from './components/table/turmas';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type FormInformacoesGeraisProps = {
   listaDres: any[];
@@ -48,6 +49,8 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   tipoInstituicao,
 }) => {
   const form = Form.useFormInstance();
+
+  const { desabilitarCampos } = useContext(PermissaoContext);
 
   const token = useAppSelector((store) => store.auth.token);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
@@ -107,7 +110,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
             mode: 'multiple',
             labelInValue: true,
             options: listaDres,
-            disabled: temDreVinculada,
+            disabled: temDreVinculada || desabilitarCampos,
             id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
           }}
         />
