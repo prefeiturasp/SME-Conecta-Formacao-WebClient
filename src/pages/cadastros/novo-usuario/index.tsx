@@ -45,6 +45,7 @@ export const CadastroDeUsuario = () => {
   const [erroCPF, setErroCPF] = useState<boolean>(false);
   const [erroGeral, setErroGeral] = useState<string[]>();
   const [loadingCPF, setLoadingCPF] = useState<boolean>(false);
+  const [cpfValido, setCpfValido] = useState<boolean>(false);
   const [CPFExistente, setCPFExistente] = useState<string[]>();
   const [ues, setUes] = useState<RetornoListagemDTO[]>();
 
@@ -76,9 +77,15 @@ export const CadastroDeUsuario = () => {
     funcionarioExternoService
       .obterFuncionarioExterno(cpf)
       .then((resposta: any) => {
+        console.log(resposta)
         const data = resposta?.dados;
 
-        setUes(resposta?.dados.ues);
+        if(!resposta.sucesso){
+          setCpfValido(false);
+        }else{
+          setUes(resposta?.dados.ues);
+          setCpfValido(true);
+        }
 
         form.setFieldsValue({
           nomePessoa: data?.nomePessoa,
@@ -89,6 +96,7 @@ export const CadastroDeUsuario = () => {
         !resposta.dados && form.getFieldInstance('nome').focus();
       })
       .catch((erro: AxiosError<RetornoBaseDTO>) => {
+        console.log(erro)
         const dataErro = erro?.response?.data;
 
         if (dataErro?.mensagens?.length) {
@@ -221,7 +229,7 @@ export const CadastroDeUsuario = () => {
             </Form.Item>
           </Col>
           <Col span={24}>
-            <SelectUEs ues={ues} selectProps={{ id: CF_INPUT_UE }} />
+            {cpfValido && <SelectUEs ues={ues} selectProps={{ id: CF_INPUT_UE }} />}
           </Col>
           <Col span={24}>
             <SenhaCadastro inputProps={{ id: CF_INPUT_SENHA }} />
