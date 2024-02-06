@@ -147,9 +147,9 @@ export const CadastroDeUsuario = () => {
           navigate(ROUTES.LOGIN);
         },
       });
+    } else {
+      navigate(ROUTES.LOGIN);
     }
-
-    navigate(ROUTES.LOGIN);
   };
 
   const validateNameAndSurname = (_rule: any, value: string) => {
