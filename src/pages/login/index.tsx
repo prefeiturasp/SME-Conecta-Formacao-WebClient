@@ -23,6 +23,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { Colors } from '~/core/styles/colors';
 import { CF_BUTTON_ESQUECI_SENHA } from '../../core/constants/ids/button/intex';
 
+import { notification } from '~/components/lib/notification';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao } from '~/core/services/alerta-service';
 import autenticacaoService from '~/core/services/autenticacao-service';
@@ -56,7 +57,14 @@ const Login = () => {
       confirmacao({
         content: dataErro?.mensagens,
         onOk() {
-          usuarioService.reenviarEmail(login);
+          usuarioService.reenviarEmail(login).then((resposta) => {
+            if (resposta.sucesso) {
+              notification.success({
+                message: 'Sucesso',
+                description: 'E-mail reenviado com sucesso!',
+              });
+            }
+          });
         },
         okText: 'Reenviar',
         cancelText: 'Cancelar',

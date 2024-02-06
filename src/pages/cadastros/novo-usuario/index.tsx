@@ -79,8 +79,10 @@ export const CadastroDeUsuario = () => {
         if (!resposta.sucesso) {
           setCpfValido(false);
         } else {
-          setUes(resposta?.dados.ues);
-          setCpfValido(true);
+          setUes(data.ues);
+          if (data.ues) {
+            setCpfValido(true);
+          }
         }
 
         form.setFieldsValue({
@@ -143,12 +145,14 @@ export const CadastroDeUsuario = () => {
         },
       });
     }
+
+    navigate(ROUTES.LOGIN);
   };
 
   const validateNameAndSurname = (_rule: any, value: string) => {
     const names = value?.split(' ');
 
-    if (names.length <= 1 || names[1]?.trim() === '') {
+    if (names?.length <= 1 || names[1]?.trim() === '') {
       return Promise.reject('Por favor, digite o nome e o sobrenome.');
     }
 
@@ -161,6 +165,7 @@ export const CadastroDeUsuario = () => {
     }
 
     if (errorOnFinish) {
+      setErrorOnFinish(false);
       return 'error';
     }
 
@@ -200,6 +205,9 @@ export const CadastroDeUsuario = () => {
                     validaCPFExistente(value);
                   } else if (!value.length) {
                     form.resetFields();
+                    setCpfValido(false);
+                  } else {
+                    setCpfValido(false);
                   }
                 },
               }}
