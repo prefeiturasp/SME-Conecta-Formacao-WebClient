@@ -85,10 +85,13 @@ export const CadastroDeUsuario = () => {
           }
         }
 
+        const temApenasUmaUE = data?.ues?.length === 1;
+
         form.setFieldsValue({
           nomePessoa: data?.nomePessoa,
           codigoUE: data?.codigoUE,
           nomeUe: data?.nomeUe,
+          ues: temApenasUmaUE ? data?.ues[0].id : [],
         });
 
         !resposta.dados && form.getFieldInstance('nomePessoa').focus();
