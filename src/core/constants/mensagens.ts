@@ -68,3 +68,5 @@ export const ENVIAR_EMAIL_PARA_VALIDACAO =
   'Ao continuar iremos enviar um e-mail com um link para validação do seu cadastro.';
 export const CADASTRO_ENVIADO =
   'Cadastro inserido com sucesso. Enviamos um e-mail para validação do seu cadastro. Confira a sua caixa de entrada!';
+export const ERRO_EMAIL_NAO_VALIDADO =
+  "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar'";
