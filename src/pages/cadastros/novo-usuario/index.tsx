@@ -195,7 +195,9 @@ export const CadastroDeUsuario = () => {
                     validaCPFExistente(value);
                   } else if (!value.length) {
                     form.resetFields();
+                    setCpfValido(false);
                   } else {
+                    setCpfValido(false);
                     setCPFExistente([]);
                   }
                 },
