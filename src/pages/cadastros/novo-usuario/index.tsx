@@ -79,9 +79,9 @@ export const CadastroDeUsuario = () => {
       .then((resposta: any) => {
         const data = resposta?.dados;
 
-        if(!resposta.sucesso){
+        if (!resposta.sucesso) {
           setCpfValido(false);
-        }else{
+        } else {
           setUes(resposta?.dados.ues);
           setCpfValido(true);
         }
@@ -154,6 +154,8 @@ export const CadastroDeUsuario = () => {
         },
       });
     }
+
+    navigate(ROUTES.LOGIN);
   };
 
   const validateNameAndSurname = (_rule: any, value: string) => {
