@@ -82,8 +82,10 @@ export const CadastroDeUsuario = () => {
         if (!resposta.sucesso) {
           setCpfValido(false);
         } else {
-          setUes(resposta?.dados.ues);
-          setCpfValido(true);
+          setUes(data.ues);
+          if (data.ues) {
+            setCpfValido(true);
+          }
         }
 
         form.setFieldsValue({
@@ -198,7 +200,6 @@ export const CadastroDeUsuario = () => {
                     setCpfValido(false);
                   } else {
                     setCpfValido(false);
-                    setCPFExistente([]);
                   }
                 },
               }}
