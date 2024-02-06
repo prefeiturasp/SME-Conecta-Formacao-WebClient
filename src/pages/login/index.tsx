@@ -12,6 +12,7 @@ import ErroGeralLogin from '~/components/main/erro-geral-login';
 import { CF_BUTTON_ACESSAR } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_LOGIN, CF_INPUT_SENHA } from '~/core/constants/ids/input';
 import {
+  ERRO_EMAIL_NAO_VALIDADO,
   ERRO_INFORMAR_USUARIO_SENHA,
   ERRO_LOGIN,
   ERRO_LOGIN_SENHA_INCORRETOS,
@@ -28,6 +29,7 @@ import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao } from '~/core/services/alerta-service';
 import autenticacaoService from '~/core/services/autenticacao-service';
 import usuarioService from '~/core/services/usuario-service';
+import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import { validarAutenticacao } from '~/core/utils/perfil';
 
 const Login = () => {
@@ -54,21 +56,24 @@ const Login = () => {
 
     if (erro?.response?.status === HttpStatusCode.Unauthorized) {
       setErroGeral([ERRO_LOGIN_SENHA_INCORRETOS]);
-      confirmacao({
-        content: dataErro?.mensagens,
-        onOk() {
-          usuarioService.reenviarEmail(login).then((resposta) => {
-            if (resposta.sucesso) {
-              notification.success({
-                message: 'Sucesso',
-                description: 'E-mail reenviado com sucesso!',
-              });
-            }
-          });
-        },
-        okText: 'Reenviar',
-        cancelText: 'Cancelar',
-      });
+
+      if (dataErro?.mensagens.includes(ERRO_EMAIL_NAO_VALIDADO)) {
+        confirmacao({
+          content: dataErro?.mensagens,
+          onOk() {
+            usuarioService.reenviarEmail(login).then((resposta) => {
+              if (resposta.sucesso) {
+                notification.success({
+                  message: 'Sucesso',
+                  description: 'E-mail reenviado com sucesso!',
+                });
+              }
+            });
+          },
+          okText: 'Reenviar',
+          cancelText: 'Cancelar',
+        });
+      }
       return;
     }
 
@@ -139,6 +144,11 @@ const Login = () => {
                 suffix={<span />}
                 maxLength={100}
                 id={CF_INPUT_LOGIN}
+                onChange={(e) => {
+                  const value = removerTudoQueNaoEhDigito(e.target.value);
+
+                  form.setFieldValue('login', value);
+                }}
               />
             </Form.Item>
           </Col>
