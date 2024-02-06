@@ -25,6 +25,7 @@ import {
   ERRO_CADASTRO_USUARIO,
 } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
+import { CadastroUsuarioFormDTO } from '~/core/dto/cadastro-usuario-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
@@ -99,7 +100,7 @@ export const CadastroDeUsuario = () => {
       .finally(() => setLoadingCPF(false));
   };
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: CadastroUsuarioFormDTO) => {
     dispatch(setSpinning(true));
 
     confirmacao({
