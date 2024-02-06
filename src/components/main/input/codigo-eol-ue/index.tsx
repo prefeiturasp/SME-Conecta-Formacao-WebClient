@@ -49,6 +49,13 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
         onSearch={(e) => {
           !!e ? getCodigoEol(e) : null;
         }}
+        onChange={(e) => {
+          const value = e.target.value;
+
+          if (!!value.length) {
+            form.setFieldValue('nomeUe', '');
+          }
+        }}
         {...inputProps}
       />
     </Form.Item>
