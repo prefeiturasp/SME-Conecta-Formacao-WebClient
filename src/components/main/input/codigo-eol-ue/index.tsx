@@ -52,7 +52,7 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
         onChange={(e) => {
           const value = e.target.value;
 
-          if (!!value.length) {
+          if (!!value.length || !value.length) {
             form.setFieldValue('nomeUe', '');
           }
         }}
