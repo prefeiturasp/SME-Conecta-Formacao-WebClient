@@ -34,7 +34,7 @@ const SelectUEs: React.FC<SelectUEsProps> = ({ selectProps, formItemProps, ues }
 
   return (
     <Form.Item
-      label='UE(s)'
+      label='Sugestão de UE'
       name='ues'
       getValueFromEvent={(e) => {
         if (e) {
