@@ -235,6 +235,11 @@ export const CadastroDeUsuario = () => {
           <Col span={24}>
             <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} formItemProps={{ required: true }} />
           </Col>
+          {cpfValido && (
+            <Col span={24}>
+              <SelectUEs ues={ues} selectProps={{ id: CF_INPUT_UE }} />
+            </Col>
+          )}
           <Col span={24}>
             <InputCodigoEolUE />
           </Col>
@@ -242,9 +247,6 @@ export const CadastroDeUsuario = () => {
             <Form.Item label='Nome da UE' name='nomeUe' rules={[{ required: true }]}>
               <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Nome da UE' disabled />
             </Form.Item>
-          </Col>
-          <Col span={24}>
-            {cpfValido && <SelectUEs ues={ues} selectProps={{ id: CF_INPUT_UE }} />}
           </Col>
           <Col span={24}>
             <SenhaCadastro inputProps={{ id: CF_INPUT_SENHA }} />
