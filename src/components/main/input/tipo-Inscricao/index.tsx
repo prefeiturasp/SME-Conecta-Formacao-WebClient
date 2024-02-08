@@ -43,7 +43,7 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
           'Optativa: O cursista irá se inscrever por meio da plataforma. Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.',
         icon: (
           <Tooltip>
-            <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+            <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
           </Tooltip>
         ),
       }}

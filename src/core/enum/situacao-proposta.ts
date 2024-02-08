@@ -17,3 +17,13 @@ export const SituacaoPropostaTagDisplay: Record<SituacaoProposta, string> = {
   [SituacaoProposta.Desfavoravel]: 'Desfavorável',
   [SituacaoProposta.Devolvida]: 'Devolvida',
 };
+
+export const SituacaoPropostaCorTagDisplay: Record<SituacaoProposta, string> = {
+  [SituacaoProposta.Publicada]: '#D06D12',
+  [SituacaoProposta.Rascunho]: '#000000',
+  [SituacaoProposta.Cadastrada]: '#297805',
+  [SituacaoProposta.AguardandoAnaliseDf]: '#6464FF',
+  [SituacaoProposta.AguardandoAnaliseGestao]: '#000000',
+  [SituacaoProposta.Desfavoravel]: '#A50E05',
+  [SituacaoProposta.Devolvida]: '#EEC25E',
+};

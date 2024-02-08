@@ -4,9 +4,9 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
+import { obterTipoEncontro } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 import { CF_SELECT_TIPO_ENCONTRO } from '../../../../core/constants/ids/select/index';
-import { obterTipoEncontro } from '~/core/services/proposta-service';
 
 type SelectTipoEncontroProps = {
   required?: boolean | true;
@@ -37,7 +37,7 @@ const SelectTipoEncontro: React.FC<SelectTipoEncontroProps> = ({
 
   const iconTooltip = exibirTooltip ? (
     <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+      <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
     </Tooltip>
   ) : (
     <></>

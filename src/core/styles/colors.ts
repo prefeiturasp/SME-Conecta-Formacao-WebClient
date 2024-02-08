@@ -11,15 +11,11 @@ type SystemSMEType = {
 };
 type ColorsType = {
   BACKGROUND_CONTENT: string;
-  Secondary: {
-    INFO: string;
-  };
   SystemSME: {
     ConectaFormacao: SystemSMEType;
   };
   Components: {
     BACKGROUND_ALERT: string;
-    TOOLTIP: string;
   };
   Suporte: {
     Primary: SuporteType;
@@ -36,9 +32,6 @@ type ColorsType = {
 
 const Colors: ColorsType = {
   BACKGROUND_CONTENT: '#F5F5F5',
-  Secondary: {
-    INFO: '#086397',
-  },
   SystemSME: {
     ConectaFormacao: {
       PRIMARY: '#FF9A52',
@@ -47,7 +40,6 @@ const Colors: ColorsType = {
   },
   Components: {
     BACKGROUND_ALERT: '#333638',
-    TOOLTIP: '#086397',
   },
   Suporte: {
     Primary: {
@@ -78,4 +70,4 @@ const BoxShadow = {
   AFIX_HEADER: 'rgba(0, 0, 0, 0.15) 0px 1.5rem 1rem -18px',
 };
 
-export { Colors, BoxShadow };
+export { BoxShadow, Colors };

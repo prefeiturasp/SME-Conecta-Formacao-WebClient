@@ -9,7 +9,11 @@ import { RiInboxArchiveLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
+import {
+  SituacaoProposta,
+  SituacaoPropostaCorTagDisplay,
+  SituacaoPropostaTagDisplay,
+} from '~/core/enum/situacao-proposta';
 import { Colors } from '~/core/styles/colors';
 import { FilterStateLocationProps } from '../filtro';
 
@@ -25,7 +29,11 @@ const styleItensCard: CSSProperties = {
   textTransform: 'uppercase',
 };
 
-const styleDataHoraCard: CSSProperties = { fontSize: 10, color: Colors.Neutral.DARK };
+const styleDataHoraCard: CSSProperties = {
+  fontSize: 10,
+  color: Colors.Neutral.DARK,
+  width: '60%',
+};
 
 type ListaCardsPropostasProps = {
   filters: FilterStateLocationProps;
@@ -37,50 +45,41 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
   let corSituacaoProposta: string;
   let iconeSituacaoProposta: React.ReactNode;
 
-  const CoresCardsProposta = {
-    Publicada: '#D06D12',
-    AguardandoAnaliseDf: '#6464FF',
-    Devolvida: '#EEC25E',
-    AguardandoAnaliseGestao: '#000000',
-    Cadastrada: '#297805',
-    Desfavoravel: '#A50E05',
-    Rascunho: '#000000',
-  };
-
   const cardCoresIcones = (item: any) => {
     switch (item.situacao) {
       case SituacaoPropostaTagDisplay[SituacaoProposta.Publicada]:
-        corSituacaoProposta = CoresCardsProposta.Publicada;
+        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Publicada];
         iconeSituacaoProposta = <RiInboxArchiveLine size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.Rascunho]:
-        corSituacaoProposta = CoresCardsProposta.Rascunho;
+        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Rascunho];
         iconeSituacaoProposta = <IoIosWarning size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.Cadastrada]:
-        corSituacaoProposta = CoresCardsProposta.Cadastrada;
+        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Cadastrada];
         iconeSituacaoProposta = <FaCheck size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.AguardandoAnaliseDf]:
-        corSituacaoProposta = CoresCardsProposta.AguardandoAnaliseDf;
+        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Publicada];
         iconeSituacaoProposta = <LuFileSearch2 size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.AguardandoAnaliseGestao]:
-        corSituacaoProposta = CoresCardsProposta.AguardandoAnaliseGestao;
+        corSituacaoProposta =
+          SituacaoPropostaCorTagDisplay[SituacaoProposta.AguardandoAnaliseGestao];
         iconeSituacaoProposta = <BsFiles size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.Desfavoravel]:
-        corSituacaoProposta = CoresCardsProposta.Desfavoravel;
+        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Desfavoravel];
         iconeSituacaoProposta = <MdOutlineDoNotDisturb size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.Devolvida]:
-        corSituacaoProposta = CoresCardsProposta.Devolvida;
+        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Devolvida];
         iconeSituacaoProposta = <LuArrowLeftSquare size={24} color={corSituacaoProposta} />;
         break;
 
@@ -95,7 +94,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
     for (let i = 1; i <= 20; i++) {
       itens.push({
         codigo: `000${i}`,
-        nome: `Item ${i}`,
+        nome: `Item teste teste teste teste teste teste teste teste teste teste ${i}`,
         dataHora: '08/08/22 ás 09:45',
       });
     }
@@ -181,7 +180,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
                 }}
                 actions={[
                   <Typography.Text
-                    style={{ color: '#035D96', fontWeight: 'bold' }}
+                    style={{ color: Colors.Suporte.Primary.INFO, fontWeight: 'bold' }}
                     onClick={() => {
                       navigate(ROUTES.CADASTRO_DE_PROPOSTAS, {
                         state: filters,

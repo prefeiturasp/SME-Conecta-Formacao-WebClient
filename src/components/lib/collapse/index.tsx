@@ -35,7 +35,7 @@ const CollapsePanelSME: React.FC<CollapsePanelSMEProps> = ({
 }) => {
   const tituloPanel = <span style={styleTituloPanel}>{panelProps.header}</span>;
   const iconTooltip = exibirTooltip ? (
-    <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP, paddingLeft: '5px' }} />
+    <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO, paddingLeft: '5px' }} />
   ) : (
     <></>
   );
