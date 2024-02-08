@@ -1,6 +1,7 @@
 import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
+import { PropostaDashboardDTO } from '../dto/proposta-dashboard-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
@@ -116,6 +117,9 @@ const excluirTutor = (id: string | number) =>
 const obterPropostaTutorPorId = (id: string | number) =>
   obterRegistro<PropostaTutorDTO>(`${URL_API_PROPOSTA}/tutor/${id}`);
 
+const obterPropostasDashboard = () =>
+  obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`);
+
 export {
   alterarProposta,
   deletarProposta,
@@ -133,6 +137,7 @@ export {
   obterPropostaPorId,
   obterPropostaRegentePorId,
   obterPropostaTutorPorId,
+  obterPropostasDashboard,
   obterRoteiroPropostaFormativa,
   obterSituacoes,
   obterTipoEncontro,

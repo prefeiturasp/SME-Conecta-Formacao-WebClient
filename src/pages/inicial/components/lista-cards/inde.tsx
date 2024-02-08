@@ -1,5 +1,5 @@
 import { Card, Col, Flex, List, Typography } from 'antd';
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useEffect, useState } from 'react';
 import { BsFiles } from 'react-icons/bs';
 import { FaCheck } from 'react-icons/fa';
 import { IoIosWarning } from 'react-icons/io';
@@ -8,12 +8,14 @@ import { MdOutlineDoNotDisturb } from 'react-icons/md';
 import { RiInboxArchiveLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { PropostaDashboardDTO, PropostasItemDTO } from '~/core/dto/proposta-dashboard-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
   SituacaoProposta,
   SituacaoPropostaCorTagDisplay,
   SituacaoPropostaTagDisplay,
 } from '~/core/enum/situacao-proposta';
+import { obterPropostasDashboard } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
 import { FilterStateLocationProps } from '../filtro';
 
@@ -27,12 +29,12 @@ const styleItensCard: CSSProperties = {
   fontSize: 13,
   fontWeight: 'bold',
   textTransform: 'uppercase',
+  width: '70%',
 };
 
 const styleDataHoraCard: CSSProperties = {
   fontSize: 10,
   color: Colors.Neutral.DARK,
-  width: '60%',
 };
 
 type ListaCardsPropostasProps = {
@@ -41,6 +43,7 @@ type ListaCardsPropostasProps = {
 
 export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filters }) => {
   const navigate = useNavigate();
+  const [dadosPropostas, setDadosPropostas] = useState<PropostaDashboardDTO[]>();
 
   let corSituacaoProposta: string;
   let iconeSituacaoProposta: React.ReactNode;
@@ -88,54 +91,40 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
     }
   };
 
-  // TODO: AGUARDAR ENDPOINT PARA OBTER AS PROPOSTAS
-  const generateMockItens = (situacao: string) => {
-    const itens = [];
-    for (let i = 1; i <= 20; i++) {
-      itens.push({
-        codigo: `000${i}`,
-        nome: `Item teste teste teste teste teste teste teste teste teste teste ${i}`,
-        dataHora: '08/08/22 ás 09:45',
-      });
-    }
-    return { situacao, itens };
+  const obterPropostas = async () => {
+    obterPropostasDashboard().then((resposta) => {
+      if (resposta.sucesso) {
+        setDadosPropostas(resposta.dados);
+      }
+    });
   };
 
-  const situacoes = [
-    SituacaoPropostaTagDisplay[SituacaoProposta.Publicada],
-    SituacaoPropostaTagDisplay[SituacaoProposta.Rascunho],
-    SituacaoPropostaTagDisplay[SituacaoProposta.Cadastrada],
-    SituacaoPropostaTagDisplay[SituacaoProposta.AguardandoAnaliseDf],
-    SituacaoPropostaTagDisplay[SituacaoProposta.AguardandoAnaliseGestao],
-    SituacaoPropostaTagDisplay[SituacaoProposta.Desfavoravel],
-    SituacaoPropostaTagDisplay[SituacaoProposta.Devolvida],
-  ];
-
-  const listaCards = situacoes.map((situacao) => generateMockItens(situacao));
-
-  const cardProposta = (propostas: any) => {
+  const cardProposta = (item: PropostaDashboardDTO) => {
     return (
       <List
-        dataSource={propostas.itens.slice(0, 5)}
-        renderItem={(item: any, index) => {
+        dataSource={item.propostas}
+        renderItem={(item: PropostasItemDTO, index) => {
           return (
             <PropostaHover key={index}>
               <Flex
                 gap={24}
-                align='center'
                 justify='space-between'
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
-                  //TODO: PASSAR O ID DO ITEM CLICADO
-                  navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${item.codigo}`, {
+                  navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${item.numero}`, {
                     replace: true,
                   });
                 }}
               >
-                <Typography style={styleItensCard}>
-                  {item.codigo} - {item.nome}
-                </Typography>
-                <Typography style={styleDataHoraCard}>{item.dataHora}</Typography>
+                <Typography.Text
+                  ellipsis={{
+                    tooltip: item.nome,
+                  }}
+                  style={styleItensCard}
+                >
+                  {item.numero} - {item.nome}
+                </Typography.Text>
+                <Typography style={styleDataHoraCard}>{item.data}</Typography>
               </Flex>
             </PropostaHover>
           );
@@ -143,6 +132,10 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
       />
     );
   };
+
+  useEffect(() => {
+    obterPropostas();
+  }, []);
 
   return (
     <Col>
@@ -156,7 +149,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
           xl: 2,
           xxl: 4,
         }}
-        dataSource={listaCards}
+        dataSource={dadosPropostas}
         renderItem={(item, index) => {
           cardCoresIcones(item);
           return (
@@ -187,7 +180,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
                       });
                     }}
                   >
-                    Ver mais {item.itens.length - 5}
+                    Ver mais {item.totalRegistros}
                   </Typography.Text>,
                 ]}
               >
