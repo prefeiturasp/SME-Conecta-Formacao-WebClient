@@ -1,14 +1,15 @@
 import { Button, Col, Form, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import dayjs, { Dayjs } from 'dayjs';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import DataTable from '~/components/lib/card-table';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
-import DatePickerPeriodo from '~/components/main/input/date-range';
+import { DatePickerPeriodo } from '~/components/main/input/date-range';
 import SelectFormato from '~/components/main/input/formato';
 import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
 import SelectSituacaoProposta from '~/components/main/input/situacao-proposta';
@@ -20,6 +21,7 @@ import {
   CF_INPUT_NOME_FORMACAO,
   CF_INPUT_NUMERO_HOMOLOGACAO,
 } from '~/core/constants/ids/input';
+import { PropostaFiltrosDTO } from '~/core/dto/proposta-filtro-dto';
 import { PropostaFormListDTO } from '~/core/dto/proposta-from-list-dto';
 import { PropostaPaginadaDTO } from '~/core/dto/proposta-paginada-dto';
 import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
@@ -27,9 +29,14 @@ import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 
+type FilterStateProps = {
+  filters: PropostaFiltrosDTO;
+};
+
 const ListCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const permissao = obterPermissaoPorMenu(MenuEnum.CadastroProposta);
 
@@ -38,18 +45,22 @@ const ListCadastroDePropostas: React.FC = () => {
   const onClickNovo = () => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO);
 
   const url = 'v1/Proposta';
+  const filtersLocationState: FilterStateProps = location.state;
+  const filtroDaURL = filtersLocationState?.filters;
 
-  const [filters, setFilters] = useState({
-    areaPromotoraId: null,
-    formato: null,
-    nomeFormacao: null,
-    id: null,
-    publicoAlvoIds: null,
-    numeroHomologacao: null,
-    periodoRealizacaoInicio: null,
-    periodoRealizacaoFim: null,
-    situacao: null,
-  });
+  const [filters, setFilters] = useState<PropostaFiltrosDTO>(
+    filtroDaURL ?? {
+      areaPromotoraId: null,
+      formato: null,
+      nomeFormacao: null,
+      id: null,
+      publicoAlvoIds: null,
+      numeroHomologacao: null,
+      periodoRealizacaoInicio: null,
+      periodoRealizacaoFim: null,
+      situacao: null,
+    },
+  );
 
   const columns: ColumnsType<PropostaPaginadaDTO> = [
     {
@@ -102,7 +113,7 @@ const ListCadastroDePropostas: React.FC = () => {
   const onClickEditar = (id: number) =>
     navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${id}`, { replace: true });
 
-  const obterFiltros = () => {
+  const obterFiltros = useCallback(() => {
     const dataInicio =
       form?.getFieldValue('periodoRealizacao') != undefined
         ? form?.getFieldValue('periodoRealizacao')[0]
@@ -114,16 +125,16 @@ const ListCadastroDePropostas: React.FC = () => {
 
     setFilters({
       numeroHomologacao: form.getFieldValue('numeroHomologacao'),
-      areaPromotoraId: form.getFieldValue('areaPromotora'),
+      areaPromotoraId: form.getFieldValue('areaPromotoraId'),
       formato: form.getFieldValue('formato'),
       nomeFormacao: form.getFieldValue('nomeFormacao'),
       id: form.getFieldValue('codigoFormacao'),
       periodoRealizacaoInicio: dataInicio,
       publicoAlvoIds: form.getFieldValue('publicosAlvo'),
       periodoRealizacaoFim: dataFim,
-      situacao: form.getFieldValue('situacaoProposta'),
+      situacao: form.getFieldValue('situacao'),
     });
-  };
+  }, [filters]);
 
   const carregarValoresDefault = () => {
     const valoreIniciais: PropostaFormListDTO = {
@@ -139,6 +150,40 @@ const ListCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     carregarValoresDefault();
   }, [form]);
+
+  useEffect(() => {
+    if (filtroDaURL) {
+      let periodoRealizacao: Dayjs[] | null;
+      const {
+        areaPromotoraId,
+        formato,
+        id,
+        nomeFormacao,
+        numeroHomologacao,
+        publicoAlvoIds,
+        situacao,
+        periodoRealizacaoFim,
+        periodoRealizacaoInicio,
+      } = filtroDaURL;
+
+      if (periodoRealizacaoInicio && periodoRealizacaoFim) {
+        periodoRealizacao = [dayjs(periodoRealizacaoInicio), dayjs(periodoRealizacaoFim)];
+      } else {
+        periodoRealizacao = null;
+      }
+
+      form.setFieldsValue({
+        formato,
+        areaPromotoraId,
+        nomeFormacao,
+        numeroHomologacao,
+        codigoFormacao: id,
+        situacao,
+        publicoAlvoIds,
+        periodoRealizacao,
+      });
+    }
+  }, [filtersLocationState]);
 
   return (
     <Col>
@@ -173,7 +218,7 @@ const ListCadastroDePropostas: React.FC = () => {
                   <Col xs={24} sm={10} md={7} lg={7} xl={12}>
                     <b>
                       <SelectAreaPromotora
-                        formItemProps={{ name: 'areaPromotora' }}
+                        formItemProps={{ name: 'areaPromotoraId' }}
                         selectProps={{ onChange: obterFiltros }}
                       />
                     </b>
@@ -235,9 +280,11 @@ const ListCadastroDePropostas: React.FC = () => {
                   <Col xs={24} sm={10} md={7} lg={7} xl={5}>
                     <b>
                       <DatePickerPeriodo
-                        changeFunction={obterFiltros}
-                        label='Período de realização'
-                        name='periodoRealizacao'
+                        formItemProps={{
+                          label: 'Período de realização',
+                          name: 'periodoRealizacao',
+                        }}
+                        rangerPickerProps={{ onChange: obterFiltros }}
                       />
                     </b>
                   </Col>
@@ -266,8 +313,8 @@ const ListCadastroDePropostas: React.FC = () => {
                   </Col>
                   <Col span={24}>
                     <DataTable
-                      filters={filters}
                       url={url}
+                      filters={filters}
                       columns={columns}
                       onRow={(row) => ({
                         onClick: () => {

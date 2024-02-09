@@ -25,6 +25,7 @@ import {
   ERRO_CADASTRO_USUARIO,
 } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
+import { CadastroUsuarioFormDTO } from '~/core/dto/cadastro-usuario-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
@@ -42,17 +43,15 @@ export const CadastroDeUsuario = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const [erroCPF, setErroCPF] = useState<boolean>(false);
   const [erroGeral, setErroGeral] = useState<string[]>();
   const [loadingCPF, setLoadingCPF] = useState<boolean>(false);
   const [cpfValido, setCpfValido] = useState<boolean>(false);
-  const [CPFExistente, setCPFExistente] = useState<string[]>();
   const [ues, setUes] = useState<RetornoListagemDTO[]>();
+  const [errorOnFinish, setErrorOnFinish] = useState<boolean>(false);
 
   useEffect(() => {
     form.getFieldInstance('cpf').focus();
-    erroCPF && form.getFieldInstance('cpf').focus();
-  }, [erroCPF, form]);
+  }, [form]);
 
   const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
     const dataErro = erro?.response?.data;
@@ -71,7 +70,6 @@ export const CadastroDeUsuario = () => {
   };
 
   const validaCPFExistente = (cpf: string) => {
-    setCPFExistente([]);
     setLoadingCPF(true);
 
     funcionarioExternoService
@@ -79,33 +77,30 @@ export const CadastroDeUsuario = () => {
       .then((resposta: any) => {
         const data = resposta?.dados;
 
-        if(!resposta.sucesso){
+        if (!resposta.sucesso) {
           setCpfValido(false);
-        }else{
-          setUes(resposta?.dados.ues);
-          setCpfValido(true);
+        } else {
+          setUes(data.ues);
+          if (data.ues) {
+            setCpfValido(true);
+          }
         }
+
+        const temApenasUmaUE = data?.ues?.length === 1;
 
         form.setFieldsValue({
           nomePessoa: data?.nomePessoa,
           codigoUE: data?.codigoUE,
           nomeUe: data?.nomeUe,
+          ues: temApenasUmaUE ? data?.ues[0].id : [],
         });
 
-        !resposta.dados && form.getFieldInstance('nome').focus();
-      })
-      .catch((erro: AxiosError<RetornoBaseDTO>) => {
-        const dataErro = erro?.response?.data;
-
-        if (dataErro?.mensagens?.length) {
-          setErroCPF(true);
-          setCPFExistente(dataErro.mensagens);
-        }
+        !resposta.dados && form.getFieldInstance('nomePessoa').focus();
       })
       .finally(() => setLoadingCPF(false));
   };
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: CadastroUsuarioFormDTO) => {
     dispatch(setSpinning(true));
 
     confirmacao({
@@ -153,17 +148,34 @@ export const CadastroDeUsuario = () => {
           navigate(ROUTES.LOGIN);
         },
       });
+    } else {
+      navigate(ROUTES.LOGIN);
     }
   };
 
   const validateNameAndSurname = (_rule: any, value: string) => {
     const names = value?.split(' ');
 
-    if (names.length <= 1 || names[1]?.trim() === '') {
+    if (names?.length <= 1 || names[1]?.trim() === '') {
       return Promise.reject('Por favor, digite o nome e o sobrenome.');
     }
 
     return Promise.resolve();
+  };
+
+  const validateStatusCPF = () => {
+    if (loadingCPF) {
+      return 'validating';
+    }
+
+    if (errorOnFinish) {
+      setErrorOnFinish(false);
+      return 'error';
+    }
+
+    if (form.getFieldValue('cpf')?.length === 14) {
+      return '';
+    }
   };
 
   return (
@@ -173,16 +185,20 @@ export const CadastroDeUsuario = () => {
         layout='vertical'
         autoComplete='off'
         onFinish={onFinish}
+        onFinishFailed={(errorForm) => {
+          if (errorForm) {
+            setErrorOnFinish(true);
+          }
+        }}
         validateMessages={validateMessages}
       >
         <Row gutter={[16, 8]}>
           <Col span={24}>
             <InputCPF
+              required
               formItemProps={{
-                required: true,
-                help: CPFExistente,
                 hasFeedback: loadingCPF,
-                validateStatus: CPFExistente?.length ? 'error' : loadingCPF ? 'validating' : '',
+                validateStatus: validateStatusCPF(),
               }}
               inputProps={{
                 name: 'cpf',
@@ -193,8 +209,9 @@ export const CadastroDeUsuario = () => {
                     validaCPFExistente(value);
                   } else if (!value.length) {
                     form.resetFields();
+                    setCpfValido(false);
                   } else {
-                    setCPFExistente([]);
+                    setCpfValido(false);
                   }
                 },
               }}
@@ -218,6 +235,11 @@ export const CadastroDeUsuario = () => {
           <Col span={24}>
             <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} formItemProps={{ required: true }} />
           </Col>
+          {cpfValido && (
+            <Col span={24}>
+              <SelectUEs ues={ues} selectProps={{ id: CF_INPUT_UE }} />
+            </Col>
+          )}
           <Col span={24}>
             <InputCodigoEolUE />
           </Col>
@@ -225,9 +247,6 @@ export const CadastroDeUsuario = () => {
             <Form.Item label='Nome da UE' name='nomeUe' rules={[{ required: true }]}>
               <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Nome da UE' disabled />
             </Form.Item>
-          </Col>
-          <Col span={24}>
-            {cpfValido && <SelectUEs ues={ues} selectProps={{ id: CF_INPUT_UE }} />}
           </Col>
           <Col span={24}>
             <SenhaCadastro inputProps={{ id: CF_INPUT_SENHA }} />

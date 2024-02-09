@@ -33,9 +33,23 @@ const SelectUEs: React.FC<SelectUEsProps> = ({ selectProps, formItemProps, ues }
   }, [ues]);
 
   return (
-    <Form.Item label='UE(s)' name='ues' {...formItemProps}>
+    <Form.Item
+      label='Sugestão de UE'
+      name='ues'
+      getValueFromEvent={(e) => {
+        if (e) {
+          form.setFieldValue('nomeUe', e?.label);
+        } else if (!e) {
+          form.setFieldValue('nomeUe', '');
+        }
+
+        return e;
+      }}
+      {...formItemProps}
+    >
       <Select
         allowClear
+        labelInValue
         options={options}
         placeholder='UE(s)'
         id={CF_SELECT_MODALIDADE}

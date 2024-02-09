@@ -6,3 +6,13 @@ export type CadastroUsuarioDTO = {
   senha: string;
   confirmarSenha: string;
 };
+
+export type CadastroUsuarioFormDTO = {
+  email: string;
+  codigoUE: string;
+  nomePessoa: string;
+  cpf: string;
+  senha: string;
+  confirmarSenha: string;
+  ues: string[];
+};

@@ -35,9 +35,9 @@ import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { Colors } from '~/core/styles/colors';
+import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
 import TabelaEditavel from './components/table/turmas';
-import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type FormInformacoesGeraisProps = {
   listaDres: any[];
@@ -130,7 +130,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
               'O título da formação deve apresentar de forma sucinta a ideia central do tema que será tratado, indicando ao cursista a macro área do tema e a especificidade do curso proposto.',
             icon: (
               <Tooltip>
-                <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+                <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
               </Tooltip>
             ),
           }}
@@ -205,7 +205,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
                 'Tanto nos cursos presenciais, quanto nos cursos a distância, a proporção máxima aceita será de 50 (cinquenta) cursistas por turma/tutor. Nos eventos presenciais, a quantidade de participantes poderá se adequar à capacidade do espaço. Nos eventos a distância/híbridos, a proporção máxima aceita será de 200 (duzentas) pessoas, sendo a proporção máxima de um tutor para 50 (cinquenta) participantes.',
               icon: (
                 <Tooltip>
-                  <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+                  <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
                 </Tooltip>
               ),
             },

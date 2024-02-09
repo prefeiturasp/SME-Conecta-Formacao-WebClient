@@ -45,7 +45,7 @@ const RadioFormacaoHomologada: React.FC<RadioFormacaoHomologadaProps> = ({
             'Selecione "Sim" para formações que serão validadas pela Divisão de Formação conforme o Edital de habilitação de cursos e eventos formativos e "Não" para as demais formações.',
           icon: (
             <Tooltip>
-              <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+              <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
             </Tooltip>
           ),
         },

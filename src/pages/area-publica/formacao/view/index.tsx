@@ -1,4 +1,4 @@
-import { Col, Row, Space, Tag, Typography } from 'antd';
+import { Col, Row, Tag, Typography } from 'antd';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -20,6 +20,7 @@ const PalavraChave = styled(Tag)`
   background-color: ${Colors.Neutral.DARK};
   color: ${Colors.Neutral.WHITE};
 `;
+
 const ListaPublicAlvo = styled.ul`
   padding-left: 27px;
 `;
@@ -47,17 +48,15 @@ const VisualizarFormacao: FC = () => {
     <>
       <DadosDestaque dadosFormacao={dadosFormacao} />
 
-      <Row>
-        <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>
-          {SOBRE_ESTE_EVENTO}
-        </Typography.Title>
-      </Row>
+      <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>
+        {SOBRE_ESTE_EVENTO}
+      </Typography.Title>
       <Row>
         <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
           {dadosFormacao?.justificativa}
         </Typography.Text>
       </Row>
-      <Space style={{ paddingTop: 20 }} size={180}>
+      <Row style={{ paddingTop: 20 }}>
         {dadosFormacao?.publicosAlvo?.length ? (
           <Typography.Title level={4} style={{ paddingRight: 80 }}>
             <Typography.Title
@@ -95,7 +94,7 @@ const VisualizarFormacao: FC = () => {
             })}
           </Row>
         </Typography.Title>
-      </Space>
+      </Row>
 
       <DivTitulo>
         <TextTitulo>Turmas</TextTitulo>

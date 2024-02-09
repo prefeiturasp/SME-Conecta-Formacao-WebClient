@@ -5,9 +5,10 @@ import { removerTudoQueNaoEhDigito } from '~/core/utils/functions/index';
 type InputCPFProps = {
   inputProps?: InputProps;
   formItemProps?: FormItemProps;
+  required?: boolean;
 };
 
-const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps }) => {
+const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps, required }) => {
   const formatterCPFMask = (value: string | number | undefined) =>
     `${value}`
       .replace(/(\d{3})(\d)/, '$1.$2')
@@ -27,6 +28,7 @@ const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps }) => {
       {...formItemProps}
       getValueFromEvent={getValueFromEvent}
       rules={[
+        { required: required },
         {
           message: 'Deve conter 11 caracteres',
           validator: (_: any, value: string) => {

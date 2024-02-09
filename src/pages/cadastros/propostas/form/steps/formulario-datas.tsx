@@ -6,7 +6,8 @@ import { useParams } from 'react-router-dom';
 import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer/drawer-form-encontro-turmas';
 import { notification } from '~/components/lib/notification';
-import DatePickerPeriodo from '~/components/main/input/date-range';
+import { DatePickerPeriodo } from '~/components/main/input/date-range';
+import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import {
   PERIODO_INSCRICAO_NAO_INFORMADO,
@@ -116,12 +117,15 @@ const FormularioDatas: React.FC = () => {
           <Col sm={24} md={12} lg={8}>
             <b>
               <DatePickerPeriodo
-                label='Período de realização'
-                name='periodoRealizacao'
-                required
-                exibirTooltip
-                titleToolTip='Primeiro dia da primeira turma até o último dia da última turma.'
-                messagemErro={PERIODO_REALIZACAO_NAO_INFORMADO}
+                formItemProps={{
+                  label: 'Período de realização',
+                  name: 'periodoRealizacao',
+                  required: true,
+                  tooltip: getTooltipFormInfoCircleFilled(
+                    'Primeiro dia da primeira turma até o último dia da última turma.',
+                  ),
+                  rules: [{ message: PERIODO_REALIZACAO_NAO_INFORMADO }],
+                }}
               />
             </b>
           </Col>
@@ -161,10 +165,12 @@ const FormularioDatas: React.FC = () => {
           <Col sm={24} md={12} lg={8}>
             <b>
               <DatePickerPeriodo
-                label='Período de inscricao'
-                name='periodoInscricao'
-                required
-                messagemErro={PERIODO_INSCRICAO_NAO_INFORMADO}
+                formItemProps={{
+                  label: 'Período de inscricao',
+                  name: 'periodoInscricao',
+                  required: true,
+                  rules: [{ message: PERIODO_INSCRICAO_NAO_INFORMADO }],
+                }}
               />
             </b>
           </Col>

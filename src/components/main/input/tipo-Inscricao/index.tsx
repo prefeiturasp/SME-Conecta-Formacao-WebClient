@@ -41,36 +41,42 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
         const temAutomaticaJEIF = tiposInscricao?.includes(TipoInscricao.AutomaticaJEIF);
 
         const desabilitarOptions = (option: DefaultOptionType) => {
-          if(temAutomatica && option.value === TipoInscricao.AutomaticaJEIF || temAutomaticaJEIF && option.value === TipoInscricao.Automatica){
-            return true
+          if (
+            (temAutomatica && option.value === TipoInscricao.AutomaticaJEIF) ||
+            (temAutomaticaJEIF && option.value === TipoInscricao.Automatica)
+          ) {
+            return true;
           }
-          return false
-        }
+          return false;
+        };
 
         return (
           <>
-          <Form.Item      
-            label='Tipo de inscrição'
-            name='tiposInscricao'
-            rules={[{ required: true, message: TIPO_INSCRICAO_NAO_INFORMADA }]}
-            {...formItemProps}
-            tooltip={{
-              title:
-                'Optativa: O cursista irá se inscrever por meio da plataforma. Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.',
-              icon: (
-                <Tooltip>
-                  <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
-                </Tooltip>
-              ),
-            }}
-          >
-            <Select
-              options={options.map((option) => ({ ...option, disabled: desabilitarOptions(option) }))}                
-              placeholder='Tipo de inscrição'
-              id={CF_SELECT_TIPO_INSCRICAO}
-              {...selectProps}
-            />
-          </Form.Item>
+            <Form.Item
+              label='Tipo de inscrição'
+              name='tiposInscricao'
+              rules={[{ required: true, message: TIPO_INSCRICAO_NAO_INFORMADA }]}
+              {...formItemProps}
+              tooltip={{
+                title:
+                  'Optativa: O cursista irá se inscrever por meio da plataforma. Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.',
+                icon: (
+                  <Tooltip>
+                    <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
+                  </Tooltip>
+                ),
+              }}
+            >
+              <Select
+                options={options.map((option) => ({
+                  ...option,
+                  disabled: desabilitarOptions(option),
+                }))}
+                placeholder='Tipo de inscrição'
+                id={CF_SELECT_TIPO_INSCRICAO}
+                {...selectProps}
+              />
+            </Form.Item>
           </>
         );
       }}
