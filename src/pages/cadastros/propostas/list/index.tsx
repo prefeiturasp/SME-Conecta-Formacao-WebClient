@@ -235,8 +235,8 @@ const ListCadastroDePropostas: React.FC = () => {
                   <Col span={8}>
                     <b>
                       <SelectPublicoAlvo
-                        selectProps={{ onChange: obterFiltros }}
-                        formItemProps={{ required: false }}
+                        selectProps={{ onChange: obterFiltros }}                        
+                        required={false}
                         exibirTooltip={false}
                       />
                     </b>

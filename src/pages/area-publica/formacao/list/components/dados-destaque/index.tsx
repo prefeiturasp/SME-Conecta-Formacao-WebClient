@@ -1,8 +1,9 @@
 import { CalendarOutlined } from '@ant-design/icons';
-import { Button, Flex, Row, Typography } from 'antd';
+import { Button, Col, Flex, Row, Tag, Typography } from 'antd';
 import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
 import { ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
@@ -12,12 +13,26 @@ import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import autenticacaoService from '~/core/services/autenticacao-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
-import { TagTipoFormacaoFormato } from '../card-formacao/styles';
-import { FlexDestaque, ImagemDestaque, TextDestaque } from './styles';
 
 type DadosDestaqueProps = {
   dadosFormacao: RetornoDetalheFormacaoDTO | undefined;
 };
+
+const styleTypographyText = {
+  fontSize: 22,
+};
+
+const TagTipoFormacaoFormato = styled(Tag)`
+  gap: 5px;
+  display: flex;
+  align-items: center;
+  border-radius: 50px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #ececee;
+  color: #58616a;
+  font-weight: bold;
+`;
 
 const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
   const navigate = useNavigate();
@@ -64,39 +79,47 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
   };
 
   return (
-    <FlexDestaque justify='left'>
-      <ImagemDestaque src={dadosInscricao?.imagemUrl ?? imagemFormacao} />
-      <Flex vertical align='flex-start' justify='space-between' style={{ padding: 15 }}>
-        <Typography.Title level={1} style={{ color: '#1C2833', fontWeight: 700 }}>
-          {dadosInscricao?.titulo}
-        </Typography.Title>
+    <Flex justify='left'>
+      <Row gutter={24}>
+        <Col>
+          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '100%' }} />
+        </Col>
 
-        <TextDestaque>Área Promotora: {dadosInscricao?.areaPromotora}</TextDestaque>
+        <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
+          <Typography.Title level={1}>{dadosInscricao?.titulo}</Typography.Title>
 
-        <Row>
-          <TagTipoFormacaoFormato icon={<FaGraduationCap size={22} />} style={{ fontSize: 22 }}>
-            {dadosInscricao?.tipoFormacaoDescricao}
-          </TagTipoFormacaoFormato>
-          <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={22} />} style={{ fontSize: 22 }}>
-            {dadosInscricao?.formatoDescricao}
-          </TagTipoFormacaoFormato>
-        </Row>
+          <Typography.Text style={styleTypographyText}>
+            Área Promotora: {dadosInscricao?.areaPromotora}
+          </Typography.Text>
 
-        <TextDestaque>
-          <CalendarOutlined /> {dadosInscricao?.periodo}
-        </TextDestaque>
+          <Row>
+            <TagTipoFormacaoFormato
+              icon={<FaGraduationCap size={22} />}
+              style={styleTypographyText}
+            >
+              {dadosInscricao?.tipoFormacaoDescricao}
+            </TagTipoFormacaoFormato>
+            <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={22} />} style={styleTypographyText}>
+              {dadosInscricao?.formatoDescricao}
+            </TagTipoFormacaoFormato>
+          </Row>
 
-        <Button
-          type='primary'
-          shape='round'
-          size='large'
-          onClick={setarDadosInscricao}
-          disabled={desabilitarInscricao()}
-        >
-          {ENVIAR_INSCRICAO}
-        </Button>
-      </Flex>
-    </FlexDestaque>
+          <Typography.Text style={styleTypographyText}>
+            <CalendarOutlined /> {dadosInscricao?.periodo}
+          </Typography.Text>
+
+          <Button
+            type='primary'
+            shape='round'
+            size='large'
+            onClick={setarDadosInscricao}
+            disabled={desabilitarInscricao()}
+          >
+            {ENVIAR_INSCRICAO}
+          </Button>
+        </Flex>
+      </Row>
+    </Flex>
   );
 };
 
