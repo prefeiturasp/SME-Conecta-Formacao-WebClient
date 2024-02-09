@@ -48,37 +48,37 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
   const cardCoresIcones = (item: any) => {
     corSituacaoProposta = item.cor;
     switch (item.situacao) {
-      case SituacaoPropostaTagDisplay[SituacaoProposta.Publicada]:
+      case SituacaoProposta.Publicada:
         corSituacaoProposta;
         iconeSituacaoProposta = <RiInboxArchiveLine size={24} color={corSituacaoProposta} />;
         break;
 
-      case SituacaoPropostaTagDisplay[SituacaoProposta.Rascunho]:
+      case SituacaoProposta.Rascunho:
         corSituacaoProposta;
         iconeSituacaoProposta = <IoIosWarning size={24} color={corSituacaoProposta} />;
         break;
 
-      case SituacaoPropostaTagDisplay[SituacaoProposta.Cadastrada]:
+      case SituacaoProposta.Cadastrada:
         corSituacaoProposta;
         iconeSituacaoProposta = <FaCheck size={24} color={corSituacaoProposta} />;
         break;
 
-      case SituacaoPropostaTagDisplay[SituacaoProposta.AguardandoAnaliseDf]:
+      case SituacaoProposta.AguardandoAnaliseDf:
         corSituacaoProposta;
         iconeSituacaoProposta = <LuFileSearch2 size={24} color={corSituacaoProposta} />;
         break;
 
-      case SituacaoPropostaTagDisplay[SituacaoProposta.AguardandoAnaliseGestao]:
+      case SituacaoProposta.AguardandoAnaliseGestao:
         corSituacaoProposta;
         iconeSituacaoProposta = <BsFiles size={24} color={corSituacaoProposta} />;
         break;
 
-      case SituacaoPropostaTagDisplay[SituacaoProposta.Desfavoravel]:
+      case SituacaoProposta.Desfavoravel:
         corSituacaoProposta;
         iconeSituacaoProposta = <MdOutlineDoNotDisturb size={24} color={corSituacaoProposta} />;
         break;
 
-      case SituacaoPropostaTagDisplay[SituacaoProposta.Devolvida]:
+      case SituacaoProposta.Devolvida:
         corSituacaoProposta;
         iconeSituacaoProposta = <LuArrowLeftSquare size={24} color={corSituacaoProposta} />;
         break;
@@ -157,7 +157,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
                 title={
                   <Flex align='center' gap={8}>
                     {iconeSituacaoProposta}
-                    <Typography>{item.situacao}</Typography>
+                    <Typography>{SituacaoPropostaTagDisplay[item.situacao]}</Typography>
                   </Flex>
                 }
                 extra={
