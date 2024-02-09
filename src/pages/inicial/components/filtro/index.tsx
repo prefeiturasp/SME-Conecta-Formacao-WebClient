@@ -1,6 +1,5 @@
 import { Col, Form, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import dayjs from 'dayjs';
 import React, { useCallback, useEffect, useState } from 'react';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
@@ -16,28 +15,17 @@ import {
   CF_INPUT_NOME_FORMACAO,
   CF_INPUT_NUMERO_HOMOLOGACAO,
 } from '~/core/constants/ids/input';
+import { PropostaFiltrosDTO } from '~/core/dto/proposta-filtro-dto';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service';
 import { ListaCardsPropostas } from '../lista-cards/inde';
-
-export type FilterStateLocationProps = {
-  areaPromotoraId: number | null;
-  formato: number | null;
-  nomeFormacao: string | null;
-  id: number | null;
-  publicoAlvoIds: number[] | null;
-  numeroHomologacao: number | null;
-  periodoRealizacaoInicio: string | null;
-  periodoRealizacaoFim: string | null;
-  situacao: number | null;
-};
 
 export const FiltroPaginaInicial: React.FC = () => {
   const [form] = useForm();
 
   const areaPromotora = useAppSelector((state) => state.perfil.perfilSelecionado?.perfilNome);
 
-  const [filters, setFilters] = useState<FilterStateLocationProps>({
+  const [filters, setFilters] = useState<PropostaFiltrosDTO>({
     areaPromotoraId: null,
     formato: null,
     nomeFormacao: null,
@@ -50,20 +38,26 @@ export const FiltroPaginaInicial: React.FC = () => {
   });
 
   const obterFiltros = useCallback(() => {
+    const periodoRealizacaoInicio =
+      form?.getFieldValue('periodoRealizacao') != undefined
+        ? form?.getFieldValue('periodoRealizacao')?.[0].format('YYYY/MM/DD')
+        : null;
+
+    const periodoRealizacaoFim =
+      form?.getFieldValue('periodoRealizacao') != undefined
+        ? form?.getFieldValue('periodoRealizacao')?.[1].format('YYYY/MM/DD')
+        : null;
+
     setFilters({
       numeroHomologacao: form.getFieldValue('numeroHomologacao'),
       areaPromotoraId: form.getFieldValue('areaPromotoraId'),
       formato: form.getFieldValue('formato'),
       nomeFormacao: form.getFieldValue('nomeFormacao'),
       id: form.getFieldValue('codigoFormacao'),
-      periodoRealizacaoInicio: dayjs(form?.getFieldValue('periodoRealizacao')?.[0]).format(
-        'YYYY/MM/DD',
-      ),
       publicoAlvoIds: form.getFieldValue('publicosAlvo'),
-      periodoRealizacaoFim: dayjs(form?.getFieldValue('periodoRealizacao')?.[1]).format(
-        'YYYY/MM/DD',
-      ),
-      situacao: form.getFieldValue('situacaoProposta'),
+      periodoRealizacaoInicio,
+      periodoRealizacaoFim,
+      situacao: form.getFieldValue('situacao'),
     });
   }, [form]);
 
@@ -86,9 +80,10 @@ export const FiltroPaginaInicial: React.FC = () => {
         </Col>
         <Col xs={24} md={12} lg={8}>
           <SelectPublicoAlvo
-            selectProps={{ onChange: obterFiltros }}
-            formItemProps={{ required: false, style: styleFormLabel }}
+            required={false}
             exibirTooltip={false}
+            selectProps={{ onChange: obterFiltros }}
+            formItemProps={{ style: styleFormLabel }}
           />
         </Col>
         <Col xs={24} md={12} lg={8}>
@@ -164,6 +159,7 @@ export const FiltroPaginaInicial: React.FC = () => {
       obterAreaPromotoraLista().then((resposta) => {
         if (resposta.sucesso) {
           const areaPromotoraId = resposta.dados.filter((item) => item.descricao === areaPromotora);
+
           const descricaoAreaPromotora = areaPromotoraId.find((item) => item.descricao);
 
           form.setFieldValue('areaPromotoraId', descricaoAreaPromotora?.id);

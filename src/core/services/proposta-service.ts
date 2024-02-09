@@ -4,6 +4,7 @@ import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrant
 import { PropostaDashboardDTO } from '../dto/proposta-dashboard-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
+import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
@@ -117,8 +118,8 @@ const excluirTutor = (id: string | number) =>
 const obterPropostaTutorPorId = (id: string | number) =>
   obterRegistro<PropostaTutorDTO>(`${URL_API_PROPOSTA}/tutor/${id}`);
 
-const obterPropostasDashboard = () =>
-  obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`);
+const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
+  obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
 export {
   alterarProposta,

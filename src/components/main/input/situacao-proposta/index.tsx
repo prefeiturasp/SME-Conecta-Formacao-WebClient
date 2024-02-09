@@ -32,12 +32,7 @@ const SelectSituacaoProposta: React.FC<SelectSituacaoPropostaProps> = ({
   }, []);
 
   return (
-    <Form.Item
-      label='Situação'
-      name='situacaoProposta'
-      rules={[{ required: false }]}
-      {...formItemProps}
-    >
+    <Form.Item label='Situação' name='situacao' rules={[{ required: false }]} {...formItemProps}>
       <Select {...selectProps} options={options} placeholder='Situação' id={CF_SELECT_SITUACAO} />
     </Form.Item>
   );

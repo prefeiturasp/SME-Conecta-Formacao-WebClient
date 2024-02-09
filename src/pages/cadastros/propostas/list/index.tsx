@@ -1,7 +1,8 @@
 import { Button, Col, Form, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
-import React, { useEffect, useState } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import DataTable from '~/components/lib/card-table';
@@ -20,14 +21,17 @@ import {
   CF_INPUT_NOME_FORMACAO,
   CF_INPUT_NUMERO_HOMOLOGACAO,
 } from '~/core/constants/ids/input';
-import { dayjs } from '~/core/date/dayjs';
+import { PropostaFiltrosDTO } from '~/core/dto/proposta-filtro-dto';
 import { PropostaFormListDTO } from '~/core/dto/proposta-from-list-dto';
 import { PropostaPaginadaDTO } from '~/core/dto/proposta-paginada-dto';
 import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
-import { FilterStateLocationProps } from '~/pages/inicial/components/filtro';
+
+type FilterStateProps = {
+  filters: PropostaFiltrosDTO;
+};
 
 const ListCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -41,10 +45,11 @@ const ListCadastroDePropostas: React.FC = () => {
   const onClickNovo = () => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO);
 
   const url = 'v1/Proposta';
-  const filtersLocationState: FilterStateLocationProps = location.state;
+  const filtersLocationState: FilterStateProps = location.state;
+  const filtroDaURL = filtersLocationState?.filters;
 
-  const [filters, setFilters] = useState<FilterStateLocationProps>(
-    filtersLocationState ?? {
+  const [filters, setFilters] = useState<PropostaFiltrosDTO>(
+    filtroDaURL ?? {
       areaPromotoraId: null,
       formato: null,
       nomeFormacao: null,
@@ -108,7 +113,7 @@ const ListCadastroDePropostas: React.FC = () => {
   const onClickEditar = (id: number) =>
     navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${id}`, { replace: true });
 
-  const obterFiltros = () => {
+  const obterFiltros = useCallback(() => {
     const dataInicio =
       form?.getFieldValue('periodoRealizacao') != undefined
         ? form?.getFieldValue('periodoRealizacao')[0]
@@ -127,9 +132,9 @@ const ListCadastroDePropostas: React.FC = () => {
       periodoRealizacaoInicio: dataInicio,
       publicoAlvoIds: form.getFieldValue('publicosAlvo'),
       periodoRealizacaoFim: dataFim,
-      situacao: form.getFieldValue('situacaoProposta'),
+      situacao: form.getFieldValue('situacao'),
     });
-  };
+  }, [filters]);
 
   const carregarValoresDefault = () => {
     const valoreIniciais: PropostaFormListDTO = {
@@ -147,7 +152,8 @@ const ListCadastroDePropostas: React.FC = () => {
   }, [form]);
 
   useEffect(() => {
-    if (filtersLocationState) {
+    if (filtroDaURL) {
+      let periodoRealizacao: Dayjs[] | null;
       const {
         areaPromotoraId,
         formato,
@@ -158,7 +164,13 @@ const ListCadastroDePropostas: React.FC = () => {
         situacao,
         periodoRealizacaoFim,
         periodoRealizacaoInicio,
-      } = filtersLocationState;
+      } = filtroDaURL;
+
+      if (periodoRealizacaoInicio && periodoRealizacaoFim) {
+        periodoRealizacao = [dayjs(periodoRealizacaoInicio), dayjs(periodoRealizacaoFim)];
+      } else {
+        periodoRealizacao = null;
+      }
 
       form.setFieldsValue({
         formato,
@@ -166,9 +178,9 @@ const ListCadastroDePropostas: React.FC = () => {
         nomeFormacao,
         numeroHomologacao,
         codigoFormacao: id,
-        situacaoProposta: situacao,
-        publicosAlvo: publicoAlvoIds,
-        periodoRealizacao: [dayjs(periodoRealizacaoInicio), dayjs(periodoRealizacaoFim)],
+        situacao,
+        publicoAlvoIds,
+        periodoRealizacao,
       });
     }
   }, [filtersLocationState]);
@@ -301,8 +313,8 @@ const ListCadastroDePropostas: React.FC = () => {
                   </Col>
                   <Col span={24}>
                     <DataTable
-                      filters={filters}
                       url={url}
+                      filters={filters}
                       columns={columns}
                       onRow={(row) => ({
                         onClick: () => {

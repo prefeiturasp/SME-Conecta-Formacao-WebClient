@@ -8,16 +8,13 @@ import { MdOutlineDoNotDisturb } from 'react-icons/md';
 import { RiInboxArchiveLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import Empty from '~/components/main/empty';
 import { PropostaDashboardDTO, PropostasItemDTO } from '~/core/dto/proposta-dashboard-dto';
+import { PropostaFiltrosDTO } from '~/core/dto/proposta-filtro-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
-import {
-  SituacaoProposta,
-  SituacaoPropostaCorTagDisplay,
-  SituacaoPropostaTagDisplay,
-} from '~/core/enum/situacao-proposta';
+import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
 import { obterPropostasDashboard } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
-import { FilterStateLocationProps } from '../filtro';
 
 const PropostaHover = styled.div`
   &:hover {
@@ -38,7 +35,7 @@ const styleDataHoraCard: CSSProperties = {
 };
 
 type ListaCardsPropostasProps = {
-  filters: FilterStateLocationProps;
+  filters: PropostaFiltrosDTO;
 };
 
 export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filters }) => {
@@ -49,40 +46,40 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
   let iconeSituacaoProposta: React.ReactNode;
 
   const cardCoresIcones = (item: any) => {
+    corSituacaoProposta = item.cor;
     switch (item.situacao) {
       case SituacaoPropostaTagDisplay[SituacaoProposta.Publicada]:
-        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Publicada];
+        corSituacaoProposta;
         iconeSituacaoProposta = <RiInboxArchiveLine size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.Rascunho]:
-        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Rascunho];
+        corSituacaoProposta;
         iconeSituacaoProposta = <IoIosWarning size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.Cadastrada]:
-        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Cadastrada];
+        corSituacaoProposta;
         iconeSituacaoProposta = <FaCheck size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.AguardandoAnaliseDf]:
-        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Publicada];
+        corSituacaoProposta;
         iconeSituacaoProposta = <LuFileSearch2 size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.AguardandoAnaliseGestao]:
-        corSituacaoProposta =
-          SituacaoPropostaCorTagDisplay[SituacaoProposta.AguardandoAnaliseGestao];
+        corSituacaoProposta;
         iconeSituacaoProposta = <BsFiles size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.Desfavoravel]:
-        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Desfavoravel];
+        corSituacaoProposta;
         iconeSituacaoProposta = <MdOutlineDoNotDisturb size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoPropostaTagDisplay[SituacaoProposta.Devolvida]:
-        corSituacaoProposta = SituacaoPropostaCorTagDisplay[SituacaoProposta.Devolvida];
+        corSituacaoProposta;
         iconeSituacaoProposta = <LuArrowLeftSquare size={24} color={corSituacaoProposta} />;
         break;
 
@@ -92,14 +89,14 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
   };
 
   const obterPropostas = async () => {
-    obterPropostasDashboard().then((resposta) => {
+    obterPropostasDashboard(filters).then((resposta) => {
       if (resposta.sucesso) {
         setDadosPropostas(resposta.dados);
       }
     });
   };
 
-  const cardProposta = (item: PropostaDashboardDTO) => {
+  const listItensProposta = (item: PropostaDashboardDTO) => {
     return (
       <List
         dataSource={item.propostas}
@@ -135,10 +132,10 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
 
   useEffect(() => {
     obterPropostas();
-  }, []);
+  }, [filters]);
 
   return (
-    <Col>
+    <Col xs={24}>
       <List
         grid={{
           gutter: [26, 26],
@@ -149,6 +146,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
           xl: 2,
           xxl: 4,
         }}
+        locale={{ emptyText: <Empty /> }}
         dataSource={dadosPropostas}
         renderItem={(item, index) => {
           cardCoresIcones(item);
@@ -175,16 +173,23 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
                   <Typography.Text
                     style={{ color: Colors.Suporte.Primary.INFO, fontWeight: 'bold' }}
                     onClick={() => {
-                      navigate(ROUTES.CADASTRO_DE_PROPOSTAS, {
-                        state: filters,
-                      });
+                      if (item.situacao) {
+                        const valoresParaFiltrar = {
+                          ...filters,
+                          situacao: item.situacao,
+                        };
+
+                        navigate(ROUTES.CADASTRO_DE_PROPOSTAS, {
+                          state: { filters: valoresParaFiltrar },
+                        });
+                      }
                     }}
                   >
                     Ver mais {item.totalRegistros}
                   </Typography.Text>,
                 ]}
               >
-                {cardProposta(item)}
+                {listItensProposta(item)}
               </Card>
             </List.Item>
           );
