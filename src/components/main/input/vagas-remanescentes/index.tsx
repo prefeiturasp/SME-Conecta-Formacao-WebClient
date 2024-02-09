@@ -34,7 +34,7 @@ const SelectVagasRemanescentes: React.FC = () => {
           'Havendo vagas remanescentes, poderão ser contemplados os seguintes cargos e/ou funções como público-alvo.',
         icon: (
           <Tooltip>
-            <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+            <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
           </Tooltip>
         ),
       }}

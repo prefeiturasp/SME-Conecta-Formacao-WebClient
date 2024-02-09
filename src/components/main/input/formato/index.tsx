@@ -53,7 +53,7 @@ const SelectFormato: React.FC<SelectFormatoProps> = ({
 
   const iconTooltip = exibirTooltip ? (
     <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />
+      <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
     </Tooltip>
   ) : (
     <></>

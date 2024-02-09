@@ -141,7 +141,7 @@ const CardInformacoesCadastrante: FC<CardInformacoesCadastranteProps> = ({
               </p>
               <Button
                 onClick={abrirModal}
-                icon={<ExclamationCircleOutlined style={{ color: Colors.Components.TOOLTIP }} />}
+                icon={<ExclamationCircleOutlined style={{ color: Colors.Suporte.Primary.INFO }} />}
                 ghost
                 style={{
                   color: Colors.Neutral.DARK,

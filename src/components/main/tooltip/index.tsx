@@ -8,7 +8,7 @@ export const getTooltipFormInfoCircleFilled = (
   if (title) {
     return {
       title,
-      icon: <InfoCircleFilled style={{ color: Colors.Components.TOOLTIP }} />,
+      icon: <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />,
     };
   }
 
