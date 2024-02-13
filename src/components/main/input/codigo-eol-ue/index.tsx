@@ -36,7 +36,7 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
 
   return (
     <Form.Item
-      label='Código EOL da UE'
+      label='Código EOL da unidade'
       name='codigoUE'
       dependencies={['ues']}
       rules={[{ required: campoEhObrigatorio() }]}
@@ -45,7 +45,7 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
       <Input.Search
         id={CF_INPUT_CODIGO_EOL}
         loading={loadingCodigoEOL}
-        placeholder='Informe o código EOL da UE'
+        placeholder='Informe o código EOL da unidade'
         onSearch={(e) => {
           !!e ? getCodigoEol(e) : null;
         }}
