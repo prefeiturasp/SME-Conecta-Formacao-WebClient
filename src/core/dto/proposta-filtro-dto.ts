@@ -1,4 +1,4 @@
-import { SituacaoRegistro } from '../enum/situacao-registro';
+import { SituacaoProposta } from '../enum/situacao-proposta';
 
 export type PropostaFiltrosDTO = {
   id: number | null;
@@ -9,5 +9,5 @@ export type PropostaFiltrosDTO = {
   numeroHomologacao: number | null;
   periodoRealizacaoInicio: string | null;
   periodoRealizacaoFim: string | null;
-  situacao: SituacaoRegistro | null;
+  situacao: SituacaoProposta | null;
 };

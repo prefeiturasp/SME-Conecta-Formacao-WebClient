@@ -2,6 +2,7 @@ import { Form, FormItemProps, Input, InputProps } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React, { useState } from 'react';
 import { CF_INPUT_CODIGO_EOL } from '~/core/constants/ids/input';
+import { UnidadeEolDTO } from '~/core/dto/unidade-eol-dto';
 import codigoUeService from '~/core/services/codigo-ue-service';
 
 type InputCodigoEolUEProps = {
@@ -18,10 +19,10 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
     setLoadingCodigoEOL(true);
     codigoUeService
       .obterUePorCodigoEOL(value)
-      .then((resposta: any) => {
-        const data = resposta.dados;
+      .then((resposta) => {
+        const data: UnidadeEolDTO = resposta?.dados;
 
-        form.setFieldsValue({ nomeUe: data.nomeEscola });
+        form.setFieldsValue({ nomeUnidade: data.nomeUnidade });
       })
       .finally(() => setLoadingCodigoEOL(false));
   };
@@ -36,8 +37,8 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
 
   return (
     <Form.Item
-      label='Código EOL da UE'
-      name='codigoUE'
+      label='Código EOL da unidade'
+      name='codigoUnidade'
       dependencies={['ues']}
       rules={[{ required: campoEhObrigatorio() }]}
       {...formItemProps}
@@ -45,7 +46,7 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
       <Input.Search
         id={CF_INPUT_CODIGO_EOL}
         loading={loadingCodigoEOL}
-        placeholder='Informe o código EOL da UE'
+        placeholder='Informe o código EOL da unidade'
         onSearch={(e) => {
           !!e ? getCodigoEol(e) : null;
         }}
@@ -53,7 +54,7 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
           const value = e.target.value;
 
           if (!!value.length || !value.length) {
-            form.setFieldValue('nomeUe', '');
+            form.setFieldValue('nomeUnidade', '');
           }
         }}
         {...inputProps}
