@@ -244,8 +244,8 @@ export const CadastroDeUsuario = () => {
             <InputCodigoEolUE />
           </Col>
           <Col span={24}>
-            <Form.Item label='Nome da UE' name='nomeUe' rules={[{ required: true }]}>
-              <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Nome da UE' disabled />
+            <Form.Item label='Nome da unidade' name='nomeUe' rules={[{ required: true }]}>
+              <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Nome da unidade' disabled />
             </Form.Item>
           </Col>
           <Col span={24}>
