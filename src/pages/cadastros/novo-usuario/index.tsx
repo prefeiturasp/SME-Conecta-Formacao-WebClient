@@ -90,8 +90,8 @@ export const CadastroDeUsuario = () => {
 
         form.setFieldsValue({
           nomePessoa: data?.nomePessoa,
-          codigoUE: data?.codigoUE,
-          nomeUe: data?.nomeUe,
+          codigoUnidade: data?.codigoUnidade,
+          nomeUnidade: data?.nomeUnidade,
           ues: temApenasUmaUE ? data?.ues[0].id : [],
         });
 
@@ -112,7 +112,7 @@ export const CadastroDeUsuario = () => {
             cpf: values.cpf,
             nome: values.nomePessoa,
             email: values.email,
-            codigoUe: values.codigoUE ? values.codigoUE : String(values.ues),
+            codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
             senha: values.senha,
             confirmarSenha: values.confirmarSenha,
           })
@@ -244,7 +244,7 @@ export const CadastroDeUsuario = () => {
             <InputCodigoEolUE />
           </Col>
           <Col span={24}>
-            <Form.Item label='Nome da unidade' name='nomeUe' rules={[{ required: true }]}>
+            <Form.Item label='Nome da unidade' name='nomeUnidade' rules={[{ required: true }]}>
               <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Nome da unidade' disabled />
             </Form.Item>
           </Col>

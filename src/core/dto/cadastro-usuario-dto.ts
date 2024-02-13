@@ -1,6 +1,6 @@
 export type CadastroUsuarioDTO = {
   email: string;
-  codigoUe: string;
+  codigoUnidade: string;
   nome: string;
   cpf: string;
   senha: string;
@@ -9,7 +9,7 @@ export type CadastroUsuarioDTO = {
 
 export type CadastroUsuarioFormDTO = {
   email: string;
-  codigoUE: string;
+  codigoUnidade: string;
   nomePessoa: string;
   cpf: string;
   senha: string;
