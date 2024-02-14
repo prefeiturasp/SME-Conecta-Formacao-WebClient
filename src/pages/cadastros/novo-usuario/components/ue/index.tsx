@@ -38,9 +38,9 @@ const SelectUEs: React.FC<SelectUEsProps> = ({ selectProps, formItemProps, ues }
       name='ues'
       getValueFromEvent={(e) => {
         if (e) {
-          form.setFieldValue('nomeUe', e?.label);
+          form.setFieldValue('nomeUnidade', e?.label);
         } else if (!e) {
-          form.setFieldValue('nomeUe', '');
+          form.setFieldValue('nomeUnidade', '');
         }
 
         return e;
@@ -54,7 +54,7 @@ const SelectUEs: React.FC<SelectUEsProps> = ({ selectProps, formItemProps, ues }
         placeholder='UE(s)'
         id={CF_SELECT_MODALIDADE}
         onChange={() => {
-          form.setFieldValue('codigoUE', '');
+          form.setFieldValue('codigoUnidade', '');
         }}
         {...selectProps}
       />
