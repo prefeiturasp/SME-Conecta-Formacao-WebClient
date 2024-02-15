@@ -120,11 +120,10 @@ const FormularioDatas: React.FC = () => {
                 formItemProps={{
                   label: 'Período de realização',
                   name: 'periodoRealizacao',
-                  required: true,
                   tooltip: getTooltipFormInfoCircleFilled(
                     'Primeiro dia da primeira turma até o último dia da última turma.',
                   ),
-                  rules: [{ message: PERIODO_REALIZACAO_NAO_INFORMADO }],
+                  rules: [{ required: true, message: PERIODO_REALIZACAO_NAO_INFORMADO }],
                 }}
               />
             </b>
@@ -166,10 +165,9 @@ const FormularioDatas: React.FC = () => {
             <b>
               <DatePickerPeriodo
                 formItemProps={{
-                  label: 'Período de inscricao',
+                  label: 'Período de inscrição',
                   name: 'periodoInscricao',
-                  required: true,
-                  rules: [{ message: PERIODO_INSCRICAO_NAO_INFORMADO }],
+                  rules: [{ required: true, message: PERIODO_INSCRICAO_NAO_INFORMADO }],
                 }}
               />
             </b>
