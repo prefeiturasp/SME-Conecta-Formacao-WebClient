@@ -1,11 +1,5 @@
 import { Card, Col, Flex, List, Typography } from 'antd';
 import React, { CSSProperties, useEffect, useState } from 'react';
-import { BsFiles } from 'react-icons/bs';
-import { FaCheck } from 'react-icons/fa';
-import { IoIosWarning } from 'react-icons/io';
-import { LuArrowLeftSquare, LuFileSearch2 } from 'react-icons/lu';
-import { MdOutlineDoNotDisturb } from 'react-icons/md';
-import { RiInboxArchiveLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Empty from '~/components/main/empty';
