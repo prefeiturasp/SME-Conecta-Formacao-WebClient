@@ -50,37 +50,30 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
     switch (item.situacao) {
       case SituacaoProposta.Publicada:
         corSituacaoProposta;
-        iconeSituacaoProposta = <RiInboxArchiveLine size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.Rascunho:
         corSituacaoProposta;
-        iconeSituacaoProposta = <IoIosWarning size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.Cadastrada:
         corSituacaoProposta;
-        iconeSituacaoProposta = <FaCheck size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.AguardandoAnaliseDf:
         corSituacaoProposta;
-        iconeSituacaoProposta = <LuFileSearch2 size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.AguardandoAnaliseGestao:
         corSituacaoProposta;
-        iconeSituacaoProposta = <BsFiles size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.Desfavoravel:
         corSituacaoProposta;
-        iconeSituacaoProposta = <MdOutlineDoNotDisturb size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.Devolvida:
         corSituacaoProposta;
-        iconeSituacaoProposta = <LuArrowLeftSquare size={24} color={corSituacaoProposta} />;
         break;
 
       default:
