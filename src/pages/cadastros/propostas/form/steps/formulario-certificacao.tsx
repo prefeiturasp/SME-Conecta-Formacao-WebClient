@@ -77,6 +77,7 @@ const FormularioCertificacao: React.FC = () => {
               label='Descrição da atividade obrigatória para certificação'
               required={editorRequerido}
               mensagemErro={DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA}
+              exibirTooltip={editorRequerido}
               mensagemTooltip='Deve ser proposta ao menos uma atividade que será considerada na atribuição do conceito ao participante, na qual o cursista se posicione criticamente sobre suas ações ou experiências no exercício da sua atuação profissional. A atividade obrigatória deve atender a diversidade e as particularidades do público-alvo.'
               disabled={desabilitarCampos}
             />
