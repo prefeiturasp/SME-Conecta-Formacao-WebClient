@@ -6,7 +6,6 @@ export const SelectDREAreaPromotora = () => {
 
   const perfilWatch = Form.useWatch('perfil', form);
   const perfil = form?.getFieldValue('perfil');
-  const dreId = form?.getFieldValue('dreId');
 
   const perfilDRE = 3;
 
@@ -18,8 +17,7 @@ export const SelectDREAreaPromotora = () => {
       <SelectDRE
         formItemProps={{
           label: 'DRE',
-          name: 'dreIdPropostas',
-          initialValue: dreId,
+          name: 'dreId',
         }}
       />
     </Col>
