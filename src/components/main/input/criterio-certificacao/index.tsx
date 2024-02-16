@@ -15,7 +15,9 @@ type SelectCriterioCertificacaoProps = {
 
 const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({ onchange }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
-  const [mensagemErro, setMensagemErro] = useState('Indique ao menos 3 critérios.');
+  const [mensagemErro, setMensagemErro] = useState(
+    'É necessário informar ao menos 3 critérios para certificação.',
+  );
   const obterDados = async () => {
     const resposta = await obterCriterioCertificacao();
     if (resposta.sucesso) {
@@ -43,9 +45,10 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
               errors: [],
             },
           ]);
-        }
-        if (requerido && error.length == 0) {
+        } else if (requerido && error.length == 0 && criterios?.length > 3) {
           setMensagemErro('');
+        } else if (requerido && criterios?.length < 3 && error.length == 0) {
+          setMensagemErro(mensagemErro);
         }
         return (
           <>
@@ -74,7 +77,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
                 id={CF_SELECT_CRITERIO_CERTIFICACAO}
               />
             </Form.Item>
-            {criterios?.length < 3 && requerido ? (
+            {criterios?.length < 3 && requerido && error.length == 0 ? (
               <span style={{ color: Colors.Suporte.Primary.ERROR }}>{mensagemErro}</span>
             ) : (
               ''
