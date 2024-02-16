@@ -11,8 +11,9 @@ const { useToken } = theme;
 
 type DatePickerMultiplosProps = {
   disabledDate: any;
+  onchange: VoidFunction;
 };
-const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate }) => {
+const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate, onchange }) => {
   const { token } = useToken();
   const form = useFormInstance();
   const dateFormat = 'DD/MM/YYYY';
@@ -71,6 +72,7 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate 
                       <DatePicker
                         id={`${CF_INPUT_DATA}_${name + 1}`}
                         locale={localeDatePicker}
+                        onChange={onchange}
                         format={dateFormat}
                         disabledDate={disabledDate}
                         getPopupContainer={(trigger: HTMLElement) => popupContainer(trigger)}
