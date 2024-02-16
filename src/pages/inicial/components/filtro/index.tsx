@@ -24,6 +24,9 @@ export const FiltroPaginaInicial: React.FC = () => {
   const [form] = useForm();
 
   const areaPromotora = useAppSelector((state) => state.perfil.perfilSelecionado?.perfilNome);
+  const perfilAdmin = 'Admin';
+
+  const desativarMenuAreaPromotora = !areaPromotora?.includes(perfilAdmin);
 
   const [filters, setFilters] = useState<PropostaFiltrosDTO>({
     areaPromotoraId: null,
@@ -68,7 +71,7 @@ export const FiltroPaginaInicial: React.FC = () => {
         <Col xs={24} md={12} lg={8}>
           <SelectAreaPromotora
             formItemProps={{ name: 'areaPromotoraId', style: styleFormLabel }}
-            selectProps={{ onChange: obterFiltros, disabled: !!areaPromotora }}
+            selectProps={{ onChange: obterFiltros, disabled: desativarMenuAreaPromotora }}
           />
         </Col>
         <Col xs={24} md={12} lg={8}>
