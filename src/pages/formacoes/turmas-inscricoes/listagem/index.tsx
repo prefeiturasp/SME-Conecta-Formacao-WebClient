@@ -35,11 +35,11 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
 
   const columns: ColumnsType<TurmaInscricaoProps> = [
     { title: 'Turma', dataIndex: 'nomeTurma' },
-    { title: 'CPF', dataIndex: 'cpf' },
-    { title: 'Situação', dataIndex: 'situacao' },
     { title: 'RF', dataIndex: 'registroFuncional' },
+    { title: 'CPF', dataIndex: 'cpf' },
     { title: 'Nome do cursista', dataIndex: 'nomeCursista' },
     { title: 'Cargo/Função Atividade', dataIndex: 'cargoFuncao' },
+    { title: 'Situação', dataIndex: 'situacao' },
     {
       title: 'Ações',
       dataIndex: 'podeCancelar',
