@@ -10,7 +10,6 @@ export const SelectDREAreaPromotora = () => {
   const perfilDRE = 3;
 
   const ehPerfilDRE = perfilWatch?.visaoId === perfilDRE || perfil?.visaoId === perfilDRE;
-
   if (!ehPerfilDRE) return <></>;
 
   return (
@@ -18,7 +17,7 @@ export const SelectDREAreaPromotora = () => {
       <SelectDRE
         formItemProps={{
           label: 'DRE',
-          name: 'dreIdPropostas',
+          name: 'dreId',
         }}
       />
     </Col>
