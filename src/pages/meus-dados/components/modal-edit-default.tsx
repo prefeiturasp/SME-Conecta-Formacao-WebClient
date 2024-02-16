@@ -54,6 +54,8 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
         if (resposta?.status === HttpStatusCode.Ok && resposta?.data && updateFields) {
           updateFields(form.getFieldsValue());
           openNotificationSuccess();
+        } else if (resposta?.status === HttpStatusCode.Ok && resposta?.data) {
+          openNotificationSuccess();
         }
         closeModal();
       })
