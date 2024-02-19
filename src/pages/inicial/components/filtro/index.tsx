@@ -154,25 +154,6 @@ export const FiltroPaginaInicial: React.FC = () => {
     );
   };
 
-  useEffect(() => {
-    if (areaPromotora) {
-      obterAreaPromotoraLista().then((resposta) => {
-        if (resposta.sucesso) {
-          const areaPromotoraId = resposta.dados.filter((item) => item.descricao === areaPromotora);
-
-          const descricaoAreaPromotora = areaPromotoraId.find((item) => item.descricao);
-
-          form.setFieldValue('areaPromotoraId', descricaoAreaPromotora?.id);
-
-          setFilters({
-            ...filters,
-            areaPromotoraId: form.getFieldValue('areaPromotoraId'),
-          });
-        }
-      });
-    }
-  }, []);
-
   return (
     <Col>
       <HeaderPage title='Acompanhamento de propostas formativas' />
