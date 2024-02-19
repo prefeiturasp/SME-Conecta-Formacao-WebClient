@@ -2,7 +2,6 @@ import { Button, Col, Drawer, Form, Row, Space } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { DataTableContext } from '~/components/lib/card-table/provider';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import InputRegistroFuncionalNome from '~/components/main/input/input-registro-funcional-nome';
@@ -22,13 +21,11 @@ import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerTutorProps = {
   openModal: boolean;
-  onCloseModal: () => void;
+  onCloseModal: (recarregarLista: boolean) => void;
   id?: number;
 };
 
 const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id = 0 }) => {
-  const { tableState } = useContext(DataTableContext);
-
   const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [formDrawer] = useForm();
@@ -43,19 +40,13 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES,
         onOk() {
-          onCloseModal();
+          onCloseModal(reloadData);
           formDrawer.resetFields();
-          if (reloadData) {
-            tableState.reloadData();
-          }
         },
       });
     } else {
-      onCloseModal();
+      onCloseModal(reloadData);
       formDrawer.resetFields();
-      if (reloadData) {
-        tableState.reloadData();
-      }
     }
   };
 

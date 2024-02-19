@@ -596,7 +596,7 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormularioDatas recarregarTurmas={recarregarTurmas} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Profissionais !== stepSelecionado}>
-          <FormularioProfissionais />
+          <FormularioProfissionais recarregarTurmas={recarregarTurmas} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Certificacao !== stepSelecionado}>
           <FormularioCertificacao />

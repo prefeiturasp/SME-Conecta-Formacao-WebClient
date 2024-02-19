@@ -2,11 +2,15 @@ import React from 'react';
 import ListaRegentes from './components/lista-regentes';
 import ListaTutores from './components/lista-tutores';
 
-const FormularioProfissionais: React.FC = () => {
+type FormularioProfissionaisProps = {
+  recarregarTurmas: boolean;
+};
+
+const FormularioProfissionais: React.FC<FormularioProfissionaisProps> = ({ recarregarTurmas }) => {
   return (
     <>
-      <ListaRegentes />
-      <ListaTutores />
+      <ListaRegentes recarregarTurmas={recarregarTurmas} />
+      <ListaTutores recarregarTurmas={recarregarTurmas} />
     </>
   );
 };

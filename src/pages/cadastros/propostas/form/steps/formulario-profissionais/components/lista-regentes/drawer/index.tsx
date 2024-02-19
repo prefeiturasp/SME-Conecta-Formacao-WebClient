@@ -2,7 +2,6 @@ import { Button, Col, Drawer, Form, Row, Space } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { DataTableContext } from '~/components/lib/card-table/provider';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import EditorTexto from '~/components/main/input/editor-texto';
@@ -23,13 +22,11 @@ import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerRegenteProps = {
   openModal: boolean;
-  onCloseModal: () => void;
+  onCloseModal: (recarregarLista: boolean) => void;
   id?: number;
 };
 
 const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, id = 0 }) => {
-  const { tableState } = useContext(DataTableContext);
-
   const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [formDrawer] = useForm();
@@ -44,19 +41,13 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES,
         onOk() {
-          onCloseModal();
+          onCloseModal(reloadData);
           formDrawer.resetFields();
-          if (reloadData) {
-            tableState.reloadData();
-          }
         },
       });
     } else {
-      onCloseModal();
+      onCloseModal(reloadData);
       formDrawer.resetFields();
-      if (reloadData) {
-        tableState.reloadData();
-      }
     }
   };
 

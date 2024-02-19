@@ -39,7 +39,6 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
         const criterios: number[] = form.getFieldValue('criterioCertificacao');
         const error = form.getFieldError('criterioCertificacao');
         if (!requerido && error.length > 0) {
-          console.log('!requerido && error.length > 0');
           form.setFields([
             {
               name: 'criterioCertificacao',
