@@ -29,8 +29,11 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
       const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
       setOptions(newOptions);
       if (newOptions.length == 1) {
-        setDisabledSelect(true);
         form.setFieldValue('areaPromotoraId', newOptions[0].value);
+        setTimeout(() => {
+          form.setFieldValue('areaPromotoraId', newOptions[0].value);
+        }, 1000);
+        setDisabledSelect(true);
       }
     } else {
       setOptions([]);
