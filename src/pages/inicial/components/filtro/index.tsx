@@ -1,6 +1,6 @@
 import { Col, Form, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
@@ -16,14 +16,10 @@ import {
   CF_INPUT_NUMERO_HOMOLOGACAO,
 } from '~/core/constants/ids/input';
 import { PropostaFiltrosDTO } from '~/core/dto/proposta-filtro-dto';
-import { useAppSelector } from '~/core/hooks/use-redux';
-import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service';
 import { ListaCardsPropostas } from '../lista-cards/inde';
 
 export const FiltroPaginaInicial: React.FC = () => {
   const [form] = useForm();
-
-  const areaPromotora = useAppSelector((state) => state.perfil.perfilSelecionado?.perfilNome);
 
   const [filters, setFilters] = useState<PropostaFiltrosDTO>({
     areaPromotoraId: null,
