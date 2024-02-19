@@ -22,7 +22,7 @@ type DataTableProps<T> = {
 const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTableProps<T>) => {
   const { setTableState } = useContext(DataTableContext);
 
-  const [data, setData] = useState<T[]>();
+  const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {

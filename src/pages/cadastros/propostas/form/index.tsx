@@ -73,6 +73,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
 
   const [openModalErros, setOpenModalErros] = useState(false);
+  const [recarregarTurmas, setRecarregarTurmas] = useState(false);
   const [listaErros, setListaErros] = useState<string[]>([]);
 
   const [listaDres, setListaDres] = useState<any[]>([]);
@@ -141,7 +142,7 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   }, [formInitialValues, desabilitarCampos]);
 
-  const carregarValoresDefault = async () => {    
+  const carregarValoresDefault = async () => {
     const retornolistaDres = await obterDREs(true);
 
     const listaDres = retornolistaDres.dados.map((dre) => ({
@@ -154,8 +155,7 @@ const FormCadastroDePropostas: React.FC = () => {
 
     const valoresIniciais: PropostaFormDTO = {
       tipoFormacao: TipoFormacao.Curso,
-      tiposInscricao: [
-      ],
+      tiposInscricao: [],
       publicosAlvo: [],
       dres: temDreVinculada ? dresVinculadas : [],
       modalidade: undefined,
@@ -178,7 +178,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const carregarDados = useCallback(async () => {
     const resposta = await obterPropostaPorId(id);
     const dados = resposta.dados;
-    
+
     if (resposta.sucesso) {
       const retornolistaDres = await obterDREs(true);
 
@@ -205,10 +205,10 @@ const FormCadastroDePropostas: React.FC = () => {
         anosTurmas = dados.anosTurmas.map((item) => item.anoTurmaId);
       }
 
-      let tiposInscricao:  number[] = [];
+      let tiposInscricao: number[] = [];
 
       if (dados?.tiposInscricao?.length) {
-        tiposInscricao = dados?.tiposInscricao.map(item => item.tipoInscricao);        
+        tiposInscricao = dados?.tiposInscricao.map((item) => item.tipoInscricao);
       }
 
       let componentesCurriculares: number[] = [];
@@ -534,6 +534,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const proximoPasso = async () => {
     if (form.isFieldsTouched()) {
       await salvar();
+      setRecarregarTurmas(true);
     }
 
     setCurrentStep(currentStep + 1);
@@ -592,10 +593,10 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormularioDetalhamento />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Datas !== stepSelecionado}>
-          <FormularioDatas />
+          <FormularioDatas recarregarTurmas={recarregarTurmas} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Profissionais !== stepSelecionado}>
-          <FormularioProfissionais />
+          <FormularioProfissionais recarregarTurmas={recarregarTurmas} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Certificacao !== stepSelecionado}>
           <FormularioCertificacao />

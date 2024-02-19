@@ -41,8 +41,10 @@ const contentStyleTituloListagem: React.CSSProperties = {
   color: 'black',
   fontWeight: 'bold',
 };
-
-const FormularioDatas: React.FC = () => {
+type FormularioDatasProps = {
+  recarregarTurmas: boolean;
+};
+const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
   const form = Form.useFormInstance();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const paramsRoute = useParams();
@@ -51,6 +53,10 @@ const FormularioDatas: React.FC = () => {
   const refTable = useRef<any>(null);
 
   const datasPeriodoRealizacao = Form.useWatch('periodoRealizacao', form);
+
+  if (recarregarTurmas) {
+    refTable.current?.reloadTable();
+  }
 
   const dataInicio = datasPeriodoRealizacao?.[0] as Dayjs;
   const dataFim = datasPeriodoRealizacao?.[1] as Dayjs;
