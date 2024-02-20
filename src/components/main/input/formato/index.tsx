@@ -33,7 +33,7 @@ const SelectFormato: React.FC<SelectFormatoProps> = ({
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async (tipoFormacao: TipoFormacao) => {
-    tipoFormacao = tipoFormacao ?? TipoFormacao.Curso;
+    tipoFormacao = tipoFormacao ?? TipoFormacao.Evento;
 
     if (tipoFormacao) {
       const resposta = publico ? await obterFormatoPublico() : await obterFormato(tipoFormacao);
