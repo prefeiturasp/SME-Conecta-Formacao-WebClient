@@ -81,17 +81,16 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
   return (
     <Flex justify='left'>
       <Row gutter={24}>
-        <Col>
+        <Col span={9.6}>
           <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '100%' }} />
         </Col>
 
         <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
-          <Typography.Title level={1}>{dadosInscricao?.titulo}</Typography.Title>
+          <Typography.Title level={2}>{dadosInscricao?.titulo}</Typography.Title>
 
           <Typography.Text style={styleTypographyText}>
             Área Promotora: {dadosInscricao?.areaPromotora}
           </Typography.Text>
-
           <Row>
             <TagTipoFormacaoFormato
               icon={<FaGraduationCap size={22} />}
@@ -108,15 +107,17 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
             <CalendarOutlined /> {dadosInscricao?.periodo}
           </Typography.Text>
 
-          <Button
-            type='primary'
-            shape='round'
-            size='large'
-            onClick={setarDadosInscricao}
-            disabled={desabilitarInscricao()}
-          >
-            {ENVIAR_INSCRICAO}
-          </Button>
+          <Col span={24}>
+            <Button
+              type='primary'
+              shape='round'
+              size='large'
+              onClick={setarDadosInscricao}
+              disabled={desabilitarInscricao()}
+            >
+              {ENVIAR_INSCRICAO}
+            </Button>
+          </Col>
         </Flex>
       </Row>
     </Flex>
