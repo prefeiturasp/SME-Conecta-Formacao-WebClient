@@ -28,9 +28,9 @@ const DropdownPerfil: React.FC = () => {
   const location = useLocation();
 
   const auth = useAppSelector((state) => state.auth);
-  const perfil = useAppSelector((state) => state.perfil);
-
   const [openDropdow, setOpenDropdow] = useState(false);
+
+  const perfil = useAppSelector((state) => state.perfil);
 
   const alterarPerfil = (perfilUsuarioId: string) => {
     autenticacaoService.alterarPerfilSelecionado(perfilUsuarioId).then((response) => {
@@ -44,6 +44,9 @@ const DropdownPerfil: React.FC = () => {
     }
   };
 
+  if (perfil.perfilSelecionado?.perfil == null) {
+    alterarPerfil(auth.perfilUsuario[0].perfil);
+  }
   const items: MenuProps['items'] = auth.perfilUsuario.map((perfil) => ({
     key: perfil?.perfil,
     label: perfil?.perfilNome,
