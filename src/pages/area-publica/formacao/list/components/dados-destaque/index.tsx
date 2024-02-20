@@ -80,7 +80,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
 
   return (
     <Flex justify='left'>
-      <Row gutter={24}>
+      <Row gutter={28}>
         <Col>
           <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '100%' }} />
         </Col>
@@ -108,15 +108,17 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
             <CalendarOutlined /> {dadosInscricao?.periodo}
           </Typography.Text>
 
-          <Button
-            type='primary'
-            shape='round'
-            size='large'
-            onClick={setarDadosInscricao}
-            disabled={desabilitarInscricao()}
-          >
-            {ENVIAR_INSCRICAO}
-          </Button>
+          <Col span={48}>
+            <Button
+              type='primary'
+              shape='round'
+              size='large'
+              onClick={setarDadosInscricao}
+              disabled={desabilitarInscricao()}
+            >
+              {ENVIAR_INSCRICAO}
+            </Button>
+          </Col>
         </Flex>
       </Row>
     </Flex>
