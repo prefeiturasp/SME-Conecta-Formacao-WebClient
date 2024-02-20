@@ -1,0 +1,138 @@
+import { Table } from 'antd';
+import { TablePaginationConfig, TableProps } from 'antd/es/table';
+import { AxiosError } from 'axios';
+import queryString from 'query-string';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
+import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
+import api from '~/core/services/api';
+import { scrollNoInicio } from '~/core/utils/functions';
+import { openNotificationErrors } from '../notification';
+import { DataTableContext } from './provider';
+
+interface TableParams {
+  pagination?: TablePaginationConfig;
+}
+
+type DataTableProps<T> = {
+  filters?: any;
+  url?: string;
+} & TableProps<T>;
+
+const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTableProps<T>) => {
+  const { setTableState } = useContext(DataTableContext);
+
+  const [data, setData] = useState<T[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [tableParams, setTableParams] = useState<TableParams>({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      showSizeChanger: true,
+      position: ['bottomCenter'],
+      locale: { items_per_page: '' },
+      disabled: false,
+      pageSizeOptions: [10, 20, 50, 100],
+    },
+  });
+
+  const fetchData = useCallback(
+    (newParams: TableParams) => {
+      if (!url) return;
+
+      setLoading(true);
+
+      api
+        .get<PaginacaoResultadoDTO<T[]>>(url, {
+          headers: {
+            numeroPagina: newParams.pagination?.current,
+            numeroRegistros: newParams.pagination?.pageSize,
+          },
+          params: filters,
+          paramsSerializer: {
+            serialize: (params) => {
+              return queryString.stringify(params, {
+                skipNull: true,
+                skipEmptyString: true,
+              });
+            },
+          },
+        })
+        .then((response) => {
+          if (response?.data.items) {
+            setData(response.data.items);
+            setTableParams({
+              ...newParams,
+              pagination: {
+                ...newParams.pagination,
+                total: response.data.totalRegistros,
+              },
+            });
+          }
+        })
+        .catch((error: AxiosError<RetornoBaseDTO>) => {
+          const mensagens = error?.response?.data?.mensagens?.length
+            ? error?.response?.data?.mensagens
+            : [];
+
+          openNotificationErrors(mensagens);
+        })
+        .finally(() => setLoading(false));
+    },
+    [url, filters],
+  );
+
+  useEffect(() => {
+    fetchData(tableParams);
+    setTableState({
+      reloadData: () => {
+        fetchData(tableParams);
+      },
+    });
+  }, [JSON.stringify(filters), fetchData]);
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    const newParams = {
+      ...tableParams,
+      pagination,
+    };
+
+    setTableParams(newParams);
+
+    fetchData(newParams);
+
+    if (pagination.pageSize !== newParams.pagination?.pageSize) {
+      setData([]);
+    }
+  };
+
+  const handleTableChangeDefaultTable = (pagination: TablePaginationConfig) => {
+    const newParams = {
+      ...tableParams,
+      pagination,
+    };
+
+    setTableParams(newParams);
+  };
+
+  useEffect(() => {
+    scrollNoInicio();
+  }, [tableParams.pagination?.current, !tableParams.pagination?.pageSize]);
+
+  return (
+    <Table
+      bordered
+      rowKey='id'
+      size='small'
+      columns={columns}
+      loading={loading}
+      pagination={tableParams.pagination}
+      locale={{ emptyText: 'Sem dados' }}
+      onChange={url ? handleTableChange : handleTableChangeDefaultTable}
+      {...rest}
+      dataSource={url ? data : rest.dataSource}
+    />
+  );
+};
+
+export default DataTable;
