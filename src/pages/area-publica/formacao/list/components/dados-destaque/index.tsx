@@ -81,7 +81,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
   return (
     <Flex justify='left'>
       <Row gutter={24}>
-        <Col>
+        <Col span={9.6}>
           <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '100%' }} />
         </Col>
 
