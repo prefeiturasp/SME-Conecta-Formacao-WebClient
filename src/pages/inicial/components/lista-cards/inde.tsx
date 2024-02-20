@@ -30,9 +30,13 @@ const styleDataHoraCard: CSSProperties = {
 
 type ListaCardsPropostasProps = {
   filters: PropostaFiltrosDTO;
+  areaPromotoraCarregada: boolean;
 };
 
-export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filters }) => {
+export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({
+  filters,
+  areaPromotoraCarregada,
+}) => {
   const navigate = useNavigate();
   const [dadosPropostas, setDadosPropostas] = useState<PropostaDashboardDTO[]>();
 
@@ -76,11 +80,13 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
   };
 
   const obterPropostas = async () => {
-    obterPropostasDashboard(filters).then((resposta) => {
-      if (resposta.sucesso) {
-        setDadosPropostas(resposta.dados);
-      }
-    });
+    if (areaPromotoraCarregada) {
+      obterPropostasDashboard(filters).then((resposta) => {
+        if (resposta.sucesso) {
+          setDadosPropostas(resposta.dados);
+        }
+      });
+    }
   };
 
   const listItensProposta = (item: PropostaDashboardDTO) => {
