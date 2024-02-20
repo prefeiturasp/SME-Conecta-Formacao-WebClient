@@ -108,7 +108,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
             <CalendarOutlined /> {dadosInscricao?.periodo}
           </Typography.Text>
 
-          <Col span={48}>
+          <Col span={24}>
             <Button
               type='primary'
               shape='round'
