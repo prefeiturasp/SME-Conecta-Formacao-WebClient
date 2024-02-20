@@ -1,6 +1,6 @@
 import { Col, Form, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
@@ -17,10 +17,13 @@ import {
 } from '~/core/constants/ids/input';
 import { PropostaFiltrosDTO } from '~/core/dto/proposta-filtro-dto';
 import { ListaCardsPropostas } from '../lista-cards/inde';
+import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service';
+import { useAppSelector } from '~/core/hooks/use-redux';
 
 export const FiltroPaginaInicial: React.FC = () => {
   const [form] = useForm();
-
+  const areaPromotora = useAppSelector((state) => state.perfil.perfilSelecionado?.perfilNome);
+  const [areaPromotoraCarregada, setAreaPromotoraCarregada] = useState(false);
   const [filters, setFilters] = useState<PropostaFiltrosDTO>({
     areaPromotoraId: null,
     formato: null,
@@ -64,6 +67,9 @@ export const FiltroPaginaInicial: React.FC = () => {
         <Col xs={24} md={12} lg={8}>
           <SelectAreaPromotora
             formItemProps={{ name: 'areaPromotoraId', style: styleFormLabel }}
+            setAreaPromotoraCarregada={() => {
+              setAreaPromotoraCarregada(true);
+            }}
             selectProps={{ onChange: obterFiltros }}
           />
         </Col>
@@ -150,6 +156,27 @@ export const FiltroPaginaInicial: React.FC = () => {
     );
   };
 
+  useEffect(() => {
+    if (areaPromotora) {
+      obterAreaPromotoraLista().then((resposta) => {
+        if (resposta.sucesso) {
+          const areaPromotoraId = resposta.dados.filter((item) => item.descricao === areaPromotora);
+
+          const descricaoAreaPromotora = areaPromotoraId.find((item) => item.descricao);
+
+          if (descricaoAreaPromotora?.id != undefined) {
+            form.setFieldValue('areaPromotoraId', descricaoAreaPromotora?.id);
+            setFilters({
+              ...filters,
+              areaPromotoraId: form.getFieldValue('areaPromotoraId'),
+            });
+            setAreaPromotoraCarregada(true);
+          }
+        }
+      });
+    }
+  }, []);
+
   return (
     <Col>
       <HeaderPage title='Acompanhamento de propostas formativas' />
@@ -159,7 +186,10 @@ export const FiltroPaginaInicial: React.FC = () => {
             {() => (
               <Row gutter={[16, 8]}>
                 {camposFiltroJSX()}
-                <ListaCardsPropostas filters={filters} />
+                <ListaCardsPropostas
+                  filters={filters}
+                  areaPromotoraCarregada={areaPromotoraCarregada}
+                />
               </Row>
             )}
           </Form.Item>
