@@ -80,18 +80,17 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
 
   return (
     <Flex justify='left'>
-      <Row gutter={28}>
+      <Row gutter={24}>
         <Col>
           <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '100%' }} />
         </Col>
 
         <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
-          <Typography.Title level={1}>{dadosInscricao?.titulo}</Typography.Title>
+          <Typography.Title level={2}>{dadosInscricao?.titulo}</Typography.Title>
 
           <Typography.Text style={styleTypographyText}>
             Área Promotora: {dadosInscricao?.areaPromotora}
           </Typography.Text>
-
           <Row>
             <TagTipoFormacaoFormato
               icon={<FaGraduationCap size={22} />}
