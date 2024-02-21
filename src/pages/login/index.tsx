@@ -144,11 +144,6 @@ const Login = () => {
                 suffix={<span />}
                 maxLength={100}
                 id={CF_INPUT_LOGIN}
-                onChange={(e) => {
-                  const value = removerTudoQueNaoEhDigito(e.target.value);
-
-                  form.setFieldValue('login', value);
-                }}
               />
             </Form.Item>
           </Col>
