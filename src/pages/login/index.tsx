@@ -29,7 +29,6 @@ import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao } from '~/core/services/alerta-service';
 import autenticacaoService from '~/core/services/autenticacao-service';
 import usuarioService from '~/core/services/usuario-service';
-import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import { validarAutenticacao } from '~/core/utils/perfil';
 
 const Login = () => {
