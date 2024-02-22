@@ -28,6 +28,7 @@ import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
+import FormCadastrosInscricoes from '~/pages/formacoes/turmas-inscricoes/form';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -119,6 +120,12 @@ const RoutesConfig = () => {
                     <Route
                       path={ROUTES.FORMACAOES_INSCRICOES_EDITAR}
                       element={<TurmasInscricoes />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                    <Route
+                      path={ROUTES.FORMACAOES_INSCRICOES_NOVO}
+                      element={<FormCadastrosInscricoes />}
                     />
                   </Route>
                 </Route>
