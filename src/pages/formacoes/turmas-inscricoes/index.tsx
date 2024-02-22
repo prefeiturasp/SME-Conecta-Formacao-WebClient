@@ -1,14 +1,18 @@
-import { Col, Form, Row, Typography } from 'antd';
+import { Button, Col, Form, Row, Typography, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
-import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
+import {
+  CF_BUTTON_ARQUIVO,
+  CF_BUTTON_NOVO,
+  CF_BUTTON_VOLTAR,
+} from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME, CF_INPUT_NOME_FORMACAO, CF_INPUT_RF } from '~/core/constants/ids/input';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
@@ -25,6 +29,8 @@ export const TurmasInscricoes = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
+  const id = params.id;
 
   const nomeFormacao = location.state.nomeFormacao;
 
@@ -34,6 +40,9 @@ export const TurmasInscricoes = () => {
     nomeCursista: null,
     registroFuncional: null,
   });
+
+  const onClickNovo = () =>
+    navigate(`${ROUTES.FORMACAOES_INSCRICOES}/novo/${id}`, { replace: true });
 
   useEffect(() => {
     form.resetFields();
@@ -58,6 +67,31 @@ export const TurmasInscricoes = () => {
             <Row gutter={[8, 8]}>
               <Col>
                 <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+              </Col>
+              <Col>
+                <Upload fileList={[]}>
+                  <Button
+                    block
+                    type='default'
+                    htmlType='submit'
+                    id={CF_BUTTON_ARQUIVO}
+                    style={{ fontWeight: 700 }}
+                  >
+                    Inscrição por arquivo
+                  </Button>
+                </Upload>
+              </Col>
+              <Col>
+                <Button
+                  block
+                  type='primary'
+                  htmlType='submit'
+                  id={CF_BUTTON_NOVO}
+                  onClick={() => onClickNovo()}
+                  style={{ fontWeight: 700 }}
+                >
+                  Nova inscrição
+                </Button>
               </Col>
             </Row>
           </Col>
