@@ -19,4 +19,5 @@ export enum ROUTES {
   INSCRICAO = '/inscricao',
   FORMACAOES_INSCRICOES = '/formacoes/inscricoes',
   FORMACAOES_INSCRICOES_EDITAR = '/formacoes/inscricoes/editar/:id',
+  FORMACAOES_INSCRICOES_NOVO = '/formacoes/inscricoes/novo/:id',
 }
