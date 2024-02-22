@@ -32,7 +32,7 @@ export const TurmasInscricoes = () => {
   const params = useParams();
   const id = params.id;
 
-  const nomeFormacao = location.state.nomeFormacao;
+  const nomeFormacao = location?.state?.nomeFormacao;
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
@@ -42,7 +42,10 @@ export const TurmasInscricoes = () => {
   });
 
   const onClickNovo = () =>
-    navigate(`${ROUTES.FORMACAOES_INSCRICOES}/novo/${id}`, { replace: true });
+    navigate(`${ROUTES.FORMACAOES_INSCRICOES}/novo/${id}`, {
+      replace: true,
+      state: { form: { location } },
+    });
 
   useEffect(() => {
     form.resetFields();

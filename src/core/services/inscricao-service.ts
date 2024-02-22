@@ -26,10 +26,14 @@ const cancelarInscricao = (id: number) => {
 const obterTurmasInscricao = (propostaId: number): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_INSCRICAO}/turmas/${propostaId}`);
 
+const obterTiposInscricao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_INSCRICAO}/tipos`);
+
 export {
   cancelarInscricao,
   inserirInscricao,
   obterDadosInscricao,
   obterInscricao,
   obterTurmasInscricao,
+  obterTiposInscricao,
 };

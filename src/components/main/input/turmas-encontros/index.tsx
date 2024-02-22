@@ -13,6 +13,7 @@ type SelectTurmaEncontrosProps = {
   exibirTooltip?: boolean;
   selectProps?: SelectProps;
   idProposta: any;
+  podeSelecionarVarios?: boolean;
 };
 
 const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
@@ -20,6 +21,7 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
   exibirTooltip = true,
   selectProps,
   idProposta,
+  podeSelecionarVarios = true,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -36,7 +38,7 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
   useEffect(() => {
     obterDados();
   }, []);
-
+  const modeSelect = podeSelecionarVarios ? 'multiple' : undefined;
   const iconTooltip = exibirTooltip ? (
     <Tooltip>
       <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
@@ -56,7 +58,7 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
     >
       <Select
         allowClear
-        mode='multiple'
+        mode={modeSelect}
         options={options}
         placeholder='Selecione uma Turma'
         {...selectProps}
