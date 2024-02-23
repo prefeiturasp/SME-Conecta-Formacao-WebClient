@@ -39,7 +39,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   let inputNode = <Input />;
 
   if (dataIndex === 'dres') {
-    const options = cloneDeep(listaDres)?.filter((dre: DreDTO) => !dre.todos);
+    const options = cloneDeep(listaDres);
 
     inputNode = (
       <SelectDRE
@@ -97,6 +97,7 @@ type TabelaEditavelProps = {
 };
 
 const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
+  console.log(listaDres);
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
 
