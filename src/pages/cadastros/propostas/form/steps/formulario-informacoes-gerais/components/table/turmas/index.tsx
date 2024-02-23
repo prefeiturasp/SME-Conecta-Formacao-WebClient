@@ -202,7 +202,6 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       width: '40%',
       render: (dresExibicao: DreDTO[]) => {
         if (!dresExibicao?.length) return <></>;
-        console.log(dresExibicao);
         const filteredDres =
           dresExibicao?.length > 1 ? dresExibicao.filter((dre) => !dre.todos) : dresExibicao;
         return (
