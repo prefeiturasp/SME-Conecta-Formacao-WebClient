@@ -39,7 +39,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   let inputNode = <Input />;
 
   if (dataIndex === 'dres') {
-    const options = cloneDeep(listaDres)?.filter((dre: DreDTO) => !dre.todos);
+    const options = cloneDeep(listaDres);
 
     inputNode = (
       <SelectDRE
