@@ -154,7 +154,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
 
   const edit = (record: PropostaTurmaFormDTO) => {
     if (record && record.dres) {
-      const filteredRecord = record.dres.filter((item) => item.descricao !== 'TODOS');
+      const filteredRecord = record.dres.filter((item) => !item.todos);
       setEditInValues({ ...record, dres: filteredRecord });
       setEditingKey(record.key);
     }
@@ -202,10 +202,9 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       width: '40%',
       render: (dresExibicao: DreDTO[]) => {
         if (!dresExibicao?.length) return <></>;
+        console.log(dresExibicao);
         const filteredDres =
-          dresExibicao?.length > 1
-            ? dresExibicao.filter((dre) => dre.descricao !== 'TODOS')
-            : dresExibicao;
+          dresExibicao?.length > 1 ? dresExibicao.filter((dre) => !dre.todos) : dresExibicao;
         return (
           <Col>
             <Row gutter={[8, 8]}>
