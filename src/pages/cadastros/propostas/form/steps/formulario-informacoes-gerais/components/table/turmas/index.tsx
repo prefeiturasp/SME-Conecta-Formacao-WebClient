@@ -64,11 +64,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       />
     );
   } else if (dataIndex === 'nome') {
-    inputNode = (
-      <Input
-        maxLength={200} 
-      />
-    );
+    inputNode = <Input maxLength={200} />;
   }
 
   return (
@@ -156,14 +152,14 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
     }
   }, [dresWatch]);
 
-  const edit = (record: PropostaTurmaFormDTO) => {    
+  const edit = (record: PropostaTurmaFormDTO) => {
     if (record && record.dres) {
-      const filteredRecord = record.dres.filter(item => item.descricao !== "TODOS");
+      const filteredRecord = record.dres.filter((item) => item.descricao !== 'TODOS');
       setEditInValues({ ...record, dres: filteredRecord });
       setEditingKey(record.key);
     }
   };
-  
+
   useEffect(() => {
     formRow.resetFields();
   }, [formRow, editInValues]);
@@ -195,7 +191,9 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       dataIndex: 'nome',
       editable: true,
       width: '40%',
-      render: (turmaNome: string) => <div style={{ wordBreak: 'break-word', width: 380}}>{turmaNome}</div>
+      render: (turmaNome: string) => (
+        <div style={{ wordBreak: 'break-word', width: 380 }}>{turmaNome}</div>
+      ),
     },
     {
       title: 'DRE',
@@ -204,13 +202,16 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       width: '40%',
       render: (dresExibicao: DreDTO[]) => {
         if (!dresExibicao?.length) return <></>;
-        const filteredDres = dresExibicao.filter(dre => dre.descricao !== 'TODOS');
+        const filteredDres =
+          dresExibicao?.length > 1
+            ? dresExibicao.filter((dre) => dre.descricao !== 'TODOS')
+            : dresExibicao;
         return (
           <Col>
             <Row gutter={[8, 8]}>
-            {filteredDres.map((dre: DreDTO, i: number) => (
-              <Tag key={i}>{dre?.label}</Tag>
-            ))}
+              {filteredDres.map((dre: DreDTO, i: number) => (
+                <Tag key={i}>{dre?.label}</Tag>
+              ))}
             </Row>
           </Col>
         );
