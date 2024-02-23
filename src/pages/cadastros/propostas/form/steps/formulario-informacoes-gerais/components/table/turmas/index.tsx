@@ -97,7 +97,6 @@ type TabelaEditavelProps = {
 };
 
 const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
-  console.log(listaDres);
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
 
