@@ -12,6 +12,7 @@ import DataTableProfissionalTutor from '~/components/lib/card-table-profissional
 
 const columns: ColumnsType<PropostaTutorDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
+  { title: 'CPF', dataIndex: 'cpf' },
   { title: 'Tutor', dataIndex: 'nomeTutor' },
   { title: 'Turmas', dataIndex: 'nomesTurmas' },
 ];

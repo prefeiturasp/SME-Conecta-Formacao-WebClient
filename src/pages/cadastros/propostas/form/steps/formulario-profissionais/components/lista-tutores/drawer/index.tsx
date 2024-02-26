@@ -17,6 +17,7 @@ import {
   obterPropostaTutorPorId,
   salvarPropostaProfissionalTutor,
 } from '~/core/services/proposta-service';
+import { formatterCPFMask } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerTutorProps = {
@@ -88,7 +89,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
         if (response.dados?.turmas?.length) {
           response.dados.turmas = response.dados.turmas.map((item) => item?.turmaId);
         }
-
+        if (response.dados.cpf) response.dados.cpf = formatterCPFMask(response.dados.cpf);
         setFormInitialValues({ ...response.dados });
 
         return;
@@ -181,6 +182,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                         formDrawer.resetFields(['registroFuncional', 'nomeTutor']);
                         formDrawer.setFieldValue('registroFuncional', '');
                         formDrawer.setFieldValue('nomeTutor', '');
+                        formDrawer.setFieldValue('cpf', '');
                       },
                     }}
                   />
@@ -194,6 +196,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                       return (
                         <Row gutter={[16, 8]}>
                           <InputRegistroFuncionalNome
+                            exibirCpf={!ehRedeMunicipal}
                             formItemPropsRF={{ rules: [{ required: rfEhObrigatorio }] }}
                             formItemPropsNome={{
                               rules: [{ required: desabilitarCampos || !rfEhObrigatorio }],
