@@ -25,6 +25,7 @@ export const TurmasInscricoes = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const location = useLocation();
+  const [realizouFiltro, setRealizouFiltro] = useState(false);
 
   const nomeFormacao = location.state.nomeFormacao;
 
@@ -42,11 +43,19 @@ export const TurmasInscricoes = () => {
   const onClickVoltar = () => navigate(ROUTES.FORMACAOES_INSCRICOES);
 
   const obterFiltros = () => {
+    setRealizouFiltro(true);
+    const cpf = form.getFieldValue('cpf');
+    const nomeTurma = form.getFieldValue('nomeTurma');
+    const nomeCursista = form.getFieldValue('nomeCursista');
+    const registroFuncional = form.getFieldValue('registroFuncional');
+    if (!cpf && !nomeTurma && !nomeCursista && !registroFuncional) {
+      setRealizouFiltro(false);
+    }
     setFilters({
-      cpf: form.getFieldValue('cpf'),
-      nomeTurma: form.getFieldValue('nomeTurma'),
-      nomeCursista: form.getFieldValue('nomeCursista'),
-      registroFuncional: form.getFieldValue('registroFuncional'),
+      cpf: cpf,
+      nomeTurma: nomeTurma,
+      nomeCursista: nomeCursista,
+      registroFuncional: registroFuncional,
     });
   };
 
@@ -139,7 +148,7 @@ export const TurmasInscricoes = () => {
                   Listagem de inscrições por turma
                 </Typography>
                 <DataTableContextProvider>
-                  <TurmasInscricoesListaPaginada filters={filters} />
+                  <TurmasInscricoesListaPaginada filters={filters} realizouFiltro={realizouFiltro}/>
                 </DataTableContextProvider>
               </Col>
             </Row>
