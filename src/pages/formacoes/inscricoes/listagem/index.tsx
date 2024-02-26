@@ -8,6 +8,7 @@ import { FiltroInscricoesProps } from '..';
 
 interface InscricoesListaPaginadaProps {
   filters?: FiltroInscricoesProps;
+  realizouFiltro?: boolean;
 }
 
 interface InscricoesProps {
@@ -24,7 +25,10 @@ interface TurmasProps {
   quantidadeInscricoes: number;
 }
 
-export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = ({ filters }) => {
+export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = ({
+  filters,
+  realizouFiltro,
+}) => {
   const navigate = useNavigate();
 
   const columns: ColumnsType<InscricoesProps> = [
@@ -50,6 +54,7 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
     <DataTable
       url='v1/Inscricao/formacao-turmas'
       filters={filters}
+      realizouFiltro={realizouFiltro}
       columns={columns}
       expandable={{
         expandedRowRender,

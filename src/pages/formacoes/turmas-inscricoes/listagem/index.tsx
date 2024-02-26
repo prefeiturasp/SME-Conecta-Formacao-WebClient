@@ -13,6 +13,7 @@ import { FiltroTurmaInscricoesProps } from '..';
 
 interface TurmasInscricoesListaPaginadaProps {
   filters?: FiltroTurmaInscricoesProps;
+  realizouFiltro?: boolean;
 }
 
 export interface TurmaInscricaoProps {
@@ -28,6 +29,7 @@ export interface TurmaInscricaoProps {
 
 export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPaginadaProps> = ({
   filters,
+  realizouFiltro,
 }) => {
   const params = useParams();
   const id = params.id;
@@ -74,5 +76,12 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     },
   ];
 
-  return <DataTable url={`v1/Inscricao/${id}`} columns={columns} filters={filters} />;
+  return (
+    <DataTable
+      url={`v1/Inscricao/${id}`}
+      columns={columns}
+      filters={filters}
+      realizouFiltro={realizouFiltro}
+    />
+  );
 };

@@ -16,10 +16,17 @@ interface TableParams {
 
 type DataTableProps<T> = {
   filters?: any;
+  realizouFiltro?: boolean;
   url?: string;
 } & TableProps<T>;
 
-const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTableProps<T>) => {
+const DataTable = <T extends object>({
+  filters,
+  realizouFiltro,
+  url,
+  columns,
+  ...rest
+}: DataTableProps<T>) => {
   const { setTableState } = useContext(DataTableContext);
 
   const [data, setData] = useState<T[]>([]);
@@ -41,11 +48,10 @@ const DataTable = <T extends object>({ filters, url, columns, ...rest }: DataTab
       if (!url) return;
 
       setLoading(true);
-
       api
         .get<PaginacaoResultadoDTO<T[]>>(url, {
           headers: {
-            numeroPagina: newParams.pagination?.current,
+            numeroPagina: realizouFiltro ? 1 : newParams.pagination?.current,
             numeroRegistros: newParams.pagination?.pageSize,
           },
           params: filters,
