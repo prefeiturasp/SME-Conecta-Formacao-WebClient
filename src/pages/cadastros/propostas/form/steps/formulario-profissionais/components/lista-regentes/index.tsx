@@ -11,6 +11,7 @@ import DataTableProfissionalRegente from '~/components/lib/card-table-profission
 
 const columns: ColumnsType<PropostaRegenteDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
+  { title: 'CPF', dataIndex: 'cpf' },
   { title: 'Regente', dataIndex: 'nomeRegente' },
   { title: 'Turmas', dataIndex: 'nomesTurmas' },
 ];

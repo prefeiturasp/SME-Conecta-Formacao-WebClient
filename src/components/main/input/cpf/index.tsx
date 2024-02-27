@@ -1,6 +1,6 @@
 import { Form, FormItemProps, Input, InputProps } from 'antd';
 import React from 'react';
-import { removerTudoQueNaoEhDigito } from '~/core/utils/functions/index';
+import { formatterCPFMask, removerTudoQueNaoEhDigito } from '~/core/utils/functions/index';
 
 type InputCPFProps = {
   inputProps?: InputProps;
@@ -9,13 +9,6 @@ type InputCPFProps = {
 };
 
 const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps, required }) => {
-  const formatterCPFMask = (value: string | number | undefined) =>
-    `${value}`
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-      .replace(/(-\d{2})\d+?$/, '$1');
-
   const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = removerTudoQueNaoEhDigito(e?.target?.value);
     return value ? formatterCPFMask(value) : value;
