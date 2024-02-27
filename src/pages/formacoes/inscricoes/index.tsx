@@ -26,6 +26,7 @@ export interface FiltroInscricoesProps {
 
 export const Inscricoes = () => {
   const [form] = useForm();
+  const [realizouFiltro, setRealizouFiltro] = useState(false);
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState<FiltroInscricoesProps>({
@@ -36,15 +37,24 @@ export const Inscricoes = () => {
 
   useEffect(() => {
     form.resetFields();
+    setRealizouFiltro(false);
   }, [form]);
 
   const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
 
   const obterFiltros = () => {
+    setRealizouFiltro(true);
+    const codigoFormacao = form.getFieldValue('codigoFormacao');
+    const nomeFormacao = form.getFieldValue('nomeFormacao');
+    const numeroHomologacao = form.getFieldValue('numeroHomologacao');
+
+    if (!codigoFormacao && !nomeFormacao && !numeroHomologacao) {
+      setRealizouFiltro(false);
+    }
     setFilters({
-      codigoFormacao: form.getFieldValue('codigoFormacao'),
-      nomeFormacao: form.getFieldValue('nomeFormacao'),
-      numeroHomologacao: form.getFieldValue('numeroHomologacao'),
+      codigoFormacao: codigoFormacao,
+      nomeFormacao: nomeFormacao,
+      numeroHomologacao: numeroHomologacao,
     });
   };
 
@@ -119,7 +129,7 @@ export const Inscricoes = () => {
                 <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>
                   Listagem de cursos/turmas
                 </Typography>
-                <InscricoesListaPaginada filters={filters} />
+                <InscricoesListaPaginada filters={filters} realizouFiltro={realizouFiltro} />
               </Col>
             </Row>
           </Col>
