@@ -51,7 +51,9 @@ const DataTableProfissionalRegente = forwardRef(
         .then((response) => {
           if (response?.data.items) {
             for (let index = 0; index < response.data.items.length; index++) {
-              response.data.items[index].cpf = formatterCPFMask(response.data.items[index].cpf);
+              response.data.items[index].cpf = response.data.items[index].cpf
+                ? formatterCPFMask(response.data.items[index].cpf)
+                : '';
             }
             setData(response.data.items);
             setTableParams({
