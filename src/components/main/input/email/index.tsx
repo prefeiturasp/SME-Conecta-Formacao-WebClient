@@ -12,19 +12,32 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
   const [exibirErro, setExibirErro] = useState(true);
 
   const removerEspacoEmail = () => {
-    const email = form.getFieldValue('email');
-    const emailSemEspaco = email.trim();
-    form.setFieldValue('email', emailSemEspaco);
+    const emailUnico = form.getFieldValue('email');
+    const emails = form.getFieldValue('emails');
+    const emailsSemEspaco = emails
+      ? emails.map((e: { [x: string]: string }) => {
+          return { email: e['email'].trim() };
+        })
+      : [];
+    const emailUnicoSemEspaco =
+      (emailUnico != null && emailUnico != undefined) || emailsSemEspaco.length == 0
+        ? emailUnico?.trim()
+        : null;
+
+    const emailsParaAdicionar = emailsSemEspaco.length ? emailsSemEspaco : emailUnicoSemEspaco;
+    if (emailUnicoSemEspaco) form.setFieldValue('email', emailsParaAdicionar);
+    if (emailsSemEspaco.length) form.setFieldValue('emails', emailsParaAdicionar);
     setExibirErro(false);
     form.setFields([
       {
         name: 'email',
         errors: [],
       },
+      {
+        name: 'emails',
+        errors: [],
+      },
     ]);
-    if (!emailSemEspaco.includes('@')) {
-      setExibirErro(true);
-    }
   };
 
   useEffect(() => {
