@@ -31,7 +31,7 @@ const ModalEditNovaSenha: React.FC<ModalEditNovaSenha> = ({ closeModal }) => {
     'Uma letra minúscula',
     'Um algarismo (número) ou um símbolo (caractere especial)',
     'Não pode permitir caracteres acentuados',
-    'Deve ter no mínimo 4 e no máximo 12 caracteres',
+    'Deve ter no mínimo 8 e no máximo 12 caracteres',
     'A senha e a confirmação de senha devem ser iguais',
   ];
 

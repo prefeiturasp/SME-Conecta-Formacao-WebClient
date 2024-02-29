@@ -20,7 +20,7 @@ const SenhaCadastro: React.FC<SenhaCadastroProps> = ({
     `${e?.target?.value}`.trim();
 
   const rules: Rule[] = [
-    { required: true, min: 4, max: 12 },
+    { required: true, min: 8, max: 12 },
     {
       pattern: /^(?=.*[a-z]{1})/,
       message: 'Deve conter uma letra minúscula',
