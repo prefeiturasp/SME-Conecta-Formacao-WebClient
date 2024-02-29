@@ -4,12 +4,14 @@ import { PasswordProps } from 'antd/es/input';
 import React from 'react';
 
 type SenhaCadastroProps = {
+  senhaAtual?: boolean;
   confirmarSenha?: { fieldName: string };
   inputProps: PasswordProps;
   formItemProps?: FormItemProps;
 };
 
 const SenhaCadastro: React.FC<SenhaCadastroProps> = ({
+  senhaAtual = false,
   confirmarSenha,
   inputProps,
   formItemProps,
@@ -18,7 +20,7 @@ const SenhaCadastro: React.FC<SenhaCadastroProps> = ({
     `${e?.target?.value}`.trim();
 
   const rules: Rule[] = [
-    { required: true, min: 8, max: 12 },
+    { required: true, min: 4, max: 12 },
     {
       pattern: /^(?=.*[a-z]{1})/,
       message: 'Deve conter uma letra minúscula',
@@ -50,7 +52,7 @@ const SenhaCadastro: React.FC<SenhaCadastroProps> = ({
   return (
     <Form.Item
       getValueFromEvent={getValueFromEvent}
-      rules={rules}
+      rules={senhaAtual ? [] : rules}
       dependencies={confirmarSenha ? [confirmarSenha.fieldName] : []}
       label='Senha'
       name='senha'

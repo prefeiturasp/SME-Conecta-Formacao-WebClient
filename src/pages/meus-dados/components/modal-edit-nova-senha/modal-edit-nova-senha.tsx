@@ -31,8 +31,8 @@ const ModalEditNovaSenha: React.FC<ModalEditNovaSenha> = ({ closeModal }) => {
     'Uma letra minúscula',
     'Um algarismo (número) ou um símbolo (caractere especial)',
     'Não pode permitir caracteres acentuados',
-    'Deve ter no mínimo 8 e no máximo 12 caracteres',
-    'A senha e a confirmação de senha devem ser iguais'
+    'Deve ter no mínimo 4 e no máximo 12 caracteres',
+    'A senha e a confirmação de senha devem ser iguais',
   ];
 
   const validateMessages = {
@@ -58,6 +58,7 @@ const ModalEditNovaSenha: React.FC<ModalEditNovaSenha> = ({ closeModal }) => {
             <Row gutter={[16, 8]}>
               <Col span={24}>
                 <SenhaCadastro
+                  senhaAtual={true}
                   formItemProps={{ label: 'Senha atual', name: 'senhaAtual' }}
                   inputProps={{ id: CF_INPUT_SENHA_ATUAL }}
                 />
