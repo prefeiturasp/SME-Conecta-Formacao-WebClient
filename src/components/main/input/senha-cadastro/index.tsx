@@ -4,12 +4,14 @@ import { PasswordProps } from 'antd/es/input';
 import React from 'react';
 
 type SenhaCadastroProps = {
+  senhaAtual?: boolean;
   confirmarSenha?: { fieldName: string };
   inputProps: PasswordProps;
   formItemProps?: FormItemProps;
 };
 
 const SenhaCadastro: React.FC<SenhaCadastroProps> = ({
+  senhaAtual = false,
   confirmarSenha,
   inputProps,
   formItemProps,
@@ -50,7 +52,7 @@ const SenhaCadastro: React.FC<SenhaCadastroProps> = ({
   return (
     <Form.Item
       getValueFromEvent={getValueFromEvent}
-      rules={rules}
+      rules={senhaAtual ? [] : rules}
       dependencies={confirmarSenha ? [confirmarSenha.fieldName] : []}
       label='Senha'
       name='senha'
