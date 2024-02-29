@@ -90,8 +90,8 @@ export const CadastroDeUsuario = () => {
 
         form.setFieldsValue({
           nomePessoa: data?.nomePessoa,
-          codigoUnidade: data?.codigoUnidade,
-          nomeUnidade: data?.nomeUnidade,
+          codigoUnidade: data?.codigoUE,
+          nomeUnidade: data?.nomeUe,
           ues: temApenasUmaUE ? data?.ues[0].id : [],
         });
 
