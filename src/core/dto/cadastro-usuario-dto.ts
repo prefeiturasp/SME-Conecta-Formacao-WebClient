@@ -16,3 +16,7 @@ export type CadastroUsuarioFormDTO = {
   confirmarSenha: string;
   ues: string[];
 };
+
+export type RetornoCadastroUsuarioDTO = {
+  mensagem: string;
+}
