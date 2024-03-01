@@ -19,11 +19,11 @@ import { PropostaFiltrosDTO } from '~/core/dto/proposta-filtro-dto';
 import { ListaCardsPropostas } from '../lista-cards/inde';
 import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service';
 import { useAppSelector } from '~/core/hooks/use-redux';
-
 export const FiltroPaginaInicial: React.FC = () => {
   const [form] = useForm();
   const areaPromotora = useAppSelector((state) => state.perfil.perfilSelecionado?.perfilNome);
   const [areaPromotoraCarregada, setAreaPromotoraCarregada] = useState(false);
+  const [carregando, setCarregando] = useState(false);
   const [filters, setFilters] = useState<PropostaFiltrosDTO>({
     areaPromotoraId: null,
     formato: null,
@@ -58,6 +58,9 @@ export const FiltroPaginaInicial: React.FC = () => {
       periodoRealizacaoFim,
       situacao: form.getFieldValue('situacao'),
     });
+    if (filters.areaPromotoraId) {
+      setAreaPromotoraCarregada(true);
+    }
   }, [form]);
 
   const camposFiltroJSX = () => {
@@ -156,26 +159,30 @@ export const FiltroPaginaInicial: React.FC = () => {
     );
   };
 
+  const obterAreaPromotora = async () => {
+    setCarregando(true);
+    const resposta = await obterAreaPromotoraLista();
+    if (resposta.sucesso) {
+      const areaPromotoraId = resposta.dados.filter((item) => item.descricao === areaPromotora);
+      const descricaoAreaPromotora = areaPromotoraId.find((item) => item.descricao);
+      if (descricaoAreaPromotora?.id != undefined) {
+        form.setFieldValue('areaPromotoraId', descricaoAreaPromotora?.id);
+        setFilters({
+          ...filters,
+          areaPromotoraId: form.getFieldValue('areaPromotoraId'),
+        });
+        setAreaPromotoraCarregada(true);
+      }
+    }
+    setCarregando(false);
+  };
+
   useEffect(() => {
     if (areaPromotora) {
-      obterAreaPromotoraLista().then((resposta) => {
-        if (resposta.sucesso) {
-          const areaPromotoraId = resposta.dados.filter((item) => item.descricao === areaPromotora);
-
-          const descricaoAreaPromotora = areaPromotoraId.find((item) => item.descricao);
-
-          if (descricaoAreaPromotora?.id != undefined) {
-            form.setFieldValue('areaPromotoraId', descricaoAreaPromotora?.id);
-            setFilters({
-              ...filters,
-              areaPromotoraId: form.getFieldValue('areaPromotoraId'),
-            });
-            setAreaPromotoraCarregada(true);
-          }
-        }
-      });
+      obterAreaPromotora();
     }
-  }, []);
+    obterFiltros();
+  }, [areaPromotora, obterFiltros]);
 
   return (
     <Col>
@@ -187,6 +194,7 @@ export const FiltroPaginaInicial: React.FC = () => {
               <Row gutter={[16, 8]}>
                 {camposFiltroJSX()}
                 <ListaCardsPropostas
+                  carregando={carregando}
                   filters={filters}
                   areaPromotoraCarregada={areaPromotoraCarregada}
                 />
