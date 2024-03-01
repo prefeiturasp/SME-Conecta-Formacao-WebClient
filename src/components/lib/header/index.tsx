@@ -26,10 +26,6 @@ const contentStyle: React.CSSProperties = {
 
 const menuItems: MenuProps['items'] = [
   {
-    label: <Link to={ROUTES.AREA_PUBLICA}>{MENU_AREA_PUBLICA.HOME.LABEL}</Link>,
-    key: MENU_AREA_PUBLICA.HOME.KEY,
-  },
-  {
     label: <Link to={ROUTES.LOGIN}>{MENU_AREA_PUBLICA.LOGIN.LABEL}</Link>,
     key: MENU_AREA_PUBLICA.LOGIN.KEY,
     icon: <LoginOutlined />,
