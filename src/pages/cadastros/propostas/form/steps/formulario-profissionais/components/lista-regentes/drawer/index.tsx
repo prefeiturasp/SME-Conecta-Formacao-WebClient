@@ -18,6 +18,7 @@ import {
   obterPropostaRegentePorId,
   salvarPropostaProfissionalRegente,
 } from '~/core/services/proposta-service';
+import { formatterCPFMask } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerRegenteProps = {
@@ -89,7 +90,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
         if (response.dados?.turmas?.length) {
           response.dados.turmas = response.dados.turmas.map((item) => item?.turmaId);
         }
-
+        if (response.dados.cpf) response.dados.cpf = formatterCPFMask(response.dados.cpf);
         setFormInitialValues({ ...response.dados });
         return;
       }
@@ -181,6 +182,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                         formDrawer.resetFields(['registroFuncional', 'nomeRegente']);
                         formDrawer.setFieldValue('registroFuncional', '');
                         formDrawer.setFieldValue('nomeRegente', '');
+                        formDrawer.setFieldValue('cpf', '');
                       },
                     }}
                   />
@@ -194,6 +196,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                       return (
                         <Row gutter={[16, 8]}>
                           <InputRegistroFuncionalNome
+                            exibirCpf={!ehRedeMunicipal}
                             formItemPropsRF={{ rules: [{ required: rfEhObrigatorio }] }}
                             formItemPropsNome={{
                               rules: [{ required: !rfEhObrigatorio }],

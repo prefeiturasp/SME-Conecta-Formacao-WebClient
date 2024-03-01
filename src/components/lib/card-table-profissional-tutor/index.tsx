@@ -5,6 +5,7 @@ import api from '~/core/services/api';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import queryString from 'query-string';
 import { PropostaTutorDTO } from '~/core/dto/proposta-tutor-dto';
+import { formatterCPFMask } from '~/core/utils/functions';
 interface TableParams {
   pagination?: TablePaginationConfig;
 }
@@ -49,6 +50,11 @@ const DataTableProfissionalTutor = forwardRef(
         })
         .then((response) => {
           if (response?.data.items) {
+            for (let index = 0; index < response.data.items.length; index++) {
+              response.data.items[index].cpf = response.data.items[index].cpf
+                ? formatterCPFMask(response.data.items[index].cpf)
+                : '';
+            }
             setData(response.data.items);
             setTableParams({
               ...tableParams,

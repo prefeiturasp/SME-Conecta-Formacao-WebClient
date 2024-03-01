@@ -266,6 +266,7 @@ export const Inscricao = () => {
               <Col xs={24} sm={8}>
                 <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
                   <Select
+                    disabled={initialValues?.usuarioCargos?.length == 1}
                     allowClear
                     options={
                       initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []

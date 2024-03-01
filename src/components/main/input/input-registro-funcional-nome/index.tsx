@@ -5,8 +5,10 @@ import React, { useEffect, useState } from 'react';
 import { notification } from '~/components/lib/notification';
 import { obterNomeProfissional } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
+import InputCPF from '../cpf';
 
 type InputRegistroFuncionalNomeProps = {
+  exibirCpf: boolean;
   inputPropsRF?: InputProps;
   formItemPropsRF?: FormItemProps;
   inputPropsNome?: InputProps;
@@ -14,6 +16,7 @@ type InputRegistroFuncionalNomeProps = {
 };
 
 const InputRegistroFuncionalNome: React.FC<InputRegistroFuncionalNomeProps> = ({
+  exibirCpf,
   inputPropsRF,
   formItemPropsRF,
   inputPropsNome,
@@ -62,26 +65,30 @@ const InputRegistroFuncionalNome: React.FC<InputRegistroFuncionalNomeProps> = ({
   return (
     <>
       <Col xs={12}>
-        <Form.Item
-          label='RF'
-          name='registroFuncional'
-          {...formItemPropsRF}
-          rules={rules}
-          tooltip={{
-            title: 'Digite o RF completo com 7 caracteres para pesquisar ',
-            icon: iconTooltip,
-          }}
-        >
-          <Input.Search
-            id='INPUT_RF'
-            maxLength={7}
-            loading={loading}
-            onSearch={obterDadosPofissional}
-            onBlur={obterDadosPofissional}
-            placeholder='Registro Funcional (RF)'
-            {...inputPropsRF}
-          />
-        </Form.Item>
+        {exibirCpf ? (
+          <InputCPF required={true} />
+        ) : (
+          <Form.Item
+            label='RF'
+            name='registroFuncional'
+            {...formItemPropsRF}
+            rules={rules}
+            tooltip={{
+              title: 'Digite o RF completo com 7 caracteres para pesquisar ',
+              icon: iconTooltip,
+            }}
+          >
+            <Input.Search
+              id='INPUT_RF'
+              maxLength={7}
+              loading={loading}
+              onSearch={obterDadosPofissional}
+              onBlur={obterDadosPofissional}
+              placeholder='Registro Funcional (RF)'
+              {...inputPropsRF}
+            />
+          </Form.Item>
+        )}
       </Col>
 
       <Col xs={12}>
