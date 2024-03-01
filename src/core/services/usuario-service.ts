@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { CadastroUsuarioDTO } from '../dto/cadastro-usuario-dto';
+import { CadastroUsuarioDTO, RetornoCadastroUsuarioDTO } from '../dto/cadastro-usuario-dto';
 import { DadosUsuarioDTO } from '../dto/dados-usuario-dto';
 import { RecuperacaoSenhaDTO } from '../dto/recuperacao-senha-dto';
 import { RetornoPerfilUsuarioDTO } from '../dto/retorno-perfil-usuario-dto';
@@ -29,7 +29,7 @@ const tokenRecuperacaoSenhaEstaValido = (token: string): Promise<AxiosResponse<b
   api.get(`${URL_DEFAULT}/valida-token-recuperacao-senha/${token}`);
 
 const cadastrarUsuarioExterno = (login: CadastroUsuarioDTO) =>
-  inserirRegistro<CadastroUsuarioDTO>(URL_DEFAULT, { ...login });
+  inserirRegistro<RetornoCadastroUsuarioDTO>(URL_DEFAULT, { ...login });
 
 const validaEmailToken = (token: string) =>
   obterRegistro<RetornoPerfilUsuarioDTO>(`${URL_DEFAULT}/validar-email/${token}`);
