@@ -110,6 +110,18 @@ const Login = () => {
     }
   };
 
+  const tooltipLogin = () => {
+    return (
+      <>
+        <p>
+          Rede direta: Informe o RF
+          <br />
+          Rede parceira: Informe o CPF. Caso ainda não possua acesso clique na opção Cadastre-se
+        </p>
+      </>
+    );
+  };
+
   return (
     <Col span={14}>
       <Form
@@ -125,8 +137,7 @@ const Login = () => {
           <Col span={24}>
             <Form.Item
               tooltip={{
-                title:
-                  'Informe o RF ou CPF para acessar o sistema. Caso não possua acesso procure a DF.',
+                title: tooltipLogin,
                 icon: (
                   <Tooltip>
                     <FaQuestionCircle color={Colors.Neutral.DARK} />
@@ -149,6 +160,15 @@ const Login = () => {
 
           <Col span={24}>
             <Form.Item
+              tooltip={{
+                title:
+                  'Informe a senha de acesso aos sistemas da SME (Plateia, Intranet, SGP). Caso nunca tenha acessado tente informar a senha padrão que é Sgp e os últimos 4 dígitos do RF.',
+                icon: (
+                  <Tooltip>
+                    <FaQuestionCircle color={Colors.Neutral.DARK} />
+                  </Tooltip>
+                ),
+              }}
               label='Senha'
               name='senha'
               hasFeedback={!senha}
