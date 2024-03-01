@@ -153,7 +153,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         <SelectFuncaoEspecifica
           formItemProps={{
             tooltip: getTooltipFormInfoCircleFilled(
-              'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outros).',
+              'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
             ),
           }}
         />
