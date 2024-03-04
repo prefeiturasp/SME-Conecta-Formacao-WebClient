@@ -138,7 +138,8 @@ const FormCadastroDePropostas: React.FC = () => {
       const desabilitarTodosFormularios =
         desabilitarCampos ||
         (formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
-          formInitialValues?.situacao !== SituacaoRegistro.Cadastrada);
+          formInitialValues?.situacao !== SituacaoRegistro.Cadastrada &&
+          formInitialValues?.situacao !== SituacaoRegistro.Publicada);
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -633,8 +634,6 @@ const FormCadastroDePropostas: React.FC = () => {
                   carregarDados();
                 },
               });
-            } else {
-              enviarProposta();
             }
           }
         });

@@ -1,11 +1,12 @@
 import { Col, Form, Row, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
+import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
@@ -26,8 +27,9 @@ export const TurmasInscricoes = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [realizouFiltro, setRealizouFiltro] = useState(false);
-
+  const paramsRoute = useParams();
   const nomeFormacao = location.state.nomeFormacao;
+  const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
@@ -79,17 +81,17 @@ export const TurmasInscricoes = () => {
           <Col span={24}>
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={6}>
-                <InputTexto
+                <SelectTurmaEncontros
+                  idProposta={id}
+                  exibirTooltip={false}
+                  selectProps={{ onChange: obterFiltros }}
+                  selectMultiplo={false}
+                  usarNomeComoChave={true}
                   formItemProps={{
                     label: 'Turma',
                     name: 'nomeTurma',
                     style: { fontWeight: 'bold' },
                     rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    onChange: obterFiltros,
-                    placeholder: 'Turma',
-                    id: CF_INPUT_NOME,
                   }}
                 />
               </Col>
@@ -148,7 +150,10 @@ export const TurmasInscricoes = () => {
                   Listagem de inscrições por turma
                 </Typography>
                 <DataTableContextProvider>
-                  <TurmasInscricoesListaPaginada filters={filters} realizouFiltro={realizouFiltro}/>
+                  <TurmasInscricoesListaPaginada
+                    filters={filters}
+                    realizouFiltro={realizouFiltro}
+                  />
                 </DataTableContextProvider>
               </Col>
             </Row>
