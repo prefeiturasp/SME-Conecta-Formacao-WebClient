@@ -36,7 +36,10 @@ export const FiltroPaginaInicial: React.FC = () => {
     situacao: null,
   });
 
-  const obterFiltros = useCallback(() => {
+  const obterFiltros = useCallback(async () => {
+    if (areaPromotora) {
+      await obterAreaPromotora();
+    }
     const periodoRealizacaoInicio =
       form?.getFieldValue('periodoRealizacao') != undefined
         ? form?.getFieldValue('periodoRealizacao')?.[0].format('YYYY/MM/DD')
@@ -182,7 +185,7 @@ export const FiltroPaginaInicial: React.FC = () => {
       obterAreaPromotora();
     }
     obterFiltros();
-  }, [areaPromotora, obterFiltros]);
+  }, [areaPromotora, obterFiltros, areaPromotoraCarregada]);
 
   return (
     <Col>
