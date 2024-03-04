@@ -15,10 +15,12 @@ import { CF_INPUT_EMAIL, CF_INPUT_SENHA } from '~/core/constants/ids/input';
 import { DadosUsuarioDTO } from '~/core/dto/dados-usuario-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 
+import { InputNome } from '~/components/main/input/nome';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import usuarioService from '~/core/services/usuario-service';
 import ModalEditEmailButton from './components/modal-edit-email/modal-edit-email-button';
+import { ModalEditNomeButton } from './components/modal-edit-nome/modal-edit-nome-button';
 import ModalEditNovaSenhaButton from './components/modal-edit-nova-senha/modal-edit-nova-senha-button';
 
 export const DadosPerfil = styled.div`
@@ -102,6 +104,18 @@ const MeusDados: React.FC = () => {
           <Col xs={24} md={12}>
             <Form form={form} layout='vertical' autoComplete='off'>
               <Row gutter={16}>
+                <Col span={24}>
+                  <Row wrap={false} align='middle'>
+                    <InputNome
+                      inputProps={{ disabled: true }}
+                      formItemProps={{
+                        style: { width: '100%', marginRight: '8px' },
+                        required: false,
+                      }}
+                    />
+                    <ModalEditNomeButton formPreview={form} />
+                  </Row>
+                </Col>
                 <Col span={24}>
                   <Row wrap={false} align='middle'>
                     <InputEmail
