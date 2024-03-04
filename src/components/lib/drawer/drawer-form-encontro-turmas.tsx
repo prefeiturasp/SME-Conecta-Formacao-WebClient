@@ -8,7 +8,6 @@ import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import DatePickerMultiplos from '~/components/main/input/data-lista';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
-import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CF_BUTTON_EXCLUIR } from '~/core/constants/ids/button/intex';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { dayjs } from '~/core/date/dayjs';
