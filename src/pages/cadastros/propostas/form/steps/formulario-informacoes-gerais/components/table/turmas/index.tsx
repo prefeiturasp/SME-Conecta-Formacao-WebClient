@@ -105,7 +105,6 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
 
   const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
-  const temOpcaoTodas = newDresTurmas.find((dre) => dre?.todos);
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
 
@@ -144,7 +143,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       if (turmas?.length) {
         const newTurmas = turmas.map((turma) => ({
           ...turma,
-          dres: temOpcaoTodas ? [] : newDresTurmas,
+          dres: newDresTurmas,
         }));
 
         formProposta.setFieldValue('turmas', [...newTurmas]);
@@ -154,8 +153,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
 
   const edit = (record: PropostaTurmaFormDTO) => {
     if (record && record.dres) {
-      const filteredRecord = record.dres.filter((item) => !item.todos);
-      setEditInValues({ ...record, dres: filteredRecord });
+      setEditInValues({ ...record, dres: record.dres });
       setEditingKey(record.key);
     }
   };
@@ -259,7 +257,6 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       ...col,
       onCell: (record: PropostaTurmaFormDTO) => {
         const todosSelecionado = dresWatch?.find((dre: DreDTO) => dre?.todos);
-
         return {
           record,
           align: col.align,

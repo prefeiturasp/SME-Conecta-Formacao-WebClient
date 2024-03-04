@@ -6,6 +6,7 @@ import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
+import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
@@ -13,7 +14,6 @@ import { CF_INPUT_NOME, CF_INPUT_NOME_FORMACAO, CF_INPUT_RF } from '~/core/const
 import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TurmasInscricoesListaPaginada } from './listagem';
-import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 
 export interface FiltroTurmaInscricoesProps {
   cpf: number | null;
@@ -28,7 +28,6 @@ export const TurmasInscricoes = () => {
   const location = useLocation();
   const [realizouFiltro, setRealizouFiltro] = useState(false);
   const paramsRoute = useParams();
-
   const nomeFormacao = location.state.nomeFormacao;
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
@@ -49,7 +48,6 @@ export const TurmasInscricoes = () => {
     setRealizouFiltro(true);
     const cpf = form.getFieldValue('cpf');
     const nomeTurma = form.getFieldValue('nomeTurma');
-    console.log(nomeTurma);
     const nomeCursista = form.getFieldValue('nomeCursista');
     const registroFuncional = form.getFieldValue('registroFuncional');
     if (!cpf && !nomeTurma && !nomeCursista && !registroFuncional) {

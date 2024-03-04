@@ -11,6 +11,7 @@ import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
+import Spin from '~/components/main/spin';
 import Steps from '~/components/main/steps';
 import Auditoria from '~/components/main/text/auditoria';
 import {
@@ -100,6 +101,7 @@ const FormCadastroDePropostas: React.FC = () => {
   const navigate = useNavigate();
   const paramsRoute = useParams();
 
+  const [loading, setLoading] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<StepPropostaEnum>(
     StepPropostaEnum.InformacoesGerais,
   );
@@ -144,6 +146,7 @@ const FormCadastroDePropostas: React.FC = () => {
   }, [formInitialValues, desabilitarCampos]);
 
   const carregarValoresDefault = async () => {
+    setLoading(true);
     const retornolistaDres = await obterDREs(true);
 
     const listaDres = retornolistaDres.dados.map((dre) => ({
@@ -174,9 +177,11 @@ const FormCadastroDePropostas: React.FC = () => {
     setListaDres(listaDres);
 
     setFormInitialValues(valoresIniciais);
+    setLoading(false);
   };
 
   const carregarDados = useCallback(async () => {
+    setLoading(true);
     const resposta = await obterPropostaPorId(id);
     const dados = resposta.dados;
 
@@ -320,6 +325,7 @@ const FormCadastroDePropostas: React.FC = () => {
       setListaDres(listaDres);
       setFormInitialValues({ ...valoresIniciais });
     }
+    setLoading(false);
   }, [id]);
 
   useEffect(() => {
@@ -679,149 +685,151 @@ const FormCadastroDePropostas: React.FC = () => {
 
   return (
     <Col>
-      <Form
-        form={form}
-        layout='vertical'
-        autoComplete='off'
-        initialValues={formInitialValues}
-        validateMessages={validateMessages}
-        disabled={desabilitarCampos}
-      >
-        <HeaderPage title='Cadastro de Propostas'>
-          <Col span={24}>
-            <Row gutter={[8, 8]}>
-              <Col>
-                <ButtonVoltar
-                  onClick={() => {
-                    if (SituacaoRegistro.Cadastrada === formInitialValues?.situacao) {
-                      confirmacao({
-                        content: NAO_ENVIOU_PROPOSTA_ANALISE,
-                        onOk() {
-                          onClickVoltar();
-                        },
-                      });
-                    } else {
-                      onClickVoltar();
-                    }
-                  }}
-                  id={CF_BUTTON_VOLTAR}
-                />
-              </Col>
-              {id ? (
+      <Spin spinning={loading}>
+        <Form
+          form={form}
+          layout='vertical'
+          autoComplete='off'
+          initialValues={formInitialValues}
+          validateMessages={validateMessages}
+          disabled={desabilitarCampos}
+        >
+          <HeaderPage title='Cadastro de Propostas'>
+            <Col span={24}>
+              <Row gutter={[8, 8]}>
                 <Col>
-                  <ButtonExcluir
-                    id={CF_BUTTON_EXCLUIR}
-                    onClick={onClickExcluir}
-                    disabled={!permissao.podeExcluir}
+                  <ButtonVoltar
+                    onClick={() => {
+                      if (SituacaoRegistro.Cadastrada === formInitialValues?.situacao) {
+                        confirmacao({
+                          content: NAO_ENVIOU_PROPOSTA_ANALISE,
+                          onOk() {
+                            onClickVoltar();
+                          },
+                        });
+                      } else {
+                        onClickVoltar();
+                      }
+                    }}
+                    id={CF_BUTTON_VOLTAR}
                   />
                 </Col>
-              ) : (
-                <></>
-              )}
-              <Col>
-                <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
-                  {() => (
-                    <Button
-                      block
-                      type='default'
-                      id={CF_BUTTON_CANCELAR}
-                      onClick={onClickCancelar}
-                      style={{ fontWeight: 700 }}
-                      disabled={!form.isFieldsTouched()}
-                    >
-                      Cancelar
-                    </Button>
-                  )}
-                </Form.Item>
-              </Col>
-              <Col>
-                <Button
-                  block
-                  onClick={passoAnterior}
-                  id={CF_BUTTON_STEP_ANTERIOR}
-                  style={{ fontWeight: 700 }}
-                  disabled={currentStep < StepPropostaEnum.Detalhamento}
-                >
-                  Passo anterior
-                </Button>
-              </Col>
-              <Col>
-                <Button
-                  block
-                  onClick={proximoPasso}
-                  id={CF_BUTTON_PROXIMO_STEP}
-                  style={{ fontWeight: 700 }}
-                  disabled={
-                    (!form.isFieldsTouched() && !(parseInt(id.toString()) > 0)) ||
-                    currentStep >= StepPropostaEnum.Certificacao
-                  }
-                >
-                  Próximo passo
-                </Button>
-              </Col>
-              {exibirBotaoRascunho && (
+                {id ? (
+                  <Col>
+                    <ButtonExcluir
+                      id={CF_BUTTON_EXCLUIR}
+                      onClick={onClickExcluir}
+                      disabled={!permissao.podeExcluir}
+                    />
+                  </Col>
+                ) : (
+                  <></>
+                )}
+                <Col>
+                  <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+                    {() => (
+                      <Button
+                        block
+                        type='default'
+                        id={CF_BUTTON_CANCELAR}
+                        onClick={onClickCancelar}
+                        style={{ fontWeight: 700 }}
+                        disabled={!form.isFieldsTouched()}
+                      >
+                        Cancelar
+                      </Button>
+                    )}
+                  </Form.Item>
+                </Col>
                 <Col>
                   <Button
                     block
-                    type='primary'
-                    id={CF_BUTTON_SALVAR_RASCUNHO}
-                    onClick={() => salvar()}
-                    disabled={desabilitarCampos}
+                    onClick={passoAnterior}
+                    id={CF_BUTTON_STEP_ANTERIOR}
                     style={{ fontWeight: 700 }}
+                    disabled={currentStep < StepPropostaEnum.Detalhamento}
                   >
-                    Salvar rascunho
+                    Passo anterior
                   </Button>
                 </Col>
-              )}
-              {exibirBotaoSalvar && (
                 <Col>
                   <Button
                     block
-                    type='primary'
-                    id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                    disabled={desabilitarCampos}
-                    onClick={() => {
-                      salvarProposta(formInitialValues?.situacao !== SituacaoRegistro.Publicada);
-                    }}
+                    onClick={proximoPasso}
+                    id={CF_BUTTON_PROXIMO_STEP}
                     style={{ fontWeight: 700 }}
+                    disabled={
+                      (!form.isFieldsTouched() && !(parseInt(id.toString()) > 0)) ||
+                      currentStep >= StepPropostaEnum.Certificacao
+                    }
                   >
-                    Salvar
+                    Próximo passo
                   </Button>
                 </Col>
-              )}
-              {formInitialValues?.situacao === SituacaoRegistro.Cadastrada &&
-                currentStep === StepPropostaEnum.Certificacao && (
+                {exibirBotaoRascunho && (
                   <Col>
                     <Button
                       block
                       type='primary'
-                      onClick={validarAntesEnviarProposta}
-                      style={{ fontWeight: 700 }}
+                      id={CF_BUTTON_SALVAR_RASCUNHO}
+                      onClick={() => salvar()}
                       disabled={desabilitarCampos}
-                      id={CF_BUTTON_ENVIAR_PROPOSTA}
+                      style={{ fontWeight: 700 }}
                     >
-                      Enviar
+                      Salvar rascunho
                     </Button>
                   </Col>
                 )}
-            </Row>
-          </Col>
-        </HeaderPage>
+                {exibirBotaoSalvar && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                      disabled={desabilitarCampos}
+                      onClick={() => {
+                        salvarProposta(true);
+                      }}
+                      style={{ fontWeight: 700 }}
+                    >
+                      Salvar
+                    </Button>
+                  </Col>
+                )}
+                {formInitialValues?.situacao === SituacaoRegistro.Cadastrada &&
+                  currentStep === StepPropostaEnum.Certificacao && (
+                    <Col>
+                      <Button
+                        block
+                        type='primary'
+                        onClick={validarAntesEnviarProposta}
+                        style={{ fontWeight: 700 }}
+                        disabled={desabilitarCampos}
+                        id={CF_BUTTON_ENVIAR_PROPOSTA}
+                      >
+                        Enviar
+                      </Button>
+                    </Col>
+                  )}
+              </Row>
+            </Col>
+          </HeaderPage>
 
-        <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
+          <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
-        <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
-          <CardContent>
-            <Divider orientation='left' />
-            <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
-            {selecionarTelaStep(currentStep)}
-            <Auditoria dados={formInitialValues?.auditoria} />
-          </CardContent>
-        </Badge.Ribbon>
-      </Form>
-      {openModalErros && (
-        <ModalErroProposta closeModal={() => setOpenModalErros(false)} erros={listaErros} />
-      )}
+          <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
+            <CardContent>
+              <Divider orientation='left' />
+              <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
+              {selecionarTelaStep(currentStep)}
+              <Auditoria dados={formInitialValues?.auditoria} />
+            </CardContent>
+          </Badge.Ribbon>
+        </Form>
+        {openModalErros && (
+          <ModalErroProposta closeModal={() => setOpenModalErros(false)} erros={listaErros} />
+        )}
+      </Spin>
     </Col>
   );
 };

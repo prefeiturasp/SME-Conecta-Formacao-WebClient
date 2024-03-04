@@ -31,11 +31,13 @@ const styleDataHoraCard: CSSProperties = {
 type ListaCardsPropostasProps = {
   filters: PropostaFiltrosDTO;
   areaPromotoraCarregada: boolean;
+  carregando: boolean;
 };
 
 export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({
   filters,
   areaPromotoraCarregada,
+  carregando,
 }) => {
   const navigate = useNavigate();
   const [dadosPropostas, setDadosPropostas] = useState<PropostaDashboardDTO[]>();
@@ -130,6 +132,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({
   return (
     <Col xs={24}>
       <List
+        loading={carregando}
         grid={{
           gutter: [26, 26],
           xs: 1,
@@ -146,6 +149,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({
           return (
             <List.Item>
               <Card
+                loading={carregando}
                 key={index}
                 title={
                   <Flex align='center' gap={8}>

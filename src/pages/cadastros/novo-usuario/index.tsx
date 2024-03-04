@@ -19,9 +19,7 @@ import {
   CF_INPUT_UE,
 } from '~/core/constants/ids/input';
 import {
-  CADASTRO_ENVIADO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-  ENVIAR_EMAIL_PARA_VALIDACAO,
   ERRO_CADASTRO_USUARIO,
 } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -90,8 +88,8 @@ export const CadastroDeUsuario = () => {
 
         form.setFieldsValue({
           nomePessoa: data?.nomePessoa,
-          codigoUnidade: data?.codigoUnidade,
-          nomeUnidade: data?.nomeUnidade,
+          codigoUnidade: data?.codigoUE,
+          nomeUnidade: data?.nomeUe,
           ues: temApenasUmaUE ? data?.ues[0].id : [],
         });
 
@@ -103,38 +101,28 @@ export const CadastroDeUsuario = () => {
   const onFinish = (values: CadastroUsuarioFormDTO) => {
     dispatch(setSpinning(true));
 
-    confirmacao({
-      content: ENVIAR_EMAIL_PARA_VALIDACAO,
-      okText: 'Continuar',
-      onOk() {
-        usuarioService
-          .cadastrarUsuarioExterno({
-            cpf: values.cpf,
-            nome: values.nomePessoa,
-            email: values.email,
-            codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
-            senha: values.senha,
-            confirmarSenha: values.confirmarSenha,
-          })
-          .then((resposta) => {
-            if (resposta.dados) {
-              sucesso({
-                content: CADASTRO_ENVIADO,
-                okText: 'Continuar',
-                onOk() {
-                  navigate(ROUTES.LOGIN);
-                },
-              });
-            }
-          })
-          .catch(validarExibirErros)
-          .finally(() => dispatch(setSpinning(false)));
-      },
-      cancelText: 'Cancelar',
-      onCancel() {
-        dispatch(setSpinning(false));
-      },
-    });
+    usuarioService
+      .cadastrarUsuarioExterno({
+        cpf: values.cpf,
+        nome: values.nomePessoa,
+        email: values.email,
+        codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
+        senha: values.senha,
+        confirmarSenha: values.confirmarSenha,
+      })
+      .then((resposta) => {
+        if (resposta.dados) {
+          sucesso({
+            content: resposta.dados.mensagem,
+            okText: 'Continuar',
+            onOk() {
+              navigate(ROUTES.LOGIN);
+            },
+          });
+        }
+      })
+      .catch(validarExibirErros)
+      .finally(() => dispatch(setSpinning(false)));
   };
 
   const onClickVoltar = () => {
