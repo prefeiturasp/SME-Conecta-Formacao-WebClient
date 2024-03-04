@@ -38,7 +38,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const dadosInscricao = location.state.location;
+  const dadosInscricao: RetornoDetalheFormacaoDTO = location.state.location;
   const autenticado = useAppSelector((state) => state.auth.autenticado);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
 
@@ -104,7 +104,11 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
           </Row>
 
           <Typography.Text style={styleTypographyText}>
-            <CalendarOutlined /> {dadosInscricao?.periodo}
+            <CalendarOutlined /> Período de realização: {dadosInscricao?.periodo}
+          </Typography.Text>
+
+          <Typography.Text style={styleTypographyText}>
+            <CalendarOutlined /> Período de inscrição: {dadosInscricao?.periodoInscricao}
           </Typography.Text>
 
           <Col span={24}>

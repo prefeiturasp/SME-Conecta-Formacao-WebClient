@@ -9,6 +9,7 @@ export type RetornoDetalheFormacaoDTO = {
   formato?: Modalidade;
   formatoDescricao?: string;
   periodo?: string;
+  periodoInscricao?: string;
   justificativa?: string;
   publicosAlvo?: string[];
   palavrasChaves?: string[];
