@@ -51,6 +51,13 @@ const DataTableProfissionalRegente = forwardRef(
         .then((response) => {
           if (response?.data.items) {
             for (let index = 0; index < response.data.items.length; index++) {
+              const nomeSeparados = response.data.items[index].nomesTurmas.split(',');
+              const totalNome = nomeSeparados.length - 12;
+              const nomeComSlice = nomeSeparados.slice(0, 12);
+
+              if (totalNome > 0) nomeComSlice.push(` + ${totalNome} Turmas`);
+              const nomesJoin = nomeComSlice.join(',');
+              response.data.items[index].nomesTurmas = nomesJoin;
               response.data.items[index].cpf = response.data.items[index].cpf
                 ? formatterCPFMask(response.data.items[index].cpf)
                 : '';

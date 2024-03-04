@@ -81,10 +81,13 @@ const DataTableEncontros = forwardRef(
 
         const turmaIds = lista[index].turmas.map((t) => t.turmaId);
         const turmasLista = lista[index].turmas.map((t) => t.nome);
+        const totalTurmasSemExibir = turmasLista.length - 12;
         const listaTurmasFormatadas = Array<string>();
-        turmasLista.forEach((turma) => {
+        turmasLista.slice(0, 12).forEach((turma) => {
           listaTurmasFormatadas.push(`${turma}`);
         });
+        if (totalTurmasSemExibir > 0)
+          listaTurmasFormatadas.push(` + ${totalTurmasSemExibir} turmas`);
         const horaInicio = lista[index].horaInicio!.substring(0, 2);
         const minutoInicio = lista[index].horaInicio!.substring(3, 5);
         const horaDataInicial = new Date();
