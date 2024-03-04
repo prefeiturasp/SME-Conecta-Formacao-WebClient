@@ -32,8 +32,9 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
   };
   const allIds = options.length > 0 ? options.map<number>(({ value }) => Number(value)) : [];
   useEffect(() => {
+    const turmasIds = form.getFieldValue('turmas');
     obterDados();
-    setSelectedValues(form.getFieldValue('turmas'));
+    if (turmasIds != undefined) setSelectedValues(turmasIds);
   }, []);
 
   const iconTooltip = exibirTooltip ? (
@@ -43,8 +44,17 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
   ) : (
     <></>
   );
-  const TreeSelectA = () => {
-    return (
+
+  return (
+    <Form.Item
+      label='Turma'
+      name='turmas'
+      rules={[{ required: required, message: 'Selecione uma Turma' }]}
+      tooltip={{
+        title: 'Você deve informar a Quantidade de turmas, na sessão de Informações gerais',
+        icon: iconTooltip,
+      }}
+    >
       <TreeSelect
         placeholder='Selecione uma Turma'
         treeCheckable={true}
@@ -55,7 +65,7 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
           setSelectedValues(ids);
         }}
         value={selectedValues}
-        maxTagCount={6}
+        maxTagCount={12}
         maxTagPlaceholder={(omittedValues) => `+ ${omittedValues.length} Turmas ...`}
         treeData={[
           {
@@ -65,7 +75,7 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
                 <span
                   onClick={() => {
                     setSelectedValues([]);
-                    form.setFieldValue('turmas', null);
+                    form.setFieldValue('turmas', undefined);
                   }}
                   style={{
                     display: 'inline-block',
@@ -91,25 +101,12 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
                   Selecionar todas
                 </span>
               ),
-            disableCheckbox: false,
+            disableCheckbox: true,
             disabled: false,
           },
           ...options,
         ]}
       />
-    );
-  };
-  return (
-    <Form.Item
-      label='Turma'
-      name='turmas'
-      rules={[{ required: required, message: 'Selecione uma Turma' }]}
-      tooltip={{
-        title: 'Você deve informar a Quantidade de turmas, na sessão de Informações gerais',
-        icon: iconTooltip,
-      }}
-    >
-      <TreeSelectA />
     </Form.Item>
   );
 };

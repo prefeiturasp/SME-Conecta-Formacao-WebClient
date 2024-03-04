@@ -49,7 +49,6 @@ export const TurmasInscricoes = () => {
     setRealizouFiltro(true);
     const cpf = form.getFieldValue('cpf');
     const nomeTurma = form.getFieldValue('nomeTurma');
-    console.log(nomeTurma);
     const nomeCursista = form.getFieldValue('nomeCursista');
     const registroFuncional = form.getFieldValue('registroFuncional');
     if (!cpf && !nomeTurma && !nomeCursista && !registroFuncional) {

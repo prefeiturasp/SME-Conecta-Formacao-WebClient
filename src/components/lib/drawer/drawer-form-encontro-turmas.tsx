@@ -19,6 +19,7 @@ import { TipoEncontro } from '~/core/enum/tipo-encontro';
 import { confirmacao } from '~/core/services/alerta-service';
 import { removerPropostaEncontro, salvarPropostaEncontro } from '~/core/services/proposta-service';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
+import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 
 const { TextArea } = Input;
 
@@ -209,8 +210,9 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
             <Col span={24}>
               <Row gutter={[16, 8]}>
                 <Col xs={24}>
-                  <SelectTurmaEncontros
+                  <SelectTodasTurmas
                     idProposta={propostaId}
+                    exibirTooltip={false}
                     selectProps={{ onChange: validarAlteracaoEmCampos }}
                   />
                 </Col>
