@@ -518,15 +518,21 @@ const FormCadastroDePropostas: React.FC = () => {
     }
 
     if (response.sucesso) {
+      const mensagemEmArray = response.dados.mensagem.split('\n');
+
       notification.success({
         message: 'Sucesso',
-        description: `Proposta ${id ? 'alterada' : 'inserida'} com sucesso!`,
+        description: (
+          <div>
+          {mensagemEmArray.map((linha, index) => <p key={index}>{linha}</p>)}
+          </div>
+          )
       });
 
       if (id) {
         carregarDados();
       } else {
-        const novoId = response.dados;
+        const novoId = response.dados.entidadeId;
         navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
       }
     }
