@@ -257,8 +257,6 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       ...col,
       onCell: (record: PropostaTurmaFormDTO) => {
         const todosSelecionado = dresWatch?.find((dre: DreDTO) => dre?.todos);
-        console.log(dresWatch);
-        console.log(record);
         return {
           record,
           align: col.align,
@@ -277,7 +275,6 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
     <Form.Item shouldUpdate style={{ marginBottom: 0, marginTop: 0 }}>
       {(formItem) => {
         const turmas: PropostaTurmaFormDTO[] = formItem?.getFieldValue('turmas');
-        console.log(turmas);
         const dataSource = turmas?.length ? turmas : [];
         return (
           <Form
