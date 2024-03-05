@@ -37,9 +37,6 @@ export const FiltroPaginaInicial: React.FC = () => {
   });
 
   const obterFiltros = useCallback(async () => {
-    if (areaPromotora) {
-      await obterAreaPromotora();
-    }
     const periodoRealizacaoInicio =
       form?.getFieldValue('periodoRealizacao') != undefined
         ? form?.getFieldValue('periodoRealizacao')?.[0].format('YYYY/MM/DD')
@@ -181,9 +178,7 @@ export const FiltroPaginaInicial: React.FC = () => {
   };
 
   useEffect(() => {
-    if (areaPromotora) {
-      obterAreaPromotora();
-    }
+    obterAreaPromotora();
     obterFiltros();
   }, [areaPromotora, obterFiltros, areaPromotoraCarregada]);
 
@@ -196,11 +191,7 @@ export const FiltroPaginaInicial: React.FC = () => {
             {() => (
               <Row gutter={[16, 8]}>
                 {camposFiltroJSX()}
-                <ListaCardsPropostas
-                  carregando={carregando}
-                  filters={filters}
-                  areaPromotoraCarregada={areaPromotoraCarregada}
-                />
+                <ListaCardsPropostas carregando={carregando} filters={filters} />
               </Row>
             )}
           </Form.Item>
