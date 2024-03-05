@@ -56,7 +56,7 @@ const Header: React.FC = () => {
 
   return (
     <Layout.Header style={contentStyle}>
-      <Link to={rotaEhAreaPublica ? ROUTES.AREA_PUBLICA : ROUTES.PRINCIPAL}>
+      <Link to={rotaEhAreaPublica && !autenticado ? ROUTES.AREA_PUBLICA : ROUTES.PRINCIPAL}>
         <img style={{ height: '50px' }} src={ConectaLogo} alt='Conecta Formação LOGO' />
       </Link>
 
