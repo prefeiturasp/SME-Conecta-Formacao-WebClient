@@ -6,7 +6,7 @@ import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import InputRegistroFuncionalNome from '~/components/main/input/input-registro-funcional-nome';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
-import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
+import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 import { CF_BUTTON_EXCLUIR, CF_BUTTON_MODAL_CANCELAR } from '~/core/constants/ids/button/intex';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -222,7 +222,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                   </Form.Item>
                 </Col>
                 <Col xs={24}>
-                  <SelectTurmaEncontros idProposta={propostaId} exibirTooltip={false} />
+                  <SelectTodasTurmas idProposta={propostaId} exibirTooltip={false} />
                 </Col>
               </Row>
             </Col>

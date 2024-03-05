@@ -14,6 +14,7 @@ import { Colors } from '~/core/styles/colors';
 const { confirm } = ModalAntd;
 
 type ModalEditDefaultServiceProps = {
+  usuarioNome: string;
   email: string;
   telefone: string;
 } & SenhaNovaDTO;
