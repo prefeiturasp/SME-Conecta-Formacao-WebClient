@@ -12,7 +12,6 @@ import {
 } from 'antd';
 import { cloneDeep } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { SelectDRE } from '~/components/main/input/dre';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
@@ -95,7 +94,6 @@ type TabelaEditavelProps = {
 };
 
 const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
-  const paramsRoute = useParams();
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
 
@@ -103,13 +101,13 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
 
   const { desabilitarCampos } = useContext(PermissaoContext);
 
+  const quantidadeTurmasOriginal = formProposta.getFieldValue('quantidadeTurmasOriginal');
   const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
   const dresWatch = Form.useWatch('dres', formProposta);
 
   const [editingKey, setEditingKey] = useState<number | undefined>();
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
 
-  const propostaId = paramsRoute?.id;
   const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
@@ -128,7 +126,15 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
         const novaQuantidade = Number(quantidadeTurmas);
         const currentLength = currentTurmas?.length;
 
-        if (novaQuantidade <= currentLength) {
+        if (
+          (situacaoProposta !== SituacaoProposta.Publicada &&
+            situacaoProposta !== SituacaoProposta.Alterando &&
+            novaQuantidade <= currentLength) ||
+          ((situacaoProposta === SituacaoProposta.Publicada ||
+            situacaoProposta === SituacaoProposta.Alterando) &&
+            novaQuantidade <= currentLength &&
+            novaQuantidade >= quantidadeTurmasOriginal)
+        ) {
           const newTurmas = currentTurmas.slice(0, novaQuantidade);
           formProposta.setFieldValue('turmas', [...newTurmas]);
         } else {
@@ -146,11 +152,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
           formProposta.setFieldValue('turmas', [...currentTurmas, ...novasTurmas]);
         }
       } else {
-        if (propostaId && situacaoProposta !== SituacaoProposta.Publicada) {
-          formProposta.setFieldValue('turmas', []);
-        }
-
-        if (!propostaId) {
+        if (situacaoProposta !== SituacaoProposta.Publicada && situacaoProposta !== SituacaoProposta.Alterando) {
           formProposta.setFieldValue('turmas', []);
         }
       }

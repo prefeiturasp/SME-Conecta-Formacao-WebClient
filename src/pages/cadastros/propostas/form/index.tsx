@@ -138,7 +138,8 @@ const FormCadastroDePropostas: React.FC = () => {
         desabilitarCampos ||
         (formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
-          formInitialValues?.situacao !== SituacaoProposta.Publicada);
+          formInitialValues?.situacao !== SituacaoProposta.Publicada &&
+          formInitialValues?.situacao !== SituacaoProposta.Alterando);
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -302,6 +303,8 @@ const FormCadastroDePropostas: React.FC = () => {
         periodoInscricao = [dayjs.tz(dataInscricaoInicio), dayjs.tz(dataInscricaoFim)];
       }
 
+      const quantidadeTurmasOriginal = dados?.quantidadeTurmas;
+
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
@@ -319,6 +322,7 @@ const FormCadastroDePropostas: React.FC = () => {
         palavrasChaves,
         criterioCertificacao,
         tiposInscricao,
+        quantidadeTurmasOriginal
       };
 
       setListaDres(listaDres);
@@ -628,6 +632,9 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const salvarProposta = (confirmarAntesDeEnviarProposta: boolean) => {
+
+    console.log(form.getFieldsError());
+
     form
       .validateFields()
       .then(() => {

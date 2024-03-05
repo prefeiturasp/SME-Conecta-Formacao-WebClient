@@ -193,7 +193,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
               {
                 message: `A quantidade de turmas não pode ser menor do que já tem cadastrado (${formInitialValues?.quantidadeTurmas})`,
                 validator: (_: any, value: string) => {
-                  if (formInitialValues?.situacao === SituacaoProposta.Publicada) {
+                  if (formInitialValues?.situacao === SituacaoProposta.Publicada || formInitialValues?.situacao === SituacaoProposta.Alterando) {
                     const quantidadeTurmas = formInitialValues?.quantidadeTurmas;
 
                     if (quantidadeTurmas && Number(value) >= quantidadeTurmas) {
