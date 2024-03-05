@@ -322,7 +322,7 @@ const FormCadastroDePropostas: React.FC = () => {
         palavrasChaves,
         criterioCertificacao,
         tiposInscricao,
-        quantidadeTurmasOriginal
+        quantidadeTurmasOriginal,
       };
 
       setListaDres(listaDres);
@@ -632,9 +632,6 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const salvarProposta = (confirmarAntesDeEnviarProposta: boolean) => {
-
-    console.log(form.getFieldsError());
-
     form
       .validateFields()
       .then(() => {
@@ -813,7 +810,10 @@ const FormCadastroDePropostas: React.FC = () => {
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
                       disabled={desabilitarCampos}
                       onClick={() => {
-                        salvarProposta(formInitialValues?.situacao !== SituacaoProposta.Publicada);
+                        const enviarProposta =
+                          formInitialValues?.situacao !== SituacaoProposta.Publicada &&
+                          formInitialValues?.situacao !== SituacaoProposta.Alterando;
+                        salvarProposta(enviarProposta);
                       }}
                       style={{ fontWeight: 700 }}
                     >
