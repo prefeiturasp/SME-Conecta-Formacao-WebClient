@@ -12,8 +12,8 @@ export const ModalEditNomeButton: React.FC<ModalEditNomeButtonProps> = ({ formPr
 
   const showModal = () => setOpen(true);
 
-  const updateFields = (values: { usuarioNome: string }) => {
-    formPreview.setFieldValue('usuarioNome', values?.usuarioNome);
+  const updateFields = (values: { nome: string }) => {
+    formPreview.setFieldValue('nome', values?.nome);
   };
 
   return (

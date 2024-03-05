@@ -7,8 +7,8 @@ import usuarioService from '~/core/services/usuario-service';
 import ModalEditDefault from '../modal-edit-default';
 
 type ModalEditNomeProps = {
-  initialValues: { usuarioNome: string };
-  updateFields: (values: { usuarioNome: string }) => void;
+  initialValues: { nome: string };
+  updateFields: (values: { nome: string }) => void;
   closeModal: () => void;
 };
 
@@ -19,15 +19,14 @@ export const ModalEditNome: React.FC<ModalEditNomeProps> = ({
 }) => {
   const [form] = useForm();
   const auth = useAppSelector((store) => store.auth);
-
   const usuarioLogin = auth?.usuarioLogin;
 
   const validateMessages = {
     required: 'Campo obrigatório',
   };
 
-  const alterarNome = (values: { usuarioNome: string }) =>
-    usuarioService.alterarNome(usuarioLogin, values?.usuarioNome);
+  const alterarNome = (values: { nome: string }) =>
+    usuarioService.alterarNome(usuarioLogin, values?.nome);
 
   return (
     <ModalEditDefault

@@ -17,7 +17,7 @@ import { TurmasInscricoesListaPaginada } from './listagem';
 
 export interface FiltroTurmaInscricoesProps {
   cpf: number | null;
-  nomeTurma: string | null;
+  turmaId: number | null;
   nomeCursista: string | null;
   registroFuncional: number | null;
 }
@@ -33,7 +33,7 @@ export const TurmasInscricoes = () => {
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
-    nomeTurma: null,
+    turmaId: null,
     nomeCursista: null,
     registroFuncional: null,
   });
@@ -47,15 +47,15 @@ export const TurmasInscricoes = () => {
   const obterFiltros = () => {
     setRealizouFiltro(true);
     const cpf = form.getFieldValue('cpf');
-    const nomeTurma = form.getFieldValue('nomeTurma');
+    const turmaId = form.getFieldValue('turmaId');
     const nomeCursista = form.getFieldValue('nomeCursista');
     const registroFuncional = form.getFieldValue('registroFuncional');
-    if (!cpf && !nomeTurma && !nomeCursista && !registroFuncional) {
+    if (!cpf && !turmaId && !nomeCursista && !registroFuncional) {
       setRealizouFiltro(false);
     }
     setFilters({
       cpf: cpf,
-      nomeTurma: nomeTurma,
+      turmaId: turmaId,
       nomeCursista: nomeCursista,
       registroFuncional: registroFuncional,
     });
@@ -86,10 +86,9 @@ export const TurmasInscricoes = () => {
                   exibirTooltip={false}
                   selectProps={{ onChange: obterFiltros }}
                   selectMultiplo={false}
-                  usarNomeComoChave={true}
                   formItemProps={{
                     label: 'Turma',
-                    name: 'nomeTurma',
+                    name: 'turmaId',
                     style: { fontWeight: 'bold' },
                     rules: [{ required: false }],
                   }}
