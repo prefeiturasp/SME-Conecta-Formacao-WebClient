@@ -116,7 +116,8 @@ const Login = () => {
         <p>
           Rede direta: Informe o RF
           <br />
-          Rede parceira: Informe o CPF. Caso ainda não possua acesso clique na opção Cadastre-se
+          Rede parceira: Informe o CPF. Caso ainda não possua acesso clique na opção
+          &quot;Cadastre-se&quot;
         </p>
       </>
     );
