@@ -12,10 +12,12 @@ import {
 } from 'antd';
 import { cloneDeep } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { SelectDRE } from '~/components/main/input/dre';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
+import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -93,8 +95,11 @@ type TabelaEditavelProps = {
 };
 
 const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
+  const paramsRoute = useParams();
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
+
+  const situacaoProposta = formProposta.getFieldValue('situacao');
 
   const { desabilitarCampos } = useContext(PermissaoContext);
 
@@ -104,6 +109,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [editingKey, setEditingKey] = useState<number | undefined>();
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
 
+  const propostaId = paramsRoute?.id;
   const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
@@ -115,22 +121,38 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
 
   useEffect(() => {
     const quantidadeTurmasEmEdicao = formProposta.isFieldTouched('quantidadeTurmas');
+
     if (quantidadeTurmasEmEdicao) {
       if (quantidadeTurmas) {
-        const originData: PropostaTurmaFormDTO[] = [];
-        const dres = formProposta.getFieldValue('dres');
+        const currentTurmas: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas') || [];
+        const novaQuantidade = Number(quantidadeTurmas);
+        const currentLength = currentTurmas?.length;
 
-        for (let i = 0; i < quantidadeTurmas; i++) {
-          originData.push({
-            key: i,
-            nome: `Turma ${i + 1}`,
-            id: undefined,
-            dres,
+        if (novaQuantidade <= currentLength) {
+          const newTurmas = currentTurmas.slice(0, novaQuantidade);
+          formProposta.setFieldValue('turmas', [...newTurmas]);
+        } else {
+          const adicionaQuantidade = novaQuantidade - currentLength;
+
+          const novasTurmas = Array.from({ length: adicionaQuantidade }, (_, i) => {
+            return {
+              key: currentLength + i,
+              nome: `Turma ${currentLength + i + 1}`,
+              id: undefined,
+              dres: formProposta.getFieldValue('dres'),
+            };
           });
+
+          formProposta.setFieldValue('turmas', [...currentTurmas, ...novasTurmas]);
         }
-        formProposta.setFieldValue('turmas', [...originData]);
       } else {
-        formProposta.setFieldValue('turmas', []);
+        if (propostaId && situacaoProposta !== SituacaoProposta.Publicada) {
+          formProposta.setFieldValue('turmas', []);
+        }
+
+        if (!propostaId) {
+          formProposta.setFieldValue('turmas', []);
+        }
       }
     }
   }, [quantidadeTurmas]);

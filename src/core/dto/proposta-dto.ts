@@ -1,6 +1,6 @@
 import { Dayjs } from 'dayjs';
 import { Formato } from '../enum/formato';
-import { SituacaoRegistro } from '../enum/situacao-registro';
+import { SituacaoProposta } from '../enum/situacao-proposta';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { AuditoriaDTO } from './auditoria-dto';
 import { PropostaAnoTurmaDTO } from './proposta-ano-turmas-dto';
@@ -25,7 +25,7 @@ export type PropostaDTO = {
   quantidadeVagasTurma?: number | null;
   funcaoEspecificaOutros: string;
   criterioValidacaoInscricaoOutros: string;
-  situacao: SituacaoRegistro;
+  situacao: SituacaoProposta;
   arquivoImagemDivulgacaoId?: number;
   dataRealizacaoInicio?: string;
   dataRealizacaoFim?: string;
@@ -60,7 +60,7 @@ export type PropostaDTO = {
 
 export type TipoInscricaoType = {
   tipoInscricao: number;
-}
+};
 
 export type PropostaCompletoDTO = {
   auditoria: AuditoriaDTO;
@@ -82,7 +82,7 @@ export type PropostaFormDTO = {
   vagasRemanecentes?: number[];
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
-  situacao?: SituacaoRegistro;
+  situacao?: SituacaoProposta;
   nomeSituacao?: string;
   auditoria?: AuditoriaDTO;
   arquivos?: any[];
