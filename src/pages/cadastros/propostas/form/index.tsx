@@ -794,7 +794,7 @@ const FormCadastroDePropostas: React.FC = () => {
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
                       disabled={desabilitarCampos}
                       onClick={() => {
-                        salvarProposta(true);
+                        salvarProposta(formInitialValues?.situacao !== SituacaoRegistro.Publicada);
                       }}
                       style={{ fontWeight: 700 }}
                     >
