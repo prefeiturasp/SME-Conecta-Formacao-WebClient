@@ -15,7 +15,6 @@ type SelectTurmaEncontrosProps = {
   selectProps?: SelectProps;
   idProposta: any;
   selectMultiplo?: boolean;
-  usarNomeComoChave?: boolean;
 };
 
 const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
@@ -25,16 +24,13 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
   idProposta,
   formItemProps,
   selectMultiplo = true,
-  usarNomeComoChave = false,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
     const resposta = await obterTurmasDaProposta(idProposta);
     if (resposta.sucesso) {
-      const newOptions = usarNomeComoChave
-        ? resposta.dados.map((item) => ({ label: item.descricao, value: item.descricao }))
-        : resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
+      const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
       setOptions(newOptions);
     } else {
       setOptions([]);
