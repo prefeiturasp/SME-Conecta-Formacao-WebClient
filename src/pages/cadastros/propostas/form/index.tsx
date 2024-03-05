@@ -355,7 +355,7 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
-  const salvar = async (novaSituacao?: SituacaoProposta) => {
+  const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
@@ -382,6 +382,10 @@ const FormCadastroDePropostas: React.FC = () => {
       situacao = formInitialValues?.situacao;
     } else if (novaSituacao) {
       situacao = novaSituacao;
+    }
+
+    if (ehProximoPasso && situacao === SituacaoProposta.Publicada) {
+      situacao = SituacaoProposta.Alterando;
     }
 
     const valoresSalvar: PropostaDTO = {
@@ -547,7 +551,7 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const proximoPasso = async () => {
     if (form.isFieldsTouched()) {
-      await salvar();
+      await salvar(true);
       setRecarregarTurmas(true);
     }
 
@@ -582,7 +586,7 @@ const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         async onOk() {
-          await salvar().then((response) => {
+          await salvar(true).then((response) => {
             if (response?.sucesso) {
               navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
             }
@@ -635,7 +639,7 @@ const FormCadastroDePropostas: React.FC = () => {
           situacao = SituacaoProposta.Publicada;
         }
 
-        salvar(situacao).then((response) => {
+        salvar(false, situacao).then((response) => {
           if (response.sucesso) {
             if (confirmarAntesDeEnviarProposta) {
               confirmacao({
@@ -786,7 +790,7 @@ const FormCadastroDePropostas: React.FC = () => {
                       block
                       type='primary'
                       id={CF_BUTTON_SALVAR_RASCUNHO}
-                      onClick={() => salvar()}
+                      onClick={() => salvar(false)}
                       disabled={desabilitarCampos}
                       style={{ fontWeight: 700 }}
                     >
