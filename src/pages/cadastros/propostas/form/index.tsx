@@ -48,7 +48,7 @@ import {
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { SituacaoRegistro, SituacaoRegistroTagDisplay } from '~/core/enum/situacao-registro';
+import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
@@ -107,11 +107,10 @@ const FormCadastroDePropostas: React.FC = () => {
   );
 
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
-
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const exibirBotaoRascunho =
-    !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoRegistro.Rascunho;
+    !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -137,9 +136,10 @@ const FormCadastroDePropostas: React.FC = () => {
     if (formInitialValues?.situacao) {
       const desabilitarTodosFormularios =
         desabilitarCampos ||
-        (formInitialValues?.situacao !== SituacaoRegistro.Rascunho &&
-          formInitialValues?.situacao !== SituacaoRegistro.Cadastrada &&
-          formInitialValues?.situacao !== SituacaoRegistro.Publicada);
+        (formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
+          formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
+          formInitialValues?.situacao !== SituacaoProposta.Publicada &&
+          formInitialValues?.situacao !== SituacaoProposta.Alterando);
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -171,7 +171,7 @@ const FormCadastroDePropostas: React.FC = () => {
       criterioCertificacao: [],
       cursoComCertificado: false,
       acaoInformativa: false,
-      nomeSituacao: SituacaoRegistroTagDisplay[SituacaoRegistro.Rascunho],
+      nomeSituacao: SituacaoPropostaTagDisplay[SituacaoProposta.Rascunho],
     };
 
     setListaDres(listaDres);
@@ -303,6 +303,8 @@ const FormCadastroDePropostas: React.FC = () => {
         periodoInscricao = [dayjs.tz(dataInscricaoInicio), dayjs.tz(dataInscricaoFim)];
       }
 
+      const quantidadeTurmasOriginal = dados?.quantidadeTurmas;
+
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
@@ -320,6 +322,7 @@ const FormCadastroDePropostas: React.FC = () => {
         palavrasChaves,
         criterioCertificacao,
         tiposInscricao,
+        quantidadeTurmasOriginal,
       };
 
       setListaDres(listaDres);
@@ -356,7 +359,7 @@ const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
-  const salvar = async (novaSituacao?: SituacaoRegistro) => {
+  const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
@@ -377,12 +380,16 @@ const FormCadastroDePropostas: React.FC = () => {
       ? values?.periodoInscricao?.[1].format('YYYY-MM-DD')
       : undefined;
 
-    let situacao = SituacaoRegistro.Rascunho;
+    let situacao = SituacaoProposta.Rascunho;
 
     if (id && !novaSituacao && formInitialValues?.situacao) {
       situacao = formInitialValues?.situacao;
     } else if (novaSituacao) {
       situacao = novaSituacao;
+    }
+
+    if (ehProximoPasso && situacao === SituacaoProposta.Publicada) {
+      situacao = SituacaoProposta.Alterando;
     }
 
     const valoresSalvar: PropostaDTO = {
@@ -518,15 +525,17 @@ const FormCadastroDePropostas: React.FC = () => {
     }
 
     if (response.sucesso) {
-      const mensagemEmArray = response.dados.mensagem.split('\n');
+      const mensagemEmArray = response?.dados?.mensagem?.split('\n');
 
       notification.success({
         message: 'Sucesso',
         description: (
           <div>
-          {mensagemEmArray.map((linha, index) => <p key={index}>{linha}</p>)}
+            {mensagemEmArray?.map((linha, index) => (
+              <p key={index}>{linha}</p>
+            ))}
           </div>
-          )
+        ),
       });
 
       if (id) {
@@ -546,7 +555,7 @@ const FormCadastroDePropostas: React.FC = () => {
 
   const proximoPasso = async () => {
     if (form.isFieldsTouched()) {
-      await salvar();
+      await salvar(true);
       setRecarregarTurmas(true);
     }
 
@@ -581,7 +590,7 @@ const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         async onOk() {
-          await salvar().then((response) => {
+          await salvar(true).then((response) => {
             if (response?.sucesso) {
               navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
             }
@@ -600,7 +609,11 @@ const FormCadastroDePropostas: React.FC = () => {
     return (
       <>
         <Form.Item hidden={StepPropostaEnum.InformacoesGerais !== stepSelecionado}>
-          <FormInformacoesGerais listaDres={listaDres} tipoInstituicao={tipoInstituicao} />
+          <FormInformacoesGerais
+            formInitialValues={formInitialValues}
+            listaDres={listaDres}
+            tipoInstituicao={tipoInstituicao}
+          />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
           <FormularioDetalhamento />
@@ -622,12 +635,15 @@ const FormCadastroDePropostas: React.FC = () => {
     form
       .validateFields()
       .then(() => {
-        const situacao =
-          formInitialValues?.situacao === SituacaoRegistro.Rascunho
-            ? SituacaoRegistro.Cadastrada
-            : formInitialValues?.situacao;
+        let situacao = formInitialValues?.situacao;
 
-        salvar(situacao).then((response) => {
+        if (situacao == SituacaoProposta.Rascunho) {
+          situacao = SituacaoProposta.Cadastrada;
+        } else if (situacao == SituacaoProposta.Alterando) {
+          situacao = SituacaoProposta.Publicada;
+        }
+
+        salvar(false, situacao).then((response) => {
           if (response.sucesso) {
             if (confirmarAntesDeEnviarProposta) {
               confirmacao({
@@ -706,7 +722,7 @@ const FormCadastroDePropostas: React.FC = () => {
                 <Col>
                   <ButtonVoltar
                     onClick={() => {
-                      if (SituacaoRegistro.Cadastrada === formInitialValues?.situacao) {
+                      if (SituacaoProposta.Cadastrada === formInitialValues?.situacao) {
                         confirmacao({
                           content: NAO_ENVIOU_PROPOSTA_ANALISE,
                           onOk() {
@@ -778,7 +794,7 @@ const FormCadastroDePropostas: React.FC = () => {
                       block
                       type='primary'
                       id={CF_BUTTON_SALVAR_RASCUNHO}
-                      onClick={() => salvar()}
+                      onClick={() => salvar(false)}
                       disabled={desabilitarCampos}
                       style={{ fontWeight: 700 }}
                     >
@@ -794,7 +810,10 @@ const FormCadastroDePropostas: React.FC = () => {
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
                       disabled={desabilitarCampos}
                       onClick={() => {
-                        salvarProposta(formInitialValues?.situacao !== SituacaoRegistro.Publicada);
+                        const enviarProposta =
+                          formInitialValues?.situacao !== SituacaoProposta.Publicada &&
+                          formInitialValues?.situacao !== SituacaoProposta.Alterando;
+                        salvarProposta(enviarProposta);
                       }}
                       style={{ fontWeight: 700 }}
                     >
@@ -802,7 +821,7 @@ const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
-                {formInitialValues?.situacao === SituacaoRegistro.Cadastrada &&
+                {formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
                   currentStep === StepPropostaEnum.Certificacao && (
                     <Col>
                       <Button
