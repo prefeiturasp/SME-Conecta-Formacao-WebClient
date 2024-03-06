@@ -36,7 +36,11 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
       >
         <Row gutter={[16, 16]}>
           <Col xs={24}>
-            <TextPeriodo>{formacao.periodo}</TextPeriodo>
+            <TextPeriodo>Período de realização: {formacao.periodo}</TextPeriodo>
+          </Col>
+
+          <Col xs={24}>
+            <TextPeriodo>Período de inscrição: {formacao.periodoInscricao}</TextPeriodo>
           </Col>
 
           <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>

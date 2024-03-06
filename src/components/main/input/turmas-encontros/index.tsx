@@ -1,5 +1,5 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, Tooltip } from 'antd';
+import { Form, FormItemProps, Tooltip } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -11,8 +11,10 @@ import { Colors } from '~/core/styles/colors';
 type SelectTurmaEncontrosProps = {
   required?: boolean;
   exibirTooltip?: boolean;
+  formItemProps?: FormItemProps;
   selectProps?: SelectProps;
   idProposta: any;
+  selectMultiplo?: boolean;
 };
 
 const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
@@ -20,6 +22,8 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
   exibirTooltip = true,
   selectProps,
   idProposta,
+  formItemProps,
+  selectMultiplo = true,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -44,6 +48,7 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
   ) : (
     <></>
   );
+  const modeSelect = selectMultiplo ? 'multiple' : undefined;
   return (
     <Form.Item
       label='Turma'
@@ -53,10 +58,11 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
         title: 'Você deve informar a Quantidade de turmas, na sessão de Informações gerais',
         icon: iconTooltip,
       }}
+      {...formItemProps}
     >
       <Select
         allowClear
-        mode='multiple'
+        mode={modeSelect}
         options={options}
         placeholder='Selecione uma Turma'
         {...selectProps}

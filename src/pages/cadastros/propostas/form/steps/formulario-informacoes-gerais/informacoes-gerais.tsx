@@ -32,7 +32,9 @@ import {
   QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA,
 } from '~/core/constants/mensagens';
 import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
+import { PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
+import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { Colors } from '~/core/styles/colors';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
@@ -42,11 +44,13 @@ import TabelaEditavel from './components/table/turmas';
 type FormInformacoesGeraisProps = {
   listaDres: any[];
   tipoInstituicao?: AreaPromotoraTipoEnum;
+  formInitialValues?: PropostaFormDTO;
 };
 
 const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   listaDres,
   tipoInstituicao,
+  formInitialValues,
 }) => {
   const form = Form.useFormInstance();
 
@@ -79,9 +83,9 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col xs={24} md={10}>
-        <SelectTipoInscricao 
+        <SelectTipoInscricao
           selectProps={{
-            mode: 'multiple'            
+            mode: 'multiple',
           }}
         />
       </Col>
@@ -184,7 +188,31 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
           formItemProps={{
             label: 'Quantidade de turmas',
             name: 'quantidadeTurmas',
-            rules: [{ required: true, message: QUANTIDADE_DE_TURMAS_NAO_INFORMADA }],
+            rules: [
+              { required: true, message: QUANTIDADE_DE_TURMAS_NAO_INFORMADA },
+              {
+                message: `A quantidade de turmas não pode ser menor do que já tem cadastrado (${formInitialValues?.quantidadeTurmas})`,
+                validator: (_: any, value: string) => {
+                  if (
+                    formInitialValues?.situacao === SituacaoProposta.Publicada ||
+                    formInitialValues?.situacao === SituacaoProposta.Alterando
+                  ) {
+                    const quantidadeTurmas = formInitialValues?.quantidadeTurmas;
+
+                    if (quantidadeTurmas && Number(value) >= quantidadeTurmas) {
+                      form.setFieldValue('quantidadeTurmas', value);
+                      return Promise.resolve();
+                    }
+
+                    if (Number(value) !== quantidadeTurmas) {
+                      return Promise.reject();
+                    }
+                  }
+
+                  return Promise.resolve();
+                },
+              },
+            ],
           }}
           inputProps={{
             id: CF_INPUT_QUANTIDADE_TURMAS,
