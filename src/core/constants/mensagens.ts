@@ -22,7 +22,7 @@ export const PROPOSTA_SALVA_SUCESSO = 'Proposta salva com sucesso';
 export const PROPOSTA_ENVIADA = 'Proposta enviada com sucesso';
 export const ERRO_CAMPOS_OBRIGATORIOS = 'Existem campos obrigatórios não preenchidos';
 export const APOS_ENVIAR_PROPOSTA_NAO_EDITA =
-  'Após o envio da proposta não será possível realizar edições, tem certeza que deseja enviar?';
+  'Após enviar, a proposta será publicada e poderá ser apresentada na área pública. Tem certeza que deseja enviar a proposta?';
 export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a modalidade';
 export const FORMATO_NAO_INFORMADO = 'É necessário informar o formato';
 export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
