@@ -54,6 +54,8 @@ export const Inscricao = () => {
 
   const formacaoNome = formacaoState?.titulo ? `- ${formacaoState?.titulo}` : '';
 
+  const [confirmacaoInscricao, setConfirmacaoInscricao] = useState<string>('');
+
   const carregarPerfil = useCallback(async () => {
     const obterDados = await obterDadosInscricao();
     const dados = obterDados.dados;
@@ -182,6 +184,7 @@ export const Inscricao = () => {
     response = await inserirInscricao(valoresSalvar);
 
     if (response.sucesso) {
+      setConfirmacaoInscricao(response.dados.mensagem);
       setOpenModal(true);
       dispatch(setDadosFormacao({}));
     }
@@ -328,9 +331,7 @@ export const Inscricao = () => {
               setOpenModal(false);
               navigate(ROUTES.PRINCIPAL);
             }}
-            mensagem='Sua inscrição foi enviada com sucesso. Em breve você receberá a devolutiva por
-                e-mail. Certifique-se que seu e-mail está atualizado no sistema em "Meus
-                dados".'
+            mensagem={confirmacaoInscricao}
           />
         )}
       </Form>

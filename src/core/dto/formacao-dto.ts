@@ -5,6 +5,7 @@ export type FormacaoDTO = {
   id?: number;
   titulo?: string;
   periodo?: string;
+  periodoInscricao?: string;
   areaPromotora?: string;
   tipoFormacao?: TipoFormacao;
   tipoFormacaoDescricao?: string;

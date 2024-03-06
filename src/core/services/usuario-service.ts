@@ -11,6 +11,9 @@ const URL_DEFAULT = 'v1/usuario';
 const obterMeusDados = (login: string): Promise<AxiosResponse<DadosUsuarioDTO>> =>
   api.get(`${URL_DEFAULT}/${login}`);
 
+const alterarNome = (login: string, nome: string): Promise<AxiosResponse<boolean>> =>
+  api.put(`${URL_DEFAULT}/${login}/nome`, { nome });
+
 const alterarEmail = (login: string, email: string): Promise<AxiosResponse<boolean>> =>
   api.put(`${URL_DEFAULT}/${login}/email`, { email });
 
@@ -40,6 +43,7 @@ export default {
   obterMeusDados,
   alterarEmail,
   alterarSenha,
+  alterarNome,
   validaEmailToken,
   reenviarEmail,
   solicitarRecuperacaoSenha,

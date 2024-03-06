@@ -14,8 +14,7 @@ import { CF_INPUT_LOGIN, CF_INPUT_SENHA } from '~/core/constants/ids/input';
 import {
   ERRO_EMAIL_NAO_VALIDADO,
   ERRO_INFORMAR_USUARIO_SENHA,
-  ERRO_LOGIN,
-  ERRO_LOGIN_SENHA_INCORRETOS,
+  ERRO_LOGIN
 } from '~/core/constants/mensagens';
 import { AutenticacaoDTO } from '~/core/dto/autenticacao-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
@@ -54,7 +53,7 @@ const Login = () => {
     const dataErro = erro?.response?.data;
 
     if (erro?.response?.status === HttpStatusCode.Unauthorized) {
-      setErroGeral([ERRO_LOGIN_SENHA_INCORRETOS]);
+      setErroGeral(dataErro?.mensagens);
 
       if (dataErro?.mensagens.includes(ERRO_EMAIL_NAO_VALIDADO)) {
         confirmacao({
@@ -110,6 +109,19 @@ const Login = () => {
     }
   };
 
+  const tooltipLogin = () => {
+    return (
+      <>
+        <p>
+          Rede direta: Informe o RF
+          <br />
+          Rede parceira: Informe o CPF. Caso ainda não possua acesso clique na opção
+          &quot;Cadastre-se&quot;
+        </p>
+      </>
+    );
+  };
+
   return (
     <Col span={14}>
       <Form
@@ -125,8 +137,7 @@ const Login = () => {
           <Col span={24}>
             <Form.Item
               tooltip={{
-                title:
-                  'Informe o RF ou CPF para acessar o sistema. Caso não possua acesso procure a DF.',
+                title: tooltipLogin,
                 icon: (
                   <Tooltip>
                     <FaQuestionCircle color={Colors.Neutral.DARK} />
@@ -149,6 +160,15 @@ const Login = () => {
 
           <Col span={24}>
             <Form.Item
+              tooltip={{
+                title:
+                  'Informe a senha de acesso aos sistemas da SME (Plateia, Intranet, SGP). Caso nunca tenha acessado tente informar a senha padrão que é Sgp e os últimos 4 dígitos do RF.',
+                icon: (
+                  <Tooltip>
+                    <FaQuestionCircle color={Colors.Neutral.DARK} />
+                  </Tooltip>
+                ),
+              }}
               label='Senha'
               name='senha'
               hasFeedback={!senha}
