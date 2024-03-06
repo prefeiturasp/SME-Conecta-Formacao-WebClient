@@ -105,7 +105,6 @@ export const TurmasInscricoes = () => {
                   inputProps={{
                     id: CF_INPUT_RF,
                     onChange: obterFiltros,
-                    style: { fontWeight: 'bold' },
                     placeholder: 'Registro Funcional',
                   }}
                 />
