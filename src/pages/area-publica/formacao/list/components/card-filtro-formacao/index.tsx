@@ -34,13 +34,7 @@ export const CardFiltroFormacao: FC = () => {
       <Col xs={24} sm={12} md={7} lg={7} xl={5}>
         <SelectAreaPromotora
           areaPublica
-          setAreaPromotoraCarregada={() => {
-            ('');
-          }}
           formItemProps={{ name: 'areasPromotorasIds' }}
-          setAreaPromotoraCarregada={() => {
-            ('');
-          }}
           selectProps={{ mode: 'multiple' }}
         />
       </Col>
