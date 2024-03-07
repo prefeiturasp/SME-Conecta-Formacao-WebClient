@@ -134,7 +134,7 @@ const CardInformacoesCadastrante: FC<CardInformacoesCadastranteProps> = ({
                 {dados?.areaPromotora}
               </p>
               <p>
-                <b>Tipo de instituição: </b>
+                <b>Tipo de intituição: </b>
                 {dados?.areaPromotoraTipo}
               </p>
             </div>
