@@ -23,7 +23,6 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 export const FiltroPaginaInicial: React.FC = () => {
   const [form] = useForm();
   const perfilSelecionado = useAppSelector((state) => state.perfil.perfilSelecionado?.perfilNome);
-
   const [carregando, setCarregando] = useState(false);
   const [perfilAtual, setPerfilSelecionado] = useState<string | undefined>(undefined);
   const styleFormLabel = { fontWeight: 'bold' };
