@@ -8,14 +8,12 @@ import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service'
 import { obterAreaPromotoraPublico } from '~/core/services/area-publica-service';
 
 type SelectAreaPromotoraProps = {
-  setAreaPromotoraCarregada?: any;
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
   areaPublica?: boolean;
 };
 
 const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
-  setAreaPromotoraCarregada,
   selectProps,
   formItemProps,
   areaPublica,
@@ -33,16 +31,14 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
       if (newOptions.length == 1) {
         form.setFieldValue('areaPromotoraId', newOptions[0].value);
         setDisabledSelect(true);
-        setAreaPromotoraCarregada();
       }
     } else {
       setOptions([]);
     }
   };
-
   useEffect(() => {
     obterDados();
-  }, []);
+  }, [disabledSelect]);
 
   return (
     <>
