@@ -5,7 +5,7 @@ import api, { ApiResult } from './api';
 import { RetornoBaseDTO } from '../dto/retorno-base-dto';
 import { store } from '../redux';
 import { setSpinning } from '../redux/modules/spin/actions';
-import { SERVICO_INDISPONIVEL_AO_AUTENTICAR } from '../constants/mensagens';
+import { SERVICO_INDISPONIVEL } from '../constants/mensagens';
 
 const URL_DEFAULT = 'v1/autenticacao';
 export const URL_AUTENTICACAO_REVALIDAR = `${URL_DEFAULT}/revalidar`;
@@ -21,7 +21,7 @@ const autenticar = (dados: AutenticacaoDTO) => {
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
       const mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL_AO_AUTENTICAR];
+        : [SERVICO_INDISPONIVEL];
 
       return { sucesso: false, mensagens, dados: null };
     })

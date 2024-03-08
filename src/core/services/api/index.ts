@@ -16,7 +16,7 @@ import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { store } from '../../redux';
 import autenticacaoService, { URL_AUTENTICACAO_REVALIDAR } from '../autenticacao-service';
-import { SERVICO_INDISPONIVEL_AO_AUTENTICAR } from '~/core/constants/mensagens';
+import { SERVICO_INDISPONIVEL } from '~/core/constants/mensagens';
 
 const config: AxiosRequestConfig = {
   baseURL: import.meta.env.VITE_SME_CF_API,
@@ -159,7 +159,7 @@ export const obterRegistro = async <T>(
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
       const mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL_AO_AUTENTICAR];
+        : [SERVICO_INDISPONIVEL];
 
       // TODO modal error
       openNotificationErrors(mensagens);
@@ -183,7 +183,7 @@ export const alterarRegistro = async <T>(
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
       const mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL_AO_AUTENTICAR];
+        : [SERVICO_INDISPONIVEL];
 
       // TODO modal error
       if (mostrarNotificacao) {
@@ -208,7 +208,7 @@ export const alterarRegistroParcial = async <T>(
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
       const mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL_AO_AUTENTICAR];
+        : [SERVICO_INDISPONIVEL];
 
       // TODO modal error
       openNotificationErrors(mensagens);
@@ -232,7 +232,7 @@ export const inserirRegistro = async <T>(
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
       const mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL_AO_AUTENTICAR];
+        : [SERVICO_INDISPONIVEL];
 
       // TODO modal error
       openNotificationErrors(mensagens);
@@ -252,7 +252,7 @@ export const deletarRegistro = async <T>(url: string): Promise<ApiResult<T>> => 
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
       const mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL_AO_AUTENTICAR];
+        : [SERVICO_INDISPONIVEL];
 
       openNotificationErrors(mensagens);
 
