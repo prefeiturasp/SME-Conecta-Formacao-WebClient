@@ -50,7 +50,6 @@ const Login = () => {
   const onClickCriarConta = () => navigate(ROUTES.CADASTRO_DE_USUARIO);
   const onClickEsqueciSenha = () => navigate(ROUTES.REDEFINIR_SENHA, { state: login });
   const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
-    console.log(erro);
     const dataErro = erro?.response?.data;
 
     if (erro?.response?.status === HttpStatusCode.Unauthorized) {
