@@ -157,9 +157,11 @@ export const obterRegistro = async <T>(
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
+      let mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL];
+        : [];
+
+      if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL];
 
       // TODO modal error
       openNotificationErrors(mensagens);
@@ -181,9 +183,11 @@ export const alterarRegistro = async <T>(
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
+      let mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL];
+        : [];
+
+      if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL];
 
       // TODO modal error
       if (mostrarNotificacao) {
@@ -206,10 +210,11 @@ export const alterarRegistroParcial = async <T>(
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
+      let mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL];
+        : [];
 
+      if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL];
       // TODO modal error
       openNotificationErrors(mensagens);
 
@@ -230,10 +235,11 @@ export const inserirRegistro = async <T>(
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
+      let mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL];
+        : [];
 
+      if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL];
       // TODO modal error
       openNotificationErrors(mensagens);
 
@@ -250,10 +256,11 @@ export const deletarRegistro = async <T>(url: string): Promise<ApiResult<T>> => 
       return { sucesso: true, dados: response?.data, mensagens: [] };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
+      let mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [SERVICO_INDISPONIVEL];
+        : [];
 
+      if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL];
       openNotificationErrors(mensagens);
 
       return { sucesso: false, mensagens, dados: null };
