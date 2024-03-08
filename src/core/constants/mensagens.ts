@@ -74,4 +74,4 @@ export const INSCRICAO_ENVIADA_COM_SGA =
   'Sua inscrição foi confirmada. Na data de início da sua turma acesse o SGA para iniciar a formação.';
 export const INSCRICAO_ENVIADA_SEM_SGA = 'Sua inscrição foi confirmada.';
 export const SERVICO_INDISPONIVEL_AO_AUTENTICAR =
-  'Falha ao se comunicar servidor. Por favor aguarde um instante e tente novamente';
+  'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
