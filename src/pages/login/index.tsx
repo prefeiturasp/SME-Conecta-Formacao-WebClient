@@ -14,7 +14,7 @@ import { CF_INPUT_LOGIN, CF_INPUT_SENHA } from '~/core/constants/ids/input';
 import {
   ERRO_EMAIL_NAO_VALIDADO,
   ERRO_INFORMAR_USUARIO_SENHA,
-  ERRO_LOGIN
+  ERRO_LOGIN,
 } from '~/core/constants/mensagens';
 import { AutenticacaoDTO } from '~/core/dto/autenticacao-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
@@ -50,6 +50,7 @@ const Login = () => {
   const onClickCriarConta = () => navigate(ROUTES.CADASTRO_DE_USUARIO);
   const onClickEsqueciSenha = () => navigate(ROUTES.REDEFINIR_SENHA, { state: login });
   const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
+    console.log(erro);
     const dataErro = erro?.response?.data;
 
     if (erro?.response?.status === HttpStatusCode.Unauthorized) {
@@ -93,10 +94,12 @@ const Login = () => {
     autenticacaoService
       .autenticar(values)
       .then((resposta) => {
-        if (resposta?.data?.autenticado) {
+        if (resposta?.sucesso) {
           //TODO Ambiente clarity ainda será criado
           //window.clarity('identify', loginValidado);
-          validarAutenticacao(resposta.data);
+          validarAutenticacao(resposta?.dados);
+        } else {
+          setErroGeral(resposta?.mensagens);
         }
       })
       .catch(validarExibirErros)
