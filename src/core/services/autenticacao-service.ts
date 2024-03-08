@@ -19,11 +19,9 @@ const autenticar = (dados: AutenticacaoDTO) => {
       },
     )
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      let mensagens = error?.response?.data?.mensagens?.length
+      const mensagens = error?.response?.data?.mensagens?.length
         ? error?.response?.data?.mensagens
-        : [];
-
-      if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL_AO_AUTENTICAR];
+        : [SERVICO_INDISPONIVEL_AO_AUTENTICAR];
 
       return { sucesso: false, mensagens, dados: null };
     })
