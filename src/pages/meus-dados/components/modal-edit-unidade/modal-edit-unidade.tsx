@@ -29,7 +29,6 @@ const ModalEditUnidade: React.FC<ModalEditUnidadeProps> = ({
   };
 
   const alterarUnidade = (values: { codigoUnidade: string; nomeUnidade: string }) => {
-    //initialValues({'unidadeNome', values?.unidadeNome});
     return usuarioService.alterarUnidade(usuarioLogin, values.codigoUnidade!);
   };
 
