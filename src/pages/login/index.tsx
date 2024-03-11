@@ -14,7 +14,7 @@ import { CF_INPUT_LOGIN, CF_INPUT_SENHA } from '~/core/constants/ids/input';
 import {
   ERRO_EMAIL_NAO_VALIDADO,
   ERRO_INFORMAR_USUARIO_SENHA,
-  ERRO_LOGIN
+  ERRO_LOGIN,
 } from '~/core/constants/mensagens';
 import { AutenticacaoDTO } from '~/core/dto/autenticacao-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
