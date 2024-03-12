@@ -2,7 +2,7 @@ import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, Input, Row, Tooltip } from 'antd';
 
 import jwt_decode from 'jwt-decode';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import SelectAnoEtapa from '~/components/main/input/ano-etapa';
 import SelectComponenteCurricular from '~/components/main/input/componente-curricular';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
@@ -55,6 +55,11 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   const form = Form.useFormInstance();
 
   const { desabilitarCampos } = useContext(PermissaoContext);
+  const [cargoFuncaoSelecionado, setCargoFuncaoSelecionado] = useState(false);
+  const [
+    camposRequeridosQuandoSelecionarCargoFuncao,
+    setCamposRequeridosQuandoSelecionarCargoFuncao,
+  ] = useState(false);
 
   const token = useAppSelector((store) => store.auth.token);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
@@ -155,6 +160,8 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       <Col span={24}>
         <SelectFuncaoEspecifica
+          existeValoresSelecionados={setCargoFuncaoSelecionado}
+          definiOutrosCamposComoRequerido={setCamposRequeridosQuandoSelecionarCargoFuncao}
           formItemProps={{
             tooltip: getTooltipFormInfoCircleFilled(
               'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
@@ -164,15 +171,24 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col span={24}>
-        <SelectModalidade />
+        <SelectModalidade
+          desativarCampo={cargoFuncaoSelecionado}
+          campoRequerido={camposRequeridosQuandoSelecionarCargoFuncao}
+        />
       </Col>
 
       <Col span={24}>
-        <SelectAnoEtapa />
+        <SelectAnoEtapa
+          desativarCampo={cargoFuncaoSelecionado}
+          campoRequerido={camposRequeridosQuandoSelecionarCargoFuncao}
+        />
       </Col>
 
       <Col span={24}>
-        <SelectComponenteCurricular />
+        <SelectComponenteCurricular
+          desativarCampo={cargoFuncaoSelecionado}
+          campoRequerido={camposRequeridosQuandoSelecionarCargoFuncao}
+        />
       </Col>
 
       <Col xs={24}>

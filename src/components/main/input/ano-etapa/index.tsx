@@ -11,9 +11,15 @@ import { onchangeMultiSelectOpcaoTodos } from '~/core/utils/functions';
 
 type SelectAnoEtapaProps = {
   exibirOpcaoTodos?: boolean;
+  campoRequerido?: boolean;
+  desativarCampo?: boolean;
 };
 
-const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true }) => {
+const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({
+  campoRequerido = false,
+  desativarCampo = false,
+  exibirOpcaoTodos = true,
+}) => {
   const form = useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -60,6 +66,7 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true
     <Form.Item
       label='Ano/Etapa'
       name='anosTurmas'
+      rules={[{ required: campoRequerido }]}
       normalize={(value: number[], prevValue: number[]) => {
         if (exibirOpcaoTodos) {
           const opcaoTodos = options.find((item) => !!item.todos);
@@ -79,6 +86,7 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({ exibirOpcaoTodos = true
         mode='multiple'
         options={options}
         placeholder='Ano/Etapa'
+        disabled={desativarCampo}
         id={CF_SELECT_ANO_ETAPA}
       />
     </Form.Item>
