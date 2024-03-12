@@ -24,10 +24,11 @@ export const MinhasInscricoesListaPaginada = () => {
 
   const columns: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '6%' },
-    { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '10%' },
-    { title: 'Turma', dataIndex: 'nomeTurma', width: '10%' },
+    { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '30%' },
+    { title: 'Turma', dataIndex: 'nomeTurma', width: '12%' },
     { title: 'Datas', dataIndex: 'datas', width: '10%' },
     { title: 'Cargo/Função', dataIndex: 'cargoFuncao', width: '10%' },
+    { title: 'Origem', dataIndex: 'origem', width: '10%' },
     { title: 'Situação', dataIndex: 'situacao', width: '10%' },
     {
       title: 'Ações',
