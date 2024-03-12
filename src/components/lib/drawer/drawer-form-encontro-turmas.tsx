@@ -213,7 +213,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                   <SelectTodasTurmas
                     idProposta={propostaId}
                     exibirTooltip={false}
-                    selectProps={{ onChange: validarAlteracaoEmCampos }}
+                    onChange={validarAlteracaoEmCampos}
                   />
                 </Col>
 
