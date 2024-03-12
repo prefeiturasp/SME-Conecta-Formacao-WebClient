@@ -30,6 +30,8 @@ export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
 export const PROPOSTA_DRE_NAO_INFORMADA = 'É necessário Informar a DRE';
 export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da formação';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
+export const COMPONENTE_NAO_INFORMADO = 'É necessário informar o componente curricular';
+export const ANO_ETAPA_NAO_INFORMADO = 'É necessário informar o ano/etapa';
 export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =
   'É necessário informar os critérios de validação das inscrições da proposta';
 export const QUANTIDADE_DE_TURMAS_NAO_INFORMADA = 'É necessário informar a quantidade de turmas';

@@ -81,18 +81,6 @@ export const TurmasInscricoes = () => {
           <Col span={24}>
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={6}>
-                {/* <SelectTurmaEncontros
-                  idProposta={id}
-                  exibirTooltip={false}
-                  selectProps={{ onChange: obterFiltros }}
-                  selectMultiplo={false}
-                  formItemProps={{
-                    label: 'Turma',
-                    name: 'turmaId',
-                    style: { fontWeight: 'bold' },
-                    rules: [{ required: false }],
-                  }}
-                /> */}
                 <SelectTodasTurmas
                   idProposta={id}
                   exibirTooltip={false}
