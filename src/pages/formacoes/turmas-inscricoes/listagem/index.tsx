@@ -41,6 +41,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     { title: 'CPF', dataIndex: 'cpf' },
     { title: 'Nome do cursista', dataIndex: 'nomeCursista' },
     { title: 'Cargo/Função Atividade', dataIndex: 'cargoFuncao' },
+    { title: 'Origem', dataIndex: 'origem' },
     { title: 'Situação', dataIndex: 'situacao' },
     {
       title: 'Ações',
