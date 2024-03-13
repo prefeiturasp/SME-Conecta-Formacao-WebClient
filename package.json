@@ -14,7 +14,7 @@
     "@ant-design/icons": "^5.1.4",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/lodash": "^4.14.197",
-    "antd": "5.15.1",
+    "antd": "5.12.7",
     "axios": "^1.4.0",
     "dayjs": "^1.11.8",
     "immer": "^10.0.2",

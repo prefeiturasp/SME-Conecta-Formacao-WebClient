@@ -5,16 +5,11 @@ import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
 import { notification } from '~/components/lib/notification';
-import {
-  DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
-  DESEJA_CANCELAR_INSCRICAO_CURSISTA,
-} from '~/core/constants/mensagens';
+import { CANCELAR_INSCRICAO } from '~/core/constants/mensagens';
 import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situacao-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
 import { cancelarInscricao } from '~/core/services/inscricao-service';
 import { FiltroTurmaInscricoesProps } from '..';
-import { useAppSelector } from '~/core/hooks/use-redux';
-import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 
 interface TurmasInscricoesListaPaginadaProps {
   filters?: FiltroTurmaInscricoesProps;
@@ -30,8 +25,6 @@ export interface TurmaInscricaoProps {
   cargoFuncao: string;
   situacao: string;
   podeCancelar?: boolean;
-  integrarNoSga: boolean;
-  iniciado: boolean;
 }
 
 export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPaginadaProps> = ({
@@ -41,9 +34,6 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
   const params = useParams();
   const id = params.id;
   const { tableState } = useContext(DataTableContext);
-  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
-
-  const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
   const columns: ColumnsType<TurmaInscricaoProps> = [
     { title: 'Turma', dataIndex: 'nomeTurma' },
@@ -51,7 +41,6 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     { title: 'CPF', dataIndex: 'cpf' },
     { title: 'Nome do cursista', dataIndex: 'nomeCursista' },
     { title: 'Cargo/Função Atividade', dataIndex: 'cargoFuncao' },
-    { title: 'Origem', dataIndex: 'origem' },
     { title: 'Situação', dataIndex: 'situacao' },
     {
       title: 'Ações',
@@ -59,10 +48,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
       render: (_, record) => {
         const cancelar = async () => {
           confirmacao({
-            content:
-              record.integrarNoSga && record.iniciado && ehCursista
-                ? DESEJA_CANCELAR_INSCRICAO_CURSISTA
-                : DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
+            content: CANCELAR_INSCRICAO,
             onOk: async () => {
               const response = await cancelarInscricao(record.inscricaoId);
               if (response.sucesso) {

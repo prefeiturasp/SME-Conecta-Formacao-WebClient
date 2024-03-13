@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, FormItemProps, Tooltip, TreeSelect } from 'antd';
-import { DefaultOptionType } from 'antd/es/select';
+import { Form, Tooltip, TreeSelect } from 'antd';
+import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import { obterTurmasDaProposta } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
@@ -9,19 +9,14 @@ import { Colors } from '~/core/styles/colors';
 type SelectTodasTurmasProps = {
   required?: boolean;
   exibirTooltip?: boolean;
+  selectProps?: SelectProps;
   idProposta: any;
-  formItemProps?: FormItemProps;
-  maxTagCount?: number;
-  onChange: () => void;
 };
 
 const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
   required = true,
   exibirTooltip = true,
   idProposta,
-  formItemProps,
-  maxTagCount = 0,
-  onChange,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const [selectedValues, setSelectedValues] = useState<number[]>([]);
@@ -59,7 +54,6 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
         title: 'Você deve informar a Quantidade de turmas, na sessão de Informações gerais',
         icon: iconTooltip,
       }}
-      {...formItemProps}
     >
       <TreeSelect
         placeholder='Selecione uma Turma'
@@ -69,10 +63,9 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
         onChange={(ids) => {
           form.setFieldValue('turmas', ids);
           setSelectedValues(ids);
-          onChange();
         }}
         value={selectedValues}
-        maxTagCount={maxTagCount > 0 ? maxTagCount : 12}
+        maxTagCount={12}
         maxTagPlaceholder={(omittedValues) => `+ ${omittedValues.length} Turmas ...`}
         treeData={[
           {
@@ -83,7 +76,6 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
                   onClick={() => {
                     setSelectedValues([]);
                     form.setFieldValue('turmas', undefined);
-                    onChange();
                   }}
                   style={{
                     display: 'inline-block',
@@ -99,7 +91,6 @@ const SelectTodasTurmas: React.FC<SelectTodasTurmasProps> = ({
                   onClick={() => {
                     setSelectedValues(allIds);
                     form.setFieldValue('turmas', allIds);
-                    onChange();
                   }}
                   style={{
                     display: 'inline-block',

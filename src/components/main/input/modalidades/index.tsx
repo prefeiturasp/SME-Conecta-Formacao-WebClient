@@ -9,16 +9,9 @@ import { obterModalidades } from '~/core/services/modalidade-service';
 type SelectModalidadesProps = {
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
-  campoRequerido?: boolean;
-  desativarCampo?: boolean;
 };
 
-const SelectModalidade: React.FC<SelectModalidadesProps> = ({
-  selectProps,
-  formItemProps,
-  desativarCampo = false,
-  campoRequerido = false,
-}) => {
+const SelectModalidade: React.FC<SelectModalidadesProps> = ({ selectProps, formItemProps }) => {
   const form = useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -37,15 +30,9 @@ const SelectModalidade: React.FC<SelectModalidadesProps> = ({
   }, []);
 
   return (
-    <Form.Item
-      label='Modalidade'
-      name='modalidade'
-      rules={[{ required: campoRequerido }]}
-      {...formItemProps}
-    >
+    <Form.Item label='Modalidade' name='modalidade' {...formItemProps}>
       <Select
         allowClear
-        disabled={desativarCampo}
         options={options}
         placeholder='Modalidade'
         id={CF_SELECT_MODALIDADE}
