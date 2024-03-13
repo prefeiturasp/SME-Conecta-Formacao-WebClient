@@ -5,7 +5,6 @@ import { RecuperacaoSenhaDTO } from '../dto/recuperacao-senha-dto';
 import { RetornoPerfilUsuarioDTO } from '../dto/retorno-perfil-usuario-dto';
 import { SenhaNovaDTO } from '../dto/senha-nova-dto';
 import api, { inserirRegistro, obterRegistro } from './api';
-import { AlterarEmailValidacaoDto } from '../dto/alterar-email-validacao-dto';
 
 const URL_DEFAULT = 'v1/usuario';
 
@@ -17,13 +16,6 @@ const alterarNome = (login: string, nome: string): Promise<AxiosResponse<boolean
 
 const alterarEmail = (login: string, email: string): Promise<AxiosResponse<boolean>> =>
   api.put(`${URL_DEFAULT}/${login}/email`, { email });
-
-const alterarEmailDeValidacao = (
-  dados: AlterarEmailValidacaoDto,
-): Promise<AxiosResponse<boolean>> => api.put(`${URL_DEFAULT}/alterar-email`, { ...dados });
-
-const alterarUnidade = (login: string, codigoEolUnidade: string): Promise<AxiosResponse<boolean>> =>
-  api.put(`${URL_DEFAULT}/${login}/unidade-eol`, { codigoEolUnidade });
 
 const alterarSenha = (login: string, dados: SenhaNovaDTO): Promise<AxiosResponse<boolean>> =>
   api.put(`${URL_DEFAULT}/${login}/senha`, dados);
@@ -58,6 +50,4 @@ export default {
   alterarSenhaComTokenRecuperacao,
   tokenRecuperacaoSenhaEstaValido,
   cadastrarUsuarioExterno,
-  alterarUnidade,
-  alterarEmailDeValidacao,
 };

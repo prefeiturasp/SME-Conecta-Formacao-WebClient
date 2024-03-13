@@ -10,14 +10,10 @@ import { onchangeMultiSelectOpcaoTodos } from '~/core/utils/functions';
 
 type SelectComponenteCurricularProps = {
   exibirOpcaoTodos?: boolean;
-  campoRequerido?: boolean;
-  desativarCampo?: boolean;
 };
 
 const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
   exibirOpcaoTodos = true,
-  desativarCampo = false,
-  campoRequerido = false,
 }) => {
   const form = useFormInstance();
   const anosTurmas = Form.useWatch('anosTurmas', form);
@@ -54,11 +50,6 @@ const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
     <Form.Item
       label='Componente Curricular'
       name='componentesCurriculares'
-      rules={[
-        {
-          required: campoRequerido,
-        },
-      ]}
       normalize={(value: number[], prevValue: number[]) => {
         if (exibirOpcaoTodos) {
           const opcaoTodos = options.find((item) => !!item.todos);
@@ -77,7 +68,6 @@ const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
         allowClear
         mode='multiple'
         options={options}
-        disabled={desativarCampo}
         placeholder='Componente Curricular'
         id={CF_SELECT_COMPONENTE_CURRICULAR}
       />

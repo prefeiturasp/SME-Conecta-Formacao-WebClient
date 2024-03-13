@@ -21,6 +21,7 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
       .obterUePorCodigoEOL(value)
       .then((resposta) => {
         const data: UnidadeEolDTO = resposta?.dados;
+
         form.setFieldsValue({ nomeUnidade: data.nomeUnidade });
       })
       .finally(() => setLoadingCodigoEOL(false));

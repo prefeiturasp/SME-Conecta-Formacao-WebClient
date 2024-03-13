@@ -239,15 +239,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                 </Col>
 
                 <Col xs={24}>
-                  <SelectTodasTurmas
-                    idProposta={propostaId}
-                    exibirTooltip={false}
-                    onChange={() => {
-                      () => {
-                        ('');
-                      };
-                    }}
-                  />
+                  <SelectTodasTurmas idProposta={propostaId} exibirTooltip={false} />
                 </Col>
               </Row>
             </Col>
