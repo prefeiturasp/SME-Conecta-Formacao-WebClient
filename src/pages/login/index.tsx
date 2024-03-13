@@ -113,10 +113,10 @@ const Login = () => {
     autenticacaoService
       .autenticar(values)
       .then((resposta) => {
-        if (resposta?.data?.autenticado) {
+        if (resposta?.dados?.autenticado) {
           //TODO Ambiente clarity ainda será criado
           //window.clarity('identify', loginValidado);
-          validarAutenticacao(resposta.data);
+          validarAutenticacao(resposta.dados);
         }
       })
       .catch(validarExibirErros)
