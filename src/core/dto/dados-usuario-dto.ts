@@ -3,4 +3,6 @@ export type DadosUsuarioDTO = {
   cpf: string;
   login: string;
   email: string;
+  nomeUnidade: string;
+  tipo: number;
 };

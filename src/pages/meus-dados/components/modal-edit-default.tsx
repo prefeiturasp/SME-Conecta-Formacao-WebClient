@@ -17,6 +17,8 @@ type ModalEditDefaultServiceProps = {
   nome: string;
   email: string;
   telefone: string;
+  nomeUnidade: string;
+  codigoUnidade: string;
 } & SenhaNovaDTO;
 
 type ModalEditDefaultProps = {
@@ -40,16 +42,24 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
+  const mensagemSucesso = (
+    <>
+      <p>
+        Registro alterado com sucesso!
+        <br />
+        Por favor, realize o login novamente para aplicar a alteração no sistema
+      </p>
+    </>
+  );
   const openNotificationSuccess = () => {
     notification.success({
       message: 'Sucesso',
-      description: 'Registro alterado com sucesso!',
+      description: mensagemSucesso,
     });
   };
 
   const handleOk = () => {
     setLoading(true);
-
     service(form.getFieldsValue())
       .then((resposta) => {
         if (resposta?.status === HttpStatusCode.Ok && resposta?.data && updateFields) {
