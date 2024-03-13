@@ -5,7 +5,11 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_FUNCAO_ESPECIFICA_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_FUNCAO_ESPECIFICA } from '~/core/constants/ids/select';
-import { ANO_ETAPA_NAO_INFORMADO, COMPONENTE_NAO_INFORMADO, MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
+import {
+  ANO_ETAPA_NAO_INFORMADO,
+  COMPONENTE_NAO_INFORMADO,
+  MODALIDADE_NAO_INFORMADA,
+} from '~/core/constants/mensagens';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { validarOnChangeMultiSelectOutros } from '~/core/utils/functions';
 
@@ -48,7 +52,6 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
         const funcoesEspecificas: number[] = form.getFieldValue('funcoesEspecificas');
 
         let campoOutros = null;
-
         if (funcoesEspecificas?.length) {
           const ehOutros = options.some(
             (option: any) => funcoesEspecificas.includes(option.value) && option.outros,

@@ -155,7 +155,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col span={24}>
-        <SelectPublicoAlvoCadastroProposta />
+        <SelectPublicoAlvoCadastroProposta exibirOpcaoOutros={true} />
       </Col>
 
       <Col span={24}>
