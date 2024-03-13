@@ -70,3 +70,7 @@ export const CADASTRO_ENVIADO =
   'Cadastro inserido com sucesso. Enviamos um e-mail para validação do seu cadastro. Confira a sua caixa de entrada!';
 export const ERRO_EMAIL_NAO_VALIDADO =
   "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar'";
+export const TIPO_INSCRICAO_TOOLTIP_OPTATIVA = `Optativa: O cursista irá se inscrever por meio da plataforma.`;
+export const TIPO_INSCRICAO_TOOLTIP_MANUAL = `Manual: Inscrições realizadas pela área promotora no cadastro da proposta.`;
+export const TIPO_INSCRICAO_TOOLTIP_AUTOMATICA = `Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.`;
+export const TIPO_INSCRICAO_TOOLTIP_EXTERNA = `Externa: Inscrições realizadas por outras ferramentas disponibilizadas pela rede de parceria.`;
