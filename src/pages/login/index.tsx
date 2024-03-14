@@ -1,4 +1,5 @@
-import { Button, Col, Form, Input, Modal, Row, Tooltip, Typography, notification } from 'antd';
+import { Button, Col, Form, Input, Modal, Row, Tooltip, Typography } from 'antd';
+import { notification } from '~/components/lib/notification';
 import { useState } from 'react';
 
 import { useForm, useWatch } from 'antd/es/form/Form';
