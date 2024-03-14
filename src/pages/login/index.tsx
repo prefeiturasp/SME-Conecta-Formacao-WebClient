@@ -84,24 +84,22 @@ const Login = () => {
     }
     dispatch(setSpinning(false));
   };
-  const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
-    const dataErro = erro?.response?.data;
-
-    if (erro?.response?.status === HttpStatusCode.Unauthorized) {
-      setErroGeral(dataErro?.mensagens);
-      if (dataErro?.mensagens.includes(ERRO_EMAIL_NAO_VALIDADO)) {
+  const validarExibirErros = (erro: RetornoBaseDTO | undefined) => {
+    if (erro?.status === HttpStatusCode.Unauthorized) {
+      setErroGeral(erro?.mensagens);
+      if (erro?.mensagens.includes(ERRO_EMAIL_NAO_VALIDADO)) {
         setOpenModal(true);
       }
       return;
     }
 
-    if (typeof dataErro === 'string') {
-      setErroGeral([dataErro]);
+    if (typeof erro === 'string') {
+      setErroGeral([erro]);
       return;
     }
 
-    if (dataErro?.mensagens?.length) {
-      setErroGeral(dataErro.mensagens);
+    if (erro?.mensagens?.length) {
+      setErroGeral(erro.mensagens);
       return;
     }
 
@@ -117,9 +115,19 @@ const Login = () => {
           //TODO Ambiente clarity ainda será criado
           //window.clarity('identify', loginValidado);
           validarAutenticacao(resposta.dados);
+        } else {
+          const erros: RetornoBaseDTO = {
+            existemErros: resposta?.sucesso,
+            mensagens: resposta?.mensagens,
+            status: resposta?.status,
+          };
+
+          validarExibirErros(erros);
         }
       })
-      .catch(validarExibirErros)
+      .catch((e: AxiosError<RetornoBaseDTO>) => {
+        validarExibirErros(e?.response?.data);
+      })
       .finally(() => dispatch(setSpinning(false)));
   };
 
