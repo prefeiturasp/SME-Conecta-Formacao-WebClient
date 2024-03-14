@@ -18,6 +18,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import usuarioService from '~/core/services/usuario-service';
+import { onClickVoltar } from '~/core/utils/form';
 import ModalEditEmailButton from './components/modal-edit-email/modal-edit-email-button';
 import ModalEditNovaSenhaButton from './components/modal-edit-nova-senha/modal-edit-nova-senha-button';
 
@@ -55,8 +56,6 @@ const MeusDados: React.FC = () => {
 
   const [meusDados, setMeusDados] = useState<DadosUsuarioDTO>();
 
-  const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
-
   const obterDados = useCallback(() => {
     dispatch(setSpinning(true));
     usuarioService
@@ -80,7 +79,10 @@ const MeusDados: React.FC = () => {
       <HeaderPage title='Meus dados'>
         <Row>
           <Col span={24}>
-            <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+            <ButtonVoltar
+              onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
+              id={CF_BUTTON_VOLTAR}
+            />
           </Col>
         </Row>
       </HeaderPage>

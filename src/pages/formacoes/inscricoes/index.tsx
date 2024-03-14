@@ -16,6 +16,7 @@ import {
 } from '~/core/constants/ids/input';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { onClickVoltar } from '~/core/utils/form';
 import { InscricoesListaPaginada } from './listagem';
 
 export interface FiltroInscricoesProps {
@@ -38,8 +39,6 @@ export const Inscricoes = () => {
     form.resetFields();
   }, [form]);
 
-  const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
-
   const obterFiltros = () => {
     setFilters({
       codigoFormacao: form.getFieldValue('codigoFormacao'),
@@ -55,7 +54,10 @@ export const Inscricoes = () => {
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+                <ButtonVoltar
+                  onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
+                  id={CF_BUTTON_VOLTAR}
+                />
               </Col>
             </Row>
           </Col>

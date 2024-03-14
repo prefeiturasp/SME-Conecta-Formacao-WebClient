@@ -25,7 +25,6 @@ import {
 } from '~/core/constants/ids/button/intex';
 import {
   APOS_ENVIAR_PROPOSTA_NAO_EDITA,
-  DESEJA_CANCELAR_ALTERACOES,
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -59,6 +58,7 @@ import {
   inserirProposta,
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
+import { onClickCancelar } from '~/core/utils/form';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
@@ -337,17 +337,6 @@ const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     scrollNoInicio();
   }, [currentStep]);
-
-  const onClickCancelar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_CANCELAR_ALTERACOES,
-        onOk() {
-          form.resetFields();
-        },
-      });
-    }
-  };
 
   const salvar = async (novaSituacao?: SituacaoRegistro) => {
     let response = null;
@@ -726,7 +715,7 @@ const FormCadastroDePropostas: React.FC = () => {
                       block
                       type='default'
                       id={CF_BUTTON_CANCELAR}
-                      onClick={onClickCancelar}
+                      onClick={() => onClickCancelar({ form })}
                       style={{ fontWeight: 700 }}
                       disabled={!form.isFieldsTouched()}
                     >

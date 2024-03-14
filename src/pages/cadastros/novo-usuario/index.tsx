@@ -20,7 +20,6 @@ import {
 } from '~/core/constants/ids/input';
 import {
   CADASTRO_ENVIADO,
-  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   ENVIAR_EMAIL_PARA_VALIDACAO,
   ERRO_CADASTRO_USUARIO,
 } from '~/core/constants/mensagens';
@@ -34,6 +33,7 @@ import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao, sucesso } from '~/core/services/alerta-service';
 import funcionarioExternoService from '~/core/services/funcionario-externo-service';
 import usuarioService from '~/core/services/usuario-service';
+import { onClickVoltar } from '~/core/utils/form';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import SelectUEs from './components/ue';
 
@@ -135,22 +135,6 @@ export const CadastroDeUsuario = () => {
         dispatch(setSpinning(false));
       },
     });
-  };
-
-  const onClickVoltar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          form.submit();
-        },
-        onCancel() {
-          navigate(ROUTES.LOGIN);
-        },
-      });
-    } else {
-      navigate(ROUTES.LOGIN);
-    }
   };
 
   const validateNameAndSurname = (_rule: any, value: string) => {
@@ -278,7 +262,7 @@ export const CadastroDeUsuario = () => {
               block
               type='default'
               id={CF_BUTTON_VOLTAR}
-              onClick={onClickVoltar}
+              onClick={() => onClickVoltar({ form, navigate, route: ROUTES.LOGIN })}
               style={{ fontWeight: 700 }}
             >
               Voltar

@@ -14,8 +14,10 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME, CF_INPUT_NOME_FORMACAO, CF_INPUT_RF } from '~/core/constants/ids/input';
+import { NOVA_INSCRICAO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { onClickVoltar } from '~/core/utils/form';
 import { TurmasInscricoesListaPaginada } from './listagem';
 
 export interface FiltroTurmaInscricoesProps {
@@ -43,15 +45,12 @@ export const TurmasInscricoes = () => {
 
   const onClickNovo = () =>
     navigate(`${ROUTES.FORMACAOES_INSCRICOES}/novo/${id}`, {
-      replace: true,
-      state: { form: { location } },
+      state: location.state,
     });
 
   useEffect(() => {
     form.resetFields();
   }, [form]);
-
-  const onClickVoltar = () => navigate(ROUTES.FORMACAOES_INSCRICOES);
 
   const obterFiltros = () => {
     setFilters({
@@ -69,7 +68,10 @@ export const TurmasInscricoes = () => {
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+                <ButtonVoltar
+                  onClick={() => onClickVoltar({ navigate, route: ROUTES.FORMACAOES_INSCRICOES })}
+                  id={CF_BUTTON_VOLTAR}
+                />
               </Col>
               <Col>
                 <Upload fileList={[]}>
@@ -93,7 +95,7 @@ export const TurmasInscricoes = () => {
                   onClick={() => onClickNovo()}
                   style={{ fontWeight: 700 }}
                 >
-                  Nova inscrição
+                  {NOVA_INSCRICAO}
                 </Button>
               </Col>
             </Row>
