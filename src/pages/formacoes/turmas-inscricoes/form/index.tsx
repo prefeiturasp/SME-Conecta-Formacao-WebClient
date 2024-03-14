@@ -133,7 +133,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                       { required: profissionalRedeMunicipalWatch, message: RF_NAO_INFORMADO },
                     ],
                   }}
-                  inputPropsSearch={{
+                  inputProps={{
                     onSearch: buscarRfCPF,
                     disabled: !profissionalRedeMunicipalWatch,
                   }}
@@ -145,7 +145,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   formItemProps={{
                     required: !profissionalRedeMunicipalWatch,
                   }}
-                  inputPropsSearch={{
+                  inputProps={{
                     onSearch: buscarRfCPF,
                     disabled:
                       profissionalRedeMunicipalWatch ||

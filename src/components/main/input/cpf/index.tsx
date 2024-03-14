@@ -5,18 +5,14 @@ import { CPF_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions/index';
 
 type InputCPFProps = {
-  inputProps?: InputProps;
-  inputPropsSearch?: SearchProps;
+  inputProps?: InputProps & SearchProps;
   formItemProps?: FormItemProps;
   habilitarInputSearch?: boolean;
 };
 
-const InputCPF: React.FC<InputCPFProps> = ({
-  inputProps,
-  formItemProps,
-  habilitarInputSearch,
-  inputPropsSearch,
-}) => {
+const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps, habilitarInputSearch }) => {
+  const InputComponent = habilitarInputSearch ? Input.Search : Input;
+
   const formatterCPFMask = (value: string | number | undefined) =>
     `${value}`
       .replace(/(\d{3})(\d)/, '$1.$2')
@@ -51,11 +47,7 @@ const InputCPF: React.FC<InputCPFProps> = ({
         },
       ]}
     >
-      {habilitarInputSearch ? (
-        <Input.Search placeholder='Informe o CPF' {...inputPropsSearch} />
-      ) : (
-        <Input placeholder='Informe o CPF' {...inputProps} />
-      )}
+      <InputComponent placeholder='Informe o CPF' {...inputProps} />
     </Form.Item>
   );
 };
