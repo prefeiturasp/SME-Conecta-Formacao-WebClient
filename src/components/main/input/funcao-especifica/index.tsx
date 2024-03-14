@@ -84,7 +84,6 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                   onChange={(value) => {
                     if (value.length) {
                       existeValoresSelecionados(true);
-                      form.setFieldValue('modalidade', undefined);
                       form.setFieldValue('anosTurmas', undefined);
                       form.setFieldValue('componentesCurriculares', undefined);
                       definiOutrosCamposComoRequerido(false);
@@ -97,14 +96,19 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                           name: 'anosTurmas',
                           errors: [],
                         },
-                        {
-                          name: 'modalidade',
-                          errors: [],
-                        },
                       ]);
                     } else {
                       existeValoresSelecionados(false);
                       definiOutrosCamposComoRequerido(true);
+                      const modalidadeValor = form.getFieldValue('modalidade');
+                      if (modalidadeValor == undefined) {
+                        form.setFields([
+                          {
+                            name: 'modalidade',
+                            errors: [MODALIDADE_NAO_INFORMADA],
+                          },
+                        ]);
+                      }
                       form.setFields([
                         {
                           name: 'componentesCurriculares',
@@ -113,10 +117,6 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                         {
                           name: 'anosTurmas',
                           errors: [ANO_ETAPA_NAO_INFORMADO],
-                        },
-                        {
-                          name: 'modalidade',
-                          errors: [MODALIDADE_NAO_INFORMADA],
                         },
                       ]);
                     }

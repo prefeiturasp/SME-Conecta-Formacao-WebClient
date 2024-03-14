@@ -4,19 +4,18 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_MODALIDADE } from '~/core/constants/ids/select';
+import { MODALIDADE_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { obterModalidades } from '~/core/services/modalidade-service';
 
 type SelectModalidadesProps = {
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
   campoRequerido?: boolean;
-  desativarCampo?: boolean;
 };
 
 const SelectModalidade: React.FC<SelectModalidadesProps> = ({
   selectProps,
   formItemProps,
-  desativarCampo = false,
   campoRequerido = false,
 }) => {
   const form = useFormInstance();
@@ -40,12 +39,11 @@ const SelectModalidade: React.FC<SelectModalidadesProps> = ({
     <Form.Item
       label='Modalidade'
       name='modalidade'
-      rules={[{ required: campoRequerido }]}
+      rules={[{ required: campoRequerido, message: MODALIDADE_NAO_INFORMADA }]}
       {...formItemProps}
     >
       <Select
         allowClear
-        disabled={desativarCampo}
         options={options}
         placeholder='Modalidade'
         id={CF_SELECT_MODALIDADE}

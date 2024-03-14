@@ -56,10 +56,10 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
   const { desabilitarCampos } = useContext(PermissaoContext);
   const [cargoFuncaoSelecionado, setCargoFuncaoSelecionado] = useState(false);
-  const [
-    camposRequeridosQuandoSelecionarCargoFuncao,
-    setCamposRequeridosQuandoSelecionarCargoFuncao,
-  ] = useState(false);
+  const [publicoAlvoSelecionado, setPublicoAlvoSelecionado] = useState(false);
+  const [requeridoQuandoSelecionarFuncao, setRequeridoQuandoSelecionarFuncao] = useState(false);
+  const [requeridoQuandoSelecionarPublicoAlvo, setRequeridoQuandoSelecionarPublicoAlvo] =
+    useState(false);
 
   const token = useAppSelector((store) => store.auth.token);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
@@ -155,13 +155,17 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col span={24}>
-        <SelectPublicoAlvoCadastroProposta exibirOpcaoOutros={true} />
+        <SelectPublicoAlvoCadastroProposta
+          existeValoresSelecionados={setPublicoAlvoSelecionado}
+          exibirOpcaoOutros={true}
+          definiOutrosCamposComoRequerido={setRequeridoQuandoSelecionarPublicoAlvo}
+        />
       </Col>
 
       <Col span={24}>
         <SelectFuncaoEspecifica
           existeValoresSelecionados={setCargoFuncaoSelecionado}
-          definiOutrosCamposComoRequerido={setCamposRequeridosQuandoSelecionarCargoFuncao}
+          definiOutrosCamposComoRequerido={setRequeridoQuandoSelecionarFuncao}
           formItemProps={{
             tooltip: getTooltipFormInfoCircleFilled(
               'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
@@ -172,22 +176,21 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       <Col span={24}>
         <SelectModalidade
-          desativarCampo={cargoFuncaoSelecionado}
-          campoRequerido={camposRequeridosQuandoSelecionarCargoFuncao}
+          campoRequerido={requeridoQuandoSelecionarFuncao || requeridoQuandoSelecionarPublicoAlvo}
         />
       </Col>
 
       <Col span={24}>
         <SelectAnoEtapa
-          desativarCampo={cargoFuncaoSelecionado}
-          campoRequerido={camposRequeridosQuandoSelecionarCargoFuncao}
+          desativarCampo={cargoFuncaoSelecionado && publicoAlvoSelecionado}
+          campoRequerido={requeridoQuandoSelecionarFuncao || requeridoQuandoSelecionarPublicoAlvo}
         />
       </Col>
 
       <Col span={24}>
         <SelectComponenteCurricular
-          desativarCampo={cargoFuncaoSelecionado}
-          campoRequerido={camposRequeridosQuandoSelecionarCargoFuncao}
+          desativarCampo={cargoFuncaoSelecionado && publicoAlvoSelecionado}
+          campoRequerido={requeridoQuandoSelecionarFuncao || requeridoQuandoSelecionarPublicoAlvo}
         />
       </Col>
 
