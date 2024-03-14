@@ -1,6 +1,6 @@
 import { Form } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import React from 'react';
+import React, { useState } from 'react';
 import { CF_INPUT_UNIDADE } from '~/core/constants/ids/input';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import usuarioService from '~/core/services/usuario-service';
@@ -21,6 +21,7 @@ const ModalEditUnidade: React.FC<ModalEditUnidadeProps> = ({
 }) => {
   const [form] = useForm();
   const auth = useAppSelector((store) => store.auth);
+  const [desativarBotaoAlterar, setDesativarBotaoAlterar] = useState<boolean>(true);
 
   const usuarioLogin = auth?.usuarioLogin;
 
@@ -38,11 +39,15 @@ const ModalEditUnidade: React.FC<ModalEditUnidadeProps> = ({
       title='Alterar Unidade'
       service={alterarUnidade}
       updateFields={updateFields}
+      desativarBotaoAlterar={desativarBotaoAlterar}
       mensagemConfirmarCancelar='Você não salvou a alteração, confirma que deseja descartar a alteração?'
       closeModal={closeModal}
     >
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
-        <InputCodigoEolUE inputProps={{ id: CF_INPUT_UNIDADE }} />
+        <InputCodigoEolUE
+          inputProps={{ id: CF_INPUT_UNIDADE }}
+          desativarBotaoAlterar={setDesativarBotaoAlterar}
+        />
       </Form>
       <Form
         form={form}
