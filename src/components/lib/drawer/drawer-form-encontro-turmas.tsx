@@ -10,6 +10,7 @@ import DatePickerMultiplos from '~/components/main/input/data-lista';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CF_BUTTON_EXCLUIR } from '~/core/constants/ids/button/intex';
+import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { dayjs } from '~/core/date/dayjs';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
@@ -18,7 +19,6 @@ import { PropostaEncontroDTO, PropostaEncontroDataDTO } from '~/core/dto/propost
 import { TipoEncontro } from '~/core/enum/tipo-encontro';
 import { confirmacao } from '~/core/services/alerta-service';
 import { removerPropostaEncontro, salvarPropostaEncontro } from '~/core/services/proposta-service';
-import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 
 const { TextArea } = Input;
 
@@ -44,7 +44,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     datas: [{ dataInicio: '', dataFim: '' }],
   });
 
-  const propostaId = paramsRoute?.id || 0;
+  const propostaId = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const carregarDados = useCallback(() => {
     const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroDataDTO) => ({

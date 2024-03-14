@@ -30,7 +30,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
 
   const profissionalRedeMunicipalWatch = useWatch('profissionalRedeMunicipal', form);
 
-  const id = paramsRoute?.id || 0;
+  const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
   const inscriacaoState = location?.state;
   const formacaoNome = inscriacaoState?.nomeFormacao ? `- ${inscriacaoState?.nomeFormacao}` : '';
 
@@ -113,8 +113,8 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
               <Col xs={24} sm={12} md={8}>
                 <SelectTurmaEncontros
                   idProposta={id}
-                  exibirTooltip={false}
-                  podeSelecionarVarios={false}
+                  selectProps={{ mode: undefined }}
+                  formItemProps={{ tooltip: false }}
                 />
               </Col>
               <Col xs={12} sm={6} md={8}>

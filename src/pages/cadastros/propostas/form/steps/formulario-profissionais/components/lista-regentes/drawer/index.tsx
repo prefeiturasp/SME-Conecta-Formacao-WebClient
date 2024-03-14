@@ -35,7 +35,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
 
   const [formInitialValues, setFormInitialValues] = useState<PropostaRegenteDTO>();
 
-  const propostaId = paramsRoute?.id || 0;
+  const propostaId = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const fecharModal = (reloadData = false, checkFieldsTouched = true) => {
     if (checkFieldsTouched && formDrawer.isFieldsTouched()) {
@@ -221,7 +221,10 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                 </Col>
 
                 <Col xs={24}>
-                  <SelectTurmaEncontros idProposta={propostaId} exibirTooltip={false} />
+                  <SelectTurmaEncontros
+                    idProposta={propostaId}
+                    formItemProps={{ tooltip: false }}
+                  />
                 </Col>
               </Row>
             </Col>
