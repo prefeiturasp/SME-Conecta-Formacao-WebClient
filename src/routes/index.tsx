@@ -18,6 +18,7 @@ import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
+import { FormCadastrosInscricoesManuais } from '~/pages/formacoes/turmas-inscricoes/form';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
@@ -28,7 +29,6 @@ import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
-import FormCadastrosInscricoes from '~/pages/formacoes/turmas-inscricoes/form';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -125,7 +125,7 @@ const RoutesConfig = () => {
                   <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
                     <Route
                       path={ROUTES.FORMACAOES_INSCRICOES_NOVO}
-                      element={<FormCadastrosInscricoes />}
+                      element={<FormCadastrosInscricoesManuais />}
                     />
                   </Route>
                 </Route>

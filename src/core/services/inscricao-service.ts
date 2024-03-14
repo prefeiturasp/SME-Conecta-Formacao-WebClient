@@ -1,4 +1,5 @@
 import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/listagem';
+import { CursistaDTO } from '../dto/cursista-dto';
 import { DadosInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
@@ -13,6 +14,12 @@ const inserirInscricao = (params: InscricaoDTO) => {
 
 const obterDadosInscricao = () => {
   return obterRegistro<DadosInscricaoDTO>(`${URL_INSCRICAO}/dados-inscricao`);
+};
+
+const obterRfCpf = (rfCpf: string) => {
+  const params = rfCpf && rfCpf.length > 7 ? { cpf: rfCpf } : { registroFuncional: rfCpf };
+
+  return obterRegistro<CursistaDTO>(`${URL_INSCRICAO}/cursista`, { params });
 };
 
 const obterInscricao = () => {
@@ -34,6 +41,7 @@ export {
   inserirInscricao,
   obterDadosInscricao,
   obterInscricao,
-  obterTurmasInscricao,
+  obterRfCpf,
   obterTiposInscricao,
+  obterTurmasInscricao,
 };

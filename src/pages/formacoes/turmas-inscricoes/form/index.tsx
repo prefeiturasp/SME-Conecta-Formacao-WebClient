@@ -1,7 +1,6 @@
-import { SearchOutlined } from '@ant-design/icons';
-import { Button, Col, Form, Input, Row, Select } from 'antd';
-import { useForm } from 'antd/es/form/Form';
-import { useCallback, useEffect, useState } from 'react';
+import { Button, Col, Form, Row } from 'antd';
+import { useForm, useWatch } from 'antd/es/form/Form';
+import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
@@ -17,75 +16,82 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
-import {
-  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-  NOME_NAO_INFORMADO,
-} from '~/core/constants/mensagens';
-import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
+import { RF_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { confirmacao } from '~/core/services/alerta-service';
-import { obterTiposInscricao } from '~/core/services/inscricao-service';
+import { obterRfCpf } from '~/core/services/inscricao-service';
+import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
+import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 
-const FormCadastrosInscricoes: React.FC = () => {
-  const paramsRoute = useParams();
+export const FormCadastrosInscricoesManuais: React.FC = () => {
   const [form] = useForm();
-  const [cpfRequerido, setCpfRequerido] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const paramsRoute = useParams();
+
+  const profissionalRedeMunicipalWatch = useWatch('profissionalRedeMunicipal', form);
 
   const id = paramsRoute?.id || 0;
-  const nomeFormacao = location?.state?.form?.location?.state?.nomeFormacao;
-  const [listaTipos, setListaTipos] = useState<RetornoListagemDTO[]>();
-  const { Option } = Select;
+  const inscriacaoState = location?.state;
+  const formacaoNome = inscriacaoState?.nomeFormacao ? `- ${inscriacaoState?.nomeFormacao}` : '';
+
   const salvar = async () => {
-    console.log(form.getFieldsValue());
+    form.validateFields().then(() => {
+      alert('salvar');
+    });
   };
-  const obterDadosPofissional = async () => {
-    console.log('Buscou por profissional');
+
+  const buscarRfCPF = (rfCpf?: string) => {
+    if (!rfCpf) return;
+
+    const rfCpfSemCaracteres = removerTudoQueNaoEhDigito(rfCpf);
+    obterRfCpf(rfCpfSemCaracteres).then((resposta) => {
+      if (resposta.sucesso) {
+        const dados = resposta.dados;
+
+        form.setFieldValue('cpf', dados.cpf);
+        form.setFieldValue('nome', dados.nome);
+      }
+    });
   };
-  const obterTipos = useCallback(async () => {
-    const resposta = await obterTiposInscricao();
-    if (resposta.sucesso) {
-      setListaTipos(resposta.dados);
-    }
-  }, []);
-  const onClickVoltar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          form.submit();
-        },
-        onCancel() {
-          navigate(`${ROUTES.FORMACAOES_INSCRICOES}`);
-        },
-      });
-    } else {
-      navigate(ROUTES.FORMACAOES_INSCRICOES);
-    }
-  };
+
   useEffect(() => {
-    obterTipos();
-  }, [obterTipos]);
+    form.resetFields(['nome', 'cpf', 'registroFuncional']);
+  }, [profissionalRedeMunicipalWatch]);
+
   return (
     <Col>
       <Form form={form} layout='vertical' autoComplete='off' onFinish={salvar}>
-        <HeaderPage title={nomeFormacao}>
+        <HeaderPage title={`Inscrição Manual ${formacaoNome}`}>
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+                <ButtonVoltar
+                  onClick={() =>
+                    onClickVoltar({
+                      form,
+                      navigate,
+                      route: ROUTES.FORMACAOES_INSCRICOES,
+                    })
+                  }
+                  id={CF_BUTTON_VOLTAR}
+                />
               </Col>
               <Col>
-                <Button
-                  block
-                  type='default'
-                  htmlType='submit'
-                  id={CF_BUTTON_CANCELAR}
-                  style={{ fontWeight: 700 }}
-                >
-                  Cancelar
-                </Button>
+                <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+                  {() => (
+                    <Button
+                      block
+                      type='default'
+                      htmlType='submit'
+                      id={CF_BUTTON_CANCELAR}
+                      onClick={() => onClickCancelar({ form })}
+                      disabled={!form.isFieldsTouched()}
+                      style={{ fontWeight: 700 }}
+                    >
+                      Cancelar
+                    </Button>
+                  )}
+                </Form.Item>
               </Col>
               <Col>
                 <Button
@@ -104,88 +110,61 @@ const FormCadastrosInscricoes: React.FC = () => {
         <CardContent>
           <Col span={24}>
             <Row gutter={[16, 8]}>
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={12} md={8}>
                 <SelectTurmaEncontros
                   idProposta={id}
                   exibirTooltip={false}
                   podeSelecionarVarios={false}
                 />
               </Col>
-              <Col xs={12} sm={6}>
+              <Col xs={12} sm={6} md={8}>
                 <RadioSimNao
                   formItemProps={{
                     name: 'profissionalRedeMunicipal',
                     label: 'Profissional da rede municipal',
                   }}
-                  radioGroupProps={{
-                    onChange: (e) => {
-                      if (e.target.value) {
-                        setCpfRequerido(true);
-                      } else {
-                        setCpfRequerido(false);
-                      }
-                    },
+                />
+              </Col>
+              <Col xs={12} sm={6} md={8}>
+                <InputRegistroFuncional
+                  habilitarInputSearch
+                  formItemProps={{
+                    rules: [
+                      { required: profissionalRedeMunicipalWatch, message: RF_NAO_INFORMADO },
+                    ],
+                  }}
+                  inputPropsSearch={{
+                    onSearch: buscarRfCPF,
+                    disabled: !profissionalRedeMunicipalWatch,
                   }}
                 />
               </Col>
-              <Col xs={12} sm={6}>
-                <Form.Item label='RF' name='registroFuncional' required={cpfRequerido}>
-                  <Input.Search
-                    id='INPUT_RF'
-                    maxLength={7}
-                    placeholder='Registro Funcional (RF)'
-                    onSearch={obterDadosPofissional}
-                    onBlur={obterDadosPofissional}
-                  />
-                </Form.Item>
+              <Col xs={12} sm={6} md={8}>
+                <InputCPF
+                  habilitarInputSearch
+                  formItemProps={{
+                    required: !profissionalRedeMunicipalWatch,
+                  }}
+                  inputPropsSearch={{
+                    onSearch: buscarRfCPF,
+                    disabled:
+                      profissionalRedeMunicipalWatch ||
+                      profissionalRedeMunicipalWatch === undefined,
+                  }}
+                />
               </Col>
-              <Col xs={12} sm={6} md={6} lg={6} xl={6}>
-                <Row>
-                  <Col span={20}>
-                    <InputCPF inputProps={{ disabled: cpfRequerido }} />
-                  </Col>
-                  <Col span={4}>
-                    <Form.Item label='  '>
-                      <Button
-                        block
-                        disabled={cpfRequerido}
-                        onClick={obterDadosPofissional}
-                        type='default'
-                        id={CF_BUTTON_CANCELAR}
-                        style={{ fontWeight: 900 }}
-                      >
-                        <SearchOutlined />
-                      </Button>
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Col>
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={12} md={8}>
                 <InputTexto
                   formItemProps={{
                     label: 'Nome',
                     name: 'nome',
-                    rules: [{ required: true, message: NOME_NAO_INFORMADO }],
                   }}
                   inputProps={{
-                    placeholder: 'Informe o Nome',
-                    disabled: cpfRequerido,
+                    disabled: true,
                     id: CF_INPUT_NOME,
+                    placeholder: 'Informe o Nome',
                   }}
                 />
-              </Col>
-              <Col xs={12} sm={6}>
-                <Form.Item label='Situação da inscrição' name='situacaoIncricao' required={true}>
-                  <Select>
-                    {listaTipos?.map((item) => {
-                      return (
-                        <Option key={item.id} value={item.id}>
-                          {item.descricao}
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                </Form.Item>
               </Col>
             </Row>
           </Col>
@@ -194,5 +173,3 @@ const FormCadastrosInscricoes: React.FC = () => {
     </Col>
   );
 };
-
-export default FormCadastrosInscricoes;

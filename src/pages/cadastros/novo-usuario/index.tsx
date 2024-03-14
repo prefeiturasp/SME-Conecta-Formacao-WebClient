@@ -179,8 +179,8 @@ export const CadastroDeUsuario = () => {
         <Row gutter={[16, 8]}>
           <Col span={24}>
             <InputCPF
-              required
               formItemProps={{
+                required: true,
                 hasFeedback: loadingCPF,
                 validateStatus: validateStatusCPF(),
               }}
