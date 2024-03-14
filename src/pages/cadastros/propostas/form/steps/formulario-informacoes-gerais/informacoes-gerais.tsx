@@ -182,14 +182,14 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       <Col span={24}>
         <SelectAnoEtapa
-          desativarCampo={cargoFuncaoSelecionado && publicoAlvoSelecionado}
+          desativarCampo={cargoFuncaoSelecionado || publicoAlvoSelecionado}
           campoRequerido={requeridoQuandoSelecionarFuncao || requeridoQuandoSelecionarPublicoAlvo}
         />
       </Col>
 
       <Col span={24}>
         <SelectComponenteCurricular
-          desativarCampo={cargoFuncaoSelecionado && publicoAlvoSelecionado}
+          desativarCampo={cargoFuncaoSelecionado || publicoAlvoSelecionado}
           campoRequerido={requeridoQuandoSelecionarFuncao || requeridoQuandoSelecionarPublicoAlvo}
         />
       </Col>
