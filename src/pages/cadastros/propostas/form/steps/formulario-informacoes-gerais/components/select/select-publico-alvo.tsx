@@ -27,7 +27,6 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
   const modalidade = Form.useWatch('modalidade', form);
   const funcoesEspecificas = Form.useWatch('funcoesEspecificas', form);
   const componentesCurriculares = Form.useWatch('componentesCurriculares', form);
-  const [valorOutros, setValorOutros] = useState<undefined | null | any>(undefined);
 
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -66,14 +65,15 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
         const publicosAlvos: number[] = form.getFieldValue('publicosAlvo');
 
         let campoOutros = null;
+        let outrosValor = 0;
         if (publicosAlvos?.length) {
           const ehOutros = options.some(
             (option: any) => publicosAlvos.includes(option.value) && option.outros,
           );
 
-          const outrosValor = options.filter((x) => x.outros)[0].value;
-
-          setValorOutros(outrosValor);
+          if (options?.filter((x) => x?.outros)[0]?.value) {
+            outrosValor = Number(options?.filter((x) => x?.outros)[0]?.value);
+          }
 
           if (ehOutros) {
             campoOutros = (
@@ -119,8 +119,11 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
                   onChange={(valor) => {
                     if (valor.length) {
                       const publicosAlvos: number[] = form.getFieldValue('publicosAlvo');
-                      const novosValores = publicosAlvos.filter((v) => v != valorOutros);
+                      const novosValores = publicosAlvos?.filter((v) => v != outrosValor);
                       form.setFieldValue('publicosAlvo', novosValores);
+
+                      if (outrosValor == 0 && valor.length)
+                        form.setFieldValue('publicoAlvoOutros', undefined);
                     }
                   }}
                   {...selectProps}
