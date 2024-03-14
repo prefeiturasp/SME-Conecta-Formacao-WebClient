@@ -7,7 +7,12 @@ import Select from '~/components/lib/inputs/select';
 import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import { CF_INPUT_PUBLICO_ALVO_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_PUBLICO_ALVO } from '~/core/constants/ids/select';
-import { PUBLICO_ALVO_NAO_INFORMADO } from '~/core/constants/mensagens';
+import {
+  ANO_ETAPA_NAO_INFORMADO,
+  COMPONENTE_NAO_INFORMADO,
+  MODALIDADE_NAO_INFORMADA,
+  PUBLICO_ALVO_NAO_INFORMADO,
+} from '~/core/constants/mensagens';
 import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
 
 type SelectPublicoAlvoProps = {
@@ -15,12 +20,16 @@ type SelectPublicoAlvoProps = {
   exibirTooltip?: boolean | true;
   selectProps?: SelectProps;
   exibirOpcaoOutros?: boolean;
+  existeValoresSelecionados: (value: boolean) => void;
+  definiOutrosCamposComoRequerido: (value: boolean) => void;
 };
 
 const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
   selectProps,
   formItemProps,
   exibirOpcaoOutros = false,
+  existeValoresSelecionados,
+  definiOutrosCamposComoRequerido,
 }) => {
   const form = useFormInstance();
   const anosTurmas = Form.useWatch('anosTurmas', form);
@@ -118,12 +127,48 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
                   placeholder='Público alvo'
                   onChange={(valor) => {
                     if (valor.length) {
+                      existeValoresSelecionados(true);
+                      form.setFieldValue('anosTurmas', undefined);
+                      form.setFieldValue('componentesCurriculares', undefined);
+                      definiOutrosCamposComoRequerido(false);
+                      form.setFields([
+                        {
+                          name: 'componentesCurriculares',
+                          errors: [],
+                        },
+                        {
+                          name: 'anosTurmas',
+                          errors: [],
+                        },
+                      ]);
                       const publicosAlvos: number[] = form.getFieldValue('publicosAlvo');
                       const novosValores = publicosAlvos?.filter((v) => v != outrosValor);
                       form.setFieldValue('publicosAlvo', novosValores);
 
                       if (outrosValor == 0 && valor.length)
                         form.setFieldValue('publicoAlvoOutros', undefined);
+                    } else {
+                      existeValoresSelecionados(false);
+                      definiOutrosCamposComoRequerido(true);
+                      const modalidadeValor = form.getFieldValue('modalidade');
+                      if (modalidadeValor == undefined) {
+                        form.setFields([
+                          {
+                            name: 'modalidade',
+                            errors: [MODALIDADE_NAO_INFORMADA],
+                          },
+                        ]);
+                      }
+                      form.setFields([
+                        {
+                          name: 'componentesCurriculares',
+                          errors: [COMPONENTE_NAO_INFORMADO],
+                        },
+                        {
+                          name: 'anosTurmas',
+                          errors: [ANO_ETAPA_NAO_INFORMADO],
+                        },
+                      ]);
                     }
                   }}
                   {...selectProps}
