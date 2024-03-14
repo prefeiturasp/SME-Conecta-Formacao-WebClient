@@ -18,6 +18,7 @@ import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
+import { FormCadastrosInscricoesManuais } from '~/pages/formacoes/turmas-inscricoes/form';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
@@ -119,6 +120,12 @@ const RoutesConfig = () => {
                     <Route
                       path={ROUTES.FORMACAOES_INSCRICOES_EDITAR}
                       element={<TurmasInscricoes />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                    <Route
+                      path={ROUTES.FORMACAOES_INSCRICOES_NOVO}
+                      element={<FormCadastrosInscricoesManuais />}
                     />
                   </Route>
                 </Route>

@@ -17,6 +17,7 @@ import {
   obterPropostaTutorPorId,
   salvarPropostaProfissionalTutor,
 } from '~/core/services/proposta-service';
+import { onClickCancelar } from '~/core/utils/form';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerTutorProps = {
@@ -33,7 +34,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
 
   const [formInitialValues, setFormInitialValues] = useState<PropostaTutorDTO>();
 
-  const propostaId = paramsRoute?.id || 0;
+  const propostaId = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const fecharModal = (reloadData = false, checkFieldsTouched = true) => {
     if (checkFieldsTouched && formDrawer.isFieldsTouched()) {
@@ -104,17 +105,6 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
     formDrawer.resetFields();
   }, [formDrawer, formInitialValues]);
 
-  const onClickCancelar = () => {
-    if (formDrawer.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_CANCELAR_ALTERACOES,
-        onOk() {
-          formDrawer.resetFields();
-        },
-      });
-    }
-  };
-
   return (
     <>
       {openModal ? (
@@ -149,7 +139,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                       block
                       type='default'
                       id={CF_BUTTON_MODAL_CANCELAR}
-                      onClick={onClickCancelar}
+                      onClick={() => onClickCancelar({ form: formDrawer })}
                       style={{ fontWeight: 700 }}
                       disabled={!formDrawer.isFieldsTouched()}
                     >
@@ -219,7 +209,10 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                   </Form.Item>
                 </Col>
                 <Col xs={24}>
-                  <SelectTurmaEncontros idProposta={propostaId} exibirTooltip={false} />
+                  <SelectTurmaEncontros
+                    idProposta={propostaId}
+                    formItemProps={{ tooltip: false }}
+                  />
                 </Col>
               </Row>
             </Col>

@@ -1,4 +1,5 @@
 import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/listagem';
+import { CursistaDTO } from '../dto/cursista-dto';
 import { DadosInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
@@ -15,6 +16,12 @@ const obterDadosInscricao = () => {
   return obterRegistro<DadosInscricaoDTO>(`${URL_INSCRICAO}/dados-inscricao`);
 };
 
+const obterRfCpf = (rfCpf: string) => {
+  const params = rfCpf && rfCpf.length > 7 ? { cpf: rfCpf } : { registroFuncional: rfCpf };
+
+  return obterRegistro<CursistaDTO>(`${URL_INSCRICAO}/cursista`, { params });
+};
+
 const obterInscricao = () => {
   return obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(URL_INSCRICAO);
 };
@@ -26,10 +33,15 @@ const cancelarInscricao = (id: number) => {
 const obterTurmasInscricao = (propostaId: number): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_INSCRICAO}/turmas/${propostaId}`);
 
+const obterTiposInscricao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_INSCRICAO}/tipos`);
+
 export {
   cancelarInscricao,
   inserirInscricao,
   obterDadosInscricao,
   obterInscricao,
+  obterRfCpf,
+  obterTiposInscricao,
   obterTurmasInscricao,
 };

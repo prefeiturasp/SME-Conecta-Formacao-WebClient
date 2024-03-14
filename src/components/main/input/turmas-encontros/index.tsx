@@ -1,25 +1,22 @@
-import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, Tooltip } from 'antd';
+import { Form, FormItemProps } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_TURMA_CRONOGRAMA } from '~/core/constants/ids/select';
 import { obterTurmasDaProposta } from '~/core/services/proposta-service';
-import { Colors } from '~/core/styles/colors';
+import { getTooltipFormInfoCircleFilled } from '../../tooltip';
 
 type SelectTurmaEncontrosProps = {
-  required?: boolean;
-  exibirTooltip?: boolean;
   selectProps?: SelectProps;
-  idProposta: any;
+  idProposta: number;
+  formItemProps?: FormItemProps;
 };
 
 const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
-  required = true,
-  exibirTooltip = true,
   selectProps,
   idProposta,
+  formItemProps,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
@@ -37,22 +34,15 @@ const SelectTurmaEncontros: React.FC<SelectTurmaEncontrosProps> = ({
     obterDados();
   }, []);
 
-  const iconTooltip = exibirTooltip ? (
-    <Tooltip>
-      <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
-    </Tooltip>
-  ) : (
-    <></>
-  );
   return (
     <Form.Item
       label='Turma'
       name='turmas'
-      rules={[{ required: required, message: 'Selecione uma Turma' }]}
-      tooltip={{
-        title: 'Você deve informar a Quantidade de turmas, na sessão de Informações gerais',
-        icon: iconTooltip,
-      }}
+      rules={[{ required: !!formItemProps?.required || true, message: 'Selecione uma Turma' }]}
+      tooltip={getTooltipFormInfoCircleFilled(
+        'Você deve informar a Quantidade de turmas, na sessão de Informações gerais',
+      )}
+      {...formItemProps}
     >
       <Select
         allowClear

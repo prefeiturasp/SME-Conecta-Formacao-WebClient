@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Spin from '~/components/main/spin';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { onClickVoltar } from '~/core/utils/form';
 import { validarAutenticacao } from '~/core/utils/perfil';
 
 const LoginAutomatico = () => {
@@ -45,8 +46,6 @@ const LoginAutomatico = () => {
     if (token) validarToken();
   }, [token, validarToken]);
 
-  const onClickVoltar = () => navigate(ROUTES.LOGIN);
-
   if (!validandoToken && !tokenValido)
     return (
       <Result
@@ -57,7 +56,7 @@ const LoginAutomatico = () => {
             type='default'
             block
             style={{ fontWeight: 700 }}
-            onClick={() => onClickVoltar()}
+            onClick={() => onClickVoltar({ navigate, route: ROUTES.LOGIN })}
             id={CF_BUTTON_VOLTAR}
           >
             Voltar
