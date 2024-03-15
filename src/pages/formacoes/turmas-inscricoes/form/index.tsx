@@ -35,7 +35,10 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
   const inscriacaoState = location?.state;
   const formacaoNome = inscriacaoState?.nomeFormacao ? `- ${inscriacaoState?.nomeFormacao}` : '';
-
+  const URL_ROUTE_VOLTAR = `${ROUTES.FORMACAOES_INSCRICOES_EDITAR}/${id}`;
+  const devolverStateNoVoltarESalvar = {
+    state: location.state,
+  };
   const salvar = (params: InscricaoManualDTO) => {
     const newParams = {
       ...params,
@@ -49,9 +52,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
           description: 'Inscrição manual realizada com sucesso!',
         });
 
-        navigate(`${ROUTES.FORMACAOES_INSCRICOES}/editar/${id}`, {
-          state: location.state,
-        });
+        navigate(URL_ROUTE_VOLTAR, devolverStateNoVoltarESalvar);
       }
     });
   };
@@ -88,7 +89,8 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                     onClickVoltar({
                       form,
                       navigate,
-                      route: ROUTES.FORMACAOES_INSCRICOES,
+                      route: URL_ROUTE_VOLTAR,
+                      paramsRoute: devolverStateNoVoltarESalvar,
                     })
                   }
                   id={CF_BUTTON_VOLTAR}

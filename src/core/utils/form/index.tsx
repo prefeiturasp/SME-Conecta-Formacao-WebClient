@@ -1,5 +1,5 @@
 import { FormInstance } from 'antd';
-import { NavigateFunction } from 'react-router-dom';
+import { NavigateFunction, Params } from 'react-router-dom';
 import {
   DESEJA_CANCELAR_ALTERACOES,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -11,6 +11,7 @@ type FunctionProps = {
   mensagem?: string;
   form?: FormInstance;
   navigate?: NavigateFunction;
+  paramsRoute?: Params;
 };
 
 export const onClickCancelar = ({ form, mensagem }: FunctionProps): void => {
@@ -24,7 +25,13 @@ export const onClickCancelar = ({ form, mensagem }: FunctionProps): void => {
   }
 };
 
-export const onClickVoltar = ({ form, route, navigate, mensagem }: FunctionProps): void => {
+export const onClickVoltar = ({
+  form,
+  route,
+  navigate,
+  mensagem,
+  paramsRoute,
+}: FunctionProps): void => {
   if (navigate && route) {
     if (form?.isFieldsTouched()) {
       confirmacao({
@@ -37,7 +44,7 @@ export const onClickVoltar = ({ form, route, navigate, mensagem }: FunctionProps
         },
       });
     } else {
-      navigate(route);
+      navigate(route, paramsRoute);
     }
   }
 };

@@ -18,6 +18,10 @@ export enum ROUTES {
   AREA_PUBLICA_VISUALIZAR_FORMACAO = '/area-publica/visualizar/:id',
   INSCRICAO = '/inscricao',
   FORMACAOES_INSCRICOES = '/formacoes/inscricoes',
-  FORMACAOES_INSCRICOES_EDITAR = '/formacoes/inscricoes/editar/:id',
-  FORMACAOES_INSCRICOES_NOVO = '/formacoes/inscricoes/novo/:id',
+  FORMACAOES_INSCRICOES_EDITAR = '/formacoes/inscricoes/editar',
+  FORMACAOES_INSCRICOES_EDITAR_ID = '/formacoes/inscricoes/editar/:id',
+  FORMACAOES_INSCRICOES_NOVO = '/formacoes/inscricoes/novo',
+  FORMACAOES_INSCRICOES_NOVO_ID = '/formacoes/inscricoes/novo/:id',
+  FORMACAOES_INSCRICOES_POR_ARQUIVO = '/formacoes/inscricoes/arquivo',
+  FORMACAOES_INSCRICOES_POR_ARQUIVO_ID = '/formacoes/inscricoes/arquivo/:id',
 }

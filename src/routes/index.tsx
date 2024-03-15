@@ -19,6 +19,7 @@ import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
 import { FormCadastrosInscricoesManuais } from '~/pages/formacoes/turmas-inscricoes/form';
+import { InscricoesPorArquivoListagem } from '~/pages/formacoes/turmas-inscricoes/listagem-arquivos';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
@@ -118,14 +119,20 @@ const RoutesConfig = () => {
                   </Route>
                   <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
                     <Route
-                      path={ROUTES.FORMACAOES_INSCRICOES_EDITAR}
+                      path={ROUTES.FORMACAOES_INSCRICOES_EDITAR_ID}
                       element={<TurmasInscricoes />}
                     />
                   </Route>
                   <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
                     <Route
-                      path={ROUTES.FORMACAOES_INSCRICOES_NOVO}
+                      path={ROUTES.FORMACAOES_INSCRICOES_NOVO_ID}
                       element={<FormCadastrosInscricoesManuais />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                    <Route
+                      path={ROUTES.FORMACAOES_INSCRICOES_POR_ARQUIVO_ID}
+                      element={<InscricoesPorArquivoListagem />}
                     />
                   </Route>
                 </Route>

@@ -1,4 +1,4 @@
-import { Button, Col, Form, Row, Typography, Upload } from 'antd';
+import { Button, Col, Form, Row, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -35,6 +35,9 @@ export const TurmasInscricoes = () => {
   const id = params.id;
 
   const nomeFormacao = location?.state?.nomeFormacao;
+  const paramsRoute = {
+    state: location.state,
+  };
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
@@ -43,10 +46,10 @@ export const TurmasInscricoes = () => {
     registroFuncional: null,
   });
 
-  const onClickNovo = () =>
-    navigate(`${ROUTES.FORMACAOES_INSCRICOES}/novo/${id}`, {
-      state: location.state,
-    });
+  const onClickNovo = () => navigate(`${ROUTES.FORMACAOES_INSCRICOES_NOVO}/${id}`, paramsRoute);
+
+  const onInscricaoPorArquivo = () =>
+    navigate(`${ROUTES.FORMACAOES_INSCRICOES_POR_ARQUIVO}/${id}`, paramsRoute);
 
   useEffect(() => {
     form.resetFields();
@@ -74,17 +77,16 @@ export const TurmasInscricoes = () => {
                 />
               </Col>
               <Col>
-                <Upload fileList={[]}>
-                  <Button
-                    block
-                    type='default'
-                    htmlType='submit'
-                    id={CF_BUTTON_ARQUIVO}
-                    style={{ fontWeight: 700 }}
-                  >
-                    Inscrição por arquivo
-                  </Button>
-                </Upload>
+                <Button
+                  block
+                  type='default'
+                  htmlType='submit'
+                  id={CF_BUTTON_ARQUIVO}
+                  onClick={onInscricaoPorArquivo}
+                  style={{ fontWeight: 700 }}
+                >
+                  Inscrição por arquivo
+                </Button>
               </Col>
               <Col>
                 <Button
@@ -92,7 +94,7 @@ export const TurmasInscricoes = () => {
                   type='primary'
                   htmlType='submit'
                   id={CF_BUTTON_NOVO}
-                  onClick={() => onClickNovo()}
+                  onClick={onClickNovo}
                   style={{ fontWeight: 700 }}
                 >
                   {NOVA_INSCRICAO}
