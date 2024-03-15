@@ -101,6 +101,9 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                       existeValoresSelecionados(false);
                       definiOutrosCamposComoRequerido(true);
                       const modalidadeValor = form.getFieldValue('modalidade');
+                      const componentecurricularValor =
+                        form.getFieldValue('componentesCurriculares');
+                      const anoturmaValor = form.getFieldValue('anosTurmas');
                       if (modalidadeValor == undefined) {
                         form.setFields([
                           {
@@ -109,16 +112,22 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                           },
                         ]);
                       }
-                      form.setFields([
-                        {
-                          name: 'componentesCurriculares',
-                          errors: [COMPONENTE_NAO_INFORMADO],
-                        },
-                        {
-                          name: 'anosTurmas',
-                          errors: [ANO_ETAPA_NAO_INFORMADO],
-                        },
-                      ]);
+                      if (componentecurricularValor == undefined) {
+                        form.setFields([
+                          {
+                            name: 'componentesCurriculares',
+                            errors: [COMPONENTE_NAO_INFORMADO],
+                          },
+                        ]);
+                      }
+                      if (anoturmaValor == undefined) {
+                        form.setFields([
+                          {
+                            name: 'anosTurmas',
+                            errors: [ANO_ETAPA_NAO_INFORMADO],
+                          },
+                        ]);
+                      }
                     }
                     const values = validarOnChangeMultiSelectOutros(value, funcoesEspecificas);
                     form.setFieldValue('funcoesEspecificas', values);
