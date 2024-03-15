@@ -66,7 +66,7 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({
     <Form.Item
       label='Ano/Etapa'
       name='anosTurmas'
-      rules={[{ required: campoRequerido }]}
+      rules={[{ required: campoRequerido, message: 'É necessário informar Ano/Etapa' }]}
       normalize={(value: number[], prevValue: number[]) => {
         if (exibirOpcaoTodos) {
           const opcaoTodos = options.find((item) => !!item.todos);

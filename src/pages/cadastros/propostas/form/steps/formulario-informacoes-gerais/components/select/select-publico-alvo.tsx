@@ -151,6 +151,9 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
                       existeValoresSelecionados(false);
                       definiOutrosCamposComoRequerido(true);
                       const modalidadeValor = form.getFieldValue('modalidade');
+                      const componentecurricularValor =
+                        form.getFieldValue('componentesCurriculares');
+                      const anoturmaValor = form.getFieldValue('anosTurmas');
                       if (modalidadeValor == undefined) {
                         form.setFields([
                           {
@@ -159,16 +162,22 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
                           },
                         ]);
                       }
-                      form.setFields([
-                        {
-                          name: 'componentesCurriculares',
-                          errors: [COMPONENTE_NAO_INFORMADO],
-                        },
-                        {
-                          name: 'anosTurmas',
-                          errors: [ANO_ETAPA_NAO_INFORMADO],
-                        },
-                      ]);
+                      if (componentecurricularValor == undefined) {
+                        form.setFields([
+                          {
+                            name: 'componentesCurriculares',
+                            errors: [COMPONENTE_NAO_INFORMADO],
+                          },
+                        ]);
+                      }
+                      if (anoturmaValor == undefined) {
+                        form.setFields([
+                          {
+                            name: 'anosTurmas',
+                            errors: [ANO_ETAPA_NAO_INFORMADO],
+                          },
+                        ]);
+                      }
                     }
                   }}
                   {...selectProps}
