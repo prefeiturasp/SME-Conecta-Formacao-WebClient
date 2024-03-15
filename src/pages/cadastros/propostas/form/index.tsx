@@ -172,6 +172,7 @@ const FormCadastroDePropostas: React.FC = () => {
       cursoComCertificado: false,
       acaoInformativa: false,
       nomeSituacao: SituacaoPropostaTagDisplay[SituacaoProposta.Rascunho],
+      desativarAnoEhComponente: false,
     };
 
     setListaDres(listaDres);
@@ -184,7 +185,6 @@ const FormCadastroDePropostas: React.FC = () => {
     setLoading(true);
     const resposta = await obterPropostaPorId(id);
     const dados = resposta.dados;
-
     if (resposta.sucesso) {
       const retornolistaDres = await obterDREs(true);
 
@@ -304,7 +304,7 @@ const FormCadastroDePropostas: React.FC = () => {
       }
 
       const quantidadeTurmasOriginal = dados?.quantidadeTurmas;
-
+      const desativarAnoEhComponente = dados?.desativarAnoEhComponente;
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
@@ -323,6 +323,7 @@ const FormCadastroDePropostas: React.FC = () => {
         criterioCertificacao,
         tiposInscricao,
         quantidadeTurmasOriginal,
+        desativarAnoEhComponente,
       };
 
       setListaDres(listaDres);
@@ -434,6 +435,7 @@ const FormCadastroDePropostas: React.FC = () => {
       anosTurmas: [],
       componentesCurriculares: [],
       integrarNoSGA: clonedValues?.integrarNoSGA,
+      desativarAnoEhComponente: clonedValues?.desativarAnoEhComponente,
     };
 
     if (clonedValues?.dres?.length) {
