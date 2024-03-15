@@ -2,6 +2,7 @@ import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/list
 import { CursistaDTO } from '../dto/cursista-dto';
 import { DadosInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
+import { InscricaoManualDTO } from '../dto/inscricao-manual-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
@@ -10,6 +11,10 @@ export const URL_INSCRICAO = 'v1/Inscricao';
 
 const inserirInscricao = (params: InscricaoDTO) => {
   return inserirRegistro(URL_INSCRICAO, params);
+};
+
+const inserirInscricaoManual = (params: InscricaoManualDTO) => {
+  return inserirRegistro(`${URL_INSCRICAO}/manual`, params);
 };
 
 const obterDadosInscricao = () => {
@@ -39,6 +44,7 @@ const obterTiposInscricao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
 export {
   cancelarInscricao,
   inserirInscricao,
+  inserirInscricaoManual,
   obterDadosInscricao,
   obterInscricao,
   obterRfCpf,

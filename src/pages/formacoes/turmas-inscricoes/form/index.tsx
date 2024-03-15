@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
+import { notification } from '~/components/lib/notification';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputCPF from '~/components/main/input/cpf';
 import InputRegistroFuncional from '~/components/main/input/input-registro-funcional';
@@ -17,8 +18,9 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import { RF_NAO_INFORMADO } from '~/core/constants/mensagens';
+import { InscricaoManualDTO } from '~/core/dto/inscricao-manual-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { obterRfCpf } from '~/core/services/inscricao-service';
+import { inserirInscricaoManual, obterRfCpf } from '~/core/services/inscricao-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 
@@ -28,23 +30,36 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
   const location = useLocation();
   const paramsRoute = useParams();
 
-  const profissionalRedeMunicipalWatch = useWatch('profissionalRedeMunicipal', form);
+  const profissionalRedeWatch = useWatch('profissionalRede', form);
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
   const inscriacaoState = location?.state;
   const formacaoNome = inscriacaoState?.nomeFormacao ? `- ${inscriacaoState?.nomeFormacao}` : '';
 
-  const salvar = async () => {
-    form.validateFields().then(() => {
-      alert('salvar');
+  const salvar = (params: InscricaoManualDTO) => {
+    const newParams = {
+      ...params,
+      cpf: removerTudoQueNaoEhDigito(params.cpf),
+    };
+
+    inserirInscricaoManual(newParams).then((resposta) => {
+      if (resposta.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Inscrição manual realizada com sucesso!',
+        });
+
+        navigate(`${ROUTES.FORMACAOES_INSCRICOES}/editar/${id}`, {
+          state: location.state,
+        });
+      }
     });
   };
 
   const buscarRfCPF = (rfCpf?: string) => {
     if (!rfCpf) return;
 
-    const rfCpfSemCaracteres = removerTudoQueNaoEhDigito(rfCpf);
-    obterRfCpf(rfCpfSemCaracteres).then((resposta) => {
+    obterRfCpf(removerTudoQueNaoEhDigito(rfCpf)).then((resposta) => {
       if (resposta.sucesso) {
         const dados = resposta.dados;
 
@@ -56,11 +71,14 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
 
   useEffect(() => {
     form.resetFields(['nome', 'cpf', 'registroFuncional']);
-  }, [profissionalRedeMunicipalWatch]);
+    form.setFieldValue('cpf', '');
+    form.setFieldValue('nome', '');
+    form.setFieldValue('registroFuncional', '');
+  }, [profissionalRedeWatch]);
 
   return (
     <Col>
-      <Form form={form} layout='vertical' autoComplete='off' onFinish={salvar}>
+      <Form form={form} layout='vertical' autoComplete='off'>
         <HeaderPage title={`Inscrição Manual ${formacaoNome}`}>
           <Col span={24}>
             <Row gutter={[8, 8]}>
@@ -82,7 +100,6 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                     <Button
                       block
                       type='default'
-                      htmlType='submit'
                       id={CF_BUTTON_CANCELAR}
                       onClick={() => onClickCancelar({ form })}
                       disabled={!form.isFieldsTouched()}
@@ -97,9 +114,11 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                 <Button
                   block
                   type='primary'
-                  htmlType='submit'
                   id={CF_BUTTON_NOVO}
                   style={{ fontWeight: 700 }}
+                  onClick={() => {
+                    form.validateFields().then(salvar);
+                  }}
                 >
                   Salvar
                 </Button>
@@ -114,13 +133,13 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                 <SelectTurmaEncontros
                   idProposta={id}
                   selectProps={{ mode: undefined }}
-                  formItemProps={{ tooltip: false }}
+                  formItemProps={{ tooltip: false, name: 'propostaTurmaId' }}
                 />
               </Col>
               <Col xs={12} sm={6} md={8}>
                 <RadioSimNao
                   formItemProps={{
-                    name: 'profissionalRedeMunicipal',
+                    name: 'profissionalRede',
                     label: 'Profissional da rede municipal',
                   }}
                 />
@@ -129,13 +148,16 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                 <InputRegistroFuncional
                   habilitarInputSearch
                   formItemProps={{
-                    rules: [
-                      { required: profissionalRedeMunicipalWatch, message: RF_NAO_INFORMADO },
-                    ],
+                    rules: [{ required: profissionalRedeWatch, message: RF_NAO_INFORMADO }],
                   }}
                   inputProps={{
                     onSearch: buscarRfCPF,
-                    disabled: !profissionalRedeMunicipalWatch,
+                    disabled: !profissionalRedeWatch,
+                    onChange: (e) => {
+                      if (!e.target.value.length) {
+                        form.resetFields(['nome', 'cpf']);
+                      }
+                    },
                   }}
                 />
               </Col>
@@ -143,21 +165,19 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                 <InputCPF
                   habilitarInputSearch
                   formItemProps={{
-                    required: !profissionalRedeMunicipalWatch,
+                    required: !profissionalRedeWatch,
                   }}
                   inputProps={{
                     onSearch: buscarRfCPF,
-                    disabled:
-                      profissionalRedeMunicipalWatch ||
-                      profissionalRedeMunicipalWatch === undefined,
+                    disabled: profissionalRedeWatch || profissionalRedeWatch === undefined,
                   }}
                 />
               </Col>
               <Col xs={24} sm={12} md={8}>
                 <InputTexto
                   formItemProps={{
-                    label: 'Nome',
                     name: 'nome',
+                    label: 'Nome',
                   }}
                   inputProps={{
                     disabled: true,
