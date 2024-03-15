@@ -5,6 +5,8 @@ import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
 import { notification } from '~/components/lib/notification';
 import {
+  CANCELAR_INSCRICAO,
+  DESEJA_CANCELAR_INSCRICAO,
   DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
   DESEJA_CANCELAR_INSCRICAO_CURSISTA,
 } from '~/core/constants/mensagens';
@@ -32,6 +34,18 @@ export const MinhasInscricoesListaPaginada = () => {
 
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
+  const mensagemConfirmacao = (record: InscricaoProps) => {
+    if (record.integrarNoSga && record.iniciado && ehCursista) {
+      return DESEJA_CANCELAR_INSCRICAO_CURSISTA;
+    } else if (record.integrarNoSga && record.iniciado && !ehCursista) {
+      return DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA;
+    } else if (!record.integrarNoSga && !record.iniciado && !ehCursista) {
+      return CANCELAR_INSCRICAO;
+    } else {
+      return DESEJA_CANCELAR_INSCRICAO;
+    }
+  };
+
   const columns: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '6%' },
     { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '30%' },
@@ -47,10 +61,7 @@ export const MinhasInscricoesListaPaginada = () => {
       render: (_, record) => {
         const cancelar = async () => {
           confirmacao({
-            content:
-              record.integrarNoSga && record.iniciado && ehCursista
-                ? DESEJA_CANCELAR_INSCRICAO_CURSISTA
-                : DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
+            content: mensagemConfirmacao(record),
             onOk: async () => {
               const response = await cancelarInscricao(record.id);
               if (response.sucesso) {
