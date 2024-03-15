@@ -61,8 +61,22 @@ const Login = () => {
   const exibirInputAlterarEmail = () => {
     setInformarEmail(true);
   };
+  const validarEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const reEspacos = /\s/;
+    const reAcentos = /[áàãâéèêíïóôõöúçñÁÀÃÂÉÈÊÍÏÓÔÕÖÚÇÑ]/;
+
+    return !reEspacos.test(email) && !reAcentos.test(email) && re.test(email);
+  };
   const onClickEsqueciSenha = () => navigate(ROUTES.REDEFINIR_SENHA, { state: login });
   const alterarEmail: SearchProps['onSearch'] = (value, _e) => {
+    if (!validarEmail(value)) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'O e-mail não é válido.',
+      });
+      return;
+    }
     dispatch(setSpinning(true));
     if (value) {
       setInformarEmail(false);
@@ -71,19 +85,27 @@ const Login = () => {
         .alterarEmailDeValidacao({ login: login, senha: senha, email: value })
         .then((resposta) => {
           if (resposta?.status === HttpStatusCode.Ok) {
+            dispatch(setSpinning(false));
             notification.success({
               message: 'Sucesso',
               description: 'E-mail alterado com sucesso!',
             });
           }
+        })
+        .catch((error: AxiosError<RetornoBaseDTO>) => {
+          dispatch(setSpinning(false));
+          notification.warning({
+            message: 'Atenção',
+            description: error?.response?.data?.mensagens,
+          });
         });
     } else {
+      dispatch(setSpinning(false));
       notification.warning({
         message: 'Atenção',
         description: 'Informe um e-mail!',
       });
     }
-    dispatch(setSpinning(false));
   };
   const validarExibirErros = (erro: RetornoBaseDTO | undefined) => {
     if (erro?.status === HttpStatusCode.Unauthorized) {
@@ -179,6 +201,7 @@ const Login = () => {
           <Button
             key={CF_BUTTON_REENVIAR_EMAIL}
             type='default'
+            disabled={informarEmail}
             style={{
               color: Colors.SystemSME.ConectaFormacao.PRIMARY,
               border: `1px solid ${Colors.SystemSME.ConectaFormacao.PRIMARY}`,
@@ -204,6 +227,7 @@ const Login = () => {
           <Button
             key={CF_BUTTON_ALTERAR_EMAIL}
             type='text'
+            disabled={informarEmail}
             onClick={exibirInputAlterarEmail}
             style={{
               color: Colors.Neutral.DARK,
