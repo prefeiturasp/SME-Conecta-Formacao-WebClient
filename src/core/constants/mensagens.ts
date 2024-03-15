@@ -60,9 +60,9 @@ export const ENVIAR_INSCRICAO = 'Enviar inscrição';
 export const NOVA_INSCRICAO = 'Nova inscrição';
 export const DESEJA_CANCELAR_INSCRICAO = 'Você realmente deseja cancelar essa inscrição?';
 export const DESEJA_CANCELAR_INSCRICAO_CURSISTA =
-  'Ao cancelar a sua inscrição você será removido da turma no SGA e seu progresso (presença e ativididades) será descartado. Deseja realmente cancelar a inscrição?';
+  'Ao cancelar a sua inscrição você será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
 export const DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA =
-  'Ao cancelar a inscrição o cursista será removido da turma no SGA e seu progresso (presença e ativididades) será descartado. Deseja realmente cancelar a inscrição?';
+  'Ao cancelar a inscrição o cursista será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
 export const CANCELAR_INSCRICAO =
   'Ao cancelar a inscrição o cursista perderá acesso a formação. Deseja realmente cancelar?';
 export const SAIBA_MAIS = 'Saiba mais';
