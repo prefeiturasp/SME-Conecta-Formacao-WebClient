@@ -7,12 +7,7 @@ import Select from '~/components/lib/inputs/select';
 import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import { CF_INPUT_PUBLICO_ALVO_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_PUBLICO_ALVO } from '~/core/constants/ids/select';
-import {
-  ANO_ETAPA_NAO_INFORMADO,
-  COMPONENTE_NAO_INFORMADO,
-  MODALIDADE_NAO_INFORMADA,
-  PUBLICO_ALVO_NAO_INFORMADO,
-} from '~/core/constants/mensagens';
+import { PUBLICO_ALVO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
 
 type SelectPublicoAlvoProps = {
@@ -150,34 +145,6 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
                     } else {
                       existeValoresSelecionados(false);
                       definiOutrosCamposComoRequerido(true);
-                      const modalidadeValor = form.getFieldValue('modalidade');
-                      const componentecurricularValor =
-                        form.getFieldValue('componentesCurriculares');
-                      const anoturmaValor = form.getFieldValue('anosTurmas');
-                      if (modalidadeValor == undefined) {
-                        form.setFields([
-                          {
-                            name: 'modalidade',
-                            errors: [MODALIDADE_NAO_INFORMADA],
-                          },
-                        ]);
-                      }
-                      if (componentecurricularValor == undefined) {
-                        form.setFields([
-                          {
-                            name: 'componentesCurriculares',
-                            errors: [COMPONENTE_NAO_INFORMADO],
-                          },
-                        ]);
-                      }
-                      if (anoturmaValor == undefined) {
-                        form.setFields([
-                          {
-                            name: 'anosTurmas',
-                            errors: [ANO_ETAPA_NAO_INFORMADO],
-                          },
-                        ]);
-                      }
                     }
                   }}
                   {...selectProps}

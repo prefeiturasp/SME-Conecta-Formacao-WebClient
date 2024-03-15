@@ -176,7 +176,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       <Col span={24}>
         <SelectModalidade
-          campoRequerido={requeridoQuandoSelecionarFuncao || requeridoQuandoSelecionarPublicoAlvo}
+          campoRequerido={requeridoQuandoSelecionarFuncao && requeridoQuandoSelecionarPublicoAlvo}
         />
       </Col>
 

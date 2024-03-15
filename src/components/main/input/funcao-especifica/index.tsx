@@ -5,11 +5,6 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_FUNCAO_ESPECIFICA_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_FUNCAO_ESPECIFICA } from '~/core/constants/ids/select';
-import {
-  ANO_ETAPA_NAO_INFORMADO,
-  COMPONENTE_NAO_INFORMADO,
-  MODALIDADE_NAO_INFORMADA,
-} from '~/core/constants/mensagens';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { validarOnChangeMultiSelectOutros } from '~/core/utils/functions';
 
@@ -100,34 +95,6 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                     } else {
                       existeValoresSelecionados(false);
                       definiOutrosCamposComoRequerido(true);
-                      const modalidadeValor = form.getFieldValue('modalidade');
-                      const componentecurricularValor =
-                        form.getFieldValue('componentesCurriculares');
-                      const anoturmaValor = form.getFieldValue('anosTurmas');
-                      if (modalidadeValor == undefined) {
-                        form.setFields([
-                          {
-                            name: 'modalidade',
-                            errors: [MODALIDADE_NAO_INFORMADA],
-                          },
-                        ]);
-                      }
-                      if (componentecurricularValor == undefined) {
-                        form.setFields([
-                          {
-                            name: 'componentesCurriculares',
-                            errors: [COMPONENTE_NAO_INFORMADO],
-                          },
-                        ]);
-                      }
-                      if (anoturmaValor == undefined) {
-                        form.setFields([
-                          {
-                            name: 'anosTurmas',
-                            errors: [ANO_ETAPA_NAO_INFORMADO],
-                          },
-                        ]);
-                      }
                     }
                     const values = validarOnChangeMultiSelectOutros(value, funcoesEspecificas);
                     form.setFieldValue('funcoesEspecificas', values);
