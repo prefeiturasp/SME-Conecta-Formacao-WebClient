@@ -7,9 +7,7 @@ import { DataTableContext } from '~/components/lib/card-table/provider';
 import { notification } from '~/components/lib/notification';
 import {
   CANCELAR_INSCRICAO,
-  DESEJA_CANCELAR_INSCRICAO,
   DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
-  DESEJA_CANCELAR_INSCRICAO_CURSISTA,
 } from '~/core/constants/mensagens';
 import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situacao-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
