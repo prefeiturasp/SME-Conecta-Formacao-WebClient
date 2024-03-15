@@ -57,6 +57,7 @@ const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
       rules={[
         {
           required: campoRequerido,
+          message: 'É necessário informar o componente curricular',
         },
       ]}
       normalize={(value: number[], prevValue: number[]) => {
