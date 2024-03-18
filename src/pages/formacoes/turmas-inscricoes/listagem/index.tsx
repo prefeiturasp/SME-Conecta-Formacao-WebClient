@@ -1,6 +1,6 @@
 import { Button } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
