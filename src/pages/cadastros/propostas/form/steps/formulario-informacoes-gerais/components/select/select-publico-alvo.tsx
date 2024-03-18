@@ -144,7 +144,7 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
                         form.setFieldValue('publicoAlvoOutros', undefined);
                     } else {
                       existeValoresSelecionados(false);
-                      definiOutrosCamposComoRequerido(true);
+                      definiOutrosCamposComoRequerido(false);
                     }
                   }}
                   {...selectProps}
