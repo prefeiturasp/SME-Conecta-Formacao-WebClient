@@ -1,6 +1,6 @@
 import { Button } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
@@ -19,6 +19,7 @@ import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 interface TurmasInscricoesListaPaginadaProps {
   filters?: FiltroTurmaInscricoesProps;
   realizouFiltro?: boolean;
+  alterarRealizouFiltro: (valor: boolean) => void;
 }
 
 export interface TurmaInscricaoProps {
@@ -37,6 +38,7 @@ export interface TurmaInscricaoProps {
 export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPaginadaProps> = ({
   filters,
   realizouFiltro,
+  alterarRealizouFiltro,
 }) => {
   const params = useParams();
   const id = params.id;
@@ -101,6 +103,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
       columns={columns}
       filters={filters}
       realizouFiltro={realizouFiltro}
+      alterarRealizouFiltro={alterarRealizouFiltro}
     />
   );
 };
