@@ -9,7 +9,6 @@ import api from '~/core/services/api';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { openNotificationErrors } from '../notification';
 import { DataTableContext } from './provider';
-import { ConsoleSqlOutlined } from '@ant-design/icons';
 
 interface TableParams {
   pagination?: TablePaginationConfig;
