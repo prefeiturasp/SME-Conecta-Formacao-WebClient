@@ -9,6 +9,7 @@ import api from '~/core/services/api';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { openNotificationErrors } from '../notification';
 import { DataTableContext } from './provider';
+import { ConsoleSqlOutlined } from '@ant-design/icons';
 
 interface TableParams {
   pagination?: TablePaginationConfig;
@@ -68,7 +69,8 @@ const DataTable = <T extends object>({
         .then((response) => {
           if (response?.data.items) {
             if (newParams?.pagination?.current)
-              newParams.pagination.current = realizouFiltro ? 1 : newParams.pagination?.current;
+              if (newParams?.pagination?.current == 1)
+                newParams.pagination.current = realizouFiltro ? 1 : newParams.pagination?.current;
             setData(response.data.items);
             setTableParams({
               ...newParams,
