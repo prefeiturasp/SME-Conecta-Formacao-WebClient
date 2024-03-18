@@ -47,7 +47,17 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
       { title: 'Quantidade de inscrições', dataIndex: 'quantidadeInscricoes' },
     ];
 
-    return <DataTable dataSource={record.turmas} columns={columns} />;
+    return (
+      <DataTable
+        dataSource={record.turmas}
+        columns={columns}
+        alterarRealizouFiltro={() => {
+          () => {
+            ('');
+          };
+        }}
+      />
+    );
   };
 
   return (
@@ -55,6 +65,11 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
       url='v1/Inscricao/formacao-turmas'
       filters={filters}
       realizouFiltro={realizouFiltro}
+      alterarRealizouFiltro={() => {
+        () => {
+          ('');
+        };
+      }}
       columns={columns}
       expandable={{
         expandedRowRender,

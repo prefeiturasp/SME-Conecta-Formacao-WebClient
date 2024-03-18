@@ -85,5 +85,15 @@ export const MinhasInscricoesListaPaginada = () => {
     },
   ];
 
-  return <DataTable url={URL_INSCRICAO} columns={columns} />;
+  return (
+    <DataTable
+      url={URL_INSCRICAO}
+      columns={columns}
+      alterarRealizouFiltro={() => {
+        () => {
+          ('');
+        };
+      }}
+    />
+  );
 };

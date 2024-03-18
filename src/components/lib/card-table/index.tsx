@@ -17,12 +17,14 @@ interface TableParams {
 type DataTableProps<T> = {
   filters?: any;
   realizouFiltro?: boolean;
+  alterarRealizouFiltro: (valor: boolean) => void;
   url?: string;
 } & TableProps<T>;
 
 const DataTable = <T extends object>({
   filters,
   realizouFiltro,
+  alterarRealizouFiltro,
   url,
   columns,
   ...rest
@@ -31,7 +33,6 @@ const DataTable = <T extends object>({
 
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
-  const [clicouNumeroPagina, setClicouNumeroPagina] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
@@ -51,7 +52,7 @@ const DataTable = <T extends object>({
       api
         .get<PaginacaoResultadoDTO<T[]>>(url, {
           headers: {
-            numeroPagina: !clicouNumeroPagina && realizouFiltro ? 1 : newParams.pagination?.current,
+            numeroPagina: realizouFiltro ? 1 : newParams.pagination?.current,
             numeroRegistros: newParams.pagination?.pageSize,
           },
           params: filters,
@@ -66,6 +67,8 @@ const DataTable = <T extends object>({
         })
         .then((response) => {
           if (response?.data.items) {
+            if (newParams?.pagination?.current)
+              newParams.pagination.current = realizouFiltro ? 1 : newParams.pagination?.current;
             setData(response.data.items);
             setTableParams({
               ...newParams,
@@ -85,10 +88,9 @@ const DataTable = <T extends object>({
         })
         .finally(() => {
           setLoading(false);
-          setClicouNumeroPagina(true);
         });
     },
-    [url, filters, clicouNumeroPagina, realizouFiltro],
+    [url, filters, realizouFiltro],
   );
 
   useEffect(() => {
@@ -101,7 +103,7 @@ const DataTable = <T extends object>({
   }, [JSON.stringify(filters), fetchData]);
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    setClicouNumeroPagina(true);
+    alterarRealizouFiltro(false);
     const newParams = {
       ...tableParams,
       pagination,
