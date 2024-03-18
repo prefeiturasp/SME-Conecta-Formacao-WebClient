@@ -31,6 +31,7 @@ const DataTable = <T extends object>({
 
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
+  const [clicouNumeroPagina, setClicouNumeroPagina] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
@@ -46,12 +47,11 @@ const DataTable = <T extends object>({
   const fetchData = useCallback(
     (newParams: TableParams) => {
       if (!url) return;
-
       setLoading(true);
       api
         .get<PaginacaoResultadoDTO<T[]>>(url, {
           headers: {
-            numeroPagina: realizouFiltro ? 1 : newParams.pagination?.current,
+            numeroPagina: !clicouNumeroPagina && realizouFiltro ? 1 : newParams.pagination?.current,
             numeroRegistros: newParams.pagination?.pageSize,
           },
           params: filters,
@@ -83,9 +83,12 @@ const DataTable = <T extends object>({
 
           openNotificationErrors(mensagens);
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          setLoading(false);
+          setClicouNumeroPagina(true);
+        });
     },
-    [url, filters],
+    [url, filters, clicouNumeroPagina, realizouFiltro],
   );
 
   useEffect(() => {
@@ -98,6 +101,7 @@ const DataTable = <T extends object>({
   }, [JSON.stringify(filters), fetchData]);
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
+    setClicouNumeroPagina(true);
     const newParams = {
       ...tableParams,
       pagination,
