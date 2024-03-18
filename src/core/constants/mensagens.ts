@@ -60,6 +60,8 @@ export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
 export const ENVIAR_INSCRICAO = 'Enviar inscrição';
 export const NOVA_INSCRICAO = 'Nova inscrição';
 export const DESEJA_CANCELAR_INSCRICAO = 'Você realmente deseja cancelar essa inscrição?';
+export const DESEJA_CANCELAR_PROCESSAMENTO_ARQUIVO =
+  'Você realmente deseja cancelar o processamento da inscrição?';
 export const CANCELAR_INSCRICAO =
   'Ao cancelar a inscrição o cursista perderá acesso a formação. Deseja realmente cancelar?';
 export const SAIBA_MAIS = 'Saiba mais';

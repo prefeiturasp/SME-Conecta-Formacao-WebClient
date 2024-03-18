@@ -1,4 +1,5 @@
-import { inserirRegistro } from './api';
+import { RegistroDaInscricaoInsconsistenteDTO } from '../dto/registros-inconsistencias-dto';
+import { deletarRegistro, inserirRegistro, obterRegistro } from './api';
 
 export const URL_IMPORTACAO_ARQUIVO = 'v1/ImportacaoArquivo';
 
@@ -17,4 +18,20 @@ const importarArquivoInscricaoCursista = (file: File, propostaId: number) => {
   );
 };
 
-export default { importarArquivoInscricaoCursista };
+const buscarInconsistencias = (propostaId: number) =>
+  obterRegistro<RegistroDaInscricaoInsconsistenteDTO[]>(
+    `${URL_IMPORTACAO_ARQUIVO}/${propostaId}/registros-inconsistencia`,
+  );
+
+const continuarProcessamento = (arquivoImportacaoId: number) =>
+  inserirRegistro<boolean>(`${URL_IMPORTACAO_ARQUIVO}/${arquivoImportacaoId}/continuar`);
+
+const cancelarProcessamento = (arquivoImportacaoId: number) =>
+  deletarRegistro(`${URL_IMPORTACAO_ARQUIVO}/${arquivoImportacaoId}/cancelar`);
+
+export default {
+  importarArquivoInscricaoCursista,
+  continuarProcessamento,
+  cancelarProcessamento,
+  buscarInconsistencias,
+};
