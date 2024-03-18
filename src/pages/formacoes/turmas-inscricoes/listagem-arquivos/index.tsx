@@ -1,7 +1,7 @@
 import { Col, Drawer, Form, Progress, ProgressProps, Row, Space, Typography, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { FaUpload } from 'react-icons/fa';
 import { LuRefreshCw } from 'react-icons/lu';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -31,25 +31,42 @@ import {
 } from '~/core/enum/situacao-importacao-arquivo-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import importacaoArquivoService from '~/core/services/importacao-arquivo-service';
+import { Colors } from '~/core/styles/colors';
 import { onClickVoltar } from '~/core/utils/form';
+
+interface OptionsProps {
+  onSuccess: () => void;
+  file: File;
+}
+
+const progressColor: ProgressProps['strokeColor'] = {
+  '0%': Colors.SystemSME.ConectaFormacao.PRIMARY,
+  '100%': Colors.SystemSME.ConectaFormacao.PRIMARY,
+};
+
+const CustomTypography = (value: string) => (
+  <Typography style={{ cursor: 'pointer' }}>{value}</Typography>
+);
 
 const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
   {
     key: 'arquivo',
     title: 'Arquivo',
     dataIndex: 'nome',
+    render: (value) => CustomTypography(value),
   },
   {
     key: 'status',
     title: 'Status',
     dataIndex: 'situacao',
     render: (situacao: SituacaoImportacaoArquivoEnum) =>
-      SituacaoImportacaoArquivoEnumDisplay[situacao],
+      CustomTypography(SituacaoImportacaoArquivoEnumDisplay[situacao]),
   },
   {
     key: 'totalRegistros',
     title: 'Total Registros',
     dataIndex: 'totalRegistros',
+    render: (value) => CustomTypography(value),
   },
   {
     key: 'totalProcessados',
@@ -57,21 +74,39 @@ const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
     dataIndex: 'totalProcessados',
     render: (_, linha) => {
       let status: ProgressProps['status'] = undefined;
+      let percent = (linha.totalRegistros / linha.totalProcessados) * 100;
 
       if (linha.situacao === SituacaoImportacaoArquivoEnum.Validando) {
         status = 'active';
+      }
+
+      if (linha.situacao === SituacaoImportacaoArquivoEnum.Cancelado) {
+        status = 'exception';
       }
 
       if (linha.totalProcessados === 100) {
         status = undefined;
       }
 
-      return <Progress percent={linha.totalProcessados} size='small' status={status} />;
+      return (
+        <Progress
+          size='small'
+          status={status}
+          percent={percent}
+          strokeColor={progressColor}
+          style={{ cursor: 'pointer' }}
+        />
+      );
     },
   },
 ];
 
 const columnsInconsistencias: ColumnsType<RegistroDaInscricaoInsconsistenteDTO> = [
+  {
+    key: 'linha',
+    title: 'Linha',
+    dataIndex: 'linha',
+  },
   {
     key: 'turma',
     title: 'Turma',
@@ -109,11 +144,13 @@ export const InscricoesPorArquivoListagem = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
+  const { tableState } = useContext(DataTableContext);
 
   const propostaId = params.id ? Number(params.id) : 0;
   const nomeFormacao = location?.state?.nomeFormacao;
 
   const [linhaId, setLinhaId] = useState<number>();
+  const [situacao, setSituacao] = useState<number>();
   const [abrirModal, setAbrirModal] = useState<boolean>(false);
   const [abrirDrawer, setAbrirDrawer] = useState<boolean>(false);
   const [dataSourceInconsistencias, setDataSourceInconsistencias] =
@@ -124,25 +161,31 @@ export const InscricoesPorArquivoListagem = () => {
   };
 
   const onClickEditar = async (linha: ArquivoInscricaoImportadoDTO) => {
-    if (!propostaId) return;
+    if (linha.situacao !== SituacaoImportacaoArquivoEnum.Validado) return;
 
     setLinhaId(linha.id);
-    const resposta = await importacaoArquivoService.buscarInconsistencias(propostaId);
-    if (resposta.sucesso) {
-      if (resposta.dados.length) {
-        setDataSourceInconsistencias(resposta.dados);
-        if (linha.situacao === SituacaoImportacaoArquivoEnum.Validado) {
-          setAbrirDrawer(true);
-        }
 
-        setAbrirDrawer(true);
+    const resposta = await importacaoArquivoService.buscarInconsistencias(linha.id);
+
+    if (resposta.sucesso) {
+      if (resposta.dados?.items.length) {
+        setDataSourceInconsistencias(resposta.dados.items);
+        if (
+          linha.situacao === SituacaoImportacaoArquivoEnum.Validado ||
+          linha.situacao === SituacaoImportacaoArquivoEnum.Cancelado
+        ) {
+          setAbrirDrawer(true);
+          setSituacao(linha.situacao);
+        }
       } else {
-        setAbrirModal(true);
+        if (linha.situacao === SituacaoImportacaoArquivoEnum.Validado) {
+          setAbrirModal(true);
+        }
       }
     }
   };
 
-  const customRequest = useCallback(async (options: any, tableState: any) => {
+  const customRequest = useCallback(async (options: OptionsProps) => {
     const { onSuccess, file } = options;
 
     const resposta = await importacaoArquivoService.importarArquivoInscricaoCursista(
@@ -181,10 +224,17 @@ export const InscricoesPorArquivoListagem = () => {
     confirmacao({
       content: DESEJA_CANCELAR_PROCESSAMENTO_ARQUIVO,
       onOk() {
-        importacaoArquivoService.cancelarProcessamento(linhaId);
+        importacaoArquivoService.cancelarProcessamento(linhaId).then(() => {
+          setAbrirDrawer(false);
+          setAbrirModal(false);
+        });
       },
     });
   };
+
+  useEffect(() => {
+    tableState.reloadData();
+  }, [continuarProcessamento, cancelarProcessamento]);
 
   return (
     <DataTableContextProvider>
@@ -210,11 +260,11 @@ export const InscricoesPorArquivoListagem = () => {
                     <>
                       <Col>
                         <ButtonSecundary
+                          id={CF_BUTTON_ATUALIZAR_DADOS}
                           icon={<LuRefreshCw size={16} />}
                           onClick={() => {
                             tableState.reloadData();
                           }}
-                          id={CF_BUTTON_ATUALIZAR_DADOS}
                         >
                           Atualizar dados
                         </ButtonSecundary>
@@ -222,7 +272,7 @@ export const InscricoesPorArquivoListagem = () => {
                       <Col>
                         <Upload
                           name='file'
-                          customRequest={(options: any) => customRequest(options, tableState)}
+                          customRequest={(options: any) => customRequest(options)}
                           fileList={[]}
                         >
                           <ButtonSecundary icon={<FaUpload size={16} />} id={CF_BUTTON_ARQUIVO}>
@@ -265,13 +315,18 @@ export const InscricoesPorArquivoListagem = () => {
                         block
                         type='default'
                         id={CF_BUTTON_MODAL_CANCELAR}
-                        onClick={cancelarProcessamento}
+                        onClick={() => cancelarProcessamento()}
                         style={{ fontWeight: 700 }}
+                        disabled={situacao !== SituacaoImportacaoArquivoEnum.Validado}
                       >
                         Cancelar
                       </ButtonSecundary>
 
-                      <ButtonPrimary type='primary' onClick={() => continuarProcessamento}>
+                      <ButtonPrimary
+                        type='primary'
+                        onClick={() => continuarProcessamento()}
+                        disabled={situacao !== SituacaoImportacaoArquivoEnum.Validado}
+                      >
                         Continuar
                       </ButtonPrimary>
                     </Space>
@@ -280,6 +335,7 @@ export const InscricoesPorArquivoListagem = () => {
                   <DataTable
                     columns={columnsInconsistencias}
                     dataSource={dataSourceInconsistencias}
+                    url={`v1/ImportacaoArquivo/${linhaId}/registros-inconsistencia`}
                   />
                 </Drawer>
               )}
@@ -291,8 +347,8 @@ export const InscricoesPorArquivoListagem = () => {
                   centered
                   destroyOnClose
                   okText='Continuar'
-                  onOk={continuarProcessamento}
-                  onCancel={() => setAbrirModal(false)}
+                  onOk={() => continuarProcessamento()}
+                  onCancel={() => cancelarProcessamento()}
                 >
                   <Typography.Text style={{ fontSize: 16 }}>
                     Os registros foram validados e estão prontos para processamento. Por favor,
