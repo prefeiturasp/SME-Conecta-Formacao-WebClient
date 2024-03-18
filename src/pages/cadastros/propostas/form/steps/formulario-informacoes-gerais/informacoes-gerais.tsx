@@ -2,7 +2,7 @@ import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, Input, Row, Tooltip } from 'antd';
 
 import jwt_decode from 'jwt-decode';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import SelectAnoEtapa from '~/components/main/input/ano-etapa';
 import SelectComponenteCurricular from '~/components/main/input/componente-curricular';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
@@ -45,12 +45,16 @@ type FormInformacoesGeraisProps = {
   listaDres: any[];
   tipoInstituicao?: AreaPromotoraTipoEnum;
   formInitialValues?: PropostaFormDTO;
+  existePublicoAlvo: boolean;
+  existeFuncaoEspecifica: boolean;
 };
 
 const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   listaDres,
   tipoInstituicao,
   formInitialValues,
+  existePublicoAlvo,
+  existeFuncaoEspecifica,
 }) => {
   const form = Form.useFormInstance();
 
@@ -68,6 +72,15 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   const temDreVinculada =
     typeof dresVinculadas === 'string' ||
     (Array.isArray(dresVinculadas) && dresVinculadas.length > 0);
+
+  useEffect(() => {
+    if (existePublicoAlvo) {
+      setPublicoAlvoSelecionado(true);
+    }
+    if (existeFuncaoEspecifica) {
+      setCargoFuncaoSelecionado(true);
+    }
+  }, [existePublicoAlvo, existeFuncaoEspecifica]);
 
   return (
     <Row gutter={[16, 8]}>

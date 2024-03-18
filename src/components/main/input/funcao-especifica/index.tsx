@@ -94,7 +94,7 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                       ]);
                     } else {
                       existeValoresSelecionados(false);
-                      definiOutrosCamposComoRequerido(true);
+                      definiOutrosCamposComoRequerido(false);
                     }
                     const values = validarOnChangeMultiSelectOutros(value, funcoesEspecificas);
                     form.setFieldValue('funcoesEspecificas', values);

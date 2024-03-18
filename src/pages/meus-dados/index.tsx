@@ -78,7 +78,6 @@ const MeusDados: React.FC = () => {
 
   useEffect(() => {
     obterDados();
-    console.log(meusDados);
   }, [obterDados]);
 
   return (

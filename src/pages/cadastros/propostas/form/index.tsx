@@ -74,6 +74,8 @@ const FormCadastroDePropostas: React.FC = () => {
   const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
 
   const [openModalErros, setOpenModalErros] = useState(false);
+  const [existePublicoAlvo, setExistePublicoAlvo] = useState(false);
+  const [existeFuncaoEspecifica, setFuncaoEspecifica] = useState(false);
   const [recarregarTurmas, setRecarregarTurmas] = useState(false);
   const [listaErros, setListaErros] = useState<string[]>([]);
 
@@ -244,11 +246,13 @@ const FormCadastroDePropostas: React.FC = () => {
 
       let publicosAlvo: number[] = [];
       if (dados?.publicosAlvo?.length) {
+        setExistePublicoAlvo(true);
         publicosAlvo = dados.publicosAlvo.map((item) => item.cargoFuncaoId);
       }
 
       let funcoesEspecificas: number[] = [];
       if (dados?.funcoesEspecificas?.length) {
+        setFuncaoEspecifica(true);
         funcoesEspecificas = dados.funcoesEspecificas.map((item) => item.cargoFuncaoId);
       }
 
@@ -615,6 +619,8 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormInformacoesGerais
             formInitialValues={formInitialValues}
             listaDres={listaDres}
+            existePublicoAlvo={existePublicoAlvo}
+            existeFuncaoEspecifica={existeFuncaoEspecifica}
             tipoInstituicao={tipoInstituicao}
           />
         </Form.Item>
