@@ -17,6 +17,7 @@ import { CF_INPUT_NOME, CF_INPUT_NOME_FORMACAO, CF_INPUT_RF } from '~/core/const
 import { NOVA_INSCRICAO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { onClickVoltar } from '~/core/utils/form';
 import { TurmasInscricoesListaPaginada } from './listagem';
 
@@ -31,10 +32,13 @@ export const TurmasInscricoes = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const location = useLocation();
+
   const params = useParams();
   const id = params.id;
 
   const nomeFormacao = location?.state?.nomeFormacao;
+  const temTipoInscricaoManual = location.state.tiposInscricoes.includes(TipoInscricao.Manual);
+
   const paramsRoute = {
     state: location.state,
   };
@@ -76,18 +80,20 @@ export const TurmasInscricoes = () => {
                   id={CF_BUTTON_VOLTAR}
                 />
               </Col>
-              <Col>
-                <Button
-                  block
-                  type='default'
-                  htmlType='submit'
-                  id={CF_BUTTON_ARQUIVO}
-                  onClick={onInscricaoPorArquivo}
-                  style={{ fontWeight: 700 }}
-                >
-                  Inscrição por arquivo
-                </Button>
-              </Col>
+              {temTipoInscricaoManual && (
+                <Col>
+                  <Button
+                    block
+                    type='default'
+                    htmlType='submit'
+                    id={CF_BUTTON_ARQUIVO}
+                    onClick={onInscricaoPorArquivo}
+                    style={{ fontWeight: 700 }}
+                  >
+                    Inscrição por arquivo
+                  </Button>
+                </Col>
+              )}
               <Col>
                 <Button
                   block

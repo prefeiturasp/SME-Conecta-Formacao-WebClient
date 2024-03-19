@@ -1,7 +1,7 @@
 import { Col, Drawer, Form, Progress, ProgressProps, Row, Space, Typography, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { FaUpload } from 'react-icons/fa';
 import { LuRefreshCw } from 'react-icons/lu';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -44,29 +44,35 @@ const progressColor: ProgressProps['strokeColor'] = {
   '100%': Colors.SystemSME.ConectaFormacao.PRIMARY,
 };
 
-const CustomTypography = (value: string) => (
-  <Typography style={{ cursor: 'pointer' }}>{value}</Typography>
-);
+const CustomTypography = (value: string, linha: ArquivoInscricaoImportadoDTO) => {
+  const statusEhValidado = linha.situacao === SituacaoImportacaoArquivoEnum.Validado;
+  const statusEhCancelado = linha.situacao === SituacaoImportacaoArquivoEnum.Cancelado;
+  return (
+    <Typography style={{ cursor: statusEhValidado || statusEhCancelado ? 'pointer' : 'default' }}>
+      {value}
+    </Typography>
+  );
+};
 
 const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
   {
     key: 'arquivo',
     title: 'Arquivo',
     dataIndex: 'nome',
-    render: (value) => CustomTypography(value),
+    render: (value, linha) => CustomTypography(value, linha),
   },
   {
     key: 'status',
     title: 'Status',
     dataIndex: 'situacao',
-    render: (situacao: SituacaoImportacaoArquivoEnum) =>
-      CustomTypography(SituacaoImportacaoArquivoEnumDisplay[situacao]),
+    render: (situacao: SituacaoImportacaoArquivoEnum, linha) =>
+      CustomTypography(SituacaoImportacaoArquivoEnumDisplay[situacao], linha),
   },
   {
     key: 'totalRegistros',
     title: 'Total Registros',
     dataIndex: 'totalRegistros',
-    render: (value) => CustomTypography(value),
+    render: (value, linha) => CustomTypography(value, linha),
   },
   {
     key: 'totalProcessados',
@@ -75,12 +81,15 @@ const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
     render: (_, linha) => {
       let status: ProgressProps['status'] = undefined;
       let percent = (linha.totalRegistros / linha.totalProcessados) * 100;
+      const statusEhValidado = linha.situacao === SituacaoImportacaoArquivoEnum.Validado;
+      const statusEhValidando = linha.situacao === SituacaoImportacaoArquivoEnum.Validando;
+      const statusEhCancelado = linha.situacao === SituacaoImportacaoArquivoEnum.Cancelado;
 
-      if (linha.situacao === SituacaoImportacaoArquivoEnum.Validando) {
+      if (statusEhValidando) {
         status = 'active';
       }
 
-      if (linha.situacao === SituacaoImportacaoArquivoEnum.Cancelado) {
+      if (statusEhCancelado) {
         status = 'exception';
       }
 
@@ -94,7 +103,7 @@ const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
           status={status}
           percent={percent}
           strokeColor={progressColor}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: statusEhValidado || statusEhCancelado ? 'pointer' : 'default' }}
         />
       );
     },
@@ -141,10 +150,9 @@ const columnsInconsistencias: ColumnsType<RegistroDaInscricaoInsconsistenteDTO> 
 
 export const InscricoesPorArquivoListagem = () => {
   const [form] = useForm();
+  const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useParams();
-  const { tableState } = useContext(DataTableContext);
 
   const propostaId = params.id ? Number(params.id) : 0;
   const nomeFormacao = location?.state?.nomeFormacao;
@@ -185,7 +193,7 @@ export const InscricoesPorArquivoListagem = () => {
     }
   };
 
-  const customRequest = useCallback(async (options: OptionsProps) => {
+  const customRequest = useCallback(async (options: OptionsProps, tableState: any) => {
     const { onSuccess, file } = options;
 
     const resposta = await importacaoArquivoService.importarArquivoInscricaoCursista(
@@ -194,6 +202,11 @@ export const InscricoesPorArquivoListagem = () => {
     );
 
     if (resposta.sucesso) {
+      notification.success({
+        message: 'Sucesso',
+        description: 'Arquivo importado com sucesso',
+      });
+
       tableState.reloadData();
       onSuccess();
     }
@@ -212,9 +225,6 @@ export const InscricoesPorArquivoListagem = () => {
         setAbrirModal(false);
         setAbrirDrawer(false);
       }
-
-      setAbrirModal(false);
-      setAbrirDrawer(false);
     });
   };
 
@@ -231,10 +241,6 @@ export const InscricoesPorArquivoListagem = () => {
       },
     });
   };
-
-  useEffect(() => {
-    tableState.reloadData();
-  }, [continuarProcessamento, cancelarProcessamento]);
 
   return (
     <DataTableContextProvider>
@@ -272,7 +278,7 @@ export const InscricoesPorArquivoListagem = () => {
                       <Col>
                         <Upload
                           name='file'
-                          customRequest={(options: any) => customRequest(options)}
+                          customRequest={(options: any) => customRequest(options, tableState)}
                           fileList={[]}
                         >
                           <ButtonSecundary icon={<FaUpload size={16} />} id={CF_BUTTON_ARQUIVO}>
