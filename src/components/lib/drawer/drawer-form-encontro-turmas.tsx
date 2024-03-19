@@ -7,8 +7,8 @@ import { useParams } from 'react-router-dom';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import DatePickerMultiplos from '~/components/main/input/data-lista';
+import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
-import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CF_BUTTON_EXCLUIR } from '~/core/constants/ids/button/intex';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -209,8 +209,9 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
             <Col span={24}>
               <Row gutter={[16, 8]}>
                 <Col xs={24}>
-                  <SelectTurmaEncontros
+                  <SelectTodasTurmas
                     idProposta={propostaId}
+                    exibirTooltip={false}
                     selectProps={{ onChange: validarAlteracaoEmCampos }}
                   />
                 </Col>

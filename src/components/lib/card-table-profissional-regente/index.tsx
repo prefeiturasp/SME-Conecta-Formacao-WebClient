@@ -5,6 +5,7 @@ import api from '~/core/services/api';
 import { PaginacaoResultadoDTO } from '~/core/dto/paginacao-resultado-dto';
 import queryString from 'query-string';
 import { PropostaRegenteDTO } from '~/core/dto/proposta-regente-dto';
+import { formatterCPFMask } from '~/core/utils/functions';
 interface TableParams {
   pagination?: TablePaginationConfig;
 }
@@ -49,6 +50,18 @@ const DataTableProfissionalRegente = forwardRef(
         })
         .then((response) => {
           if (response?.data.items) {
+            for (let index = 0; index < response.data.items.length; index++) {
+              const nomeSeparados = response.data.items[index].nomesTurmas.split(',');
+              const totalNome = nomeSeparados.length - 12;
+              const nomeComSlice = nomeSeparados.slice(0, 12);
+
+              if (totalNome > 0) nomeComSlice.push(` + ${totalNome} Turmas`);
+              const nomesJoin = nomeComSlice.join(',');
+              response.data.items[index].nomesTurmas = nomesJoin;
+              response.data.items[index].cpf = response.data.items[index].cpf
+                ? formatterCPFMask(response.data.items[index].cpf)
+                : '';
+            }
             setData(response.data.items);
             setTableParams({
               ...tableParams,

@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { CadastroUsuarioDTO } from '../dto/cadastro-usuario-dto';
+import { CadastroUsuarioDTO, RetornoCadastroUsuarioDTO } from '../dto/cadastro-usuario-dto';
 import { DadosUsuarioDTO } from '../dto/dados-usuario-dto';
 import { RecuperacaoSenhaDTO } from '../dto/recuperacao-senha-dto';
 import { RetornoPerfilUsuarioDTO } from '../dto/retorno-perfil-usuario-dto';
@@ -10,6 +10,9 @@ const URL_DEFAULT = 'v1/usuario';
 
 const obterMeusDados = (login: string): Promise<AxiosResponse<DadosUsuarioDTO>> =>
   api.get(`${URL_DEFAULT}/${login}`);
+
+const alterarNome = (login: string, nome: string): Promise<AxiosResponse<boolean>> =>
+  api.put(`${URL_DEFAULT}/${login}/nome`, { nome });
 
 const alterarEmail = (login: string, email: string): Promise<AxiosResponse<boolean>> =>
   api.put(`${URL_DEFAULT}/${login}/email`, { email });
@@ -29,7 +32,7 @@ const tokenRecuperacaoSenhaEstaValido = (token: string): Promise<AxiosResponse<b
   api.get(`${URL_DEFAULT}/valida-token-recuperacao-senha/${token}`);
 
 const cadastrarUsuarioExterno = (login: CadastroUsuarioDTO) =>
-  inserirRegistro<CadastroUsuarioDTO>(URL_DEFAULT, { ...login });
+  inserirRegistro<RetornoCadastroUsuarioDTO>(URL_DEFAULT, { ...login });
 
 const validaEmailToken = (token: string) =>
   obterRegistro<RetornoPerfilUsuarioDTO>(`${URL_DEFAULT}/validar-email/${token}`);
@@ -40,6 +43,7 @@ export default {
   obterMeusDados,
   alterarEmail,
   alterarSenha,
+  alterarNome,
   validaEmailToken,
   reenviarEmail,
   solicitarRecuperacaoSenha,

@@ -18,11 +18,7 @@ import {
   CF_INPUT_SENHA,
   CF_INPUT_UE,
 } from '~/core/constants/ids/input';
-import {
-  CADASTRO_ENVIADO,
-  ENVIAR_EMAIL_PARA_VALIDACAO,
-  ERRO_CADASTRO_USUARIO,
-} from '~/core/constants/mensagens';
+import { ERRO_CADASTRO_USUARIO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { CadastroUsuarioFormDTO } from '~/core/dto/cadastro-usuario-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
@@ -30,7 +26,7 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { confirmacao, sucesso } from '~/core/services/alerta-service';
+import { sucesso } from '~/core/services/alerta-service';
 import funcionarioExternoService from '~/core/services/funcionario-externo-service';
 import usuarioService from '~/core/services/usuario-service';
 import { onClickVoltar } from '~/core/utils/form';
@@ -90,8 +86,8 @@ export const CadastroDeUsuario = () => {
 
         form.setFieldsValue({
           nomePessoa: data?.nomePessoa,
-          codigoUnidade: data?.codigoUnidade,
-          nomeUnidade: data?.nomeUnidade,
+          codigoUnidade: data?.codigoUE,
+          nomeUnidade: data?.nomeUe,
           ues: temApenasUmaUE ? data?.ues[0].id : [],
         });
 
@@ -103,38 +99,28 @@ export const CadastroDeUsuario = () => {
   const onFinish = (values: CadastroUsuarioFormDTO) => {
     dispatch(setSpinning(true));
 
-    confirmacao({
-      content: ENVIAR_EMAIL_PARA_VALIDACAO,
-      okText: 'Continuar',
-      onOk() {
-        usuarioService
-          .cadastrarUsuarioExterno({
-            cpf: values.cpf,
-            nome: values.nomePessoa,
-            email: values.email,
-            codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
-            senha: values.senha,
-            confirmarSenha: values.confirmarSenha,
-          })
-          .then((resposta) => {
-            if (resposta.dados) {
-              sucesso({
-                content: CADASTRO_ENVIADO,
-                okText: 'Continuar',
-                onOk() {
-                  navigate(ROUTES.LOGIN);
-                },
-              });
-            }
-          })
-          .catch(validarExibirErros)
-          .finally(() => dispatch(setSpinning(false)));
-      },
-      cancelText: 'Cancelar',
-      onCancel() {
-        dispatch(setSpinning(false));
-      },
-    });
+    usuarioService
+      .cadastrarUsuarioExterno({
+        cpf: values.cpf,
+        nome: values.nomePessoa,
+        email: values.email,
+        codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
+        senha: values.senha,
+        confirmarSenha: values.confirmarSenha,
+      })
+      .then((resposta) => {
+        if (resposta.dados) {
+          sucesso({
+            content: resposta.dados.mensagem,
+            okText: 'Continuar',
+            onOk() {
+              navigate(ROUTES.LOGIN);
+            },
+          });
+        }
+      })
+      .catch(validarExibirErros)
+      .finally(() => dispatch(setSpinning(false)));
   };
 
   const validateNameAndSurname = (_rule: any, value: string) => {

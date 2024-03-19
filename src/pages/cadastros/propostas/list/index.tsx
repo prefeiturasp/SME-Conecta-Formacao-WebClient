@@ -36,6 +36,7 @@ type FilterStateProps = {
 
 const ListCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
+  const [realizouFiltro, setRealizouFiltro] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -61,7 +62,6 @@ const ListCadastroDePropostas: React.FC = () => {
       situacao: null,
     },
   );
-
   const columns: ColumnsType<PropostaPaginadaDTO> = [
     {
       key: 'tipoFormacao',
@@ -114,6 +114,7 @@ const ListCadastroDePropostas: React.FC = () => {
     navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${id}`, { replace: true });
 
   const obterFiltros = useCallback(() => {
+    setRealizouFiltro(true);
     const dataInicio =
       form?.getFieldValue('periodoRealizacao') != undefined
         ? form?.getFieldValue('periodoRealizacao')[0]
@@ -123,16 +124,40 @@ const ListCadastroDePropostas: React.FC = () => {
         ? form?.getFieldValue('periodoRealizacao')[1]
         : null;
 
+    const numeroHomologacao = form.getFieldValue('numeroHomologacao');
+    const areaPromotoraId = form.getFieldValue('areaPromotoraId');
+    const formato = form.getFieldValue('formato');
+    const nomeFormacao = form.getFieldValue('nomeFormacao');
+    const codigoFormacao = form.getFieldValue('codigoFormacao');
+    const periodoRealizacaoInicio = dataInicio;
+    const publicoAlvoIds = form.getFieldValue('publicosAlvo');
+    const periodoRealizacaoFim = dataFim;
+    const situacao = form.getFieldValue('situacao');
+
+    if (
+      !numeroHomologacao &&
+      !areaPromotoraId &&
+      !formato &&
+      !nomeFormacao &&
+      !codigoFormacao &&
+      !periodoRealizacaoInicio &&
+      !publicoAlvoIds &&
+      !periodoRealizacaoFim &&
+      !situacao
+    ) {
+      setRealizouFiltro(false);
+    }
+
     setFilters({
-      numeroHomologacao: form.getFieldValue('numeroHomologacao'),
-      areaPromotoraId: form.getFieldValue('areaPromotoraId'),
-      formato: form.getFieldValue('formato'),
-      nomeFormacao: form.getFieldValue('nomeFormacao'),
-      id: form.getFieldValue('codigoFormacao'),
-      periodoRealizacaoInicio: dataInicio,
-      publicoAlvoIds: form.getFieldValue('publicosAlvo'),
-      periodoRealizacaoFim: dataFim,
-      situacao: form.getFieldValue('situacao'),
+      numeroHomologacao: numeroHomologacao,
+      areaPromotoraId: areaPromotoraId,
+      formato: formato,
+      nomeFormacao: nomeFormacao,
+      id: codigoFormacao,
+      periodoRealizacaoInicio: periodoRealizacaoInicio,
+      publicoAlvoIds: publicoAlvoIds,
+      periodoRealizacaoFim: periodoRealizacaoFim,
+      situacao: situacao,
     });
   }, [filters]);
 
@@ -145,13 +170,16 @@ const ListCadastroDePropostas: React.FC = () => {
       pubicoAlvo: [],
     };
     setFormInitialValues(valoreIniciais);
+    setRealizouFiltro(false);
   };
 
   useEffect(() => {
+    setRealizouFiltro(false);
     carregarValoresDefault();
   }, [form]);
 
   useEffect(() => {
+    setRealizouFiltro(false);
     if (filtroDaURL) {
       let periodoRealizacao: Dayjs[] | null;
       const {
@@ -317,6 +345,7 @@ const ListCadastroDePropostas: React.FC = () => {
                   <Col span={24}>
                     <DataTable
                       url={url}
+                      realizouFiltro={realizouFiltro}
                       filters={filters}
                       columns={columns}
                       onRow={(row) => ({

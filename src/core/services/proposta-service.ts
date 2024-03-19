@@ -7,6 +7,7 @@ import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
 import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
+import { RetornoDTO } from '../dto/retorno-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import {
@@ -39,8 +40,10 @@ const obterSituacoes = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
 const obterRoteiroPropostaFormativa = (): Promise<ApiResult<RetornoListagemDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/roteiro`);
 
-const obterDadosCadastrante = (): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
-  obterRegistro(`${URL_API_PROPOSTA}/informacoes-cadastrante`);
+const obterDadosCadastrante = (
+  propostaId?: number,
+): Promise<ApiResult<PropostaInformacoesCadastranteDTO>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/informacoes-cadastrante`, { params: { propostaId } });
 
 const obterComunicadoAcaoInformatica = (
   id: number | string,
@@ -53,15 +56,11 @@ const obterTipoFormacao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
 const obterTipoInscricao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-inscricao`);
 
-const inserirProposta = (params: PropostaDTO): Promise<ApiResult<number>> =>
-  inserirRegistro<number>(URL_API_PROPOSTA, params);
+const inserirProposta = (params: PropostaDTO) =>
+  inserirRegistro<RetornoDTO>(URL_API_PROPOSTA, params);
 
-const alterarProposta = (
-  id: string | number,
-  params: PropostaDTO,
-  mostrarNotificacao: boolean,
-): Promise<ApiResult<PropostaDTO>> =>
-  alterarRegistro<PropostaDTO>(`${URL_API_PROPOSTA}/${id}`, params, mostrarNotificacao);
+const alterarProposta = (id: string | number, params: PropostaDTO, mostrarNotificacao: boolean) =>
+  alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/${id}`, params, mostrarNotificacao);
 
 const enviarPropostaAnalise = (
   id: string | number,

@@ -6,6 +6,7 @@ import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
+import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import {
@@ -23,7 +24,7 @@ import { TurmasInscricoesListaPaginada } from './listagem';
 
 export interface FiltroTurmaInscricoesProps {
   cpf: number | null;
-  nomeTurma: string | null;
+  turmaId: number | null;
   nomeCursista: string | null;
   registroFuncional: number | null;
 }
@@ -34,7 +35,7 @@ export const TurmasInscricoes = () => {
   const location = useLocation();
 
   const params = useParams();
-  const id = params.id;
+  const id = params.id ? parseInt(params?.id) : 0;
 
   const nomeFormacao = location?.state?.nomeFormacao;
   const temTipoInscricaoManual = location.state.tiposInscricoes.includes(TipoInscricao.Manual);
@@ -43,9 +44,11 @@ export const TurmasInscricoes = () => {
     state: location.state,
   };
 
+  const [realizouFiltro, setRealizouFiltro] = useState(false);
+
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
-    nomeTurma: null,
+    turmaId: null,
     nomeCursista: null,
     registroFuncional: null,
   });
@@ -60,11 +63,19 @@ export const TurmasInscricoes = () => {
   }, [form]);
 
   const obterFiltros = () => {
+    setRealizouFiltro(true);
+    const cpf = form.getFieldValue('cpf');
+    const turmaId = form.getFieldValue('turmaId');
+    const nomeCursista = form.getFieldValue('nomeCursista');
+    const registroFuncional = form.getFieldValue('registroFuncional');
+    if (!cpf && !turmaId && !nomeCursista && !registroFuncional) {
+      setRealizouFiltro(false);
+    }
     setFilters({
-      cpf: form.getFieldValue('cpf'),
-      nomeTurma: form.getFieldValue('nomeTurma'),
-      nomeCursista: form.getFieldValue('nomeCursista'),
-      registroFuncional: form.getFieldValue('registroFuncional'),
+      cpf: cpf,
+      turmaId: turmaId,
+      nomeCursista: nomeCursista,
+      registroFuncional: registroFuncional,
     });
   };
 
@@ -117,17 +128,15 @@ export const TurmasInscricoes = () => {
           <Col span={24}>
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={6}>
-                <InputTexto
+                <SelectTurmaEncontros
+                  idProposta={id}
+                  selectProps={{ onChange: obterFiltros, mode: undefined }}
                   formItemProps={{
                     label: 'Turma',
-                    name: 'nomeTurma',
+                    name: 'turmaId',
                     style: { fontWeight: 'bold' },
                     rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    onChange: obterFiltros,
-                    placeholder: 'Turma',
-                    id: CF_INPUT_NOME,
+                    tooltip: false,
                   }}
                 />
               </Col>
@@ -143,7 +152,6 @@ export const TurmasInscricoes = () => {
                   inputProps={{
                     id: CF_INPUT_RF,
                     onChange: obterFiltros,
-                    style: { fontWeight: 'bold' },
                     placeholder: 'Registro Funcional',
                   }}
                 />
@@ -186,7 +194,10 @@ export const TurmasInscricoes = () => {
                   Listagem de inscrições por turma
                 </Typography>
                 <DataTableContextProvider>
-                  <TurmasInscricoesListaPaginada filters={filters} />
+                  <TurmasInscricoesListaPaginada
+                    filters={filters}
+                    realizouFiltro={realizouFiltro}
+                  />
                 </DataTableContextProvider>
               </Col>
             </Row>

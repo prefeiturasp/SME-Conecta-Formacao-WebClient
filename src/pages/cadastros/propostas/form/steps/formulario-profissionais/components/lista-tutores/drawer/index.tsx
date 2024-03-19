@@ -6,7 +6,7 @@ import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import InputRegistroFuncionalNome from '~/components/main/input/input-registro-funcional-nome';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
-import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
+import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 import { CF_BUTTON_EXCLUIR, CF_BUTTON_MODAL_CANCELAR } from '~/core/constants/ids/button/intex';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -17,7 +17,10 @@ import {
   obterPropostaTutorPorId,
   salvarPropostaProfissionalTutor,
 } from '~/core/services/proposta-service';
+
 import { onClickCancelar } from '~/core/utils/form';
+import { formatterCPFMask } from '~/core/utils/functions';
+
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerTutorProps = {
@@ -89,7 +92,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
         if (response.dados?.turmas?.length) {
           response.dados.turmas = response.dados.turmas.map((item) => item?.turmaId);
         }
-
+        if (response.dados.cpf) response.dados.cpf = formatterCPFMask(response.dados.cpf);
         setFormInitialValues({ ...response.dados });
 
         return;
@@ -171,6 +174,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                         formDrawer.resetFields(['registroFuncional', 'nomeTutor']);
                         formDrawer.setFieldValue('registroFuncional', '');
                         formDrawer.setFieldValue('nomeTutor', '');
+                        formDrawer.setFieldValue('cpf', '');
                       },
                     }}
                   />
@@ -184,6 +188,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                       return (
                         <Row gutter={[16, 8]}>
                           <InputRegistroFuncionalNome
+                            exibirCpf={!ehRedeMunicipal}
                             formItemPropsRF={{ rules: [{ required: rfEhObrigatorio }] }}
                             formItemPropsNome={{
                               rules: [{ required: desabilitarCampos || !rfEhObrigatorio }],
@@ -209,10 +214,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                   </Form.Item>
                 </Col>
                 <Col xs={24}>
-                  <SelectTurmaEncontros
-                    idProposta={propostaId}
-                    formItemProps={{ tooltip: false }}
-                  />
+                  <SelectTodasTurmas idProposta={propostaId} exibirTooltip={false} />
                 </Col>
               </Row>
             </Col>

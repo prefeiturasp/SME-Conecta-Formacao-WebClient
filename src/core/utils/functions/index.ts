@@ -47,6 +47,13 @@ export const validarOnChangeMultiSelectUnico = (valoresNovos: any, valoreAtuais:
   return valorParaSetar.map((item) => item?.value);
 };
 
+export const formatterCPFMask = (value: string | number | undefined) =>
+  `${value}`
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+    .replace(/(-\d{2})\d+?$/, '$1');
+
 export const onchangeMultiSelectOpcaoTodos = (
   valores: any[],
   valorAtual: any[],

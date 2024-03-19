@@ -16,6 +16,7 @@ import { SelectDRE } from '~/components/main/input/dre';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
+import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -39,7 +40,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   let inputNode = <Input />;
 
   if (dataIndex === 'dres') {
-    const options = cloneDeep(listaDres)?.filter((dre: DreDTO) => !dre.todos);
+    const options = cloneDeep(listaDres);
 
     inputNode = (
       <SelectDRE
@@ -64,11 +65,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       />
     );
   } else if (dataIndex === 'nome') {
-    inputNode = (
-      <Input
-        maxLength={200} 
-      />
-    );
+    inputNode = <Input maxLength={200} />;
   }
 
   return (
@@ -100,8 +97,11 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [formRow] = Form.useForm();
   const formProposta = Form.useFormInstance();
 
+  const situacaoProposta = formProposta.getFieldValue('situacao');
+
   const { desabilitarCampos } = useContext(PermissaoContext);
 
+  const quantidadeTurmasOriginal = formProposta.getFieldValue('quantidadeTurmasOriginal');
   const quantidadeTurmas = Form.useWatch('quantidadeTurmas', formProposta);
   const dresWatch = Form.useWatch('dres', formProposta);
 
@@ -109,7 +109,6 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   const [editInValues, setEditInValues] = useState<PropostaTurmaFormDTO>();
 
   const newDresTurmas: DreDTO[] = dresWatch?.length ? dresWatch : [];
-  const temOpcaoTodas = newDresTurmas.find((dre) => dre?.todos);
 
   const isEditing = (record: PropostaTurmaFormDTO) => record.key === editingKey;
 
@@ -120,22 +119,42 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
 
   useEffect(() => {
     const quantidadeTurmasEmEdicao = formProposta.isFieldTouched('quantidadeTurmas');
+
     if (quantidadeTurmasEmEdicao) {
       if (quantidadeTurmas) {
-        const originData: PropostaTurmaFormDTO[] = [];
-        const dres = formProposta.getFieldValue('dres');
+        const currentTurmas: PropostaTurmaFormDTO[] = formProposta.getFieldValue('turmas') || [];
+        const novaQuantidade = Number(quantidadeTurmas);
+        const currentLength = currentTurmas?.length;
 
-        for (let i = 0; i < quantidadeTurmas; i++) {
-          originData.push({
-            key: i,
-            nome: `Turma ${i + 1}`,
-            id: undefined,
-            dres,
+        if (
+          (situacaoProposta !== SituacaoProposta.Publicada &&
+            situacaoProposta !== SituacaoProposta.Alterando &&
+            novaQuantidade <= currentLength) ||
+          ((situacaoProposta === SituacaoProposta.Publicada ||
+            situacaoProposta === SituacaoProposta.Alterando) &&
+            novaQuantidade <= currentLength &&
+            novaQuantidade >= quantidadeTurmasOriginal)
+        ) {
+          const newTurmas = currentTurmas.slice(0, novaQuantidade);
+          formProposta.setFieldValue('turmas', [...newTurmas]);
+        } else {
+          const adicionaQuantidade = novaQuantidade - currentLength;
+
+          const novasTurmas = Array.from({ length: adicionaQuantidade }, (_, i) => {
+            return {
+              key: currentLength + i,
+              nome: `Turma ${currentLength + i + 1}`,
+              id: undefined,
+              dres: formProposta.getFieldValue('dres'),
+            };
           });
+
+          formProposta.setFieldValue('turmas', [...currentTurmas, ...novasTurmas]);
         }
-        formProposta.setFieldValue('turmas', [...originData]);
       } else {
-        formProposta.setFieldValue('turmas', []);
+        if (situacaoProposta !== SituacaoProposta.Publicada && situacaoProposta !== SituacaoProposta.Alterando) {
+          formProposta.setFieldValue('turmas', []);
+        }
       }
     }
   }, [quantidadeTurmas]);
@@ -148,7 +167,7 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       if (turmas?.length) {
         const newTurmas = turmas.map((turma) => ({
           ...turma,
-          dres: temOpcaoTodas ? [] : newDresTurmas,
+          dres: newDresTurmas,
         }));
 
         formProposta.setFieldValue('turmas', [...newTurmas]);
@@ -156,14 +175,13 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
     }
   }, [dresWatch]);
 
-  const edit = (record: PropostaTurmaFormDTO) => {    
+  const edit = (record: PropostaTurmaFormDTO) => {
     if (record && record.dres) {
-      const filteredRecord = record.dres.filter(item => item.descricao !== "TODOS");
-      setEditInValues({ ...record, dres: filteredRecord });
+      setEditInValues({ ...record, dres: record.dres });
       setEditingKey(record.key);
     }
   };
-  
+
   useEffect(() => {
     formRow.resetFields();
   }, [formRow, editInValues]);
@@ -195,7 +213,9 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       dataIndex: 'nome',
       editable: true,
       width: '40%',
-      render: (turmaNome: string) => <div style={{ wordBreak: 'break-word', width: 380}}>{turmaNome}</div>
+      render: (turmaNome: string) => (
+        <div style={{ wordBreak: 'break-word', width: 380 }}>{turmaNome}</div>
+      ),
     },
     {
       title: 'DRE',
@@ -204,13 +224,14 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       width: '40%',
       render: (dresExibicao: DreDTO[]) => {
         if (!dresExibicao?.length) return <></>;
-        const filteredDres = dresExibicao.filter(dre => dre.descricao !== 'TODOS');
+        const filteredDres =
+          dresExibicao?.length > 1 ? dresExibicao.filter((dre) => !dre.todos) : dresExibicao;
         return (
           <Col>
             <Row gutter={[8, 8]}>
-            {filteredDres.map((dre: DreDTO, i: number) => (
-              <Tag key={i}>{dre?.label}</Tag>
-            ))}
+              {filteredDres.map((dre: DreDTO, i: number) => (
+                <Tag key={i}>{dre?.label}</Tag>
+              ))}
             </Row>
           </Col>
         );
@@ -260,7 +281,6 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
       ...col,
       onCell: (record: PropostaTurmaFormDTO) => {
         const todosSelecionado = dresWatch?.find((dre: DreDTO) => dre?.todos);
-
         return {
           record,
           align: col.align,

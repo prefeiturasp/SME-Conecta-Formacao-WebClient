@@ -1,6 +1,7 @@
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Button, Card, Modal, Typography } from 'antd';
 import { FC, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PropostaInformacoesCadastranteDTO } from '~/core/dto/informacoes-cadastrante-dto';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
@@ -48,6 +49,9 @@ type CardInformacoesCadastranteProps = {
 const CardInformacoesCadastrante: FC<CardInformacoesCadastranteProps> = ({
   setTipoInstituicao,
 }) => {
+  const paramsRoute = useParams();
+  const propostaId = Number(paramsRoute.id);
+
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [dados, setDados] = useState<PropostaInformacoesCadastranteDTO>();
@@ -58,9 +62,9 @@ const CardInformacoesCadastrante: FC<CardInformacoesCadastranteProps> = ({
     setOpenModal(true);
   };
 
-  const obterDados = async () => {
+  const obterDados = async (propostaId?: number) => {
     setLoading(true);
-    const resposta = await obterDadosCadastrante();
+    const resposta = await obterDadosCadastrante(propostaId);
     if (resposta.sucesso) {
       setDados(resposta.dados);
       setTipoInstituicao && setTipoInstituicao(resposta.dados.areaPromotoraTipoId);
@@ -82,7 +86,11 @@ const CardInformacoesCadastrante: FC<CardInformacoesCadastranteProps> = ({
   };
 
   useEffect(() => {
-    obterDados();
+    if (propostaId) {
+      obterDados(propostaId);
+    } else {
+      obterDados();
+    }
   }, []);
 
   return (
@@ -126,7 +134,7 @@ const CardInformacoesCadastrante: FC<CardInformacoesCadastranteProps> = ({
                 {dados?.areaPromotora}
               </p>
               <p>
-                <b>Tipo de intituição: </b>
+                <b>Tipo de instituição: </b>
                 {dados?.areaPromotoraTipo}
               </p>
             </div>

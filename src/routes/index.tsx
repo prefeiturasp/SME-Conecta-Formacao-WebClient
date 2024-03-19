@@ -13,7 +13,7 @@ import VisualizarFormacao from '~/pages/area-publica/formacao/view';
 import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
 import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import { CadastroDeUsuario } from '~/pages/cadastros/novo-usuario';
-import FormCadastroDePropostas from '~/pages/cadastros/propostas/form';
+import { FormCadastroDePropostas } from '~/pages/cadastros/propostas/form';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';

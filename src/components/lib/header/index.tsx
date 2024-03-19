@@ -26,10 +26,6 @@ const contentStyle: React.CSSProperties = {
 
 const menuItems: MenuProps['items'] = [
   {
-    label: <Link to={ROUTES.AREA_PUBLICA}>{MENU_AREA_PUBLICA.HOME.LABEL}</Link>,
-    key: MENU_AREA_PUBLICA.HOME.KEY,
-  },
-  {
     label: <Link to={ROUTES.LOGIN}>{MENU_AREA_PUBLICA.LOGIN.LABEL}</Link>,
     key: MENU_AREA_PUBLICA.LOGIN.KEY,
     icon: <LoginOutlined />,
@@ -60,7 +56,7 @@ const Header: React.FC = () => {
 
   return (
     <Layout.Header style={contentStyle}>
-      <Link to={rotaEhAreaPublica ? ROUTES.AREA_PUBLICA : ROUTES.PRINCIPAL}>
+      <Link to={rotaEhAreaPublica && !autenticado ? ROUTES.AREA_PUBLICA : ROUTES.PRINCIPAL}>
         <img style={{ height: '50px' }} src={ConectaLogo} alt='Conecta Formação LOGO' />
       </Link>
 

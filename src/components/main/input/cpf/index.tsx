@@ -2,7 +2,7 @@ import { Form, FormItemProps, Input, InputProps } from 'antd';
 import { SearchProps } from 'antd/es/input';
 import React from 'react';
 import { CPF_NAO_INFORMADO } from '~/core/constants/mensagens';
-import { removerTudoQueNaoEhDigito } from '~/core/utils/functions/index';
+import { formatterCPFMask, removerTudoQueNaoEhDigito } from '~/core/utils/functions/index';
 
 type InputCPFProps = {
   inputProps?: InputProps & SearchProps;
@@ -12,13 +12,6 @@ type InputCPFProps = {
 
 const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps, habilitarInputSearch }) => {
   const InputComponent = habilitarInputSearch ? Input.Search : Input;
-
-  const formatterCPFMask = (value: string | number | undefined) =>
-    `${value}`
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-      .replace(/(-\d{2})\d+?$/, '$1');
 
   const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = removerTudoQueNaoEhDigito(e?.target?.value);
