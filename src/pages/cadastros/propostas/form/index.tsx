@@ -642,20 +642,10 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const salvarProposta = (confirmarAntesDeEnviarProposta: boolean) => {
-    const publicosAlvosNumeros: number[] = form.getFieldValue('publicosAlvo');
-    const funcoesEspecificasNumeros: number[] = form.getFieldValue('funcoesEspecificas');
-    if (publicosAlvosNumeros.length == 0 && funcoesEspecificasNumeros.length == 0) {
-      setListaErros([
-        'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
-      ]);
-      showModalErros();
-      return;
-    }
     form
       .validateFields()
       .then(() => {
         let situacao = formInitialValues?.situacao;
-
         if (situacao == SituacaoProposta.Rascunho) {
           situacao = SituacaoProposta.Cadastrada;
         } else if (situacao == SituacaoProposta.Alterando) {
@@ -829,6 +819,20 @@ const FormCadastroDePropostas: React.FC = () => {
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
                       disabled={desabilitarCampos}
                       onClick={() => {
+                        const publicosAlvosNumeros: number[] = form.getFieldValue('publicosAlvo');
+                        const funcoesEspecificasNumeros: number[] =
+                          form.getFieldValue('funcoesEspecificas');
+                        if (
+                          publicosAlvosNumeros.length == 0 &&
+                          funcoesEspecificasNumeros.length == 0
+                        ) {
+                          setListaErros([
+                            'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
+                          ]);
+                          showModalErros();
+                          return;
+                        }
+
                         const enviarProposta =
                           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
                           formInitialValues?.situacao !== SituacaoProposta.Alterando;
