@@ -39,6 +39,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
   const devolverStateNoVoltarESalvar = {
     state: location.state,
   };
+
   const salvar = (params: InscricaoManualDTO) => {
     const newParams = {
       ...params,
@@ -141,6 +142,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
               <Col xs={12} sm={6} md={8}>
                 <RadioSimNao
                   formItemProps={{
+                    initialValue: true,
                     name: 'profissionalRede',
                     label: 'Profissional da rede municipal',
                   }}
