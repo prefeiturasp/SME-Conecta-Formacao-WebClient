@@ -17,9 +17,10 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
-import { RF_NAO_INFORMADO } from '~/core/constants/mensagens';
+import { ERRO_INSCRICAO_MANUAL, RF_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { InscricaoManualDTO } from '~/core/dto/inscricao-manual-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { confirmacao } from '~/core/services/alerta-service';
 import { inserirInscricaoManual, obterRfCpf } from '~/core/services/inscricao-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
@@ -46,7 +47,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
       cpf: removerTudoQueNaoEhDigito(params.cpf),
     };
 
-    inserirInscricaoManual(newParams).then((resposta) => {
+    const notificacao = (resposta: any) => {
       if (resposta.sucesso) {
         notification.success({
           message: 'Sucesso',
@@ -54,6 +55,33 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
         });
 
         navigate(URL_ROUTE_VOLTAR, devolverStateNoVoltarESalvar);
+      }
+    };
+
+    inserirInscricaoManual(newParams, false).then((resposta) => {
+      notificacao(resposta);
+
+      if (resposta?.mensagens.includes(ERRO_INSCRICAO_MANUAL)) {
+        confirmacao({
+          content: resposta.mensagens,
+          onOk() {
+            const newParams = {
+              ...params,
+              podeContinuar: true,
+            };
+
+            inserirInscricaoManual(newParams).then((resposta) => notificacao(resposta));
+          },
+        });
+      } else {
+        if (resposta?.mensagens?.length) {
+          resposta?.mensagens.forEach((description) => {
+            notification.error({
+              message: 'Erro',
+              description,
+            });
+          });
+        }
       }
     });
   };

@@ -1,6 +1,7 @@
 export type InscricaoManualDTO = {
-  propostaTurmaId: number;
-  profissionalRede: boolean;
-  registroFuncional: string;
   cpf: string;
+  propostaTurmaId: number;
+  podeContinuar?: boolean;
+  registroFuncional: string;
+  profissionalRede: boolean;
 };
