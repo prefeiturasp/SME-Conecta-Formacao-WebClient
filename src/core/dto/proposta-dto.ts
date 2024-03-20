@@ -75,7 +75,7 @@ export type PropostaFormDTO = {
   dreIdPropostas?: number | null;
   nomeFormacao?: string;
   quantidadeTurmas?: number | null;
-  quantidadeTurmasOriginal?:  number | null;
+  quantidadeTurmasOriginal?: number | null;
   quantidadeVagasTurma?: number | null;
   publicosAlvo?: number[];
   funcoesEspecificas?: number[];

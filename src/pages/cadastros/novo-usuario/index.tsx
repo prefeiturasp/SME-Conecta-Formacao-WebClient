@@ -18,10 +18,7 @@ import {
   CF_INPUT_SENHA,
   CF_INPUT_UE,
 } from '~/core/constants/ids/input';
-import {
-  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-  ERRO_CADASTRO_USUARIO,
-} from '~/core/constants/mensagens';
+import { ERRO_CADASTRO_USUARIO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { CadastroUsuarioFormDTO } from '~/core/dto/cadastro-usuario-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
@@ -29,9 +26,10 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { confirmacao, sucesso } from '~/core/services/alerta-service';
+import { sucesso } from '~/core/services/alerta-service';
 import funcionarioExternoService from '~/core/services/funcionario-externo-service';
 import usuarioService from '~/core/services/usuario-service';
+import { onClickVoltar } from '~/core/utils/form';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import SelectUEs from './components/ue';
 
@@ -125,22 +123,6 @@ export const CadastroDeUsuario = () => {
       .finally(() => dispatch(setSpinning(false)));
   };
 
-  const onClickVoltar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          form.submit();
-        },
-        onCancel() {
-          navigate(ROUTES.LOGIN);
-        },
-      });
-    } else {
-      navigate(ROUTES.LOGIN);
-    }
-  };
-
   const validateNameAndSurname = (_rule: any, value: string) => {
     const names = value?.split(' ');
 
@@ -183,8 +165,8 @@ export const CadastroDeUsuario = () => {
         <Row gutter={[16, 8]}>
           <Col span={24}>
             <InputCPF
-              required
               formItemProps={{
+                required: true,
                 hasFeedback: loadingCPF,
                 validateStatus: validateStatusCPF(),
               }}
@@ -266,7 +248,7 @@ export const CadastroDeUsuario = () => {
               block
               type='default'
               id={CF_BUTTON_VOLTAR}
-              onClick={onClickVoltar}
+              onClick={() => onClickVoltar({ form, navigate, route: ROUTES.LOGIN })}
               style={{ fontWeight: 700 }}
             >
               Voltar

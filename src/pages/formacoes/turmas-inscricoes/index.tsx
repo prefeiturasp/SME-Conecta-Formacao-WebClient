@@ -1,4 +1,4 @@
-import { Col, Form, Row, Typography } from 'antd';
+import { Button, Col, Form, Row, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -9,10 +9,17 @@ import ButtonVoltar from '~/components/main/button/voltar';
 import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
-import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
+import {
+  CF_BUTTON_ARQUIVO,
+  CF_BUTTON_NOVO,
+  CF_BUTTON_VOLTAR,
+} from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME, CF_INPUT_NOME_FORMACAO, CF_INPUT_RF } from '~/core/constants/ids/input';
+import { NOVA_INSCRICAO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { TipoInscricao } from '~/core/enum/tipo-inscricao';
+import { onClickVoltar } from '~/core/utils/form';
 import { TurmasInscricoesListaPaginada } from './listagem';
 
 export interface FiltroTurmaInscricoesProps {
@@ -26,10 +33,18 @@ export const TurmasInscricoes = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const params = useParams();
+  const id = params.id ? parseInt(params?.id) : 0;
+
+  const nomeFormacao = location?.state?.nomeFormacao;
+  const temTipoInscricaoManual = location.state.tiposInscricoes.includes(TipoInscricao.Manual);
+
+  const paramsRoute = {
+    state: location.state,
+  };
+
   const [realizouFiltro, setRealizouFiltro] = useState(false);
-  const paramsRoute = useParams();
-  const nomeFormacao = location.state.nomeFormacao;
-  const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
@@ -38,11 +53,14 @@ export const TurmasInscricoes = () => {
     registroFuncional: null,
   });
 
+  const onClickNovo = () => navigate(`${ROUTES.FORMACAOES_INSCRICOES_NOVO}/${id}`, paramsRoute);
+
+  const onInscricaoPorArquivo = () =>
+    navigate(`${ROUTES.FORMACAOES_INSCRICOES_POR_ARQUIVO}/${id}`, paramsRoute);
+
   useEffect(() => {
     form.resetFields();
   }, [form]);
-
-  const onClickVoltar = () => navigate(ROUTES.FORMACAOES_INSCRICOES);
 
   const obterFiltros = () => {
     setRealizouFiltro(true);
@@ -68,7 +86,36 @@ export const TurmasInscricoes = () => {
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+                <ButtonVoltar
+                  onClick={() => onClickVoltar({ navigate, route: ROUTES.FORMACAOES_INSCRICOES })}
+                  id={CF_BUTTON_VOLTAR}
+                />
+              </Col>
+              {temTipoInscricaoManual && (
+                <Col>
+                  <Button
+                    block
+                    type='default'
+                    htmlType='submit'
+                    id={CF_BUTTON_ARQUIVO}
+                    onClick={onInscricaoPorArquivo}
+                    style={{ fontWeight: 700 }}
+                  >
+                    Inscrição por arquivo
+                  </Button>
+                </Col>
+              )}
+              <Col>
+                <Button
+                  block
+                  type='primary'
+                  htmlType='submit'
+                  id={CF_BUTTON_NOVO}
+                  onClick={onClickNovo}
+                  style={{ fontWeight: 700 }}
+                >
+                  {NOVA_INSCRICAO}
+                </Button>
               </Col>
             </Row>
           </Col>
@@ -83,14 +130,13 @@ export const TurmasInscricoes = () => {
               <Col xs={24} sm={6}>
                 <SelectTurmaEncontros
                   idProposta={id}
-                  exibirTooltip={false}
-                  selectProps={{ onChange: obterFiltros }}
-                  selectMultiplo={false}
+                  selectProps={{ onChange: obterFiltros, mode: undefined }}
                   formItemProps={{
                     label: 'Turma',
                     name: 'turmaId',
                     style: { fontWeight: 'bold' },
                     rules: [{ required: false }],
+                    tooltip: false,
                   }}
                 />
               </Col>

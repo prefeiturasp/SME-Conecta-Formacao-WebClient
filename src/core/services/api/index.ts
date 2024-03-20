@@ -219,7 +219,7 @@ export const alterarRegistroParcial = async <T>(
 
 export const inserirRegistro = async <T>(
   url: string,
-  params: any,
+  params?: any,
   config?: AxiosRequestConfig,
 ): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));

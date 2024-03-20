@@ -19,11 +19,7 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
-import {
-  DESEJA_CANCELAR_ALTERACOES,
-  ENVIAR_INSCRICAO,
-  SUA_INSCRICAO_NAO_FOI_ENVIADA,
-} from '~/core/constants/mensagens';
+import { ENVIAR_INSCRICAO, SUA_INSCRICAO_NAO_FOI_ENVIADA } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
   DadosInscricaoCargoEolDTO,
@@ -34,8 +30,8 @@ import { InscricaoDTO } from '~/core/dto/inscricao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
-import { confirmacao } from '~/core/services/alerta-service';
 import { inserirInscricao, obterDadosInscricao } from '~/core/services/inscricao-service';
+import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import InputEmailInscricao from './components/input-email';
 import { ModalInscricao } from './components/modal';
 
@@ -115,33 +111,6 @@ export const Inscricao = () => {
     form.resetFields();
   }, [form, initialValues]);
 
-  const onClickVoltar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: SUA_INSCRICAO_NAO_FOI_ENVIADA,
-        onOk() {
-          form.submit();
-        },
-        onCancel() {
-          navigate(ROUTES.AREA_PUBLICA);
-        },
-      });
-    } else {
-      navigate(ROUTES.AREA_PUBLICA);
-    }
-  };
-
-  const onClickCancelar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_CANCELAR_ALTERACOES,
-        onOk() {
-          form.resetFields();
-        },
-      });
-    }
-  };
-
   const enviarInscricao = async () => {
     let response = null;
     const values: DadosInscricaoDTO = form.getFieldsValue(true);
@@ -204,7 +173,17 @@ export const Inscricao = () => {
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+                <ButtonVoltar
+                  onClick={() =>
+                    onClickVoltar({
+                      form,
+                      navigate,
+                      route: ROUTES.AREA_PUBLICA,
+                      mensagem: SUA_INSCRICAO_NAO_FOI_ENVIADA,
+                    })
+                  }
+                  id={CF_BUTTON_VOLTAR}
+                />
               </Col>
               <Col>
                 <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
@@ -214,7 +193,7 @@ export const Inscricao = () => {
                       type='default'
                       id={CF_BUTTON_CANCELAR}
                       style={{ fontWeight: 700 }}
-                      onClick={onClickCancelar}
+                      onClick={() => onClickCancelar({ form })}
                     >
                       Cancelar
                     </Button>

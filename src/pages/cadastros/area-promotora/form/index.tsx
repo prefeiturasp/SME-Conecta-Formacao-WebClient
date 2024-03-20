@@ -18,11 +18,7 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
-import {
-  DESEJA_CANCELAR_ALTERACOES,
-  DESEJA_EXCLUIR_REGISTRO,
-  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-} from '~/core/constants/mensagens';
+import { DESEJA_EXCLUIR_REGISTRO } from '~/core/constants/mensagens';
 import {
   AreaPromotoraDTO,
   EmailAreaPromotora,
@@ -38,6 +34,7 @@ import {
   obterAreaPromotoraPorId,
   obterTiposAreaPromotora,
 } from '~/core/services/area-promotora-service';
+import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
 
@@ -107,33 +104,6 @@ const FormCadastrosAreaPromotora: React.FC = () => {
       setListaTipos(resposta.dados);
     }
   }, []);
-
-  const onClickVoltar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          form.submit();
-        },
-        onCancel() {
-          navigate(ROUTES.AREA_PROMOTORA);
-        },
-      });
-    } else {
-      navigate(ROUTES.AREA_PROMOTORA);
-    }
-  };
-
-  const onClickCancelar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_CANCELAR_ALTERACOES,
-        onOk() {
-          form.resetFields();
-        },
-      });
-    }
-  };
 
   const salvar = async (values: AreaPromotoraDTO) => {
     let response = null;
@@ -210,7 +180,16 @@ const FormCadastrosAreaPromotora: React.FC = () => {
           <Col span={24}>
             <Row gutter={[8, 8]}>
               <Col>
-                <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+                <ButtonVoltar
+                  onClick={() =>
+                    onClickVoltar({
+                      form,
+                      navigate,
+                      route: ROUTES.AREA_PROMOTORA,
+                    })
+                  }
+                  id={CF_BUTTON_VOLTAR}
+                />
               </Col>
               {id ? (
                 <Col>
@@ -230,7 +209,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
                       block
                       type='default'
                       id={CF_BUTTON_CANCELAR}
-                      onClick={onClickCancelar}
+                      onClick={() => onClickCancelar({ form })}
                       style={{ fontWeight: 700 }}
                       disabled={!form.isFieldsTouched()}
                     >

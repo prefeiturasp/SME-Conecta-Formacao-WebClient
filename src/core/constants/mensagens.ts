@@ -29,6 +29,9 @@ export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
   'É necessário Informar a formação homologada por SME/COPED/DF';
 export const PROPOSTA_DRE_NAO_INFORMADA = 'É necessário Informar a DRE';
 export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da formação';
+export const NOME_NAO_INFORMADO = 'É necessário informar o nome';
+export const RF_NAO_INFORMADO = 'É necessário informar o registro funcional';
+export const CPF_NAO_INFORMADO = 'É necessário informar o CPF';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
 export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =
   'É necessário informar os critérios de validação das inscrições da proposta';
@@ -57,6 +60,8 @@ export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
 export const ENVIAR_INSCRICAO = 'Enviar inscrição';
 export const NOVA_INSCRICAO = 'Nova inscrição';
 export const DESEJA_CANCELAR_INSCRICAO = 'Você realmente deseja cancelar essa inscrição?';
+export const DESEJA_CANCELAR_PROCESSAMENTO_ARQUIVO =
+  'Você realmente deseja cancelar o processamento da inscrição?';
 export const CANCELAR_INSCRICAO =
   'Ao cancelar a inscrição o cursista perderá acesso a formação. Deseja realmente cancelar?';
 export const SAIBA_MAIS = 'Saiba mais';
@@ -70,6 +75,10 @@ export const CADASTRO_ENVIADO =
   'Cadastro inserido com sucesso. Enviamos um e-mail para validação do seu cadastro. Confira a sua caixa de entrada!';
 export const ERRO_EMAIL_NAO_VALIDADO =
   "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar'";
+export const TIPO_INSCRICAO_TOOLTIP_OPTATIVA = `Optativa: O cursista irá se inscrever por meio da plataforma.`;
+export const TIPO_INSCRICAO_TOOLTIP_MANUAL = `Manual: Inscrições realizadas pela área promotora no cadastro da proposta.`;
+export const TIPO_INSCRICAO_TOOLTIP_AUTOMATICA = `Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.`;
+export const TIPO_INSCRICAO_TOOLTIP_EXTERNA = `Externa: Inscrições realizadas por outras ferramentas disponibilizadas pela rede de parceria.`;
 export const INSCRICAO_ENVIADA_COM_SGA =
   'Sua inscrição foi confirmada. Na data de início da sua turma acesse o SGA para iniciar a formação.';
 export const INSCRICAO_ENVIADA_SEM_SGA = 'Sua inscrição foi confirmada.';
