@@ -132,7 +132,11 @@ export const InscricoesPorArquivoListagem = forwardRef(() => {
   };
 
   const onClickEditar = async (linha: ArquivoInscricaoImportadoDTO) => {
-    if (linha.situacao !== SituacaoImportacaoArquivoEnum.Validado) return;
+    if (
+      linha.situacao !== SituacaoImportacaoArquivoEnum.Validado &&
+      linha.situacao !== SituacaoImportacaoArquivoEnum.Cancelado
+    )
+      return;
 
     setLinhaId(linha.id);
 
@@ -141,17 +145,8 @@ export const InscricoesPorArquivoListagem = forwardRef(() => {
     if (resposta.sucesso) {
       if (resposta.dados?.items.length) {
         setDataSourceInconsistencias(resposta.dados.items);
-        if (
-          linha.situacao === SituacaoImportacaoArquivoEnum.Validado ||
-          linha.situacao === SituacaoImportacaoArquivoEnum.Cancelado
-        ) {
-          setAbrirDrawer(true);
-          setSituacao(linha.situacao);
-        }
-      } else {
-        if (linha.situacao === SituacaoImportacaoArquivoEnum.Validado) {
-          setAbrirModal(true);
-        }
+        setAbrirDrawer(true);
+        setSituacao(linha.situacao);
       }
     }
   };

@@ -40,7 +40,7 @@ export const onClickVoltar = ({
           form.submit();
         },
         onCancel() {
-          navigate(route);
+          navigate(route, paramsRoute);
         },
       });
     } else {

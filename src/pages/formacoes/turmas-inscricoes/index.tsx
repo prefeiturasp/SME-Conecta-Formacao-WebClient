@@ -92,31 +92,33 @@ export const TurmasInscricoes = () => {
                 />
               </Col>
               {temTipoInscricaoManual && (
-                <Col>
-                  <Button
-                    block
-                    type='default'
-                    htmlType='submit'
-                    id={CF_BUTTON_ARQUIVO}
-                    onClick={onInscricaoPorArquivo}
-                    style={{ fontWeight: 700 }}
-                  >
-                    Inscrição por arquivo
-                  </Button>
-                </Col>
+                <>
+                  <Col>
+                    <Button
+                      block
+                      type='default'
+                      htmlType='submit'
+                      id={CF_BUTTON_ARQUIVO}
+                      onClick={onInscricaoPorArquivo}
+                      style={{ fontWeight: 700 }}
+                    >
+                      Inscrição por arquivo
+                    </Button>
+                  </Col>
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      htmlType='submit'
+                      id={CF_BUTTON_NOVO}
+                      onClick={onClickNovo}
+                      style={{ fontWeight: 700 }}
+                    >
+                      {NOVA_INSCRICAO}
+                    </Button>
+                  </Col>
+                </>
               )}
-              <Col>
-                <Button
-                  block
-                  type='primary'
-                  htmlType='submit'
-                  id={CF_BUTTON_NOVO}
-                  onClick={onClickNovo}
-                  style={{ fontWeight: 700 }}
-                >
-                  {NOVA_INSCRICAO}
-                </Button>
-              </Col>
             </Row>
           </Col>
         </HeaderPage>
