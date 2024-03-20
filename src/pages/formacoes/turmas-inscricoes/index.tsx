@@ -38,7 +38,7 @@ export const TurmasInscricoes = () => {
   const id = params.id ? parseInt(params?.id) : 0;
 
   const nomeFormacao = location?.state?.nomeFormacao;
-  const temTipoInscricaoManual = location.state.tiposInscricoes.includes(TipoInscricao.Manual);
+  const temTipoInscricaoManual = location?.state?.tiposInscricoes?.includes(TipoInscricao.Manual);
 
   const paramsRoute = {
     state: location.state,
