@@ -1,15 +1,14 @@
-import { Col, Drawer, Form, Progress, ProgressProps, Row, Space, Typography, Upload } from 'antd';
+import { Col, Form, Progress, ProgressProps, Row, Typography, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
-import { useCallback, useState } from 'react';
+import { forwardRef, useCallback, useRef, useState } from 'react';
 import { FaUpload } from 'react-icons/fa';
 import { LuRefreshCw } from 'react-icons/lu';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ButtonPrimary } from '~/components/lib/button/primary';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import CardContent from '~/components/lib/card-content';
-import DataTable from '~/components/lib/card-table';
-import DataTableContextProvider, { DataTableContext } from '~/components/lib/card-table/provider';
+import DataTableArquivosImportados from '~/components/lib/card-table-arquivos-importados';
+import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import Modal from '~/components/lib/modal';
 import { notification } from '~/components/lib/notification';
@@ -17,7 +16,6 @@ import ButtonVoltar from '~/components/main/button/voltar';
 import {
   CF_BUTTON_ARQUIVO,
   CF_BUTTON_ATUALIZAR_DADOS,
-  CF_BUTTON_MODAL_CANCELAR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { DESEJA_CANCELAR_PROCESSAMENTO_ARQUIVO } from '~/core/constants/mensagens';
@@ -33,6 +31,7 @@ import { confirmacao } from '~/core/services/alerta-service';
 import importacaoArquivoService from '~/core/services/importacao-arquivo-service';
 import { Colors } from '~/core/styles/colors';
 import { onClickVoltar } from '~/core/utils/form';
+import { DrawerInconsistencias } from './drawer-inconsistencias';
 
 interface OptionsProps {
   onSuccess: () => void;
@@ -110,49 +109,12 @@ const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
   },
 ];
 
-const columnsInconsistencias: ColumnsType<RegistroDaInscricaoInsconsistenteDTO> = [
-  {
-    key: 'linha',
-    title: 'Linha',
-    dataIndex: 'linha',
-  },
-  {
-    key: 'turma',
-    title: 'Turma',
-    dataIndex: 'turma',
-  },
-  {
-    key: 'colaboradorRede',
-    title: 'Profissional da rede municipal',
-    dataIndex: 'colaboradorRede',
-  },
-  {
-    key: 'registroFuncional',
-    title: 'RF',
-    dataIndex: 'registroFuncional',
-  },
-  {
-    key: 'cpf',
-    title: 'CPF',
-    dataIndex: 'cpf',
-  },
-  {
-    key: 'nome',
-    title: 'Nome',
-    dataIndex: 'nome',
-  },
-  {
-    key: 'erro',
-    title: 'Erro',
-    dataIndex: 'erro',
-  },
-];
-
-export const InscricoesPorArquivoListagem = () => {
+export const InscricoesPorArquivoListagem = forwardRef(() => {
   const [form] = useForm();
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const refTable = useRef<any>(null);
 
   const propostaId = params.id ? Number(params.id) : 0;
   const nomeFormacao = location?.state?.nomeFormacao;
@@ -161,6 +123,7 @@ export const InscricoesPorArquivoListagem = () => {
   const [situacao, setSituacao] = useState<number>();
   const [abrirModal, setAbrirModal] = useState<boolean>(false);
   const [abrirDrawer, setAbrirDrawer] = useState<boolean>(false);
+
   const [dataSourceInconsistencias, setDataSourceInconsistencias] =
     useState<RegistroDaInscricaoInsconsistenteDTO[]>();
 
@@ -193,7 +156,7 @@ export const InscricoesPorArquivoListagem = () => {
     }
   };
 
-  const customRequest = useCallback(async (options: OptionsProps, tableState: any) => {
+  const customRequest = useCallback(async (options: OptionsProps) => {
     const { onSuccess, file } = options;
 
     const resposta = await importacaoArquivoService.importarArquivoInscricaoCursista(
@@ -207,7 +170,7 @@ export const InscricoesPorArquivoListagem = () => {
         description: 'Arquivo importado com sucesso',
       });
 
-      tableState.reloadData();
+      refTable.current?.reloadTable();
       onSuccess();
     }
   }, []);
@@ -224,6 +187,7 @@ export const InscricoesPorArquivoListagem = () => {
 
         setAbrirModal(false);
         setAbrirDrawer(false);
+        refTable.current?.reloadTable();
       }
     });
   };
@@ -237,6 +201,10 @@ export const InscricoesPorArquivoListagem = () => {
         importacaoArquivoService.cancelarProcessamento(linhaId).then(() => {
           setAbrirDrawer(false);
           setAbrirModal(false);
+
+          if (refTable?.current) {
+            refTable.current?.reloadTable();
+          }
         });
       },
     });
@@ -261,34 +229,28 @@ export const InscricoesPorArquivoListagem = () => {
                     id={CF_BUTTON_VOLTAR}
                   />
                 </Col>
-                <DataTableContext.Consumer>
-                  {({ tableState }) => (
-                    <>
-                      <Col>
-                        <ButtonSecundary
-                          id={CF_BUTTON_ATUALIZAR_DADOS}
-                          icon={<LuRefreshCw size={16} />}
-                          onClick={() => {
-                            tableState.reloadData();
-                          }}
-                        >
-                          Atualizar dados
-                        </ButtonSecundary>
-                      </Col>
-                      <Col>
-                        <Upload
-                          name='file'
-                          customRequest={(options: any) => customRequest(options, tableState)}
-                          fileList={[]}
-                        >
-                          <ButtonSecundary icon={<FaUpload size={16} />} id={CF_BUTTON_ARQUIVO}>
-                            Importar Arquivo
-                          </ButtonSecundary>
-                        </Upload>
-                      </Col>
-                    </>
-                  )}
-                </DataTableContext.Consumer>
+                <Col>
+                  <ButtonSecundary
+                    id={CF_BUTTON_ATUALIZAR_DADOS}
+                    icon={<LuRefreshCw size={16} />}
+                    onClick={() => {
+                      refTable.current?.reloadTable();
+                    }}
+                  >
+                    Atualizar dados
+                  </ButtonSecundary>
+                </Col>
+                <Col>
+                  <Upload
+                    name='file'
+                    customRequest={(options: any) => customRequest(options)}
+                    fileList={[]}
+                  >
+                    <ButtonSecundary icon={<FaUpload size={16} />} id={CF_BUTTON_ARQUIVO}>
+                      Importar Arquivo
+                    </ButtonSecundary>
+                  </Upload>
+                </Col>
               </Row>
             </Col>
           </HeaderPage>
@@ -299,9 +261,10 @@ export const InscricoesPorArquivoListagem = () => {
                 Listagem de inscrições por arquivo
               </Typography>
 
-              <DataTable
-                url={`/v1/ImportacaoArquivo/${propostaId}/arquivos-importados`}
+              <DataTableArquivosImportados
+                ref={refTable}
                 columns={columns}
+                url={`/v1/ImportacaoArquivo/${propostaId}/arquivos-importados`}
                 onRow={(row) => ({
                   onClick: () => {
                     onClickEditar(row);
@@ -310,40 +273,14 @@ export const InscricoesPorArquivoListagem = () => {
               />
 
               {abrirDrawer && (
-                <Drawer
-                  title='Registros com inconsistências'
-                  open
-                  size='large'
-                  onClose={() => setAbrirDrawer(false)}
-                  extra={
-                    <Space>
-                      <ButtonSecundary
-                        block
-                        type='default'
-                        id={CF_BUTTON_MODAL_CANCELAR}
-                        onClick={() => cancelarProcessamento()}
-                        style={{ fontWeight: 700 }}
-                        disabled={situacao !== SituacaoImportacaoArquivoEnum.Validado}
-                      >
-                        Cancelar
-                      </ButtonSecundary>
-
-                      <ButtonPrimary
-                        type='primary'
-                        onClick={() => continuarProcessamento()}
-                        disabled={situacao !== SituacaoImportacaoArquivoEnum.Validado}
-                      >
-                        Continuar
-                      </ButtonPrimary>
-                    </Space>
-                  }
-                >
-                  <DataTable
-                    columns={columnsInconsistencias}
-                    dataSource={dataSourceInconsistencias}
-                    url={`v1/ImportacaoArquivo/${linhaId}/registros-inconsistencia`}
-                  />
-                </Drawer>
+                <DrawerInconsistencias
+                  linhaId={linhaId}
+                  situacao={situacao}
+                  onClickCancelar={cancelarProcessamento}
+                  onClickContinuar={continuarProcessamento}
+                  dataSourceInconsistencias={dataSourceInconsistencias}
+                  drawerProps={{ onClose: () => setAbrirDrawer(false) }}
+                />
               )}
 
               {abrirModal && (
@@ -368,4 +305,4 @@ export const InscricoesPorArquivoListagem = () => {
       </Col>
     </DataTableContextProvider>
   );
-};
+});
