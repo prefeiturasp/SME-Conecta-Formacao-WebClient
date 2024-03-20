@@ -14,8 +14,8 @@ const inserirInscricao = (params: InscricaoDTO) => {
   return inserirRegistro<RetornoDTO>(URL_INSCRICAO, params);
 };
 
-const inserirInscricaoManual = (params: InscricaoManualDTO) => {
-  return inserirRegistro(`${URL_INSCRICAO}/manual`, params);
+const inserirInscricaoManual = (params: InscricaoManualDTO, mostrarNotificacao?: boolean) => {
+  return inserirRegistro(`${URL_INSCRICAO}/manual`, params, mostrarNotificacao);
 };
 
 const obterDadosInscricao = () => {
