@@ -1,4 +1,4 @@
-import { Col, Form, Progress, ProgressProps, Row, Typography, Upload } from 'antd';
+import { Col, Form, Progress, ProgressProps, Row, Space, Typography, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
 import { forwardRef, useCallback, useRef, useState } from 'react';
@@ -147,6 +147,8 @@ export const InscricoesPorArquivoListagem = forwardRef(() => {
         setDataSourceInconsistencias(resposta.dados.items);
         setAbrirDrawer(true);
         setSituacao(linha.situacao);
+      } else {
+        setAbrirModal(true);
       }
     }
   };
@@ -285,8 +287,18 @@ export const InscricoesPorArquivoListagem = forwardRef(() => {
                   centered
                   destroyOnClose
                   okText='Continuar'
+                  cancelText='Fechar'
                   onOk={() => continuarProcessamento()}
-                  onCancel={() => cancelarProcessamento()}
+                  onCancel={() => setAbrirModal(false)}
+                  footer={(_, { OkBtn, CancelBtn }) => (
+                    <Space>
+                      <CancelBtn />
+                      <ButtonSecundary type='text' onClick={cancelarProcessamento}>
+                        Cancelar
+                      </ButtonSecundary>
+                      <OkBtn />
+                    </Space>
+                  )}
                 >
                   <Typography.Text style={{ fontSize: 16 }}>
                     Os registros foram validados e estão prontos para processamento. Por favor,
