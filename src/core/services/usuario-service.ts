@@ -17,6 +17,13 @@ const alterarNome = (login: string, nome: string): Promise<AxiosResponse<boolean
 const alterarEmail = (login: string, email: string): Promise<AxiosResponse<boolean>> =>
   api.put(`${URL_DEFAULT}/${login}/email`, { email });
 
+const alterarEmailDeValidacao = (
+    dados: AlterarEmailValidacaoDto,
+  ): Promise<AxiosResponse<boolean>> => api.put(`${URL_DEFAULT}/alterar-email`, { ...dados });
+  
+const alterarUnidade = (login: string, codigoEolUnidade: string): Promise<AxiosResponse<boolean>> =>
+    api.put(`${URL_DEFAULT}/${login}/unidade-eol`, { codigoEolUnidade });
+
 const alterarEmailEducacional = (login: string, email: string): Promise<AxiosResponse<boolean>> =>
   api.put(`${URL_DEFAULT}/${login}/email-educacional`, { email });
 
@@ -53,5 +60,7 @@ export default {
   alterarSenhaComTokenRecuperacao,
   tokenRecuperacaoSenhaEstaValido,
   cadastrarUsuarioExterno,
+  alterarUnidade,
+  alterarEmailDeValidacao,
   alterarEmailEducacional,
 };
