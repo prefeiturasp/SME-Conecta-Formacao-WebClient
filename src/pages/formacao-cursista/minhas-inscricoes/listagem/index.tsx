@@ -4,7 +4,14 @@ import { useContext } from 'react';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
 import { notification } from '~/components/lib/notification';
-import { DESEJA_CANCELAR_INSCRICAO } from '~/core/constants/mensagens';
+import {
+  CANCELAR_INSCRICAO,
+  DESEJA_CANCELAR_INSCRICAO,
+  DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
+  DESEJA_CANCELAR_INSCRICAO_CURSISTA,
+} from '~/core/constants/mensagens';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
+import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { URL_INSCRICAO, cancelarInscricao } from '~/core/services/inscricao-service';
 
@@ -22,6 +29,18 @@ export interface InscricaoProps {
 export const MinhasInscricoesListaPaginada = () => {
   const { tableState } = useContext(DataTableContext);
 
+  const mensagemConfirmacao = (record: InscricaoProps) => {
+    if (record.integrarNoSga && record.iniciado && ehCursista) {
+      return DESEJA_CANCELAR_INSCRICAO_CURSISTA;
+    } else if (record.integrarNoSga && record.iniciado && !ehCursista) {
+      return DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA;
+    } else if (!record.integrarNoSga && !record.iniciado && !ehCursista) {
+      return CANCELAR_INSCRICAO;
+    } else {
+      return DESEJA_CANCELAR_INSCRICAO;
+    }
+  };
+
   const columns: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '6%' },
     { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '10%' },
@@ -36,7 +55,10 @@ export const MinhasInscricoesListaPaginada = () => {
       render: (_, record) => {
         const cancelar = async () => {
           confirmacao({
-            content: DESEJA_CANCELAR_INSCRICAO,
+            content: mensagemConfirmacao(record),
+              record.integrarNoSga && record.iniciado && ehCursista
+                ? DESEJA_CANCELAR_INSCRICAO_CURSISTA
+                : DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
             onOk: async () => {
               const response = await cancelarInscricao(record.id);
               if (response.sucesso) {
@@ -60,5 +82,15 @@ export const MinhasInscricoesListaPaginada = () => {
     },
   ];
 
-  return <DataTable url={URL_INSCRICAO} columns={columns} />;
+  return (
+    <DataTable
+      url={URL_INSCRICAO}
+      columns={columns}
+      alterarRealizouFiltro={() => {
+        () => {
+          ('');
+        };
+      }}
+    />
+  );
 };

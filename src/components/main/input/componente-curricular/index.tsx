@@ -50,6 +50,12 @@ const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
     <Form.Item
       label='Componente Curricular'
       name='componentesCurriculares'
+      rules={[
+        {
+          required: campoRequerido,
+          message: 'É necessário informar o componente curricular',
+        },
+      ]}
       normalize={(value: number[], prevValue: number[]) => {
         if (exibirOpcaoTodos) {
           const opcaoTodos = options.find((item) => !!item.todos);

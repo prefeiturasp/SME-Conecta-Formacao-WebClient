@@ -122,6 +122,11 @@ const ListAreaPromotora: React.FC = () => {
               filters={filters}
               columns={columns}
               url='v1/AreaPromotora'
+              alterarRealizouFiltro={() => {
+                () => {
+                  ('');
+                };
+              }}
               onRow={(row) => ({
                 onClick: () => {
                   onClickEditar(row.id);

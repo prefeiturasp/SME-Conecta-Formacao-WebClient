@@ -8,9 +8,14 @@ import codigoUeService from '~/core/services/codigo-ue-service';
 type InputCodigoEolUEProps = {
   inputProps?: InputProps;
   formItemProps?: FormItemProps;
+  desativarBotaoAlterar?: (valor: boolean) => void;
 };
 
-const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formItemProps }) => {
+const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({
+  inputProps,
+  formItemProps,
+  desativarBotaoAlterar,
+}) => {
   const form = useFormInstance();
   const uesWatch = Form.useWatch('ues', form);
   const [loadingCodigoEOL, setLoadingCodigoEOL] = useState<boolean>(false);
@@ -23,6 +28,9 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({ inputProps, formIte
         const data: UnidadeEolDTO = resposta?.dados;
 
         form.setFieldsValue({ nomeUnidade: data.nomeUnidade });
+        if (desativarBotaoAlterar != undefined) {
+          desativarBotaoAlterar(false);
+        }
       })
       .finally(() => setLoadingCodigoEOL(false));
   };

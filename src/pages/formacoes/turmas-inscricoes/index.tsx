@@ -41,7 +41,9 @@ export const TurmasInscricoes = () => {
   useEffect(() => {
     form.resetFields();
   }, [form]);
-
+  const alterarRealizouFiltro = (valor: boolean) => {
+    setRealizouFiltro(valor);
+  };
   const onClickVoltar = () => navigate(ROUTES.FORMACAOES_INSCRICOES);
 
   const obterFiltros = () => {
@@ -151,6 +153,7 @@ export const TurmasInscricoes = () => {
                   <TurmasInscricoesListaPaginada
                     filters={filters}
                     realizouFiltro={realizouFiltro}
+                    alterarRealizouFiltro={alterarRealizouFiltro}
                   />
                 </DataTableContextProvider>
               </Col>

@@ -57,6 +57,10 @@ export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
 export const ENVIAR_INSCRICAO = 'Enviar inscrição';
 export const NOVA_INSCRICAO = 'Nova inscrição';
 export const DESEJA_CANCELAR_INSCRICAO = 'Você realmente deseja cancelar essa inscrição?';
+export const DESEJA_CANCELAR_INSCRICAO_CURSISTA =
+  'Ao cancelar a sua inscrição você será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
+export const DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA =
+  'Ao cancelar a inscrição o cursista será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
 export const CANCELAR_INSCRICAO =
   'Ao cancelar a inscrição o cursista perderá acesso a formação. Deseja realmente cancelar?';
 export const SAIBA_MAIS = 'Saiba mais';
@@ -73,5 +77,7 @@ export const ERRO_EMAIL_NAO_VALIDADO =
 export const INSCRICAO_ENVIADA_COM_SGA =
   'Sua inscrição foi confirmada. Na data de início da sua turma acesse o SGA para iniciar a formação.';
 export const INSCRICAO_ENVIADA_SEM_SGA = 'Sua inscrição foi confirmada.';
+export const TOOLTIP_SENHA =
+  'Informe a senha de acesso aos sistemas da SME (Plateia, Intranet, SGP). Caso nunca tenha acessado tente informar a senha padrão que é Sgp e os últimos 4 dígitos do RF.';
 export const SERVICO_INDISPONIVEL =
   'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';

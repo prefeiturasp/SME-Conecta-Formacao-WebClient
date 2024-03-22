@@ -1,4 +1,5 @@
-import { Button, Col, Form, Input, Row, Tooltip } from 'antd';
+import { Button, Col, Form, Input, Modal, Row, Tooltip, Typography } from 'antd';
+import { notification } from '~/components/lib/notification';
 import { useState } from 'react';
 
 import { useForm, useWatch } from 'antd/es/form/Form';
@@ -48,40 +49,71 @@ const Login = () => {
   };
 
   const onClickCriarConta = () => navigate(ROUTES.CADASTRO_DE_USUARIO);
+  const exibirInputAlterarEmail = () => {
+    setInformarEmail(true);
+  };
+  const validarEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const reEspacos = /\s/;
+    const reAcentos = /[áàãâéèêíïóôõöúçñÁÀÃÂÉÈÊÍÏÓÔÕÖÚÇÑ]/;
+
+    return !reEspacos.test(email) && !reAcentos.test(email) && re.test(email);
+  };
   const onClickEsqueciSenha = () => navigate(ROUTES.REDEFINIR_SENHA, { state: login });
-  const validarExibirErros = (erro: AxiosError<RetornoBaseDTO>) => {
-    const dataErro = erro?.response?.data;
-
-    if (erro?.response?.status === HttpStatusCode.Unauthorized) {
-      setErroGeral(dataErro?.mensagens);
-
-      if (dataErro?.mensagens.includes(ERRO_EMAIL_NAO_VALIDADO)) {
-        confirmacao({
-          content: dataErro?.mensagens,
-          onOk() {
-            usuarioService.reenviarEmail(login).then((resposta) => {
-              if (resposta.sucesso) {
-                notification.success({
-                  message: 'Sucesso',
-                  description: 'E-mail reenviado com sucesso!',
-                });
-              }
+  const alterarEmail: SearchProps['onSearch'] = (value, _e) => {
+    if (!validarEmail(value)) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'O e-mail não é válido.',
+      });
+      return;
+    }
+    dispatch(setSpinning(true));
+    if (value) {
+      setInformarEmail(false);
+      setOpenModal(false);
+      usuarioService
+        .alterarEmailDeValidacao({ login: login, senha: senha, email: value })
+        .then((resposta) => {
+          if (resposta?.status === HttpStatusCode.Ok) {
+            dispatch(setSpinning(false));
+            notification.success({
+              message: 'Sucesso',
+              description: 'E-mail alterado com sucesso!',
             });
-          },
-          okText: 'Reenviar',
-          cancelText: 'Cancelar',
+          }
+        })
+        .catch((error: AxiosError<RetornoBaseDTO>) => {
+          dispatch(setSpinning(false));
+          notification.warning({
+            message: 'Atenção',
+            description: error?.response?.data?.mensagens,
+          });
         });
+    } else {
+      dispatch(setSpinning(false));
+      notification.warning({
+        message: 'Atenção',
+        description: 'Informe um e-mail!',
+      });
+    }
+  };
+  const validarExibirErros = (erro: RetornoBaseDTO | undefined) => {
+    if (erro?.status === HttpStatusCode.Unauthorized) {
+      setErroGeral(erro?.mensagens);
+      if (erro?.mensagens.includes(ERRO_EMAIL_NAO_VALIDADO)) {
+        setOpenModal(true);
       }
       return;
     }
 
-    if (typeof dataErro === 'string') {
-      setErroGeral([dataErro]);
+    if (typeof erro === 'string') {
+      setErroGeral([erro]);
       return;
     }
 
-    if (dataErro?.mensagens?.length) {
-      setErroGeral(dataErro.mensagens);
+    if (erro?.mensagens?.length) {
+      setErroGeral(erro.mensagens);
       return;
     }
 
@@ -93,15 +125,23 @@ const Login = () => {
     autenticacaoService
       .autenticar(values)
       .then((resposta) => {
-        if (resposta?.sucesso) {
+        if (resposta?.dados?.autenticado) {
           //TODO Ambiente clarity ainda será criado
           //window.clarity('identify', loginValidado);
-          validarAutenticacao(resposta?.dados);
+          validarAutenticacao(resposta.dados);
         } else {
-          setErroGeral(resposta?.mensagens);
+          const erros: RetornoBaseDTO = {
+            existemErros: resposta?.sucesso,
+            mensagens: resposta?.mensagens,
+            status: resposta?.status,
+          };
+
+          validarExibirErros(erros);
         }
       })
-      .catch(validarExibirErros)
+      .catch((e: AxiosError<RetornoBaseDTO>) => {
+        validarExibirErros(e?.response?.data);
+      })
       .finally(() => dispatch(setSpinning(false)));
   };
 
@@ -125,40 +165,121 @@ const Login = () => {
   };
 
   return (
-    <Col span={14}>
-      <Form
-        requiredMark='optional'
-        form={form}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-        layout='vertical'
-        autoComplete='off'
-        validateMessages={validateMessages}
+    <>
+      <Modal
+        width={540}
+        title={informarEmail ? 'Alterar e-mail de validação de usuário' : 'Atenção'}
+        open={openModal}
+        destroyOnClose
+        closable={false}
+        footer={[
+          <Button
+            key={CF_BUTTON_CANCELAR}
+            type='text'
+            onClick={() => {
+              setInformarEmail(false);
+              setOpenModal(false);
+            }}
+            style={{
+              color: Colors.Neutral.DARK,
+              fontWeight: 500,
+              fontSize: 16,
+              padding: '0px 15px',
+            }}
+          >
+            Cancelar
+          </Button>,
+          <Button
+            key={CF_BUTTON_REENVIAR_EMAIL}
+            type='default'
+            disabled={informarEmail}
+            style={{
+              color: Colors.SystemSME.ConectaFormacao.PRIMARY,
+              border: `1px solid ${Colors.SystemSME.ConectaFormacao.PRIMARY}`,
+              fontSize: 16,
+              padding: '0px 15px',
+              borderRadius: 4,
+            }}
+            onClick={() => {
+              setInformarEmail(false);
+              setOpenModal(false);
+              usuarioService.reenviarEmail(login).then((resposta) => {
+                if (resposta.sucesso) {
+                  notification.success({
+                    message: 'Sucesso',
+                    description: 'E-mail reenviado com sucesso!',
+                  });
+                }
+              });
+            }}
+          >
+            Reenviar
+          </Button>,
+          <Button
+            key={CF_BUTTON_ALTERAR_EMAIL}
+            type='text'
+            disabled={informarEmail}
+            onClick={exibirInputAlterarEmail}
+            style={{
+              color: Colors.Neutral.DARK,
+              fontWeight: 500,
+              fontSize: 16,
+              padding: '0px 15px',
+            }}
+          >
+            Editar e-mail
+          </Button>,
+        ]}
       >
-        <Row justify='center' gutter={[0, 14]}>
-          <Col span={24}>
-            <Form.Item
-              tooltip={{
-                title: tooltipLogin,
-                icon: (
-                  <Tooltip>
-                    <FaQuestionCircle color={Colors.Neutral.DARK} />
-                  </Tooltip>
-                ),
-              }}
-              label='Usuário'
-              name='login'
-              hasFeedback={!login}
-              rules={[{ required: true }, { min: 5 }]}
-            >
-              <Input
-                placeholder='Informe o usuário'
-                suffix={<span />}
-                maxLength={100}
-                id={CF_INPUT_LOGIN}
-              />
-            </Form.Item>
-          </Col>
+        {informarEmail ? (
+          <Search
+            placeholder='Informe o e-mail'
+            allowClear
+            enterButton='Alterar'
+            size='large'
+            onSearch={alterarEmail}
+          />
+        ) : (
+          <Typography
+            style={{ fontSize: 16, height: 'auto', width: 'auto', textAlign: 'justify' }}
+            dangerouslySetInnerHTML={{ __html: ERRO_EMAIL_NAO_VALIDADO_ALTERAR_EMAIL }}
+          />
+        )}
+      </Modal>
+      <Col span={14}>
+        <Form
+          requiredMark='optional'
+          form={form}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          layout='vertical'
+          autoComplete='off'
+          validateMessages={validateMessages}
+        >
+          <Row justify='center' gutter={[0, 14]}>
+            <Col span={24}>
+              <Form.Item
+                tooltip={{
+                  title: tooltipLogin,
+                  icon: (
+                    <Tooltip>
+                      <FaQuestionCircle color={Colors.Neutral.DARK} />
+                    </Tooltip>
+                  ),
+                }}
+                label='Usuário'
+                name='login'
+                hasFeedback={!login}
+                rules={[{ required: true }, { min: 5 }]}
+              >
+                <Input
+                  placeholder='Informe o usuário'
+                  suffix={<span />}
+                  maxLength={100}
+                  id={CF_INPUT_LOGIN}
+                />
+              </Form.Item>
+            </Col>
 
           <Col span={24}>
             <Form.Item

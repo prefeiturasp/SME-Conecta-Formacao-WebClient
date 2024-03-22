@@ -74,6 +74,25 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                   placeholder='Função específica'
                   id={CF_SELECT_FUNCAO_ESPECIFICA}
                   onChange={(value) => {
+                    if (value.length) {
+                      existeValoresSelecionados(true);
+                      form.setFieldValue('anosTurmas', undefined);
+                      form.setFieldValue('componentesCurriculares', undefined);
+                      definiOutrosCamposComoRequerido(false);
+                      form.setFields([
+                        {
+                          name: 'componentesCurriculares',
+                          errors: [],
+                        },
+                        {
+                          name: 'anosTurmas',
+                          errors: [],
+                        },
+                      ]);
+                    } else {
+                      existeValoresSelecionados(false);
+                      definiOutrosCamposComoRequerido(false);
+                    }
                     const values = validarOnChangeMultiSelectOutros(value, funcoesEspecificas);
                     form.setFieldValue('funcoesEspecificas', values);
                     form.setFieldValue('funcaoEspecificaOutros', '');

@@ -15,7 +15,7 @@ const autenticar = (dados: AutenticacaoDTO) => {
     .post(URL_DEFAULT, { ...dados })
     .then(
       (response: AxiosResponse<RetornoPerfilUsuarioDTO>): ApiResult<RetornoPerfilUsuarioDTO> => {
-        return { sucesso: true, dados: response?.data, mensagens: [] };
+        return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
       },
     )
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
@@ -25,7 +25,7 @@ const autenticar = (dados: AutenticacaoDTO) => {
 
       if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL];
 
-      return { sucesso: false, mensagens, dados: null };
+      return { sucesso: false, mensagens, dados: null, status: error?.response?.status };
     })
     .finally(() => store.dispatch(setSpinning(false)));
 };
