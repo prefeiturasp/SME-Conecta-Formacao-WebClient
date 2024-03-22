@@ -34,6 +34,7 @@ import funcionarioExternoService from '~/core/services/funcionario-externo-servi
 import usuarioService from '~/core/services/usuario-service';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import SelectUEs from './components/ue';
+import InputEmailEducacional from '~/components/main/input/email-educacional';
 
 export const CadastroDeUsuario = () => {
   const [form] = useForm();
@@ -100,7 +101,6 @@ export const CadastroDeUsuario = () => {
 
   const onFinish = (values: CadastroUsuarioFormDTO) => {
     dispatch(setSpinning(true));
-
     usuarioService
       .cadastrarUsuarioExterno({
         cpf: values.cpf,
@@ -109,6 +109,7 @@ export const CadastroDeUsuario = () => {
         codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
         senha: values.senha,
         confirmarSenha: values.confirmarSenha,
+        emailEducacional: values.emailEducacional+'@edu.sme.prefeitura.sp.gov.br',
       })
       .then((resposta) => {
         if (resposta.dados) {
@@ -222,6 +223,9 @@ export const CadastroDeUsuario = () => {
           </Col>
           <Col span={24}>
             <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} formItemProps={{ required: true }} />
+          </Col>
+          <Col span={24}>
+            <InputEmailEducacional />
           </Col>
           {cpfValido && (
             <Col span={24}>
