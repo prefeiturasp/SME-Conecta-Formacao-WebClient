@@ -5,6 +5,7 @@ import { RecuperacaoSenhaDTO } from '../dto/recuperacao-senha-dto';
 import { RetornoPerfilUsuarioDTO } from '../dto/retorno-perfil-usuario-dto';
 import { SenhaNovaDTO } from '../dto/senha-nova-dto';
 import api, { inserirRegistro, obterRegistro } from './api';
+import { AlterarEmailValidacaoDto } from '../dto/alterar-email-validacao-dto';
 
 const URL_DEFAULT = 'v1/usuario';
 
@@ -18,11 +19,11 @@ const alterarEmail = (login: string, email: string): Promise<AxiosResponse<boole
   api.put(`${URL_DEFAULT}/${login}/email`, { email });
 
 const alterarEmailDeValidacao = (
-    dados: AlterarEmailValidacaoDto,
-  ): Promise<AxiosResponse<boolean>> => api.put(`${URL_DEFAULT}/alterar-email`, { ...dados });
-  
+  dados: AlterarEmailValidacaoDto,
+): Promise<AxiosResponse<boolean>> => api.put(`${URL_DEFAULT}/alterar-email`, { ...dados });
+
 const alterarUnidade = (login: string, codigoEolUnidade: string): Promise<AxiosResponse<boolean>> =>
-    api.put(`${URL_DEFAULT}/${login}/unidade-eol`, { codigoEolUnidade });
+  api.put(`${URL_DEFAULT}/${login}/unidade-eol`, { codigoEolUnidade });
 
 const alterarEmailEducacional = (login: string, email: string): Promise<AxiosResponse<boolean>> =>
   api.put(`${URL_DEFAULT}/${login}/email-educacional`, { email });

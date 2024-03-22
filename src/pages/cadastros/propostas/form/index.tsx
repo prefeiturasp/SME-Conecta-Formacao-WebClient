@@ -74,6 +74,8 @@ const FormCadastroDePropostas: React.FC = () => {
   const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
 
   const [openModalErros, setOpenModalErros] = useState(false);
+  const [existePublicoAlvo, setExistePublicoAlvo] = useState(false);
+  const [existeFuncaoEspecifica, setFuncaoEspecifica] = useState(false);
   const [recarregarTurmas, setRecarregarTurmas] = useState(false);
   const [listaErros, setListaErros] = useState<string[]>([]);
 
@@ -172,6 +174,7 @@ const FormCadastroDePropostas: React.FC = () => {
       cursoComCertificado: false,
       acaoInformativa: false,
       nomeSituacao: SituacaoPropostaTagDisplay[SituacaoProposta.Rascunho],
+      desativarAnoEhComponente: false,
     };
 
     setListaDres(listaDres);
@@ -184,7 +187,6 @@ const FormCadastroDePropostas: React.FC = () => {
     setLoading(true);
     const resposta = await obterPropostaPorId(id);
     const dados = resposta.dados;
-
     if (resposta.sucesso) {
       const retornolistaDres = await obterDREs(true);
 
@@ -244,11 +246,13 @@ const FormCadastroDePropostas: React.FC = () => {
 
       let publicosAlvo: number[] = [];
       if (dados?.publicosAlvo?.length) {
+        setExistePublicoAlvo(true);
         publicosAlvo = dados.publicosAlvo.map((item) => item.cargoFuncaoId);
       }
 
       let funcoesEspecificas: number[] = [];
       if (dados?.funcoesEspecificas?.length) {
+        setFuncaoEspecifica(true);
         funcoesEspecificas = dados.funcoesEspecificas.map((item) => item.cargoFuncaoId);
       }
 
@@ -304,7 +308,7 @@ const FormCadastroDePropostas: React.FC = () => {
       }
 
       const quantidadeTurmasOriginal = dados?.quantidadeTurmas;
-
+      const desativarAnoEhComponente = dados?.desativarAnoEhComponente;
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
@@ -323,6 +327,7 @@ const FormCadastroDePropostas: React.FC = () => {
         criterioCertificacao,
         tiposInscricao,
         quantidadeTurmasOriginal,
+        desativarAnoEhComponente,
       };
 
       setListaDres(listaDres);
@@ -360,6 +365,7 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
+    console.log('salvar');
     let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
@@ -404,6 +410,7 @@ const FormCadastroDePropostas: React.FC = () => {
       publicosAlvo: [],
       funcoesEspecificas: [],
       funcaoEspecificaOutros: clonedValues?.funcaoEspecificaOutros || '',
+      publicoAlvoOutros: clonedValues?.publicoAlvoOutros || '',
       vagasRemanecentes: [],
       criteriosValidacaoInscricao: [],
       criterioValidacaoInscricaoOutros: clonedValues?.criterioValidacaoInscricaoOutros || '',
@@ -433,6 +440,7 @@ const FormCadastroDePropostas: React.FC = () => {
       anosTurmas: [],
       componentesCurriculares: [],
       integrarNoSGA: clonedValues?.integrarNoSGA,
+      desativarAnoEhComponente: clonedValues?.desativarAnoEhComponente,
     };
 
     if (clonedValues?.dres?.length) {
@@ -612,6 +620,8 @@ const FormCadastroDePropostas: React.FC = () => {
           <FormInformacoesGerais
             formInitialValues={formInitialValues}
             listaDres={listaDres}
+            existePublicoAlvo={existePublicoAlvo}
+            existeFuncaoEspecifica={existeFuncaoEspecifica}
             tipoInstituicao={tipoInstituicao}
           />
         </Form.Item>
@@ -636,7 +646,6 @@ const FormCadastroDePropostas: React.FC = () => {
       .validateFields()
       .then(() => {
         let situacao = formInitialValues?.situacao;
-
         if (situacao == SituacaoProposta.Rascunho) {
           situacao = SituacaoProposta.Cadastrada;
         } else if (situacao == SituacaoProposta.Alterando) {
@@ -810,6 +819,20 @@ const FormCadastroDePropostas: React.FC = () => {
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
                       disabled={desabilitarCampos}
                       onClick={() => {
+                        const publicosAlvosNumeros: number[] = form.getFieldValue('publicosAlvo');
+                        const funcoesEspecificasNumeros: number[] =
+                          form.getFieldValue('funcoesEspecificas');
+                        if (
+                          publicosAlvosNumeros.length == 0 &&
+                          funcoesEspecificasNumeros.length == 0
+                        ) {
+                          setListaErros([
+                            'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
+                          ]);
+                          showModalErros();
+                          return;
+                        }
+
                         const enviarProposta =
                           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
                           formInitialValues?.situacao !== SituacaoProposta.Alterando;

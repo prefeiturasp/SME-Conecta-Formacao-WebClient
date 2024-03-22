@@ -17,6 +17,8 @@ type ModalEditDefaultServiceProps = {
   nome: string;
   email: string;
   telefone: string;
+  nomeUnidade: string;
+  codigoUnidade: string;
 } & SenhaNovaDTO;
 
 type ModalEditDefaultProps = {
@@ -27,6 +29,7 @@ type ModalEditDefaultProps = {
   mensagemConfirmarCancelar: string;
   permiteEdicao?: boolean;
   closeModal: () => void;
+  desativarBotaoAlterar?: boolean;
 } & PropsWithChildren;
 
 const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
@@ -35,21 +38,30 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
   title,
   form,
   mensagemConfirmarCancelar,
+  desativarBotaoAlterar = false,
   closeModal,
   children,
 }) => {
   const [loading, setLoading] = useState(false);
 
+  const mensagemSucesso = (
+    <>
+      <p>
+        Registro alterado com sucesso!
+        <br />
+        Por favor, realize o login novamente para aplicar a alteração no sistema
+      </p>
+    </>
+  );
   const openNotificationSuccess = () => {
     notification.success({
       message: 'Sucesso',
-      description: 'Registro alterado com sucesso!',
+      description: mensagemSucesso,
     });
   };
 
   const handleOk = () => {
     setLoading(true);
-
     service(form.getFieldsValue())
       .then((resposta) => {
         if (resposta?.status === HttpStatusCode.Ok && resposta?.data && updateFields) {
@@ -111,7 +123,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
       centered
       destroyOnClose
       cancelButtonProps={{ disabled: loading, id: CF_BUTTON_MODAL_CANCELAR }}
-      okButtonProps={{ disabled: loading, id: CF_BUTTON_MODAL_ALTERAR }}
+      okButtonProps={{ disabled: loading || desativarBotaoAlterar, id: CF_BUTTON_MODAL_ALTERAR }}
       closable={!loading}
       maskClosable={!loading}
       keyboard={!loading}
