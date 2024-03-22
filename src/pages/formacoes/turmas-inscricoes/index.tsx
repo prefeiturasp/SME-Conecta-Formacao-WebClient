@@ -6,6 +6,7 @@ import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
+import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
@@ -13,11 +14,10 @@ import { CF_INPUT_NOME, CF_INPUT_NOME_FORMACAO, CF_INPUT_RF } from '~/core/const
 import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TurmasInscricoesListaPaginada } from './listagem';
-import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 
 export interface FiltroTurmaInscricoesProps {
   cpf: number | null;
-  turmasId: number[] | null;
+  turmaId: number | null;
   nomeCursista: string | null;
   registroFuncional: number | null;
 }
@@ -33,7 +33,7 @@ export const TurmasInscricoes = () => {
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
-    turmasId: null,
+    turmaId: null,
     nomeCursista: null,
     registroFuncional: null,
   });
@@ -49,15 +49,15 @@ export const TurmasInscricoes = () => {
   const obterFiltros = () => {
     setRealizouFiltro(true);
     const cpf = form.getFieldValue('cpf');
-    const turmasId = form.getFieldValue('turmas');
+    const turmaId = form.getFieldValue('turmaId');
     const nomeCursista = form.getFieldValue('nomeCursista');
     const registroFuncional = form.getFieldValue('registroFuncional');
-    if (!cpf && turmasId?.length == 0 && !nomeCursista && !registroFuncional) {
+    if (!cpf && !turmaId && !nomeCursista && !registroFuncional) {
       setRealizouFiltro(false);
     }
     setFilters({
       cpf: cpf,
-      turmasId: turmasId,
+      turmaId: turmaId,
       nomeCursista: nomeCursista,
       registroFuncional: registroFuncional,
     });
@@ -83,15 +83,14 @@ export const TurmasInscricoes = () => {
           <Col span={24}>
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={6}>
-                <SelectTodasTurmas
+                <SelectTurmaEncontros
                   idProposta={id}
                   exibirTooltip={false}
-                  required={false}
-                  onChange={obterFiltros}
-                  maxTagCount={1}
+                  selectProps={{ onChange: obterFiltros }}
+                  selectMultiplo={false}
                   formItemProps={{
                     label: 'Turma',
-                    name: 'turmas',
+                    name: 'turmaId',
                     style: { fontWeight: 'bold' },
                     rules: [{ required: false }],
                   }}

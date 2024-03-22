@@ -13,8 +13,6 @@ import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situ
 import { confirmacao } from '~/core/services/alerta-service';
 import { cancelarInscricao } from '~/core/services/inscricao-service';
 import { FiltroTurmaInscricoesProps } from '..';
-import { useAppSelector } from '~/core/hooks/use-redux';
-import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 
 interface TurmasInscricoesListaPaginadaProps {
   filters?: FiltroTurmaInscricoesProps;
@@ -31,8 +29,6 @@ export interface TurmaInscricaoProps {
   cargoFuncao: string;
   situacao: string;
   podeCancelar?: boolean;
-  integrarNoSga: boolean;
-  iniciado: boolean;
 }
 
 export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPaginadaProps> = ({
@@ -43,9 +39,6 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
   const params = useParams();
   const id = params.id;
   const { tableState } = useContext(DataTableContext);
-  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
-
-  const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
   const mensagemConfirmacao = (record: TurmaInscricaoProps) => {
     if (record.integrarNoSga && record.iniciado && !ehCursista) {
@@ -61,7 +54,6 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     { title: 'CPF', dataIndex: 'cpf' },
     { title: 'Nome do cursista', dataIndex: 'nomeCursista' },
     { title: 'Cargo/Função Atividade', dataIndex: 'cargoFuncao' },
-    { title: 'Origem', dataIndex: 'origem' },
     { title: 'Situação', dataIndex: 'situacao' },
     {
       title: 'Ações',

@@ -410,7 +410,6 @@ const FormCadastroDePropostas: React.FC = () => {
       publicosAlvo: [],
       funcoesEspecificas: [],
       funcaoEspecificaOutros: clonedValues?.funcaoEspecificaOutros || '',
-      publicoAlvoOutros: clonedValues?.publicoAlvoOutros || '',
       vagasRemanecentes: [],
       criteriosValidacaoInscricao: [],
       criterioValidacaoInscricaoOutros: clonedValues?.criterioValidacaoInscricaoOutros || '',

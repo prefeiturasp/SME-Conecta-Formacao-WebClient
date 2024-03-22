@@ -9,15 +9,11 @@ import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { validarOnChangeMultiSelectOutros } from '~/core/utils/functions';
 
 type SelectFuncaoEspecifica = {
-  existeValoresSelecionados: (value: boolean) => void;
-  definiOutrosCamposComoRequerido: (value: boolean) => void;
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
 };
 
 const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
-  existeValoresSelecionados,
-  definiOutrosCamposComoRequerido,
   formItemProps,
   selectProps,
 }) => {
@@ -47,6 +43,7 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
         const funcoesEspecificas: number[] = form.getFieldValue('funcoesEspecificas');
 
         let campoOutros = null;
+
         if (funcoesEspecificas?.length) {
           const ehOutros = options.some(
             (option: any) => funcoesEspecificas.includes(option.value) && option.outros,

@@ -26,6 +26,7 @@ const InputCodigoEolUE: React.FC<InputCodigoEolUEProps> = ({
       .obterUePorCodigoEOL(value)
       .then((resposta) => {
         const data: UnidadeEolDTO = resposta?.dados;
+
         form.setFieldsValue({ nomeUnidade: data.nomeUnidade });
         if (desativarBotaoAlterar != undefined) {
           desativarBotaoAlterar(false);

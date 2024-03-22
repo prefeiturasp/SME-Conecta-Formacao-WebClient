@@ -72,7 +72,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     }
   }, [carregarDados, dadosEncontro?.id]);
 
-  const disabledDate: RangePickerProps['disabledDate'] = (current: any) => {
+  const disabledDate: RangePickerProps['disabledDate'] = (current) => {
     const dataInicial = periodoRealizacao?.dataInicio;
     const dataFinal = periodoRealizacao?.dataFim;
 
@@ -82,7 +82,6 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     validarAlteracaoEmCampos();
     setTipoEncontroSelecionado(formDrawer.getFieldValue('tipoEncontro'));
   };
-
   const salvarDadosForm = async (values: FormularioDrawerEncontro) => {
     const horarios = values?.horarios;
     const horaInicio = horarios[0].format('HH:mm');
@@ -213,7 +212,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                   <SelectTodasTurmas
                     idProposta={propostaId}
                     exibirTooltip={false}
-                    onChange={validarAlteracaoEmCampos}
+                    selectProps={{ onChange: validarAlteracaoEmCampos }}
                   />
                 </Col>
 
@@ -234,7 +233,6 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                       style={{ width: '100%' }}
                       onChange={validarAlteracaoEmCampos}
                       locale={localeDatePicker}
-                      needConfirm={false}
                     />
                   </Form.Item>
                 </Col>
