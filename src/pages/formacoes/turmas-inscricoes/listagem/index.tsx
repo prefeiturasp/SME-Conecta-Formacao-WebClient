@@ -5,15 +5,21 @@ import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
 import { notification } from '~/components/lib/notification';
-import { CANCELAR_INSCRICAO } from '~/core/constants/mensagens';
+import {
+  CANCELAR_INSCRICAO,
+  DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
+} from '~/core/constants/mensagens';
 import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situacao-inscricao';
 import { confirmacao } from '~/core/services/alerta-service';
 import { cancelarInscricao } from '~/core/services/inscricao-service';
 import { FiltroTurmaInscricoesProps } from '..';
+import { useAppSelector } from '~/core/hooks/use-redux';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 
 interface TurmasInscricoesListaPaginadaProps {
   filters?: FiltroTurmaInscricoesProps;
   realizouFiltro?: boolean;
+  alterarRealizouFiltro: (valor: boolean) => void;
 }
 
 export interface TurmaInscricaoProps {
@@ -25,15 +31,29 @@ export interface TurmaInscricaoProps {
   cargoFuncao: string;
   situacao: string;
   podeCancelar?: boolean;
+  integrarNoSga: boolean;
+  iniciado: boolean;
 }
 
 export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPaginadaProps> = ({
   filters,
   realizouFiltro,
+  alterarRealizouFiltro,
 }) => {
   const params = useParams();
   const id = params.id;
   const { tableState } = useContext(DataTableContext);
+  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
+
+  const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
+
+  const mensagemConfirmacao = (record: TurmaInscricaoProps) => {
+    if (record.integrarNoSga && record.iniciado && !ehCursista) {
+      return DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA;
+    } else {
+      return CANCELAR_INSCRICAO;
+    }
+  };
 
   const columns: ColumnsType<TurmaInscricaoProps> = [
     { title: 'Turma', dataIndex: 'nomeTurma' },
@@ -41,6 +61,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     { title: 'CPF', dataIndex: 'cpf' },
     { title: 'Nome do cursista', dataIndex: 'nomeCursista' },
     { title: 'Cargo/Função Atividade', dataIndex: 'cargoFuncao' },
+    { title: 'Origem', dataIndex: 'origem' },
     { title: 'Situação', dataIndex: 'situacao' },
     {
       title: 'Ações',
@@ -48,7 +69,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
       render: (_, record) => {
         const cancelar = async () => {
           confirmacao({
-            content: CANCELAR_INSCRICAO,
+            content: mensagemConfirmacao(record),
             onOk: async () => {
               const response = await cancelarInscricao(record.inscricaoId);
               if (response.sucesso) {
@@ -82,6 +103,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
       columns={columns}
       filters={filters}
       realizouFiltro={realizouFiltro}
+      alterarRealizouFiltro={alterarRealizouFiltro}
     />
   );
 };
