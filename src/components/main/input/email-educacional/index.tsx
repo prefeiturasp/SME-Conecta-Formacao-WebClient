@@ -1,29 +1,15 @@
-import { Form, FormItemProps, Input, InputProps } from 'antd';
+import { Form, Input } from 'antd';
 import React, { useState } from 'react';
 import { CF_INPUT_EMAIL_EDUCACIONAL } from '~/core/constants/ids/input';
 
-type InputEmailEducacionalProps = {
-  inputProps?: InputProps;
-  formItemProps?: FormItemProps;
-};
-
-const InputEmailEducacional: React.FC<InputEmailEducacionalProps> = ({
-  inputProps,
-  formItemProps,
-}) => {
+const InputEmailEducacional: React.FC = ({}) => {
   const form = Form.useFormInstance();
   const [exibirErro, setExibirErro] = useState(true);
-  const validarEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const reEspacos = /\s/;
-    const reAcentos = /[áàãâéèêíïóôõöúçñÁÀÃÂÉÈÊÍÏÓÔÕÖÚÇÑ]/;
-
-    return !reEspacos.test(email) && !reAcentos.test(email) && re.test(email);
-  };
   const removerEspacoEmail = () => {
     const emailEdu = form.getFieldValue('emailEducacional');
 
-    const emailEduSemEspaco = emailEdu != null && emailEdu != undefined ? emailEdu?.trim() : null;
+    const emailEduSemEspaco =
+      emailEdu != null && emailEdu != undefined ? emailEdu?.trim().split('@')[0] : null;
 
     form.setFieldValue('emailEducacional', emailEduSemEspaco);
     setExibirErro(false);
@@ -33,32 +19,22 @@ const InputEmailEducacional: React.FC<InputEmailEducacionalProps> = ({
         errors: [],
       },
     ]);
-    const emailValido = validarEmail(emailEduSemEspaco);
-
-    if(!emailValido){
-      setExibirErro(true);
-    }
   };
   return (
     <Form.Item
       label='E-mail @edu'
       name='emailEducacional'
-      rules={[
-        { required: !!formItemProps?.required },
-        { type: 'email', message: exibirErro ? 'Não é um e-mail válido' : '' },
-      ]}
-      {...formItemProps}
+      rules={[{ required: true }, { message: exibirErro ? 'Não é um e-mail válido' : '' }]}
     >
       <Input
-        placeholder='Informe o e-mail @edu'
+        placeholder='Digite o e-mail sem o @edu.sme.prefeitura.sp.gov.br'
         autoComplete='off'
         onChange={(_) => {
-          console.log('emailUnico');
           removerEspacoEmail();
         }}
         maxLength={100}
+        suffix='@edu.sme.prefeitura.sp.gov.br'
         id={CF_INPUT_EMAIL_EDUCACIONAL}
-        {...inputProps}
       />
     </Form.Item>
   );

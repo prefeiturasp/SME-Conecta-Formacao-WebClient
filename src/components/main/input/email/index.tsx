@@ -42,7 +42,7 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
     ]);
     if(emailRegexEdu.test(emailsParaAdicionar)){
       if(!emailRegexEdu.test(emailEdu)){
-        form.setFieldValue('emailEducacional', emailsParaAdicionar);
+        form.setFieldValue('emailEducacional', emailsParaAdicionar.split('@')[0]);
       } 
     }
   };
@@ -55,7 +55,7 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
       name='email'
       rules={[
         { required: !!formItemProps?.required },
-        { type: 'email', message: exibirErro ? 'Não é um e-mail válido' : '' },
+        { message: exibirErro ? 'Não é um e-mail válido' : '' },
       ]}
       {...formItemProps}
     >
