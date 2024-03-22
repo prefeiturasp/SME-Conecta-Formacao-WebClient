@@ -1,14 +1,13 @@
-import { Button, Col, Drawer, Form, Row, Space } from 'antd';
+import { Button, Col, Drawer, Form, Row, Space, Spin } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { DataTableContext } from '~/components/lib/card-table/provider';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import EditorTexto from '~/components/main/input/editor-texto';
 import InputRegistroFuncionalNome from '~/components/main/input/input-registro-funcional-nome';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
-import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
+import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 import { CF_BUTTON_EXCLUIR, CF_BUTTON_MODAL_CANCELAR } from '~/core/constants/ids/button/intex';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -19,23 +18,23 @@ import {
   obterPropostaRegentePorId,
   salvarPropostaProfissionalRegente,
 } from '~/core/services/proposta-service';
+import { formatterCPFMask } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerRegenteProps = {
   openModal: boolean;
-  onCloseModal: () => void;
+  onCloseModal: (recarregarLista: boolean) => void;
   id?: number;
 };
 
 const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, id = 0 }) => {
-  const { tableState } = useContext(DataTableContext);
-
   const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [formDrawer] = useForm();
   const paramsRoute = useParams();
 
   const [formInitialValues, setFormInitialValues] = useState<PropostaRegenteDTO>();
+  const [carregando, setCarregando] = useState<boolean>(false);
 
   const propostaId = paramsRoute?.id || 0;
 
@@ -44,19 +43,13 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES,
         onOk() {
-          onCloseModal();
+          onCloseModal(reloadData);
           formDrawer.resetFields();
-          if (reloadData) {
-            tableState.reloadData();
-          }
         },
       });
     } else {
-      onCloseModal();
+      onCloseModal(reloadData);
       formDrawer.resetFields();
-      if (reloadData) {
-        tableState.reloadData();
-      }
     }
   };
 
@@ -91,6 +84,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
   };
 
   const obterDados = useCallback(async () => {
+    setCarregando(true);
     if (id) {
       const response = await obterPropostaRegentePorId(id);
 
@@ -98,11 +92,13 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
         if (response.dados?.turmas?.length) {
           response.dados.turmas = response.dados.turmas.map((item) => item?.turmaId);
         }
-
+        if (response.dados.cpf) response.dados.cpf = formatterCPFMask(response.dados.cpf);
         setFormInitialValues({ ...response.dados });
+        setCarregando(false);
         return;
       }
     }
+    setCarregando(false);
   }, [id]);
 
   useEffect(() => {
@@ -177,6 +173,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
               </Space>
             }
           >
+            <Spin spinning={carregando}> </Spin>
             <Col span={24}>
               <Row gutter={[16, 8]}>
                 <Col xs={12}>
@@ -190,6 +187,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                         formDrawer.resetFields(['registroFuncional', 'nomeRegente']);
                         formDrawer.setFieldValue('registroFuncional', '');
                         formDrawer.setFieldValue('nomeRegente', '');
+                        formDrawer.setFieldValue('cpf', '');
                       },
                     }}
                   />
@@ -203,6 +201,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                       return (
                         <Row gutter={[16, 8]}>
                           <InputRegistroFuncionalNome
+                            exibirCpf={!ehRedeMunicipal}
                             formItemPropsRF={{ rules: [{ required: rfEhObrigatorio }] }}
                             formItemPropsNome={{
                               rules: [{ required: !rfEhObrigatorio }],
@@ -240,7 +239,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                 </Col>
 
                 <Col xs={24}>
-                  <SelectTurmaEncontros idProposta={propostaId} exibirTooltip={false} />
+                  <SelectTodasTurmas idProposta={propostaId} exibirTooltip={false} />
                 </Col>
               </Row>
             </Col>

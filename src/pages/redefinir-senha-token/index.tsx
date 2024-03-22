@@ -22,6 +22,7 @@ import { setDadosLogin } from '~/core/redux/modules/auth/actions';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import TokenExpirado from './token-expirado';
 import Spin from '~/components/main/spin';
+import { setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
 
 const RedefinirSenhaToken = () => {
   const dispatch = useAppDispatch();
@@ -90,6 +91,7 @@ const RedefinirSenhaToken = () => {
       .alterarSenhaComTokenRecuperacao({ novaSenha: values.novaSenha, token })
       .then((resposta) => {
         if (resposta.status === HttpStatusCode.Ok) {
+          setPerfilUsuario(resposta.data.perfilUsuario);
           dispatch(setDadosLogin(resposta.data));
           navigate(ROUTES.PRINCIPAL);
         }

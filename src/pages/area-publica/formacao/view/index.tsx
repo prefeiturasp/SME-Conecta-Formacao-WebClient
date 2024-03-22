@@ -1,6 +1,6 @@
 import { Col, Row, Tag, Typography } from 'antd';
 import { FC, useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PALAVRAS_CHAVES, PUBLICO_ALVO, SOBRE_ESTE_EVENTO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
@@ -9,6 +9,10 @@ import { Colors } from '~/core/styles/colors';
 import CardTurmasPublico from '../../components/card-turmas';
 import DadosDestaque from '../list/components/dados-destaque';
 import { DivTitulo, TextTitulo } from '../list/styles';
+import { ROUTES } from '~/core/enum/routes-enum';
+import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
+import ButtonVoltar from '~/components/main/button/voltar';
+import HeaderPage from '~/components/lib/header-page';
 
 const PalavraChave = styled(Tag)`
   font-size: 14px;
@@ -30,13 +34,15 @@ const VisualizarFormacao: FC = () => {
   const [dadosFormacao, setDadosFormacao] = useState<RetornoDetalheFormacaoDTO>();
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
-
+  const navigate = useNavigate();
   const carregarDados = useCallback(async () => {
     const formacao = await obterDadosFormacao(id);
     if (formacao.sucesso) {
       setDadosFormacao(formacao.dados);
     }
   }, [id]);
+
+  const onClickVoltar = () => navigate(ROUTES.AREA_PUBLICA);
 
   useEffect(() => {
     if (id) {
@@ -46,6 +52,15 @@ const VisualizarFormacao: FC = () => {
 
   return (
     <>
+      <HeaderPage title=''>
+        <Col span={24}>
+          <Row gutter={[8, 8]}>
+            <Col>
+              <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+            </Col>
+          </Row>
+        </Col>
+      </HeaderPage>
       <DadosDestaque dadosFormacao={dadosFormacao} />
 
       <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>

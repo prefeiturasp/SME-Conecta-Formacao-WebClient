@@ -18,8 +18,9 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
   formItemProps,
   areaPublica,
 }) => {
+  const form = Form.useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
-
+  const [disabledSelect, setDisabledSelect] = useState(false);
   const obterDados = async () => {
     const resposta = areaPublica
       ? await obterAreaPromotoraPublico()
@@ -27,14 +28,17 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
       setOptions(newOptions);
+      if (newOptions.length == 1) {
+        form.setFieldValue('areaPromotoraId', newOptions[0].value);
+        setDisabledSelect(true);
+      }
     } else {
       setOptions([]);
     }
   };
-
   useEffect(() => {
     obterDados();
-  }, []);
+  }, [disabledSelect]);
 
   return (
     <>
@@ -44,6 +48,7 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
           options={options}
           placeholder='Área promotora'
           id={CF_SELECT_AREA_PROMOTORA}
+          disabled={disabledSelect}
         />
       </Form.Item>
     </>

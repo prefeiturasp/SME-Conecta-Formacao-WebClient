@@ -22,7 +22,7 @@ export const PROPOSTA_SALVA_SUCESSO = 'Proposta salva com sucesso';
 export const PROPOSTA_ENVIADA = 'Proposta enviada com sucesso';
 export const ERRO_CAMPOS_OBRIGATORIOS = 'Existem campos obrigatórios não preenchidos';
 export const APOS_ENVIAR_PROPOSTA_NAO_EDITA =
-  'Após o envio da proposta não será possível realizar edições, tem certeza que deseja enviar?';
+  'Após enviar, a proposta será publicada e poderá ser apresentada na área pública. Tem certeza que deseja enviar a proposta?';
 export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a modalidade';
 export const FORMATO_NAO_INFORMADO = 'É necessário informar o formato';
 export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
@@ -70,3 +70,8 @@ export const CADASTRO_ENVIADO =
   'Cadastro inserido com sucesso. Enviamos um e-mail para validação do seu cadastro. Confira a sua caixa de entrada!';
 export const ERRO_EMAIL_NAO_VALIDADO =
   "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar'";
+export const INSCRICAO_ENVIADA_COM_SGA =
+  'Sua inscrição foi confirmada. Na data de início da sua turma acesse o SGA para iniciar a formação.';
+export const INSCRICAO_ENVIADA_SEM_SGA = 'Sua inscrição foi confirmada.';
+export const SERVICO_INDISPONIVEL =
+  'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';

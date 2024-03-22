@@ -45,6 +45,7 @@ export const CardFiltroFormacao: FC = () => {
         <SelectFormato
           formItemProps={{ name: 'formatosIds', label: 'Formato', rules: [{ required: false }] }}
           selectProps={{ placeholder: 'Formato' }}
+          publico={true}
           exibirTooltip={false}
         />
       </Col>

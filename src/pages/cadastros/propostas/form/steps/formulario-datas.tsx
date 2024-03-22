@@ -41,8 +41,10 @@ const contentStyleTituloListagem: React.CSSProperties = {
   color: 'black',
   fontWeight: 'bold',
 };
-
-const FormularioDatas: React.FC = () => {
+type FormularioDatasProps = {
+  recarregarTurmas: boolean;
+};
+const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
   const form = Form.useFormInstance();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const paramsRoute = useParams();
@@ -51,6 +53,10 @@ const FormularioDatas: React.FC = () => {
   const refTable = useRef<any>(null);
 
   const datasPeriodoRealizacao = Form.useWatch('periodoRealizacao', form);
+
+  if (recarregarTurmas) {
+    refTable.current?.reloadTable();
+  }
 
   const dataInicio = datasPeriodoRealizacao?.[0] as Dayjs;
   const dataFim = datasPeriodoRealizacao?.[1] as Dayjs;
@@ -120,11 +126,10 @@ const FormularioDatas: React.FC = () => {
                 formItemProps={{
                   label: 'Período de realização',
                   name: 'periodoRealizacao',
-                  required: true,
                   tooltip: getTooltipFormInfoCircleFilled(
                     'Primeiro dia da primeira turma até o último dia da última turma.',
                   ),
-                  rules: [{ message: PERIODO_REALIZACAO_NAO_INFORMADO }],
+                  rules: [{ required: true, message: PERIODO_REALIZACAO_NAO_INFORMADO }],
                 }}
               />
             </b>
@@ -166,10 +171,9 @@ const FormularioDatas: React.FC = () => {
             <b>
               <DatePickerPeriodo
                 formItemProps={{
-                  label: 'Período de inscricao',
+                  label: 'Período de inscrição',
                   name: 'periodoInscricao',
-                  required: true,
-                  rules: [{ message: PERIODO_INSCRICAO_NAO_INFORMADO }],
+                  rules: [{ required: true, message: PERIODO_INSCRICAO_NAO_INFORMADO }],
                 }}
               />
             </b>

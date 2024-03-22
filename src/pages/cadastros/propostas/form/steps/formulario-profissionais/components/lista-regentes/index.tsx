@@ -1,38 +1,48 @@
 import { Button, Col, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import DataTable from '~/components/lib/card-table';
-import DataTableContextProvider from '~/components/lib/card-table/provider';
 import { CF_BUTTON_ADD_REGENTE } from '~/core/constants/ids/button/intex';
 import { PropostaRegenteDTO } from '~/core/dto/proposta-regente-dto';
 import DrawerRegente from '~/pages/cadastros/propostas/form/steps/formulario-profissionais/components/lista-regentes/drawer';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { TituloListaPaginada, TituloSecao } from '../../../../styles';
+import DataTableProfissionalRegente from '~/components/lib/card-table-profissional-regente';
 
 const columns: ColumnsType<PropostaRegenteDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
+  { title: 'CPF', dataIndex: 'cpf' },
   { title: 'Regente', dataIndex: 'nomeRegente' },
   { title: 'Turmas', dataIndex: 'nomesTurmas' },
 ];
 
-const ListaRegentes: React.FC = () => {
-  const paramsRoute = useParams();
+type ListaRegentesProps = {
+  recarregarTurmas: boolean;
+};
 
+const ListaRegentes: React.FC<ListaRegentesProps> = ({ recarregarTurmas }) => {
+  const paramsRoute = useParams();
+  const refTable = useRef<any>(null);
   const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosRegentSelecionado, setDadosRegentSelecionado] = useState<PropostaRegenteDTO>();
 
   const id = paramsRoute?.id || 0;
-
+  if (recarregarTurmas) {
+    refTable.current?.reloadTable();
+  }
   const abrirModal = () => {
+    setDadosRegentSelecionado(undefined);
     setOpenModal(true);
   };
 
-  const onCloseModal = () => {
+  const onCloseModal = (recarregarLista: boolean) => {
     setOpenModal(false);
     setDadosRegentSelecionado(undefined);
+    if (recarregarLista && refTable?.current) {
+      refTable.current?.reloadTable();
+    }
   };
 
   const onClickEditar = (regente: PropostaRegenteDTO) => {
@@ -41,7 +51,7 @@ const ListaRegentes: React.FC = () => {
   };
 
   return (
-    <DataTableContextProvider>
+    <>
       {openModal && (
         <DrawerRegente
           openModal={openModal}
@@ -74,7 +84,8 @@ const ListaRegentes: React.FC = () => {
           </Col>
 
           <Col span={24}>
-            <DataTable
+            <DataTableProfissionalRegente
+              ref={refTable}
               url={`v1/proposta/${id}/regente`}
               columns={columns}
               onRow={(row: PropostaRegenteDTO) => ({
@@ -86,7 +97,7 @@ const ListaRegentes: React.FC = () => {
           </Col>
         </Row>
       </Col>
-    </DataTableContextProvider>
+    </>
   );
 };
 

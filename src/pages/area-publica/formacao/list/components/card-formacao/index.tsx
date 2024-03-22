@@ -20,55 +20,54 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
       replace: true,
       state: { location: formacao },
     });
-
   return (
     <Card
       cover={
         <ImgFormacao url={formacao.imagemUrl} inscricaoEncerrada={formacao.inscricaoEncerrada} />
       }
-      bodyStyle={{ height: '336px' }}
     >
-      <Row
-        gutter={[10, 10]}
-        justify='space-between'
-        wrap={false}
-        style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-      >
-        <Row gutter={[16, 16]}>
-          <Col xs={24}>
-            <TextPeriodo>{formacao.periodo}</TextPeriodo>
-          </Col>
+      <Col xs={24}>
+        <Row wrap={false} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Row>
+            <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
+              <TextPeriodo>Período de realização: {formacao.periodo}</TextPeriodo>
+            </Col>
 
-          <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
-            <TextTitulo>{formacao.titulo}</TextTitulo>
-          </Col>
-        </Row>
-        <Row gutter={[16, 16]}>
-          <Col xs={24}>
-            <TextAreaPromotora>Área promotora: {formacao.areaPromotora}</TextAreaPromotora>
-          </Col>
+            <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
+              <TextPeriodo>Período de inscrição: {formacao.periodoInscricao}</TextPeriodo>
+            </Col>
 
-          <Col xs={24}>
-            <Row gutter={[10, 10]} wrap={false}>
-              <Col>
-                <TagTipoFormacaoFormato icon={<FaGraduationCap size={16} />}>
-                  {formacao.tipoFormacaoDescricao}
-                </TagTipoFormacaoFormato>
-              </Col>
-              <Col>
-                <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={16} />}>
-                  {formacao.formatoDescricao}
-                </TagTipoFormacaoFormato>
-              </Col>
-            </Row>
-          </Col>
-          <Col xs={24}>
-            <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
-              {SAIBA_MAIS}
-            </Button>
-          </Col>
+            <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
+              <TextTitulo>{formacao.titulo}</TextTitulo>
+            </Col>
+          </Row>
+          <Row gutter={[10, 10]}>
+            <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
+              <TextAreaPromotora>Área promotora: {formacao.areaPromotora}</TextAreaPromotora>
+            </Col>
+
+            <Col xs={24}>
+              <Row gutter={[10, 10]} wrap={false}>
+                <Col>
+                  <TagTipoFormacaoFormato icon={<FaGraduationCap size={16} />}>
+                    {formacao.tipoFormacaoDescricao}
+                  </TagTipoFormacaoFormato>
+                </Col>
+                <Col>
+                  <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={16} />}>
+                    {formacao.formatoDescricao}
+                  </TagTipoFormacaoFormato>
+                </Col>
+              </Row>
+            </Col>
+            <Col xs={24}>
+              <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
+                {SAIBA_MAIS}
+              </Button>
+            </Col>
+          </Row>
         </Row>
-      </Row>
+      </Col>
     </Card>
   );
 };

@@ -8,7 +8,6 @@ import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import DatePickerMultiplos from '~/components/main/input/data-lista';
 import SelectTipoEncontro from '~/components/main/input/tipo-encontro';
-import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
 import { CF_BUTTON_EXCLUIR } from '~/core/constants/ids/button/intex';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { dayjs } from '~/core/date/dayjs';
@@ -19,6 +18,7 @@ import { TipoEncontro } from '~/core/enum/tipo-encontro';
 import { confirmacao } from '~/core/services/alerta-service';
 import { removerPropostaEncontro, salvarPropostaEncontro } from '~/core/services/proposta-service';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
+import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 
 const { TextArea } = Input;
 
@@ -39,6 +39,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   const paramsRoute = useParams();
 
   const [tipoEncontroSelecionado, setTipoEncontroSelecionado] = useState(undefined);
+  const [desativarBotaoCancelar, setDesativarBotaoCancelar] = useState(true);
   const [formInitialValues, setFormInitialValues] = useState<any>({
     datas: [{ dataInicio: '', dataFim: '' }],
   });
@@ -78,6 +79,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     return (current && current < dataInicial?.startOf('day')) || current > dataFinal?.endOf('day');
   };
   const obterTipoEncontro = () => {
+    validarAlteracaoEmCampos();
     setTipoEncontroSelecionado(formDrawer.getFieldValue('tipoEncontro'));
   };
   const salvarDadosForm = async (values: FormularioDrawerEncontro) => {
@@ -122,9 +124,9 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   };
 
   const fecharModal = (recarregarLista?: boolean) => {
-    if(recarregarLista){
+    if (recarregarLista) {
       onCloseModal(!!recarregarLista);
-    }else{
+    } else if (!desativarBotaoCancelar) {
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES,
         onOk() {
@@ -132,6 +134,9 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
           formDrawer.resetFields();
         },
       });
+    } else {
+      onCloseModal(!!recarregarLista);
+      formDrawer.resetFields();
     }
   };
 
@@ -150,7 +155,19 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       });
     }
   };
+  const validarAlteracaoEmCampos = () => {
+    const local = formDrawer.getFieldValue('local')?.length > 0;
+    const turmas = formDrawer.getFieldValue('turmas')?.length > 0;
+    const horarios = formDrawer.getFieldValue('horarios')?.length > 0;
+    const datas = !!formDrawer.getFieldValue('datas')[0]['dataInicio'];
+    const tipoEncontro = formDrawer.getFieldValue('tipoEncontro') >= 0;
 
+    if (local || turmas || horarios || datas || tipoEncontro) {
+      setDesativarBotaoCancelar(false);
+    } else {
+      setDesativarBotaoCancelar(true);
+    }
+  };
   useEffect(() => {
     formDrawer.resetFields();
   }, [formDrawer, formInitialValues]);
@@ -168,7 +185,9 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
               {dadosEncontro?.id ? (
                 <ButtonExcluir id={CF_BUTTON_EXCLUIR} onClick={excluirEncontro} />
               ) : null}
-              <Button onClick={() => fecharModal()}>Cancelar</Button>
+              <Button onClick={() => fecharModal()} disabled={desativarBotaoCancelar}>
+                Cancelar
+              </Button>
               <Button
                 type='primary'
                 onClick={() => {
@@ -190,10 +209,17 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
             <Col span={24}>
               <Row gutter={[16, 8]}>
                 <Col xs={24}>
-                  <SelectTurmaEncontros idProposta={propostaId} />
+                  <SelectTodasTurmas
+                    idProposta={propostaId}
+                    exibirTooltip={false}
+                    selectProps={{ onChange: validarAlteracaoEmCampos }}
+                  />
                 </Col>
 
-                <DatePickerMultiplos disabledDate={disabledDate} />
+                <DatePickerMultiplos
+                  disabledDate={disabledDate}
+                  onchange={validarAlteracaoEmCampos}
+                />
 
                 <Col xs={11}>
                   <Form.Item
@@ -205,6 +231,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                       format='HH:mm'
                       allowClear
                       style={{ width: '100%' }}
+                      onChange={validarAlteracaoEmCampos}
                       locale={localeDatePicker}
                     />
                   </Form.Item>
@@ -222,7 +249,11 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                     key='local'
                     rules={[{ required: tipoEncontroSelecionado == TipoEncontro.Presencial }]}
                   >
-                    <TextArea maxLength={200} placeholder='Informe o Local' />
+                    <TextArea
+                      maxLength={200}
+                      placeholder='Informe o Local'
+                      onChange={validarAlteracaoEmCampos}
+                    />
                   </Form.Item>
                 </Col>
               </Row>

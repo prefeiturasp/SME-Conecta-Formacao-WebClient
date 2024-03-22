@@ -1,6 +1,6 @@
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Button, Dropdown, MenuProps } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ROUTES } from '~/core/enum/routes-enum';
@@ -28,9 +28,10 @@ const DropdownPerfil: React.FC = () => {
   const location = useLocation();
 
   const auth = useAppSelector((state) => state.auth);
-  const perfil = useAppSelector((state) => state.perfil);
-
   const [openDropdow, setOpenDropdow] = useState(false);
+  const [tipoLogin, setTipoLogin] = useState<string>('Login');
+
+  const perfil = useAppSelector((state) => state.perfil);
 
   const alterarPerfil = (perfilUsuarioId: string) => {
     autenticacaoService.alterarPerfilSelecionado(perfilUsuarioId).then((response) => {
@@ -44,10 +45,18 @@ const DropdownPerfil: React.FC = () => {
     }
   };
 
+  if (perfil.perfilSelecionado?.perfil == null) {
+    alterarPerfil(auth.perfilUsuario[0].perfil);
+  }
   const items: MenuProps['items'] = auth.perfilUsuario.map((perfil) => ({
     key: perfil?.perfil,
     label: perfil?.perfilNome,
   }));
+  useEffect(() => {
+    const loginUsuario = auth.usuarioLogin.replace(/[^0-9]/g, '');
+    if (loginUsuario.length == 7) setTipoLogin('RF');
+    if (loginUsuario.length == 11) setTipoLogin('CPF');
+  }, [auth.usuarioLogin]);
 
   return (
     <Dropdown
@@ -73,7 +82,7 @@ const DropdownPerfil: React.FC = () => {
             lineHeight: '16px',
           }}
         >
-          <Texto style={{ fontWeight: 700 }}>{`RF: ${auth.usuarioLogin}`}</Texto>
+          <Texto style={{ fontWeight: 700 }}>{`${tipoLogin}: ${auth.usuarioLogin}`}</Texto>
           <Texto>{auth?.usuarioNome}</Texto>
           <Texto>{perfil?.perfilSelecionado?.perfilNome}</Texto>
         </div>

@@ -2,12 +2,11 @@ import { Button, Col, Drawer, Form, Row, Space } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { DataTableContext } from '~/components/lib/card-table/provider';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import { notification } from '~/components/lib/notification';
 import InputRegistroFuncionalNome from '~/components/main/input/input-registro-funcional-nome';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
-import SelectTurmaEncontros from '~/components/main/input/turmas-encontros';
+import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 import { CF_BUTTON_EXCLUIR, CF_BUTTON_MODAL_CANCELAR } from '~/core/constants/ids/button/intex';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -18,17 +17,16 @@ import {
   obterPropostaTutorPorId,
   salvarPropostaProfissionalTutor,
 } from '~/core/services/proposta-service';
+import { formatterCPFMask } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 type DrawerTutorProps = {
   openModal: boolean;
-  onCloseModal: () => void;
+  onCloseModal: (recarregarLista: boolean) => void;
   id?: number;
 };
 
 const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id = 0 }) => {
-  const { tableState } = useContext(DataTableContext);
-
   const { desabilitarCampos } = useContext(PermissaoContext);
 
   const [formDrawer] = useForm();
@@ -43,19 +41,13 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
       confirmacao({
         content: DESEJA_CANCELAR_ALTERACOES,
         onOk() {
-          onCloseModal();
+          onCloseModal(reloadData);
           formDrawer.resetFields();
-          if (reloadData) {
-            tableState.reloadData();
-          }
         },
       });
     } else {
-      onCloseModal();
+      onCloseModal(reloadData);
       formDrawer.resetFields();
-      if (reloadData) {
-        tableState.reloadData();
-      }
     }
   };
 
@@ -97,7 +89,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
         if (response.dados?.turmas?.length) {
           response.dados.turmas = response.dados.turmas.map((item) => item?.turmaId);
         }
-
+        if (response.dados.cpf) response.dados.cpf = formatterCPFMask(response.dados.cpf);
         setFormInitialValues({ ...response.dados });
 
         return;
@@ -190,6 +182,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                         formDrawer.resetFields(['registroFuncional', 'nomeTutor']);
                         formDrawer.setFieldValue('registroFuncional', '');
                         formDrawer.setFieldValue('nomeTutor', '');
+                        formDrawer.setFieldValue('cpf', '');
                       },
                     }}
                   />
@@ -203,6 +196,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                       return (
                         <Row gutter={[16, 8]}>
                           <InputRegistroFuncionalNome
+                            exibirCpf={!ehRedeMunicipal}
                             formItemPropsRF={{ rules: [{ required: rfEhObrigatorio }] }}
                             formItemPropsNome={{
                               rules: [{ required: desabilitarCampos || !rfEhObrigatorio }],
@@ -228,7 +222,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                   </Form.Item>
                 </Col>
                 <Col xs={24}>
-                  <SelectTurmaEncontros idProposta={propostaId} exibirTooltip={false} />
+                  <SelectTodasTurmas idProposta={propostaId} exibirTooltip={false} />
                 </Col>
               </Row>
             </Col>

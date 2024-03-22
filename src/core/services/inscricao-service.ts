@@ -2,13 +2,14 @@ import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/list
 import { DadosInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
+import { RetornoDTO } from '../dto/retorno-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
 
 export const URL_INSCRICAO = 'v1/Inscricao';
 
 const inserirInscricao = (params: InscricaoDTO) => {
-  return inserirRegistro(URL_INSCRICAO, params);
+  return inserirRegistro<RetornoDTO>(URL_INSCRICAO, params);
 };
 
 const obterDadosInscricao = () => {

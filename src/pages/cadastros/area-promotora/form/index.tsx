@@ -155,6 +155,8 @@ const FormCadastrosAreaPromotora: React.FC = () => {
       valoresSalvar.grupoId = valoresSalvar.perfil.value;
     }
 
+    valoresSalvar.dreId = Object(values.dreId)['id'];
+
     if (id) {
       response = await alterarAreaPromotora(id, valoresSalvar);
     } else {

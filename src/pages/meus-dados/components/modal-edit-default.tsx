@@ -14,6 +14,7 @@ import { Colors } from '~/core/styles/colors';
 const { confirm } = ModalAntd;
 
 type ModalEditDefaultServiceProps = {
+  nome: string;
   email: string;
   telefone: string;
 } & SenhaNovaDTO;
@@ -53,6 +54,8 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
       .then((resposta) => {
         if (resposta?.status === HttpStatusCode.Ok && resposta?.data && updateFields) {
           updateFields(form.getFieldsValue());
+          openNotificationSuccess();
+        } else if (resposta?.status === HttpStatusCode.Ok && resposta?.data) {
           openNotificationSuccess();
         }
         closeModal();

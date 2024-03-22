@@ -1,11 +1,5 @@
 import { Card, Col, Flex, List, Typography } from 'antd';
 import React, { CSSProperties, useEffect, useState } from 'react';
-import { BsFiles } from 'react-icons/bs';
-import { FaCheck } from 'react-icons/fa';
-import { IoIosWarning } from 'react-icons/io';
-import { LuArrowLeftSquare, LuFileSearch2 } from 'react-icons/lu';
-import { MdOutlineDoNotDisturb } from 'react-icons/md';
-import { RiInboxArchiveLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Empty from '~/components/main/empty';
@@ -36,9 +30,13 @@ const styleDataHoraCard: CSSProperties = {
 
 type ListaCardsPropostasProps = {
   filters: PropostaFiltrosDTO;
+  carregando: boolean;
 };
 
-export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filters }) => {
+export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({
+  filters,
+  carregando,
+}) => {
   const navigate = useNavigate();
   const [dadosPropostas, setDadosPropostas] = useState<PropostaDashboardDTO[]>();
 
@@ -50,37 +48,30 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
     switch (item.situacao) {
       case SituacaoProposta.Publicada:
         corSituacaoProposta;
-        iconeSituacaoProposta = <RiInboxArchiveLine size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.Rascunho:
         corSituacaoProposta;
-        iconeSituacaoProposta = <IoIosWarning size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.Cadastrada:
         corSituacaoProposta;
-        iconeSituacaoProposta = <FaCheck size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.AguardandoAnaliseDf:
         corSituacaoProposta;
-        iconeSituacaoProposta = <LuFileSearch2 size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.AguardandoAnaliseGestao:
         corSituacaoProposta;
-        iconeSituacaoProposta = <BsFiles size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.Desfavoravel:
         corSituacaoProposta;
-        iconeSituacaoProposta = <MdOutlineDoNotDisturb size={24} color={corSituacaoProposta} />;
         break;
 
       case SituacaoProposta.Devolvida:
         corSituacaoProposta;
-        iconeSituacaoProposta = <LuArrowLeftSquare size={24} color={corSituacaoProposta} />;
         break;
 
       default:
@@ -137,6 +128,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
   return (
     <Col xs={24}>
       <List
+        loading={carregando}
         grid={{
           gutter: [26, 26],
           xs: 1,
@@ -153,6 +145,7 @@ export const ListaCardsPropostas: React.FC<ListaCardsPropostasProps> = ({ filter
           return (
             <List.Item>
               <Card
+                loading={carregando}
                 key={index}
                 title={
                   <Flex align='center' gap={8}>
