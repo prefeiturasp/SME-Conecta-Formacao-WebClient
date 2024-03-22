@@ -102,6 +102,10 @@ export const SiderSubMenuContainer = styled(SubMenu)<SiderSubMenuStylePros>`
         text-decoration: underline;
       }
     }
+
+    &:not(.ant-menu-submenu-selected) .ant-menu-submenu-title {
+      color: white;
+    }
   }
 `;
 

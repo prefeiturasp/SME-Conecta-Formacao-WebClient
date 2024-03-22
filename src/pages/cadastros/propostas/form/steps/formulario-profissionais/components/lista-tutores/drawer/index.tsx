@@ -222,7 +222,15 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
                   </Form.Item>
                 </Col>
                 <Col xs={24}>
-                  <SelectTodasTurmas idProposta={propostaId} exibirTooltip={false} />
+                  <SelectTodasTurmas
+                    idProposta={propostaId}
+                    exibirTooltip={false}
+                    onChange={() => {
+                      () => {
+                        ('');
+                      };
+                    }}
+                  />
                 </Col>
               </Row>
             </Col>

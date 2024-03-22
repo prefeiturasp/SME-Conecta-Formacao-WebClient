@@ -1,10 +1,11 @@
-import { Form, FormItemProps } from 'antd';
+import { Col, Form, FormItemProps, Input } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
+import { CF_INPUT_PUBLICO_ALVO_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_PUBLICO_ALVO } from '~/core/constants/ids/select';
 import { PUBLICO_ALVO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterPublicoAlvo } from '~/core/services/cargo-funcao-service';
@@ -34,9 +35,13 @@ const SelectPublicoAlvoCadastroProposta: React.FC<SelectPublicoAlvoProps> = ({
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
-    const resposta = await obterPublicoAlvo();
+    const resposta = await obterPublicoAlvo(exibirOpcaoOutros);
     if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item) => ({ label: item.nome, value: item.id }));
+      const newOptions = resposta.dados.map((item) => ({
+        label: item.nome,
+        value: item.id,
+        outros: item.outros,
+      }));
       setOptions(newOptions);
     } else {
       setOptions([]);

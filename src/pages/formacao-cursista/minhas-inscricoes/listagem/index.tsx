@@ -24,10 +24,15 @@ export interface InscricaoProps {
   cargoFuncao: string;
   situacao: string;
   podeCancelar: boolean;
+  integrarNoSga: boolean;
+  iniciado: boolean;
 }
 
 export const MinhasInscricoesListaPaginada = () => {
   const { tableState } = useContext(DataTableContext);
+  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
+
+  const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
   const mensagemConfirmacao = (record: InscricaoProps) => {
     if (record.integrarNoSga && record.iniciado && ehCursista) {
@@ -43,10 +48,11 @@ export const MinhasInscricoesListaPaginada = () => {
 
   const columns: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '6%' },
-    { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '10%' },
-    { title: 'Turma', dataIndex: 'nomeTurma', width: '10%' },
+    { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '30%' },
+    { title: 'Turma', dataIndex: 'nomeTurma', width: '12%' },
     { title: 'Datas', dataIndex: 'datas', width: '10%' },
     { title: 'Cargo/Função', dataIndex: 'cargoFuncao', width: '10%' },
+    { title: 'Origem', dataIndex: 'origem', width: '10%' },
     { title: 'Situação', dataIndex: 'situacao', width: '10%' },
     {
       title: 'Ações',
@@ -56,9 +62,6 @@ export const MinhasInscricoesListaPaginada = () => {
         const cancelar = async () => {
           confirmacao({
             content: mensagemConfirmacao(record),
-              record.integrarNoSga && record.iniciado && ehCursista
-                ? DESEJA_CANCELAR_INSCRICAO_CURSISTA
-                : DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
             onOk: async () => {
               const response = await cancelarInscricao(record.id);
               if (response.sucesso) {

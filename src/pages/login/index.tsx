@@ -10,12 +10,19 @@ import { AxiosError, HttpStatusCode } from 'axios';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import ErroGeralLogin from '~/components/main/erro-geral-login';
-import { CF_BUTTON_ACESSAR } from '~/core/constants/ids/button/intex';
+import {
+  CF_BUTTON_ACESSAR,
+  CF_BUTTON_ALTERAR_EMAIL,
+  CF_BUTTON_CANCELAR,
+  CF_BUTTON_REENVIAR_EMAIL,
+} from '~/core/constants/ids/button/intex';
 import { CF_INPUT_LOGIN, CF_INPUT_SENHA } from '~/core/constants/ids/input';
 import {
   ERRO_EMAIL_NAO_VALIDADO,
+  ERRO_EMAIL_NAO_VALIDADO_ALTERAR_EMAIL,
   ERRO_INFORMAR_USUARIO_SENHA,
   ERRO_LOGIN,
+  TOOLTIP_SENHA,
 } from '~/core/constants/mensagens';
 import { AutenticacaoDTO } from '~/core/dto/autenticacao-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
@@ -24,12 +31,12 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { Colors } from '~/core/styles/colors';
 import { CF_BUTTON_ESQUECI_SENHA } from '../../core/constants/ids/button/intex';
 
-import { notification } from '~/components/lib/notification';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { confirmacao } from '~/core/services/alerta-service';
 import autenticacaoService from '~/core/services/autenticacao-service';
-import usuarioService from '~/core/services/usuario-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
+import type { SearchProps } from 'antd/es/input/Search';
+import Search from 'antd/es/input/Search';
+import usuarioService from '~/core/services/usuario-service';
 
 const Login = () => {
   const [form] = useForm();
@@ -40,6 +47,8 @@ const Login = () => {
   const senha = useWatch('senha', form);
 
   const [erroGeral, setErroGeral] = useState<string[]>();
+  const [informarEmail, setInformarEmail] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const validateMessages = {
     required: 'Campo obrigatório',
@@ -281,75 +290,75 @@ const Login = () => {
               </Form.Item>
             </Col>
 
-          <Col span={24}>
-            <Form.Item
-              tooltip={{
-                title:
-                  'Informe a senha de acesso aos sistemas da SME (Plateia, Intranet, SGP). Caso nunca tenha acessado tente informar a senha padrão que é Sgp e os últimos 4 dígitos do RF.',
-                icon: (
-                  <Tooltip>
-                    <FaQuestionCircle color={Colors.Neutral.DARK} />
-                  </Tooltip>
-                ),
-              }}
-              label='Senha'
-              name='senha'
-              hasFeedback={!senha}
-              rules={[{ required: true }, { min: 4 }]}
-            >
-              <Input.Password
-                autoComplete='off'
-                placeholder='Informe a senha'
-                maxLength={100}
-                id={CF_INPUT_SENHA}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row justify='center' gutter={[0, 25]} style={{ marginTop: '20px' }}>
-          <Col span={24}>
-            <Button
-              type='primary'
-              block
-              htmlType='submit'
-              style={{ fontWeight: 700 }}
-              id={CF_BUTTON_ACESSAR}
-            >
-              Acessar
-            </Button>
-          </Col>
-          <Col span={24}>
-            <Button
-              type='text'
-              block
-              style={{ fontSize: 12 }}
-              onClick={() => onClickEsqueciSenha()}
-              id={CF_BUTTON_ESQUECI_SENHA}
-            >
-              Esqueci minha senha
-            </Button>
-          </Col>
-          {erroGeral ? (
             <Col span={24}>
-              <ErroGeralLogin erros={erroGeral} />
+              <Form.Item
+                tooltip={{
+                  title: TOOLTIP_SENHA,
+                  icon: (
+                    <Tooltip>
+                      <FaQuestionCircle color={Colors.Neutral.DARK} />
+                    </Tooltip>
+                  ),
+                }}
+                label='Senha'
+                name='senha'
+                hasFeedback={!senha}
+                rules={[{ required: true }, { min: 4 }]}
+              >
+                <Input.Password
+                  autoComplete='off'
+                  placeholder='Informe a senha'
+                  maxLength={100}
+                  id={CF_INPUT_SENHA}
+                />
+              </Form.Item>
             </Col>
-          ) : (
-            <></>
-          )}
-          <Col span={24}>
-            <Button
-              block
-              style={{ fontWeight: 700 }}
-              id={CF_BUTTON_ACESSAR}
-              onClick={() => onClickCriarConta()}
-            >
-              Cadastre-se
-            </Button>
-          </Col>
-        </Row>
-      </Form>
-    </Col>
+          </Row>
+
+          <Row justify='center' gutter={[0, 25]} style={{ marginTop: '20px' }}>
+            <Col span={24}>
+              <Button
+                type='primary'
+                block
+                htmlType='submit'
+                style={{ fontWeight: 700 }}
+                id={CF_BUTTON_ACESSAR}
+              >
+                Acessar
+              </Button>
+            </Col>
+            <Col span={24}>
+              <Button
+                type='text'
+                block
+                style={{ fontSize: 12 }}
+                onClick={() => onClickEsqueciSenha()}
+                id={CF_BUTTON_ESQUECI_SENHA}
+              >
+                Esqueci minha senha
+              </Button>
+            </Col>
+            {erroGeral ? (
+              <Col span={24}>
+                <ErroGeralLogin erros={erroGeral} />
+              </Col>
+            ) : (
+              <></>
+            )}
+            <Col span={24}>
+              <Button
+                block
+                style={{ fontWeight: 700 }}
+                id={CF_BUTTON_ACESSAR}
+                onClick={() => onClickCriarConta()}
+              >
+                Cadastre-se
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Col>
+    </>
   );
 };
 

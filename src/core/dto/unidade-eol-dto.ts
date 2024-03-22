@@ -1,5 +1,5 @@
 export type UnidadeEolDTO = {
-  codigo?: string;
+  codigoUnidade?: string;
   sigla?: string;
   nomeUnidade: string;
 };

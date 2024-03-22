@@ -24,6 +24,7 @@ export type PropostaDTO = {
   quantidadeTurmas?: number | null;
   quantidadeVagasTurma?: number | null;
   funcaoEspecificaOutros: string;
+  publicoAlvoOutros: string;
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoProposta;
   arquivoImagemDivulgacaoId?: number;
@@ -81,6 +82,7 @@ export type PropostaFormDTO = {
   publicosAlvo?: number[];
   funcoesEspecificas?: number[];
   funcaoEspecificaOutros?: string;
+  publicoAlvoOutros?: string;
   vagasRemanecentes?: number[];
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
