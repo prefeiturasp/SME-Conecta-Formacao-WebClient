@@ -2,7 +2,7 @@ import { Form, Input } from 'antd';
 import React, { useState } from 'react';
 import { CF_INPUT_EMAIL_EDUCACIONAL } from '~/core/constants/ids/input';
 
-const InputEmailEducacional: React.FC = ({}) => {
+const InputEmailEducacional: React.FC = () => {
   const form = Form.useFormInstance();
   const [exibirErro, setExibirErro] = useState(true);
   const removerEspacoEmail = () => {

@@ -30,6 +30,8 @@ export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
 export const PROPOSTA_DRE_NAO_INFORMADA = 'É necessário Informar a DRE';
 export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da formação';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
+export const COMPONENTE_NAO_INFORMADO = 'É necessário informar o componente curricular';
+export const ANO_ETAPA_NAO_INFORMADO = 'É necessário informar o ano/etapa';
 export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =
   'É necessário informar os critérios de validação das inscrições da proposta';
 export const QUANTIDADE_DE_TURMAS_NAO_INFORMADA = 'É necessário informar a quantidade de turmas';
@@ -57,6 +59,10 @@ export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
 export const ENVIAR_INSCRICAO = 'Enviar inscrição';
 export const NOVA_INSCRICAO = 'Nova inscrição';
 export const DESEJA_CANCELAR_INSCRICAO = 'Você realmente deseja cancelar essa inscrição?';
+export const DESEJA_CANCELAR_INSCRICAO_CURSISTA =
+  'Ao cancelar a sua inscrição você será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
+export const DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA =
+  'Ao cancelar a inscrição o cursista será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
 export const CANCELAR_INSCRICAO =
   'Ao cancelar a inscrição o cursista perderá acesso a formação. Deseja realmente cancelar?';
 export const SAIBA_MAIS = 'Saiba mais';
@@ -70,8 +76,12 @@ export const CADASTRO_ENVIADO =
   'Cadastro inserido com sucesso. Enviamos um e-mail para validação do seu cadastro. Confira a sua caixa de entrada!';
 export const ERRO_EMAIL_NAO_VALIDADO =
   "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar'";
+export const ERRO_EMAIL_NAO_VALIDADO_ALTERAR_EMAIL =
+  "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar' ou em 'Editar e-mail' para informar um novo e-mail";
 export const INSCRICAO_ENVIADA_COM_SGA =
   'Sua inscrição foi confirmada. Na data de início da sua turma acesse o SGA para iniciar a formação.';
 export const INSCRICAO_ENVIADA_SEM_SGA = 'Sua inscrição foi confirmada.';
+export const TOOLTIP_SENHA =
+  'Informe a senha de acesso aos sistemas da SME (Plateia, Intranet, SGP). Caso nunca tenha acessado tente informar a senha padrão que é Sgp e os últimos 4 dígitos do RF.';
 export const SERVICO_INDISPONIVEL =
   'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
