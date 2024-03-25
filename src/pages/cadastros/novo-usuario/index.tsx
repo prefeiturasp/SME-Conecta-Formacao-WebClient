@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row } from 'antd';
+import { Button, Checkbox, CheckboxProps, Col, Form, Input, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -47,6 +47,11 @@ export const CadastroDeUsuario = () => {
   const [cpfValido, setCpfValido] = useState<boolean>(false);
   const [ues, setUes] = useState<RetornoListagemDTO[]>();
   const [errorOnFinish, setErrorOnFinish] = useState<boolean>(false);
+  const [checked, setChecked] = useState(false);
+
+  const onChangeCheck: CheckboxProps['onChange'] = (e) => {
+    setChecked(e.target.checked);
+  };
 
   useEffect(() => {
     form.getFieldInstance('cpf').focus();
@@ -109,7 +114,7 @@ export const CadastroDeUsuario = () => {
         codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
         senha: values.senha,
         confirmarSenha: values.confirmarSenha,
-        emailEducacional: values.emailEducacional+'@edu.sme.prefeitura.sp.gov.br',
+        emailEducacional: values.emailEducacional + '@edu.sme.prefeitura.sp.gov.br',
       })
       .then((resposta) => {
         if (resposta.dados) {
@@ -251,13 +256,18 @@ export const CadastroDeUsuario = () => {
             />
           </Col>
         </Row>
-
+        <p style={{ marginBottom: '30px', marginTop: '10px' }}>
+          <Checkbox checked={checked} onChange={onChangeCheck}>
+            As informações prestadas são verdadeiras e me responsabilizo por elas
+          </Checkbox>
+        </p>
         <Row justify='center' gutter={[0, 21]} style={{ marginTop: '20px' }}>
           <Col span={24}>
             <Button
               block
               type='primary'
               htmlType='submit'
+              disabled={!checked}
               id={CF_BUTTON_CONTINUAR}
               style={{ fontWeight: 700 }}
             >
