@@ -4,5 +4,6 @@ export type DadosUsuarioDTO = {
   login: string;
   email: string;
   nomeUnidade: string;
+  emailEducacional: string;
   tipo: number;
 };
