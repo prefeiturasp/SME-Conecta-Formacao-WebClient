@@ -7,6 +7,7 @@ export type DadosInscricaoCargoEolDTO = {
   descricao: string;
   dreCodigo: string;
   ueCodigo: string;
+  tipoVinculo: number;
 } & DadosCompletoInscricaoCargoEolDTO;
 
 export type DadosInscricaoDTO = {
