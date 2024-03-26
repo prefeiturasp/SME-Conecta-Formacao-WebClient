@@ -365,7 +365,6 @@ const FormCadastroDePropostas: React.FC = () => {
   };
 
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
-    console.log('salvar');
     let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
@@ -822,17 +821,27 @@ const FormCadastroDePropostas: React.FC = () => {
                         const publicosAlvosNumeros: number[] = form.getFieldValue('publicosAlvo');
                         const funcoesEspecificasNumeros: number[] =
                           form.getFieldValue('funcoesEspecificas');
+                        const modalidade = form.getFieldValue('modalidade');
+                        const anosTurmas: number[] = form.getFieldValue('anosTurmas');
+                        const componentesCurriculares: number[] =
+                          form.getFieldValue('componentesCurriculares');
+
                         if (
                           publicosAlvosNumeros.length == 0 &&
                           funcoesEspecificasNumeros.length == 0
                         ) {
-                          setListaErros([
-                            'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
-                          ]);
-                          showModalErros();
-                          return;
+                          if (
+                            modalidade == undefined ||
+                            anosTurmas.length == 0 ||
+                            componentesCurriculares.length == 0
+                          ) {
+                            setListaErros([
+                              'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
+                            ]);
+                            showModalErros();
+                            return;
+                          }
                         }
-
                         const enviarProposta =
                           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
                           formInitialValues?.situacao !== SituacaoProposta.Alterando;
