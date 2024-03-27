@@ -16,7 +16,9 @@ export interface InscricaoProps {
   nomeFormacao: string;
   nomeTurma: string;
   datas: string;
+  cargoFuncaocodigo: string;
   cargoFuncao: string;
+  tipoVinculo?: number;
   situacao: string;
   podeCancelar: boolean;
 }
@@ -35,7 +37,10 @@ export const MinhasInscricoesListaPaginada = () => {
       dataIndex: 'cargoFuncao',
       width: '15%',
       render: (_, record) => {
-        form.setFieldsValue(record);
+        form.setFieldsValue({
+          cargoCodigo: record.cargoFuncaocodigo,
+          tipoVinculo: record.tipoVinculo
+        });
 
         return (
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>

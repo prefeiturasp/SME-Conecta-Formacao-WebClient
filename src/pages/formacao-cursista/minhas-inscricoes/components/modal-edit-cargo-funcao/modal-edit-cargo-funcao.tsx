@@ -1,7 +1,7 @@
 import { useForm } from 'antd/es/form/Form';
 import Modal from '~/components/lib/modal';
 import React, { useState } from 'react';
-import { Form, Input, Modal as ModalAntd, Select, Spin } from 'antd';
+import { Form, Modal as ModalAntd, Select, Spin } from 'antd';
 import { notification } from '~/components/lib/notification';
 import { Colors } from '~/core/styles/colors';
 import { alterarVinculo } from '~/core/services/inscricao-service';
@@ -9,8 +9,8 @@ import { alterarVinculo } from '~/core/services/inscricao-service';
 const { confirm } = ModalAntd;
 
 type ModalEditCargoFuncaoProps = {
-  initialValues: { id: number, label: string, value: string };
-  updateFields: (values: { cargoFuncaoCodigo: string, cargoFuncao: string }) => void;
+  initialValues: { label: string, value: string };
+  updateFields: (values: { cargoCodigo: string, tipoVinculo: number }) => void;
   closeModal: () => void;
 };
 

@@ -12,9 +12,9 @@ const ModalEditCargoFuncaoButton: React.FC<ModalEditCargoFuncaoButtonProps> = ({
 
   const showModal = () => setOpen(true);
 
-  const updateFields = (values: { cargoFuncaoCodigo: string, cargoFuncao: string }) => {
-    formPreview.setFieldValue('cargoFuncaoCodigo', values?.cargoFuncaoCodigo);
-    formPreview.setFieldValue('cargoFuncao', values?.cargoFuncao);
+  const updateFields = (values: { cargoCodigo: string, tipoVinculo: number }) => {
+    formPreview.setFieldValue('cargoCodigo', values?.cargoCodigo);
+    formPreview.setFieldValue('tipoVinculo', values?.tipoVinculo);
   };
 
   return (
