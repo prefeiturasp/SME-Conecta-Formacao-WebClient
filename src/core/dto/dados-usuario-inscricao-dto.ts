@@ -21,3 +21,8 @@ export type DadosInscricaoDTO = {
   arquivoId?: number;
   propostaTurmaId?: number;
 };
+
+export type VinculoInscricaoDTO = {
+  cargoCodigo: string;
+  tipoVinculo: number;
+}

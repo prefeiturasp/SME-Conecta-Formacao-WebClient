@@ -3,12 +3,11 @@ import { ColumnsType } from 'antd/es/table';
 import { useContext } from 'react';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
-import { ButtonEdit } from '~/components/lib/button/edit';
 import { notification } from '~/components/lib/notification';
 import { DESEJA_CANCELAR_INSCRICAO } from '~/core/constants/mensagens';
 import { confirmacao } from '~/core/services/alerta-service';
 import { URL_INSCRICAO, cancelarInscricao } from '~/core/services/inscricao-service';
-import { ModalEditCargoFuncaoButton } from '../components/modal-edit-cargo-funcao/modal-edit-cargo-funcao-button';
+import ModalEditCargoFuncaoButton from '../components/modal-edit-cargo-funcao/modal-edit-cargo-funcao-button';
 import { useForm } from 'antd/es/form/Form';
 
 export interface InscricaoProps {
@@ -36,13 +35,13 @@ export const MinhasInscricoesListaPaginada = () => {
       dataIndex: 'cargoFuncao',
       width: '15%',
       render: (_, record) => {
+        form.setFieldsValue(record);
+
         return (
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ justifyContent: 'start' }}>{ record.cargoFuncao }</div>
             <div style={{ justifyContent: 'end' }}>
-              <Form form={form}>
-                <ModalEditCargoFuncaoButton formPreview={form}></ModalEditCargoFuncaoButton>
-              </Form>
+              <ModalEditCargoFuncaoButton formPreview={ form }></ModalEditCargoFuncaoButton>
             </div>
           </div>
         )

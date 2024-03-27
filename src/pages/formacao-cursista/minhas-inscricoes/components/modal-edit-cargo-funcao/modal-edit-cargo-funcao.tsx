@@ -1,21 +1,26 @@
 import { useForm } from 'antd/es/form/Form';
 import Modal from '~/components/lib/modal';
-import React, { PropsWithChildren, useState } from 'react';
-import { Modal as ModalAntd, Spin } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Modal as ModalAntd, Select, Spin } from 'antd';
 import { notification } from '~/components/lib/notification';
 import { Colors } from '~/core/styles/colors';
+import { alterarVinculo } from '~/core/services/inscricao-service';
 
 const { confirm } = ModalAntd;
 
 type ModalEditCargoFuncaoProps = {
+  initialValues: { id: number, label: string, value: string };
+  updateFields: (values: { cargoFuncaoCodigo: string, cargoFuncao: string }) => void;
   closeModal: () => void;
-} & PropsWithChildren;
+};
 
 export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
-  closeModal,
-  children
+  initialValues,
+  updateFields,
+  closeModal
 }) => {
   const [loading, setLoading] = useState(false);
+
   const [form] = useForm();
 
   const openNotificationSuccess = () => {
@@ -65,7 +70,7 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
         width: 500,
         title: 'Atenção',
         icon: <></>,
-        content: 'Você não salvou o novo cargo/função, confirma que deseja descartar a alteração?',
+        content: 'Você não salvou o novo cargo/função/vínculo, confirma que deseja descartar a alteração?',
         onOk() {
           handleCancel();
         },
@@ -84,7 +89,7 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
 
   return (
     <Modal open
-      title='Alterar Cargo/Função'
+      title='Alterar Cargo/Função/Vínculo'
       onOk={ validateFields }
       onCancel={ showConfirmCancel }
       centered
@@ -93,6 +98,23 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
       maskClosable={ !loading }
       keyboard={ !loading }
       okText='Alterar'>
-      <Spin spinning={loading}>{children}</Spin>
+      <Spin spinning={loading}>
+        <Form form={ form } layout='vertical' autoComplete='off'>
+          <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
+            <Select
+              //disabled={initialValues?.usuarioCargos?.length == 1}
+              allowClear
+              /*
+              options={
+                initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
+              }
+              */
+              onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
+              placeholder='Selecione um cargo'
+              //id={CF_SELECT_CARGO}
+            />
+          </Form.Item>
+        </Form>
+      </Spin>
     </Modal>)
 };
