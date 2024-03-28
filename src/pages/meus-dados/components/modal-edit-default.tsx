@@ -19,6 +19,7 @@ type ModalEditDefaultServiceProps = {
   telefone: string;
   nomeUnidade: string;
   codigoUnidade: string;
+  emailEducacional: string;
 } & SenhaNovaDTO;
 
 type ModalEditDefaultProps = {
