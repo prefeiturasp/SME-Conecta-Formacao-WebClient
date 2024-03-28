@@ -29,6 +29,8 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
     const emailsParaAdicionar = emailsSemEspaco.length ? emailsSemEspaco : emailUnicoSemEspaco;
     if (emailUnicoSemEspaco) form.setFieldValue('email', emailsParaAdicionar);
     if (emailsSemEspaco.length) form.setFieldValue('emails', emailsParaAdicionar);
+    console.log(emailUnicoSemEspaco);
+    if (!emailUnicoSemEspaco.length) form.resetFields(['emailEducacional']);
     setExibirErro(false);
     form.setFields([
       {
@@ -43,7 +45,7 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
     if(emailRegexEdu.test(emailsParaAdicionar)){
       if(!emailRegexEdu.test(emailEdu)){
         form.setFieldValue('emailEducacional', emailsParaAdicionar.split('@')[0]);
-      } 
+      }
     }
   };
   useEffect(() => {
