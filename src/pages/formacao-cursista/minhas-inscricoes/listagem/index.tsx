@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useContext } from 'react';
 import DataTable from '~/components/lib/card-table';
@@ -8,7 +8,6 @@ import { DESEJA_CANCELAR_INSCRICAO } from '~/core/constants/mensagens';
 import { confirmacao } from '~/core/services/alerta-service';
 import { URL_INSCRICAO, cancelarInscricao } from '~/core/services/inscricao-service';
 import ModalEditCargoFuncaoButton from '../components/modal-edit-cargo-funcao/modal-edit-cargo-funcao-button';
-import { useForm } from 'antd/es/form/Form';
 
 export interface InscricaoProps {
   id: number;
@@ -16,7 +15,7 @@ export interface InscricaoProps {
   nomeFormacao: string;
   nomeTurma: string;
   datas: string;
-  cargoFuncaocodigo: string;
+  cargoFuncaoCodigo: string;
   cargoFuncao: string;
   tipoVinculo?: number;
   situacao: string;
@@ -25,7 +24,6 @@ export interface InscricaoProps {
 
 export const MinhasInscricoesListaPaginada = () => {
   const { tableState } = useContext(DataTableContext);
-  const [form] = useForm();
 
   const columns: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '6%' },
@@ -36,21 +34,14 @@ export const MinhasInscricoesListaPaginada = () => {
       title: 'Cargo/Função',
       dataIndex: 'cargoFuncao',
       width: '15%',
-      render: (_, record) => {
-        form.setFieldsValue({
-          cargoCodigo: record.cargoFuncaocodigo,
-          tipoVinculo: record.tipoVinculo
-        });
-
+      render: (_, record: InscricaoProps) => {
         return (
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ justifyContent: 'start' }}>{ record.cargoFuncao }</div>
-            <div style={{ justifyContent: 'end' }}>
-              <ModalEditCargoFuncaoButton formPreview={ form }></ModalEditCargoFuncaoButton>
-            </div>
-          </div>
-        )
-      }
+          <Row align='middle' justify='space-between'>
+            {record.cargoFuncao}
+            <ModalEditCargoFuncaoButton record={record}></ModalEditCargoFuncaoButton>
+          </Row>
+        );
+      },
     },
     { title: 'Situação', dataIndex: 'situacao', width: '10%' },
     {

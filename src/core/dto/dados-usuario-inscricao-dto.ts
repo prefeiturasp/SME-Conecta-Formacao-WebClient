@@ -22,7 +22,8 @@ export type DadosInscricaoDTO = {
   propostaTurmaId?: number;
 };
 
-export type VinculoInscricaoDTO = {
+export type DadosVinculoInscricaoDTO = {
+  id: number;
   cargoCodigo: string;
   tipoVinculo: number;
 }

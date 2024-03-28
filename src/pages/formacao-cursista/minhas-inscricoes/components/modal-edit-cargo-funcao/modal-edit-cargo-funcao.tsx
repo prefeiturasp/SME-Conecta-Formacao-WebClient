@@ -1,27 +1,59 @@
+import { Form, Modal as ModalAntd, Spin } from 'antd';
 import { useForm } from 'antd/es/form/Form';
+import { DefaultOptionType } from 'antd/es/select';
+import React, { useCallback, useEffect, useState } from 'react';
+import Select from '~/components/lib/inputs/select';
 import Modal from '~/components/lib/modal';
-import React, { useState } from 'react';
-import { Form, Modal as ModalAntd, Select, Spin } from 'antd';
 import { notification } from '~/components/lib/notification';
+import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
+import { validateMessages } from '~/core/constants/validate-messages';
+import { DadosVinculoInscricaoDTO } from '~/core/dto/dados-usuario-inscricao-dto';
+import { alterarVinculo, obterDadosInscricao } from '~/core/services/inscricao-service';
 import { Colors } from '~/core/styles/colors';
-import { alterarVinculo } from '~/core/services/inscricao-service';
+import { InscricaoProps } from '../../listagem';
 
 const { confirm } = ModalAntd;
 
 type ModalEditCargoFuncaoProps = {
-  initialValues: { label: string, value: string };
-  updateFields: (values: { cargoCodigo: string, tipoVinculo: number }) => void;
-  closeModal: () => void;
+  initialValues: InscricaoProps;
+  closeModal: (updateTable: boolean) => void;
 };
 
 export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
   initialValues,
-  updateFields,
-  closeModal
+  closeModal,
 }) => {
-  const [loading, setLoading] = useState(false);
-
   const [form] = useForm();
+
+  const [loading, setLoading] = useState(false);
+  const [listaUsuarioCargos, setListaUsuarioCargos] = useState<DefaultOptionType[]>([]);
+
+  const carregarDadosInscricao = useCallback(async () => {
+    const resposta = await obterDadosInscricao();
+
+    if (resposta.sucesso) {
+      const dados = resposta.dados;
+
+      let usuarioCargos: DefaultOptionType[] = [];
+
+      if (dados?.usuarioCargos?.length) {
+        usuarioCargos = dados.usuarioCargos.map((item) => {
+          return {
+            ...item,
+            value: item.codigo,
+            label: item.descricao,
+            tipoVinculo: item.tipoVinculo,
+          };
+        });
+
+        setListaUsuarioCargos(usuarioCargos);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    carregarDadosInscricao();
+  }, []);
 
   const openNotificationSuccess = () => {
     notification.success({
@@ -33,24 +65,22 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
   const handleOk = () => {
     setLoading(true);
 
-/*
-    service(form.getFieldsValue())
+    const values = form.getFieldsValue(true);
+
+    const params: DadosVinculoInscricaoDTO = {
+      id: initialValues.id,
+      cargoCodigo: values?.cargoFuncao?.value,
+      tipoVinculo: values?.cargoFuncao?.tipoVinculo,
+    };
+
+    alterarVinculo(params)
       .then((resposta) => {
-        if (resposta?.status === HttpStatusCode.Ok && resposta?.data && updateFields) {
-          updateFields(form.getFieldsValue());
+        if (resposta.sucesso) {
           openNotificationSuccess();
-        } else if (resposta?.status === HttpStatusCode.Ok && resposta?.data) {
-          openNotificationSuccess();
-        }
-        closeModal();
-      })
-      .catch((erro) => {
-        if (erro?.response?.data?.mensagens?.length) {
-          openNotificationErrors(erro.response.data.mensagens);
+          closeModal(true);
         }
       })
       .finally(() => setLoading(false));
-      */
   };
 
   const validateFields = () => {
@@ -61,7 +91,7 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
 
   const handleCancel = () => {
     form.resetFields();
-    closeModal();
+    closeModal(false);
   };
 
   const showConfirmCancel = () => {
@@ -70,7 +100,8 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
         width: 500,
         title: 'Atenção',
         icon: <></>,
-        content: 'Você não salvou o novo cargo/função/vínculo, confirma que deseja descartar a alteração?',
+        content:
+          'Você não salvou o novo cargo/função/vínculo, confirma que deseja descartar a alteração?',
         onOk() {
           handleCancel();
         },
@@ -88,33 +119,41 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
   };
 
   return (
-    <Modal open
+    <Modal
+      open
       title='Alterar Cargo/Função/Vínculo'
-      onOk={ validateFields }
-      onCancel={ showConfirmCancel }
+      onOk={validateFields}
+      onCancel={showConfirmCancel}
       centered
       destroyOnClose
-      closable={ !loading }
-      maskClosable={ !loading }
-      keyboard={ !loading }
-      okText='Alterar'>
+      closable={!loading}
+      maskClosable={!loading}
+      keyboard={!loading}
+      okText='Alterar'
+    >
       <Spin spinning={loading}>
-        <Form form={ form } layout='vertical' autoComplete='off'>
-          <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
+        <Form
+          form={form}
+          layout='vertical'
+          autoComplete='off'
+          validateMessages={validateMessages}
+          initialValues={{
+            cargoFuncao: {
+              value: initialValues?.cargoFuncaoCodigo,
+              tipoVinculo: initialValues?.tipoVinculo,
+            },
+          }}
+        >
+          <Form.Item label='Cargo' name='cargoFuncao' rules={[{ required: true }]}>
             <Select
-              //disabled={initialValues?.usuarioCargos?.length == 1}
-              allowClear
-              /*
-              options={
-                initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
-              }
-              */
-              onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
+              labelInValue
+              options={listaUsuarioCargos}
               placeholder='Selecione um cargo'
-              //id={CF_SELECT_CARGO}
+              id={CF_SELECT_CARGO}
             />
           </Form.Item>
         </Form>
       </Spin>
-    </Modal>)
+    </Modal>
+  );
 };

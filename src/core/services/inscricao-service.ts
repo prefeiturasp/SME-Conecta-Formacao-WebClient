@@ -1,6 +1,6 @@
 import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/listagem';
 import { CursistaDTO } from '../dto/cursista-dto';
-import { DadosInscricaoDTO, VinculoInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
+import { DadosInscricaoDTO, DadosVinculoInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { InscricaoManualDTO } from '../dto/inscricao-manual-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
@@ -42,9 +42,8 @@ const obterTurmasInscricao = (propostaId: number): Promise<ApiResult<RetornoList
 const obterTiposInscricao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_INSCRICAO}/tipos`);
 
-const alterarVinculo = (id: number, params: VinculoInscricaoDTO) => {
-  return alterarRegistro(`${URL_INSCRICAO}/${id}/alterar-vinculo`, { params });
-}
+const alterarVinculo = (params: DadosVinculoInscricaoDTO) =>
+  alterarRegistro(`${URL_INSCRICAO}/${params.id}/alterar-vinculo`, params);
 
 export {
   cancelarInscricao,

@@ -1,30 +1,36 @@
 import { ButtonEdit } from '~/components/lib/button/edit';
-import { FormInstance } from 'antd/es/form/Form';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ModalEditCargoFuncao } from './modal-edit-cargo-funcao';
+import { InscricaoProps } from '../../listagem';
+import { DataTableContext } from '~/components/lib/card-table/provider';
 
 type ModalEditCargoFuncaoButtonProps = {
-  formPreview: FormInstance;
+  record: InscricaoProps;
 };
 
-const ModalEditCargoFuncaoButton: React.FC<ModalEditCargoFuncaoButtonProps> = ({ formPreview }) => {
+const ModalEditCargoFuncaoButton: React.FC<ModalEditCargoFuncaoButtonProps> = ({ record }) => {
+  const { tableState } = useContext(DataTableContext);
+
   const [open, setOpen] = useState(false);
 
   const showModal = () => setOpen(true);
 
-  const updateFields = (values: { cargoCodigo: string, tipoVinculo: number }) => {
-    formPreview.setFieldValue('cargoCodigo', values?.cargoCodigo);
-    formPreview.setFieldValue('tipoVinculo', values?.tipoVinculo);
-  };
-
   return (
     <>
-      <ButtonEdit descricaoTooltip='Editar Cargo/Função' onClickEditar={ showModal } podeEditar={ true } />
+      <ButtonEdit
+        descricaoTooltip='Editar Cargo/Função'
+        onClickEditar={showModal}
+        podeEditar={true}
+      />
       {open && (
         <ModalEditCargoFuncao
-          initialValues={ formPreview.getFieldsValue() }
-          updateFields={ updateFields }
-          closeModal={ () => setOpen(false) }
+          initialValues={record}
+          closeModal={(updateTable: boolean) => {
+            if (updateTable) {
+              tableState.reloadData();
+            }
+            setOpen(false);
+          }}
         />
       )}
     </>

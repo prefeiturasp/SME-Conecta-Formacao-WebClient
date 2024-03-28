@@ -66,13 +66,14 @@ export const Inscricao = () => {
           let funcoes: DadosInscricaoCargoEolDTO[] = [];
 
           if (item?.funcoes?.length) {
-            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo }));
+            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo, tipoVinculo: f.tipoVinculo }));
           }
 
           return {
             ...item,
             value: item.codigo,
             label: item.descricao,
+            tipoVinculo: item.tipoVinculo,
             funcoes,
           };
         });
