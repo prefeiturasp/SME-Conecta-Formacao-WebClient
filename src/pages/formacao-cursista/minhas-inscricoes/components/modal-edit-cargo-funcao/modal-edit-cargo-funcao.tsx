@@ -40,9 +40,10 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
         usuarioCargos = dados.usuarioCargos.map((item) => {
           return {
             ...item,
-            value: item.codigo,
+            value: `${item.codigo}-${item.tipoVinculo}`,
             label: item.descricao,
             tipoVinculo: item.tipoVinculo,
+            codigo: item.codigo
           };
         });
 
@@ -66,11 +67,12 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
     setLoading(true);
 
     const values = form.getFieldsValue(true);
+    const cargoFuncao = listaUsuarioCargos.find(item => values.cargoFuncao === item.value);
 
     const params: DadosVinculoInscricaoDTO = {
       id: initialValues.id,
-      cargoCodigo: values?.cargoFuncao?.value,
-      tipoVinculo: values?.cargoFuncao?.tipoVinculo,
+      cargoCodigo: cargoFuncao?.codigo,
+      tipoVinculo: cargoFuncao?.tipoVinculo,
     };
 
     alterarVinculo(params)
@@ -138,15 +140,11 @@ export const ModalEditCargoFuncao: React.FC<ModalEditCargoFuncaoProps> = ({
           autoComplete='off'
           validateMessages={validateMessages}
           initialValues={{
-            cargoFuncao: {
-              value: initialValues?.cargoFuncaoCodigo,
-              tipoVinculo: initialValues?.tipoVinculo,
-            },
+            cargoFuncao: `${initialValues?.cargoFuncaoCodigo}-${initialValues?.tipoVinculo}`,
           }}
         >
           <Form.Item label='Cargo' name='cargoFuncao' rules={[{ required: true }]}>
             <Select
-              labelInValue
               options={listaUsuarioCargos}
               placeholder='Selecione um cargo'
               id={CF_SELECT_CARGO}
