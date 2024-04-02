@@ -35,6 +35,7 @@ import usuarioService from '~/core/services/usuario-service';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import SelectUEs from './components/ue';
 import InputEmailEducacional from '~/components/main/input/email-educacional';
+import SelectTipoEmail from '~/components/main/input/tipo-email';
 
 export const CadastroDeUsuario = () => {
   const [form] = useForm();
@@ -115,6 +116,7 @@ export const CadastroDeUsuario = () => {
         senha: values.senha,
         confirmarSenha: values.confirmarSenha,
         emailEducacional: values.emailEducacional + '@edu.sme.prefeitura.sp.gov.br',
+        tipoEmail: values.tipoEmail,
       })
       .then((resposta) => {
         if (resposta.dados) {
@@ -187,7 +189,7 @@ export const CadastroDeUsuario = () => {
         validateMessages={validateMessages}
       >
         <Row gutter={[16, 8]}>
-          <Col span={24}>
+        <Col span={24}>
             <InputCPF
               required
               formItemProps={{
@@ -210,6 +212,9 @@ export const CadastroDeUsuario = () => {
                 },
               }}
             />
+          </Col>
+          <Col span={24}>
+              <SelectTipoEmail />
           </Col>
           <Col span={24}>
             <Form.Item
