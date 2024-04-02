@@ -85,3 +85,5 @@ export const TOOLTIP_SENHA =
   'Informe a senha de acesso aos sistemas da SME (Plateia, Intranet, SGP). Caso nunca tenha acessado tente informar a senha padrão que é Sgp e os últimos 4 dígitos do RF.';
 export const SERVICO_INDISPONIVEL =
   'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
+
+export const TIPO_EMAIL_NAO_INFORMADO = 'É necessário informar o tipo';
