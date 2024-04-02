@@ -66,13 +66,14 @@ export const Inscricao = () => {
           let funcoes: DadosInscricaoCargoEolDTO[] = [];
 
           if (item?.funcoes?.length) {
-            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo }));
+            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo, tipoVinculo: f.tipoVinculo }));
           }
 
           return {
             ...item,
             value: item.codigo,
             label: item.descricao,
+            tipoVinculo: item.tipoVinculo,
             funcoes,
           };
         });
@@ -125,6 +126,7 @@ export const Inscricao = () => {
       funcaoCodigo: undefined,
       funcaoDreCodigo: undefined,
       funcaoUeCodigo: undefined,
+      tipoVinculo: undefined
     };
 
     if (Array.isArray(clonedValues?.arquivoId)) {
@@ -138,6 +140,7 @@ export const Inscricao = () => {
       valoresSalvar.cargoCodigo = itemCargos?.codigo;
       valoresSalvar.cargoDreCodigo = itemCargos?.dreCodigo;
       valoresSalvar.cargoUeCodigo = itemCargos?.ueCodigo;
+      valoresSalvar.tipoVinculo = itemCargos?.tipoVinculo;
 
       if (clonedValues?.usuarioFuncaoSelecionado && itemCargos?.funcoes?.length) {
         const itemFuncoes = itemCargos?.funcoes?.find(
@@ -147,6 +150,7 @@ export const Inscricao = () => {
         valoresSalvar.funcaoCodigo = itemFuncoes?.codigo;
         valoresSalvar.funcaoDreCodigo = itemFuncoes?.dreCodigo;
         valoresSalvar.funcaoUeCodigo = itemFuncoes?.ueCodigo;
+        valoresSalvar.tipoVinculo = itemFuncoes?.tipoVinculo;
       }
     }
 
