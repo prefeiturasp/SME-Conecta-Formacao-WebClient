@@ -20,7 +20,7 @@ const ModalEditCargoFuncaoButton: React.FC<ModalEditCargoFuncaoButtonProps> = ({
       <ButtonEdit
         descricaoTooltip='Editar Cargo/Função'
         onClickEditar={showModal}
-        podeEditar={true}
+        podeEditar={record.situacao === 'Confirmada'}
       />
       {open && (
         <ModalEditCargoFuncao
