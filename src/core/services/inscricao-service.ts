@@ -4,6 +4,7 @@ import { DadosInscricaoDTO, DadosVinculoInscricaoDTO } from '../dto/dados-usuari
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { InscricaoManualDTO } from '../dto/inscricao-manual-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
+import { PodeInscreverMensagemDTO } from '../dto/pode-inscrever-mensagem-dto';
 import { RetornoDTO } from '../dto/retorno-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
@@ -45,14 +46,18 @@ const obterTiposInscricao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
 const alterarVinculo = (params: DadosVinculoInscricaoDTO) =>
   alterarRegistro(`${URL_INSCRICAO}/${params.id}/alterar-vinculo`, params);
 
+const obterSeInscricaoEstaAberta = (propostaId: number) =>
+  obterRegistro<PodeInscreverMensagemDTO>(`${URL_INSCRICAO}/${propostaId}/abertas`);
+
 export {
+  alterarVinculo,
   cancelarInscricao,
   inserirInscricao,
   inserirInscricaoManual,
   obterDadosInscricao,
   obterInscricao,
   obterRfCpf,
+  obterSeInscricaoEstaAberta,
   obterTiposInscricao,
   obterTurmasInscricao,
-  alterarVinculo,
 };

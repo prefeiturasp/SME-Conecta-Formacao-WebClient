@@ -1,7 +1,9 @@
-import { Button, Col, Form, Row, Typography } from 'antd';
+import { Badge, Col, Form, Row, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ButtonPrimary } from '~/components/lib/button/primary';
+import { ButtonSecundary } from '~/components/lib/button/secundary';
 import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
@@ -17,8 +19,10 @@ import {
 import { CF_INPUT_NOME, CF_INPUT_NOME_FORMACAO, CF_INPUT_RF } from '~/core/constants/ids/input';
 import { NOVA_INSCRICAO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
+import { PodeInscreverMensagemDTO } from '~/core/dto/pode-inscrever-mensagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
+import { obterSeInscricaoEstaAberta } from '~/core/services/inscricao-service';
 import { onClickVoltar } from '~/core/utils/form';
 import { TurmasInscricoesListaPaginada } from './listagem';
 
@@ -45,6 +49,14 @@ export const TurmasInscricoes = () => {
   };
 
   const [realizouFiltro, setRealizouFiltro] = useState(false);
+
+  const DADO_PADRAO_PODE_INSCREVER: PodeInscreverMensagemDTO = {
+    mensagem: '',
+    podeInscrever: true,
+  };
+  const [dadosInscricao, setDadosInscricao] = useState<PodeInscreverMensagemDTO>(
+    DADO_PADRAO_PODE_INSCREVER,
+  );
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
@@ -79,6 +91,18 @@ export const TurmasInscricoes = () => {
     });
   };
 
+  const obterDadosInscricao = useCallback(async () => {
+    const resposta = await obterSeInscricaoEstaAberta(id);
+
+    if (resposta.sucesso) {
+      setDadosInscricao(resposta.dados);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) obterDadosInscricao();
+  }, [id, obterDadosInscricao]);
+
   return (
     <Col>
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
@@ -94,117 +118,115 @@ export const TurmasInscricoes = () => {
               {temTipoInscricaoManual && (
                 <>
                   <Col>
-                    <Button
-                      block
-                      type='default'
-                      htmlType='submit'
+                    <ButtonSecundary
                       id={CF_BUTTON_ARQUIVO}
                       onClick={onInscricaoPorArquivo}
-                      style={{ fontWeight: 700 }}
+                      disabled={!dadosInscricao?.podeInscrever}
                     >
                       Inscrição por arquivo
-                    </Button>
+                    </ButtonSecundary>
                   </Col>
                   <Col>
-                    <Button
-                      block
-                      type='primary'
-                      htmlType='submit'
+                    <ButtonPrimary
                       id={CF_BUTTON_NOVO}
                       onClick={onClickNovo}
-                      style={{ fontWeight: 700 }}
+                      disabled={!dadosInscricao?.podeInscrever}
                     >
                       {NOVA_INSCRICAO}
-                    </Button>
+                    </ButtonPrimary>
                   </Col>
                 </>
               )}
             </Row>
           </Col>
         </HeaderPage>
-
-        <CardContent>
-          <Typography.Title level={5} style={{ marginBottom: 24 }}>
-            {nomeFormacao}
-          </Typography.Title>
-          <Col span={24}>
-            <Row gutter={[16, 8]}>
-              <Col xs={24} sm={6}>
-                <SelectTurmaEncontros
-                  idProposta={id}
-                  selectProps={{ onChange: obterFiltros, mode: undefined }}
-                  formItemProps={{
-                    label: 'Turma',
-                    name: 'turmaId',
-                    style: { fontWeight: 'bold' },
-                    rules: [{ required: false }],
-                    tooltip: false,
-                  }}
-                />
-              </Col>
-
-              <Col xs={24} sm={6}>
-                <InputNumero
-                  formItemProps={{
-                    label: 'RF',
-                    name: 'registroFuncional',
-                    style: { fontWeight: 'bold' },
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_RF,
-                    onChange: obterFiltros,
-                    placeholder: 'Registro Funcional',
-                  }}
-                />
-              </Col>
-
-              <Col xs={24} sm={6}>
-                <InputTexto
-                  formItemProps={{
-                    label: 'CPF',
-                    name: 'cpf',
-                    style: { fontWeight: 'bold' },
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    placeholder: 'CPF',
-                    onChange: obterFiltros,
-                    id: CF_INPUT_NOME_FORMACAO,
-                  }}
-                />
-              </Col>
-
-              <Col xs={24} sm={6}>
-                <InputTexto
-                  formItemProps={{
-                    label: 'Nome do cursista',
-                    name: 'nomeCursista',
-                    style: { fontWeight: 'bold' },
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    onChange: obterFiltros,
-                    placeholder: 'Nome do cursista',
-                    id: CF_INPUT_NOME,
-                  }}
-                />
-              </Col>
-
-              <Col xs={24}>
-                <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>
-                  Listagem de inscrições por turma
-                </Typography>
-                <DataTableContextProvider>
-                  <TurmasInscricoesListaPaginada
-                    filters={filters}
-                    realizouFiltro={realizouFiltro}
+        <Badge.Ribbon
+          text={dadosInscricao?.mensagem}
+          style={{ display: dadosInscricao?.mensagem ? 'inherit' : 'none' }}
+        >
+          <CardContent>
+            <Typography.Title level={5} style={{ marginBottom: 24 }}>
+              {nomeFormacao}
+            </Typography.Title>
+            <Col span={24}>
+              <Row gutter={[16, 8]}>
+                <Col xs={24} sm={6}>
+                  <SelectTurmaEncontros
+                    idProposta={id}
+                    selectProps={{ onChange: obterFiltros, mode: undefined }}
+                    formItemProps={{
+                      label: 'Turma',
+                      name: 'turmaId',
+                      style: { fontWeight: 'bold' },
+                      rules: [{ required: false }],
+                      tooltip: false,
+                    }}
                   />
-                </DataTableContextProvider>
-              </Col>
-            </Row>
-          </Col>
-        </CardContent>
+                </Col>
+
+                <Col xs={24} sm={6}>
+                  <InputNumero
+                    formItemProps={{
+                      label: 'RF',
+                      name: 'registroFuncional',
+                      style: { fontWeight: 'bold' },
+                      rules: [{ required: false }],
+                    }}
+                    inputProps={{
+                      id: CF_INPUT_RF,
+                      onChange: obterFiltros,
+                      placeholder: 'Registro Funcional',
+                    }}
+                  />
+                </Col>
+
+                <Col xs={24} sm={6}>
+                  <InputTexto
+                    formItemProps={{
+                      label: 'CPF',
+                      name: 'cpf',
+                      style: { fontWeight: 'bold' },
+                      rules: [{ required: false }],
+                    }}
+                    inputProps={{
+                      placeholder: 'CPF',
+                      onChange: obterFiltros,
+                      id: CF_INPUT_NOME_FORMACAO,
+                    }}
+                  />
+                </Col>
+
+                <Col xs={24} sm={6}>
+                  <InputTexto
+                    formItemProps={{
+                      label: 'Nome do cursista',
+                      name: 'nomeCursista',
+                      style: { fontWeight: 'bold' },
+                      rules: [{ required: false }],
+                    }}
+                    inputProps={{
+                      onChange: obterFiltros,
+                      placeholder: 'Nome do cursista',
+                      id: CF_INPUT_NOME,
+                    }}
+                  />
+                </Col>
+
+                <Col xs={24}>
+                  <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>
+                    Listagem de inscrições por turma
+                  </Typography>
+                  <DataTableContextProvider>
+                    <TurmasInscricoesListaPaginada
+                      filters={filters}
+                      realizouFiltro={realizouFiltro}
+                    />
+                  </DataTableContextProvider>
+                </Col>
+              </Row>
+            </Col>
+          </CardContent>
+        </Badge.Ribbon>
       </Form>
     </Col>
   );
