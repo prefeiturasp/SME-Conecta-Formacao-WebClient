@@ -27,8 +27,8 @@ const InputEmailEducacional: React.FC = () => {
       rules={[{ required: true }, { message: exibirErro ? 'Não é um e-mail válido' : '' }]}
     >
       <Input
-        placeholder='Digite o e-mail sem o @edu.sme.prefeitura.sp.gov.br'
         autoComplete='off'
+        readOnly
         onChange={(_) => {
           removerEspacoEmail();
         }}
