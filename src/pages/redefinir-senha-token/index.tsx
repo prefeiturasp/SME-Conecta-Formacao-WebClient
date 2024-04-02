@@ -23,13 +23,14 @@ import { setSpinning } from '~/core/redux/modules/spin/actions';
 import TokenExpirado from './token-expirado';
 import Spin from '~/components/main/spin';
 import { setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
+import { store } from '~/core/redux';
+import { setDeslogar } from '~/core/redux/modules/auth/actions';
 
 const RedefinirSenhaToken = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const paramsRoute = useParams();
-
   const token = paramsRoute?.token || '';
 
   const [erroGeral, setErroGeral] = useState<string[]>();
@@ -81,6 +82,7 @@ const RedefinirSenhaToken = () => {
   }, [token]);
 
   useEffect(() => {
+    store.dispatch(setDeslogar());
     if (token) validarToken();
   }, [token, validarToken]);
 
