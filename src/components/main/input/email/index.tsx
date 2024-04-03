@@ -12,8 +12,6 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
   const [exibirErro, setExibirErro] = useState(true);
 
   const removerEspacoEmail = () => {
-    const emailRegexEdu = /^[a-zA-Z0-9._%+-]+@edu\.sme\.prefeitura\.sp\.gov\.br$/;
-    const emailEdu = form.getFieldValue('emailEducacional');
     const emailUnico = form.getFieldValue('email');
     const emails = form.getFieldValue('emails');
     const emailsSemEspaco = emails
@@ -29,7 +27,6 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
     const emailsParaAdicionar = emailsSemEspaco.length ? emailsSemEspaco : emailUnicoSemEspaco;
     if (emailUnicoSemEspaco) form.setFieldValue('email', emailsParaAdicionar);
     if (emailsSemEspaco.length) form.setFieldValue('emails', emailsParaAdicionar);
-    if (!emailUnicoSemEspaco.length) form.resetFields(['emailEducacional']);
     setExibirErro(false);
     form.setFields([
       {
@@ -41,11 +38,6 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
         errors: [],
       },
     ]);
-    if(emailRegexEdu.test(emailsParaAdicionar)){
-      if(!emailRegexEdu.test(emailEdu)){
-        form.setFieldValue('emailEducacional', emailsParaAdicionar.split('@')[0]);
-      }
-    }
   };
   useEffect(() => {
     setExibirErro(!!formItemProps?.required);
