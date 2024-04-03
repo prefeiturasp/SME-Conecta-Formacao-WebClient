@@ -28,7 +28,7 @@ const InputEmailEducacional: React.FC = () => {
     >
       <Input
         autoComplete='off'
-        readOnly
+        disabled
         onChange={(_) => {
           removerEspacoEmail();
         }}
