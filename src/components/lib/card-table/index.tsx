@@ -68,7 +68,8 @@ const DataTable = <T extends object>({
         })
         .then((response) => {
           if (response?.data.items) {
-            desativarBotaoContinuar(response.data.sucesso)
+            if(desativarBotaoContinuar)
+              desativarBotaoContinuar(response.data.sucesso)
             setData(response.data.items);
             setTableParams({
               ...newParams,

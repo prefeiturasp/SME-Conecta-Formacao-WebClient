@@ -1,6 +1,6 @@
 import { Drawer, DrawerProps, Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ButtonPrimary } from '~/components/lib/button/primary';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import DataTable from '~/components/lib/card-table';
@@ -64,29 +64,11 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
   dataSourceInconsistencias,
 }) => {
   const desabilitar = situacao !== SituacaoImportacaoArquivoEnum.Validado;
-  const [desativarBotaoContinuar, setDesativarBotaoContinuar] = useState<boolean>(false)
+  const [desativarBotaoContinuar, setDesativarBotaoContinuar] = useState<boolean>();
 
-  const buttons = useMemo(
-    () => (
-      <Space>
-        <ButtonSecundary
-          block
-          type='default'
-          style={{ fontWeight: 700 }}
-          id={CF_BUTTON_MODAL_CANCELAR}
-          onClick={onClickCancelar}
-          disabled={desabilitar}
-        >
-          Cancelar
-        </ButtonSecundary>
-
-        <ButtonPrimary type='primary' onClick={onClickContinuar} disabled={desabilitar || desativarBotaoContinuar}>
-          Continuar
-        </ButtonPrimary>
-      </Space>
-    ),
-    [onClickCancelar, onClickContinuar, desabilitar],
-  );
+  useEffect(() => {
+    console.log(desativarBotaoContinuar);
+  }, [desativarBotaoContinuar]);
 
   return (
     <Drawer
@@ -94,7 +76,30 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
       open
       size='large'
       {...drawerProps}
-      extra={buttons}
+      extra={
+        <>
+          <Space>
+            <ButtonSecundary
+              block
+              type='default'
+              style={{ fontWeight: 700 }}
+              id={CF_BUTTON_MODAL_CANCELAR}
+              onClick={onClickCancelar}
+              disabled={desabilitar}
+            >
+              Cancelar
+            </ButtonSecundary>
+
+            <ButtonPrimary
+              type='primary'
+              onClick={onClickContinuar}
+              disabled={desabilitar || (desativarBotaoContinuar ? false : true)}
+            >
+              Continuar
+            </ButtonPrimary>
+          </Space>
+        </>
+      }
     >
       <DataTable
         columns={columnsInconsistencias}
