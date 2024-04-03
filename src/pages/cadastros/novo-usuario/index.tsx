@@ -36,10 +36,11 @@ import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import SelectUEs from './components/ue';
 import InputEmailEducacional from '~/components/main/input/email-educacional';
 import SelectTipoEmail from '~/components/main/input/tipo-email';
+import { TipoEmail } from '~/core/enum/tipo-email';
 
 export const CadastroDeUsuario = () => {
   const [form] = useForm();
-
+  const DOMINIO_DEFAULT = '@edu.sme.prefeitura.sp.gov.br';
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -99,6 +100,9 @@ export const CadastroDeUsuario = () => {
           nomeUnidade: data?.nomeUe,
           ues: temApenasUmaUE ? data?.ues[0].id : [],
         });
+        if (!data?.nomePessoa) {
+          form.setFieldValue('tipoEmail', undefined);
+        }
 
         !resposta.dados && form.getFieldInstance('nomePessoa').focus();
       })
@@ -115,7 +119,7 @@ export const CadastroDeUsuario = () => {
         codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
         senha: values.senha,
         confirmarSenha: values.confirmarSenha,
-        emailEducacional: values.emailEducacional + '@edu.sme.prefeitura.sp.gov.br',
+        emailEducacional: values.emailEducacional + DOMINIO_DEFAULT,
         tipoEmail: values.tipoEmail,
       })
       .then((resposta) => {
@@ -148,14 +152,35 @@ export const CadastroDeUsuario = () => {
       navigate(ROUTES.LOGIN);
     }
   };
-
+  const criarEmailEdu = () => {
+    const cpf = removerTudoQueNaoEhDigito(form.getFieldValue('cpf'));
+    const tipoEmail: TipoEmail = form.getFieldValue('tipoEmail') as TipoEmail;
+    const nome = form.getFieldValue('nomePessoa');
+    let emailEdu = '';
+    const nomeSplit = nome?.split(' ');
+    if (nomeSplit && cpf.length === 11 && tipoEmail) {
+      const primeiroNome = nomeSplit[0]?.toLowerCase();
+      const ultimoNome =
+        nomeSplit?.length - 1 > 0 ? nomeSplit[nomeSplit?.length - 1].toLowerCase() : '';
+      if (tipoEmail == TipoEmail.FuncionarioUnidadeParceira) {
+        emailEdu = `${primeiroNome}${ultimoNome}.${cpf}`;
+      }
+      if (tipoEmail == TipoEmail.Estagiario) {
+        emailEdu = `${primeiroNome}${ultimoNome}.e${cpf}`;
+      }
+      form.setFieldValue('emailEducacional', emailEdu);
+    } else {
+      emailEdu = '';
+      form.setFieldValue('emailEducacional', undefined);
+    }
+  };
   const validateNameAndSurname = (_rule: any, value: string) => {
+    criarEmailEdu();
     const names = value?.split(' ');
 
     if (names?.length <= 1 || names[1]?.trim() === '') {
       return Promise.reject('Por favor, digite o nome e o sobrenome.');
     }
-
     return Promise.resolve();
   };
 
@@ -189,7 +214,7 @@ export const CadastroDeUsuario = () => {
         validateMessages={validateMessages}
       >
         <Row gutter={[16, 8]}>
-        <Col span={24}>
+          <Col span={24}>
             <InputCPF
               required
               formItemProps={{
@@ -209,12 +234,13 @@ export const CadastroDeUsuario = () => {
                   } else {
                     setCpfValido(false);
                   }
+                  criarEmailEdu();
                 },
               }}
             />
           </Col>
           <Col span={24}>
-              <SelectTipoEmail />
+            <SelectTipoEmail selectProps={{ onChange: criarEmailEdu }} />
           </Col>
           <Col span={24}>
             <Form.Item
@@ -228,7 +254,12 @@ export const CadastroDeUsuario = () => {
                 },
               ]}
             >
-              <Input maxLength={100} id={CF_INPUT_NOME} placeholder='Informe o nome completo' />
+              <Input
+                maxLength={100}
+                id={CF_INPUT_NOME}
+                placeholder='Informe o nome completo'
+                onChange={criarEmailEdu}
+              />
             </Form.Item>
           </Col>
           <Col span={24}>
