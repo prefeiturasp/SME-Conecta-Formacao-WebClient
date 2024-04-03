@@ -1,6 +1,6 @@
 import { Drawer, DrawerProps, Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ButtonPrimary } from '~/components/lib/button/primary';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import DataTable from '~/components/lib/card-table';
@@ -64,6 +64,7 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
   dataSourceInconsistencias,
 }) => {
   const desabilitar = situacao !== SituacaoImportacaoArquivoEnum.Validado;
+  const [desativarBotaoContinuar, setDesativarBotaoContinuar] = useState<boolean>(true)
 
   const buttons = useMemo(
     () => (
@@ -79,7 +80,7 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
           Cancelar
         </ButtonSecundary>
 
-        <ButtonPrimary type='primary' onClick={onClickContinuar} disabled={desabilitar}>
+        <ButtonPrimary type='primary' onClick={onClickContinuar} disabled={desabilitar || desativarBotaoContinuar}>
           Continuar
         </ButtonPrimary>
       </Space>
@@ -97,6 +98,7 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
     >
       <DataTable
         columns={columnsInconsistencias}
+        desativarBotaoContinuar={setDesativarBotaoContinuar}
         dataSource={dataSourceInconsistencias}
         url={`v1/ImportacaoArquivo/${linhaId}/registros-inconsistencia`}
       />
