@@ -64,7 +64,7 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
   dataSourceInconsistencias,
 }) => {
   const desabilitar = situacao !== SituacaoImportacaoArquivoEnum.Validado;
-  const [desativarBotaoContinuar, setDesativarBotaoContinuar] = useState<boolean>(true)
+  const [desativarBotaoContinuar, setDesativarBotaoContinuar] = useState<boolean>(false)
 
   const buttons = useMemo(
     () => (
