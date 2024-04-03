@@ -6,6 +6,7 @@ export type CadastroUsuarioDTO = {
   senha: string;
   confirmarSenha: string;
   emailEducacional: string;
+  tipoEmail: number;
 };
 
 export type CadastroUsuarioFormDTO = {
@@ -16,6 +17,7 @@ export type CadastroUsuarioFormDTO = {
   senha: string;
   emailEducacional: string;
   confirmarSenha: string;
+  tipoEmail: number;
   ues: string[];
 };
 
