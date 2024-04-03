@@ -32,7 +32,7 @@ import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { confirmacao, sucesso } from '~/core/services/alerta-service';
 import funcionarioExternoService from '~/core/services/funcionario-externo-service';
 import usuarioService from '~/core/services/usuario-service';
-import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
+import { removeAcentos, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import SelectUEs from './components/ue';
 import InputEmailEducacional from '~/components/main/input/email-educacional';
 import SelectTipoEmail from '~/components/main/input/tipo-email';
@@ -168,7 +168,7 @@ export const CadastroDeUsuario = () => {
       if (tipoEmail == TipoEmail.Estagiario) {
         emailEdu = `${primeiroNome}${ultimoNome}.e${cpf}`;
       }
-      form.setFieldValue('emailEducacional', emailEdu);
+      form.setFieldValue('emailEducacional', removeAcentos(emailEdu));
     } else {
       emailEdu = '';
       form.setFieldValue('emailEducacional', undefined);
