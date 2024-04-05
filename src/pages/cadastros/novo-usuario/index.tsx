@@ -129,7 +129,8 @@ export const CadastroDeUsuario = () => {
     if (names?.length <= 1 || names[1]?.trim() === '') {
       return Promise.reject('Por favor, digite o nome e o sobrenome.');
     }
-
+    const newValue = value.replace(/[^\p{L}\s]/gu, '');
+    form.setFieldValue('nomePessoa', newValue);
     return Promise.resolve();
   };
 
