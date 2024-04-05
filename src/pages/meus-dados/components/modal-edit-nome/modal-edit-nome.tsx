@@ -44,7 +44,14 @@ export const ModalEditNome: React.FC<ModalEditNomeProps> = ({
         initialValues={initialValues}
         validateMessages={validateMessages}
       >
-        <InputNome />
+        <InputNome
+          inputProps={{
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+              const newValue = e.target.value.replace(/[^\p{L}\s]/gu, '');
+              form.setFieldValue('nome', newValue);
+            },
+          }}
+        />
       </Form>
     </ModalEditDefault>
   );
