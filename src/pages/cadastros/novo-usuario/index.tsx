@@ -280,7 +280,7 @@ export const CadastroDeUsuario = () => {
         </Row>
         <p style={{ marginBottom: '30px', marginTop: '10px' }}>
           <Checkbox checked={checked} onChange={onChangeCheck}>
-            As informa��es prestadas s�o verdadeiras e me responsabilizo por elas
+            As informações prestadas são verdadeiras e me responsabilizo por elas
           </Checkbox>
         </p>
         <Row justify='center' gutter={[0, 21]} style={{ marginTop: '20px' }}>
