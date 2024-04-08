@@ -54,7 +54,6 @@ export const MinhasInscricoesListaPaginada = () => {
     { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '30%' },
     { title: 'Turma', dataIndex: 'nomeTurma', width: '12%' },
     { title: 'Datas', dataIndex: 'datas', width: '10%' },
-    
     {
       title: 'Cargo/Função',
       dataIndex: 'cargoFuncao',
@@ -62,12 +61,18 @@ export const MinhasInscricoesListaPaginada = () => {
       render: (_, record: InscricaoProps) => {
         return (
           <Row align='middle' justify='space-between'>
-            {record.cargoFuncao}
-            <ModalEditCargoFuncaoButton record={record}></ModalEditCargoFuncaoButton>
+            <>
+              {record.cargoFuncao}
+              {record.cargoFuncao ? (
+                <ModalEditCargoFuncaoButton record={record}></ModalEditCargoFuncaoButton>
+              ) : (
+                ''
+              )}
+            </>
           </Row>
         );
       },
-      },
+    },
     { title: 'Origem', dataIndex: 'origem', width: '10%' },
     { title: 'Situação', dataIndex: 'situacao', width: '10%' },
     {
