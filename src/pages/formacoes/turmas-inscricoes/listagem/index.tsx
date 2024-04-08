@@ -48,7 +48,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
 
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
-  const mensagemConfirmacao = (record: TurmaInscricaoProps) => {
+  const mensagemConfirmacao = (record: DadosListagemInscricaoDTO) => {
     if (record.integrarNoSga && record.iniciado && !ehCursista) {
       return DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA;
     } else {
@@ -56,7 +56,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     }
   };
 
-  const columns: ColumnsType<TurmaInscricaoProps> = [
+  const columns: ColumnsType<DadosListagemInscricaoDTO> = [
     { title: 'Turma', dataIndex: 'nomeTurma' },
     { title: 'RF', dataIndex: 'registroFuncional' },
     { title: 'CPF', dataIndex: 'cpf' },

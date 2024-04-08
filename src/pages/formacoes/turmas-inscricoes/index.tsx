@@ -1,4 +1,4 @@
-import { Badge, Col, Form, Row, Typography } from 'antd';
+import { Col, Form, Row, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -76,8 +76,6 @@ export const TurmasInscricoes = () => {
   const alterarRealizouFiltro = (valor: boolean) => {
     setRealizouFiltro(valor);
   };
-  const onClickVoltar = () => navigate(ROUTES.FORMACAOES_INSCRICOES);
-
   const obterFiltros = () => {
     setRealizouFiltro(true);
     const cpf = form.getFieldValue('cpf');
@@ -167,53 +165,53 @@ export const TurmasInscricoes = () => {
                 />
               </Col>
 
-                <Col xs={24} sm={6}>
-                  <InputNumero
-                    formItemProps={{
-                      label: 'RF',
-                      name: 'registroFuncional',
-                      style: { fontWeight: 'bold' },
-                      rules: [{ required: false }],
-                    }}
-                    inputProps={{
-                      id: CF_INPUT_RF,
-                      onChange: obterFiltros,
-                      placeholder: 'Registro Funcional',
-                    }}
-                  />
-                </Col>
+              <Col xs={24} sm={6}>
+                <InputNumero
+                  formItemProps={{
+                    label: 'RF',
+                    name: 'registroFuncional',
+                    style: { fontWeight: 'bold' },
+                    rules: [{ required: false }],
+                  }}
+                  inputProps={{
+                    id: CF_INPUT_RF,
+                    onChange: obterFiltros,
+                    placeholder: 'Registro Funcional',
+                  }}
+                />
+              </Col>
 
-                <Col xs={24} sm={6}>
-                  <InputTexto
-                    formItemProps={{
-                      label: 'CPF',
-                      name: 'cpf',
-                      style: { fontWeight: 'bold' },
-                      rules: [{ required: false }],
-                    }}
-                    inputProps={{
-                      placeholder: 'CPF',
-                      onChange: obterFiltros,
-                      id: CF_INPUT_NOME_FORMACAO,
-                    }}
-                  />
-                </Col>
+              <Col xs={24} sm={6}>
+                <InputTexto
+                  formItemProps={{
+                    label: 'CPF',
+                    name: 'cpf',
+                    style: { fontWeight: 'bold' },
+                    rules: [{ required: false }],
+                  }}
+                  inputProps={{
+                    placeholder: 'CPF',
+                    onChange: obterFiltros,
+                    id: CF_INPUT_NOME_FORMACAO,
+                  }}
+                />
+              </Col>
 
-                <Col xs={24} sm={6}>
-                  <InputTexto
-                    formItemProps={{
-                      label: 'Nome do cursista',
-                      name: 'nomeCursista',
-                      style: { fontWeight: 'bold' },
-                      rules: [{ required: false }],
-                    }}
-                    inputProps={{
-                      onChange: obterFiltros,
-                      placeholder: 'Nome do cursista',
-                      id: CF_INPUT_NOME,
-                    }}
-                  />
-                </Col>
+              <Col xs={24} sm={6}>
+                <InputTexto
+                  formItemProps={{
+                    label: 'Nome do cursista',
+                    name: 'nomeCursista',
+                    style: { fontWeight: 'bold' },
+                    rules: [{ required: false }],
+                  }}
+                  inputProps={{
+                    onChange: obterFiltros,
+                    placeholder: 'Nome do cursista',
+                    id: CF_INPUT_NOME,
+                  }}
+                />
+              </Col>
 
               <Col xs={24}>
                 <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>

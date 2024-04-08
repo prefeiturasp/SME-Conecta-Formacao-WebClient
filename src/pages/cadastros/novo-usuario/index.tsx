@@ -136,21 +136,6 @@ export const CadastroDeUsuario = () => {
       .finally(() => dispatch(setSpinning(false)));
   };
 
-  const onClickVoltar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-        onOk() {
-          form.submit();
-        },
-        onCancel() {
-          navigate(ROUTES.LOGIN);
-        },
-      });
-    } else {
-      navigate(ROUTES.LOGIN);
-    }
-  };
   const criarEmailEdu = () => {
     const cpf = removerTudoQueNaoEhDigito(form.getFieldValue('cpf'));
     const tipoEmail: TipoEmail = form.getFieldValue('tipoEmail') as TipoEmail;

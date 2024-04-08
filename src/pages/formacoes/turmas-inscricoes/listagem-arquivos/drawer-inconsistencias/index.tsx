@@ -102,6 +102,9 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
       }
     >
       <DataTable
+        alterarRealizouFiltro={(_) => {
+          ('');
+        }}
         columns={columnsInconsistencias}
         desativarBotaoContinuar={setDesativarBotaoContinuar}
         dataSource={dataSourceInconsistencias}
