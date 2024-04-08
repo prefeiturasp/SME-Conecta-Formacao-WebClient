@@ -8,4 +8,5 @@ export type InscricaoDTO = {
   funcaoDreCodigo: string | undefined;
   funcaoUeCodigo: string | undefined;
   arquivoId?: number;
+  tipoVinculo: number | undefined;
 };

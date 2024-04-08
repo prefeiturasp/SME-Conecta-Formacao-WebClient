@@ -221,8 +221,9 @@ export const alterarRegistroParcial = async <T>(
 
 export const inserirRegistro = async <T>(
   url: string,
-  params: any,
+  params?: any,
   config?: AxiosRequestConfig,
+  mostrarNotificacao = true,
 ): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
@@ -233,7 +234,9 @@ export const inserirRegistro = async <T>(
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
       const mensagens = tratarMensagem(error);
       // TODO modal error
-      openNotificationErrors(mensagens);
+      if (mostrarNotificacao) {
+        openNotificationErrors(mensagens);
+      }
 
       return { sucesso: false, mensagens, dados: null, status: error?.status };
     })
