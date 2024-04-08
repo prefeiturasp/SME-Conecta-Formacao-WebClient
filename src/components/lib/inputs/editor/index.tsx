@@ -146,7 +146,7 @@ const JoditEditorSME = forwardRef((props: JoditEditorProps, ref: any) => {
     };
 
     if (props?.config?.uploader?.url && props?.config?.uploader?.headers) {
-      internalConfig.uploader = {
+      internalConfig!.uploader = {
         url: props?.config?.uploader?.url,
         headers: props?.config?.uploader?.headers,
         error(e: Error) {

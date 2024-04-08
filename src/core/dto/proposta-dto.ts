@@ -24,6 +24,7 @@ export type PropostaDTO = {
   quantidadeTurmas?: number | null;
   quantidadeVagasTurma?: number | null;
   funcaoEspecificaOutros: string;
+  publicoAlvoOutros: string;
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoProposta;
   arquivoImagemDivulgacaoId?: number;
@@ -56,6 +57,7 @@ export type PropostaDTO = {
   anosTurmas?: PropostaAnoTurmaDTO[];
   componentesCurriculares?: PropostaComponenteCurricularDTO[];
   integrarNoSGA?: boolean;
+  desativarAnoEhComponente: boolean;
 };
 
 export type TipoInscricaoType = {
@@ -80,6 +82,7 @@ export type PropostaFormDTO = {
   publicosAlvo?: number[];
   funcoesEspecificas?: number[];
   funcaoEspecificaOutros?: string;
+  publicoAlvoOutros?: string;
   vagasRemanecentes?: number[];
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
@@ -111,6 +114,7 @@ export type PropostaFormDTO = {
   componentesCurriculares?: number[];
   listaDres?: DreDTO[];
   integrarNoSGA?: boolean;
+  desativarAnoEhComponente: boolean;
 };
 
 export type PropostaPalavraChaveDTO = {

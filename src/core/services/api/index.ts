@@ -16,6 +16,7 @@ import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { store } from '../../redux';
 import autenticacaoService, { URL_AUTENTICACAO_REVALIDAR } from '../autenticacao-service';
+import { SERVICO_INDISPONIVEL } from '~/core/constants/mensagens';
 
 const config: AxiosRequestConfig = {
   baseURL: import.meta.env.VITE_SME_CF_API,
@@ -133,6 +134,7 @@ export type ApiResult<T> = {
   dados: T;
   sucesso: boolean;
   mensagens: string[];
+  status: number | undefined;
 };
 
 export const obterRegistro = async <T>(
@@ -153,17 +155,15 @@ export const obterRegistro = async <T>(
       ...axiosRequestConfig,
     })
     .then((response: AxiosResponse<T>): ApiResult<T> => {
-      return { sucesso: true, dados: response?.data, mensagens: [] };
+      return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
-        ? error?.response?.data?.mensagens
-        : [];
+      const mensagens = tratarMensagem(error);
 
       // TODO modal error
       openNotificationErrors(mensagens);
 
-      return { sucesso: false, mensagens, dados: null };
+      return { sucesso: false, mensagens, dados: null, status: error?.status };
     })
     .finally(() => store.dispatch(setSpinning(false)));
 };
@@ -177,21 +177,26 @@ export const alterarRegistro = async <T>(
   return api
     .put(url, params)
     .then((response: AxiosResponse<T>): ApiResult<T> => {
-      return { sucesso: true, dados: response?.data, mensagens: [] };
+      return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
-        ? error?.response?.data?.mensagens
-        : [];
-
+      const mensagens = tratarMensagem(error);
       // TODO modal error
       if (mostrarNotificacao) {
         openNotificationErrors(mensagens);
       }
 
-      return { sucesso: false, mensagens, dados: null };
+      return { sucesso: false, mensagens, dados: null, status: error?.status };
     })
     .finally(() => store.dispatch(setSpinning(false)));
+};
+
+const tratarMensagem = (error: AxiosError<RetornoBaseDTO>) => {
+  let mensagens = error?.response?.data?.mensagens?.length ? error?.response?.data?.mensagens : [];
+
+  if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL];
+
+  return mensagens;
 };
 
 export const alterarRegistroParcial = async <T>(
@@ -202,17 +207,14 @@ export const alterarRegistroParcial = async <T>(
   return api
     .patch(url, params)
     .then((response: AxiosResponse<T>): ApiResult<T> => {
-      return { sucesso: true, dados: response?.data, mensagens: [] };
+      return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
-        ? error?.response?.data?.mensagens
-        : [];
-
+      const mensagens = tratarMensagem(error);
       // TODO modal error
       openNotificationErrors(mensagens);
 
-      return { sucesso: false, mensagens, dados: null };
+      return { sucesso: false, mensagens, dados: null, status: error?.status };
     })
     .finally(() => store.dispatch(setSpinning(false)));
 };
@@ -227,19 +229,16 @@ export const inserirRegistro = async <T>(
   return api
     .post(url, params, config)
     .then((response: AxiosResponse<T>): ApiResult<T> => {
-      return { sucesso: true, dados: response?.data, mensagens: [] };
+      return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
-        ? error?.response?.data?.mensagens
-        : [];
-
+      const mensagens = tratarMensagem(error);
       // TODO modal error
       if (mostrarNotificacao) {
         openNotificationErrors(mensagens);
       }
 
-      return { sucesso: false, mensagens, dados: null };
+      return { sucesso: false, mensagens, dados: null, status: error?.status };
     })
     .finally(() => store.dispatch(setSpinning(false)));
 };
@@ -249,16 +248,13 @@ export const deletarRegistro = async <T>(url: string): Promise<ApiResult<T>> => 
   return api
     .delete(url)
     .then((response: AxiosResponse<T>): ApiResult<T> => {
-      return { sucesso: true, dados: response?.data, mensagens: [] };
+      return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
     })
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
-      const mensagens = error?.response?.data?.mensagens?.length
-        ? error?.response?.data?.mensagens
-        : [];
-
+      const mensagens = tratarMensagem(error);
       openNotificationErrors(mensagens);
 
-      return { sucesso: false, mensagens, dados: null };
+      return { sucesso: false, mensagens, dados: null, status: error?.status };
     })
     .finally(() => store.dispatch(setSpinning(false)));
 };

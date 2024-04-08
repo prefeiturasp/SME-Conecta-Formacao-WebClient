@@ -66,6 +66,9 @@ const RoutesConfig = () => {
           <Route path={ROUTES.AREA_PUBLICA} element={listFormacaoPage} />
           <Route path={ROUTES.AREA_PUBLICA_VISUALIZAR_FORMACAO} element={visualizarAreaPublica} />
         </Route>
+        <Route element={homePage}>
+              <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
+        </Route>
         {autenticado ? (
           <>
             <Route element={<GuardAutenticacao />}>

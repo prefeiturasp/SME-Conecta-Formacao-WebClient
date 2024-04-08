@@ -17,6 +17,7 @@ interface TableParams {
 type DataTableProps<T> = {
   filters?: any;
   realizouFiltro?: boolean;
+  alterarRealizouFiltro: (valor: boolean) => void;
   desativarBotaoContinuar?: any;
   url?: string;
 } & TableProps<T>;
@@ -24,6 +25,7 @@ type DataTableProps<T> = {
 const DataTable = <T extends object>({
   filters,
   realizouFiltro,
+  alterarRealizouFiltro,
   url,
   columns,
   desativarBotaoContinuar,
@@ -48,7 +50,6 @@ const DataTable = <T extends object>({
   const fetchData = useCallback(
     (newParams: TableParams) => {
       if (!url) return;
-
       setLoading(true);
       api
         .get<PaginacaoResultadoDTO<T[]>>(url, {
@@ -68,6 +69,9 @@ const DataTable = <T extends object>({
         })
         .then((response) => {
           if (response?.data.items) {
+            if (newParams?.pagination?.current)
+              if (newParams?.pagination?.current == 1)
+                newParams.pagination.current = realizouFiltro ? 1 : newParams.pagination?.current;
             if(desativarBotaoContinuar)
               desativarBotaoContinuar(response.data.sucesso)
             setData(response.data.items);
@@ -87,9 +91,11 @@ const DataTable = <T extends object>({
 
           openNotificationErrors(mensagens);
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          setLoading(false);
+        });
     },
-    [url, filters],
+    [url, filters, realizouFiltro],
   );
 
   useEffect(() => {
@@ -102,6 +108,7 @@ const DataTable = <T extends object>({
   }, [JSON.stringify(filters), fetchData]);
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
+    alterarRealizouFiltro(false);
     const newParams = {
       ...tableParams,
       pagination,
