@@ -66,7 +66,7 @@ const InputRegistroFuncionalNome: React.FC<InputRegistroFuncionalNomeProps> = ({
     <>
       <Col xs={12}>
         {exibirCpf ? (
-          <InputCPF required={true} />
+          <InputCPF formItemProps={{ required: true }} />
         ) : (
           <Form.Item
             label='RF'

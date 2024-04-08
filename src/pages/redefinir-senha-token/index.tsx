@@ -1,5 +1,5 @@
 import { Button, Col, Form, Row, Typography } from 'antd';
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useForm } from 'antd/es/form/Form';
 
@@ -10,6 +10,7 @@ import { AxiosError, HttpStatusCode } from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import ErroGeralLogin from '~/components/main/erro-geral-login';
 import SenhaCadastro from '~/components/main/input/senha-cadastro';
+import Spin from '~/components/main/spin';
 import {
   CF_BUTTON_CONFIRMAR_REDEFINICAO_SENHA,
   CF_BUTTON_VOLTAR,
@@ -19,7 +20,9 @@ import { ERRO_RECUPERACAO_SENHA } from '~/core/constants/mensagens';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { setDadosLogin } from '~/core/redux/modules/auth/actions';
+import { setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
+import { onClickVoltar } from '~/core/utils/form';
 import TokenExpirado from './token-expirado';
 import Spin from '~/components/main/spin';
 import { setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
@@ -102,8 +105,6 @@ const RedefinirSenhaToken = () => {
       .finally(() => dispatch(setSpinning(false)));
   };
 
-  const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
-
   if (!validandoToken && !tokenValido) return <TokenExpirado />;
 
   return (
@@ -159,7 +160,7 @@ const RedefinirSenhaToken = () => {
                   type='default'
                   block
                   style={{ fontWeight: 700 }}
-                  onClick={() => onClickVoltar()}
+                  onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
                   id={CF_BUTTON_VOLTAR}
                 >
                   Voltar

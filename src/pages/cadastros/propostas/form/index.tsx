@@ -26,7 +26,6 @@ import {
 } from '~/core/constants/ids/button/intex';
 import {
   APOS_ENVIAR_PROPOSTA_NAO_EDITA,
-  DESEJA_CANCELAR_ALTERACOES,
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -60,6 +59,7 @@ import {
   inserirProposta,
   obterPropostaPorId,
 } from '~/core/services/proposta-service';
+import { onClickCancelar } from '~/core/utils/form';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
@@ -68,7 +68,7 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 
-const FormCadastroDePropostas: React.FC = () => {
+export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
   const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
@@ -352,17 +352,6 @@ const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     scrollNoInicio();
   }, [currentStep]);
-
-  const onClickCancelar = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_CANCELAR_ALTERACOES,
-        onOk() {
-          form.resetFields();
-        },
-      });
-    }
-  };
 
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
@@ -743,7 +732,7 @@ const FormCadastroDePropostas: React.FC = () => {
                     }}
                     id={CF_BUTTON_VOLTAR}
                   />
-                </Col>
+                </Col>{' '}
                 {id ? (
                   <Col>
                     <ButtonExcluir
@@ -762,7 +751,7 @@ const FormCadastroDePropostas: React.FC = () => {
                         block
                         type='default'
                         id={CF_BUTTON_CANCELAR}
-                        onClick={onClickCancelar}
+                        onClick={() => onClickCancelar({ form })}
                         style={{ fontWeight: 700 }}
                         disabled={!form.isFieldsTouched()}
                       >
@@ -890,5 +879,3 @@ const FormCadastroDePropostas: React.FC = () => {
     </Col>
   );
 };
-
-export default FormCadastroDePropostas;

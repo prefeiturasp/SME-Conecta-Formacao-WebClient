@@ -19,6 +19,7 @@ import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
+
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
@@ -152,7 +153,10 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
           formProposta.setFieldValue('turmas', [...currentTurmas, ...novasTurmas]);
         }
       } else {
-        if (situacaoProposta !== SituacaoProposta.Publicada && situacaoProposta !== SituacaoProposta.Alterando) {
+        if (
+          situacaoProposta !== SituacaoProposta.Publicada &&
+          situacaoProposta !== SituacaoProposta.Alterando
+        ) {
           formProposta.setFieldValue('turmas', []);
         }
       }
@@ -176,8 +180,14 @@ const TabelaEditavel: React.FC<TabelaEditavelProps> = ({ listaDres }) => {
   }, [dresWatch]);
 
   const edit = (record: PropostaTurmaFormDTO) => {
-    if (record && record.dres) {
-      setEditInValues({ ...record, dres: record.dres });
+    let dresEdicao = Array<DreDTO>();
+
+    if (record.dres?.length) {
+      dresEdicao = record.dres?.length > 1 ? record.dres?.filter((dre) => !dre.todos) : record.dres;
+      record.dres = dresEdicao;
+    }
+    if (record && dresEdicao) {
+      setEditInValues({ ...record, dres: dresEdicao });
       setEditingKey(record.key);
     }
   };

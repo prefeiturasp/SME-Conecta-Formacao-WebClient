@@ -18,10 +18,7 @@ import {
   CF_INPUT_SENHA,
   CF_INPUT_UE,
 } from '~/core/constants/ids/input';
-import {
-  DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
-  ERRO_CADASTRO_USUARIO,
-} from '~/core/constants/mensagens';
+import { ERRO_CADASTRO_USUARIO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { CadastroUsuarioFormDTO } from '~/core/dto/cadastro-usuario-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
@@ -29,10 +26,12 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { confirmacao, sucesso } from '~/core/services/alerta-service';
+import { sucesso } from '~/core/services/alerta-service';
 import funcionarioExternoService from '~/core/services/funcionario-externo-service';
 import usuarioService from '~/core/services/usuario-service';
 import { removeAcentos, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
+import { onClickVoltar } from '~/core/utils/form';
+
 import SelectUEs from './components/ue';
 import InputEmailEducacional from '~/components/main/input/email-educacional';
 import SelectTipoEmail from '~/components/main/input/tipo-email';
@@ -181,6 +180,8 @@ export const CadastroDeUsuario = () => {
     if (names?.length <= 1 || names[1]?.trim() === '') {
       return Promise.reject('Por favor, digite o nome e o sobrenome.');
     }
+    const newValue = value.replace(/[^\p{L}\s]/gu, '');
+    form.setFieldValue('nomePessoa', newValue);
     return Promise.resolve();
   };
 
@@ -216,8 +217,8 @@ export const CadastroDeUsuario = () => {
         <Row gutter={[16, 8]}>
           <Col span={24}>
             <InputCPF
-              required
               formItemProps={{
+                required: true,
                 hasFeedback: loadingCPF,
                 validateStatus: validateStatusCPF(),
               }}
@@ -294,7 +295,7 @@ export const CadastroDeUsuario = () => {
         </Row>
         <p style={{ marginBottom: '30px', marginTop: '10px' }}>
           <Checkbox checked={checked} onChange={onChangeCheck}>
-            As informações prestadas são verdadeiras e me responsabilizo por elas
+            As informa��es prestadas s�o verdadeiras e me responsabilizo por elas
           </Checkbox>
         </p>
         <Row justify='center' gutter={[0, 21]} style={{ marginTop: '20px' }}>
@@ -316,7 +317,7 @@ export const CadastroDeUsuario = () => {
               block
               type='default'
               id={CF_BUTTON_VOLTAR}
-              onClick={onClickVoltar}
+              onClick={() => onClickVoltar({ form, navigate, route: ROUTES.LOGIN })}
               style={{ fontWeight: 700 }}
             >
               Voltar
