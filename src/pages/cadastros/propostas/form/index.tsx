@@ -356,6 +356,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
+    console.log(values);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
 
     const dataRealizacaoInicio = values?.periodoRealizacao?.[0]
@@ -459,7 +460,10 @@ export const FormCadastroDePropostas: React.FC = () => {
           nome: item.nome,
         };
         if (item.dres?.length) {
-          turma.dresIds = item.dres.map((dre) => dre.value);
+          turma.dresIds =
+            item.dres?.length > 1
+              ? item.dres?.filter((dre) => !dre.todos).map((d) => d.value)
+              : item.dres.map((dre) => dre.value);
         } else {
           turma.dresIds = [];
         }
@@ -513,7 +517,6 @@ export const FormCadastroDePropostas: React.FC = () => {
     if (clonedValues?.arquivos?.length) {
       valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
     }
-
     if (id) {
       response = await alterarProposta(id, valoresSalvar, false);
     } else {
