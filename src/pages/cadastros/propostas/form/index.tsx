@@ -67,6 +67,7 @@ import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
+import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -833,6 +834,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
+              <SelectResponsavelDf />
               <Divider orientation='left' />
               <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
               {selecionarTelaStep(currentStep)}
