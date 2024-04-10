@@ -356,7 +356,6 @@ export const FormCadastroDePropostas: React.FC = () => {
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
-    console.log(values);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
 
     const dataRealizacaoInicio = values?.periodoRealizacao?.[0]
