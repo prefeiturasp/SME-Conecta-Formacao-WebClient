@@ -121,6 +121,8 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
+  const podeEditarRfResponsavelDf = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada || !paramsRoute?.id;
+
   const stepsProposta: StepProps[] = [
     {
       title: STEP_PROPOSTA.INFORMACOES_GERAIS.TITULO,
@@ -146,7 +148,8 @@ export const FormCadastroDePropostas: React.FC = () => {
         (formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
-          formInitialValues?.situacao !== SituacaoProposta.Alterando);
+          formInitialValues?.situacao !== SituacaoProposta.Alterando &&
+          !(formInitialValues?.formacaoHomologada && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -844,7 +847,7 @@ export const FormCadastroDePropostas: React.FC = () => {
               <CardContent>
                 <Row>
                   <Col xs={24} sm={12} md={14} lg={10}>
-                    <SelectResponsavelDf podeEditar={ formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf || !id }/>
+                    <SelectResponsavelDf podeEditar={ podeEditarRfResponsavelDf }/>
                   </Col>
                 </Row>
               </CardContent>
