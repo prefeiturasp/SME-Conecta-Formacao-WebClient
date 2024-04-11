@@ -68,6 +68,7 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import SelectResponsavelDf from '~/components/main/input/responsavel-df';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -83,6 +84,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
 
   const token = useAppSelector((store) => store.auth.token);
+  const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadaDoToken = decodeObject?.dres;
 
@@ -97,6 +99,10 @@ export const FormCadastroDePropostas: React.FC = () => {
 
     return [];
   };
+
+  const temPerfilAdminDF = perfilUsuario.filter((item) =>
+    item.perfilNome.includes(TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF]),
+  );
 
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
@@ -832,9 +838,20 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
+          {temPerfilAdminDF && (
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <CardContent>
+                <Row>
+                  <Col xs={24} sm={12} md={14} lg={10}>
+                    <SelectResponsavelDf />
+                  </Col>
+                </Row>
+              </CardContent>
+            </Col>
+          )}
+
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
-              <SelectResponsavelDf />
               <Divider orientation='left' />
               <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
               {selecionarTelaStep(currentStep)}
