@@ -429,6 +429,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       anosTurmas: [],
       componentesCurriculares: [],
       integrarNoSGA: clonedValues?.integrarNoSGA,
+      rfResponsavelDf: clonedValues?.rfResponsavelDf,
     };
 
     if (clonedValues?.dres?.length) {
@@ -843,7 +844,7 @@ export const FormCadastroDePropostas: React.FC = () => {
               <CardContent>
                 <Row>
                   <Col xs={24} sm={12} md={14} lg={10}>
-                    <SelectResponsavelDf />
+                    <SelectResponsavelDf podeEditar={ formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf || !id }/>
                   </Col>
                 </Row>
               </CardContent>

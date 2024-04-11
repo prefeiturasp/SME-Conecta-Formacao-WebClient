@@ -56,6 +56,7 @@ export type PropostaDTO = {
   anosTurmas?: PropostaAnoTurmaDTO[];
   componentesCurriculares?: PropostaComponenteCurricularDTO[];
   integrarNoSGA?: boolean;
+  rfResponsavelDf?: string;
 };
 
 export type TipoInscricaoType = {
@@ -111,6 +112,7 @@ export type PropostaFormDTO = {
   componentesCurriculares?: number[];
   listaDres?: DreDTO[];
   integrarNoSGA?: boolean;
+  rfResponsavelDf?: string;
 };
 
 export type PropostaPalavraChaveDTO = {
