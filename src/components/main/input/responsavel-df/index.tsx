@@ -1,17 +1,24 @@
-import { Form, FormItemProps } from 'antd';
+import { InfoCircleFilled } from '@ant-design/icons';
+import { Form, FormItemProps, Tooltip } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_RESPONSAVEL_DF } from '~/core/constants/ids/select';
+import { RESPONSAVEL_DF_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterUsuariosAdminDf } from '~/core/services/funcionario-service';
+import { Colors } from '~/core/styles/colors';
 
 type SelectResponsavelDfProps = {
+  required?: boolean;
+  exibirTooltip?: boolean;
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
 };
 
 const SelectResponsavelDf: React.FC<SelectResponsavelDfProps> = ({
+  required = true,
+  exibirTooltip = true,
   selectProps,
   formItemProps,
 }) => {
@@ -31,11 +38,32 @@ const SelectResponsavelDf: React.FC<SelectResponsavelDfProps> = ({
     obterDados();
   }, []);
 
+  const iconTooltip = exibirTooltip ? (
+    <Tooltip>
+      <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
+    </Tooltip>
+  ) : (
+    <></>
+  );
+
   return (
-    <Form.Item label='Responsável DF'
+    <Form.Item
+      label='Responsável DF'
       name='responsavel-df'
-      rules={[{ required: true }]} {...formItemProps}>
-      <Select {...selectProps} options={options} placeholder='Responsável DF' id={CF_SELECT_RESPONSAVEL_DF} />
+      {...formItemProps}
+      rules={[{ required: required, message: RESPONSAVEL_DF_NAO_INFORMADO }]}
+      tooltip={{
+        title: 'Indicar o responsável DF.',
+        icon: iconTooltip,
+      }}
+    >
+      <Select
+        allowClear
+        options={ options }
+        placeholder='Responsável DF'
+        {...selectProps}
+        id={ CF_SELECT_RESPONSAVEL_DF }
+      />
     </Form.Item>
   );
 };
