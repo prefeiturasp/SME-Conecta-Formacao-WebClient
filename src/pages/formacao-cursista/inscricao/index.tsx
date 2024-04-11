@@ -71,10 +71,11 @@ export const Inscricao = () => {
 
           return {
             ...item,
-            value: item.codigo,
+            value: `${item.codigo}-${item.tipoVinculo}`,
             label: item.descricao,
             tipoVinculo: item.tipoVinculo,
             funcoes,
+            codigo: item.codigo,
           };
         });
 
