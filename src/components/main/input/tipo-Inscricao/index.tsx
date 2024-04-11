@@ -1,10 +1,16 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, FormItemProps, Tooltip } from 'antd';
+import { Form, FormItemProps } from 'antd';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_TIPO_INSCRICAO } from '~/core/constants/ids/select';
-import { TIPO_INSCRICAO_NAO_INFORMADA } from '~/core/constants/mensagens';
+import {
+  TIPO_INSCRICAO_NAO_INFORMADA,
+  TIPO_INSCRICAO_TOOLTIP_AUTOMATICA,
+  TIPO_INSCRICAO_TOOLTIP_EXTERNA,
+  TIPO_INSCRICAO_TOOLTIP_MANUAL,
+  TIPO_INSCRICAO_TOOLTIP_OPTATIVA,
+} from '~/core/constants/mensagens';
 import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { obterTipoInscricao } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
@@ -18,6 +24,12 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
   selectProps,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
+  const tiposInscricaoTooltips = [
+    TIPO_INSCRICAO_TOOLTIP_OPTATIVA,
+    TIPO_INSCRICAO_TOOLTIP_MANUAL,
+    TIPO_INSCRICAO_TOOLTIP_AUTOMATICA,
+    TIPO_INSCRICAO_TOOLTIP_EXTERNA,
+  ];
 
   const obterDados = async () => {
     const resposta = await obterTipoInscricao();
@@ -34,7 +46,7 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
   }, []);
 
   return (
-    <Form.Item shouldUpdate>
+    <Form.Item shouldUpdate style={{ margin: 0 }}>
       {(form) => {
         const tiposInscricao: number[] = form.getFieldValue('tiposInscricao');
         const temAutomatica = tiposInscricao?.includes(TipoInscricao.Automatica);
@@ -56,21 +68,26 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
               label='Tipo de inscrição'
               name='tiposInscricao'
               rules={[{ required: true, message: TIPO_INSCRICAO_NAO_INFORMADA }]}
-              {...formItemProps}
               tooltip={{
-                title:
-                  'Optativa: O cursista irá se inscrever por meio da plataforma. Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.',
-                icon: (
-                  <Tooltip>
-                    <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
-                  </Tooltip>
-                ),
+                title: tiposInscricaoTooltips.map((tooltip, index) => <p key={index}>{tooltip}</p>),
+                icon: <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />,
               }}
+              normalize={(value: number[]) => {
+                if (value.includes(TipoInscricao.Externa)) {
+                  return [TipoInscricao.Externa];
+                }
+
+                return value;
+              }}
+              {...formItemProps}
             >
               <Select
                 options={options.map((option) => ({
                   ...option,
-                  disabled: desabilitarOptions(option),
+                  disabled:
+                    desabilitarOptions(option) ||
+                    (tiposInscricao?.includes(TipoInscricao.Externa) &&
+                      option.value !== TipoInscricao.Externa),
                 }))}
                 placeholder='Tipo de inscrição'
                 id={CF_SELECT_TIPO_INSCRICAO}

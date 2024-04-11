@@ -1,14 +1,18 @@
 import { Form, FormItemProps, Input, InputProps } from 'antd';
+import { SearchProps } from 'antd/es/input';
 import React from 'react';
+import { CPF_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { formatterCPFMask, removerTudoQueNaoEhDigito } from '~/core/utils/functions/index';
 
 type InputCPFProps = {
-  inputProps?: InputProps;
+  inputProps?: InputProps & SearchProps;
   formItemProps?: FormItemProps;
-  required?: boolean;
+  habilitarInputSearch?: boolean;
 };
 
-const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps, required }) => {
+const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps, habilitarInputSearch }) => {
+  const InputComponent = habilitarInputSearch ? Input.Search : Input;
+
   const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = removerTudoQueNaoEhDigito(e?.target?.value);
     return value ? formatterCPFMask(value) : value;
@@ -21,7 +25,7 @@ const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps, required
       {...formItemProps}
       getValueFromEvent={getValueFromEvent}
       rules={[
-        { required: required },
+        { required: !!formItemProps?.required, message: CPF_NAO_INFORMADO },
         {
           message: 'Deve conter 11 caracteres',
           validator: (_: any, value: string) => {
@@ -36,7 +40,7 @@ const InputCPF: React.FC<InputCPFProps> = ({ inputProps, formItemProps, required
         },
       ]}
     >
-      <Input placeholder='Informe o CPF' {...inputProps} />
+      <InputComponent placeholder='Informe o CPF' {...inputProps} />
     </Form.Item>
   );
 };

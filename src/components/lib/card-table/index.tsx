@@ -18,6 +18,7 @@ type DataTableProps<T> = {
   filters?: any;
   realizouFiltro?: boolean;
   alterarRealizouFiltro: (valor: boolean) => void;
+  desativarBotaoContinuar?: any;
   url?: string;
 } & TableProps<T>;
 
@@ -27,6 +28,7 @@ const DataTable = <T extends object>({
   alterarRealizouFiltro,
   url,
   columns,
+  desativarBotaoContinuar,
   ...rest
 }: DataTableProps<T>) => {
   const { setTableState } = useContext(DataTableContext);
@@ -70,6 +72,8 @@ const DataTable = <T extends object>({
             if (newParams?.pagination?.current)
               if (newParams?.pagination?.current == 1)
                 newParams.pagination.current = realizouFiltro ? 1 : newParams.pagination?.current;
+            if(desativarBotaoContinuar)
+              desativarBotaoContinuar(response.data.sucesso)
             setData(response.data.items);
             setTableParams({
               ...newParams,

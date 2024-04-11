@@ -13,11 +13,13 @@ import VisualizarFormacao from '~/pages/area-publica/formacao/view';
 import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
 import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import { CadastroDeUsuario } from '~/pages/cadastros/novo-usuario';
-import FormCadastroDePropostas from '~/pages/cadastros/propostas/form';
+import { FormCadastroDePropostas } from '~/pages/cadastros/propostas/form';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
+import { FormCadastrosInscricoesManuais } from '~/pages/formacoes/turmas-inscricoes/form';
+import { InscricoesPorArquivoListagem } from '~/pages/formacoes/turmas-inscricoes/listagem-arquivos';
 import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
@@ -120,8 +122,20 @@ const RoutesConfig = () => {
                   </Route>
                   <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
                     <Route
-                      path={ROUTES.FORMACAOES_INSCRICOES_EDITAR}
+                      path={ROUTES.FORMACAOES_INSCRICOES_EDITAR_ID}
                       element={<TurmasInscricoes />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                    <Route
+                      path={ROUTES.FORMACAOES_INSCRICOES_NOVO_ID}
+                      element={<FormCadastrosInscricoesManuais />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                    <Route
+                      path={ROUTES.FORMACAOES_INSCRICOES_POR_ARQUIVO_ID}
+                      element={<InscricoesPorArquivoListagem />}
                     />
                   </Route>
                 </Route>

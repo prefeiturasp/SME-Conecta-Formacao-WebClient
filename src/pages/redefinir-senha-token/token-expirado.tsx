@@ -3,11 +3,10 @@ import { Button, Col, Row, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { onClickVoltar } from '~/core/utils/form';
 
 const TokenExpirado = () => {
   const navigate = useNavigate();
-
-  const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
 
   return (
     <Col span={14}>
@@ -27,7 +26,7 @@ const TokenExpirado = () => {
             type='default'
             block
             style={{ fontWeight: 700 }}
-            onClick={() => onClickVoltar()}
+            onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
             id={CF_BUTTON_VOLTAR}
           >
             Voltar

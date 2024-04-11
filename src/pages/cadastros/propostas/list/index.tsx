@@ -27,6 +27,7 @@ import { PropostaPaginadaDTO } from '~/core/dto/proposta-paginada-dto';
 import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { onClickVoltar } from '~/core/utils/form';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 
 type FilterStateProps = {
@@ -42,7 +43,6 @@ const ListCadastroDePropostas: React.FC = () => {
   const permissao = obterPermissaoPorMenu(MenuEnum.CadastroProposta);
 
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormListDTO>();
-  const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
   const onClickNovo = () => navigate(ROUTES.CADASTRO_DE_PROPOSTAS_NOVO);
 
   const url = 'v1/Proposta';
@@ -219,7 +219,10 @@ const ListCadastroDePropostas: React.FC = () => {
         <Col span={24}>
           <Row gutter={[8, 8]}>
             <Col>
-              <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+              <ButtonVoltar
+                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
+                id={CF_BUTTON_VOLTAR}
+              />
             </Col>
             <Col>
               <Button

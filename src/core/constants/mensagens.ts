@@ -29,6 +29,9 @@ export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
   'É necessário Informar a formação homologada por SME/COPED/DF';
 export const PROPOSTA_DRE_NAO_INFORMADA = 'É necessário Informar a DRE';
 export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da formação';
+export const NOME_NAO_INFORMADO = 'É necessário informar o nome';
+export const RF_NAO_INFORMADO = 'É necessário informar o registro funcional';
+export const CPF_NAO_INFORMADO = 'É necessário informar o CPF';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
 export const COMPONENTE_NAO_INFORMADO = 'É necessário informar o componente curricular';
 export const ANO_ETAPA_NAO_INFORMADO = 'É necessário informar o ano/etapa';
@@ -63,6 +66,8 @@ export const DESEJA_CANCELAR_INSCRICAO_CURSISTA =
   'Ao cancelar a sua inscrição você será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
 export const DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA =
   'Ao cancelar a inscrição o cursista será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
+export const DESEJA_CANCELAR_PROCESSAMENTO_ARQUIVO =
+  'Você realmente deseja cancelar o processamento da inscrição?';
 export const CANCELAR_INSCRICAO =
   'Ao cancelar a inscrição o cursista perderá acesso a formação. Deseja realmente cancelar?';
 export const SAIBA_MAIS = 'Saiba mais';
@@ -78,6 +83,10 @@ export const ERRO_EMAIL_NAO_VALIDADO =
   "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar'";
 export const ERRO_EMAIL_NAO_VALIDADO_ALTERAR_EMAIL =
   "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar' ou em 'Editar e-mail' para informar um novo e-mail";
+export const TIPO_INSCRICAO_TOOLTIP_OPTATIVA = `Optativa: O cursista irá se inscrever por meio da plataforma.`;
+export const TIPO_INSCRICAO_TOOLTIP_MANUAL = `Manual: Inscrições realizadas pela área promotora no cadastro da proposta.`;
+export const TIPO_INSCRICAO_TOOLTIP_AUTOMATICA = `Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.`;
+export const TIPO_INSCRICAO_TOOLTIP_EXTERNA = `Externa: Inscrições realizadas por outras ferramentas disponibilizadas pela rede de parceria.`;
 export const INSCRICAO_ENVIADA_COM_SGA =
   'Sua inscrição foi confirmada. Na data de início da sua turma acesse o SGA para iniciar a formação.';
 export const INSCRICAO_ENVIADA_SEM_SGA = 'Sua inscrição foi confirmada.';
@@ -87,3 +96,5 @@ export const SERVICO_INDISPONIVEL =
   'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
 
 export const TIPO_EMAIL_NAO_INFORMADO = 'É necessário informar o tipo';
+export const ERRO_INSCRICAO_MANUAL =
+  'A lotação/local de trabalho do cursista não corresponde com a DRE promotora desta formação. Deseja continuar?';
