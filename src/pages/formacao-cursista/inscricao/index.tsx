@@ -43,6 +43,7 @@ export const Inscricao = () => {
   const inscricao = useAppSelector((state) => state.inscricao);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [usuarioCargosQuantidade, setUsuarioCargosQuantidade] = useState<number>(0);
   const [formacaoState, setFormacaoState] = useState<FormacaoDTO>();
   const [initialValues, setFormInitialValues] = useState<DadosInscricaoDTO>();
 
@@ -60,7 +61,7 @@ export const Inscricao = () => {
       let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
 
       let usuarioCargoSelecionado: DadosInscricaoDTO['usuarioCargoSelecionado'] = undefined;
-
+      setUsuarioCargosQuantidade(dados.usuarioCargos.length);
       if (ehServidorTemRF && Array.isArray(dados.usuarioCargos)) {
         usuarioCargos = cloneDeep(dados.usuarioCargos).map((item) => {
           let funcoes: DadosInscricaoCargoEolDTO[] = [];
@@ -143,8 +144,10 @@ export const Inscricao = () => {
     }
 
     if (clonedValues?.usuarioCargoSelecionado) {
-      const itemCargos = clonedValues?.usuarioCargos?.find(
-        (item: any) => item?.codigo === clonedValues?.usuarioCargoSelecionado,
+      const itemCargos = clonedValues?.usuarioCargos?.find((item: any) =>
+        usuarioCargosQuantidade == 1
+          ? item?.codigo === clonedValues?.usuarioCargoSelecionado
+          : item?.value === clonedValues?.usuarioCargoSelecionado,
       );
       valoresSalvar.cargoCodigo = itemCargos?.codigo;
       valoresSalvar.cargoDreCodigo = itemCargos?.dreCodigo;
