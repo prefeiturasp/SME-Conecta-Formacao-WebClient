@@ -61,7 +61,7 @@ export const Inscricao = () => {
       let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
 
       let usuarioCargoSelecionado: DadosInscricaoDTO['usuarioCargoSelecionado'] = undefined;
-      setUsuarioCargosQuantidade(dados.usuarioCargos.length);
+      setUsuarioCargosQuantidade(dados.usuarioCargos?.length);
       if (ehServidorTemRF && Array.isArray(dados.usuarioCargos)) {
         usuarioCargos = cloneDeep(dados.usuarioCargos).map((item) => {
           let funcoes: DadosInscricaoCargoEolDTO[] = [];
