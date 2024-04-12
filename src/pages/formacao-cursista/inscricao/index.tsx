@@ -66,9 +66,18 @@ export const Inscricao = () => {
           let funcoes: DadosInscricaoCargoEolDTO[] = [];
 
           if (item?.funcoes?.length) {
-            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo, tipoVinculo: f.tipoVinculo }));
+            funcoes = item.funcoes.map((f) => ({
+              ...f,
+              label: f.descricao,
+              value: f.codigo,
+              tipoVinculo: f.tipoVinculo,
+            }));
           }
-          const valorValue=item.tipoVinculo > 0 ? `${item.codigo}-${item.tipoVinculo}` : item.codigo;
+          const valorValue =
+            item.tipoVinculo && dados.usuarioCargos.length > 1
+              ? `${item.codigo}-${item.tipoVinculo}`
+              : item.codigo;
+
           return {
             ...item,
             value: valorValue,
@@ -126,7 +135,7 @@ export const Inscricao = () => {
       funcaoCodigo: undefined,
       funcaoDreCodigo: undefined,
       funcaoUeCodigo: undefined,
-      tipoVinculo: undefined
+      tipoVinculo: undefined,
     };
 
     if (Array.isArray(clonedValues?.arquivoId)) {
@@ -135,7 +144,7 @@ export const Inscricao = () => {
 
     if (clonedValues?.usuarioCargoSelecionado) {
       const itemCargos = clonedValues?.usuarioCargos?.find(
-        (item: any) => item?.value === clonedValues?.usuarioCargoSelecionado,
+        (item: any) => item?.codigo === clonedValues?.usuarioCargoSelecionado,
       );
       valoresSalvar.cargoCodigo = itemCargos?.codigo;
       valoresSalvar.cargoDreCodigo = itemCargos?.dreCodigo;
@@ -255,7 +264,6 @@ export const Inscricao = () => {
                     disabled={initialValues?.usuarioCargos?.length == 1}
                     allowClear
                     options={
-
                       initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
                     }
                     onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
