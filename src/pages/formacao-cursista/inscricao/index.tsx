@@ -43,6 +43,7 @@ export const Inscricao = () => {
   const inscricao = useAppSelector((state) => state.inscricao);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [usuarioCargosQuantidade, setUsuarioCargosQuantidade] = useState<number>(0);
   const [formacaoState, setFormacaoState] = useState<FormacaoDTO>();
   const [initialValues, setFormInitialValues] = useState<DadosInscricaoDTO>();
 
@@ -60,15 +61,24 @@ export const Inscricao = () => {
       let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
 
       let usuarioCargoSelecionado: DadosInscricaoDTO['usuarioCargoSelecionado'] = undefined;
-
+      setUsuarioCargosQuantidade(dados.usuarioCargos.length);
       if (ehServidorTemRF && Array.isArray(dados.usuarioCargos)) {
         usuarioCargos = cloneDeep(dados.usuarioCargos).map((item) => {
           let funcoes: DadosInscricaoCargoEolDTO[] = [];
 
           if (item?.funcoes?.length) {
-            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo, tipoVinculo: f.tipoVinculo }));
+            funcoes = item.funcoes.map((f) => ({
+              ...f,
+              label: f.descricao,
+              value: f.codigo,
+              tipoVinculo: f.tipoVinculo,
+            }));
           }
-          const valorValue=item.tipoVinculo > 0 ? `${item.codigo}-${item.tipoVinculo}` : item.codigo;
+          const valorValue =
+            item.tipoVinculo && dados.usuarioCargos.length > 1
+              ? `${item.codigo}-${item.tipoVinculo}`
+              : item.codigo;
+
           return {
             ...item,
             value: valorValue,
@@ -126,7 +136,7 @@ export const Inscricao = () => {
       funcaoCodigo: undefined,
       funcaoDreCodigo: undefined,
       funcaoUeCodigo: undefined,
-      tipoVinculo: undefined
+      tipoVinculo: undefined,
     };
 
     if (Array.isArray(clonedValues?.arquivoId)) {
@@ -134,8 +144,10 @@ export const Inscricao = () => {
     }
 
     if (clonedValues?.usuarioCargoSelecionado) {
-      const itemCargos = clonedValues?.usuarioCargos?.find(
-        (item: any) => item?.value === clonedValues?.usuarioCargoSelecionado,
+      const itemCargos = clonedValues?.usuarioCargos?.find((item: any) =>
+        usuarioCargosQuantidade == 1
+          ? item?.codigo === clonedValues?.usuarioCargoSelecionado
+          : item?.value === clonedValues?.usuarioCargoSelecionado,
       );
       valoresSalvar.cargoCodigo = itemCargos?.codigo;
       valoresSalvar.cargoDreCodigo = itemCargos?.dreCodigo;
@@ -255,7 +267,6 @@ export const Inscricao = () => {
                     disabled={initialValues?.usuarioCargos?.length == 1}
                     allowClear
                     options={
-
                       initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
                     }
                     onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
