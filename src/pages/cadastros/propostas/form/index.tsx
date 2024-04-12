@@ -69,6 +69,7 @@ import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-d
 import FormularioProfissionais from './steps/formulario-profissionais';
 import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
+import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -118,6 +119,8 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
+
+  const exibirBotalDevolver = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -800,6 +803,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                     >
                       Salvar rascunho
                     </Button>
+                  </Col>
+                )}
+                {exibirBotalDevolver && (
+                  <Col>
+                    <ModalDevolverButton propostaId={ id } />
                   </Col>
                 )}
                 {exibirBotaoSalvar && (
