@@ -13,6 +13,7 @@ import { PropostaModalidadeDTO } from './proposta-modalidade-dto';
 import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 import { DreDTO } from './retorno-listagem-dto';
+import { PropostaMovimentacaoDTO } from './proposta-movimentacao-dto';
 
 export type PropostaDTO = {
   formacaoHomologada?: boolean;
@@ -57,6 +58,7 @@ export type PropostaDTO = {
   componentesCurriculares?: PropostaComponenteCurricularDTO[];
   integrarNoSGA?: boolean;
   rfResponsavelDf?: string;
+  movimentacao?: PropostaMovimentacaoDTO;
 };
 
 export type TipoInscricaoType = {
@@ -113,6 +115,7 @@ export type PropostaFormDTO = {
   listaDres?: DreDTO[];
   integrarNoSGA?: boolean;
   rfResponsavelDf?: string;
+  movimentacao?: PropostaMovimentacaoDTO;
 };
 
 export type PropostaPalavraChaveDTO = {

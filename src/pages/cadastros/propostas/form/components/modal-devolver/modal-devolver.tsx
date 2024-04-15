@@ -47,9 +47,9 @@ export const ModalDevolver: React.FC<ModalDevolverProps> = ({
       .finally(() => setLoading(false));
   };
 
-  const handleChangeJustificativa = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChangeJustificativa = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setJustificativa(e.target.value);
-  }
+  };
 
   const validateFields = () => {
     form.validateFields().then(() => {
@@ -84,7 +84,8 @@ export const ModalDevolver: React.FC<ModalDevolverProps> = ({
           validateMessages={ validateMessages }
         >
           <Form.Item label='Justificar:' name='justificativaDevolver' rules={[{ required: true, message: JUSTIFICATIVA_NAO_INFORMADA }]}>
-            <AreaTexto onChange={ (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChangeJustificativa(e) } />
+            <AreaTexto
+              onChange={ (e: React.ChangeEvent<HTMLTextAreaElement>) => handleChangeJustificativa(e) } />
           </Form.Item>
         </Form>
       </Spin>

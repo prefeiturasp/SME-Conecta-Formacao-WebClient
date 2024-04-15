@@ -70,6 +70,7 @@ import FormularioProfissionais from './steps/formulario-profissionais';
 import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
+import AreaTexto from '~/components/main/text/text-area';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -123,6 +124,8 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotalDevolver = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
+
+  const exibirJustificativaDevolucao = formInitialValues?.situacao === SituacaoProposta.Devolvida;
 
   const podeEditarRfResponsavelDf = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada || !paramsRoute?.id;
 
@@ -436,6 +439,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       componentesCurriculares: [],
       integrarNoSGA: clonedValues?.integrarNoSGA,
       rfResponsavelDf: clonedValues?.rfResponsavelDf,
+      movimentacao: clonedValues?.movimentacao,
     };
 
     if (clonedValues?.dres?.length) {
@@ -870,6 +874,24 @@ export const FormCadastroDePropostas: React.FC = () => {
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
+
+          {exibirJustificativaDevolucao && (
+            <Col span={24} style={{ marginTop: 16 }}>
+              <CardContent>
+                <Row>
+                  <Col xs={24} sm={12} md={14} lg={24}>
+                    <AreaTexto
+                      formItemProps={{
+                        label: 'Justificativa da devolução'
+                      }}
+                      podeEditar={ false }
+                      value={ formInitialValues?.movimentacao?.situacao === 7 ? formInitialValues?.movimentacao?.justificativa : '' }
+                    />
+                  </Col>
+                </Row>
+              </CardContent>
+            </Col>
+          )}
         </Form>
         {openModalErros && (
           <ModalErroProposta closeModal={() => setOpenModalErros(false)} erros={listaErros} />
