@@ -102,9 +102,10 @@ export const FormCadastroDePropostas: React.FC = () => {
     return [];
   };
 
-  const temPerfilAdminDF = perfilUsuario.filter((item) =>
+  const perfilAdminDF = perfilUsuario.filter((item) =>
     item.perfilNome.includes(TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF]),
   );
+  const temPerfilAdminDf = perfilAdminDF.length > 0;
 
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
@@ -127,7 +128,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const exibirJustificativaDevolucao = formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  const podeEditarRfResponsavelDf = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada || !paramsRoute?.id;
+  const podeEditarRfResponsavelDf = temPerfilAdminDf && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada || !paramsRoute?.id && temPerfilAdminDf;
 
   const stepsProposta: StepProps[] = [
     {
@@ -854,7 +855,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
-          {temPerfilAdminDF && (
+          {perfilAdminDF && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
                 <Row>
