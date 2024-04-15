@@ -10,19 +10,18 @@ import InputEmail from '~/components/main/input/email';
 import SenhaCadastro from '~/components/main/input/senha-cadastro';
 import { CF_BUTTON_CONTINUAR, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
+  CF_INPUT_CONFIRMAR_EMAIL,
   CF_INPUT_CONFIRMAR_SENHA,
   CF_INPUT_CPF,
   CF_INPUT_EMAIL,
   CF_INPUT_NOME,
   CF_INPUT_NOME_UE,
   CF_INPUT_SENHA,
-  CF_INPUT_UE,
 } from '~/core/constants/ids/input';
 import { ERRO_CADASTRO_USUARIO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { CadastroUsuarioFormDTO } from '~/core/dto/cadastro-usuario-dto';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
-import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
@@ -31,7 +30,6 @@ import funcionarioExternoService from '~/core/services/funcionario-externo-servi
 import usuarioService from '~/core/services/usuario-service';
 import { onClickVoltar } from '~/core/utils/form';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
-import SelectUEs from './components/ue';
 
 export const CadastroDeUsuario = () => {
   const [form] = useForm();
@@ -41,8 +39,6 @@ export const CadastroDeUsuario = () => {
 
   const [erroGeral, setErroGeral] = useState<string[]>();
   const [loadingCPF, setLoadingCPF] = useState<boolean>(false);
-  const [cpfValido, setCpfValido] = useState<boolean>(false);
-  const [ues, setUes] = useState<RetornoListagemDTO[]>();
   const [errorOnFinish, setErrorOnFinish] = useState<boolean>(false);
 
   useEffect(() => {
@@ -73,15 +69,6 @@ export const CadastroDeUsuario = () => {
       .then((resposta: any) => {
         const data = resposta?.dados;
 
-        if (!resposta.sucesso) {
-          setCpfValido(false);
-        } else {
-          setUes(data.ues);
-          if (data.ues) {
-            setCpfValido(true);
-          }
-        }
-
         const temApenasUmaUE = data?.ues?.length === 1;
 
         form.setFieldsValue({
@@ -98,6 +85,18 @@ export const CadastroDeUsuario = () => {
 
   const onFinish = (values: CadastroUsuarioFormDTO) => {
     dispatch(setSpinning(true));
+
+    const diferente = values.email != values.confirmarEmail;
+    if (diferente) {
+      form.setFields([
+        {
+          name: 'confirmarEmail',
+          errors: ['E-mails não correspondem'],
+        },
+      ]);
+      dispatch(setSpinning(false));
+      return;
+    }
 
     usuarioService
       .cadastrarUsuarioExterno({
@@ -149,6 +148,28 @@ export const CadastroDeUsuario = () => {
     }
   };
 
+  const validarConfirmacaoEmail = () => {
+    const emailConfirmacao = form.getFieldValue('confirmarEmail');
+    const email = form.getFieldValue('email');
+    if (emailConfirmacao) {
+      const diferente = email != emailConfirmacao;
+      if (diferente) {
+        form.setFields([
+          {
+            name: 'confirmarEmail',
+            errors: ['E-mails não correspondem'],
+          },
+        ]);
+      }
+    } else {
+      form.setFields([
+        {
+          name: 'confirmarEmail',
+          errors: [''],
+        },
+      ]);
+    }
+  };
   return (
     <Col span={14}>
       <Form
@@ -157,6 +178,7 @@ export const CadastroDeUsuario = () => {
         autoComplete='off'
         onFinish={onFinish}
         onFinishFailed={(errorForm) => {
+          console.log('clic0ou');
           if (errorForm) {
             setErrorOnFinish(true);
           }
@@ -178,11 +200,6 @@ export const CadastroDeUsuario = () => {
                   const value = removerTudoQueNaoEhDigito(e.target.value);
                   if (value.length === 11) {
                     validaCPFExistente(value);
-                  } else if (!value.length) {
-                    form.resetFields();
-                    setCpfValido(false);
-                  } else {
-                    setCpfValido(false);
                   }
                 },
               }}
@@ -207,6 +224,16 @@ export const CadastroDeUsuario = () => {
             <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} formItemProps={{ required: true }} />
           </Col>
           <Col span={24}>
+            <InputEmail
+              inputProps={{ id: CF_INPUT_CONFIRMAR_EMAIL, onKeyUp: validarConfirmacaoEmail }}
+              formItemProps={{
+                required: true,
+                label: 'Confirmação de e-mail',
+                name: 'confirmarEmail',
+              }}
+            />
+          </Col>
+          <Col span={24}>
             <InputCodigoEolUE />
           </Col>
           <Col span={24}>
@@ -221,7 +248,7 @@ export const CadastroDeUsuario = () => {
             <SenhaCadastro
               confirmarSenha={{ fieldName: 'senha' }}
               inputProps={{ id: CF_INPUT_CONFIRMAR_SENHA }}
-              formItemProps={{ label: 'Confirmar senha', name: 'confirmarSenha' }}
+              formItemProps={{ required: true, label: 'Confirmar senha', name: 'confirmarSenha' }}
             />
           </Col>
         </Row>
