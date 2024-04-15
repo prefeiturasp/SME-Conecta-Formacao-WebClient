@@ -206,11 +206,6 @@ export const CadastroDeUsuario = () => {
           <Col span={24}>
             <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} formItemProps={{ required: true }} />
           </Col>
-          {cpfValido && (
-            <Col span={24}>
-              <SelectUEs ues={ues} selectProps={{ id: CF_INPUT_UE }} />
-            </Col>
-          )}
           <Col span={24}>
             <InputCodigoEolUE />
           </Col>
