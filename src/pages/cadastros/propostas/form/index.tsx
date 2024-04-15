@@ -67,6 +67,10 @@ import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
+import SelectResponsavelDf from '~/components/main/input/responsavel-df';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
+import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
+import AreaTexto from '~/components/main/text/text-area';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -82,6 +86,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
 
   const token = useAppSelector((store) => store.auth.token);
+  const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadaDoToken = decodeObject?.dres;
 
@@ -96,6 +101,10 @@ export const FormCadastroDePropostas: React.FC = () => {
 
     return [];
   };
+
+  const temPerfilAdminDF = perfilUsuario.filter((item) =>
+    item.perfilNome.includes(TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF]),
+  );
 
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
@@ -112,7 +121,13 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
 
+  const exibirBotalDevolver = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada;
+
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
+
+  const exibirJustificativaDevolucao = formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
+
+  const podeEditarRfResponsavelDf = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada || !paramsRoute?.id;
 
   const stepsProposta: StepProps[] = [
     {
@@ -139,7 +154,8 @@ export const FormCadastroDePropostas: React.FC = () => {
         (formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
-          formInitialValues?.situacao !== SituacaoProposta.Alterando);
+          formInitialValues?.situacao !== SituacaoProposta.Alterando &&
+          !(formInitialValues?.formacaoHomologada && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -422,6 +438,8 @@ export const FormCadastroDePropostas: React.FC = () => {
       anosTurmas: [],
       componentesCurriculares: [],
       integrarNoSGA: clonedValues?.integrarNoSGA,
+      rfResponsavelDf: clonedValues?.rfResponsavelDf,
+      movimentacao: clonedValues?.movimentacao,
     };
 
     if (clonedValues?.dres?.length) {
@@ -791,6 +809,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
+                {exibirBotalDevolver && (
+                  <Col>
+                    <ModalDevolverButton propostaId={ id } />
+                  </Col>
+                )}
                 {exibirBotaoSalvar && (
                   <Col>
                     <Button
@@ -831,6 +854,18 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
+          {temPerfilAdminDF && (
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <CardContent>
+                <Row>
+                  <Col xs={24} sm={12} md={14} lg={10}>
+                    <SelectResponsavelDf podeEditar={ podeEditarRfResponsavelDf }/>
+                  </Col>
+                </Row>
+              </CardContent>
+            </Col>
+          )}
+
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
               <Divider orientation='left' />
@@ -839,6 +874,24 @@ export const FormCadastroDePropostas: React.FC = () => {
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
+
+          {exibirJustificativaDevolucao && (
+            <Col span={24} style={{ marginTop: 16 }}>
+              <CardContent>
+                <Row>
+                  <Col xs={24} sm={12} md={14} lg={24}>
+                    <AreaTexto
+                      formItemProps={{
+                        label: 'Justificativa da devolução:'
+                      }}
+                      podeEditar={ false }
+                      value={ formInitialValues?.movimentacao?.justificativa }
+                    />
+                  </Col>
+                </Row>
+              </CardContent>
+            </Col>
+          )}
         </Form>
         {openModalErros && (
           <ModalErroProposta closeModal={() => setOpenModalErros(false)} erros={listaErros} />
