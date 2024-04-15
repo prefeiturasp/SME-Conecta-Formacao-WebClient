@@ -125,7 +125,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
-  const exibirJustificativaDevolucao = formInitialValues?.situacao === SituacaoProposta.Devolvida;
+  const exibirJustificativaDevolucao = formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
   const podeEditarRfResponsavelDf = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada || !paramsRoute?.id;
 
@@ -882,10 +882,10 @@ export const FormCadastroDePropostas: React.FC = () => {
                   <Col xs={24} sm={12} md={14} lg={24}>
                     <AreaTexto
                       formItemProps={{
-                        label: 'Justificativa da devolução'
+                        label: 'Justificativa da devolução:'
                       }}
                       podeEditar={ false }
-                      value={ formInitialValues?.movimentacao?.situacao === 7 ? formInitialValues?.movimentacao?.justificativa : '' }
+                      value={ formInitialValues?.movimentacao?.justificativa }
                     />
                   </Col>
                 </Row>
