@@ -159,7 +159,7 @@ export const FormCadastroDePropostas: React.FC = () => {
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
-          !(ehPerfilDf && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) &&
+          !((ehPerfilDf || ehPerfilAdminDf) && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) &&
           !(ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
