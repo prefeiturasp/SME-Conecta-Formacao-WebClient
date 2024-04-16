@@ -14,6 +14,7 @@ import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 import { DreDTO } from './retorno-listagem-dto';
 import { PropostaMovimentacaoDTO } from './proposta-movimentacao-dto';
+import { PropostaAreaPromotoraDTO } from './proposta-area-promotora-dto';
 
 export type PropostaDTO = {
   formacaoHomologada?: boolean;
@@ -59,6 +60,7 @@ export type PropostaDTO = {
   integrarNoSGA?: boolean;
   rfResponsavelDf?: string;
   movimentacao?: PropostaMovimentacaoDTO;
+  areaPromotora?: PropostaAreaPromotoraDTO;
 };
 
 export type TipoInscricaoType = {
@@ -116,6 +118,7 @@ export type PropostaFormDTO = {
   integrarNoSGA?: boolean;
   rfResponsavelDf?: string;
   movimentacao?: PropostaMovimentacaoDTO;
+  areaPromotora?: PropostaAreaPromotoraDTO;
 };
 
 export type PropostaPalavraChaveDTO = {

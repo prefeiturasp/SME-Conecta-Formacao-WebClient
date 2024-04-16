@@ -87,6 +87,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const token = useAppSelector((store) => store.auth.token);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
+  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadaDoToken = decodeObject?.dres;
 
@@ -133,8 +134,8 @@ export const FormCadastroDePropostas: React.FC = () => {
       (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf ||
       formInitialValues?.situacao === SituacaoProposta.Cadastrada ||
       formInitialValues?.situacao === SituacaoProposta.Rascunho ||
-      formInitialValues?.situacao === SituacaoProposta.Alterando));
-
+      formInitialValues?.situacao === SituacaoProposta.Alterando) ||
+      (formInitialValues?.situacao === SituacaoProposta.Devolvida && perfilSelecionado?.perfil === formInitialValues?.areaPromotora?.grupoId));
 
   const stepsProposta: StepProps[] = [
     {
@@ -162,7 +163,8 @@ export const FormCadastroDePropostas: React.FC = () => {
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
-          !(formInitialValues?.formacaoHomologada && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf));
+          !(formInitialValues?.formacaoHomologada && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) &&
+          !(formInitialValues?.situacao === SituacaoProposta.Devolvida && perfilSelecionado?.perfil === formInitialValues?.areaPromotora?.grupoId));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -447,6 +449,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       integrarNoSGA: clonedValues?.integrarNoSGA,
       rfResponsavelDf: clonedValues?.rfResponsavelDf,
       movimentacao: clonedValues?.movimentacao,
+      areaPromotora: clonedValues?.areaPromotora
     };
 
     if (clonedValues?.dres?.length) {
@@ -893,6 +896,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                       }}
                       podeEditar={ false }
                       value={ formInitialValues?.movimentacao?.justificativa }
+                      maxLength={ 1000 }
                     />
                   </Col>
                 </Row>
