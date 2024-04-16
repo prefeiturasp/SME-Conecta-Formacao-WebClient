@@ -128,7 +128,13 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const exibirJustificativaDevolucao = formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  const podeEditarRfResponsavelDf = temPerfilAdminDf && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada || !paramsRoute?.id && temPerfilAdminDf;
+  const podeEditarRfResponsavelDf = (temPerfilAdminDf && !id) ||
+    (temPerfilAdminDf &&
+      (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf ||
+      formInitialValues?.situacao === SituacaoProposta.Cadastrada ||
+      formInitialValues?.situacao === SituacaoProposta.Rascunho ||
+      formInitialValues?.situacao === SituacaoProposta.Alterando));
+
 
   const stepsProposta: StepProps[] = [
     {
