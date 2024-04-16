@@ -71,6 +71,7 @@ import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
 import AreaTexto from '~/components/main/text/text-area';
+import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -86,7 +87,6 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
 
   const token = useAppSelector((store) => store.auth.token);
-  const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadaDoToken = decodeObject?.dres;
@@ -103,10 +103,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     return [];
   };
 
-  const perfilAdminDF = perfilUsuario.filter((item) =>
-    item.perfilNome.includes(TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF]),
-  );
-  const temPerfilAdminDf = perfilAdminDF.length > 0;
+  const ehPerfilAdminDf = perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
+  const ehPerfilDf = perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
 
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
@@ -120,22 +118,20 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
+  const ehAreaPromotora = perfilSelecionado?.perfil === formInitialValues?.areaPromotora?.grupoId;
+
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
 
-  const exibirBotalDevolver = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues.formacaoHomologada;
+  const exibirBotalDevolver = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
-  const exibirJustificativaDevolucao = formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
+  const exibirJustificativaDevolucao = ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  const podeEditarRfResponsavelDf = (temPerfilAdminDf && !id) ||
-    (temPerfilAdminDf &&
-      (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf ||
-      formInitialValues?.situacao === SituacaoProposta.Cadastrada ||
-      formInitialValues?.situacao === SituacaoProposta.Rascunho ||
-      formInitialValues?.situacao === SituacaoProposta.Alterando) ||
-      (formInitialValues?.situacao === SituacaoProposta.Devolvida && perfilSelecionado?.perfil === formInitialValues?.areaPromotora?.grupoId));
+  console.log(formInitialValues?.formacaoHomologada);
+  const podeEditarRfResponsavelDf = ((ehPerfilAdminDf || ehPerfilDf) && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim) ||
+    (ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida);
 
   const stepsProposta: StepProps[] = [
     {
@@ -163,8 +159,8 @@ export const FormCadastroDePropostas: React.FC = () => {
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
-          !(formInitialValues?.formacaoHomologada && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) &&
-          !(formInitialValues?.situacao === SituacaoProposta.Devolvida && perfilSelecionado?.perfil === formInitialValues?.areaPromotora?.grupoId));
+          !(ehPerfilDf && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) &&
+          !(ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -864,12 +860,15 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
-          {perfilAdminDF && (
+          {podeEditarRfResponsavelDf && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
                 <Row>
                   <Col xs={24} sm={12} md={14} lg={10}>
-                    <SelectResponsavelDf podeEditar={ podeEditarRfResponsavelDf }/>
+                    <SelectResponsavelDf
+                      podeEditar={ podeEditarRfResponsavelDf }
+                      required
+                    />
                   </Col>
                 </Row>
               </CardContent>

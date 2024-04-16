@@ -15,9 +15,10 @@ import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 import { DreDTO } from './retorno-listagem-dto';
 import { PropostaMovimentacaoDTO } from './proposta-movimentacao-dto';
 import { PropostaAreaPromotoraDTO } from './proposta-area-promotora-dto';
+import { FormacaoHomologada } from '../enum/formacao-homologada';
 
 export type PropostaDTO = {
-  formacaoHomologada?: boolean;
+  formacaoHomologada?: FormacaoHomologada;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
   tiposInscricao?: TipoInscricaoType[];
@@ -73,7 +74,7 @@ export type PropostaCompletoDTO = {
 } & PropostaDTO;
 
 export type PropostaFormDTO = {
-  formacaoHomologada?: boolean;
+  formacaoHomologada?: FormacaoHomologada;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
   tiposInscricao?: number[];
