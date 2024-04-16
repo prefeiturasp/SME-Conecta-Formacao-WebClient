@@ -25,7 +25,8 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import {
-  APOS_ENVIAR_PROPOSTA_NAO_EDITA,
+  APOS_ENVIAR_PROPOSTA_PUBLICAR,
+  APOS_ENVIAR_PROPOSTA_ANALISE,
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -129,7 +130,6 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const exibirJustificativaDevolucao = ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  console.log(formInitialValues?.formacaoHomologada);
   const podeEditarRfResponsavelDf = ((ehPerfilAdminDf || ehPerfilDf) && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim) ||
     (ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida);
 
@@ -682,8 +682,9 @@ export const FormCadastroDePropostas: React.FC = () => {
   };
 
   const enviarProposta = () => {
+    const formacaoHomologada = (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) || FormacaoHomologada.NaoCursosPorIN;
     confirmacao({
-      content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
+      content: formacaoHomologada === FormacaoHomologada.Sim ? APOS_ENVIAR_PROPOSTA_ANALISE : APOS_ENVIAR_PROPOSTA_PUBLICAR,
       onOk() {
         enviarPropostaAnalise(id).then((response) => {
           if (response.sucesso) {
