@@ -19,7 +19,7 @@ type SelectResponsavelDfProps = {
 };
 
 const SelectResponsavelDf: React.FC<SelectResponsavelDfProps> = ({
-  required = true,
+  required = false,
   podeEditar = true,
   exibirTooltip = true,
   selectProps,

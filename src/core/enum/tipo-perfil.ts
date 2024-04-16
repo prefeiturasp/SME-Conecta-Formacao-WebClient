@@ -4,6 +4,6 @@ export enum TipoPerfilEnum {
 }
 
 export const TipoPerfilTagDisplay: Record<TipoPerfilEnum, string> = {
-  [TipoPerfilEnum.AdminDF]: 'AdminDF',
+  [TipoPerfilEnum.AdminDF]: 'Admin DF',
   [TipoPerfilEnum.Cursista]: 'Cursista',
 };
