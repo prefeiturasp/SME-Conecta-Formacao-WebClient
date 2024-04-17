@@ -78,6 +78,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
   const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
+  const rfResponsavelDfWatch = Form.useWatch('rfResponsavelDf', form);
 
   const [openModalErros, setOpenModalErros] = useState(false);
   const [recarregarTurmas, setRecarregarTurmas] = useState(false);
@@ -86,6 +87,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [listaDres, setListaDres] = useState<any[]>([]);
 
   const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
+  const [desabilitarBotaoDevolver, setDesabilitarBotaoDevolver] = useState(true);
 
   const token = useAppSelector((store) => store.auth.token);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
@@ -124,7 +126,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
 
-  const exibirBotalDevolver = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+  const exibirBotaoDevolver = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -368,6 +370,10 @@ export const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     scrollNoInicio();
   }, [currentStep]);
+
+  useEffect(() => {
+      setDesabilitarBotaoDevolver(!form.getFieldValue('rfResponsavelDf'));
+  }, [rfResponsavelDfWatch])
 
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
@@ -816,9 +822,12 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
-                {exibirBotalDevolver && (
+                {exibirBotaoDevolver && (
                   <Col>
-                    <ModalDevolverButton propostaId={ id } />
+                    <ModalDevolverButton
+                      propostaId={ id }
+                      disabled={ desabilitarBotaoDevolver }
+                    />
                   </Col>
                 )}
                 {exibirBotaoSalvar && (
