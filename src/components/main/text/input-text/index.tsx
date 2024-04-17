@@ -4,6 +4,7 @@ import React from 'react';
 type InputTextProps = {
   inputProps: InputProps;
   formItemProps?: FormItemProps;
+  rows?: number;
 };
 
 const InputTexto: React.FC<InputTextProps> = ({ inputProps, formItemProps }) => {
