@@ -85,7 +85,8 @@ export const ModalDevolver: React.FC<ModalDevolverProps> = ({
         >
           <Form.Item label='Justificar:' name='justificativaDevolver' rules={[{ required: true, message: JUSTIFICATIVA_NAO_INFORMADA }]}>
             <AreaTexto
-              onChange={ (e: React.ChangeEvent<HTMLTextAreaElement>) => handleChangeJustificativa(e) } />
+              onChange={ (e: React.ChangeEvent<HTMLTextAreaElement>) => handleChangeJustificativa(e) }
+            />
           </Form.Item>
         </Form>
       </Spin>
