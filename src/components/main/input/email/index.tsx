@@ -41,8 +41,9 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
   };
 
   useEffect(() => {
-    setExibirErro(!!formItemProps?.required);
+    setExibirErro(!formItemProps?.required);
   }, [formItemProps?.required]);
+
   return (
     <Form.Item
       label='E-mail'

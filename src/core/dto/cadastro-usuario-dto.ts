@@ -9,6 +9,7 @@ export type CadastroUsuarioDTO = {
 
 export type CadastroUsuarioFormDTO = {
   email: string;
+  confirmarEmail: string;
   codigoUnidade: string;
   nomePessoa: string;
   cpf: string;
@@ -19,4 +20,4 @@ export type CadastroUsuarioFormDTO = {
 
 export type RetornoCadastroUsuarioDTO = {
   mensagem: string;
-}
+};
