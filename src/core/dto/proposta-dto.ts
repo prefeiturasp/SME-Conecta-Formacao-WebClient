@@ -62,6 +62,7 @@ export type PropostaDTO = {
   rfResponsavelDf?: string;
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
+  ultimaJustificativaDevolucao?: string;
 };
 
 export type TipoInscricaoType = {
@@ -120,6 +121,7 @@ export type PropostaFormDTO = {
   rfResponsavelDf?: string;
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
+  ultimaJustificativaDevolucao?: string;
 };
 
 export type PropostaPalavraChaveDTO = {

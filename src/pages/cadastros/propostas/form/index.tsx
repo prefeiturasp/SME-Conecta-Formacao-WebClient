@@ -451,7 +451,8 @@ export const FormCadastroDePropostas: React.FC = () => {
       integrarNoSGA: clonedValues?.integrarNoSGA,
       rfResponsavelDf: clonedValues?.rfResponsavelDf,
       movimentacao: clonedValues?.movimentacao,
-      areaPromotora: clonedValues?.areaPromotora
+      areaPromotora: clonedValues?.areaPromotora,
+      ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao
     };
 
     if (clonedValues?.dres?.length) {
@@ -904,7 +905,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                         label: 'Justificativa da devolução:'
                       }}
                       podeEditar={ false }
-                      value={ formInitialValues?.movimentacao?.justificativa }
+                      value={ formInitialValues?.ultimaJustificativaDevolucao }
                       maxLength={ 1000 }
                     />
                   </Col>
