@@ -8,6 +8,8 @@ import { JUSTIFICATIVA_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { DevolverPropostaDTO } from '~/core/dto/devolver-proposta-dto';
 import { devolverProposta } from '~/core/services/proposta-service';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '~/core/enum/routes-enum';
 
 type ModalDevolverProps = {
   propostaId: number;
@@ -22,6 +24,7 @@ export const ModalDevolver: React.FC<ModalDevolverProps> = ({
 
   const [loading, setLoading] = useState<boolean>(false);
   const [justificativa, setJustificativa] = useState<string>('');
+  const navigate = useNavigate();
 
   const openNotificationSuccess = () => {
     notification.success({
@@ -44,7 +47,10 @@ export const ModalDevolver: React.FC<ModalDevolverProps> = ({
           onFecharButton();
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+      });
   };
 
   const handleChangeJustificativa = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

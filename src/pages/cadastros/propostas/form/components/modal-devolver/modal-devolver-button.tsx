@@ -3,8 +3,6 @@ import { ButtonSecundary } from '~/components/lib/button/secundary';
 import { ModalDevolver } from './modal-devolver';
 import { ButtonProps } from 'antd';
 import { CF_BUTTON_DEVOLVER_PROPOSTA } from '~/core/constants/ids/button/intex';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '~/core/enum/routes-enum';
 
 type ModalDevolverButtonProps = {
   propostaId: number;
@@ -13,7 +11,6 @@ type ModalDevolverButtonProps = {
 }
 
 const ModalDevolverButton: React.FC<ModalDevolverButtonProps> = ({ propostaId, buttonProps, disabled }) => {
-  const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false);
   const showModal = () => setOpen(true);
 
@@ -32,7 +29,6 @@ const ModalDevolverButton: React.FC<ModalDevolverButtonProps> = ({ propostaId, b
           propostaId={ propostaId }
           onFecharButton={() => {
             setOpen(false);
-            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
           }}
         />
       )}
