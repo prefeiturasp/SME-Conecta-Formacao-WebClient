@@ -89,4 +89,3 @@ export const ERRO_INSCRICAO_MANUAL =
 export const RESPONSAVEL_DF_NAO_INFORMADO = 'É necessário informar o responsável DF';
 export const SERVICO_INDISPONIVEL =
   'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
-
