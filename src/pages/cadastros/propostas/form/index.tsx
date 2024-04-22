@@ -11,9 +11,12 @@ import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
+import { SelectPareceristas } from '~/components/main/input/parecerista';
+import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import Spin from '~/components/main/spin';
 import Steps from '~/components/main/steps';
 import Auditoria from '~/components/main/text/auditoria';
+import AreaTexto from '~/components/main/text/text-area';
 import {
   CF_BUTTON_CADASTRAR_PROPOSTA,
   CF_BUTTON_CANCELAR,
@@ -25,8 +28,8 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import {
-  APOS_ENVIAR_PROPOSTA_PUBLICAR,
   APOS_ENVIAR_PROPOSTA_ANALISE,
+  APOS_ENVIAR_PROPOSTA_PUBLICAR,
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -47,9 +50,11 @@ import {
 } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
+import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { obterDREs } from '~/core/services/dre-service';
@@ -63,16 +68,12 @@ import {
 import { onClickCancelar } from '~/core/utils/form';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
-import SelectResponsavelDf from '~/components/main/input/responsavel-df';
-import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
-import AreaTexto from '~/components/main/text/text-area';
-import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -106,7 +107,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     return [];
   };
 
-  const ehPerfilAdminDf = perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
+  const ehPerfilAdminDf =
+    perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const ehPerfilDf = perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
 
   const showModalErros = () => setOpenModalErros(true);
@@ -126,13 +128,19 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
 
-  const exibirBotaoDevolver = formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+  const exibirBotaoDevolver =
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
+    formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
-  const exibirJustificativaDevolucao = ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
+  const exibirJustificativaDevolucao =
+    ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  const podeEditarRfResponsavelDf = ((ehPerfilAdminDf || ehPerfilDf) && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim);
+  const podeEditarRfResponsavelDf =
+    (ehPerfilAdminDf || ehPerfilDf) &&
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
+    formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const stepsProposta: StepProps[] = [
     {
@@ -160,7 +168,10 @@ export const FormCadastroDePropostas: React.FC = () => {
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
-          !((ehPerfilDf || ehPerfilAdminDf) && formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) &&
+          !(
+            (ehPerfilDf || ehPerfilAdminDf) &&
+            formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf
+          ) &&
           !(ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
@@ -371,8 +382,8 @@ export const FormCadastroDePropostas: React.FC = () => {
   }, [currentStep]);
 
   useEffect(() => {
-      setDesabilitarBotaoDevolver(!form.getFieldValue('rfResponsavelDf'));
-  }, [rfResponsavelDfWatch])
+    setDesabilitarBotaoDevolver(!form.getFieldValue('rfResponsavelDf'));
+  }, [rfResponsavelDfWatch]);
 
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
@@ -451,7 +462,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       rfResponsavelDf: clonedValues?.rfResponsavelDf,
       movimentacao: clonedValues?.movimentacao,
       areaPromotora: clonedValues?.areaPromotora,
-      ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao
+      ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao,
     };
 
     if (clonedValues?.dres?.length) {
@@ -688,9 +699,14 @@ export const FormCadastroDePropostas: React.FC = () => {
   };
 
   const enviarProposta = () => {
-    const formacaoHomologada = (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) || FormacaoHomologada.NaoCursosPorIN;
+    const formacaoHomologada =
+      (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) ||
+      FormacaoHomologada.NaoCursosPorIN;
     confirmacao({
-      content: formacaoHomologada === FormacaoHomologada.Sim ? APOS_ENVIAR_PROPOSTA_ANALISE : APOS_ENVIAR_PROPOSTA_PUBLICAR,
+      content:
+        formacaoHomologada === FormacaoHomologada.Sim
+          ? APOS_ENVIAR_PROPOSTA_ANALISE
+          : APOS_ENVIAR_PROPOSTA_PUBLICAR,
       onOk() {
         enviarPropostaAnalise(id).then((response) => {
           if (response.sucesso) {
@@ -824,10 +840,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                 )}
                 {exibirBotaoDevolver && (
                   <Col>
-                    <ModalDevolverButton
-                      propostaId={ id }
-                      disabled={ desabilitarBotaoDevolver }
-                    />
+                    <ModalDevolverButton propostaId={id} disabled={desabilitarBotaoDevolver} />
                   </Col>
                 )}
                 {exibirBotaoSalvar && (
@@ -873,13 +886,17 @@ export const FormCadastroDePropostas: React.FC = () => {
           {podeEditarRfResponsavelDf && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
-                <Row>
-                  <Col xs={24} sm={12} md={14} lg={10}>
-                    <SelectResponsavelDf
-                      podeEditar={ podeEditarRfResponsavelDf }
-                      required
-                    />
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} sm={12} md={14} lg={12}>
+                    <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
                   </Col>
+                  {ehPerfilAdminDf ? (
+                    <Col xs={24} sm={12} md={14} lg={12}>
+                      <SelectPareceristas />
+                    </Col>
+                  ) : (
+                    <></>
+                  )}
                 </Row>
               </CardContent>
             </Col>
@@ -901,11 +918,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                   <Col xs={24} sm={12} md={14} lg={24}>
                     <AreaTexto
                       formItemProps={{
-                        label: 'Justificativa da devolução:'
+                        label: 'Justificativa da devolução:',
                       }}
-                      podeEditar={ false }
-                      value={ formInitialValues?.ultimaJustificativaDevolucao }
-                      maxLength={ 1000 }
+                      podeEditar={false}
+                      value={formInitialValues?.ultimaJustificativaDevolucao}
+                      maxLength={1000}
                     />
                   </Col>
                 </Row>
