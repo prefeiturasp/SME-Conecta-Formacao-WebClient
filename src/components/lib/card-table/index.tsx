@@ -17,6 +17,7 @@ interface TableParams {
 type DataTableProps<T> = {
   filters?: any;
   realizouFiltro?: boolean;
+  desativarBotaoContinuar?: any;
   url?: string;
 } & TableProps<T>;
 
@@ -25,6 +26,7 @@ const DataTable = <T extends object>({
   realizouFiltro,
   url,
   columns,
+  desativarBotaoContinuar,
   ...rest
 }: DataTableProps<T>) => {
   const { setTableState } = useContext(DataTableContext);
@@ -66,6 +68,8 @@ const DataTable = <T extends object>({
         })
         .then((response) => {
           if (response?.data.items) {
+            if(desativarBotaoContinuar)
+              desativarBotaoContinuar(response.data.sucesso)
             setData(response.data.items);
             setTableParams({
               ...newParams,

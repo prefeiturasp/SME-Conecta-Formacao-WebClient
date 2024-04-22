@@ -1,4 +1,5 @@
 export enum FormacaoHomologada {
-  Nao = 0,
   Sim = 1,
+  NaoCursosPorIN = 2,
+  NaoCursosExtras = 3
 }

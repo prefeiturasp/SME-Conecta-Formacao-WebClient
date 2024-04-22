@@ -14,6 +14,7 @@ import { CadastroAreaPromotoraDTO } from '~/core/dto/cadastro-area-promotora-dto
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { obterTiposAreaPromotora } from '~/core/services/area-promotora-service';
+import { onClickVoltar } from '~/core/utils/form';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 
 const ListAreaPromotora: React.FC = () => {
@@ -50,8 +51,6 @@ const ListAreaPromotora: React.FC = () => {
     obterTipos();
   }, [obterTipos]);
 
-  const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
-
   const onClickNovo = () => navigate(ROUTES.AREA_PROMOTORA_NOVO);
 
   const onClickEditar = (id: number) =>
@@ -63,7 +62,10 @@ const ListAreaPromotora: React.FC = () => {
         <Col span={24}>
           <Row gutter={[8, 8]}>
             <Col>
-              <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
+              <ButtonVoltar
+                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
+                id={CF_BUTTON_VOLTAR}
+              />
             </Col>
             <Col>
               <Button

@@ -7,6 +7,7 @@ export type DadosInscricaoCargoEolDTO = {
   descricao: string;
   dreCodigo: string;
   ueCodigo: string;
+  tipoVinculo: number;
 } & DadosCompletoInscricaoCargoEolDTO;
 
 export type DadosInscricaoDTO = {
@@ -20,3 +21,9 @@ export type DadosInscricaoDTO = {
   arquivoId?: number;
   propostaTurmaId?: number;
 };
+
+export type DadosVinculoInscricaoDTO = {
+  id: number;
+  cargoCodigo: string;
+  tipoVinculo: number;
+}

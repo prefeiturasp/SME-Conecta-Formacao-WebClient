@@ -16,15 +16,15 @@ interface TurmasInscricoesListaPaginadaProps {
   realizouFiltro?: boolean;
 }
 
-export interface TurmaInscricaoProps {
-  nomeTurma: string;
-  registroFuncional: string;
+export interface DadosListagemInscricaoDTO {
   inscricaoId: number;
-  cpf: string;
-  nomeCursista: string;
-  cargoFuncao: string;
+  nomeTurma?: string;
+  registroFuncional?: string;
+  cpf?: string;
+  nomeCursista?: string;
+  cargoFuncao?: string;
+  situacaoCodigo: SituacaoInscricao;
   situacao: string;
-  podeCancelar?: boolean;
 }
 
 export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPaginadaProps> = ({
@@ -35,7 +35,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
   const id = params.id;
   const { tableState } = useContext(DataTableContext);
 
-  const columns: ColumnsType<TurmaInscricaoProps> = [
+  const columns: ColumnsType<DadosListagemInscricaoDTO> = [
     { title: 'Turma', dataIndex: 'nomeTurma' },
     { title: 'RF', dataIndex: 'registroFuncional' },
     { title: 'CPF', dataIndex: 'cpf' },
@@ -44,7 +44,6 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     { title: 'Situação', dataIndex: 'situacao' },
     {
       title: 'Ações',
-      dataIndex: 'podeCancelar',
       render: (_, record) => {
         const cancelar = async () => {
           confirmacao({

@@ -6,9 +6,10 @@ import { useForm, useWatch } from 'antd/es/form/Form';
 import { useAppDispatch } from '~/core/hooks/use-redux';
 import usuarioService from '~/core/services/usuario-service';
 
-import { IoInformationCircleSharp } from 'react-icons/io5';
 import { AxiosError } from 'axios';
+import { IoInformationCircleSharp } from 'react-icons/io5';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Modal from '~/components/lib/modal';
 import ErroGeralLogin from '~/components/main/erro-geral-login';
 import { CF_BUTTON_CONTINUAR, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_LOGIN } from '~/core/constants/ids/input';
@@ -16,7 +17,7 @@ import { ERRO_RECUPERACAO_SENHA } from '~/core/constants/mensagens';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
-import Modal from '~/components/lib/modal';
+import { onClickVoltar } from '~/core/utils/form';
 
 const RedefinirSenha = () => {
   const dispatch = useAppDispatch();
@@ -67,8 +68,6 @@ const RedefinirSenha = () => {
       .catch(validarExibirErros)
       .finally(() => dispatch(setSpinning(false)));
   };
-
-  const onClickVoltar = () => navigate(ROUTES.PRINCIPAL);
 
   return (
     <>
@@ -145,7 +144,7 @@ const RedefinirSenha = () => {
                 type='default'
                 block
                 style={{ fontWeight: 700 }}
-                onClick={() => onClickVoltar()}
+                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
                 id={CF_BUTTON_VOLTAR}
               >
                 Voltar

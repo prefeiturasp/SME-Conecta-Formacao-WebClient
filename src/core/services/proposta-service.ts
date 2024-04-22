@@ -1,5 +1,6 @@
 import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
+import { DevolverPropostaDTO } from '../dto/devolver-proposta-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import { PropostaDashboardDTO } from '../dto/proposta-dashboard-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
@@ -62,6 +63,9 @@ const inserirProposta = (params: PropostaDTO) =>
 const alterarProposta = (id: string | number, params: PropostaDTO, mostrarNotificacao: boolean) =>
   alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/${id}`, params, mostrarNotificacao);
 
+const devolverProposta = (id: string | number, params: DevolverPropostaDTO): Promise<ApiResult<RetornoDTO>> =>
+  alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/devolver-proposta/${id}`, params);
+
 const enviarPropostaAnalise = (
   id: string | number,
   params?: PropostaDTO,
@@ -122,6 +126,7 @@ const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
 
 export {
   alterarProposta,
+  devolverProposta,
   deletarProposta,
   enviarPropostaAnalise,
   excluirRegente,
