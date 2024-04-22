@@ -18,6 +18,7 @@ import {
   obterPropostaRegentePorId,
   salvarPropostaProfissionalRegente,
 } from '~/core/services/proposta-service';
+import { onClickCancelar } from '~/core/utils/form';
 import { formatterCPFMask } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
@@ -36,7 +37,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
   const [formInitialValues, setFormInitialValues] = useState<PropostaRegenteDTO>();
   const [carregando, setCarregando] = useState<boolean>(false);
 
-  const propostaId = paramsRoute?.id || 0;
+  const propostaId = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const fecharModal = (reloadData = false, checkFieldsTouched = true) => {
     if (checkFieldsTouched && formDrawer.isFieldsTouched()) {
@@ -109,17 +110,6 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
     formDrawer.resetFields();
   }, [formDrawer, formInitialValues]);
 
-  const onClickCancelar = () => {
-    if (formDrawer.isFieldsTouched()) {
-      confirmacao({
-        content: DESEJA_CANCELAR_ALTERACOES,
-        onOk() {
-          formDrawer.resetFields();
-        },
-      });
-    }
-  };
-
   return (
     <>
       {openModal ? (
@@ -154,7 +144,7 @@ const DrawerRegente: React.FC<DrawerRegenteProps> = ({ openModal, onCloseModal, 
                       block
                       type='default'
                       id={CF_BUTTON_MODAL_CANCELAR}
-                      onClick={onClickCancelar}
+                      onClick={() => onClickCancelar({ form: formDrawer })}
                       style={{ fontWeight: 700 }}
                       disabled={!formDrawer.isFieldsTouched()}
                     >

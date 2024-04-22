@@ -10,7 +10,6 @@ export default () => {
   return null;
 };
 
-// TODO
 const openNotificationErrors = (mensagens: string[]) => {
   if (mensagens?.length) {
     mensagens.forEach((description) => {
