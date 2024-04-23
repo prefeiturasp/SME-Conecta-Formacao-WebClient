@@ -148,7 +148,7 @@ export const CadastroDeUsuario = () => {
     }
   };
   const handleCopyAndPast = (event: any) => {
-    event.preventDefault(); // Impede o comportamento padrão de copiar
+    event.preventDefault(); // Impede o comportamento padrão de copiar/colar
   };
   const validarConfirmacaoEmail = () => {
     const emailConfirmacao = form.getFieldValue('confirmarEmail');
