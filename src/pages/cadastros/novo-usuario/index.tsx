@@ -147,7 +147,9 @@ export const CadastroDeUsuario = () => {
       return '';
     }
   };
-
+  const handleCopyAndPast = (event: any) => {
+    event.preventDefault(); // Impede o comportamento padrão de copiar
+  };
   const validarConfirmacaoEmail = () => {
     const emailConfirmacao = form.getFieldValue('confirmarEmail');
     const email = form.getFieldValue('email');
@@ -225,7 +227,12 @@ export const CadastroDeUsuario = () => {
           </Col>
           <Col span={24}>
             <InputEmail
-              inputProps={{ id: CF_INPUT_CONFIRMAR_EMAIL, onKeyUp: validarConfirmacaoEmail }}
+              inputProps={{
+                id: CF_INPUT_CONFIRMAR_EMAIL,
+                onKeyUp: validarConfirmacaoEmail,
+                onPaste: handleCopyAndPast,
+                onCopy: handleCopyAndPast,
+              }}
               formItemProps={{
                 required: true,
                 label: 'Confirmação de e-mail',
