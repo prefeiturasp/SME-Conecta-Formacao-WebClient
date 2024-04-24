@@ -88,3 +88,4 @@ export const ERRO_INSCRICAO_MANUAL =
   'A lotação/local de trabalho do cursista não corresponde com a DRE promotora desta formação. Deseja continuar?';
 
 export const RESPONSAVEL_DF_NAO_INFORMADO = 'É necessário informar o responsável DF';
+export const LINK_INSCRICOES_EXTERNA = 'É necessário informar o link';
