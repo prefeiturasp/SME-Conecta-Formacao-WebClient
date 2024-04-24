@@ -120,7 +120,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       )}
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
-        <Col xs={24} sm={12} md={6} lg={6}>
+        <Col xs={24} sm={12} md={8} lg={4}>
           <RadioSimNao
             formItemProps={{
               initialValue: true,
@@ -133,8 +133,24 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
           />
         </Col>
       ) : (
-        <></>
+        <>
+          <Col xs={24} sm={12} md={8} lg={4}></Col>
+        </>
       )}
+      <Col span={10}>
+        <Form.Item
+          key='codigoEventoSigpec'
+          name='codigoEventoSigpec'
+          label='Código do Evento (SIGPEC)'
+        >
+          <Input
+            type='text'
+            maxLength={10}
+            id={CF_INPUT_NOME_FORMACAO}
+            placeholder='Informe o Código do Evento (SIGPEC)'
+          />
+        </Form.Item>
+      </Col>
 
       <Col span={24}>
         <SelectDRE
