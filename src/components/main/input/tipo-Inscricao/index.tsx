@@ -18,10 +18,12 @@ import { Colors } from '~/core/styles/colors';
 type SelectTipoInscricaoProps = {
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
+  exibirLink: (exibir: boolean) => void;
 };
 const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
   formItemProps,
   selectProps,
+  exibirLink,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const tiposInscricaoTooltips = [
@@ -53,6 +55,9 @@ const SelectTipoInscricao: React.FC<SelectTipoInscricaoProps> = ({
         const temAutomaticaJEIF = tiposInscricao?.includes(TipoInscricao.AutomaticaJEIF);
 
         const desabilitarOptions = (option: DefaultOptionType) => {
+          const tipos = form.getFieldValue('tiposInscricao');
+          const existeExterna = tipos?.includes(TipoInscricao.Externa);
+          exibirLink(existeExterna);
           if (
             (temAutomatica && option.value === TipoInscricao.AutomaticaJEIF) ||
             (temAutomaticaJEIF && option.value === TipoInscricao.Automatica)

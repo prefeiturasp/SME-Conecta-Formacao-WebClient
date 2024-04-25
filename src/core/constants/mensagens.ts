@@ -25,7 +25,7 @@ export const APOS_ENVIAR_PROPOSTA_PUBLICAR =
   'Após enviar, a proposta será publicada e poderá ser apresentada na área pública. Tem certeza que deseja enviar a proposta?';
 export const APOS_ENVIAR_PROPOSTA_ANALISE =
   'A proposta será enviada para análise e não poderá ser feita alterações pela área promotora. Tem certeza que deseja enviar a proposta?';
-export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a modalidade';
+export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a etapa/modalidade';
 export const FORMATO_NAO_INFORMADO = 'É necessário informar o formato';
 export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
   'É necessário Informar a formação homologada por SME/COPED/DF';
@@ -88,3 +88,4 @@ export const ERRO_INSCRICAO_MANUAL =
   'A lotação/local de trabalho do cursista não corresponde com a DRE promotora desta formação. Deseja continuar?';
 
 export const RESPONSAVEL_DF_NAO_INFORMADO = 'É necessário informar o responsável DF';
+export const LINK_INSCRICOES_EXTERNA = 'É necessário informar o link';
