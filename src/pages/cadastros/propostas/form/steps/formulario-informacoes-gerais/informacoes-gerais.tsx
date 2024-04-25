@@ -98,26 +98,6 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
           }}
         />
       </Col>
-      {exibirLinkExterno ? (
-        <Col xs={24} sm={14} md={24}>
-          <Form.Item
-            name='linkParaInscricoesExterna'
-            label='Link para Inscrições'
-            rules={[
-              { required: exibirLinkExterno, whitespace: true, message: LINK_INSCRICOES_EXTERNA },
-            ]}
-          >
-            <Input
-              type='text'
-              maxLength={200}
-              id={CF_INPUT_LINK_INSCRICOES_EXTERNA}
-              placeholder='Informe o Link para Inscrições Externas'
-            />
-          </Form.Item>
-        </Col>
-      ) : (
-        <></>
-      )}
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
         <Col xs={24} sm={12} md={8} lg={4}>
@@ -151,7 +131,26 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
           />
         </Form.Item>
       </Col>
-
+      {exibirLinkExterno ? (
+        <Col xs={24} sm={14} md={24}>
+          <Form.Item
+            name='linkParaInscricoesExterna'
+            label='Link para Inscrições'
+            rules={[
+              { required: exibirLinkExterno, whitespace: true, message: LINK_INSCRICOES_EXTERNA },
+            ]}
+          >
+            <Input
+              type='text'
+              maxLength={200}
+              id={CF_INPUT_LINK_INSCRICOES_EXTERNA}
+              placeholder='Informe o Link para Inscrições Externas'
+            />
+          </Form.Item>
+        </Col>
+      ) : (
+        <></>
+      )}
       <Col span={24}>
         <SelectDRE
           exibirOpcaoTodos
