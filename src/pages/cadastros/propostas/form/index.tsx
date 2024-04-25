@@ -61,6 +61,7 @@ import { obterDREs } from '~/core/services/dre-service';
 import {
   alterarProposta,
   deletarProposta,
+  enviarParecer,
   enviarPropostaAnalise,
   inserirProposta,
   obterPropostaPorId,
@@ -131,6 +132,9 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotaoDevolver =
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+
+  const exibirBotaoEnviarParecer =
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseParecerista;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -741,6 +745,19 @@ export const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
+  //TODO: AGUARDAR ENDPOINT
+  const finalizarParecer = () => {
+    enviarParecer(id).then((response) => {
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: PROPOSTA_ENVIADA,
+        });
+        navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+      }
+    });
+  };
+
   return (
     <Col>
       <Spin spinning={loading}>
@@ -843,6 +860,20 @@ export const FormCadastroDePropostas: React.FC = () => {
                     <ModalDevolverButton propostaId={id} disabled={desabilitarBotaoDevolver} />
                   </Col>
                 )}
+                {exibirBotaoEnviarParecer && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                      disabled={desabilitarCampos}
+                      onClick={finalizarParecer}
+                      style={{ fontWeight: 700 }}
+                    >
+                      Enviar Parecer
+                    </Button>
+                  </Col>
+                )}
                 {exibirBotaoSalvar && (
                   <Col>
                     <Button
@@ -920,9 +951,10 @@ export const FormCadastroDePropostas: React.FC = () => {
                       formItemProps={{
                         label: 'Justificativa da devolução:',
                       }}
-                      podeEditar={false}
-                      value={formInitialValues?.ultimaJustificativaDevolucao}
-                      maxLength={1000}
+                      textAreaProps={{
+                        disabled: true,
+                        value: formInitialValues?.ultimaJustificativaDevolucao,
+                      }}
                     />
                   </Col>
                 </Row>

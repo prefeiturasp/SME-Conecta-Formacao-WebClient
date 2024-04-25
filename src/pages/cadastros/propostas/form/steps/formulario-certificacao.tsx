@@ -1,10 +1,13 @@
 import { Col, Form, Radio, RadioChangeEvent, Row } from 'antd';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import CheckboxAcaoInformatica from '~/components/lib/checkbox';
 import SelectCriterioCertificacao from '~/components/main/input/criterio-certificacao';
 import EditorTexto from '~/components/main/input/editor-texto';
 import { DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA } from '~/core/constants/mensagens';
+import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
+import { mostrarQtdParecer } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import { ButtonParecer } from '../components/modal-parecer/modal-parecer-button';
 
 const FormularioCertificacao: React.FC = () => {
   const form = Form.useFormInstance();
@@ -53,34 +56,49 @@ const FormularioCertificacao: React.FC = () => {
       <Col>
         <Row>
           <Col>
-            <Form.Item
-              label='Curso com certificação'
-              name='cursoComCertificado'
-              rules={[{ required: true }]}
+            <ButtonParecer
+              campo={CamposParecerEnum.cursoComCertificado}
+              qtdParecer={mostrarQtdParecer(CamposParecerEnum.cursoComCertificado)}
             >
-              <Radio.Group
-                onChange={obterPossuiCertificado}
-                value={valuePossuiCertificado}
-                defaultValue={false}
+              <Form.Item
+                label='Curso com certificação'
+                name='cursoComCertificado'
+                rules={[{ required: true }]}
               >
-                <Radio value={true}>Sim</Radio>
-                <Radio value={false}>Não</Radio>
-              </Radio.Group>
-            </Form.Item>
+                <Radio.Group
+                  onChange={obterPossuiCertificado}
+                  value={valuePossuiCertificado}
+                  defaultValue={false}
+                >
+                  <Radio value={true}>Sim</Radio>
+                  <Radio value={false}>Não</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </ButtonParecer>
           </Col>
           <Col span={24}>
-            <SelectCriterioCertificacao onchange={verificarCriteriosSelecionados} />
+            <ButtonParecer
+              campo={CamposParecerEnum.criterioCertificacao}
+              qtdParecer={mostrarQtdParecer(CamposParecerEnum.criterioCertificacao)}
+            >
+              <SelectCriterioCertificacao onchange={verificarCriteriosSelecionados} />
+            </ButtonParecer>
           </Col>
           <Col span={24}>
-            <EditorTexto
-              nome='descricaoDaAtividade'
-              label='Descrição da atividade obrigatória para certificação'
-              required={editorRequerido}
-              mensagemErro={DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA}
-              exibirTooltip={editorRequerido}
-              mensagemTooltip='Deve ser proposta ao menos uma atividade que será considerada na atribuição do conceito ao participante, na qual o cursista se posicione criticamente sobre suas ações ou experiências no exercício da sua atuação profissional. A atividade obrigatória deve atender a diversidade e as particularidades do público-alvo.'
-              disabled={desabilitarCampos}
-            />
+            <ButtonParecer
+              campo={CamposParecerEnum.descricaoDaAtividade}
+              qtdParecer={mostrarQtdParecer(CamposParecerEnum.descricaoDaAtividade)}
+            >
+              <EditorTexto
+                nome='descricaoDaAtividade'
+                label='Descrição da atividade obrigatória para certificação'
+                required={editorRequerido}
+                mensagemErro={DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA}
+                exibirTooltip={editorRequerido}
+                mensagemTooltip='Deve ser proposta ao menos uma atividade que será considerada na atribuição do conceito ao participante, na qual o cursista se posicione criticamente sobre suas ações ou experiências no exercício da sua atuação profissional. A atividade obrigatória deve atender a diversidade e as particularidades do público-alvo.'
+                disabled={desabilitarCampos}
+              />
+            </ButtonParecer>
           </Col>
           <Col span={24}>
             <CheckboxAcaoInformatica />

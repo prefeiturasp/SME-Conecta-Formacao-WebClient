@@ -12,8 +12,11 @@ import {
   PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO,
   REFERENCIA_NAO_INFORMADA,
 } from '~/core/constants/mensagens';
+import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { Formato } from '~/core/enum/formato';
+import { mostrarQtdParecer } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
 import InputTimerCargaHorariaTotal from './components/carga-horaria-total';
 
 const FormularioDetalhamento: React.FC = () => {
@@ -21,7 +24,7 @@ const FormularioDetalhamento: React.FC = () => {
 
   const collapsesComEditorDeTexto = [
     {
-      key: 'justificativa',
+      key: CamposParecerEnum.justificativa,
       header: 'Justificativa',
       defaultActiveKey: 'justificativa',
       messageError: JUSTIFICATIVA_NAO_INFORMADA,
@@ -29,7 +32,7 @@ const FormularioDetalhamento: React.FC = () => {
         'Por que esta formação foi planejada? Por que ela é necessária? Qual o diagnóstico da realidade ou necessidade de aprofundamento no tema?',
     },
     {
-      key: 'objetivos',
+      key: CamposParecerEnum.objetivos,
       header: 'Objetivos',
       defaultActiveKey: 'objetivos',
       messageError: OBJETIVO_NAO_INFORMADO,
@@ -37,7 +40,7 @@ const FormularioDetalhamento: React.FC = () => {
         ' Quais objetivos serão atingidos considerando o público-alvo proposto? Para que serão desenvolvidos os conteúdos e as metodologias? O que se espera que os profissionais aprendam / modifiquem?',
     },
     {
-      key: 'conteudoProgramatico',
+      key: CamposParecerEnum.conteudoProgramatico,
       header: 'Conteúdo Programático',
       defaultActiveKey: 'conteudoProgramatico',
       messageError: CONTEUDO_PROGRAMATICO_NAO_INFORMADO,
@@ -45,7 +48,7 @@ const FormularioDetalhamento: React.FC = () => {
         'O conteúdo programático deve estar alinhado a um ou mais princípios do Edital NTF 2023. Indique o que será desenvolvido como conteúdo da formação.',
     },
     {
-      key: 'procedimentoMetadologico',
+      key: CamposParecerEnum.procedimentoMetadologico,
       header: 'Procedimentos metodológicos',
       defaultActiveKey: 'procedimentoMetadologico',
       messageError: PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO,
@@ -53,7 +56,7 @@ const FormularioDetalhamento: React.FC = () => {
         'Quais estratégias de formação serão utilizadas para abordar os conteúdos e alcançar os objetivos? Os procedimentos metodológicos devem favorecer a relação entre a teoria e a prática profissional.',
     },
     {
-      key: 'referencia',
+      key: CamposParecerEnum.referencia,
       header: 'Referências',
       defaultActiveKey: 'referencia',
       messageError: REFERENCIA_NAO_INFORMADA,
@@ -113,6 +116,10 @@ const FormularioDetalhamento: React.FC = () => {
             </Col>
           </Row>
         </Col>
+        <ButtonParecer
+          campo={CamposParecerEnum.cargaHoraria}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.cargaHoraria)}
+        />
       </CollapsePanelSME>
 
       {collapsesComEditorDeTexto.map((item) => {
@@ -125,10 +132,11 @@ const FormularioDetalhamento: React.FC = () => {
               collapseProps={{ defaultActiveKey: item.defaultActiveKey }}
             >
               <EditorTexto
-                nome={item.key}
+                nome={item.defaultActiveKey}
                 mensagemErro={item.messageError}
                 disabled={desabilitarCampos}
               />
+              <ButtonParecer campo={item.key} qtdParecer={mostrarQtdParecer(item.key)} />
             </CollapsePanelSME>
           </React.Fragment>
         );
@@ -139,6 +147,10 @@ const FormularioDetalhamento: React.FC = () => {
         collapseProps={{ defaultActiveKey: 'palavrasChave' }}
       >
         <SelectPalavrasChaves />
+        <ButtonParecer
+          campo={CamposParecerEnum.palavrasChaves}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.palavrasChaves)}
+        />
       </CollapsePanelSME>
     </>
   );

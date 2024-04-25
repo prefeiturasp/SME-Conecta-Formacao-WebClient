@@ -34,17 +34,20 @@ import {
 import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import { PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
+import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { Colors } from '~/core/styles/colors';
+import { mostrarQtdParecer } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
 import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
 import TabelaEditavel from './components/table/turmas';
 
 type FormInformacoesGeraisProps = {
   listaDres: any[];
-  tipoInstituicao?: AreaPromotoraTipoEnum;
   formInitialValues?: PropostaFormDTO;
+  tipoInstituicao?: AreaPromotoraTipoEnum;
 };
 
 const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
@@ -67,183 +70,266 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   return (
     <Row gutter={[16, 8]}>
       <Col xs={24} sm={24} md={16} lg={10}>
-        <RadioFormacaoHomologada
-          name='formacaoHomologada'
-          label='Formação homologada por SME/COPED/DF'
-          required
-        />
+        <ButtonParecer
+          childrenProps={{ flex: 'none' }}
+          campo={CamposParecerEnum.formacaoHomologada}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.formacaoHomologada)}
+        >
+          <RadioFormacaoHomologada
+            name='formacaoHomologada'
+            label='Formação homologada por SME/COPED/DF'
+            required
+          />
+        </ButtonParecer>
       </Col>
 
       <Col xs={24} sm={12} md={8} lg={4}>
-        <RadioTipoFormacao />
+        <ButtonParecer
+          campo={CamposParecerEnum.tipoFormacao}
+          childrenProps={{ flex: 'none' }}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.tipoFormacao)}
+        >
+          <RadioTipoFormacao />
+        </ButtonParecer>
       </Col>
 
       <Col xs={24} sm={12} md={14} lg={10}>
-        <SelectFormato />
+        <ButtonParecer
+          campo={CamposParecerEnum.formato}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.formato)}
+        >
+          <SelectFormato />
+        </ButtonParecer>
       </Col>
 
       <Col xs={24} md={10}>
-        <SelectTipoInscricao
-          selectProps={{
-            mode: 'multiple',
-          }}
-        />
+        <ButtonParecer
+          campo={CamposParecerEnum.tiposInscricao}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.tiposInscricao)}
+        >
+          <SelectTipoInscricao
+            selectProps={{
+              mode: 'multiple',
+            }}
+          />
+        </ButtonParecer>
       </Col>
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
         <Col xs={24} sm={12} md={6} lg={6}>
-          <RadioSimNao
-            formItemProps={{
-              initialValue: true,
-              name: 'integrarNoSGA',
-              label: 'Integrar no SGA',
-            }}
-            radioGroupProps={{
-              id: CF_RADIO_INTEGRA_NO_SGA,
-            }}
-          />
+          <ButtonParecer
+            childrenProps={{ flex: 'none' }}
+            campo={CamposParecerEnum.integrarNoSGA}
+            qtdParecer={mostrarQtdParecer(CamposParecerEnum.integrarNoSGA)}
+          >
+            <RadioSimNao
+              formItemProps={{
+                initialValue: true,
+                name: 'integrarNoSGA',
+                label: 'Integrar no SGA',
+              }}
+              radioGroupProps={{
+                id: CF_RADIO_INTEGRA_NO_SGA,
+              }}
+            />
+          </ButtonParecer>
         </Col>
       ) : (
         <></>
       )}
 
       <Col span={24}>
-        <SelectDRE
-          exibirOpcaoTodos
-          carregarDadosAutomaticamente={false}
-          formItemProps={{
-            name: 'dres',
-          }}
-          selectProps={{
-            mode: 'multiple',
-            labelInValue: true,
-            options: listaDres,
-            disabled: temDreVinculada || desabilitarCampos,
-            id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
-          }}
-        />
+        <ButtonParecer
+          campo={CamposParecerEnum.dres}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.dres)}
+        >
+          <SelectDRE
+            exibirOpcaoTodos
+            carregarDadosAutomaticamente={false}
+            formItemProps={{
+              name: 'dres',
+            }}
+            selectProps={{
+              mode: 'multiple',
+              labelInValue: true,
+              options: listaDres,
+              disabled: temDreVinculada || desabilitarCampos,
+              id: CF_SELECT_DRE_CADASTRO_PROPOSTAS,
+            }}
+          />
+        </ButtonParecer>
       </Col>
 
       <Col xs={24} sm={14} md={24}>
-        <Form.Item
-          key='nomeFormacao'
-          name='nomeFormacao'
-          label='Nome da formação'
-          tooltip={{
-            title:
-              'O título da formação deve apresentar de forma sucinta a ideia central do tema que será tratado, indicando ao cursista a macro área do tema e a especificidade do curso proposto.',
-            icon: (
-              <Tooltip>
-                <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
-              </Tooltip>
-            ),
-          }}
-          rules={[{ required: true, whitespace: true, message: NOME_FORMACAO_NAO_INFORMADO }]}
+        <ButtonParecer
+          campo={CamposParecerEnum.nomeFormacao}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.nomeFormacao)}
         >
-          <Input
-            type='text'
-            maxLength={150}
-            id={CF_INPUT_NOME_FORMACAO}
-            placeholder='Escreva o título da formação'
-          />
-        </Form.Item>
-      </Col>
-
-      <Col span={24}>
-        <SelectPublicoAlvoCadastroProposta />
-      </Col>
-
-      <Col span={24}>
-        <SelectFuncaoEspecifica
-          formItemProps={{
-            tooltip: getTooltipFormInfoCircleFilled(
-              'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
-            ),
-          }}
-        />
-      </Col>
-
-      <Col span={24}>
-        <SelectModalidade />
-      </Col>
-
-      <Col span={24}>
-        <SelectAnoEtapa />
-      </Col>
-
-      <Col span={24}>
-        <SelectComponenteCurricular />
-      </Col>
-
-      <Col xs={24}>
-        <SelectCriteriosValidacaoInscricoes />
-      </Col>
-
-      <Col xs={24}>
-        <SelectVagasRemanescentes />
-      </Col>
-
-      <Col xs={24} sm={12} md={8}>
-        <InputNumero
-          formItemProps={{
-            label: 'Quantidade de turmas',
-            name: 'quantidadeTurmas',
-            rules: [
-              { required: true, message: QUANTIDADE_DE_TURMAS_NAO_INFORMADA },
-              {
-                message: `A quantidade de turmas não pode ser menor do que já tem cadastrado (${formInitialValues?.quantidadeTurmas})`,
-                validator: (_: any, value: string) => {
-                  if (
-                    formInitialValues?.situacao === SituacaoProposta.Publicada ||
-                    formInitialValues?.situacao === SituacaoProposta.Alterando
-                  ) {
-                    const quantidadeTurmas = formInitialValues?.quantidadeTurmas;
-
-                    if (quantidadeTurmas && Number(value) >= quantidadeTurmas) {
-                      form.setFieldValue('quantidadeTurmas', value);
-                      return Promise.resolve();
-                    }
-
-                    if (Number(value) !== quantidadeTurmas) {
-                      return Promise.reject();
-                    }
-                  }
-
-                  return Promise.resolve();
-                },
-              },
-            ],
-          }}
-          inputProps={{
-            id: CF_INPUT_QUANTIDADE_TURMAS,
-            placeholder: 'Quantidade de turmas',
-            maxLength: 3,
-          }}
-        />
-      </Col>
-
-      <Col xs={24} sm={12} md={8}>
-        <InputNumero
-          formItemProps={{
-            label: 'Vagas por turma',
-            name: 'quantidadeVagasTurma',
-            rules: [{ required: true, message: QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA }],
-            tooltip: {
+          <Form.Item
+            key='nomeFormacao'
+            name='nomeFormacao'
+            label='Nome da formação'
+            tooltip={{
               title:
-                'Tanto nos cursos presenciais, quanto nos cursos a distância, a proporção máxima aceita será de 50 (cinquenta) cursistas por turma/tutor. Nos eventos presenciais, a quantidade de participantes poderá se adequar à capacidade do espaço. Nos eventos a distância/híbridos, a proporção máxima aceita será de 200 (duzentas) pessoas, sendo a proporção máxima de um tutor para 50 (cinquenta) participantes.',
+                'O título da formação deve apresentar de forma sucinta a ideia central do tema que será tratado, indicando ao cursista a macro área do tema e a especificidade do curso proposto.',
               icon: (
                 <Tooltip>
                   <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
                 </Tooltip>
               ),
-            },
-          }}
-          inputProps={{
-            id: CF_INPUT_QUANTIDADE_VAGAS_TURMA,
-            placeholder: 'Vagas por turma',
-            maxLength: 4,
-          }}
-        />
+            }}
+            rules={[{ required: true, whitespace: true, message: NOME_FORMACAO_NAO_INFORMADO }]}
+          >
+            <Input
+              type='text'
+              maxLength={150}
+              id={CF_INPUT_NOME_FORMACAO}
+              placeholder='Escreva o título da formação'
+            />
+          </Form.Item>
+        </ButtonParecer>
+      </Col>
+
+      <Col span={24}>
+        <ButtonParecer
+          campo={CamposParecerEnum.publicosAlvo}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.publicosAlvo)}
+        >
+          <SelectPublicoAlvoCadastroProposta />
+        </ButtonParecer>
+      </Col>
+
+      <Col span={24}>
+        <ButtonParecer
+          campo={CamposParecerEnum.funcoesEspecificas}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.funcoesEspecificas)}
+        >
+          <SelectFuncaoEspecifica
+            formItemProps={{
+              tooltip: getTooltipFormInfoCircleFilled(
+                'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
+              ),
+            }}
+          />
+        </ButtonParecer>
+      </Col>
+
+      <Col span={24}>
+        <ButtonParecer
+          campo={CamposParecerEnum.modalidade}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.modalidade)}
+        >
+          <SelectModalidade />
+        </ButtonParecer>
+      </Col>
+
+      <Col span={24}>
+        <ButtonParecer
+          campo={CamposParecerEnum.anosTurmas}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.anosTurmas)}
+        >
+          <SelectAnoEtapa />
+        </ButtonParecer>
+      </Col>
+
+      <Col span={24}>
+        <ButtonParecer
+          campo={CamposParecerEnum.componentesCurriculares}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.componentesCurriculares)}
+        >
+          <SelectComponenteCurricular />
+        </ButtonParecer>
+      </Col>
+
+      <Col xs={24}>
+        <ButtonParecer
+          campo={CamposParecerEnum.criteriosValidacaoInscricao}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.criteriosValidacaoInscricao)}
+        >
+          <SelectCriteriosValidacaoInscricoes />
+        </ButtonParecer>
+      </Col>
+
+      <Col xs={24}>
+        <ButtonParecer
+          campo={CamposParecerEnum.vagasRemanecentes}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.vagasRemanecentes)}
+        >
+          <SelectVagasRemanescentes />
+        </ButtonParecer>
+      </Col>
+
+      <Col xs={24} sm={12} md={8}>
+        <ButtonParecer
+          campo={CamposParecerEnum.quantidadeTurmas}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.quantidadeTurmas)}
+        >
+          <InputNumero
+            formItemProps={{
+              label: 'Quantidade de turmas',
+              name: 'quantidadeTurmas',
+              rules: [
+                { required: true, message: QUANTIDADE_DE_TURMAS_NAO_INFORMADA },
+                {
+                  message: `A quantidade de turmas não pode ser menor do que já tem cadastrado (${formInitialValues?.quantidadeTurmas})`,
+                  validator: (_: any, value: string) => {
+                    if (
+                      formInitialValues?.situacao === SituacaoProposta.Publicada ||
+                      formInitialValues?.situacao === SituacaoProposta.Alterando
+                    ) {
+                      const quantidadeTurmas = formInitialValues?.quantidadeTurmas;
+
+                      if (quantidadeTurmas && Number(value) >= quantidadeTurmas) {
+                        form.setFieldValue('quantidadeTurmas', value);
+                        return Promise.resolve();
+                      }
+
+                      if (Number(value) !== quantidadeTurmas) {
+                        return Promise.reject();
+                      }
+                    }
+
+                    return Promise.resolve();
+                  },
+                },
+              ],
+            }}
+            inputProps={{
+              id: CF_INPUT_QUANTIDADE_TURMAS,
+              placeholder: 'Quantidade de turmas',
+              maxLength: 3,
+            }}
+          />
+        </ButtonParecer>
+      </Col>
+
+      <Col xs={24} sm={12} md={8}>
+        <ButtonParecer
+          campo={CamposParecerEnum.quantidadeVagasTurma}
+          qtdParecer={mostrarQtdParecer(CamposParecerEnum.quantidadeVagasTurma)}
+        >
+          <InputNumero
+            formItemProps={{
+              label: 'Vagas por turma',
+              name: 'quantidadeVagasTurma',
+              rules: [{ required: true, message: QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA }],
+              tooltip: {
+                title:
+                  'Tanto nos cursos presenciais, quanto nos cursos a distância, a proporção máxima aceita será de 50 (cinquenta) cursistas por turma/tutor. Nos eventos presenciais, a quantidade de participantes poderá se adequar à capacidade do espaço. Nos eventos a distância/híbridos, a proporção máxima aceita será de 200 (duzentas) pessoas, sendo a proporção máxima de um tutor para 50 (cinquenta) participantes.',
+                icon: (
+                  <Tooltip>
+                    <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
+                  </Tooltip>
+                ),
+              },
+            }}
+            inputProps={{
+              id: CF_INPUT_QUANTIDADE_VAGAS_TURMA,
+              placeholder: 'Vagas por turma',
+              maxLength: 4,
+            }}
+          />
+        </ButtonParecer>
       </Col>
 
       <Col xs={24} sm={12} md={8}>
