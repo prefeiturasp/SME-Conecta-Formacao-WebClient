@@ -90,3 +90,4 @@ export const RESPONSAVEL_DF_NAO_INFORMADO = 'É necessário informar o responsá
 export const SERVICO_INDISPONIVEL =
   'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
 export const LINK_INSCRICOES_EXTERNA = 'É necessário informar o link';
+export const BOTAO_INSCRICAO_EXTERNA = "Link para inscrição"
