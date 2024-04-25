@@ -16,6 +16,7 @@ export type RetornoDetalheFormacaoDTO = {
   inscricaoEncerrada: boolean;
   imagemUrl?: string;
   turmas: RetornoTurmaDetalheDTO[];
+  linkParaInscricoesExterna?:string;
 };
 export type RetornoTurmaDetalheDTO = {
   nome: string;

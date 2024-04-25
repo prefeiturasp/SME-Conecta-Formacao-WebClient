@@ -1,17 +1,19 @@
-import { CalendarOutlined } from '@ant-design/icons';
+import { CalendarOutlined, LinkOutlined } from '@ant-design/icons';
 import { Button, Col, Flex, Row, Tag, Typography } from 'antd';
+import { color } from 'jodit/esm/plugins/color/color';
 import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
-import { ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
+import { BOTAO_INSCRICAO_EXTERNA, ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import autenticacaoService from '~/core/services/autenticacao-service';
+import { Colors } from '~/core/styles/colors';
 import { validarAutenticacao } from '~/core/utils/perfil';
 
 type DadosDestaqueProps = {
@@ -20,6 +22,11 @@ type DadosDestaqueProps = {
 
 const styleTypographyText = {
   fontSize: 22,
+};
+
+const styleTypographyLink = {
+  fontSize: 18,
+  color: Colors.Neutral.WHITE,
 };
 
 const TagTipoFormacaoFormato = styled(Tag)`
@@ -34,13 +41,14 @@ const TagTipoFormacaoFormato = styled(Tag)`
   font-weight: bold;
 `;
 
-const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
+const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
   const dadosInscricao: RetornoDetalheFormacaoDTO = location.state.location;
   const autenticado = useAppSelector((state) => state.auth.autenticado);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
+  const linkInscricaoExterna = dadosFormacao.dadosFormacao?.linkParaInscricoesExterna;
 
   const setarDadosInscricao = () => {
     dispatch(setDadosFormacao(dadosInscricao));
@@ -65,7 +73,9 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
       });
     }
   };
-
+  const abrirLinkInscricaoExterna = () => {
+    window.open(linkInscricaoExterna, '_blank');
+  };
   const desabilitarInscricao = () => {
     if (dadosInscricao?.inscricaoEncerrada) {
       return true;
@@ -77,7 +87,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
 
     return false;
   };
-
+  console.log(linkInscricaoExterna);
   return (
     <Flex justify='left'>
       <Row gutter={24}>
@@ -112,15 +122,21 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
           </Typography.Text>
 
           <Col span={24}>
-            <Button
-              type='primary'
-              shape='round'
-              size='large'
-              onClick={setarDadosInscricao}
-              disabled={desabilitarInscricao()}
-            >
-              {ENVIAR_INSCRICAO}
-            </Button>
+            {linkInscricaoExterna ? (
+              <Button type='primary' shape='round' size='large' onClick={abrirLinkInscricaoExterna}>
+                {BOTAO_INSCRICAO_EXTERNA}
+              </Button>
+            ) : (
+              <Button
+                type='primary'
+                shape='round'
+                size='large'
+                onClick={setarDadosInscricao}
+                disabled={desabilitarInscricao()}
+              >
+                {ENVIAR_INSCRICAO}
+              </Button>
+            )}
           </Col>
         </Flex>
       </Row>
