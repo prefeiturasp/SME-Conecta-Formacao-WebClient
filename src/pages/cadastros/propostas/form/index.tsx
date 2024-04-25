@@ -11,7 +11,6 @@ import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
-import { SelectPareceristas } from '~/components/main/input/parecerista';
 import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import Spin from '~/components/main/spin';
 import Steps from '~/components/main/steps';
