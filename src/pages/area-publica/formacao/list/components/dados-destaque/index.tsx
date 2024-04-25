@@ -1,9 +1,8 @@
-import { CalendarOutlined, LinkOutlined } from '@ant-design/icons';
+import { CalendarOutlined } from '@ant-design/icons';
 import { Button, Col, Flex, Row, Tag, Typography } from 'antd';
-import { color } from 'jodit/esm/plugins/color/color';
 import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
 import { BOTAO_INSCRICAO_EXTERNA, ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
@@ -13,7 +12,6 @@ import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import autenticacaoService from '~/core/services/autenticacao-service';
-import { Colors } from '~/core/styles/colors';
 import { validarAutenticacao } from '~/core/utils/perfil';
 
 type DadosDestaqueProps = {
@@ -22,11 +20,6 @@ type DadosDestaqueProps = {
 
 const styleTypographyText = {
   fontSize: 22,
-};
-
-const styleTypographyLink = {
-  fontSize: 18,
-  color: Colors.Neutral.WHITE,
 };
 
 const TagTipoFormacaoFormato = styled(Tag)`
