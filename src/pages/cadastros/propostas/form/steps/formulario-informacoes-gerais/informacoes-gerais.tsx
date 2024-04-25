@@ -2,7 +2,7 @@ import { InfoCircleFilled } from '@ant-design/icons';
 import { Col, Form, Input, Row, Tooltip } from 'antd';
 
 import jwt_decode from 'jwt-decode';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import SelectAnoEtapa from '~/components/main/input/ano-etapa';
 import SelectComponenteCurricular from '~/components/main/input/componente-curricular';
 import SelectCriteriosValidacaoInscricoes from '~/components/main/input/criterios-validacao-inscricoes';
@@ -19,6 +19,7 @@ import InputNumero from '~/components/main/numero';
 import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import UploadArquivosConectaFormacao from '~/components/main/upload';
 import {
+  CF_INPUT_LINK_INSCRICOES_EXTERNA,
   CF_INPUT_NOME_FORMACAO,
   CF_INPUT_QUANTIDADE_TURMAS,
   CF_INPUT_QUANTIDADE_VAGAS_TURMA,
@@ -27,6 +28,7 @@ import {
 import { CF_RADIO_INTEGRA_NO_SGA } from '~/core/constants/ids/radio';
 import { CF_SELECT_DRE_CADASTRO_PROPOSTAS } from '~/core/constants/ids/select';
 import {
+  LINK_INSCRICOES_EXTERNA,
   NOME_FORMACAO_NAO_INFORMADO,
   QUANTIDADE_DE_TURMAS_NAO_INFORMADA,
   QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA,
@@ -59,11 +61,17 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   const token = useAppSelector((store) => store.auth.token);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadas = decodeObject?.dres;
+  const [exibirLinkExterno, setExibirLinkExterno] = useState<boolean>(false);
 
   const temDreVinculada =
     typeof dresVinculadas === 'string' ||
     (Array.isArray(dresVinculadas) && dresVinculadas.length > 0);
 
+  useEffect(() => {
+    if (!exibirLinkExterno) {
+      form.setFieldValue('linkParaInscricoesExterna', undefined);
+    }
+  }, [form, exibirLinkExterno]);
   return (
     <Row gutter={[16, 8]}>
       <Col xs={24} sm={24} md={16} lg={10}>
@@ -84,6 +92,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       <Col xs={24} md={10}>
         <SelectTipoInscricao
+          exibirLink={setExibirLinkExterno}
           selectProps={{
             mode: 'multiple',
           }}
@@ -91,7 +100,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
-        <Col xs={24} sm={12} md={6} lg={6}>
+        <Col xs={24} sm={12} md={8} lg={4}>
           <RadioSimNao
             formItemProps={{
               initialValue: true,
@@ -104,9 +113,44 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
           />
         </Col>
       ) : (
+        <>
+          <Col xs={24} sm={12} md={8} lg={4}></Col>
+        </>
+      )}
+      <Col span={10}>
+        <Form.Item
+          key='codigoEventoSigpec'
+          name='codigoEventoSigpec'
+          label='Código do Evento (SIGPEC)'
+        >
+          <Input
+            type='text'
+            maxLength={10}
+            id={CF_INPUT_NOME_FORMACAO}
+            placeholder='Informe o Código do Evento (SIGPEC)'
+          />
+        </Form.Item>
+      </Col>
+      {exibirLinkExterno ? (
+        <Col xs={24} sm={14} md={24}>
+          <Form.Item
+            name='linkParaInscricoesExterna'
+            label='Link para Inscrições'
+            rules={[
+              { required: exibirLinkExterno, whitespace: true, message: LINK_INSCRICOES_EXTERNA },
+            ]}
+          >
+            <Input
+              type='text'
+              maxLength={200}
+              id={CF_INPUT_LINK_INSCRICOES_EXTERNA}
+              placeholder='Informe o Link para Inscrições Externas'
+            />
+          </Form.Item>
+        </Col>
+      ) : (
         <></>
       )}
-
       <Col span={24}>
         <SelectDRE
           exibirOpcaoTodos

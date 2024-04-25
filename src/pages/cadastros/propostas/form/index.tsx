@@ -463,6 +463,8 @@ export const FormCadastroDePropostas: React.FC = () => {
       movimentacao: clonedValues?.movimentacao,
       areaPromotora: clonedValues?.areaPromotora,
       ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao,
+      linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
+      codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
     };
 
     if (clonedValues?.dres?.length) {
@@ -886,17 +888,13 @@ export const FormCadastroDePropostas: React.FC = () => {
           {podeEditarRfResponsavelDf && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
-                <Row gutter={[16, 16]}>
-                  <Col xs={24} sm={12} md={14} lg={12}>
-                    <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
+                <Row>
+                  <Col xs={24} sm={12} md={14} lg={10}>
+                    <SelectResponsavelDf
+                      podeEditar={ podeEditarRfResponsavelDf }
+                      required
+                    />
                   </Col>
-                  {ehPerfilAdminDf ? (
-                    <Col xs={24} sm={12} md={14} lg={12}>
-                      <SelectPareceristas />
-                    </Col>
-                  ) : (
-                    <></>
-                  )}
                 </Row>
               </CardContent>
             </Col>
