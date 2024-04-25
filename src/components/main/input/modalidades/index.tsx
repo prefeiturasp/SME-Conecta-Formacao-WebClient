@@ -30,11 +30,11 @@ const SelectModalidade: React.FC<SelectModalidadesProps> = ({ selectProps, formI
   }, []);
 
   return (
-    <Form.Item label='Modalidade' name='modalidade' {...formItemProps}>
+    <Form.Item label='Etapa/Modalidade' name='modalidade' {...formItemProps}>
       <Select
         allowClear
         options={options}
-        placeholder='Modalidade'
+        placeholder='Etapa/Modalidade'
         id={CF_SELECT_MODALIDADE}
         onChange={() => {
           form.setFieldValue('anosTurmas', []);
