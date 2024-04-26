@@ -1,9 +1,12 @@
-import { UsuarioAdminDfDTO } from '../dto/usuario-admin-df-dto';
+import { FuncionarioInternoDTO } from '../dto/funcionario-interno-dto';
 import { ApiResult, obterRegistro } from './api';
 
 const URL_DEFAULT = 'v1/Funcionario';
 
-const obterUsuariosAdminDf = (): Promise<ApiResult<UsuarioAdminDfDTO[]>> =>
+const obterUsuariosAdminDf = (): Promise<ApiResult<FuncionarioInternoDTO[]>> =>
   obterRegistro(`${URL_DEFAULT}/obter-usuarios-admin-df`);
 
-export { obterUsuariosAdminDf };
+const obterPareceristas = (): Promise<ApiResult<FuncionarioInternoDTO[]>> =>
+  obterRegistro(`${URL_DEFAULT}/obter-parecerista`);
+
+export { obterPareceristas, obterUsuariosAdminDf };

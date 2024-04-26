@@ -42,6 +42,7 @@ export const QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA =
   'É necessário informar a quantidade de vagas por turma';
 export const CARGA_HORARIA_NAO_INFORMADA = 'É necessário informar a carga horária presencial';
 export const JUSTIFICATIVA_NAO_INFORMADA = 'É necessário informar a justificativa';
+export const PARECER_NAO_INFORMADO = 'É necessário informar o parecer';
 export const OBJETIVO_NAO_INFORMADO = 'É necessário informar os objetivos';
 export const CONTEUDO_PROGRAMATICO_NAO_INFORMADO = 'É necessário informar o conteúdo programático';
 export const PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO =

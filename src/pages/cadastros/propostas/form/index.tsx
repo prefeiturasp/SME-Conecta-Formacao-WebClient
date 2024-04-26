@@ -60,6 +60,7 @@ import { obterDREs } from '~/core/services/dre-service';
 import {
   alterarProposta,
   deletarProposta,
+  enviarParecer,
   enviarPropostaAnalise,
   inserirProposta,
   obterPropostaPorId,
@@ -132,13 +133,17 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
+  // TODO: USAR PROP DO BACK
+  const exibirBotaoEnviarParecer =
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseParecerista;
+
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
   const exibirJustificativaDevolucao =
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
   const podeEditarRfResponsavelDf =
-    (ehPerfilAdminDf || ehPerfilDf) &&
+    ehPerfilAdminDf &&
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
@@ -744,6 +749,18 @@ export const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
+  //TODO: AGUARDAR ENDPOINT
+  const finalizarParecer = () => {
+    enviarParecer(id).then((response) => {
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: PROPOSTA_ENVIADA,
+        });
+      }
+    });
+  };
+
   return (
     <Col>
       <Spin spinning={loading}>
@@ -774,7 +791,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     }}
                     id={CF_BUTTON_VOLTAR}
                   />
-                </Col>{' '}
+                </Col>
                 {id ? (
                   <Col>
                     <ButtonExcluir
@@ -846,6 +863,20 @@ export const FormCadastroDePropostas: React.FC = () => {
                     <ModalDevolverButton propostaId={id} disabled={desabilitarBotaoDevolver} />
                   </Col>
                 )}
+                {exibirBotaoEnviarParecer && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                      disabled={desabilitarCampos}
+                      onClick={finalizarParecer}
+                      style={{ fontWeight: 700 }}
+                    >
+                      Enviar Parecer
+                    </Button>
+                  </Col>
+                )}
                 {exibirBotaoSalvar && (
                   <Col>
                     <Button
@@ -865,8 +896,10 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
-                {formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
-                  currentStep === StepPropostaEnum.Certificacao && (
+                {(formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
+                  currentStep === StepPropostaEnum.Certificacao) ||
+                  formInitialValues?.situacao === SituacaoProposta.Devolvida ||
+                  (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && (
                     <Col>
                       <Button
                         block
@@ -879,13 +912,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                         Enviar
                       </Button>
                     </Col>
-                  )}
+                  ))}
               </Row>
             </Col>
           </HeaderPage>
-
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
-
           {podeEditarRfResponsavelDf && (
             <Col span={24} style={{ marginBottom: 16}}>
               <CardContent>
@@ -911,11 +942,13 @@ export const FormCadastroDePropostas: React.FC = () => {
                       />
                     </Form.Item>
                   </Col>
+                  <Col xs={24} sm={12} md={14} lg={12}>
+                    <SelectPareceristas />
+                  </Col>
                 </Row>
               </CardContent>
             </Col>
           )}
-
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
               <Divider orientation='left' />
@@ -924,7 +957,6 @@ export const FormCadastroDePropostas: React.FC = () => {
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
-
           {exibirJustificativaDevolucao && (
             <Col span={24} style={{ marginTop: 16 }}>
               <CardContent>
@@ -934,9 +966,10 @@ export const FormCadastroDePropostas: React.FC = () => {
                       formItemProps={{
                         label: 'Justificativa da devolução:',
                       }}
-                      podeEditar={false}
-                      value={formInitialValues?.ultimaJustificativaDevolucao}
-                      maxLength={1000}
+                      textAreaProps={{
+                        disabled: true,
+                        value: formInitialValues?.ultimaJustificativaDevolucao,
+                      }}
                     />
                   </Col>
                 </Row>

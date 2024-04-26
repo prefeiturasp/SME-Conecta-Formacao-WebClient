@@ -15,7 +15,9 @@ import {
 } from '~/core/constants/mensagens';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
+import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { Colors } from '~/core/styles/colors';
+import { ButtonParecer } from '../components/modal-parecer/modal-parecer-button';
 
 const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
   { key: 'turmas', title: 'Turma', dataIndex: 'turmas' },
@@ -121,18 +123,20 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             Cronograma geral
           </Col>
           <Col sm={24} md={12} lg={8}>
-            <b>
-              <DatePickerPeriodo
-                formItemProps={{
-                  label: 'Período de realização',
-                  name: 'periodoRealizacao',
-                  tooltip: getTooltipFormInfoCircleFilled(
-                    'Primeiro dia da primeira turma até o último dia da última turma.',
-                  ),
-                  rules: [{ required: true, message: PERIODO_REALIZACAO_NAO_INFORMADO }],
-                }}
-              />
-            </b>
+            <ButtonParecer campo={CamposParecerEnum.periodoRealizacao}>
+              <b>
+                <DatePickerPeriodo
+                  formItemProps={{
+                    label: 'Período de realização',
+                    name: 'periodoRealizacao',
+                    tooltip: getTooltipFormInfoCircleFilled(
+                      'Primeiro dia da primeira turma até o último dia da última turma.',
+                    ),
+                    rules: [{ required: true, message: PERIODO_REALIZACAO_NAO_INFORMADO }],
+                  }}
+                />
+              </b>
+            </ButtonParecer>
           </Col>
           <Col xs={24}>
             <Row wrap={false} justify='space-between'>
@@ -168,15 +172,17 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             Inscrição
           </Col>
           <Col sm={24} md={12} lg={8}>
-            <b>
-              <DatePickerPeriodo
-                formItemProps={{
-                  label: 'Período de inscrição',
-                  name: 'periodoInscricao',
-                  rules: [{ required: true, message: PERIODO_INSCRICAO_NAO_INFORMADO }],
-                }}
-              />
-            </b>
+            <ButtonParecer campo={CamposParecerEnum.periodoInscricao}>
+              <b>
+                <DatePickerPeriodo
+                  formItemProps={{
+                    label: 'Período de inscrição',
+                    name: 'periodoInscricao',
+                    rules: [{ required: true, message: PERIODO_INSCRICAO_NAO_INFORMADO }],
+                  }}
+                />
+              </b>
+            </ButtonParecer>
           </Col>
         </Row>
       </Col>

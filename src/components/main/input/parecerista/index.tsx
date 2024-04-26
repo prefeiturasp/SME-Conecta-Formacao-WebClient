@@ -1,8 +1,9 @@
 import { Form, FormItemProps } from 'antd';
-import { SelectProps } from 'antd/es/select';
-import React, { useEffect } from 'react';
+import { DefaultOptionType, SelectProps } from 'antd/es/select';
+import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_PARECERISTA } from '~/core/constants/ids/select';
+import { obterPareceristas } from '~/core/services/funcionario-service';
 
 type SelectPareceristasProps = {
   selectProps?: SelectProps;
@@ -13,40 +14,16 @@ export const SelectPareceristas: React.FC<SelectPareceristasProps> = ({
   selectProps,
   formItemProps,
 }) => {
-  // const [options, setOptions] = useState<DefaultOptionType[]>([]);
-
-  const optionsMOCK = [
-    {
-      label: 'teste 1',
-      value: 1,
-    },
-    {
-      label: 'teste 2',
-      value: 2,
-    },
-    {
-      label: 'teste 3',
-      value: 3,
-    },
-    {
-      label: 'teste 4',
-      value: 4,
-    },
-    {
-      label: 'teste 5',
-      value: 5,
-    },
-  ];
+  const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const obterDados = async () => {
-    //TODO: AGUARDANDO ENDPOINT
-    // const resposta = await obterModalidades();
-    // if (resposta.sucesso) {
-    //   const newOptions = resposta.dados.map((item) => ({ label: item.descricao, value: item.id }));
-    //   setOptions(newOptions);
-    // } else {
-    //   setOptions([]);
-    // }
+    const resposta = await obterPareceristas();
+    if (resposta.sucesso) {
+      const newOptions = resposta.dados.map((item) => ({ label: item.nome, value: item.rf }));
+      setOptions(newOptions);
+    } else {
+      setOptions([]);
+    }
   };
 
   useEffect(() => {
@@ -59,7 +36,7 @@ export const SelectPareceristas: React.FC<SelectPareceristasProps> = ({
         allowClear
         // maxCount={3}
         mode='multiple'
-        options={optionsMOCK}
+        options={options}
         id={CF_SELECT_PARECERISTA}
         placeholder='RF dos pareceristas'
         {...selectProps}

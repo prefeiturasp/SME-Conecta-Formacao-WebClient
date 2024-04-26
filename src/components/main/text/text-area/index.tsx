@@ -1,39 +1,24 @@
 import { Form, FormItemProps, Input } from 'antd';
+import { TextAreaProps } from 'antd/es/input';
 import React from 'react';
 import { CF_INPUT_AREA_TEXTO } from '~/core/constants/ids/input';
 
 type InputTextAreaProps = {
   formItemProps?: FormItemProps;
-  rows?: number;
-  placeholder?: string;
-  maxLength?: number;
-  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  podeEditar?: boolean;
-  value?: string;
+  textAreaProps?: TextAreaProps;
 };
 
 const { TextArea } = Input;
 
-const AreaTexto: React.FC<InputTextAreaProps> = ({
-  formItemProps,
-  rows = 10,
-  placeholder,
-  maxLength,
-  onChange,
-  podeEditar = true,
-  value
-}) => {
+const AreaTexto: React.FC<InputTextAreaProps> = ({ formItemProps, textAreaProps }) => {
   return (
     <Form.Item {...formItemProps}>
       <TextArea
-        id={ CF_INPUT_AREA_TEXTO }
-        rows={ rows }
-        placeholder={ placeholder }
-        maxLength={ maxLength }
+        rows={10}
+        maxLength={1000}
+        id={CF_INPUT_AREA_TEXTO}
         style={{ resize: 'none' }}
-        onChange={ onChange }
-        disabled={ !podeEditar }
-        value={ value }
+        {...textAreaProps}
       />
     </Form.Item>
   );
