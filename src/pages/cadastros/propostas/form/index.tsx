@@ -1,4 +1,4 @@
-import { Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
+import { Badge, Button, Col, Divider, Form, Input, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
@@ -73,6 +73,7 @@ import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
+import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -464,6 +465,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao,
       linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
       codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
+      numeroHomologacao: clonedValues?.numeroHomologacao,
     };
 
     if (clonedValues?.dres?.length) {
@@ -885,7 +887,7 @@ export const FormCadastroDePropostas: React.FC = () => {
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
           {podeEditarRfResponsavelDf && (
-            <Col span={24} style={{ marginBottom: 16 }}>
+            <Col span={24} style={{ marginBottom: 16}}>
               <CardContent>
                 <Row>
                   <Col xs={24} sm={12} md={14} lg={10}>
@@ -893,6 +895,21 @@ export const FormCadastroDePropostas: React.FC = () => {
                       podeEditar={ podeEditarRfResponsavelDf }
                       required
                     />
+                  </Col>
+                  <Col span={4}></Col>
+                  <Col xs={24} sm={12} md={14} lg={10}>
+                    <Form.Item
+                      key='numeroHomologacao'
+                      name='numeroHomologacao'
+                      label='Número de homologação'
+                    >
+                      <Input
+                        type='text'
+                        maxLength={15}
+                        id={CF_INPUT_NUMERO_HOMOLOGACAO}
+                        placeholder='Número de homologação'
+                      />
+                    </Form.Item>
                   </Col>
                 </Row>
               </CardContent>
