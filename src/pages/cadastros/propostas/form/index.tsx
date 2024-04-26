@@ -11,6 +11,7 @@ import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
+import { SelectPareceristas } from '~/components/main/input/parecerista';
 import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import Spin from '~/components/main/spin';
 import Steps from '~/components/main/steps';
@@ -26,6 +27,7 @@ import {
   CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
+import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 import {
   APOS_ENVIAR_PROPOSTA_ANALISE,
   APOS_ENVIAR_PROPOSTA_PUBLICAR,
@@ -74,7 +76,6 @@ import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
-import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -918,14 +919,11 @@ export const FormCadastroDePropostas: React.FC = () => {
           </HeaderPage>
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
           {podeEditarRfResponsavelDf && (
-            <Col span={24} style={{ marginBottom: 16}}>
+            <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
                 <Row>
                   <Col xs={24} sm={12} md={14} lg={10}>
-                    <SelectResponsavelDf
-                      podeEditar={ podeEditarRfResponsavelDf }
-                      required
-                    />
+                    <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
                   </Col>
                   <Col span={4}></Col>
                   <Col xs={24} sm={12} md={14} lg={10}>
