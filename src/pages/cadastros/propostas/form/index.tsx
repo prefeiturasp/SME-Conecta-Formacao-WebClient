@@ -1,4 +1,4 @@
-import { Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
+import { Badge, Button, Col, Divider, Form, Input, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
@@ -11,7 +11,6 @@ import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
-import { SelectPareceristas } from '~/components/main/input/parecerista';
 import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import Spin from '~/components/main/spin';
 import Steps from '~/components/main/steps';
@@ -75,6 +74,7 @@ import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
+import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -468,6 +468,9 @@ export const FormCadastroDePropostas: React.FC = () => {
       movimentacao: clonedValues?.movimentacao,
       areaPromotora: clonedValues?.areaPromotora,
       ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao,
+      linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
+      codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
+      numeroHomologacao: clonedValues?.numeroHomologacao,
     };
 
     if (clonedValues?.dres?.length) {
@@ -915,13 +918,30 @@ export const FormCadastroDePropostas: React.FC = () => {
           </HeaderPage>
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
           {podeEditarRfResponsavelDf && (
-            <Col span={24} style={{ marginBottom: 16 }}>
+            <Col span={24} style={{ marginBottom: 16}}>
               <CardContent>
-                <Row gutter={[16, 16]}>
-                  <Col xs={24} sm={12} md={14} lg={12}>
-                    <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
+                <Row>
+                  <Col xs={24} sm={12} md={14} lg={10}>
+                    <SelectResponsavelDf
+                      podeEditar={ podeEditarRfResponsavelDf }
+                      required
+                    />
                   </Col>
-
+                  <Col span={4}></Col>
+                  <Col xs={24} sm={12} md={14} lg={10}>
+                    <Form.Item
+                      key='numeroHomologacao'
+                      name='numeroHomologacao'
+                      label='Número de homologação'
+                    >
+                      <Input
+                        type='text'
+                        maxLength={15}
+                        id={CF_INPUT_NUMERO_HOMOLOGACAO}
+                        placeholder='Número de homologação'
+                      />
+                    </Form.Item>
+                  </Col>
                   <Col xs={24} sm={12} md={14} lg={12}>
                     <SelectPareceristas />
                   </Col>

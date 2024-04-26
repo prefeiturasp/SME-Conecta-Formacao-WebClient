@@ -34,7 +34,7 @@ export const SelectPareceristas: React.FC<SelectPareceristasProps> = ({
     <Form.Item required name='pareceristas' label='RF dos pareceristas' {...formItemProps}>
       <Select
         allowClear
-        maxCount={3}
+        // maxCount={3}
         mode='multiple'
         options={options}
         id={CF_SELECT_PARECERISTA}

@@ -64,6 +64,9 @@ export type PropostaDTO = {
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
   ultimaJustificativaDevolucao?: string;
+  linkParaInscricoesExterna?: string;
+  codigoEventoSigpec?: number;
+  numeroHomologacao?: number;
 };
 
 export type TipoInscricaoType = {
@@ -125,6 +128,9 @@ export type PropostaFormDTO = {
   ultimaJustificativaDevolucao?: string;
   totalDePareceres?: TotalDePareceresDTO[];
   podeExibirParecer?: boolean;
+  linkParaInscricoesExterna?: string;
+  codigoEventoSigpec?: number;
+  numeroHomologacao?: number;
 };
 
 export type PropostaPalavraChaveDTO = {

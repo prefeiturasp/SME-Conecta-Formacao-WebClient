@@ -5,7 +5,7 @@ import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
-import { ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
+import { BOTAO_INSCRICAO_EXTERNA, ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
@@ -34,13 +34,14 @@ const TagTipoFormacaoFormato = styled(Tag)`
   font-weight: bold;
 `;
 
-const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
+const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
   const dadosInscricao: RetornoDetalheFormacaoDTO = location.state.location;
   const autenticado = useAppSelector((state) => state.auth.autenticado);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
+  const linkInscricaoExterna = dadosFormacao.dadosFormacao?.linkParaInscricoesExterna;
 
   const setarDadosInscricao = () => {
     dispatch(setDadosFormacao(dadosInscricao));
@@ -65,7 +66,9 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
       });
     }
   };
-
+  const abrirLinkInscricaoExterna = () => {
+    window.open(linkInscricaoExterna, '_blank');
+  };
   const desabilitarInscricao = () => {
     if (dadosInscricao?.inscricaoEncerrada) {
       return true;
@@ -77,7 +80,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
 
     return false;
   };
-
+  console.log(linkInscricaoExterna);
   return (
     <Flex justify='left'>
       <Row gutter={24}>
@@ -112,15 +115,21 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = () => {
           </Typography.Text>
 
           <Col span={24}>
-            <Button
-              type='primary'
-              shape='round'
-              size='large'
-              onClick={setarDadosInscricao}
-              disabled={desabilitarInscricao()}
-            >
-              {ENVIAR_INSCRICAO}
-            </Button>
+            {linkInscricaoExterna ? (
+              <Button type='primary' shape='round' size='large' onClick={abrirLinkInscricaoExterna}>
+                {BOTAO_INSCRICAO_EXTERNA}
+              </Button>
+            ) : (
+              <Button
+                type='primary'
+                shape='round'
+                size='large'
+                onClick={setarDadosInscricao}
+                disabled={desabilitarInscricao()}
+              >
+                {ENVIAR_INSCRICAO}
+              </Button>
+            )}
           </Col>
         </Flex>
       </Row>
