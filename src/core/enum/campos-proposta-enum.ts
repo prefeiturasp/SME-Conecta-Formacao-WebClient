@@ -27,6 +27,7 @@ export enum CamposParecerEnum {
   cursoComCertificado = 26,
   criterioCertificacao = 27,
   descricaoDaAtividade = 28,
+  codigoEventoSigpec = 29,
 }
 
 export const CamposParecerEnumDisplay: Record<CamposParecerEnum, string> = {
@@ -58,4 +59,5 @@ export const CamposParecerEnumDisplay: Record<CamposParecerEnum, string> = {
   [CamposParecerEnum.cursoComCertificado]: 'Curso com certificação',
   [CamposParecerEnum.criterioCertificacao]: 'Critérios para certificação',
   [CamposParecerEnum.descricaoDaAtividade]: 'Descrição da atividade obrigatória para certificação',
+  [CamposParecerEnum.codigoEventoSigpec]: 'Código do Evento (SIGPEC)',
 };

@@ -918,15 +918,16 @@ export const FormCadastroDePropostas: React.FC = () => {
             </Col>
           </HeaderPage>
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
+
           {podeEditarRfResponsavelDf && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
-                <Row>
-                  <Col xs={24} sm={12} md={14} lg={10}>
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} sm={12} md={14} lg={12}>
                     <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
                   </Col>
                   <Col span={4}></Col>
-                  <Col xs={24} sm={12} md={14} lg={10}>
+                  <Col xs={24} sm={12} md={14} lg={12}>
                     <Form.Item
                       key='numeroHomologacao'
                       name='numeroHomologacao'
@@ -947,6 +948,7 @@ export const FormCadastroDePropostas: React.FC = () => {
               </CardContent>
             </Col>
           )}
+
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
               <Divider orientation='left' />
@@ -955,6 +957,7 @@ export const FormCadastroDePropostas: React.FC = () => {
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
+
           {exibirJustificativaDevolucao && (
             <Col span={24} style={{ marginTop: 16 }}>
               <CardContent>
