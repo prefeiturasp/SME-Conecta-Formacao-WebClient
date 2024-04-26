@@ -65,6 +65,7 @@ export type PropostaDTO = {
   ultimaJustificativaDevolucao?: string;
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
+  numeroHomologacao?: number;
 };
 
 export type TipoInscricaoType = {
@@ -126,6 +127,7 @@ export type PropostaFormDTO = {
   ultimaJustificativaDevolucao?: string;
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
+  numeroHomologacao?: number;
 };
 
 export type PropostaPalavraChaveDTO = {
