@@ -80,7 +80,6 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
 
     return false;
   };
-  console.log(linkInscricaoExterna);
   return (
     <Flex justify='left'>
       <Row gutter={24}>
