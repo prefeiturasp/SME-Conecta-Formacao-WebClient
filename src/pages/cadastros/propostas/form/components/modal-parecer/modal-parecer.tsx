@@ -61,6 +61,9 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
   const adminDFPodeEditar =
     ehPerfilAdminDf && (situacaoAguardandoAnaliseDF || situacaoAguardandoAnaliseParecerista);
 
+  const pareceristaNaoPodeInserir =
+    ehPerfilParecerista && situacaoProposta === SituacaoProposta.AguardandoAnaliseDf;
+
   const carregarParecer = async () => {
     if (!propostaId && !campo) return;
 
@@ -279,10 +282,10 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
             rules={[{ required: true, message: PARECER_NAO_INFORMADO }]}
           >
             <Input.TextArea
-              id={CF_INPUT_TEXT_AREA}
               rows={5}
-              disabled={false}
+              id={CF_INPUT_TEXT_AREA}
               style={{ resize: 'none' }}
+              disabled={pareceristaNaoPodeInserir}
             />
           </Form.Item>
         ) : (

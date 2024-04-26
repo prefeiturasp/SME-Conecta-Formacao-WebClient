@@ -128,38 +128,23 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         <></>
       )}
 
-      {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
-        <Col xs={24} sm={12} md={8} lg={4}>
-          <RadioSimNao
-            formItemProps={{
-              initialValue: true,
-              name: 'integrarNoSGA',
-              label: 'Integrar no SGA',
-            }}
-            radioGroupProps={{
-              id: CF_RADIO_INTEGRA_NO_SGA,
-            }}
-          />
-        </Col>
-      ) : (
-        <>
-          <Col xs={24} sm={12} md={8} lg={4}></Col>
-        </>
-      )}
-      <Col span={10}>
-        <Form.Item
-          key='codigoEventoSigpec'
-          name='codigoEventoSigpec'
-          label='Código do Evento (SIGPEC)'
-        >
-          <Input
-            type='text'
-            maxLength={10}
-            id={CF_INPUT_NOME_FORMACAO}
-            placeholder='Informe o Código do Evento (SIGPEC)'
-          />
-        </Form.Item>
+      <Col span={24}>
+        <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
+          <Form.Item
+            key='codigoEventoSigpec'
+            name='codigoEventoSigpec'
+            label='Código do Evento (SIGPEC)'
+          >
+            <Input
+              type='text'
+              maxLength={10}
+              id={CF_INPUT_NOME_FORMACAO}
+              placeholder='Informe o Código do Evento (SIGPEC)'
+            />
+          </Form.Item>
+        </ButtonParecer>
       </Col>
+
       {exibirLinkExterno ? (
         <Col xs={24} sm={14} md={24}>
           <Form.Item
