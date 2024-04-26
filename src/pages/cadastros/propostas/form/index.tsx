@@ -73,11 +73,6 @@ import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
-import SelectResponsavelDf from '~/components/main/input/responsavel-df';
-import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
-import AreaTexto from '~/components/main/text/text-area';
-import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
 import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 
 export const FormCadastroDePropostas: React.FC = () => {
