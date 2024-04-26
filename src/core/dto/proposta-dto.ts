@@ -1,21 +1,22 @@
 import { Dayjs } from 'dayjs';
+import { FormacaoHomologada } from '../enum/formacao-homologada';
 import { Formato } from '../enum/formato';
 import { SituacaoProposta } from '../enum/situacao-proposta';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { AuditoriaDTO } from './auditoria-dto';
+import { TotalDePareceresDTO } from './parecer-proposta-dto';
 import { PropostaAnoTurmaDTO } from './proposta-ano-turmas-dto';
+import { PropostaAreaPromotoraDTO } from './proposta-area-promotora-dto';
 import { PropostaComponenteCurricularDTO } from './proposta-componente-curriculares-dto';
 import { PropostaCriterioValidacaoInscricaoDTO } from './proposta-criterio-validacao-inscricao-dto';
 import { PropostaDresDTO } from './proposta-dres-dto';
 import { PropostaFuncaoEspecificaDTO } from './proposta-funcao-especifica-dto';
 import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
 import { PropostaModalidadeDTO } from './proposta-modalidade-dto';
+import { PropostaMovimentacaoDTO } from './proposta-movimentacao-dto';
 import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 import { DreDTO } from './retorno-listagem-dto';
-import { PropostaMovimentacaoDTO } from './proposta-movimentacao-dto';
-import { PropostaAreaPromotoraDTO } from './proposta-area-promotora-dto';
-import { FormacaoHomologada } from '../enum/formacao-homologada';
 
 export type PropostaDTO = {
   formacaoHomologada?: FormacaoHomologada;
@@ -122,6 +123,8 @@ export type PropostaFormDTO = {
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
   ultimaJustificativaDevolucao?: string;
+  totalDePareceres?: TotalDePareceresDTO[];
+  podeExibirParecer?: boolean;
 };
 
 export type PropostaPalavraChaveDTO = {

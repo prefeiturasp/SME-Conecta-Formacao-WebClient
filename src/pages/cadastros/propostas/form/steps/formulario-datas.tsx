@@ -17,7 +17,6 @@ import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-
 import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { Colors } from '~/core/styles/colors';
-import { mostrarQtdParecer } from '~/core/utils/functions';
 import { ButtonParecer } from '../components/modal-parecer/modal-parecer-button';
 
 const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
@@ -124,10 +123,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             Cronograma geral
           </Col>
           <Col sm={24} md={12} lg={8}>
-            <ButtonParecer
-              campo={CamposParecerEnum.periodoRealizacao}
-              qtdParecer={mostrarQtdParecer(CamposParecerEnum.periodoRealizacao)}
-            >
+            <ButtonParecer campo={CamposParecerEnum.periodoRealizacao}>
               <b>
                 <DatePickerPeriodo
                   formItemProps={{
@@ -176,10 +172,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             Inscrição
           </Col>
           <Col sm={24} md={12} lg={8}>
-            <ButtonParecer
-              campo={CamposParecerEnum.periodoInscricao}
-              qtdParecer={mostrarQtdParecer(CamposParecerEnum.periodoInscricao)}
-            >
+            <ButtonParecer campo={CamposParecerEnum.periodoInscricao}>
               <b>
                 <DatePickerPeriodo
                   formItemProps={{

@@ -24,3 +24,8 @@ export type PropostaParecerFiltroDTO = {
   propostaId?: number;
   campo: CamposParecerEnum;
 };
+
+export type TotalDePareceresDTO = {
+  campo: CamposParecerEnum;
+  quantidade: number;
+};

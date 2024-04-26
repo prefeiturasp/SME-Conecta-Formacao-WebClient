@@ -14,7 +14,6 @@ import {
 } from '~/core/constants/mensagens';
 import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { Formato } from '~/core/enum/formato';
-import { mostrarQtdParecer } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
 import InputTimerCargaHorariaTotal from './components/carga-horaria-total';
@@ -116,10 +115,7 @@ const FormularioDetalhamento: React.FC = () => {
             </Col>
           </Row>
         </Col>
-        <ButtonParecer
-          campo={CamposParecerEnum.cargaHoraria}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.cargaHoraria)}
-        />
+        <ButtonParecer campo={CamposParecerEnum.cargaHoraria} />
       </CollapsePanelSME>
 
       {collapsesComEditorDeTexto.map((item) => {
@@ -136,7 +132,7 @@ const FormularioDetalhamento: React.FC = () => {
                 mensagemErro={item.messageError}
                 disabled={desabilitarCampos}
               />
-              <ButtonParecer campo={item.key} qtdParecer={mostrarQtdParecer(item.key)} />
+              <ButtonParecer campo={item.key} />
             </CollapsePanelSME>
           </React.Fragment>
         );
@@ -147,10 +143,7 @@ const FormularioDetalhamento: React.FC = () => {
         collapseProps={{ defaultActiveKey: 'palavrasChave' }}
       >
         <SelectPalavrasChaves />
-        <ButtonParecer
-          campo={CamposParecerEnum.palavrasChaves}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.palavrasChaves)}
-        />
+        <ButtonParecer campo={CamposParecerEnum.palavrasChaves} />
       </CollapsePanelSME>
     </>
   );

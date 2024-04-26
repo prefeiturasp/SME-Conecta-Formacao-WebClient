@@ -1,4 +1,4 @@
-import { Button, Form, Input, Row, Space } from 'antd';
+import { Button, Empty, Form, Input, Row, Space } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React, { useEffect, useState } from 'react';
@@ -41,7 +41,6 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
   onFecharButton,
 }) => {
   const [form] = useForm();
-
   const formInstance = useFormInstance();
   const [idCampo, setIdCampo] = useState<number>();
   const [edicao, setEdicao] = useState<boolean[]>([]);
@@ -50,11 +49,11 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
 
   const nomeCampo = 'descricaoParecer';
+  const temParecer = !!dados?.itens.length;
   const situacaoProposta = formInstance.getFieldsValue(true).situacao;
   const situacaoAguardandoAnaliseParecerista =
     situacaoProposta === SituacaoProposta.AguardandoAnaliseParecerista;
   const situacaoAguardandoAnaliseDF = situacaoProposta === SituacaoProposta.AguardandoAnaliseDf;
-
   const ehPerfilAdminDf =
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const ehPerfilParecerista =
@@ -181,11 +180,11 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     return (
       <>
         {dados?.itens?.map((parecer, dadosIndex) => {
-          const edicoes: boolean[] = Array(dados?.itens.length).fill(false);
           const initialValue = parecer.descricao;
           const habilitarTextArea = !edicao[dadosIndex];
+          const edicoes: boolean[] = Array(dados?.itens.length).fill(false);
 
-          const handleOnChange = (position: number) => {
+          const editarParecerSelecionado = (position: number) => {
             const updatedCheckedState = edicoes.map((item, index) =>
               index === position ? !item : item,
             );
@@ -218,7 +217,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
                   descricaoTooltip='Editar parecer'
                   onClickEditar={() => {
                     setIdCampo(parecer.id);
-                    handleOnChange(dadosIndex);
+                    editarParecerSelecionado(dadosIndex);
                   }}
                   podeEditar={parecer.podeAlterar || adminDFPodeEditar}
                 />
@@ -251,6 +250,15 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       onOk={validateFields}
       onCancel={cancelarAlteracoes}
       title={`Parecer - ${CamposParecerEnumDisplay[campo]}`}
+      okButtonProps={{
+        disabled: !temParecer,
+      }}
+      cancelButtonProps={{
+        disabled: !temParecer,
+        style: {
+          color: !temParecer ? Colors.Neutral.LIGHT : Colors.Neutral.DARK,
+        },
+      }}
       footer={(_, { OkBtn, CancelBtn }) => (
         <Space>
           <Button type='text' style={{ color: Colors.Neutral.DARK }} onClick={fecharModal}>
@@ -281,7 +289,14 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
           <></>
         )}
 
-        {!!dados?.itens.length ? mostrarParecer() : <></>}
+        {temParecer ? (
+          mostrarParecer()
+        ) : (
+          <Empty
+            style={{ margin: 26 }}
+            description='Nenhum parecer foi registrado para este campo'
+          />
+        )}
       </Form>
 
       {ehPerfilAdminDf || ehPerfilParecerista ? <Auditoria dados={dados?.auditoria} /> : <></>}

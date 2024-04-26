@@ -133,6 +133,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
+  // TODO: USAR PROP DO BACK
   const exibirBotaoEnviarParecer =
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseParecerista;
 
@@ -142,7 +143,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
   const podeEditarRfResponsavelDf =
-    (ehPerfilAdminDf || ehPerfilDf) &&
+    ehPerfilAdminDf &&
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
@@ -753,7 +754,6 @@ export const FormCadastroDePropostas: React.FC = () => {
           message: 'Sucesso',
           description: PROPOSTA_ENVIADA,
         });
-        navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
       }
     });
   };
@@ -788,7 +788,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     }}
                     id={CF_BUTTON_VOLTAR}
                   />
-                </Col>{' '}
+                </Col>
                 {id ? (
                   <Col>
                     <ButtonExcluir
@@ -893,8 +893,10 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
-                {formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
-                  currentStep === StepPropostaEnum.Certificacao && (
+                {(formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
+                  currentStep === StepPropostaEnum.Certificacao) ||
+                  formInitialValues?.situacao === SituacaoProposta.Devolvida ||
+                  (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && (
                     <Col>
                       <Button
                         block
@@ -907,13 +909,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                         Enviar
                       </Button>
                     </Col>
-                  )}
+                  ))}
               </Row>
             </Col>
           </HeaderPage>
-
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
-
           {podeEditarRfResponsavelDf && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
@@ -921,18 +921,14 @@ export const FormCadastroDePropostas: React.FC = () => {
                   <Col xs={24} sm={12} md={14} lg={12}>
                     <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
                   </Col>
-                  {ehPerfilAdminDf ? (
-                    <Col xs={24} sm={12} md={14} lg={12}>
-                      <SelectPareceristas />
-                    </Col>
-                  ) : (
-                    <></>
-                  )}
+
+                  <Col xs={24} sm={12} md={14} lg={12}>
+                    <SelectPareceristas />
+                  </Col>
                 </Row>
               </CardContent>
             </Col>
           )}
-
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
               <Divider orientation='left' />
@@ -941,7 +937,6 @@ export const FormCadastroDePropostas: React.FC = () => {
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
-
           {exibirJustificativaDevolucao && (
             <Col span={24} style={{ marginTop: 16 }}>
               <CardContent>

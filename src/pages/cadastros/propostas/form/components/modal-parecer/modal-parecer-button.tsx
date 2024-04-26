@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
-import { SituacaoProposta } from '~/core/enum/situacao-proposta';
+import { mostrarQtdParecer } from '~/core/utils/functions';
 import { ModalParecer } from './modal-parecer';
 
 type ButtonParecerProps = {
@@ -12,30 +12,27 @@ type ButtonParecerProps = {
   campo: CamposParecerEnum;
   buttonProps?: ButtonProps;
   children?: React.ReactNode;
-  qtdParecer: number | undefined;
 };
 
 export const ButtonParecer: React.FC<ButtonParecerProps> = ({
   campo,
   children,
   buttonProps,
-  qtdParecer,
   childrenProps,
 }) => {
   const paramsRoute = useParams();
   const form = Form.useFormInstance();
-
-  const showModal = () => setOpen(true);
   const [open, setOpen] = useState<boolean>(false);
   const propostaId = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
-  const situacaoProposta = form.getFieldsValue(true).situacao;
-  const situacaoAguardandoAnaliseParecerista =
-    situacaoProposta === SituacaoProposta.AguardandoAnaliseParecerista;
+  const totalDePareceres = form.getFieldsValue(true).totalDePareceres;
+  const podeExibirParecer = form.getFieldsValue(true).podeExibirParecer;
+
+  const showModal = () => setOpen(true);
 
   const btnParecer = (
     <Col>
-      <Badge count={qtdParecer || 0}>
+      <Badge count={mostrarQtdParecer(campo, totalDePareceres) || 0}>
         <ButtonSecundary
           size='middle'
           disabled={false}
@@ -55,7 +52,7 @@ export const ButtonParecer: React.FC<ButtonParecerProps> = ({
           <Col flex={1} {...childrenProps}>
             {children}
           </Col>
-          {situacaoAguardandoAnaliseParecerista ? btnParecer : <></>}
+          {!podeExibirParecer ? btnParecer : <></>}
         </Row>
       ) : (
         btnParecer

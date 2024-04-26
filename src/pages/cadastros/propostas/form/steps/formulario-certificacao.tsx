@@ -5,7 +5,6 @@ import SelectCriterioCertificacao from '~/components/main/input/criterio-certifi
 import EditorTexto from '~/components/main/input/editor-texto';
 import { DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
-import { mostrarQtdParecer } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../components/modal-parecer/modal-parecer-button';
 
@@ -56,10 +55,7 @@ const FormularioCertificacao: React.FC = () => {
       <Col>
         <Row>
           <Col>
-            <ButtonParecer
-              campo={CamposParecerEnum.cursoComCertificado}
-              qtdParecer={mostrarQtdParecer(CamposParecerEnum.cursoComCertificado)}
-            >
+            <ButtonParecer campo={CamposParecerEnum.cursoComCertificado}>
               <Form.Item
                 label='Curso com certificação'
                 name='cursoComCertificado'
@@ -77,18 +73,12 @@ const FormularioCertificacao: React.FC = () => {
             </ButtonParecer>
           </Col>
           <Col span={24}>
-            <ButtonParecer
-              campo={CamposParecerEnum.criterioCertificacao}
-              qtdParecer={mostrarQtdParecer(CamposParecerEnum.criterioCertificacao)}
-            >
+            <ButtonParecer campo={CamposParecerEnum.criterioCertificacao}>
               <SelectCriterioCertificacao onchange={verificarCriteriosSelecionados} />
             </ButtonParecer>
           </Col>
           <Col span={24}>
-            <ButtonParecer
-              campo={CamposParecerEnum.descricaoDaAtividade}
-              qtdParecer={mostrarQtdParecer(CamposParecerEnum.descricaoDaAtividade)}
-            >
+            <ButtonParecer campo={CamposParecerEnum.descricaoDaAtividade}>
               <EditorTexto
                 nome='descricaoDaAtividade'
                 label='Descrição da atividade obrigatória para certificação'

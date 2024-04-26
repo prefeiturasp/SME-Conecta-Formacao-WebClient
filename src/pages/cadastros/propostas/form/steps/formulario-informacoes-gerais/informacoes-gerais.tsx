@@ -38,7 +38,6 @@ import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { Colors } from '~/core/styles/colors';
-import { mostrarQtdParecer } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
 import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
@@ -73,7 +72,6 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         <ButtonParecer
           childrenProps={{ flex: 'none' }}
           campo={CamposParecerEnum.formacaoHomologada}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.formacaoHomologada)}
         >
           <RadioFormacaoHomologada
             name='formacaoHomologada'
@@ -84,29 +82,19 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col xs={24} sm={12} md={8} lg={4}>
-        <ButtonParecer
-          campo={CamposParecerEnum.tipoFormacao}
-          childrenProps={{ flex: 'none' }}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.tipoFormacao)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.tipoFormacao} childrenProps={{ flex: 'none' }}>
           <RadioTipoFormacao />
         </ButtonParecer>
       </Col>
 
       <Col xs={24} sm={12} md={14} lg={10}>
-        <ButtonParecer
-          campo={CamposParecerEnum.formato}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.formato)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.formato}>
           <SelectFormato />
         </ButtonParecer>
       </Col>
 
       <Col xs={24} md={10}>
-        <ButtonParecer
-          campo={CamposParecerEnum.tiposInscricao}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.tiposInscricao)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
           <SelectTipoInscricao
             selectProps={{
               mode: 'multiple',
@@ -117,11 +105,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
         <Col xs={24} sm={12} md={6} lg={6}>
-          <ButtonParecer
-            childrenProps={{ flex: 'none' }}
-            campo={CamposParecerEnum.integrarNoSGA}
-            qtdParecer={mostrarQtdParecer(CamposParecerEnum.integrarNoSGA)}
-          >
+          <ButtonParecer childrenProps={{ flex: 'none' }} campo={CamposParecerEnum.integrarNoSGA}>
             <RadioSimNao
               formItemProps={{
                 initialValue: true,
@@ -139,10 +123,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       )}
 
       <Col span={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.dres}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.dres)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.dres}>
           <SelectDRE
             exibirOpcaoTodos
             carregarDadosAutomaticamente={false}
@@ -161,10 +142,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col xs={24} sm={14} md={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.nomeFormacao}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.nomeFormacao)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.nomeFormacao}>
           <Form.Item
             key='nomeFormacao'
             name='nomeFormacao'
@@ -191,19 +169,13 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col span={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.publicosAlvo}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.publicosAlvo)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.publicosAlvo}>
           <SelectPublicoAlvoCadastroProposta />
         </ButtonParecer>
       </Col>
 
       <Col span={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.funcoesEspecificas}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.funcoesEspecificas)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.funcoesEspecificas}>
           <SelectFuncaoEspecifica
             formItemProps={{
               tooltip: getTooltipFormInfoCircleFilled(
@@ -215,55 +187,37 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col span={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.modalidade}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.modalidade)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.modalidade}>
           <SelectModalidade />
         </ButtonParecer>
       </Col>
 
       <Col span={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.anosTurmas}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.anosTurmas)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.anosTurmas}>
           <SelectAnoEtapa />
         </ButtonParecer>
       </Col>
 
       <Col span={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.componentesCurriculares}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.componentesCurriculares)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.componentesCurriculares}>
           <SelectComponenteCurricular />
         </ButtonParecer>
       </Col>
 
       <Col xs={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.criteriosValidacaoInscricao}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.criteriosValidacaoInscricao)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.criteriosValidacaoInscricao}>
           <SelectCriteriosValidacaoInscricoes />
         </ButtonParecer>
       </Col>
 
       <Col xs={24}>
-        <ButtonParecer
-          campo={CamposParecerEnum.vagasRemanecentes}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.vagasRemanecentes)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.vagasRemanecentes}>
           <SelectVagasRemanescentes />
         </ButtonParecer>
       </Col>
 
       <Col xs={24} sm={12} md={8}>
-        <ButtonParecer
-          campo={CamposParecerEnum.quantidadeTurmas}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.quantidadeTurmas)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.quantidadeTurmas}>
           <InputNumero
             formItemProps={{
               label: 'Quantidade de turmas',
@@ -304,10 +258,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col xs={24} sm={12} md={8}>
-        <ButtonParecer
-          campo={CamposParecerEnum.quantidadeVagasTurma}
-          qtdParecer={mostrarQtdParecer(CamposParecerEnum.quantidadeVagasTurma)}
-        >
+        <ButtonParecer campo={CamposParecerEnum.quantidadeVagasTurma}>
           <InputNumero
             formItemProps={{
               label: 'Vagas por turma',
