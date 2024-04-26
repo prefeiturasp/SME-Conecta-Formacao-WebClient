@@ -101,16 +101,6 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         </ButtonParecer>
       </Col>
 
-      <Col xs={24} md={10}>
-        <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
-          <SelectTipoInscricao
-            selectProps={{
-              mode: 'multiple',
-            }}
-          />
-        </ButtonParecer>
-      </Col>
-
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
         <Col xs={24} sm={12} md={6} lg={6}>
           <ButtonParecer childrenProps={{ flex: 'none' }} campo={CamposParecerEnum.integrarNoSGA}>
@@ -125,13 +115,18 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
               }}
             />
           </ButtonParecer>
-        <SelectTipoInscricao
-          exibirLink={setExibirLinkExterno}
-          selectProps={{
-            mode: 'multiple',
-          }}
-        />
-      </Col>
+          <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
+            <SelectTipoInscricao
+              exibirLink={setExibirLinkExterno}
+              selectProps={{
+                mode: 'multiple',
+              }}
+            />
+          </ButtonParecer>
+        </Col>
+      ) : (
+        <></>
+      )}
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
         <Col xs={24} sm={12} md={8} lg={4}>
