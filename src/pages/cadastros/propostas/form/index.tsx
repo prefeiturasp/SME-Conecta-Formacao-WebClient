@@ -898,7 +898,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                       block
                       type='primary'
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                      disabled={desabilitarCampos}
+                      disabled={!exibirBotaoEnviarParecer}
                       onClick={finalizarParecer}
                       style={{ fontWeight: 700 }}
                     >
