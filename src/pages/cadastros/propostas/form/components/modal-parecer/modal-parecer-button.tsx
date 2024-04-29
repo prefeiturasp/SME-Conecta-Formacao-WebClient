@@ -32,7 +32,7 @@ export const ButtonParecer: React.FC<ButtonParecerProps> = ({
 
   const btnParecer = (
     <Col>
-      <Badge count={mostrarQtdParecer(campo, totalDePareceres) || 0}>
+      <Badge count={mostrarQtdParecer(campo, totalDePareceres)}>
         <ButtonSecundary
           size='middle'
           disabled={false}
