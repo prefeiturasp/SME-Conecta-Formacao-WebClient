@@ -103,7 +103,8 @@ const salvarParecer = (params?: PropostaParecerCadastroDTO) =>
 const alterarParecer = (params?: PropostaParecerCadastroDTO) =>
   alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/parecer`, params);
 
-const enviarParecer = (id: number) => inserirRegistro<number>(`${URL_API_PROPOSTA}/parecer/${id}`);
+const enviarParecer = (propostaId: number) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecer/enviar`);
 
 const obterPropostaEncontrosPaginado = (
   propostaId: number | string,
