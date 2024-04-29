@@ -18,8 +18,13 @@ export const SelectPareceristas: React.FC<SelectPareceristasProps> = ({
 
   const obterDados = async () => {
     const resposta = await obterPareceristas();
+
     if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item) => ({ label: item.nome, value: item.login }));
+      const newOptions = resposta.dados.map((item) => ({
+        ...item,
+        label: item.nome,
+        value: item.login,
+      }));
       setOptions(newOptions);
     } else {
       setOptions([]);
@@ -31,10 +36,15 @@ export const SelectPareceristas: React.FC<SelectPareceristasProps> = ({
   }, []);
 
   return (
-    <Form.Item required name='pareceristas' label='RF dos pareceristas' {...formItemProps}>
+    <Form.Item
+      required
+      name='pareceristas'
+      label='RF dos pareceristas'
+      getValueFromEvent={(_, value) => value}
+      {...formItemProps}
+    >
       <Select
         allowClear
-        // maxCount={3}
         mode='multiple'
         options={options}
         id={CF_SELECT_PARECERISTA}

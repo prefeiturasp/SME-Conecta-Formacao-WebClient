@@ -67,6 +67,7 @@ export type PropostaDTO = {
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
   numeroHomologacao?: number;
+  pareceristas?: PropostaPareceristaDTO[];
 };
 
 export type TipoInscricaoType = {
@@ -127,10 +128,13 @@ export type PropostaFormDTO = {
   areaPromotora?: PropostaAreaPromotoraDTO;
   ultimaJustificativaDevolucao?: string;
   totalDePareceres?: TotalDePareceresDTO[];
-  podeExibirParecer?: boolean;
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
   numeroHomologacao?: number;
+  qtdeLimitePareceristaProposta?: number;
+  podeEnviar?: boolean;
+  podeEnviarParecer?: boolean;
+  pareceristas?: PropostaPareceristaFormDTO[];
 };
 
 export type PropostaPalavraChaveDTO = {
@@ -152,4 +156,15 @@ export type PropostaTurmaFormDTO = {
   id?: number;
   nome: string;
   dres?: DreDTO[];
+};
+
+export type PropostaPareceristaFormDTO = {
+  nome: string;
+  login: string;
+};
+
+export type PropostaPareceristaDTO = {
+  id?: number;
+  nomeParecerista: string;
+  registroFuncional: string;
 };
