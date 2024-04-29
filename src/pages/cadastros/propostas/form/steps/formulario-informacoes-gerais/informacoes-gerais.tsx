@@ -42,6 +42,7 @@ import { Colors } from '~/core/styles/colors';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import SelectPublicoAlvoCadastroProposta from './components/select/select-publico-alvo';
 import TabelaEditavel from './components/table/turmas';
+import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 
 type FormInformacoesGeraisProps = {
   listaDres: any[];
@@ -72,6 +73,12 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       form.setFieldValue('linkParaInscricoesExterna', undefined);
     }
   }, [form, exibirLinkExterno]);
+
+  const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = removerTudoQueNaoEhDigito(e.target.value);
+    return value ? value : '';
+  };
+
   return (
     <Row gutter={[16, 8]}>
       <Col xs={24} sm={24} md={16} lg={10}>
@@ -122,9 +129,9 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
           key='codigoEventoSigpec'
           name='codigoEventoSigpec'
           label='Código do Evento (SIGPEC)'
+          getValueFromEvent={getValueFromEvent}
         >
           <Input
-            type='text'
             maxLength={10}
             id={CF_INPUT_NOME_FORMACAO}
             placeholder='Informe o Código do Evento (SIGPEC)'
