@@ -52,7 +52,7 @@ export const ButtonParecer: React.FC<ButtonParecerProps> = ({
           <Col flex={1} {...childrenProps}>
             {children}
           </Col>
-          {!exibirParecer ? btnParecer : <></>}
+          {exibirParecer ? btnParecer : <></>}
         </Row>
       ) : (
         btnParecer
