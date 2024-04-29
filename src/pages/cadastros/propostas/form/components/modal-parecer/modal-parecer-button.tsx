@@ -26,7 +26,7 @@ export const ButtonParecer: React.FC<ButtonParecerProps> = ({
   const propostaId = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const totalDePareceres = form.getFieldsValue(true).totalDePareceres;
-  const podeExibirParecer = form.getFieldsValue(true).podeExibirParecer;
+  const exibirParecer = form.getFieldsValue(true).exibirParecer;
 
   const showModal = () => setOpen(true);
 
@@ -52,7 +52,7 @@ export const ButtonParecer: React.FC<ButtonParecerProps> = ({
           <Col flex={1} {...childrenProps}>
             {children}
           </Col>
-          {!podeExibirParecer ? btnParecer : <></>}
+          {!exibirParecer ? btnParecer : <></>}
         </Row>
       ) : (
         btnParecer
