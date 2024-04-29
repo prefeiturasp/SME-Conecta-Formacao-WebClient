@@ -46,6 +46,8 @@ import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
   PropostaDTO,
   PropostaFormDTO,
+  PropostaPareceristaDTO,
+  PropostaPareceristaFormDTO,
   PropostaTurmaDTO,
   PropostaTurmaFormDTO,
 } from '~/core/dto/proposta-dto';
@@ -134,9 +136,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
-  // TODO: USAR PROP DO BACK
-  const exibirBotaoEnviarParecer =
-    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseParecerista;
+  const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarParecer;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -281,6 +281,15 @@ export const FormCadastroDePropostas: React.FC = () => {
         });
       }
 
+      let pareceristas: PropostaPareceristaFormDTO[] = [];
+      if (dados.pareceristas?.length) {
+        pareceristas = dados.pareceristas.map((parecerista) => ({
+          ...pareceristas,
+          label: parecerista.nomeParecerista,
+          value: parecerista.registroFuncional,
+        }));
+      }
+
       let publicosAlvo: number[] = [];
       if (dados?.publicosAlvo?.length) {
         publicosAlvo = dados.publicosAlvo.map((item) => item.cargoFuncaoId);
@@ -362,6 +371,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         criterioCertificacao,
         tiposInscricao,
         quantidadeTurmasOriginal,
+        pareceristas,
       };
 
       setListaDres(listaDres);
@@ -472,6 +482,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
       codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
       numeroHomologacao: clonedValues?.numeroHomologacao,
+      pareceristas: [],
     };
 
     if (clonedValues?.dres?.length) {
@@ -511,6 +522,18 @@ export const FormCadastroDePropostas: React.FC = () => {
           turma.id = item.id;
         }
         return turma;
+      });
+    }
+
+    if (clonedValues?.pareceristas?.length) {
+      valoresSalvar.pareceristas = clonedValues.pareceristas.map((item) => {
+        const parecerista: PropostaPareceristaDTO = {
+          id: item?.id || 0,
+          nomeParecerista: item.label,
+          registroFuncional: item.value,
+        };
+
+        return parecerista;
       });
     }
 
@@ -924,7 +947,7 @@ export const FormCadastroDePropostas: React.FC = () => {
               <CardContent>
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12} md={14} lg={12}>
-                    <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
+                    <SelectResponsavelDf selectProps={{ disabled: !podeEditarRfResponsavelDf }} />
                   </Col>
                   <Col span={4}></Col>
                   <Col xs={24} sm={12} md={14} lg={12}>
@@ -942,7 +965,9 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12} md={14} lg={12}>
-                    <SelectPareceristas />
+                    <SelectPareceristas
+                      selectProps={{ maxCount: formInitialValues.qtdeLimitePareceristaProposta }}
+                    />
                   </Col>
                 </Row>
               </CardContent>

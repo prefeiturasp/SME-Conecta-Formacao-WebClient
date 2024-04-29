@@ -49,6 +49,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
 
   const nomeCampo = 'descricaoParecer';
+  const podeInserir = dados?.podeInserir;
   const temParecer = !!dados?.itens.length;
   const situacaoProposta = formInstance.getFieldsValue(true).situacao;
   const situacaoAguardandoAnaliseParecerista =
@@ -60,9 +61,6 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.Parecerista];
   const adminDFPodeEditar =
     ehPerfilAdminDf && (situacaoAguardandoAnaliseDF || situacaoAguardandoAnaliseParecerista);
-
-  const pareceristaNaoPodeInserir =
-    ehPerfilParecerista && situacaoProposta === SituacaoProposta.AguardandoAnaliseDf;
 
   const carregarParecer = async () => {
     if (!propostaId && !campo) return;
@@ -96,6 +94,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     const valoresSalvar = form.getFieldsValue(true);
 
     let descricaoAlterada = '';
+    const modoEdicao = !!edicao.length;
 
     if (idCampo && idCampo in valoresSalvar.descricaoParecer) {
       descricaoAlterada = valoresSalvar.descricaoParecer[idCampo];
@@ -105,10 +104,10 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       campo,
       propostaId,
       id: idCampo ? idCampo : null,
-      descricao: edicao ? descricaoAlterada : valoresSalvar.descricaoParecer,
+      descricao: modoEdicao ? descricaoAlterada : valoresSalvar.descricaoParecer,
     };
 
-    const endpoint = edicao ? alterarParecer : salvarParecer;
+    const endpoint = modoEdicao ? alterarParecer : salvarParecer;
 
     endpoint(params).then((resposta) => {
       if (resposta.sucesso) {
@@ -209,9 +208,9 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
                   disabled={habilitarTextArea}
                   style={{
                     resize: 'none',
+                    marginBottom: 6,
                     color: Colors.Neutral.DARK,
                     background: habilitarTextArea ? Colors.Neutral.LIGHTEST : 'none',
-                    marginBottom: 6,
                   }}
                 />
               </Form.Item>
@@ -253,15 +252,6 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       onOk={validateFields}
       onCancel={cancelarAlteracoes}
       title={`Parecer - ${CamposParecerEnumDisplay[campo]}`}
-      okButtonProps={{
-        disabled: !temParecer,
-      }}
-      cancelButtonProps={{
-        disabled: !temParecer,
-        style: {
-          color: !temParecer ? Colors.Neutral.LIGHT : Colors.Neutral.DARK,
-        },
-      }}
       footer={(_, { OkBtn, CancelBtn }) => (
         <Space>
           <Button type='text' style={{ color: Colors.Neutral.DARK }} onClick={fecharModal}>
@@ -275,7 +265,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
         {perfilAreaPromotora || ehPerfilAdminDf ? (
           <></>
-        ) : dados?.podeInserir ? (
+        ) : podeInserir ? (
           <Form.Item
             name={[nomeCampo]}
             label='Descrição do parecer:'
@@ -285,7 +275,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
               rows={5}
               id={CF_INPUT_TEXT_AREA}
               style={{ resize: 'none' }}
-              disabled={pareceristaNaoPodeInserir}
+              disabled={!podeInserir}
             />
           </Form.Item>
         ) : (
