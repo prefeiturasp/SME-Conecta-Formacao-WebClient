@@ -102,7 +102,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       campo,
       propostaId,
       id: idCampo ? idCampo : null,
-      descricao: modoEdicao ? descricaoAlterada : valoresSalvar.descricaoParecer,
+      descricao: modoEdicao ? descricaoAlterada : valoresSalvar.descricao,
     };
 
     const endpoint = modoEdicao ? alterarParecer : salvarParecer;
@@ -143,19 +143,20 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
 
   const excluirParecer = (parecerId: number | undefined) => {
     if (!parecerId) return;
-    removerParecer(parecerId).then((resposta) => {
-      if (resposta.sucesso) {
-        confirmacao({
-          content: 'Tem certeza que deseja excluir o parecer?',
-          onOk() {
+
+    confirmacao({
+      content: 'Tem certeza que deseja excluir o parecer?',
+      onOk() {
+        removerParecer(parecerId).then((resposta) => {
+          if (resposta.sucesso) {
             notification.success({
               message: 'Sucesso',
               description: 'Parecer excluído com sucesso!',
             });
             carregarParecer();
-          },
+          }
         });
-      }
+      },
     });
   };
 
@@ -265,7 +266,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
           <></>
         ) : podeInserir ? (
           <Form.Item
-            name={[nomeCampo]}
+            name={'descricao'}
             label='Descrição do parecer:'
             rules={[{ required: true, message: PARECER_NAO_INFORMADO }]}
           >
