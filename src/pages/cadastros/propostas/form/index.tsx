@@ -284,12 +284,10 @@ export const FormCadastroDePropostas: React.FC = () => {
       let pareceristas: PropostaPareceristaFormDTO[] = [];
       if (dados.pareceristas?.length) {
         pareceristas = dados.pareceristas.map((parecerista) => ({
-          ...parecerista,
-          nome: parecerista.nomeParecerista,
-          login: parecerista.registroFuncional,
+          ...pareceristas,
+          label: parecerista.nomeParecerista,
+          value: parecerista.registroFuncional,
         }));
-
-        return pareceristas;
       }
 
       let publicosAlvo: number[] = [];
@@ -530,8 +528,9 @@ export const FormCadastroDePropostas: React.FC = () => {
     if (clonedValues?.pareceristas?.length) {
       valoresSalvar.pareceristas = clonedValues.pareceristas.map((item) => {
         const parecerista: PropostaPareceristaDTO = {
-          nomeParecerista: item.nome,
-          registroFuncional: item.login,
+          id: item?.id || 0,
+          nomeParecerista: item.label,
+          registroFuncional: item.value,
         };
 
         return parecerista;

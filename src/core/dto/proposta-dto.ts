@@ -159,12 +159,13 @@ export type PropostaTurmaFormDTO = {
 };
 
 export type PropostaPareceristaFormDTO = {
-  nome: string;
-  login: string;
+  id?: number;
+  label?: string;
+  value?: string;
 };
 
 export type PropostaPareceristaDTO = {
   id?: number;
-  nomeParecerista: string;
-  registroFuncional: string;
+  nomeParecerista?: string;
+  registroFuncional?: string;
 };
