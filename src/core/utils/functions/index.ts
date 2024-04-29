@@ -108,5 +108,5 @@ export const mostrarQtdParecer = (
     ?.filter((parecer) => parecer.campo === campo)
     .map((parecer) => parecer.quantidade);
 
-  return !!qtdParecer.length ? qtdParecer[0] : 0;
+  return !!qtdParecer?.length ? qtdParecer[0] : 0;
 };
