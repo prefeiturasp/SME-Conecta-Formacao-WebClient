@@ -132,6 +132,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
+  const exibirInputNumeroHomologacao = formInitialValues?.situacao === SituacaoProposta.Aprovada;
+
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
   const exibirJustificativaDevolucao =
@@ -743,7 +745,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       enviarProposta();
     }
   };
-
+  const exibirCard = podeEditarRfResponsavelDf || exibirInputNumeroHomologacao;
   return (
     <Col>
       <Spin spinning={loading}>
@@ -886,28 +888,36 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
-          {podeEditarRfResponsavelDf && (
-            <Col span={24} style={{ marginBottom: 16}}>
+          {exibirCard && (
+            <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
                 <Row>
-                  <Col xs={24} sm={12} md={14} lg={10}>
-                    <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
-                  </Col>
-                  <Col span={4}></Col>
-                  <Col xs={24} sm={12} md={14} lg={10}>
-                    <Form.Item
-                      key='numeroHomologacao'
-                      name='numeroHomologacao'
-                      label='Número de homologação'
-                    >
-                      <Input
-                        type='text'
-                        maxLength={15}
-                        id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                        placeholder='Número de homologação'
-                      />
-                    </Form.Item>
-                  </Col>
+                  {podeEditarRfResponsavelDf && (
+                    <Col xs={24} sm={12} md={14} lg={10}>
+                      <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
+                    </Col>
+                  )}
+                  {exibirInputNumeroHomologacao && (
+                    <>
+                      {podeEditarRfResponsavelDf && exibirInputNumeroHomologacao && (
+                        <Col span={4}></Col>
+                      )}
+                      <Col xs={24} sm={12} md={14} lg={10}>
+                        <Form.Item
+                          key='numeroHomologacao'
+                          name='numeroHomologacao'
+                          label='Número de homologação'
+                        >
+                          <Input
+                            type='text'
+                            maxLength={15}
+                            id={CF_INPUT_NUMERO_HOMOLOGACAO}
+                            placeholder='Número de homologação'
+                          />
+                        </Form.Item>
+                      </Col>
+                    </>
+                  )}
                 </Row>
               </CardContent>
             </Col>

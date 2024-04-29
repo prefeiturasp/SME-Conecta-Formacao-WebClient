@@ -7,6 +7,7 @@ export enum SituacaoProposta {
   Desfavoravel = 6,
   Devolvida = 7,
   Alterando = 8,
+  Aprovada = 9,
 }
 
 export const SituacaoPropostaTagDisplay: Record<SituacaoProposta, string> = {
@@ -18,4 +19,5 @@ export const SituacaoPropostaTagDisplay: Record<SituacaoProposta, string> = {
   [SituacaoProposta.Desfavoravel]: 'Desfavorável',
   [SituacaoProposta.Devolvida]: 'Devolvida',
   [SituacaoProposta.Alterando]: 'Alterando',
+  [SituacaoProposta.Aprovada]: 'Aprovada',
 };
