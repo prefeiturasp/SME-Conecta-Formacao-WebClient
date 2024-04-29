@@ -19,7 +19,7 @@ export const SelectPareceristas: React.FC<SelectPareceristasProps> = ({
   const obterDados = async () => {
     const resposta = await obterPareceristas();
     if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item) => ({ label: item.nome, value: item.rf }));
+      const newOptions = resposta.dados.map((item) => ({ label: item.nome, value: item.login }));
       setOptions(newOptions);
     } else {
       setOptions([]);

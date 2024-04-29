@@ -1,4 +1,4 @@
 export type FuncionarioInternoDTO = {
-  rf: string;
+  login: string;
   nome: string;
 };

@@ -31,7 +31,7 @@ const SelectResponsavelDf: React.FC<SelectResponsavelDfProps> = ({
   const obterDados = async () => {
     const resposta = await obterUsuariosAdminDf();
     if (resposta.sucesso) {
-      const newOptions = resposta.dados.map((item) => ({ label: item.nome, value: item.rf }));
+      const newOptions = resposta.dados.map((item) => ({ label: item.nome, value: item.login }));
 
       const rfResponsavelDf = form.getFieldValue('rfResponsavelDf');
       if (!newOptions.some((t) => t.value === rfResponsavelDf)) {
@@ -69,11 +69,11 @@ const SelectResponsavelDf: React.FC<SelectResponsavelDfProps> = ({
     >
       <Select
         allowClear
-        options={ options }
+        options={options}
         placeholder='Responsável DF'
         {...selectProps}
-        id={ CF_SELECT_RESPONSAVEL_DF }
-        disabled={ !podeEditar }
+        id={CF_SELECT_RESPONSAVEL_DF}
+        disabled={!podeEditar}
       />
     </Form.Item>
   );
