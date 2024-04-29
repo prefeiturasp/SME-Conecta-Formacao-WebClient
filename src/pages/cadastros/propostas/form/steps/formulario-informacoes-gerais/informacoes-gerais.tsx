@@ -74,6 +74,11 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
     }
   }, [form, exibirLinkExterno]);
 
+  const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = removerTudoQueNaoEhDigito(e.target.value);
+    return value ? value : '';
+  };
+
   return (
     <Row gutter={[16, 8]}>
       <Col xs={24} sm={24} md={16} lg={10}>
@@ -124,15 +129,12 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
           key='codigoEventoSigpec'
           name='codigoEventoSigpec'
           label='Código do Evento (SIGPEC)'
+          getValueFromEvent={getValueFromEvent}
         >
           <Input
             maxLength={10}
             id={CF_INPUT_NOME_FORMACAO}
             placeholder='Informe o Código do Evento (SIGPEC)'
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const value = removerTudoQueNaoEhDigito(e.target.value);
-              form.setFieldValue('codigoEventoSigpec', value);
-            }}
           />
         </Form.Item>
       </Col>
