@@ -773,7 +773,6 @@ export const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
-  //TODO: AGUARDAR ENDPOINT
   const finalizarParecer = () => {
     enviarParecer(id).then((response) => {
       if (response.sucesso) {
