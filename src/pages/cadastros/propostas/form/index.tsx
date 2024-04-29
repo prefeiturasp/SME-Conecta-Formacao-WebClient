@@ -31,6 +31,7 @@ import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 import {
   APOS_ENVIAR_PROPOSTA_ANALISE,
   APOS_ENVIAR_PROPOSTA_PUBLICAR,
+  DESEJA_ENVIAR_PARECER,
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -773,15 +774,19 @@ export const FormCadastroDePropostas: React.FC = () => {
     }
   };
 
-  //TODO: AGUARDAR ENDPOINT
   const finalizarParecer = () => {
-    enviarParecer(id).then((response) => {
-      if (response.sucesso) {
-        notification.success({
-          message: 'Sucesso',
-          description: PROPOSTA_ENVIADA,
+    confirmacao({
+      content: DESEJA_ENVIAR_PARECER,
+      onOk() {
+        enviarParecer(id).then((response) => {
+          if (response.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: PROPOSTA_ENVIADA,
+            });
+          }
         });
-      }
+      },
     });
   };
 

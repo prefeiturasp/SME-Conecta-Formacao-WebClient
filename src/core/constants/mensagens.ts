@@ -14,6 +14,7 @@ export const DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA =
   'Suas alterações não foram salvas, deseja salvar agora?';
 export const REGISTRO_EXCLUIDO_SUCESSO = 'Registro excluído com sucesso!';
 export const DESEJA_ENVIAR_PROPOSTA = 'Gostaria de enviar a proposta também?';
+export const DESEJA_ENVIAR_PARECER = 'Deseja realmente enviar o parecer?';
 export const DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR =
   'Existem alterações que não foram salvas, deseja salvar antes de enviar?';
 export const NAO_ENVIOU_PROPOSTA_ANALISE =
@@ -91,4 +92,4 @@ export const RESPONSAVEL_DF_NAO_INFORMADO = 'É necessário informar o responsá
 export const SERVICO_INDISPONIVEL =
   'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
 export const LINK_INSCRICOES_EXTERNA = 'É necessário informar o link';
-export const BOTAO_INSCRICAO_EXTERNA = "Link para inscrição"
+export const BOTAO_INSCRICAO_EXTERNA = 'Link para inscrição';

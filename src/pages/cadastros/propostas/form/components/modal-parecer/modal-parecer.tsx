@@ -57,8 +57,6 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
   const situacaoAguardandoAnaliseDF = situacaoProposta === SituacaoProposta.AguardandoAnaliseDf;
   const ehPerfilAdminDf =
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
-  const ehPerfilParecerista =
-    perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.Parecerista];
   const adminDFPodeEditar =
     ehPerfilAdminDf && (situacaoAguardandoAnaliseDF || situacaoAguardandoAnaliseParecerista);
 
@@ -292,7 +290,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
         )}
       </Form>
 
-      {ehPerfilAdminDf || ehPerfilParecerista ? <Auditoria dados={dados?.auditoria} /> : <></>}
+      {dados?.exibirAuditoria ? <Auditoria dados={dados?.auditoria} /> : <></>}
     </Modal>
   );
 };

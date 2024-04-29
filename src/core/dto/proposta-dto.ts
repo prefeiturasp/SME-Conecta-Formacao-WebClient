@@ -133,6 +133,7 @@ export type PropostaFormDTO = {
   numeroHomologacao?: number;
   qtdeLimitePareceristaProposta?: number;
   podeEnviar?: boolean;
+  exibirParecer?: boolean;
   podeEnviarParecer?: boolean;
   pareceristas?: PropostaPareceristaFormDTO[];
 };
