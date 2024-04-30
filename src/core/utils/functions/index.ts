@@ -104,7 +104,6 @@ export const mostrarQtdParecer = (
   totalDePareceres: TotalDePareceresDTO[],
 ) => {
   const qtdParecer = totalDePareceres
-
     ?.filter((parecer) => parecer.campo === campo)
     .map((parecer) => parecer.quantidade);
 

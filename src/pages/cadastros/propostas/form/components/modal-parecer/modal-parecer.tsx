@@ -1,33 +1,25 @@
-import { Button, Empty, Form, Input, Row, Space } from 'antd';
+import { Empty, Form } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React, { useEffect, useState } from 'react';
-import { ButtonEdit } from '~/components/lib/button/edit';
 import Modal from '~/components/lib/modal';
 import { notification } from '~/components/lib/notification';
 import Auditoria from '~/components/main/text/auditoria';
-import { CF_INPUT_TEXT_AREA } from '~/core/constants/ids/input';
-import { PARECER_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
   PropostaParecerCadastroDTO,
   PropostaParecerCompletoDTO,
   PropostaParecerFiltroDTO,
+  TotalDePareceresDTO,
 } from '~/core/dto/parecer-proposta-dto';
 import { CamposParecerEnum, CamposParecerEnumDisplay } from '~/core/enum/campos-proposta-enum';
-import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service';
-import {
-  alterarParecer,
-  obterParecer,
-  removerParecer,
-  salvarParecer,
-} from '~/core/services/proposta-service';
-import { Colors } from '~/core/styles/colors';
-import { ButtonExcluirParecer } from './modal-parecer-button-excluir';
+import { obterParecer, removerParecer, salvarParecer } from '~/core/services/proposta-service';
+import { ModalParecerConteudo } from './modal-parecer-conteudo';
+import { ModalParecerConteudoInicial } from './modal-parecer-conteudo-inicial';
 
 type ModalParecerProps = {
   propostaId?: number;
@@ -42,25 +34,14 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
 }) => {
   const [form] = useForm();
   const formInstance = useFormInstance();
-  const [idCampo, setIdCampo] = useState<number>();
-  const [edicao, setEdicao] = useState<boolean[]>([]);
   const [dados, setDados] = useState<PropostaParecerCompletoDTO>();
   const [perfilAreaPromotora, setPerfilAreaPromotora] = useState<boolean>(false);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
 
-  const nomeCampo = 'descricaoParecer';
   const podeInserir = dados?.podeInserir;
   const temParecer = !!dados?.itens.length;
-  const situacaoProposta = formInstance.getFieldsValue(true).situacao;
-  const situacaoAguardandoAnaliseParecerista =
-    situacaoProposta === SituacaoProposta.AguardandoAnaliseParecerista;
-  const situacaoAguardandoAnaliseDF = situacaoProposta === SituacaoProposta.AguardandoAnaliseDf;
   const ehPerfilAdminDf =
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
-  const adminDFPodeEditar =
-    ehPerfilAdminDf && (situacaoAguardandoAnaliseDF || situacaoAguardandoAnaliseParecerista);
-
-  const habilitarBotoesModal = dados?.itens.every((item) => item.podeAlterar);
 
   const carregarParecer = async () => {
     if (!propostaId && !campo) return;
@@ -74,7 +55,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
 
     if (resposta.sucesso) {
       const dados = resposta.dados;
-      setDados(dados);
+      setDados({ ...dados });
     }
   };
 
@@ -89,76 +70,76 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     });
   };
 
-  const salvarAlterar = () => {
-    if (!propostaId) return;
-    const valoresSalvar = form.getFieldsValue(true);
+  const atualizarBadgeSalvarParecer = () => {
+    const totalDePareceres = formInstance.getFieldsValue(true).totalDePareceres;
 
-    let descricaoAlterada = '';
-    const modoEdicao = !!edicao.length;
+    const indexParecer = totalDePareceres.findIndex(
+      (item: TotalDePareceresDTO) => item.campo === campo,
+    );
 
-    if (idCampo && idCampo in valoresSalvar.descricaoParecer) {
-      descricaoAlterada = valoresSalvar.descricaoParecer[idCampo];
+    if (indexParecer > -1) {
+      totalDePareceres[indexParecer] = {
+        ...totalDePareceres[indexParecer],
+        quantidade: totalDePareceres[indexParecer].quantidade + 1,
+      };
+
+      formInstance.setFieldValue('totalDePareceres', totalDePareceres);
+    } else {
+      formInstance.setFieldValue('totalDePareceres', [
+        ...totalDePareceres,
+        {
+          campo,
+          quantidade: 1,
+        },
+      ]);
     }
+  };
+
+  const atualizarBadgeExcluirParecer = () => {
+    const totalDePareceres = formInstance.getFieldsValue(true).totalDePareceres;
+
+    const indexParecer = totalDePareceres.findIndex(
+      (item: TotalDePareceresDTO) => item.campo === campo,
+    );
+
+    if (indexParecer > -1) {
+      totalDePareceres[indexParecer] = {
+        ...totalDePareceres[indexParecer],
+        quantidade: totalDePareceres[indexParecer].quantidade - 1,
+      };
+
+      formInstance.setFieldValue('totalDePareceres', totalDePareceres);
+    }
+  };
+
+  const salvar = () => {
+    if (!propostaId) return;
+
+    const valoresSalvar = form.getFieldsValue(true);
 
     const params: PropostaParecerCadastroDTO = {
       campo,
       propostaId,
-      id: idCampo ? idCampo : null,
-      descricao: modoEdicao ? descricaoAlterada : valoresSalvar.descricao,
+      id: null,
+      descricao: valoresSalvar?.descricao || '',
     };
 
-    const endpoint = modoEdicao ? alterarParecer : salvarParecer;
-
-    endpoint(params).then((resposta) => {
+    salvarParecer(params).then((resposta) => {
       if (resposta.sucesso) {
         notification.success({
           message: 'Sucesso',
           description: resposta.dados.mensagem,
         });
-        onFecharButton();
+
+        atualizarBadgeSalvarParecer();
+        carregarParecer();
       }
     });
   };
 
   const validateFields = () => {
     form.validateFields().then(() => {
-      salvarAlterar();
-    });
-  };
-
-  const cancelarAlteracoes = () => {
-    if (form.isFieldsTouched()) {
-      confirmacao({
-        content: 'Você não salvou o parecer, deseja descartar a alteração?',
-        onOk() {
-          form.resetFields();
-          setEdicao([]);
-        },
-        okText: 'Sim',
-        cancelText: 'Não',
-      });
-    } else {
-      form.resetFields();
-      setEdicao([]);
-    }
-  };
-
-  const excluirParecer = (parecerId: number | undefined) => {
-    if (!parecerId) return;
-
-    confirmacao({
-      content: 'Tem certeza que deseja excluir o parecer?',
-      onOk() {
-        removerParecer(parecerId).then((resposta) => {
-          if (resposta.sucesso) {
-            notification.success({
-              message: 'Sucesso',
-              description: 'Parecer excluído com sucesso!',
-            });
-            carregarParecer();
-          }
-        });
-      },
+      salvar();
     });
   };
 
@@ -179,62 +160,25 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     }
   };
 
-  const mostrarParecer = () => {
-    return (
-      <>
-        {dados?.itens?.map((parecer, dadosIndex) => {
-          const initialValue = parecer.descricao;
-          const habilitarTextArea = !edicao[dadosIndex];
-          const edicoes: boolean[] = Array(dados?.itens.length).fill(false);
+  const onClickExcluir = (parecerId: number | undefined) => {
+    if (!parecerId) return;
 
-          const editarParecerSelecionado = (position: number) => {
-            const updatedCheckedState = edicoes.map((item, index) =>
-              index === position ? !item : item,
-            );
-
-            setEdicao(updatedCheckedState);
-          };
-
-          return (
-            <React.Fragment key={parecer.id}>
-              <Form.Item
-                initialValue={initialValue}
-                name={[nomeCampo, `${parecer.id}`]}
-                label={`Descrição do parecer (${dadosIndex + 1}):`}
-                style={{ marginBottom: 6, marginTop: 16 }}
-              >
-                <Input.TextArea
-                  rows={5}
-                  id={`${CF_INPUT_TEXT_AREA}_${dadosIndex}`}
-                  disabled={habilitarTextArea}
-                  style={{
-                    resize: 'none',
-                    marginBottom: 6,
-                    color: Colors.Neutral.DARK,
-                    background: habilitarTextArea ? Colors.Neutral.LIGHTEST : 'none',
-                  }}
-                />
-              </Form.Item>
-              <Row justify='end'>
-                <ButtonEdit
-                  descricaoTooltip='Editar parecer'
-                  onClickEditar={() => {
-                    setIdCampo(parecer.id);
-                    editarParecerSelecionado(dadosIndex);
-                  }}
-                  podeEditar={parecer.podeAlterar || adminDFPodeEditar}
-                />
-                <ButtonExcluirParecer
-                  descricaoTooltip='Remover parecer'
-                  onClickRemover={() => excluirParecer(parecer?.id)}
-                  podeEditar={parecer.podeAlterar || adminDFPodeEditar}
-                />
-              </Row>
-            </React.Fragment>
-          );
-        })}
-      </>
-    );
+    confirmacao({
+      content: 'Tem certeza que deseja excluir o parecer?',
+      onOk() {
+        removerParecer(parecerId).then((resposta) => {
+          if (resposta.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: 'Parecer excluído com sucesso!',
+            });
+            carregarParecer();
+            atualizarBadgeExcluirParecer();
+            form.setFieldValue('descricao', '');
+          }
+        });
+      },
+    });
   };
 
   useEffect(() => {
@@ -242,57 +186,51 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     carregarAreaPromotora();
   }, []);
 
+  const montarParecerEdicao = () => {
+    if (temParecer)
+      return (
+        <>
+          {dados?.itens?.map((parecer, index) => (
+            <React.Fragment key={parecer.id}>
+              <ModalParecerConteudo
+                index={index}
+                parecer={parecer}
+                propostaId={propostaId}
+                onClickExcluir={onClickExcluir}
+                carregarParecer={carregarParecer}
+              />
+            </React.Fragment>
+          ))}
+        </>
+      );
+
+    return (
+      <Empty style={{ margin: 26 }} description='Nenhum parecer foi registrado para este campo' />
+    );
+  };
+
+  const montarParecerInicial = () => {
+    if (perfilAreaPromotora || ehPerfilAdminDf || !podeInserir) return <></>;
+
+    return <ModalParecerConteudoInicial onClickSalvar={validateFields} />;
+  };
+
   return (
     <Modal
       open
       centered
       destroyOnClose
-      okText='Salvar'
       closable={false}
-      cancelText='Cancelar'
-      onOk={validateFields}
-      onCancel={cancelarAlteracoes}
+      onCancel={fecharModal}
+      cancelText='Fechar'
+      okButtonProps={{
+        hidden: true,
+      }}
       title={`Parecer - ${CamposParecerEnumDisplay[campo]}`}
-      okButtonProps={{ disabled: !habilitarBotoesModal }}
-      cancelButtonProps={{ disabled: !habilitarBotoesModal }}
-      footer={(_, { OkBtn, CancelBtn }) => (
-        <Space>
-          <Button type='text' style={{ color: Colors.Neutral.DARK }} onClick={fecharModal}>
-            Fechar
-          </Button>
-          <CancelBtn />
-          <OkBtn />
-        </Space>
-      )}
     >
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
-        {perfilAreaPromotora || ehPerfilAdminDf ? (
-          <></>
-        ) : podeInserir ? (
-          <Form.Item
-            name={'descricao'}
-            label='Descrição do parecer:'
-            rules={[{ required: true, message: PARECER_NAO_INFORMADO }]}
-          >
-            <Input.TextArea
-              rows={5}
-              id={CF_INPUT_TEXT_AREA}
-              style={{ resize: 'none' }}
-              disabled={!podeInserir}
-            />
-          </Form.Item>
-        ) : (
-          <></>
-        )}
-
-        {temParecer ? (
-          mostrarParecer()
-        ) : (
-          <Empty
-            style={{ margin: 26 }}
-            description='Nenhum parecer foi registrado para este campo'
-          />
-        )}
+        {montarParecerInicial()}
+        {montarParecerEdicao()}
       </Form>
 
       {!!dados?.auditoria?.id ? <Auditoria dados={dados?.auditoria} /> : <></>}
