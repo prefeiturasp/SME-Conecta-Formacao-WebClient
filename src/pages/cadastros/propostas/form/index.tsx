@@ -138,6 +138,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarParecer;
+  const exibirInputNumeroHomologacao = formInitialValues?.situacao === SituacaoProposta.Aprovada;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -791,6 +792,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     });
   };
 
+  const exibirCard = podeEditarRfResponsavelDf || exibirInputNumeroHomologacao;
+
   return (
     <Col>
       <Spin spinning={loading}>
@@ -948,33 +951,43 @@ export const FormCadastroDePropostas: React.FC = () => {
           </HeaderPage>
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
-          {podeEditarRfResponsavelDf && (
+          {exibirCard && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
-                <Row gutter={[16, 16]}>
-                  <Col xs={24} sm={12} md={14} lg={12}>
-                    <SelectResponsavelDf selectProps={{ disabled: !podeEditarRfResponsavelDf }} />
-                  </Col>
-                  <Col span={4}></Col>
-                  <Col xs={24} sm={12} md={14} lg={12}>
-                    <Form.Item
-                      key='numeroHomologacao'
-                      name='numeroHomologacao'
-                      label='Número de homologação'
-                    >
-                      <Input
-                        type='text'
-                        maxLength={15}
-                        id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                        placeholder='Número de homologação'
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} sm={12} md={14} lg={12}>
-                    <SelectPareceristas
-                      selectProps={{ maxCount: formInitialValues.qtdeLimitePareceristaProposta }}
-                    />
-                  </Col>
+                <Row>
+                  {podeEditarRfResponsavelDf && (
+                    <Col xs={24} sm={12} md={14} lg={12}>
+                      <SelectResponsavelDf selectProps={{ disabled: !podeEditarRfResponsavelDf }} />
+                    </Col>
+                  )}
+                  {exibirInputNumeroHomologacao && (
+                    <>
+                      {podeEditarRfResponsavelDf && exibirInputNumeroHomologacao && (
+                        <Col span={4}></Col>
+                      )}
+                      <Col xs={24} sm={12} md={14} lg={10}>
+                        <Form.Item
+                          key='numeroHomologacao'
+                          name='numeroHomologacao'
+                          label='Número de homologação'
+                        >
+                          <Input
+                            type='text'
+                            maxLength={15}
+                            id={CF_INPUT_NUMERO_HOMOLOGACAO}
+                            placeholder='Número de homologação'
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} sm={12} md={14} lg={12}>
+                        <SelectPareceristas
+                          selectProps={{
+                            maxCount: formInitialValues.qtdeLimitePareceristaProposta,
+                          }}
+                        />
+                      </Col>
+                    </>
+                  )}
                 </Row>
               </CardContent>
             </Col>
