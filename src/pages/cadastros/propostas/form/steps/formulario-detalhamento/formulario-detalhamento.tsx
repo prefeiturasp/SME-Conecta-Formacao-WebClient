@@ -131,6 +131,7 @@ const FormularioDetalhamento: React.FC = () => {
                 nome={item.defaultActiveKey}
                 mensagemErro={item.messageError}
                 disabled={desabilitarCampos}
+                formItemProps={{ style: { marginBottom: 0 } }}
               />
               <ButtonParecer campo={item.key} />
             </CollapsePanelSME>

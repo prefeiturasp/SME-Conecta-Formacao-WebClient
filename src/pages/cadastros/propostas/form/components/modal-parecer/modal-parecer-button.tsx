@@ -45,6 +45,8 @@ export const ButtonParecer: React.FC<ButtonParecerProps> = ({
     </Col>
   );
 
+  const montarBotaoParecer = exibirParecer ? btnParecer : <></>;
+
   return (
     <>
       {children ? (
@@ -52,10 +54,10 @@ export const ButtonParecer: React.FC<ButtonParecerProps> = ({
           <Col flex={1} {...childrenProps}>
             {children}
           </Col>
-          {exibirParecer ? btnParecer : <></>}
+          {montarBotaoParecer}
         </Row>
       ) : (
-        btnParecer
+        <>{montarBotaoParecer}</>
       )}
       {open && (
         <ModalParecer
