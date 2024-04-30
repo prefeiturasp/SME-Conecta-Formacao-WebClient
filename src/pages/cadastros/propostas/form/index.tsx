@@ -784,6 +784,7 @@ export const FormCadastroDePropostas: React.FC = () => {
               message: 'Sucesso',
               description: PROPOSTA_ENVIADA,
             });
+            carregarDados();
           }
         });
       },
