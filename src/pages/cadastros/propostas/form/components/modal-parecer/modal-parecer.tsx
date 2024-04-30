@@ -13,6 +13,7 @@ import {
   PropostaParecerCadastroDTO,
   PropostaParecerCompletoDTO,
   PropostaParecerFiltroDTO,
+  TotalDePareceresDTO,
 } from '~/core/dto/parecer-proposta-dto';
 import { CamposParecerEnum, CamposParecerEnumDisplay } from '~/core/enum/campos-proposta-enum';
 import { SituacaoProposta } from '~/core/enum/situacao-proposta';
@@ -60,7 +61,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
   const adminDFPodeEditar =
     ehPerfilAdminDf && (situacaoAguardandoAnaliseDF || situacaoAguardandoAnaliseParecerista);
 
-  const habilitarBotoesModal = dados?.itens.every((item) => item.podeAlterar);
+  const habilitarBotoesModal = dados?.itens.every((item) => item.podeAlterar) && dados.podeInserir;
 
   const carregarParecer = async () => {
     if (!propostaId && !campo) return;
@@ -116,6 +117,28 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
           description: resposta.dados.mensagem,
         });
         onFecharButton();
+        const totalDePareceres = formInstance.getFieldsValue(true).totalDePareceres;
+
+        const indexParecer = totalDePareceres.findIndex(
+          (item: TotalDePareceresDTO) => item.campo === campo,
+        );
+
+        if (indexParecer > -1) {
+          totalDePareceres[indexParecer] = {
+            ...totalDePareceres[indexParecer],
+            quantidade: totalDePareceres[indexParecer].quantidade + 1,
+          };
+
+          form.setFieldValue('totalDePareceres', totalDePareceres);
+        } else {
+          form.setFieldValue('totalDePareceres', [
+            ...totalDePareceres,
+            {
+              campo,
+              quantidade: 1,
+            },
+          ]);
+        }
       }
     });
   };
@@ -155,6 +178,22 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
               message: 'Sucesso',
               description: 'Parecer excluído com sucesso!',
             });
+
+            const totalDePareceres = formInstance.getFieldsValue(true).totalDePareceres;
+
+            const indexParecer = totalDePareceres.findIndex(
+              (item: TotalDePareceresDTO) => item.campo === campo,
+            );
+
+            if (indexParecer > -1) {
+              totalDePareceres[indexParecer] = {
+                ...totalDePareceres[indexParecer],
+                quantidade: totalDePareceres[indexParecer].quantidade - 1,
+              };
+
+              form.setFieldValue('totalDePareceres', totalDePareceres);
+            }
+
             carregarParecer();
           }
         });
