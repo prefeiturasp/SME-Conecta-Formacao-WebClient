@@ -137,8 +137,11 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
+  const exibirInputNumeroHomologacao =
+    formInitialValues?.situacao === SituacaoProposta.Aprovada ||
+        formInitialValues?.situacao === SituacaoProposta.Publicada;
+
   const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarParecer;
-  const exibirInputNumeroHomologacao = formInitialValues?.situacao === SituacaoProposta.Aprovada;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -177,8 +180,9 @@ export const FormCadastroDePropostas: React.FC = () => {
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
           !(
-            (ehPerfilDf || ehPerfilAdminDf) &&
-            formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf
+            ((ehPerfilDf || ehPerfilAdminDf) &&
+              formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) ||
+            formInitialValues?.situacao === SituacaoProposta.Aprovada
           ) &&
           !(ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida));
 
@@ -774,26 +778,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       enviarProposta();
     }
   };
-
-  const finalizarParecer = () => {
-    confirmacao({
-      content: DESEJA_ENVIAR_PARECER,
-      onOk() {
-        enviarParecer(id).then((response) => {
-          if (response.sucesso) {
-            notification.success({
-              message: 'Sucesso',
-              description: PROPOSTA_ENVIADA,
-            });
-            carregarDados();
-          }
-        });
-      },
-    });
-  };
-
   const exibirCard = podeEditarRfResponsavelDf || exibirInputNumeroHomologacao;
-
   return (
     <Col>
       <Spin spinning={loading}>
@@ -954,38 +939,32 @@ export const FormCadastroDePropostas: React.FC = () => {
           {exibirCard && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
-                <Row gutter={[16, 16]}>
+                <Row>
                   {podeEditarRfResponsavelDf && (
-                    <>
-                      <Col xs={24} sm={12} md={14} lg={12}>
-                        <SelectResponsavelDf
-                          selectProps={{ disabled: !podeEditarRfResponsavelDf }}
-                        />
-                      </Col>
-                      <Col xs={24} sm={12} md={14} lg={12}>
-                        <SelectPareceristas
-                          selectProps={{
-                            maxCount: formInitialValues.qtdeLimitePareceristaProposta,
-                          }}
-                        />
-                      </Col>
-                    </>
+                    <Col xs={24} sm={12} md={14} lg={10}>
+                      <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
+                    </Col>
                   )}
                   {exibirInputNumeroHomologacao && (
-                    <Col xs={24} sm={12} md={14} lg={12}>
-                      <Form.Item
-                        key='numeroHomologacao'
-                        name='numeroHomologacao'
-                        label='Número de homologação'
-                      >
-                        <Input
-                          type='text'
-                          maxLength={15}
-                          id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                          placeholder='Número de homologação'
-                        />
-                      </Form.Item>
-                    </Col>
+                    <>
+                      {podeEditarRfResponsavelDf && exibirInputNumeroHomologacao && (
+                        <Col span={4}></Col>
+                      )}
+                      <Col xs={24} sm={12} md={14} lg={10}>
+                        <Form.Item
+                          key='numeroHomologacao'
+                          name='numeroHomologacao'
+                          label='Número de homologação'
+                        >
+                          <Input
+                            type='text'
+                            maxLength={15}
+                            id={CF_INPUT_NUMERO_HOMOLOGACAO}
+                            placeholder='Número de homologação'
+                          />
+                        </Form.Item>
+                      </Col>
+                    </>
                   )}
                 </Row>
               </CardContent>
