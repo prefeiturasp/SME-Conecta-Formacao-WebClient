@@ -2,6 +2,11 @@ import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
 import { DevolverPropostaDTO } from '../dto/devolver-proposta-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
+import {
+  PropostaParecerCadastroDTO,
+  PropostaParecerCompletoDTO,
+  PropostaParecerFiltroDTO,
+} from '../dto/parecer-proposta-dto';
 import { PropostaDashboardDTO } from '../dto/proposta-dashboard-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
@@ -63,7 +68,10 @@ const inserirProposta = (params: PropostaDTO) =>
 const alterarProposta = (id: string | number, params: PropostaDTO, mostrarNotificacao: boolean) =>
   alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/${id}`, params, mostrarNotificacao);
 
-const devolverProposta = (id: string | number, params: DevolverPropostaDTO): Promise<ApiResult<RetornoDTO>> =>
+const devolverProposta = (
+  id: string | number,
+  params: DevolverPropostaDTO,
+): Promise<ApiResult<RetornoDTO>> =>
   alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/devolver-proposta/${id}`, params);
 
 const enviarPropostaAnalise = (
@@ -84,6 +92,20 @@ const obterTurmasDaProposta = (id: number): Promise<ApiResult<RetornoListagemDTO
 const obterTipoEncontro = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_PROPOSTA}/tipo-encontro`);
 
+const obterParecer = (
+  params?: PropostaParecerFiltroDTO,
+): Promise<ApiResult<PropostaParecerCompletoDTO>> =>
+  obterRegistro(`${URL_API_PROPOSTA}/parecer`, { params });
+
+const salvarParecer = (params?: PropostaParecerCadastroDTO) =>
+  inserirRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/parecer`, params);
+
+const alterarParecer = (params?: PropostaParecerCadastroDTO) =>
+  alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/parecer`, params);
+
+const enviarParecer = (propostaId: number) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecer/enviar`);
+
 const obterPropostaEncontrosPaginado = (
   propostaId: number | string,
 ): Promise<ApiResult<PropostaEncontroDTO[]>> =>
@@ -97,6 +119,9 @@ const salvarPropostaEncontro = (
 
 const removerPropostaEncontro = (idEncontro: string | number): Promise<ApiResult<boolean>> =>
   deletarRegistro(`${URL_API_PROPOSTA}/encontro/${idEncontro}`);
+
+const removerParecer = (parecerId?: number): Promise<ApiResult<boolean>> =>
+  deletarRegistro(`${URL_API_PROPOSTA}/parecer/${parecerId}`);
 
 const obterNomeProfissional = (registroFunciona: string) =>
   obterRegistro<string>(`${URL_API_PROPOSTA}/nome-profissional/${registroFunciona}`);
@@ -125,9 +150,11 @@ const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
   obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
 export {
+  alterarParecer,
   alterarProposta,
-  devolverProposta,
   deletarProposta,
+  devolverProposta,
+  enviarParecer,
   enviarPropostaAnalise,
   excluirRegente,
   excluirTutor,
@@ -138,6 +165,7 @@ export {
   obterFormacaoHomologada,
   obterFormato,
   obterNomeProfissional,
+  obterParecer,
   obterPropostaEncontrosPaginado,
   obterPropostaPorId,
   obterPropostaRegentePorId,
@@ -149,7 +177,9 @@ export {
   obterTipoFormacao,
   obterTipoInscricao,
   obterTurmasDaProposta,
+  removerParecer,
   removerPropostaEncontro,
+  salvarParecer,
   salvarPropostaEncontro,
   salvarPropostaProfissionalRegente,
   salvarPropostaProfissionalTutor,

@@ -14,6 +14,7 @@ export const DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA =
   'Suas alterações não foram salvas, deseja salvar agora?';
 export const REGISTRO_EXCLUIDO_SUCESSO = 'Registro excluído com sucesso!';
 export const DESEJA_ENVIAR_PROPOSTA = 'Gostaria de enviar a proposta também?';
+export const DESEJA_ENVIAR_PARECER = 'Deseja realmente enviar o parecer?';
 export const DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR =
   'Existem alterações que não foram salvas, deseja salvar antes de enviar?';
 export const NAO_ENVIOU_PROPOSTA_ANALISE =
@@ -42,6 +43,7 @@ export const QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA =
   'É necessário informar a quantidade de vagas por turma';
 export const CARGA_HORARIA_NAO_INFORMADA = 'É necessário informar a carga horária presencial';
 export const JUSTIFICATIVA_NAO_INFORMADA = 'É necessário informar a justificativa';
+export const PARECER_NAO_INFORMADO = 'É necessário informar o parecer';
 export const OBJETIVO_NAO_INFORMADO = 'É necessário informar os objetivos';
 export const CONTEUDO_PROGRAMATICO_NAO_INFORMADO = 'É necessário informar o conteúdo programático';
 export const PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO =
@@ -86,7 +88,8 @@ export const INSCRICAO_ENVIADA_COM_SGA =
 export const INSCRICAO_ENVIADA_SEM_SGA = 'Sua inscrição foi confirmada.';
 export const ERRO_INSCRICAO_MANUAL =
   'A lotação/local de trabalho do cursista não corresponde com a DRE promotora desta formação. Deseja continuar?';
-
 export const RESPONSAVEL_DF_NAO_INFORMADO = 'É necessário informar o responsável DF';
+export const SERVICO_INDISPONIVEL =
+  'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
 export const LINK_INSCRICOES_EXTERNA = 'É necessário informar o link';
-export const BOTAO_INSCRICAO_EXTERNA = "Link para inscrição"
+export const BOTAO_INSCRICAO_EXTERNA = 'Link para inscrição';
