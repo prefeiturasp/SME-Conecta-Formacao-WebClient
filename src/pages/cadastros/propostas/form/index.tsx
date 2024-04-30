@@ -954,30 +954,13 @@ export const FormCadastroDePropostas: React.FC = () => {
           {exibirCard && (
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
-                <Row>
+                <Row gutter={[16, 16]}>
                   {podeEditarRfResponsavelDf && (
-                    <Col xs={24} sm={12} md={14} lg={12}>
-                      <SelectResponsavelDf selectProps={{ disabled: !podeEditarRfResponsavelDf }} />
-                    </Col>
-                  )}
-                  {exibirInputNumeroHomologacao && (
                     <>
-                      {podeEditarRfResponsavelDf && exibirInputNumeroHomologacao && (
-                        <Col span={4}></Col>
-                      )}
-                      <Col xs={24} sm={12} md={14} lg={10}>
-                        <Form.Item
-                          key='numeroHomologacao'
-                          name='numeroHomologacao'
-                          label='Número de homologação'
-                        >
-                          <Input
-                            type='text'
-                            maxLength={15}
-                            id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                            placeholder='Número de homologação'
-                          />
-                        </Form.Item>
+                      <Col xs={24} sm={12} md={14} lg={12}>
+                        <SelectResponsavelDf
+                          selectProps={{ disabled: !podeEditarRfResponsavelDf }}
+                        />
                       </Col>
                       <Col xs={24} sm={12} md={14} lg={12}>
                         <SelectPareceristas
@@ -987,6 +970,22 @@ export const FormCadastroDePropostas: React.FC = () => {
                         />
                       </Col>
                     </>
+                  )}
+                  {exibirInputNumeroHomologacao && (
+                    <Col xs={24} sm={12} md={14} lg={12}>
+                      <Form.Item
+                        key='numeroHomologacao'
+                        name='numeroHomologacao'
+                        label='Número de homologação'
+                      >
+                        <Input
+                          type='text'
+                          maxLength={15}
+                          id={CF_INPUT_NUMERO_HOMOLOGACAO}
+                          placeholder='Número de homologação'
+                        />
+                      </Form.Item>
+                    </Col>
                   )}
                 </Row>
               </CardContent>
