@@ -68,6 +68,9 @@ export type PropostaDTO = {
   codigoEventoSigpec?: number;
   numeroHomologacao?: number;
   pareceristas?: PropostaPareceristaDTO[];
+  podeEnviarParecer?: boolean;
+  podeEnviar?: boolean;
+  totalDePareceres?: TotalDePareceresDTO[];
 };
 
 export type TipoInscricaoType = {
@@ -110,9 +113,9 @@ export type PropostaFormDTO = {
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;
   palavrasChaves?: number[];
-  criterioCertificacao: number[];
-  cursoComCertificado: boolean;
-  acaoInformativa: boolean;
+  criterioCertificacao?: number[];
+  cursoComCertificado?: boolean;
+  acaoInformativa?: boolean;
   descricaoDaAtividade?: string;
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;

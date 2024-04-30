@@ -14,6 +14,7 @@ import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
 import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import { CadastroDeUsuario } from '~/pages/cadastros/novo-usuario';
 import { FormCadastroDePropostas } from '~/pages/cadastros/propostas/form';
+import { PropostaContextProvider } from '~/pages/cadastros/propostas/form/provider';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
@@ -102,13 +103,21 @@ const RoutesConfig = () => {
                   <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
                     <Route
                       path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
-                      element={<FormCadastroDePropostas />}
+                      element={
+                        <PropostaContextProvider>
+                          <FormCadastroDePropostas />
+                        </PropostaContextProvider>
+                      }
                     />
                   </Route>
                   <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
                     <Route
                       path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
-                      element={<FormCadastroDePropostas />}
+                      element={
+                        <PropostaContextProvider>
+                          <FormCadastroDePropostas />
+                        </PropostaContextProvider>
+                      }
                     />
                   </Route>
                 </Route>
