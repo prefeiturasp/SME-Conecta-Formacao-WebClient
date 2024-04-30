@@ -28,3 +28,4 @@ dist-ssr
 .env.development
 /.vs/SME-Conecta-Formacao-WebClient/FileContentIndex
 /.vs/slnx.sqlite
+*.json

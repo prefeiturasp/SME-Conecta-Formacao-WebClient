@@ -11,9 +11,12 @@ import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
+import { SelectPareceristas } from '~/components/main/input/parecerista';
+import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import Spin from '~/components/main/spin';
 import Steps from '~/components/main/steps';
 import Auditoria from '~/components/main/text/auditoria';
+import AreaTexto from '~/components/main/text/text-area';
 import {
   CF_BUTTON_CADASTRAR_PROPOSTA,
   CF_BUTTON_CANCELAR,
@@ -24,9 +27,11 @@ import {
   CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
+import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 import {
-  APOS_ENVIAR_PROPOSTA_PUBLICAR,
   APOS_ENVIAR_PROPOSTA_ANALISE,
+  APOS_ENVIAR_PROPOSTA_PUBLICAR,
+  DESEJA_ENVIAR_PARECER,
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -42,20 +47,25 @@ import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
   PropostaDTO,
   PropostaFormDTO,
+  PropostaPareceristaDTO,
+  PropostaPareceristaFormDTO,
   PropostaTurmaDTO,
   PropostaTurmaFormDTO,
 } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
+import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { obterDREs } from '~/core/services/dre-service';
 import {
   alterarProposta,
   deletarProposta,
+  enviarParecer,
   enviarPropostaAnalise,
   inserirProposta,
   obterPropostaPorId,
@@ -63,17 +73,12 @@ import {
 import { onClickCancelar } from '~/core/utils/form';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
-import SelectResponsavelDf from '~/components/main/input/responsavel-df';
-import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
-import AreaTexto from '~/components/main/text/text-area';
-import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
-import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -132,6 +137,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
+  const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarParecer;
   const exibirInputNumeroHomologacao = formInitialValues?.situacao === SituacaoProposta.Aprovada;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
@@ -140,7 +146,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
   const podeEditarRfResponsavelDf =
-    (ehPerfilAdminDf || ehPerfilDf) &&
+    ehPerfilAdminDf &&
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
@@ -277,6 +283,15 @@ export const FormCadastroDePropostas: React.FC = () => {
         });
       }
 
+      let pareceristas: PropostaPareceristaFormDTO[] = [];
+      if (dados.pareceristas?.length) {
+        pareceristas = dados.pareceristas.map((parecerista) => ({
+          ...pareceristas,
+          label: parecerista.nomeParecerista,
+          value: parecerista.registroFuncional,
+        }));
+      }
+
       let publicosAlvo: number[] = [];
       if (dados?.publicosAlvo?.length) {
         publicosAlvo = dados.publicosAlvo.map((item) => item.cargoFuncaoId);
@@ -358,6 +373,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         criterioCertificacao,
         tiposInscricao,
         quantidadeTurmasOriginal,
+        pareceristas,
       };
 
       setListaDres(listaDres);
@@ -468,6 +484,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
       codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
       numeroHomologacao: clonedValues?.numeroHomologacao,
+      pareceristas: [],
     };
 
     if (clonedValues?.dres?.length) {
@@ -507,6 +524,18 @@ export const FormCadastroDePropostas: React.FC = () => {
           turma.id = item.id;
         }
         return turma;
+      });
+    }
+
+    if (clonedValues?.pareceristas?.length) {
+      valoresSalvar.pareceristas = clonedValues.pareceristas.map((item) => {
+        const parecerista: PropostaPareceristaDTO = {
+          id: item?.id || 0,
+          nomeParecerista: item.label,
+          registroFuncional: item.value,
+        };
+
+        return parecerista;
       });
     }
 
@@ -745,7 +774,26 @@ export const FormCadastroDePropostas: React.FC = () => {
       enviarProposta();
     }
   };
+
+  const finalizarParecer = () => {
+    confirmacao({
+      content: DESEJA_ENVIAR_PARECER,
+      onOk() {
+        enviarParecer(id).then((response) => {
+          if (response.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: PROPOSTA_ENVIADA,
+            });
+            carregarDados();
+          }
+        });
+      },
+    });
+  };
+
   const exibirCard = podeEditarRfResponsavelDf || exibirInputNumeroHomologacao;
+
   return (
     <Col>
       <Spin spinning={loading}>
@@ -776,7 +824,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     }}
                     id={CF_BUTTON_VOLTAR}
                   />
-                </Col>{' '}
+                </Col>
                 {id ? (
                   <Col>
                     <ButtonExcluir
@@ -848,6 +896,20 @@ export const FormCadastroDePropostas: React.FC = () => {
                     <ModalDevolverButton propostaId={id} disabled={desabilitarBotaoDevolver} />
                   </Col>
                 )}
+                {exibirBotaoEnviarParecer && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                      disabled={!exibirBotaoEnviarParecer}
+                      onClick={finalizarParecer}
+                      style={{ fontWeight: 700 }}
+                    >
+                      Enviar Parecer
+                    </Button>
+                  </Col>
+                )}
                 {exibirBotaoSalvar && (
                   <Col>
                     <Button
@@ -867,8 +929,10 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
-                {formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
-                  currentStep === StepPropostaEnum.Certificacao && (
+                {(formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
+                  currentStep === StepPropostaEnum.Certificacao) ||
+                  formInitialValues?.situacao === SituacaoProposta.Devolvida ||
+                  (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && (
                     <Col>
                       <Button
                         block
@@ -881,11 +945,10 @@ export const FormCadastroDePropostas: React.FC = () => {
                         Enviar
                       </Button>
                     </Col>
-                  )}
+                  ))}
               </Row>
             </Col>
           </HeaderPage>
-
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
           {exibirCard && (
@@ -893,8 +956,8 @@ export const FormCadastroDePropostas: React.FC = () => {
               <CardContent>
                 <Row>
                   {podeEditarRfResponsavelDf && (
-                    <Col xs={24} sm={12} md={14} lg={10}>
-                      <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
+                    <Col xs={24} sm={12} md={14} lg={12}>
+                      <SelectResponsavelDf selectProps={{ disabled: !podeEditarRfResponsavelDf }} />
                     </Col>
                   )}
                   {exibirInputNumeroHomologacao && (
@@ -915,6 +978,13 @@ export const FormCadastroDePropostas: React.FC = () => {
                             placeholder='Número de homologação'
                           />
                         </Form.Item>
+                      </Col>
+                      <Col xs={24} sm={12} md={14} lg={12}>
+                        <SelectPareceristas
+                          selectProps={{
+                            maxCount: formInitialValues.qtdeLimitePareceristaProposta,
+                          }}
+                        />
                       </Col>
                     </>
                   )}
@@ -941,9 +1011,10 @@ export const FormCadastroDePropostas: React.FC = () => {
                       formItemProps={{
                         label: 'Justificativa da devolução:',
                       }}
-                      podeEditar={false}
-                      value={formInitialValues?.ultimaJustificativaDevolucao}
-                      maxLength={1000}
+                      textAreaProps={{
+                        disabled: true,
+                        value: formInitialValues?.ultimaJustificativaDevolucao,
+                      }}
                     />
                   </Col>
                 </Row>

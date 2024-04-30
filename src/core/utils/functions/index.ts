@@ -1,5 +1,7 @@
 import { cloneDeep } from 'lodash';
 import { dayjs } from '~/core/date/dayjs';
+import { TotalDePareceresDTO } from '~/core/dto/parecer-proposta-dto';
+import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 
 export const scrollNoInicio = () => window.scrollTo(0, 0);
@@ -95,4 +97,15 @@ export const onchangeMultiSelectLabelInValueOpcaoTodos = (
   }
 
   return valorParaSetar;
+};
+
+export const mostrarQtdParecer = (
+  campo: CamposParecerEnum,
+  totalDePareceres: TotalDePareceresDTO[],
+) => {
+  const qtdParecer = totalDePareceres
+    ?.filter((parecer) => parecer.campo === campo)
+    .map((parecer) => parecer.quantidade);
+
+  return !!qtdParecer?.length ? qtdParecer[0] : 0;
 };
