@@ -25,8 +25,8 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import {
-  APOS_ENVIAR_PROPOSTA_PUBLICAR,
   APOS_ENVIAR_PROPOSTA_ANALISE,
+  APOS_ENVIAR_PROPOSTA_PUBLICAR,
   DESEJA_ENVIAR_PROPOSTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -132,7 +132,9 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
-  const exibirInputNumeroHomologacao = formInitialValues?.situacao === SituacaoProposta.Aprovada;
+  const exibirInputNumeroHomologacao =
+    formInitialValues?.situacao === SituacaoProposta.Aprovada ||
+    formInitialValues?.situacao === SituacaoProposta.Publicada;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -171,8 +173,9 @@ export const FormCadastroDePropostas: React.FC = () => {
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
           !(
-            (ehPerfilDf || ehPerfilAdminDf) &&
-            formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf
+            ((ehPerfilDf || ehPerfilAdminDf) &&
+              formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) ||
+            formInitialValues?.situacao === SituacaoProposta.Aprovada
           ) &&
           !(ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida));
 
@@ -745,7 +748,6 @@ export const FormCadastroDePropostas: React.FC = () => {
       enviarProposta();
     }
   };
-  const exibirCard = podeEditarRfResponsavelDf || exibirInputNumeroHomologacao;
   return (
     <Col>
       <Spin spinning={loading}>
@@ -888,40 +890,35 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
 
-          {exibirCard && (
-            <Col span={24} style={{ marginBottom: 16 }}>
-              <CardContent>
-                <Row>
-                  {podeEditarRfResponsavelDf && (
-                    <Col xs={24} sm={12} md={14} lg={10}>
-                      <SelectResponsavelDf podeEditar={podeEditarRfResponsavelDf} required />
-                    </Col>
-                  )}
-                  {exibirInputNumeroHomologacao && (
-                    <>
-                      {podeEditarRfResponsavelDf && exibirInputNumeroHomologacao && (
-                        <Col span={4}></Col>
-                      )}
-                      <Col xs={24} sm={12} md={14} lg={10}>
-                        <Form.Item
-                          key='numeroHomologacao'
-                          name='numeroHomologacao'
-                          label='Número de homologação'
-                        >
-                          <Input
-                            type='text'
-                            maxLength={15}
-                            id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                            placeholder='Número de homologação'
-                          />
-                        </Form.Item>
-                      </Col>
-                    </>
-                  )}
-                </Row>
-              </CardContent>
-            </Col>
-          )}
+          <Col span={24} style={{ marginBottom: 16 }}>
+            <CardContent>
+              <Row gutter={[16, 8]}>
+                <Col span={12}>
+                  <SelectResponsavelDf
+                    podeEditar={podeEditarRfResponsavelDf}
+                    required={podeEditarRfResponsavelDf}
+                  />
+                </Col>
+
+                {exibirInputNumeroHomologacao && (
+                  <Col span={12}>
+                    <Form.Item
+                      key='numeroHomologacao'
+                      name='numeroHomologacao'
+                      label='Número de homologação'
+                    >
+                      <Input
+                        type='text'
+                        maxLength={15}
+                        id={CF_INPUT_NUMERO_HOMOLOGACAO}
+                        placeholder='Número de homologação'
+                      />
+                    </Form.Item>
+                  </Col>
+                )}
+              </Row>
+            </CardContent>
+          </Col>
 
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
