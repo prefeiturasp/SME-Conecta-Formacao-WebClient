@@ -138,7 +138,9 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarParecer;
-  const exibirInputNumeroHomologacao = formInitialValues?.situacao === SituacaoProposta.Aprovada;
+  const exibirInputNumeroHomologacao =
+    formInitialValues?.situacao === SituacaoProposta.Aprovada ||
+    formInitialValues?.situacao === SituacaoProposta.Publicada;
 
   const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
 
@@ -177,8 +179,9 @@ export const FormCadastroDePropostas: React.FC = () => {
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
           !(
-            (ehPerfilDf || ehPerfilAdminDf) &&
-            formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf
+            ((ehPerfilDf || ehPerfilAdminDf) &&
+              formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) ||
+            formInitialValues?.situacao === SituacaoProposta.Aprovada
           ) &&
           !(ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida));
 
@@ -955,21 +958,20 @@ export const FormCadastroDePropostas: React.FC = () => {
             <Col span={24} style={{ marginBottom: 16 }}>
               <CardContent>
                 <Row gutter={[16, 16]}>
+                  <Col xs={24} sm={12} md={14} lg={12}>
+                    <SelectResponsavelDf
+                      formItemProps={{ required: podeEditarRfResponsavelDf }}
+                      selectProps={{ disabled: !podeEditarRfResponsavelDf }}
+                    />
+                  </Col>
                   {podeEditarRfResponsavelDf && (
-                    <>
-                      <Col xs={24} sm={12} md={14} lg={12}>
-                        <SelectResponsavelDf
-                          selectProps={{ disabled: !podeEditarRfResponsavelDf }}
-                        />
-                      </Col>
-                      <Col xs={24} sm={12} md={14} lg={12}>
-                        <SelectPareceristas
-                          selectProps={{
-                            maxCount: formInitialValues.qtdeLimitePareceristaProposta,
-                          }}
-                        />
-                      </Col>
-                    </>
+                    <Col xs={24} sm={12} md={14} lg={12}>
+                      <SelectPareceristas
+                        selectProps={{
+                          maxCount: formInitialValues.qtdeLimitePareceristaProposta,
+                        }}
+                      />
+                    </Col>
                   )}
                   {exibirInputNumeroHomologacao && (
                     <Col xs={24} sm={12} md={14} lg={12}>
