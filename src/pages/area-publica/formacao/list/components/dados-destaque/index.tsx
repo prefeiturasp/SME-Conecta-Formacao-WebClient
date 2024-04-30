@@ -2,7 +2,7 @@ import { CalendarOutlined } from '@ant-design/icons';
 import { Button, Col, Flex, Row, Tag, Typography } from 'antd';
 import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
 import { BOTAO_INSCRICAO_EXTERNA, ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
@@ -66,9 +66,6 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
       });
     }
   };
-  const abrirLinkInscricaoExterna = () => {
-    window.open(linkInscricaoExterna, '_blank');
-  };
   const desabilitarInscricao = () => {
     if (dadosInscricao?.inscricaoEncerrada) {
       return true;
@@ -80,7 +77,6 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
 
     return false;
   };
-  console.log(linkInscricaoExterna);
   return (
     <Flex justify='left'>
       <Row gutter={24}>
@@ -116,8 +112,14 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
 
           <Col span={24}>
             {linkInscricaoExterna ? (
-              <Button type='primary' shape='round' size='large' onClick={abrirLinkInscricaoExterna}>
-                {BOTAO_INSCRICAO_EXTERNA}
+              <Button type='primary' shape='round' size='large'>
+                <Link
+                  to={linkInscricaoExterna}
+                  target='_blank'
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  {BOTAO_INSCRICAO_EXTERNA}
+                </Link>
               </Button>
             ) : (
               <Button
