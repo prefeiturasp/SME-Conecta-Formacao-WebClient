@@ -1,7 +1,6 @@
 import { Empty, Form } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import useFormInstance from 'antd/es/form/hooks/useFormInstance';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Modal from '~/components/lib/modal';
 import { notification } from '~/components/lib/notification';
 import Auditoria from '~/components/main/text/auditoria';
@@ -10,14 +9,19 @@ import {
   PropostaParecerCadastroDTO,
   PropostaParecerCompletoDTO,
   PropostaParecerFiltroDTO,
-  TotalDePareceresDTO,
 } from '~/core/dto/parecer-proposta-dto';
 import { CamposParecerEnum, CamposParecerEnumDisplay } from '~/core/enum/campos-proposta-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service';
-import { obterParecer, removerParecer, salvarParecer } from '~/core/services/proposta-service';
+import {
+  obterParecer,
+  obterPropostaPorId,
+  removerParecer,
+  salvarParecer,
+} from '~/core/services/proposta-service';
+import { PropostaContext } from '../../provider';
 import { ModalParecerConteudo } from './modal-parecer-conteudo';
 import { ModalParecerConteudoInicial } from './modal-parecer-conteudo-inicial';
 
@@ -33,7 +37,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
   onFecharButton,
 }) => {
   const [form] = useForm();
-  const formInstance = useFormInstance();
+  const { setFormInitialValues } = useContext(PropostaContext);
   const [dados, setDados] = useState<PropostaParecerCompletoDTO>();
   const [perfilAreaPromotora, setPerfilAreaPromotora] = useState<boolean>(false);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
@@ -70,45 +74,22 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     });
   };
 
-  const atualizarBadgeSalvarParecer = () => {
-    const totalDePareceres = formInstance.getFieldsValue(true).totalDePareceres;
+  const atualizarProposta = async () => {
+    if (!propostaId) return;
+    const resposta = await obterPropostaPorId(propostaId);
+    if (resposta.sucesso) {
+      const podeEnviarParecer = !!resposta.dados.podeEnviarParecer;
+      const podeEnviar = !!resposta.dados.podeEnviar;
+      const situacao = resposta.dados.situacao;
+      const totalDePareceres = resposta.dados.totalDePareceres;
 
-    const indexParecer = totalDePareceres.findIndex(
-      (item: TotalDePareceresDTO) => item.campo === campo,
-    );
-
-    if (indexParecer > -1) {
-      totalDePareceres[indexParecer] = {
-        ...totalDePareceres[indexParecer],
-        quantidade: totalDePareceres[indexParecer].quantidade + 1,
-      };
-
-      formInstance.setFieldValue('totalDePareceres', totalDePareceres);
-    } else {
-      formInstance.setFieldValue('totalDePareceres', [
-        ...totalDePareceres,
-        {
-          campo,
-          quantidade: 1,
-        },
-      ]);
-    }
-  };
-
-  const atualizarBadgeExcluirParecer = () => {
-    const totalDePareceres = formInstance.getFieldsValue(true).totalDePareceres;
-
-    const indexParecer = totalDePareceres.findIndex(
-      (item: TotalDePareceresDTO) => item.campo === campo,
-    );
-
-    if (indexParecer > -1) {
-      totalDePareceres[indexParecer] = {
-        ...totalDePareceres[indexParecer],
-        quantidade: totalDePareceres[indexParecer].quantidade - 1,
-      };
-
-      formInstance.setFieldValue('totalDePareceres', totalDePareceres);
+      setFormInitialValues((valoresAtuais) => ({
+        ...valoresAtuais,
+        podeEnviarParecer,
+        podeEnviar,
+        situacao,
+        totalDePareceres,
+      }));
     }
   };
 
@@ -131,8 +112,8 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
           description: resposta.dados.mensagem,
         });
 
-        atualizarBadgeSalvarParecer();
         carregarParecer();
+        atualizarProposta();
       }
     });
   };
@@ -173,7 +154,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
               description: 'Parecer excluído com sucesso!',
             });
             carregarParecer();
-            atualizarBadgeExcluirParecer();
+            atualizarProposta();
             form.setFieldValue('descricao', '');
           }
         });
