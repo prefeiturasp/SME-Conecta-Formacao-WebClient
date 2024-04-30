@@ -5,7 +5,6 @@ export type PropostaParecerCompletoDTO = {
   propostaId: number;
   podeInserir?: boolean;
   auditoria?: AuditoriaDTO;
-  exibirAuditoria?: boolean;
   itens: PropostaParecerDTO[];
 };
 

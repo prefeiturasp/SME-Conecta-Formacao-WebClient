@@ -60,6 +60,8 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
   const adminDFPodeEditar =
     ehPerfilAdminDf && (situacaoAguardandoAnaliseDF || situacaoAguardandoAnaliseParecerista);
 
+  const habilitarBotoesModal = dados?.itens.every((item) => item.podeAlterar);
+
   const carregarParecer = async () => {
     if (!propostaId && !campo) return;
 
@@ -251,6 +253,8 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       onOk={validateFields}
       onCancel={cancelarAlteracoes}
       title={`Parecer - ${CamposParecerEnumDisplay[campo]}`}
+      okButtonProps={{ disabled: !habilitarBotoesModal }}
+      cancelButtonProps={{ disabled: !habilitarBotoesModal }}
       footer={(_, { OkBtn, CancelBtn }) => (
         <Space>
           <Button type='text' style={{ color: Colors.Neutral.DARK }} onClick={fecharModal}>
@@ -291,7 +295,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
         )}
       </Form>
 
-      {dados?.exibirAuditoria ? <Auditoria dados={dados?.auditoria} /> : <></>}
+      {!!dados?.auditoria?.id ? <Auditoria dados={dados?.auditoria} /> : <></>}
     </Modal>
   );
 };
