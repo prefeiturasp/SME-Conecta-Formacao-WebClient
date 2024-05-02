@@ -768,7 +768,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
         onOk() {
-          salvarProposta(false);
+          salvarProposta(true);
         },
         onCancel() {
           enviarProposta();
