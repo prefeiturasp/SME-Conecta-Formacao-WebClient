@@ -943,7 +943,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                         type='primary'
                         onClick={validarAntesEnviarProposta}
                         style={{ fontWeight: 700 }}
-                        disabled={desabilitarCampos}
+                        disabled={desabilitarCampos || !formInitialValues.podeEnviar}
                         id={CF_BUTTON_ENVIAR_PROPOSTA}
                       >
                         Enviar
