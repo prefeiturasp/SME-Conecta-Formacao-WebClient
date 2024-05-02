@@ -66,7 +66,12 @@ export const Inscricao = () => {
           let funcoes: DadosInscricaoCargoEolDTO[] = [];
 
           if (item?.funcoes?.length) {
-            funcoes = item.funcoes.map((f) => ({ ...f, label: f.descricao, value: f.codigo, tipoVinculo: f.tipoVinculo }));
+            funcoes = item.funcoes.map((f) => ({
+              ...f,
+              label: f.descricao,
+              value: f.codigo,
+              tipoVinculo: f.tipoVinculo,
+            }));
           }
 
           return {
@@ -126,7 +131,7 @@ export const Inscricao = () => {
       funcaoCodigo: undefined,
       funcaoDreCodigo: undefined,
       funcaoUeCodigo: undefined,
-      tipoVinculo: undefined
+      tipoVinculo: undefined,
     };
 
     if (Array.isArray(clonedValues?.arquivoId)) {
@@ -262,26 +267,6 @@ export const Inscricao = () => {
                     id={CF_SELECT_CARGO}
                   />
                 </Form.Item>
-
-                {/* TODO: Quando houver usuarios externos, mudar habilitar o codigo abaixo */}
-                {/* {ehServidorTemRF ? (
-                  <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
-                  <Select
-                    allowClear
-                    options={
-                      initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
-                    }
-                    onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
-                    placeholder='Selecione um cargo'
-                    id={CF_SELECT_CARGO}
-                  />
-                </Form.Item>
-                ) : (
-                  <InputTexto
-                    formItemProps={{ name: 'usuarioCargos' }}
-                    inputProps={{ maxLength: 50, placeholder: 'Cargo' }}
-                  />
-                )} */}
               </Col>
 
               <Col xs={24} sm={8}>

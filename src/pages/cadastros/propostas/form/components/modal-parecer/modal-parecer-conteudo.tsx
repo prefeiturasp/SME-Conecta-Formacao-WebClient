@@ -127,6 +127,7 @@ export const ModalParecerConteudo: React.FC<ModalParecerProps> = ({
           rows={5}
           id={`${CF_INPUT_TEXT_AREA}_${index}`}
           disabled={!modoEdicao}
+          maxLength={1000}
           style={{
             resize: 'none',
             marginBottom: 6,
