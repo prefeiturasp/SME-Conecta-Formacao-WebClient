@@ -20,6 +20,7 @@ export const ModalParecerConteudoInicial: React.FC<ModalParecerProps> = ({ onCli
         <Input.TextArea
           rows={5}
           disabled={false}
+          maxLength={1000}
           id={CF_INPUT_TEXT_AREA}
           style={{ resize: 'none' }}
         />
