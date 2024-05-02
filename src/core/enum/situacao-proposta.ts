@@ -9,7 +9,8 @@ export enum SituacaoProposta {
   Alterando = 8,
   Aprovada = 9,
   AguardandoAnaliseParecerista = 10,
-  AnaliseParecerAreaPromotora = 11,
+  AguardandoAnaliseParecerDF = 11,
+  AnaliseParecerAreaPromotora = 12,
 }
 
 export const SituacaoPropostaTagDisplay: Record<SituacaoProposta, string> = {
@@ -23,5 +24,6 @@ export const SituacaoPropostaTagDisplay: Record<SituacaoProposta, string> = {
   [SituacaoProposta.Alterando]: 'Alterando',
   [SituacaoProposta.Aprovada]: 'Aprovada',
   [SituacaoProposta.AguardandoAnaliseParecerista]: 'Aguardando análise do Parecerista',
+  [SituacaoProposta.AguardandoAnaliseParecerDF]: 'Aguardando análise do parecer (DF)',
   [SituacaoProposta.AnaliseParecerAreaPromotora]: 'Análise do parecer pela área promotora',
 };
