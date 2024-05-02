@@ -109,8 +109,8 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
-        <Col>
-          <Col xs={24} sm={12} md={6} lg={10}>
+        <>
+          <Col xs={24} sm={12} md={14} lg={10}>
             <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
               <SelectTipoInscricao
                 exibirLink={setExibirLinkExterno}
@@ -135,12 +135,12 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
               />
             </ButtonParecer>
           </Col>
-        </Col>
+        </>
       ) : (
         <></>
       )}
 
-      <Col xs={24} sm={12} md={6} lg={10}>
+      <Col xs={24} sm={12} md={14} lg={10}>
         <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
           <Form.Item
             key='codigoEventoSigpec'
