@@ -39,13 +39,19 @@ const SelectFuncaoAtividade: React.FC<SelectFuncaoAtividadeProps> = ({
         }
 
         return (
-          <Form.Item {...formItemProps} label='Função/Atividade' name='usuarioFuncaoSelecionado'>
+          <Form.Item
+            {...formItemProps}
+            label='Função/Atividade'
+            name='usuarioFuncaoSelecionado'
+            getValueFromEvent={(_, value) => value}
+          >
             <Select
-              {...selectProps}
               allowClear
+              labelInValue
               options={options}
               placeholder='Selecione uma Função/Atividade'
               id={CF_SELECT_FUNCAO_ATIVIDADE}
+              {...selectProps}
             />
           </Form.Item>
         );
