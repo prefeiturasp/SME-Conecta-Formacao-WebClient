@@ -39,7 +39,7 @@ export const SelectPareceristas: React.FC<SelectPareceristasProps> = ({
     <Form.Item
       required
       name='pareceristas'
-      label='RF dos pareceristas'
+      label='Pareceristas'
       getValueFromEvent={(_, value) => value}
       {...formItemProps}
     >
@@ -48,7 +48,7 @@ export const SelectPareceristas: React.FC<SelectPareceristasProps> = ({
         mode='multiple'
         options={options}
         id={CF_SELECT_PARECERISTA}
-        placeholder='RF dos pareceristas'
+        placeholder='Pareceristas'
         {...selectProps}
       />
     </Form.Item>
