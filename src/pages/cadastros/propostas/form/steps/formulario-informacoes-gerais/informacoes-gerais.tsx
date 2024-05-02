@@ -109,33 +109,38 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
-        <Col xs={24} sm={12} md={6} lg={6}>
-          <ButtonParecer childrenProps={{ flex: 'none' }} campo={CamposParecerEnum.integrarNoSGA}>
-            <RadioSimNao
-              formItemProps={{
-                initialValue: true,
-                name: 'integrarNoSGA',
-                label: 'Integrar no SGA',
-              }}
-              radioGroupProps={{
-                id: CF_RADIO_INTEGRA_NO_SGA,
-              }}
-            />
-          </ButtonParecer>
-          <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
-            <SelectTipoInscricao
-              exibirLink={setExibirLinkExterno}
-              selectProps={{
-                mode: 'multiple',
-              }}
-            />
-          </ButtonParecer>
+        <Col>
+          <Col xs={24} sm={12} md={6} lg={10}>
+            <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
+              <SelectTipoInscricao
+                exibirLink={setExibirLinkExterno}
+                selectProps={{
+                  mode: 'multiple',
+                }}
+              />
+            </ButtonParecer>
+          </Col>
+
+          <Col xs={24} sm={12} md={6} lg={4}>
+            <ButtonParecer childrenProps={{ flex: 'none' }} campo={CamposParecerEnum.integrarNoSGA}>
+              <RadioSimNao
+                formItemProps={{
+                  initialValue: true,
+                  name: 'integrarNoSGA',
+                  label: 'Integrar no SGA',
+                }}
+                radioGroupProps={{
+                  id: CF_RADIO_INTEGRA_NO_SGA,
+                }}
+              />
+            </ButtonParecer>
+          </Col>
         </Col>
       ) : (
         <></>
       )}
 
-      <Col span={24}>
+      <Col xs={24} sm={12} md={6} lg={10}>
         <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
           <Form.Item
             key='codigoEventoSigpec'
@@ -173,6 +178,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       ) : (
         <></>
       )}
+
       <Col span={24}>
         <ButtonParecer campo={CamposParecerEnum.dres}>
           <SelectDRE
