@@ -1,5 +1,5 @@
 import { Badge, Button, Col, Divider, Form, Input, Row, StepProps } from 'antd';
-import { useForm } from 'antd/es/form/Form';
+import { useForm, useWatch } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -126,6 +126,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     StepPropostaEnum.InformacoesGerais,
   );
   const { formInitialValues, setFormInitialValues } = useContext(PropostaContext);
+  const pareceristaWatch = !useWatch('pareceristas', form)?.length;
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
@@ -941,9 +942,9 @@ export const FormCadastroDePropostas: React.FC = () => {
                       <Button
                         block
                         type='primary'
-                        onClick={validarAntesEnviarProposta}
                         style={{ fontWeight: 700 }}
-                        disabled={desabilitarCampos || !formInitialValues.podeEnviar}
+                        onClick={validarAntesEnviarProposta}
+                        disabled={desabilitarCampos || pareceristaWatch}
                         id={CF_BUTTON_ENVIAR_PROPOSTA}
                       >
                         Enviar
