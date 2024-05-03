@@ -24,6 +24,6 @@ export const SituacaoPropostaTagDisplay: Record<SituacaoProposta, string> = {
   [SituacaoProposta.Alterando]: 'Alterando',
   [SituacaoProposta.Aprovada]: 'Aprovada',
   [SituacaoProposta.AguardandoAnaliseParecerista]: 'Aguardando análise do Parecerista',
-  [SituacaoProposta.AguardandoAnaliseParecerDF]: 'Aguardando análise do parecer da (DF)',
+  [SituacaoProposta.AguardandoAnaliseParecerDF]: 'Aguardando análise do parecer (DF)',
   [SituacaoProposta.AnaliseParecerAreaPromotora]: 'Análise do parecer pela área promotora',
 };
