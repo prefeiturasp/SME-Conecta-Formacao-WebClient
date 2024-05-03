@@ -8,9 +8,7 @@ import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputCPF from '~/components/main/input/cpf';
-import SelectFuncaoAtividade from '~/components/main/input/funcao-atividade';
 import InputRegistroFuncional from '~/components/main/input/input-registro-funcional';
-import SelectTurma from '~/components/main/input/turmas';
 import UploadArquivosConectaFormacao from '~/components/main/upload';
 import {
   CF_BUTTON_CANCELAR,
@@ -32,8 +30,10 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import { inserirInscricao, obterDadosInscricao } from '~/core/services/inscricao-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
+import SelectFuncaoAtividade from './components/funcao-atividade';
 import InputEmailInscricao from './components/input-email';
 import { ModalInscricao } from './components/modal';
+import SelectTurma from './components/turmas';
 
 export const Inscricao = () => {
   const [form] = useForm();
@@ -274,26 +274,6 @@ export const Inscricao = () => {
                     id={CF_SELECT_CARGO}
                   />
                 </Form.Item>
-
-                {/* TODO: Quando houver usuarios externos, mudar habilitar o codigo abaixo */}
-                {/* {ehServidorTemRF ? (
-                  <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
-                  <Select
-                    allowClear
-                    options={
-                      initialValues?.usuarioCargos?.length ? initialValues.usuarioCargos : []
-                    }
-                    onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
-                    placeholder='Selecione um cargo'
-                    id={CF_SELECT_CARGO}
-                  />
-                </Form.Item>
-                ) : (
-                  <InputTexto
-                    formItemProps={{ name: 'usuarioCargos' }}
-                    inputProps={{ maxLength: 50, placeholder: 'Cargo' }}
-                  />
-                )} */}
               </Col>
 
               <Col xs={24} sm={8}>
