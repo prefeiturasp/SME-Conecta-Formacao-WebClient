@@ -141,7 +141,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       )}
 
       <Col xs={24} sm={12} md={14} lg={10}>
-        <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
+        <ButtonParecer campo={CamposParecerEnum.codigoEventoSigpec}>
           <Form.Item
             key='codigoEventoSigpec'
             name='codigoEventoSigpec'
@@ -160,20 +160,22 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       {exibirLinkExterno ? (
         <Col xs={24} sm={14} md={24}>
-          <Form.Item
-            name='linkParaInscricoesExterna'
-            label='Link para Inscrições'
-            rules={[
-              { required: exibirLinkExterno, whitespace: true, message: LINK_INSCRICOES_EXTERNA },
-            ]}
-          >
-            <Input
-              type='text'
-              maxLength={200}
-              id={CF_INPUT_LINK_INSCRICOES_EXTERNA}
-              placeholder='Informe o Link para Inscrições Externas'
-            />
-          </Form.Item>
+          <ButtonParecer campo={CamposParecerEnum.linkParaInscricoesExterna}>
+            <Form.Item
+              name='linkParaInscricoesExterna'
+              label='Link para Inscrições'
+              rules={[
+                { required: exibirLinkExterno, whitespace: true, message: LINK_INSCRICOES_EXTERNA },
+              ]}
+            >
+              <Input
+                type='text'
+                maxLength={200}
+                id={CF_INPUT_LINK_INSCRICOES_EXTERNA}
+                placeholder='Informe o Link para Inscrições Externas'
+              />
+            </Form.Item>
+          </ButtonParecer>
         </Col>
       ) : (
         <></>
