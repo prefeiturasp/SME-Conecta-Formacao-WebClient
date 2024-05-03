@@ -234,15 +234,13 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col span={24}>
-        <ButtonParecer campo={CamposParecerEnum.funcoesEspecificas}>
-          <SelectFuncaoEspecifica
-            formItemProps={{
-              tooltip: getTooltipFormInfoCircleFilled(
-                'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
-              ),
-            }}
-          />
-        </ButtonParecer>
+        <SelectFuncaoEspecifica
+          formItemProps={{
+            tooltip: getTooltipFormInfoCircleFilled(
+              'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
+            ),
+          }}
+        />
       </Col>
 
       <Col span={24}>
@@ -264,9 +262,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       <Col xs={24}>
-        <ButtonParecer campo={CamposParecerEnum.criteriosValidacaoInscricao}>
-          <SelectCriteriosValidacaoInscricoes />
-        </ButtonParecer>
+        <SelectCriteriosValidacaoInscricoes />
       </Col>
 
       <Col xs={24}>

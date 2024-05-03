@@ -29,6 +29,8 @@ export enum CamposParecerEnum {
   descricaoDaAtividade = 28,
   codigoEventoSigpec = 29,
   linkParaInscricoesExterna = 30,
+  funcoesEspecificasOutros = 31,
+  criteriosValidacaoInscricaoOutros = 32,
 }
 
 export const CamposParecerEnumDisplay: Record<CamposParecerEnum, string> = {
@@ -62,6 +64,9 @@ export const CamposParecerEnumDisplay: Record<CamposParecerEnum, string> = {
   [CamposParecerEnum.descricaoDaAtividade]: 'Descrição da atividade obrigatória para certificação',
   [CamposParecerEnum.codigoEventoSigpec]: 'Código do Evento (SIGPEC)',
   [CamposParecerEnum.linkParaInscricoesExterna]: 'Link para Inscrições',
+  [CamposParecerEnum.funcoesEspecificasOutros]: 'Funções Específicas (Outros)',
+  [CamposParecerEnum.criteriosValidacaoInscricaoOutros]:
+    'Critérios para validação das inscrições (Outros)',
 };
 
 export const CamposParecerNomeEnumDisplay: Record<CamposParecerEnum, string> = {
@@ -95,4 +100,6 @@ export const CamposParecerNomeEnumDisplay: Record<CamposParecerEnum, string> = {
   [CamposParecerEnum.descricaoDaAtividade]: 'descricaoDaAtividade',
   [CamposParecerEnum.codigoEventoSigpec]: 'codigoEventoSigpec',
   [CamposParecerEnum.linkParaInscricoesExterna]: 'linkParaInscricoesExterna',
+  [CamposParecerEnum.funcoesEspecificasOutros]: 'funcoesEspecificasOutros',
+  [CamposParecerEnum.criteriosValidacaoInscricaoOutros]: 'criteriosValidacaoInscricaoOutros',
 };
