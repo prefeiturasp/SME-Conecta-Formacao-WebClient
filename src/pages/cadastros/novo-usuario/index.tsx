@@ -216,7 +216,6 @@ export const CadastroDeUsuario = () => {
         autoComplete='off'
         onFinish={onFinish}
         onFinishFailed={(errorForm) => {
-          console.log('clic0ou');
           if (errorForm) {
             setErrorOnFinish(true);
           }

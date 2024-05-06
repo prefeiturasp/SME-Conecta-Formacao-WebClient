@@ -1,6 +1,6 @@
 import { Drawer, DrawerProps, Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ButtonPrimary } from '~/components/lib/button/primary';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import DataTable from '~/components/lib/card-table';
@@ -65,10 +65,6 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
 }) => {
   const desabilitar = situacao !== SituacaoImportacaoArquivoEnum.Validado;
   const [desativarBotaoContinuar, setDesativarBotaoContinuar] = useState<boolean>();
-
-  useEffect(() => {
-    console.log(desativarBotaoContinuar);
-  }, [desativarBotaoContinuar]);
 
   return (
     <Drawer

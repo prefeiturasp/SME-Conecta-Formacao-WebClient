@@ -21,17 +21,17 @@ import { DadosUsuarioDTO } from '~/core/dto/dados-usuario-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 
 import { InputNome } from '~/components/main/input/nome';
+import InputUnidade from '~/components/main/input/unidade';
+import { TipoUsuario } from '~/core/enum/tipo-usuario';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import usuarioService from '~/core/services/usuario-service';
 import { onClickVoltar } from '~/core/utils/form';
+import ModalEditEmailEducacionalButton from './components/modal-edit-email-educacional/modal-edit-email-educacional-button';
 import ModalEditEmailButton from './components/modal-edit-email/modal-edit-email-button';
 import { ModalEditNomeButton } from './components/modal-edit-nome/modal-edit-nome-button';
 import ModalEditNovaSenhaButton from './components/modal-edit-nova-senha/modal-edit-nova-senha-button';
-import { TipoUsuario } from '~/core/enum/tipo-usuario';
-import InputUnidade from '~/components/main/input/unidade';
 import ModalEditUnidadeButton from './components/modal-edit-unidade/modal-edit-unidade-button';
-import ModalEditEmailEducacionalButton from './components/modal-edit-email-educacional/modal-edit-email-educacional-button';
 
 export const DadosPerfil = styled.div`
   color: #a4a4a4;
@@ -74,7 +74,6 @@ const MeusDados: React.FC = () => {
       .then((resposta) => {
         if (resposta?.status === HttpStatusCode.Ok) {
           setMeusDados({ ...resposta.data });
-          console.log(resposta.data);
           form.setFieldsValue(resposta.data);
         }
       })
