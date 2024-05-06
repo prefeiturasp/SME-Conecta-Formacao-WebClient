@@ -28,8 +28,8 @@ import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { sucesso } from '~/core/services/alerta-service';
 import funcionarioExternoService from '~/core/services/funcionario-externo-service';
 import usuarioService from '~/core/services/usuario-service';
-import { removeAcentos, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import { onClickVoltar } from '~/core/utils/form';
+import { removeAcentos, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 
 import InputEmailEducacional from '~/components/main/input/email-educacional';
 import SelectTipoEmail from '~/components/main/input/tipo-email';
@@ -270,9 +270,6 @@ export const CadastroDeUsuario = () => {
             <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} formItemProps={{ required: true }} />
           </Col>
           <Col span={24}>
-            <InputEmailEducacional />
-          </Col>
-          <Col span={24}>
             <InputEmail
               inputProps={{
                 id: CF_INPUT_CONFIRMAR_EMAIL,
@@ -286,6 +283,9 @@ export const CadastroDeUsuario = () => {
                 name: 'confirmarEmail',
               }}
             />
+          </Col>
+          <Col span={24}>
+            <InputEmailEducacional />
           </Col>
           <Col span={24}>
             <InputCodigoEolUE />
