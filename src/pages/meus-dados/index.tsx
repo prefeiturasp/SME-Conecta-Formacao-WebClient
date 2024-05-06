@@ -11,18 +11,27 @@ import ButtonVoltar from '~/components/main/button/voltar';
 import InputEmail from '~/components/main/input/email';
 import SenhaCadastro from '~/components/main/input/senha-cadastro';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
-import { CF_INPUT_EMAIL, CF_INPUT_SENHA } from '~/core/constants/ids/input';
+import {
+  CF_INPUT_EMAIL,
+  CF_INPUT_EMAIL_EDUCACIONAL,
+  CF_INPUT_SENHA,
+  CF_INPUT_UNIDADE,
+} from '~/core/constants/ids/input';
 import { DadosUsuarioDTO } from '~/core/dto/dados-usuario-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 
 import { InputNome } from '~/components/main/input/nome';
+import InputUnidade from '~/components/main/input/unidade';
+import { TipoUsuario } from '~/core/enum/tipo-usuario';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import usuarioService from '~/core/services/usuario-service';
 import { onClickVoltar } from '~/core/utils/form';
+import ModalEditEmailEducacionalButton from './components/modal-edit-email-educacional/modal-edit-email-educacional-button';
 import ModalEditEmailButton from './components/modal-edit-email/modal-edit-email-button';
 import { ModalEditNomeButton } from './components/modal-edit-nome/modal-edit-nome-button';
 import ModalEditNovaSenhaButton from './components/modal-edit-nova-senha/modal-edit-nova-senha-button';
+import ModalEditUnidadeButton from './components/modal-edit-unidade/modal-edit-unidade-button';
 
 export const DadosPerfil = styled.div`
   color: #a4a4a4;
@@ -130,6 +139,36 @@ const MeusDados: React.FC = () => {
                     <ModalEditEmailButton formPreview={form} />
                   </Row>
                 </Col>
+                <Col span={24}>
+                  <Row wrap={false} align='middle'>
+                    <InputEmail
+                      inputProps={{ id: CF_INPUT_EMAIL_EDUCACIONAL, disabled: true }}
+                      formItemProps={{
+                        name: 'emailEducacional',
+                        label: 'E-mail Educacional',
+                        style: { width: '100%', marginRight: '8px' },
+                        required: false,
+                      }}
+                    />
+                    <ModalEditEmailEducacionalButton formPreview={form} />
+                  </Row>
+                </Col>
+                {meusDados?.tipo == TipoUsuario.Externo ? (
+                  <Col span={24}>
+                    <Row wrap={false} align='middle'>
+                      <InputUnidade
+                        inputProps={{ id: CF_INPUT_UNIDADE, disabled: true }}
+                        formItemProps={{
+                          style: { width: '100%', marginRight: '8px' },
+                          required: false,
+                        }}
+                      />
+                      <ModalEditUnidadeButton formPreview={form} />
+                    </Row>
+                  </Col>
+                ) : (
+                  <></>
+                )}
                 <Col span={24}>
                   <Row wrap={false} align='middle'>
                     <SenhaCadastro

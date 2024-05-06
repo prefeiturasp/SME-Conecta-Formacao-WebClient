@@ -12,14 +12,12 @@ const Inicial: React.FC = () => {
   const inscricao = useAppSelector((state) => state.inscricao);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
-
   const [podeConsultaInscricao, setPodeConsultaInscricao] = useState<boolean>(false);
 
   useEffect(() => {
     const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
-
     setPodeConsultaInscricao(ehCursista);
-  }, [perfilSelecionado, perfilUsuario]);
+  }, [perfilSelecionado, perfilUsuario, podeConsultaInscricao]);
 
   const temPerfilCursista = perfilUsuario.filter((item) =>
     item.perfilNome.includes(TipoPerfilTagDisplay[TipoPerfilEnum.Cursista]),
@@ -37,9 +35,9 @@ const Inicial: React.FC = () => {
 
   if (podeConsultaInscricao) {
     return <MinhasInscricoes />;
+  } else {
+    return <FiltroPaginaInicial />;
   }
-
-  return <FiltroPaginaInicial />;
 };
 
 export default Inicial;

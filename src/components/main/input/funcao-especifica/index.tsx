@@ -11,11 +11,15 @@ import { validarOnChangeMultiSelectOutros } from '~/core/utils/functions';
 import { ButtonParecer } from '~/pages/cadastros/propostas/form/components/modal-parecer/modal-parecer-button';
 
 type SelectFuncaoEspecifica = {
+  existeValoresSelecionados: (value: boolean) => void;
+  definiOutrosCamposComoRequerido: (value: boolean) => void;
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
 };
 
 const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
+  existeValoresSelecionados,
+  definiOutrosCamposComoRequerido,
   formItemProps,
   selectProps,
 }) => {
@@ -45,7 +49,6 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
         const funcoesEspecificas: number[] = form.getFieldValue('funcoesEspecificas');
 
         let campoOutros = null;
-
         if (funcoesEspecificas?.length) {
           const ehOutros = options.some(
             (option: any) => funcoesEspecificas.includes(option.value) && option.outros,
@@ -83,6 +86,25 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
                     placeholder='Função específica'
                     id={CF_SELECT_FUNCAO_ESPECIFICA}
                     onChange={(value) => {
+                      if (value.length) {
+                        existeValoresSelecionados(true);
+                        form.setFieldValue('anosTurmas', undefined);
+                        form.setFieldValue('componentesCurriculares', undefined);
+                        definiOutrosCamposComoRequerido(false);
+                        form.setFields([
+                          {
+                            name: 'componentesCurriculares',
+                            errors: [],
+                          },
+                          {
+                            name: 'anosTurmas',
+                            errors: [],
+                          },
+                        ]);
+                      } else {
+                        existeValoresSelecionados(false);
+                        definiOutrosCamposComoRequerido(false);
+                      }
                       const values = validarOnChangeMultiSelectOutros(value, funcoesEspecificas);
                       form.setFieldValue('funcoesEspecificas', values);
                       form.setFieldValue('funcaoEspecificaOutros', '');

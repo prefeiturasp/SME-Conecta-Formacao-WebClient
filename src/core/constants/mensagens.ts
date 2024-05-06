@@ -36,6 +36,8 @@ export const NOME_NAO_INFORMADO = 'É necessário informar o nome';
 export const RF_NAO_INFORMADO = 'É necessário informar o registro funcional';
 export const CPF_NAO_INFORMADO = 'É necessário informar o CPF';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
+export const COMPONENTE_NAO_INFORMADO = 'É necessário informar o componente curricular';
+export const ANO_ETAPA_NAO_INFORMADO = 'É necessário informar o ano/etapa';
 export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =
   'É necessário informar os critérios de validação das inscrições da proposta';
 export const QUANTIDADE_DE_TURMAS_NAO_INFORMADA = 'É necessário informar a quantidade de turmas';
@@ -64,6 +66,10 @@ export const INSCRICAO_ENCERRADA = 'Inscrições encerradas';
 export const ENVIAR_INSCRICAO = 'Enviar inscrição';
 export const NOVA_INSCRICAO = 'Nova inscrição';
 export const DESEJA_CANCELAR_INSCRICAO = 'Você realmente deseja cancelar essa inscrição?';
+export const DESEJA_CANCELAR_INSCRICAO_CURSISTA =
+  'Ao cancelar a sua inscrição você será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
+export const DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA =
+  'Ao cancelar a inscrição o cursista será removido da turma no SGA e seu progresso (presença e atividade) será descartado. Deseja realmente cancelar a inscrição?';
 export const DESEJA_CANCELAR_PROCESSAMENTO_ARQUIVO =
   'Você realmente deseja cancelar o processamento da inscrição?';
 export const CANCELAR_INSCRICAO =
@@ -79,6 +85,8 @@ export const CADASTRO_ENVIADO =
   'Cadastro inserido com sucesso. Enviamos um e-mail para validação do seu cadastro. Confira a sua caixa de entrada!';
 export const ERRO_EMAIL_NAO_VALIDADO =
   "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar'";
+export const ERRO_EMAIL_NAO_VALIDADO_ALTERAR_EMAIL =
+  "Você não validou seu e-mail ainda. Caso não tenha recebido o e-mail clique no botão 'Reenviar' ou em 'Editar e-mail' para informar um novo e-mail";
 export const TIPO_INSCRICAO_TOOLTIP_OPTATIVA = `Optativa: O cursista irá se inscrever por meio da plataforma.`;
 export const TIPO_INSCRICAO_TOOLTIP_MANUAL = `Manual: Inscrições realizadas pela área promotora no cadastro da proposta.`;
 export const TIPO_INSCRICAO_TOOLTIP_AUTOMATICA = `Automática: A área promotora irá informar quais são os cursista e a inscrição será automática.`;
@@ -86,10 +94,14 @@ export const TIPO_INSCRICAO_TOOLTIP_EXTERNA = `Externa: Inscrições realizadas 
 export const INSCRICAO_ENVIADA_COM_SGA =
   'Sua inscrição foi confirmada. Na data de início da sua turma acesse o SGA para iniciar a formação.';
 export const INSCRICAO_ENVIADA_SEM_SGA = 'Sua inscrição foi confirmada.';
+export const TOOLTIP_SENHA =
+  'Informe a senha de acesso aos sistemas da SME (Plateia, Intranet, SGP). Caso nunca tenha acessado tente informar a senha padrão que é Sgp e os últimos 4 dígitos do RF.';
+export const SERVICO_INDISPONIVEL =
+  'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
+
+export const TIPO_EMAIL_NAO_INFORMADO = 'É necessário informar o tipo';
 export const ERRO_INSCRICAO_MANUAL =
   'A lotação/local de trabalho do cursista não corresponde com a DRE promotora desta formação. Deseja continuar?';
 export const RESPONSAVEL_DF_NAO_INFORMADO = 'É necessário informar o responsável DF';
-export const SERVICO_INDISPONIVEL =
-  'Falha ao se comunicar com o servidor. Por favor aguarde um instante e tente novamente';
 export const LINK_INSCRICOES_EXTERNA = 'É necessário informar o link';
 export const BOTAO_INSCRICAO_EXTERNA = 'Link para inscrição';
