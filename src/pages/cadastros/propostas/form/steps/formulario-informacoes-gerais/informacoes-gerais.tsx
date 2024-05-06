@@ -50,16 +50,25 @@ type FormInformacoesGeraisProps = {
   listaDres: any[];
   formInitialValues?: PropostaFormDTO;
   tipoInstituicao?: AreaPromotoraTipoEnum;
+  existePublicoAlvo: boolean;
+  existeFuncaoEspecifica: boolean;
 };
 
 const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   listaDres,
   tipoInstituicao,
   formInitialValues,
+  existePublicoAlvo,
+  existeFuncaoEspecifica,
 }) => {
   const form = Form.useFormInstance();
 
   const { desabilitarCampos } = useContext(PermissaoContext);
+  const [cargoFuncaoSelecionado, setCargoFuncaoSelecionado] = useState(false);
+  const [publicoAlvoSelecionado, setPublicoAlvoSelecionado] = useState(false);
+  const [requeridoQuandoSelecionarFuncao, setRequeridoQuandoSelecionarFuncao] = useState(false);
+  const [requeridoQuandoSelecionarPublicoAlvo, setRequeridoQuandoSelecionarPublicoAlvo] =
+    useState(false);
 
   const token = useAppSelector((store) => store.auth.token);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
@@ -69,6 +78,15 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   const temDreVinculada =
     typeof dresVinculadas === 'string' ||
     (Array.isArray(dresVinculadas) && dresVinculadas.length > 0);
+
+  useEffect(() => {
+    if (existePublicoAlvo) {
+      setPublicoAlvoSelecionado(true);
+    }
+    if (existeFuncaoEspecifica) {
+      setCargoFuncaoSelecionado(true);
+    }
+  }, [existePublicoAlvo, existeFuncaoEspecifica]);
 
   useEffect(() => {
     if (!exibirLinkExterno) {
@@ -109,34 +127,39 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
       </Col>
 
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
-        <Col xs={24} sm={12} md={6} lg={6}>
-          <ButtonParecer childrenProps={{ flex: 'none' }} campo={CamposParecerEnum.integrarNoSGA}>
-            <RadioSimNao
-              formItemProps={{
-                initialValue: true,
-                name: 'integrarNoSGA',
-                label: 'Integrar no SGA',
-              }}
-              radioGroupProps={{
-                id: CF_RADIO_INTEGRA_NO_SGA,
-              }}
-            />
-          </ButtonParecer>
-          <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
-            <SelectTipoInscricao
-              exibirLink={setExibirLinkExterno}
-              selectProps={{
-                mode: 'multiple',
-              }}
-            />
-          </ButtonParecer>
-        </Col>
+        <>
+          <Col xs={24} sm={12} md={14} lg={10}>
+            <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
+              <SelectTipoInscricao
+                exibirLink={setExibirLinkExterno}
+                selectProps={{
+                  mode: 'multiple',
+                }}
+              />
+            </ButtonParecer>
+          </Col>
+
+          <Col xs={24} sm={12} md={6} lg={4}>
+            <ButtonParecer childrenProps={{ flex: 'none' }} campo={CamposParecerEnum.integrarNoSGA}>
+              <RadioSimNao
+                formItemProps={{
+                  initialValue: true,
+                  name: 'integrarNoSGA',
+                  label: 'Integrar no SGA',
+                }}
+                radioGroupProps={{
+                  id: CF_RADIO_INTEGRA_NO_SGA,
+                }}
+              />
+            </ButtonParecer>
+          </Col>
+        </>
       ) : (
         <></>
       )}
 
-      <Col span={24}>
-        <ButtonParecer campo={CamposParecerEnum.tiposInscricao}>
+      <Col xs={24} sm={12} md={14} lg={10}>
+        <ButtonParecer campo={CamposParecerEnum.codigoEventoSigpec}>
           <Form.Item
             key='codigoEventoSigpec'
             name='codigoEventoSigpec'
@@ -155,24 +178,27 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       {exibirLinkExterno ? (
         <Col xs={24} sm={14} md={24}>
-          <Form.Item
-            name='linkParaInscricoesExterna'
-            label='Link para Inscrições'
-            rules={[
-              { required: exibirLinkExterno, whitespace: true, message: LINK_INSCRICOES_EXTERNA },
-            ]}
-          >
-            <Input
-              type='text'
-              maxLength={200}
-              id={CF_INPUT_LINK_INSCRICOES_EXTERNA}
-              placeholder='Informe o Link para Inscrições Externas'
-            />
-          </Form.Item>
+          <ButtonParecer campo={CamposParecerEnum.linkParaInscricoesExterna}>
+            <Form.Item
+              name='linkParaInscricoesExterna'
+              label='Link para Inscrições'
+              rules={[
+                { required: exibirLinkExterno, whitespace: true, message: LINK_INSCRICOES_EXTERNA },
+              ]}
+            >
+              <Input
+                type='text'
+                maxLength={200}
+                id={CF_INPUT_LINK_INSCRICOES_EXTERNA}
+                placeholder='Informe o Link para Inscrições Externas'
+              />
+            </Form.Item>
+          </ButtonParecer>
         </Col>
       ) : (
         <></>
       )}
+
       <Col span={24}>
         <ButtonParecer campo={CamposParecerEnum.dres}>
           <SelectDRE
@@ -221,44 +247,54 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
       <Col span={24}>
         <ButtonParecer campo={CamposParecerEnum.publicosAlvo}>
-          <SelectPublicoAlvoCadastroProposta />
-        </ButtonParecer>
-      </Col>
-
-      <Col span={24}>
-        <ButtonParecer campo={CamposParecerEnum.funcoesEspecificas}>
-          <SelectFuncaoEspecifica
-            formItemProps={{
-              tooltip: getTooltipFormInfoCircleFilled(
-                'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
-              ),
-            }}
+          <SelectPublicoAlvoCadastroProposta
+            existeValoresSelecionados={setPublicoAlvoSelecionado}
+            exibirOpcaoOutros={true}
+            definiOutrosCamposComoRequerido={setRequeridoQuandoSelecionarPublicoAlvo}
           />
         </ButtonParecer>
       </Col>
 
       <Col span={24}>
+        <SelectFuncaoEspecifica
+          existeValoresSelecionados={setCargoFuncaoSelecionado}
+          definiOutrosCamposComoRequerido={setRequeridoQuandoSelecionarFuncao}
+          formItemProps={{
+            tooltip: getTooltipFormInfoCircleFilled(
+              'O curso/evento é SOMENTE para o servidor que esteja exercendo alguma função específica? Em caso afirmativo, identifique a função (Ex: Prof. de Matemática; Diretor de CEI; Prof. Regente no Ciclo de Alfabetização; POED, outras).',
+            ),
+          }}
+        />
+      </Col>
+
+      <Col span={24}>
         <ButtonParecer campo={CamposParecerEnum.modalidade}>
-          <SelectModalidade />
+          <SelectModalidade
+            campoRequerido={requeridoQuandoSelecionarFuncao && requeridoQuandoSelecionarPublicoAlvo}
+          />
         </ButtonParecer>
       </Col>
 
       <Col span={24}>
         <ButtonParecer campo={CamposParecerEnum.anosTurmas}>
-          <SelectAnoEtapa />
+          <SelectAnoEtapa
+            desativarCampo={cargoFuncaoSelecionado || publicoAlvoSelecionado}
+            campoRequerido={requeridoQuandoSelecionarFuncao || requeridoQuandoSelecionarPublicoAlvo}
+          />
         </ButtonParecer>
       </Col>
 
       <Col span={24}>
         <ButtonParecer campo={CamposParecerEnum.componentesCurriculares}>
-          <SelectComponenteCurricular />
+          <SelectComponenteCurricular
+            desativarCampo={cargoFuncaoSelecionado || publicoAlvoSelecionado}
+            campoRequerido={requeridoQuandoSelecionarFuncao || requeridoQuandoSelecionarPublicoAlvo}
+          />
         </ButtonParecer>
       </Col>
 
       <Col xs={24}>
-        <ButtonParecer campo={CamposParecerEnum.criteriosValidacaoInscricao}>
-          <SelectCriteriosValidacaoInscricoes />
-        </ButtonParecer>
+        <SelectCriteriosValidacaoInscricoes />
       </Col>
 
       <Col xs={24}>

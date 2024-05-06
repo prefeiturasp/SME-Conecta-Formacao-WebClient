@@ -46,7 +46,15 @@ const ModalEditEmail: React.FC<ModalEditEmailProps> = ({
         initialValues={initialValues}
         validateMessages={validateMessages}
       >
-        <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} />
+        <InputEmail
+          inputProps={{ id: CF_INPUT_EMAIL }}
+          formItemProps={{
+            name: 'email',
+            label: 'E-mail',
+            style: { width: '100%', marginRight: '8px' },
+            required: true,
+          }}
+        />
       </Form>
     </ModalEditDefault>
   );

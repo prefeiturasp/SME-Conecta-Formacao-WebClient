@@ -1,6 +1,6 @@
 import { Col, Form, Input, Row } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import { notification } from '~/components/lib/notification';
 import { CF_INPUT_TEXT_AREA } from '~/core/constants/ids/input';
@@ -24,30 +24,30 @@ export const ModalParecerConteudo: React.FC<ModalParecerProps> = ({
   onClickExcluir,
   carregarParecer,
 }) => {
-  const form = useFormInstance();
+  const formInstance = useFormInstance();
   const initialValue = parecer.descricao;
   const [modoEdicao, setModoEdicao] = useState<boolean>(false);
 
   const onClickCancelar = () => {
-    if (form.isFieldsTouched()) {
+    if (formInstance.isFieldsTouched()) {
       confirmacao({
         content: 'Você não salvou o parecer, deseja descartar a alteração?',
         onOk() {
-          form.resetFields();
+          formInstance.resetFields();
           setModoEdicao(false);
         },
         okText: 'Sim',
         cancelText: 'Não',
       });
     } else {
-      form.resetFields();
+      formInstance.resetFields();
       setModoEdicao(false);
     }
   };
 
-  const onClickAlterar = () => {
+  const alterar = () => {
     if (!propostaId) return;
-    const descricao = form.getFieldsValue(true)[`${parecer.id}`];
+    const descricao = formInstance.getFieldsValue(true)[`${parecer.id}`];
 
     const params: PropostaParecerCadastroDTO = {
       propostaId,
@@ -75,7 +75,7 @@ export const ModalParecerConteudo: React.FC<ModalParecerProps> = ({
       return (
         <>
           <Col>
-            <ButtonSecundary size='small' disabled={!modoEdicao} onClick={onClickAlterar}>
+            <ButtonSecundary size='small' disabled={!modoEdicao} onClick={alterar}>
               Salvar
             </ButtonSecundary>
           </Col>
@@ -111,6 +111,10 @@ export const ModalParecerConteudo: React.FC<ModalParecerProps> = ({
     );
   };
 
+  useEffect(() => {
+    formInstance.resetFields();
+  }, [parecer]);
+
   return (
     <>
       <Form.Item
@@ -123,6 +127,7 @@ export const ModalParecerConteudo: React.FC<ModalParecerProps> = ({
           rows={5}
           id={`${CF_INPUT_TEXT_AREA}_${index}`}
           disabled={!modoEdicao}
+          maxLength={1000}
           style={{
             resize: 'none',
             marginBottom: 6,

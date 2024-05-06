@@ -346,6 +346,11 @@ const ListCadastroDePropostas: React.FC = () => {
                     <DataTable
                       url={url}
                       realizouFiltro={realizouFiltro}
+                      alterarRealizouFiltro={() => {
+                        () => {
+                          ('');
+                        };
+                      }}
                       filters={filters}
                       columns={columns}
                       onRow={(row) => ({

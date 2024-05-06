@@ -6,8 +6,10 @@ import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_CRITERIOS_VALIDACOES_INSCRICAO_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_CRITERIOS_VALIDACOES_INSCRICAO } from '~/core/constants/ids/select';
 import { PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS } from '~/core/constants/mensagens';
+import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { obterCriterioValidacaoInscricao } from '~/core/services/proposta-service';
 import { validarOnChangeMultiSelectUnico } from '~/core/utils/functions';
+import { ButtonParecer } from '~/pages/cadastros/propostas/form/components/modal-parecer/modal-parecer-button';
 
 const SelectCriteriosValidacaoInscricoes: React.FC = () => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
@@ -47,51 +49,57 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
 
           if (ehOutros) {
             campoOutros = (
-              <Form.Item
-                label='Outros'
-                name='criterioValidacaoInscricaoOutros'
-                rules={[{ required: true, message: PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS }]}
-              >
-                <Input
-                  type='text'
-                  maxLength={200}
-                  placeholder='Outros'
-                  id={CF_INPUT_CRITERIOS_VALIDACOES_INSCRICAO_OUTROS}
-                />
-              </Form.Item>
+              <ButtonParecer campo={CamposParecerEnum.criteriosValidacaoInscricaoOutros}>
+                <Form.Item
+                  label='Outros'
+                  name='criterioValidacaoInscricaoOutros'
+                  rules={[
+                    { required: true, message: PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS },
+                  ]}
+                >
+                  <Input
+                    type='text'
+                    maxLength={200}
+                    placeholder='Outros'
+                    id={CF_INPUT_CRITERIOS_VALIDACOES_INSCRICAO_OUTROS}
+                  />
+                </Form.Item>
+              </ButtonParecer>
             );
           }
         }
 
         return (
           <>
-            <Form.Item
-              label='Critérios para validação das inscrições'
-              name='criteriosValidacaoInscricao'
-              rules={[{ required: true, message: PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS }]}
-            >
-              <Select
-                allowClear
-                mode='multiple'
-                options={options}
-                placeholder='Critérios para validação das inscrições'
-                id={CF_SELECT_CRITERIOS_VALIDACOES_INSCRICAO}
-                onChange={(value) => {
-                  const opcoesAtuais = options.filter((option: any) => {
-                    return criteriosValidacaoInscricao.includes(option.value);
-                  });
+            <ButtonParecer campo={CamposParecerEnum.criteriosValidacaoInscricao}>
+              <Form.Item
+                label='Critérios para validação das inscrições'
+                name='criteriosValidacaoInscricao'
+                rules={[{ required: true, message: PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS }]}
+              >
+                <Select
+                  allowClear
+                  mode='multiple'
+                  options={options}
+                  placeholder='Critérios para validação das inscrições'
+                  id={CF_SELECT_CRITERIOS_VALIDACOES_INSCRICAO}
+                  onChange={(value) => {
+                    const opcoesAtuais = options.filter((option: any) => {
+                      return criteriosValidacaoInscricao.includes(option.value);
+                    });
 
-                  const opcoesNovas = options.filter((option: any) => {
-                    return value.includes(option.value);
-                  });
+                    const opcoesNovas = options.filter((option: any) => {
+                      return value.includes(option.value);
+                    });
 
-                  const values = validarOnChangeMultiSelectUnico(opcoesNovas, opcoesAtuais);
+                    const values = validarOnChangeMultiSelectUnico(opcoesNovas, opcoesAtuais);
 
-                  form.setFieldValue('criteriosValidacaoInscricao', values);
-                  form.setFieldValue('criterioValidacaoInscricaoOutros', '');
-                }}
-              />
-            </Form.Item>
+                    form.setFieldValue('criteriosValidacaoInscricao', values);
+                    form.setFieldValue('criterioValidacaoInscricaoOutros', '');
+                  }}
+                />
+              </Form.Item>
+            </ButtonParecer>
 
             {campoOutros ? campoOutros : <></>}
           </>

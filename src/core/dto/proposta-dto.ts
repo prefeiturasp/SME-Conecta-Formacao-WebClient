@@ -28,6 +28,7 @@ export type PropostaDTO = {
   quantidadeTurmas?: number | null;
   quantidadeVagasTurma?: number | null;
   funcaoEspecificaOutros: string;
+  publicoAlvoOutros: string;
   criterioValidacaoInscricaoOutros: string;
   situacao: SituacaoProposta;
   arquivoImagemDivulgacaoId?: number;
@@ -60,6 +61,7 @@ export type PropostaDTO = {
   anosTurmas?: PropostaAnoTurmaDTO[];
   componentesCurriculares?: PropostaComponenteCurricularDTO[];
   integrarNoSGA?: boolean;
+  desativarAnoEhComponente?: boolean;
   rfResponsavelDf?: string;
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
@@ -68,6 +70,9 @@ export type PropostaDTO = {
   codigoEventoSigpec?: number;
   numeroHomologacao?: number;
   pareceristas?: PropostaPareceristaDTO[];
+  podeEnviarParecer?: boolean;
+  podeEnviar?: boolean;
+  totalDePareceres?: TotalDePareceresDTO[];
 };
 
 export type TipoInscricaoType = {
@@ -92,6 +97,7 @@ export type PropostaFormDTO = {
   publicosAlvo?: number[];
   funcoesEspecificas?: number[];
   funcaoEspecificaOutros?: string;
+  publicoAlvoOutros?: string;
   vagasRemanecentes?: number[];
   criteriosValidacaoInscricao?: number[];
   criterioValidacaoInscricaoOutros?: string;
@@ -110,9 +116,9 @@ export type PropostaFormDTO = {
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;
   palavrasChaves?: number[];
-  criterioCertificacao: number[];
-  cursoComCertificado: boolean;
-  acaoInformativa: boolean;
+  criterioCertificacao?: number[];
+  cursoComCertificado?: boolean;
+  acaoInformativa?: boolean;
   descricaoDaAtividade?: string;
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
@@ -123,6 +129,7 @@ export type PropostaFormDTO = {
   componentesCurriculares?: number[];
   listaDres?: DreDTO[];
   integrarNoSGA?: boolean;
+  desativarAnoEhComponente?: boolean;
   rfResponsavelDf?: string;
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;

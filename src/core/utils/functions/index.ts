@@ -76,6 +76,10 @@ export const onchangeMultiSelectOpcaoTodos = (
   return valorParaSetar;
 };
 
+export const removeAcentos = (texto:String) => {
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 export const onchangeMultiSelectLabelInValueOpcaoTodos = (
   valores: any[],
   valorAtual: any[],

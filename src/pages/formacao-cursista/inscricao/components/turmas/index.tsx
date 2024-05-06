@@ -14,10 +14,11 @@ type SelectTurmaProps = {
 
 const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, propostaId }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
+  const codigoDre = Form.useWatch('usuarioFuncaoSelecionado')?.dreCodigo;
 
   const obterDados = useCallback(async () => {
     if (propostaId) {
-      const resposta = await obterTurmasInscricao(propostaId);
+      const resposta = await obterTurmasInscricao(propostaId, codigoDre);
 
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
@@ -29,11 +30,11 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, p
         setOptions([]);
       }
     }
-  }, [propostaId]);
+  }, [propostaId, codigoDre]);
 
   useEffect(() => {
     obterDados();
-  }, [obterDados]);
+  }, [obterDados, codigoDre]);
 
   return (
     <Form.Item
@@ -58,7 +59,7 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, p
         options={options}
         placeholder='Selecione uma Turma'
         {...selectProps}
-        id={CF_SELECT_TURMA_INSCRICAO}        
+        id={CF_SELECT_TURMA_INSCRICAO}
       />
     </Form.Item>
   );
