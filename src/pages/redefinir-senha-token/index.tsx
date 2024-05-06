@@ -10,7 +10,6 @@ import { AxiosError, HttpStatusCode } from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import ErroGeralLogin from '~/components/main/erro-geral-login';
 import SenhaCadastro from '~/components/main/input/senha-cadastro';
-import Spin from '~/components/main/spin';
 import {
   CF_BUTTON_CONFIRMAR_REDEFINICAO_SENHA,
   CF_BUTTON_VOLTAR,
@@ -24,13 +23,15 @@ import { setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { onClickVoltar } from '~/core/utils/form';
 import TokenExpirado from './token-expirado';
+import Spin from '~/components/main/spin';
+import { store } from '~/core/redux';
+import { setDeslogar } from '~/core/redux/modules/auth/actions';
 
 const RedefinirSenhaToken = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const paramsRoute = useParams();
-
   const token = paramsRoute?.token || '';
 
   const [erroGeral, setErroGeral] = useState<string[]>();
@@ -82,6 +83,7 @@ const RedefinirSenhaToken = () => {
   }, [token]);
 
   useEffect(() => {
+    store.dispatch(setDeslogar());
     if (token) validarToken();
   }, [token, validarToken]);
 

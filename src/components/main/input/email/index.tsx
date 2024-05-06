@@ -39,7 +39,6 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
       },
     ]);
   };
-
   useEffect(() => {
     setExibirErro(!formItemProps?.required);
   }, [formItemProps?.required]);
@@ -50,7 +49,7 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
       name='email'
       rules={[
         { required: !!formItemProps?.required },
-        { type: 'email', message: exibirErro ? 'Não é um e-mail válido' : '' },
+        { message: exibirErro ? 'Não é um e-mail válido' : '' },
       ]}
       {...formItemProps}
     >

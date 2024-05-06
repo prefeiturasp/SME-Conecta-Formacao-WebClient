@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row } from 'antd';
+import { Button, Checkbox, CheckboxProps, Col, Form, Input, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -28,18 +28,27 @@ import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { sucesso } from '~/core/services/alerta-service';
 import funcionarioExternoService from '~/core/services/funcionario-externo-service';
 import usuarioService from '~/core/services/usuario-service';
+import { removeAcentos, removerTudoQueNaoEhDigito } from '~/core/utils/functions';
 import { onClickVoltar } from '~/core/utils/form';
-import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
+
+import InputEmailEducacional from '~/components/main/input/email-educacional';
+import SelectTipoEmail from '~/components/main/input/tipo-email';
+import { TipoEmail } from '~/core/enum/tipo-email';
 
 export const CadastroDeUsuario = () => {
   const [form] = useForm();
-
+  const DOMINIO_DEFAULT = '@edu.sme.prefeitura.sp.gov.br';
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const [erroGeral, setErroGeral] = useState<string[]>();
   const [loadingCPF, setLoadingCPF] = useState<boolean>(false);
   const [errorOnFinish, setErrorOnFinish] = useState<boolean>(false);
+  const [checked, setChecked] = useState(false);
+
+  const onChangeCheck: CheckboxProps['onChange'] = (e) => {
+    setChecked(e.target.checked);
+  };
 
   useEffect(() => {
     form.getFieldInstance('cpf').focus();
@@ -77,6 +86,9 @@ export const CadastroDeUsuario = () => {
           nomeUnidade: data?.nomeUe,
           ues: temApenasUmaUE ? data?.ues[0].id : [],
         });
+        if (!data?.nomePessoa) {
+          form.setFieldValue('tipoEmail', undefined);
+        }
 
         !resposta.dados && form.getFieldInstance('nomePessoa').focus();
       })
@@ -97,7 +109,6 @@ export const CadastroDeUsuario = () => {
       dispatch(setSpinning(false));
       return;
     }
-
     usuarioService
       .cadastrarUsuarioExterno({
         cpf: values.cpf,
@@ -106,6 +117,8 @@ export const CadastroDeUsuario = () => {
         codigoUnidade: values.codigoUnidade ? values.codigoUnidade : String(values.ues),
         senha: values.senha,
         confirmarSenha: values.confirmarSenha,
+        emailEducacional: values.emailEducacional + DOMINIO_DEFAULT,
+        tipoEmail: values.tipoEmail,
       })
       .then((resposta) => {
         if (resposta.dados) {
@@ -122,7 +135,30 @@ export const CadastroDeUsuario = () => {
       .finally(() => dispatch(setSpinning(false)));
   };
 
+  const criarEmailEdu = () => {
+    const cpf = removerTudoQueNaoEhDigito(form.getFieldValue('cpf'));
+    const tipoEmail: TipoEmail = form.getFieldValue('tipoEmail') as TipoEmail;
+    const nome = form.getFieldValue('nomePessoa');
+    let emailEdu = '';
+    const nomeSplit = nome?.split(' ');
+    if (nomeSplit && cpf.length === 11 && tipoEmail) {
+      const primeiroNome = nomeSplit[0]?.toLowerCase();
+      const ultimoNome =
+        nomeSplit?.length - 1 > 0 ? nomeSplit[nomeSplit?.length - 1].toLowerCase() : '';
+      if (tipoEmail == TipoEmail.FuncionarioUnidadeParceira) {
+        emailEdu = `${primeiroNome}${ultimoNome}.${cpf}`;
+      }
+      if (tipoEmail == TipoEmail.Estagiario) {
+        emailEdu = `${primeiroNome}${ultimoNome}.e${cpf}`;
+      }
+      form.setFieldValue('emailEducacional', removeAcentos(emailEdu));
+    } else {
+      emailEdu = '';
+      form.setFieldValue('emailEducacional', undefined);
+    }
+  };
   const validateNameAndSurname = (_rule: any, value: string) => {
+    criarEmailEdu();
     const names = value?.split(' ');
 
     if (names?.length <= 1 || names[1]?.trim() === '') {
@@ -203,9 +239,13 @@ export const CadastroDeUsuario = () => {
                   if (value.length === 11) {
                     validaCPFExistente(value);
                   }
+                  criarEmailEdu();
                 },
               }}
             />
+          </Col>
+          <Col span={24}>
+            <SelectTipoEmail selectProps={{ onChange: criarEmailEdu }} />
           </Col>
           <Col span={24}>
             <Form.Item
@@ -219,11 +259,19 @@ export const CadastroDeUsuario = () => {
                 },
               ]}
             >
-              <Input maxLength={100} id={CF_INPUT_NOME} placeholder='Informe o nome completo' />
+              <Input
+                maxLength={100}
+                id={CF_INPUT_NOME}
+                placeholder='Informe o nome completo'
+                onChange={criarEmailEdu}
+              />
             </Form.Item>
           </Col>
           <Col span={24}>
             <InputEmail inputProps={{ id: CF_INPUT_EMAIL }} formItemProps={{ required: true }} />
+          </Col>
+          <Col span={24}>
+            <InputEmailEducacional />
           </Col>
           <Col span={24}>
             <InputEmail
@@ -259,13 +307,18 @@ export const CadastroDeUsuario = () => {
             />
           </Col>
         </Row>
-
+        <p style={{ marginBottom: '30px', marginTop: '10px' }}>
+          <Checkbox checked={checked} onChange={onChangeCheck}>
+            As informações prestadas são verdadeiras e me responsabilizo por elas
+          </Checkbox>
+        </p>
         <Row justify='center' gutter={[0, 21]} style={{ marginTop: '20px' }}>
           <Col span={24}>
             <Button
               block
               type='primary'
               htmlType='submit'
+              disabled={!checked}
               id={CF_BUTTON_CONTINUAR}
               style={{ fontWeight: 700 }}
             >
