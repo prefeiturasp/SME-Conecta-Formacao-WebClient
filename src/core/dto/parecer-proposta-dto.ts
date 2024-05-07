@@ -13,6 +13,7 @@ export type PropostaParecerDTO = {
   descricao: string;
   podeAlterar?: boolean;
   campo: CamposParecerEnum;
+  auditoria?: AuditoriaDTO;
 };
 
 export type PropostaParecerCadastroDTO = {
