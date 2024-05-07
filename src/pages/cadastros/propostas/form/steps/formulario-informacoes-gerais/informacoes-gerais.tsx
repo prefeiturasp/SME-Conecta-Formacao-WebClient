@@ -96,7 +96,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
 
   const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = removerTudoQueNaoEhDigito(e.target.value);
-    return value ? value : '';
+    return value ? value : undefined;
   };
 
   return (
