@@ -73,6 +73,10 @@ export type PropostaDTO = {
   podeEnviarParecer?: boolean;
   podeEnviar?: boolean;
   totalDePareceres?: TotalDePareceresDTO[];
+  podeAprovar?: boolean;
+  labelAprovar?: string;
+  podeRecusar?: boolean;
+  labelRecusar?: string;
 };
 
 export type TipoInscricaoType = {
@@ -143,6 +147,10 @@ export type PropostaFormDTO = {
   exibirParecer?: boolean;
   podeEnviarParecer?: boolean;
   pareceristas?: PropostaPareceristaFormDTO[];
+  podeAprovar?: boolean;
+  labelAprovar?: string;
+  podeRecusar?: boolean;
+  labelRecusar?: string;
 };
 
 export type PropostaPalavraChaveDTO = {
