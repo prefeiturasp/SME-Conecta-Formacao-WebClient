@@ -14,6 +14,7 @@ import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoDTO } from '../dto/retorno-dto';
+import { RetornoJustificativaDTO } from '../dto/retorno-justificativa-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import {
@@ -149,6 +150,9 @@ const obterPropostaTutorPorId = (id: string | number) =>
 const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
   obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
+const obterSugestoesPareceristas = () =>
+  obterRegistro<RetornoJustificativaDTO[]>(`${URL_API_PROPOSTA}/sugestoes`);
+
 export {
   alterarParecer,
   alterarProposta,
@@ -173,6 +177,7 @@ export {
   obterPropostasDashboard,
   obterRoteiroPropostaFormativa,
   obterSituacoes,
+  obterSugestoesPareceristas,
   obterTipoEncontro,
   obterTipoFormacao,
   obterTipoInscricao,
