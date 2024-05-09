@@ -4,7 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import { notification } from '~/components/lib/notification';
 import { CF_INPUT_TEXT_AREA } from '~/core/constants/ids/input';
-import { PropostaParecerCadastroDTO, PropostaParecerDTO } from '~/core/dto/parecer-proposta-dto';
+import {
+  PropostaPareceristaConsideracaoCadastroDTO,
+  PropostaPareceristaConsideracaoDTO,
+} from '~/core/dto/parecer-proposta-dto';
 import { confirmacao } from '~/core/services/alerta-service';
 import { alterarParecer } from '~/core/services/proposta-service';
 import { Colors } from '~/core/styles/colors';
@@ -12,7 +15,7 @@ import { Colors } from '~/core/styles/colors';
 type ModalParecerProps = {
   index: number;
   propostaId?: number;
-  parecer: PropostaParecerDTO;
+  parecer: PropostaPareceristaConsideracaoDTO;
   onClickExcluir: (id?: number) => void;
   carregarParecer: () => void;
 };
@@ -49,7 +52,7 @@ export const ModalParecerConteudo: React.FC<ModalParecerProps> = ({
     if (!propostaId) return;
     const descricao = formInstance.getFieldsValue(true)[`${parecer.id}`];
 
-    const params: PropostaParecerCadastroDTO = {
+    const params: PropostaPareceristaConsideracaoCadastroDTO = {
       propostaId,
       id: parecer?.id || null,
       campo: parecer.campo,
