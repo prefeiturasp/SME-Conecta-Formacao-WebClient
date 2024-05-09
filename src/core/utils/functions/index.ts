@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
 import { dayjs } from '~/core/date/dayjs';
-import { TotalDePareceresDTO } from '~/core/dto/parecer-proposta-dto';
+import { TotalDeConsideracoes } from '~/core/dto/parecer-proposta-dto';
 import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
 import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 
@@ -76,9 +76,9 @@ export const onchangeMultiSelectOpcaoTodos = (
   return valorParaSetar;
 };
 
-export const removeAcentos = (texto:String) => {
-  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
+export const removeAcentos = (texto: String) => {
+  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+};
 
 export const onchangeMultiSelectLabelInValueOpcaoTodos = (
   valores: any[],
@@ -105,7 +105,7 @@ export const onchangeMultiSelectLabelInValueOpcaoTodos = (
 
 export const mostrarQtdParecer = (
   campo: CamposParecerEnum,
-  totalDePareceres: TotalDePareceresDTO[],
+  totalDePareceres: TotalDeConsideracoes[],
 ) => {
   const qtdParecer = totalDePareceres
     ?.filter((parecer) => parecer.campo === campo)

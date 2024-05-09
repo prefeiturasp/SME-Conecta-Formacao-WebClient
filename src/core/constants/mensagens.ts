@@ -35,6 +35,7 @@ export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da fo
 export const NOME_NAO_INFORMADO = 'É necessário informar o nome';
 export const RF_NAO_INFORMADO = 'É necessário informar o registro funcional';
 export const CPF_NAO_INFORMADO = 'É necessário informar o CPF';
+export const PARECERISTA_NAO_INFORMADO = 'É necessário informar pelo menos um parecerista';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
 export const COMPONENTE_NAO_INFORMADO = 'É necessário informar o componente curricular';
 export const ANO_ETAPA_NAO_INFORMADO = 'É necessário informar o ano/etapa';

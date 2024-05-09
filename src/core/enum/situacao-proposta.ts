@@ -8,9 +8,12 @@ export enum SituacaoProposta {
   Devolvida = 7,
   Alterando = 8,
   Aprovada = 9,
-  AguardandoAnaliseParecerista = 10,
-  AguardandoAnaliseParecerDF = 11,
-  AnaliseParecerAreaPromotora = 12,
+  AguardandoAnalisePeloParecerista = 10,
+  AguardandoAnaliseParecerPelaDF = 11,
+  AnaliseParecerPelaAreaPromotora = 12,
+  Recusada = 13,
+  AguardandoReanalisePeloParecerista = 14,
+  AguardandoAnaliseParecerFinalPelaDF = 15,
 }
 
 export const SituacaoPropostaTagDisplay: Record<SituacaoProposta, string> = {
@@ -23,7 +26,11 @@ export const SituacaoPropostaTagDisplay: Record<SituacaoProposta, string> = {
   [SituacaoProposta.Devolvida]: 'Devolvida',
   [SituacaoProposta.Alterando]: 'Alterando',
   [SituacaoProposta.Aprovada]: 'Aprovada',
-  [SituacaoProposta.AguardandoAnaliseParecerista]: 'Aguardando análise do Parecerista',
-  [SituacaoProposta.AguardandoAnaliseParecerDF]: 'Aguardando análise do parecer (DF)',
-  [SituacaoProposta.AnaliseParecerAreaPromotora]: 'Análise do parecer pela área promotora',
+  [SituacaoProposta.AguardandoAnalisePeloParecerista]: 'Aguardando análise do Parecerista',
+  [SituacaoProposta.AguardandoAnaliseParecerPelaDF]: 'Aguardando análise do parecer pela DF',
+  [SituacaoProposta.AnaliseParecerPelaAreaPromotora]: 'Análise do parecer pela área promotora',
+  [SituacaoProposta.Recusada]: 'Recusada',
+  [SituacaoProposta.AguardandoReanalisePeloParecerista]: 'Aguardando reanálise do Parecerista',
+  [SituacaoProposta.AguardandoAnaliseParecerFinalPelaDF]:
+    'Aguardando análise do parecer final pela DF',
 };

@@ -78,10 +78,10 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     if (!propostaId) return;
     const resposta = await obterPropostaPorId(propostaId);
     if (resposta.sucesso) {
-      const podeEnviarParecer = !!resposta.dados.podeEnviarParecer;
+      const podeEnviarParecer = !!resposta.dados.podeEnviarConsideracoes;
       const podeEnviar = !!resposta.dados.podeEnviar;
       const situacao = resposta.dados.situacao;
-      const totalDePareceres = resposta.dados.totalDePareceres;
+      const totalDePareceres = resposta.dados.totalDeConsideracoes;
 
       setFormInitialValues((valoresAtuais) => ({
         ...valoresAtuais,
@@ -171,17 +171,20 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     if (temParecer)
       return (
         <>
-          {dados?.itens?.map((parecer, index) => (
-            <React.Fragment key={parecer.id}>
-              <ModalParecerConteudo
-                index={index}
-                parecer={parecer}
-                propostaId={propostaId}
-                onClickExcluir={onClickExcluir}
-                carregarParecer={carregarParecer}
-              />
-            </React.Fragment>
-          ))}
+          {dados?.itens?.map((parecer, index) => {
+            return (
+              <React.Fragment key={parecer.id}>
+                <ModalParecerConteudo
+                  index={index}
+                  parecer={parecer}
+                  propostaId={propostaId}
+                  onClickExcluir={onClickExcluir}
+                  carregarParecer={carregarParecer}
+                />
+                <Auditoria dados={parecer?.auditoria} />
+              </React.Fragment>
+            );
+          })}
         </>
       );
 

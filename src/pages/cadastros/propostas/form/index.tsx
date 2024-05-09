@@ -73,6 +73,7 @@ import {
 import { onClickCancelar } from '~/core/utils/form';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import { ModalAprovarRecusarButton } from './components/modal-aprovar-recusar/modal-aprovar-recusar-button';
 import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
 import { PropostaContext } from './provider';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
@@ -80,6 +81,10 @@ import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
+
+const stylesButtons = {
+  fontWeight: 700,
+};
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
@@ -141,7 +146,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
-  const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarParecer;
+  const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarConsideracoes;
   const exibirInputNumeroHomologacao =
     formInitialValues?.situacao === SituacaoProposta.Aprovada ||
     formInitialValues?.situacao === SituacaoProposta.Publicada;
@@ -151,9 +156,20 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirJustificativaDevolucao =
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
+  // TODO: USAR PROP DO BACK E SE TIVER ITENS NA LISTA MOSTRA A MESMA
+  const exibirJustificativaAprovacaoRecusa = true;
+
+  // TODO: REMOVER AO FINALIZAR TESTES
+  const exibirBotoesAprovarRecusar = true;
+  // const exibirBotoesAprovarRecusar =
+  //   !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
+
   const podeEditarRfResponsavelDf =
     ehPerfilAdminDf &&
-    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
+    (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf ||
+      formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF ||
+      formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
+      formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista) &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const stepsProposta: StepProps[] = [
@@ -187,7 +203,11 @@ export const FormCadastroDePropostas: React.FC = () => {
               formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) ||
             formInitialValues?.situacao === SituacaoProposta.Aprovada
           ) &&
-          !(ehAreaPromotora && formInitialValues?.situacao === SituacaoProposta.Devolvida));
+          !(
+            ehAreaPromotora &&
+            (formInitialValues?.situacao === SituacaoProposta.Devolvida ||
+              formInitialValues?.situacao === SituacaoProposta.AnaliseParecerPelaAreaPromotora)
+          ));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -751,27 +771,32 @@ export const FormCadastroDePropostas: React.FC = () => {
     const formacaoHomologada =
       (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) ||
       FormacaoHomologada.NaoCursosPorIN;
-    confirmacao({
-      content:
-        formacaoHomologada === FormacaoHomologada.Sim
-          ? APOS_ENVIAR_PROPOSTA_ANALISE
-          : APOS_ENVIAR_PROPOSTA_PUBLICAR,
-      onOk() {
-        enviarPropostaAnalise(id).then((response) => {
-          if (response.sucesso) {
-            notification.success({
-              message: 'Sucesso',
-              description: PROPOSTA_ENVIADA,
-            });
-            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-          }
-          if (response.mensagens.length) {
-            setListaErros(response.mensagens);
-            showModalErros();
-          }
+
+    const enviarProposta = enviarPropostaAnalise(id).then((response) => {
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: PROPOSTA_ENVIADA,
         });
-      },
+        navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+      }
+      if (response.mensagens.length) {
+        setListaErros(response.mensagens);
+        showModalErros();
+      }
     });
+
+    if (ehPerfilAdminDf) {
+      enviarProposta;
+    } else {
+      confirmacao({
+        content:
+          formacaoHomologada === FormacaoHomologada.Sim
+            ? APOS_ENVIAR_PROPOSTA_ANALISE
+            : APOS_ENVIAR_PROPOSTA_PUBLICAR,
+        onOk: () => enviarProposta,
+      });
+    }
   };
 
   const validarAntesEnviarProposta = () => {
@@ -782,7 +807,12 @@ export const FormCadastroDePropostas: React.FC = () => {
           salvarProposta(true);
         },
         onCancel() {
-          enviarProposta();
+          if (ehPerfilAdminDf) {
+            form.resetFields();
+            form.validateFields();
+          } else {
+            enviarProposta();
+          }
         },
       });
     } else {
@@ -840,7 +870,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     id={CF_BUTTON_VOLTAR}
                   />
                 </Col>
-                {id ? (
+                {!!id && (
                   <Col>
                     <ButtonExcluir
                       id={CF_BUTTON_EXCLUIR}
@@ -848,8 +878,6 @@ export const FormCadastroDePropostas: React.FC = () => {
                       disabled={!permissao.podeExcluir}
                     />
                   </Col>
-                ) : (
-                  <></>
                 )}
                 <Col>
                   <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
@@ -859,7 +887,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                         type='default'
                         id={CF_BUTTON_CANCELAR}
                         onClick={() => onClickCancelar({ form })}
-                        style={{ fontWeight: 700 }}
+                        style={stylesButtons}
                         disabled={!form.isFieldsTouched()}
                       >
                         Cancelar
@@ -872,7 +900,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     block
                     onClick={passoAnterior}
                     id={CF_BUTTON_STEP_ANTERIOR}
-                    style={{ fontWeight: 700 }}
+                    style={stylesButtons}
                     disabled={currentStep < StepPropostaEnum.Detalhamento}
                   >
                     Passo anterior
@@ -883,7 +911,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     block
                     onClick={proximoPasso}
                     id={CF_BUTTON_PROXIMO_STEP}
-                    style={{ fontWeight: 700 }}
+                    style={stylesButtons}
                     disabled={
                       (!form.isFieldsTouched() && !(parseInt(id.toString()) > 0)) ||
                       currentStep >= StepPropostaEnum.Certificacao
@@ -900,7 +928,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                       id={CF_BUTTON_SALVAR_RASCUNHO}
                       onClick={() => salvar(false)}
                       disabled={desabilitarCampos}
-                      style={{ fontWeight: 700 }}
+                      style={stylesButtons}
                     >
                       Salvar rascunho
                     </Button>
@@ -919,7 +947,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
                       disabled={!exibirBotaoEnviarParecer}
                       onClick={finalizarParecer}
-                      style={{ fontWeight: 700 }}
+                      style={stylesButtons}
                     >
                       Enviar Parecer
                     </Button>
@@ -962,7 +990,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                           formInitialValues?.situacao !== SituacaoProposta.Alterando;
                         salvarProposta(enviarProposta);
                       }}
-                      style={{ fontWeight: 700 }}
+                      style={stylesButtons}
                     >
                       Salvar
                     </Button>
@@ -976,7 +1004,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                       <Button
                         block
                         type='primary'
-                        style={{ fontWeight: 700 }}
+                        style={stylesButtons}
                         onClick={validarAntesEnviarProposta}
                         disabled={desabilitarCampos || pareceristaWatch}
                         id={CF_BUTTON_ENVIAR_PROPOSTA}
@@ -985,6 +1013,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                       </Button>
                     </Col>
                   ))}
+                {exibirBotoesAprovarRecusar && (
+                  <Col>
+                    <ModalAprovarRecusarButton propostaId={id} disabled={false} />
+                  </Col>
+                )}
               </Row>
             </Col>
           </HeaderPage>
@@ -1000,15 +1033,14 @@ export const FormCadastroDePropostas: React.FC = () => {
                       selectProps={{ disabled: !podeEditarRfResponsavelDf }}
                     />
                   </Col>
-                  {podeEditarRfResponsavelDf && (
-                    <Col xs={24} sm={12} md={14} lg={12}>
-                      <SelectPareceristas
-                        selectProps={{
-                          maxCount: formInitialValues.qtdeLimitePareceristaProposta,
-                        }}
-                      />
-                    </Col>
-                  )}
+                  <Col xs={24} sm={12} md={14} lg={12}>
+                    <SelectPareceristas
+                      selectProps={{
+                        disabled: !podeEditarRfResponsavelDf,
+                        maxCount: formInitialValues.qtdeLimitePareceristaProposta,
+                      }}
+                    />
+                  </Col>
                   {exibirInputNumeroHomologacao && (
                     <Col xs={24} sm={12} md={14} lg={12}>
                       <Form.Item
@@ -1055,6 +1087,24 @@ export const FormCadastroDePropostas: React.FC = () => {
                     />
                   </Col>
                 </Row>
+              </CardContent>
+            </Col>
+          )}
+          {exibirJustificativaAprovacaoRecusa && (
+            <Col span={24} style={{ marginTop: 16 }}>
+              <CardContent>
+                <Col xs={24}>
+                  <AreaTexto
+                    formItemProps={{
+                      label: 'Justificativas de aprovacao/recusa:',
+                      // initialValue: formInitialValues?.ultimaJustificativaDevolucao,
+                    }}
+                    textAreaProps={{
+                      rows: 5,
+                      disabled: true,
+                    }}
+                  />
+                </Col>
               </CardContent>
             </Col>
           )}
