@@ -159,10 +159,8 @@ export const FormCadastroDePropostas: React.FC = () => {
   // TODO: USAR PROP DO BACK E SE TIVER ITENS NA LISTA MOSTRA A MESMA
   const exibirJustificativaAprovacaoRecusa = true;
 
-  // TODO: REMOVER AO FINALIZAR TESTES
-  const exibirBotoesAprovarRecusar = true;
-  // const exibirBotoesAprovarRecusar =
-  //   !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
+  const exibirBotoesAprovarRecusar =
+    !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
 
   const podeEditarRfResponsavelDf =
     ehPerfilAdminDf &&
@@ -809,7 +807,6 @@ export const FormCadastroDePropostas: React.FC = () => {
         onCancel() {
           if (ehPerfilAdminDf) {
             form.resetFields();
-            form.validateFields();
           } else {
             enviarProposta();
           }

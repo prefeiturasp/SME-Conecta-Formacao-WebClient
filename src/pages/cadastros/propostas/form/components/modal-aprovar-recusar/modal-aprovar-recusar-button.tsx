@@ -54,9 +54,8 @@ export const ModalAprovarRecusarButton: React.FC<ModalAprovarRecusarButtonProps>
 
   return (
     <Space>
-      {/* TODO: REMOVER MOCK LABEL */}
-      <DefaultButtonProps id={CF_BUTTON_APROVAR} label={labelAprovar ? labelAprovar : 'Aprovar'} />
-      <DefaultButtonProps id={CF_BUTTON_RECUSAR} label={labelRecusar ? labelAprovar : 'Recusar'} />
+      <DefaultButtonProps id={CF_BUTTON_APROVAR} label={labelAprovar} />
+      <DefaultButtonProps id={CF_BUTTON_RECUSAR} label={labelRecusar} />
       {modal?.openModal && (
         <ModalAprovarRecusar
           tipoJustificativa={modal?.tipoJustificativa}

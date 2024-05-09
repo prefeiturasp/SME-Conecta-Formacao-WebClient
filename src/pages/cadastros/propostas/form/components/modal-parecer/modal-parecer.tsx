@@ -6,9 +6,9 @@ import { notification } from '~/components/lib/notification';
 import Auditoria from '~/components/main/text/auditoria';
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
-  PropostaParecerCadastroDTO,
   PropostaParecerCompletoDTO,
   PropostaParecerFiltroDTO,
+  PropostaPareceristaConsideracaoCadastroDTO,
 } from '~/core/dto/parecer-proposta-dto';
 import { CamposParecerEnum, CamposParecerEnumDisplay } from '~/core/enum/campos-proposta-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
@@ -98,7 +98,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
 
     const valoresSalvar = form.getFieldsValue(true);
 
-    const params: PropostaParecerCadastroDTO = {
+    const params: PropostaPareceristaConsideracaoCadastroDTO = {
       campo,
       propostaId,
       id: null,

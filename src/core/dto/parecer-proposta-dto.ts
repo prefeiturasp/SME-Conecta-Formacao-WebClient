@@ -5,11 +5,10 @@ export type PropostaParecerCompletoDTO = {
   propostaId: number;
   podeInserir?: boolean;
   auditoria?: AuditoriaDTO;
-  itens: PropostaParecerDTO[];
+  itens: PropostaPareceristaConsideracaoDTO[];
 };
 
-// TODO: MUDAR "PropostaParecerDTO" PARA "PropostaPareceristaConsideracaoDTO"
-export type PropostaParecerDTO = {
+export type PropostaPareceristaConsideracaoDTO = {
   id?: number;
   descricao: string;
   podeAlterar?: boolean;
@@ -17,13 +16,9 @@ export type PropostaParecerDTO = {
   auditoria?: AuditoriaDTO;
 };
 
-// TODO: MUDAR "PropostaParecerCadastroDTO" PARA "PropostaPareceristaConsideracaoCadastroDTO"
-export type PropostaParecerCadastroDTO = {
+export type PropostaPareceristaConsideracaoCadastroDTO = {
   descricao: string;
   id: number | null;
-  // TODO: AJUSTAR PERSISTENCIA
-  // propostaPareceristaId: number;
-  // campo: CamposParecerEnum;
 } & PropostaParecerFiltroDTO;
 
 export type PropostaParecerFiltroDTO = {

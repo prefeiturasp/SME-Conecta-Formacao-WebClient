@@ -3,9 +3,9 @@ import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscric
 import { DevolverPropostaDTO } from '../dto/devolver-proposta-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import {
-  PropostaParecerCadastroDTO,
   PropostaParecerCompletoDTO,
   PropostaParecerFiltroDTO,
+  PropostaPareceristaConsideracaoCadastroDTO,
 } from '../dto/parecer-proposta-dto';
 import { PropostaDashboardDTO } from '../dto/proposta-dashboard-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
@@ -98,10 +98,10 @@ const obterParecer = (
 ): Promise<ApiResult<PropostaParecerCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/parecer`, { params });
 
-const salvarParecer = (params?: PropostaParecerCadastroDTO) =>
+const salvarParecer = (params?: PropostaPareceristaConsideracaoCadastroDTO) =>
   inserirRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/parecer`, params);
 
-const alterarParecer = (params?: PropostaParecerCadastroDTO) =>
+const alterarParecer = (params?: PropostaPareceristaConsideracaoCadastroDTO) =>
   alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/parecer`, params);
 
 const enviarParecer = (propostaId: number) =>
