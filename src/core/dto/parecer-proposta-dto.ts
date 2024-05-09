@@ -31,7 +31,7 @@ export type PropostaParecerFiltroDTO = {
   campo: CamposParecerEnum;
 };
 
-export type TotalDePareceresDTO = {
+export type TotalDeConsideracoes = {
   campo: CamposParecerEnum;
   quantidade: number;
 };

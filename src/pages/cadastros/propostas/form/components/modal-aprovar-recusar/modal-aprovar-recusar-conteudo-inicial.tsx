@@ -27,8 +27,8 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
 
     if (
       ehPerfilParecerista &&
-      (situacao === SituacaoProposta.AguardandoAnaliseParecerista ||
-        situacao === SituacaoProposta.AguardandoReanaliseParecerista)
+      (situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
+        situacao === SituacaoProposta.AguardandoReanalisePeloParecerista)
     ) {
       return 1000;
     }
