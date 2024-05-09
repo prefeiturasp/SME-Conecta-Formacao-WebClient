@@ -146,7 +146,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
-  const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarParecer;
+  const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarConsideracoes;
   const exibirInputNumeroHomologacao =
     formInitialValues?.situacao === SituacaoProposta.Aprovada ||
     formInitialValues?.situacao === SituacaoProposta.Publicada;
@@ -167,9 +167,9 @@ export const FormCadastroDePropostas: React.FC = () => {
   const podeEditarRfResponsavelDf =
     ehPerfilAdminDf &&
     (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf ||
-      formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerDF ||
-      formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseParecerista ||
-      formInitialValues?.situacao === SituacaoProposta.AguardandoReanaliseParecerista) &&
+      formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF ||
+      formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
+      formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista) &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const stepsProposta: StepProps[] = [
@@ -206,7 +206,7 @@ export const FormCadastroDePropostas: React.FC = () => {
           !(
             ehAreaPromotora &&
             (formInitialValues?.situacao === SituacaoProposta.Devolvida ||
-              formInitialValues?.situacao === SituacaoProposta.AnaliseParecerAreaPromotora)
+              formInitialValues?.situacao === SituacaoProposta.AnaliseParecerPelaAreaPromotora)
           ));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
@@ -771,27 +771,32 @@ export const FormCadastroDePropostas: React.FC = () => {
     const formacaoHomologada =
       (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) ||
       FormacaoHomologada.NaoCursosPorIN;
-    confirmacao({
-      content:
-        formacaoHomologada === FormacaoHomologada.Sim
-          ? APOS_ENVIAR_PROPOSTA_ANALISE
-          : APOS_ENVIAR_PROPOSTA_PUBLICAR,
-      onOk() {
-        enviarPropostaAnalise(id).then((response) => {
-          if (response.sucesso) {
-            notification.success({
-              message: 'Sucesso',
-              description: PROPOSTA_ENVIADA,
-            });
-            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-          }
-          if (response.mensagens.length) {
-            setListaErros(response.mensagens);
-            showModalErros();
-          }
+
+    const enviarProposta = enviarPropostaAnalise(id).then((response) => {
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: PROPOSTA_ENVIADA,
         });
-      },
+        navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+      }
+      if (response.mensagens.length) {
+        setListaErros(response.mensagens);
+        showModalErros();
+      }
     });
+
+    if (ehPerfilAdminDf) {
+      enviarProposta;
+    } else {
+      confirmacao({
+        content:
+          formacaoHomologada === FormacaoHomologada.Sim
+            ? APOS_ENVIAR_PROPOSTA_ANALISE
+            : APOS_ENVIAR_PROPOSTA_PUBLICAR,
+        onOk: () => enviarProposta,
+      });
+    }
   };
 
   const validarAntesEnviarProposta = () => {
@@ -802,7 +807,12 @@ export const FormCadastroDePropostas: React.FC = () => {
           salvarProposta(true);
         },
         onCancel() {
-          enviarProposta();
+          if (ehPerfilAdminDf) {
+            form.resetFields();
+            form.validateFields();
+          } else {
+            enviarProposta();
+          }
         },
       });
     } else {
@@ -860,7 +870,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     id={CF_BUTTON_VOLTAR}
                   />
                 </Col>
-                {id ? (
+                {!!id && (
                   <Col>
                     <ButtonExcluir
                       id={CF_BUTTON_EXCLUIR}
@@ -868,8 +878,6 @@ export const FormCadastroDePropostas: React.FC = () => {
                       disabled={!permissao.podeExcluir}
                     />
                   </Col>
-                ) : (
-                  <></>
                 )}
                 <Col>
                   <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
