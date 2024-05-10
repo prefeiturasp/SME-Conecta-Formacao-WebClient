@@ -2,12 +2,19 @@ import { Form } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React, { useEffect, useState } from 'react';
 import Modal from '~/components/lib/modal';
+import { notification } from '~/components/lib/notification';
 import { validateMessages } from '~/core/constants/validate-messages';
-import { RetornoJustificativaDTO } from '~/core/dto/retorno-justificativa-dto';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
-import { obterSugestoesPareceristas } from '~/core/services/proposta-service';
+import {
+  aprovarConsideracoesAdminDf,
+  aprovarConsideracoesPareceristas,
+  obterSugestoesAprovadas,
+  obterSugestoesRecusadas,
+  recusarConsideracoesAdminDf,
+  recusarConsideracoesPareceristas,
+} from '~/core/services/proposta-service';
 import { ModalAprovarRecusarConteudo } from './modal-aprovar-recusar-conteudo';
 import { ModalAprovarRecusarConteudoInicial } from './modal-aprovar-recusar-conteudo-inicial';
 
@@ -41,7 +48,7 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
 }) => {
   const [form] = useForm();
 
-  const [sugestoes, setSugestoes] = useState<RetornoJustificativaDTO[]>();
+  const [sugestoes, setSugestoes] = useState<string>();
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
 
   const aprovarSelecionado =
@@ -51,28 +58,30 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
 
   const temSugestoes = !!sugestoes?.length;
-  console.log(temSugestoes);
 
   const salvar = () => {
-    // const params: PropostaMovimentacaoDTO = {
-    //   descricao
-    // };
+    const valoresSalvar = form.getFieldsValue(true);
+    const justificativa = valoresSalvar?.justificativa;
 
-    console.log(propostaId);
+    let endpoint;
 
-    // devolverProposta(propostaId, params)
-    //   .then((resposta) => {
-    //     if (resposta.sucesso) {
-    //       notification.success({
-    //   message: 'Sucesso',
-    //   description: 'Proposta devolvida com sucesso!',
-    // });
-    //       onFecharButton();
-    //     }
-    //   })
-    //   .finally(() => {
-    //     setLoading(false);
-    //   });
+    if (ehPerfilAdminDf) {
+      endpoint = aprovarSelecionado ? aprovarConsideracoesAdminDf : recusarConsideracoesAdminDf;
+    } else {
+      endpoint = aprovarSelecionado
+        ? aprovarConsideracoesPareceristas
+        : recusarConsideracoesPareceristas;
+    }
+
+    endpoint(propostaId, justificativa).then((resposta) => {
+      if (resposta.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Justificativa enviada com sucesso!',
+        });
+        onFecharButton();
+      }
+    });
   };
 
   const validateFields = () => {
@@ -127,7 +136,8 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
 
   const carregarSugestoes = async () => {
     if (ehPerfilAdminDf) {
-      const resposta = await obterSugestoesPareceristas();
+      const endpoint = aprovarSelecionado ? obterSugestoesAprovadas : obterSugestoesRecusadas;
+      const resposta = await endpoint(propostaId);
 
       if (resposta.sucesso) {
         const dados = resposta.dados;

@@ -161,7 +161,9 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.Aprovada ||
     formInitialValues?.situacao === SituacaoProposta.Publicada;
 
-  const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
+  const exibirBotaoSalvar =
+    currentStep === StepPropostaEnum.Certificacao ||
+    ehAdminDfESituacaoAguardandoAnalisePeloParecerista;
 
   const exibirJustificativaDevolucao =
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
@@ -175,6 +177,12 @@ export const FormCadastroDePropostas: React.FC = () => {
   const situacaoCadastradaEStepCertificacao =
     formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
     currentStep === StepPropostaEnum.Certificacao;
+
+  const exibirBotaoEnviar =
+    situacaoCadastradaEStepCertificacao ||
+    situacaoDevolvida ||
+    situacaoAguardandoAnaliseDf ||
+    ehAdminDfESituacaoAguardandoAnalisePeloParecerista;
 
   const podeEditarRfResponsavelDf =
     ehPerfilAdminDf &&
@@ -324,7 +332,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       let pareceristas: PropostaPareceristaFormDTO[] = [];
       if (dados.pareceristas?.length) {
         pareceristas = dados.pareceristas.map((parecerista) => ({
-          ...pareceristas,
+          id: parecerista.id,
           label: parecerista.nomeParecerista,
           value: parecerista.registroFuncional,
         }));
@@ -575,10 +583,18 @@ export const FormCadastroDePropostas: React.FC = () => {
 
     if (clonedValues?.pareceristas?.length) {
       valoresSalvar.pareceristas = clonedValues.pareceristas.map((item) => {
+        const newPareceristas = formInitialValues.pareceristas?.find(
+          (newItem) => newItem.value === item.value,
+        );
+
+        const id = newPareceristas ? newPareceristas.id : 0;
+        const nomeParecerista = newPareceristas ? newPareceristas.label : item.label;
+        const registroFuncional = newPareceristas ? newPareceristas.value : item.value;
+
         const parecerista: PropostaPareceristaDTO = {
-          id: item?.id || 0,
-          nomeParecerista: item.label,
-          registroFuncional: item.value,
+          id,
+          nomeParecerista,
+          registroFuncional,
         };
 
         return parecerista;
@@ -986,7 +1002,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                       block
                       type='primary'
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                      disabled={desabilitarCampos}
+                      disabled={!form.isFieldsTouched()}
                       onClick={() => {
                         const publicosAlvosNumeros: number[] = form.getFieldValue('publicosAlvo');
                         const funcoesEspecificasNumeros: number[] =
@@ -1024,29 +1040,21 @@ export const FormCadastroDePropostas: React.FC = () => {
                   </Col>
                 )}
 
-                {(situacaoCadastradaEStepCertificacao ||
-                  situacaoDevolvida ||
-                  situacaoAguardandoAnaliseDf ||
-                  ehAdminDfESituacaoAguardandoAnalisePeloParecerista) && (
+                {exibirBotaoEnviar && (
                   <Col>
-                    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
-                      {() => (
-                        <Button
-                          block
-                          type='primary'
-                          style={stylesButtons}
-                          onClick={validarAntesEnviarProposta}
-                          id={CF_BUTTON_ENVIAR_PROPOSTA}
-                          disabled={
-                            (ehPerfilAdminDf && pareceristaWatch) || !form.isFieldsTouched()
-                          }
-                        >
-                          Enviar
-                        </Button>
-                      )}
-                    </Form.Item>
+                    <Button
+                      block
+                      type='primary'
+                      style={stylesButtons}
+                      onClick={validarAntesEnviarProposta}
+                      id={CF_BUTTON_ENVIAR_PROPOSTA}
+                      disabled={(ehPerfilAdminDf && pareceristaWatch) || !form.isFieldsTouched()}
+                    >
+                      Enviar
+                    </Button>
                   </Col>
                 )}
+
                 {exibirBotoesAprovarRecusar && (
                   <Col>
                     <ModalAprovarRecusarButton
