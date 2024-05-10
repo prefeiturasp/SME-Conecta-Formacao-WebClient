@@ -25,7 +25,7 @@ const mockSugestoes = [
 type ModalAprovarRecusarProps = {
   propostaId: number;
   onFecharButton: () => void;
-  tipoJustificativa: 'Aprovar' | 'Recusar' | undefined;
+  tipoJustificativa: 'Aprovar' | 'Sugerir aprovação' | 'Recusar' | undefined;
 };
 
 export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
@@ -38,7 +38,8 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
   const [sugestoes, setSugestoes] = useState<RetornoJustificativaDTO[]>();
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
 
-  const aprovarSelecionado = tipoJustificativa === 'Aprovar';
+  const aprovarSelecionado =
+    tipoJustificativa === 'Aprovar' || tipoJustificativa === 'Sugerir aprovação';
 
   const ehPerfilAdminDf =
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
@@ -92,9 +93,7 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
   };
 
   const montarJustificativasEdicao = () => {
-    // TODO: REMOVER MOCK
-    // if (ehPerfilAdminDf && temSugestoes) {
-    if (ehPerfilAdminDf && !!mockSugestoes.length) {
+    if (ehPerfilAdminDf && temSugestoes) {
       return (
         <>
           {mockSugestoes.map((item, index) => (

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_FUNCAO_ESPECIFICA_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_FUNCAO_ESPECIFICA } from '~/core/constants/ids/select';
-import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
+import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { validarOnChangeMultiSelectOutros } from '~/core/utils/functions';
 import { ButtonParecer } from '~/pages/cadastros/propostas/form/components/modal-parecer/modal-parecer-button';
@@ -56,7 +56,7 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
 
           if (ehOutros) {
             campoOutros = (
-              <ButtonParecer campo={CamposParecerEnum.funcoesEspecificasOutros}>
+              <ButtonParecer campo={CampoConsideracaoEnum.funcoesEspecificasOutros}>
                 <Form.Item
                   label='Outros'
                   name='funcaoEspecificaOutros'
@@ -77,7 +77,7 @@ const SelectFuncaoEspecifica: React.FC<SelectFuncaoEspecifica> = ({
         return (
           <>
             <Col span={24}>
-              <ButtonParecer campo={CamposParecerEnum.funcoesEspecificas}>
+              <ButtonParecer campo={CampoConsideracaoEnum.funcoesEspecificas}>
                 <Form.Item label='Função específica' name='funcoesEspecificas' {...formItemProps}>
                   <Select
                     allowClear

@@ -1,4 +1,4 @@
-import { CamposParecerEnum } from '../enum/campos-proposta-enum';
+import { CampoConsideracaoEnum } from '../enum/campos-proposta-enum';
 import { AuditoriaDTO } from './auditoria-dto';
 
 export type PropostaParecerCompletoDTO = {
@@ -12,7 +12,7 @@ export type PropostaPareceristaConsideracaoDTO = {
   id?: number;
   descricao: string;
   podeAlterar?: boolean;
-  campo: CamposParecerEnum;
+  campo: CampoConsideracaoEnum;
   auditoria?: AuditoriaDTO;
 };
 
@@ -23,10 +23,10 @@ export type PropostaPareceristaConsideracaoCadastroDTO = {
 
 export type PropostaParecerFiltroDTO = {
   propostaId?: number;
-  campo: CamposParecerEnum;
+  campo: CampoConsideracaoEnum;
 };
 
 export type TotalDeConsideracoes = {
-  campo: CamposParecerEnum;
+  campo: CampoConsideracaoEnum;
   quantidade: number;
 };
