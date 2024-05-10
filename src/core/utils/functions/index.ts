@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 import { dayjs } from '~/core/date/dayjs';
 import { TotalDeConsideracoes } from '~/core/dto/parecer-proposta-dto';
-import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
+import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
 import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 
 export const scrollNoInicio = () => window.scrollTo(0, 0);
@@ -104,10 +104,10 @@ export const onchangeMultiSelectLabelInValueOpcaoTodos = (
 };
 
 export const mostrarQtdParecer = (
-  campo: CamposParecerEnum,
-  totalDePareceres: TotalDeConsideracoes[],
+  campo: CampoConsideracaoEnum,
+  totalDeConsideracoes: TotalDeConsideracoes[],
 ) => {
-  const qtdParecer = totalDePareceres
+  const qtdParecer = totalDeConsideracoes
     ?.filter((parecer) => parecer.campo === campo)
     .map((parecer) => parecer.quantidade);
 

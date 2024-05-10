@@ -10,7 +10,10 @@ import {
   PropostaParecerFiltroDTO,
   PropostaPareceristaConsideracaoCadastroDTO,
 } from '~/core/dto/parecer-proposta-dto';
-import { CamposParecerEnum, CamposParecerEnumDisplay } from '~/core/enum/campos-proposta-enum';
+import {
+  CampoConsideracaoEnum,
+  CampoConsideracaoEnumDisplay,
+} from '~/core/enum/campos-proposta-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
@@ -27,7 +30,7 @@ import { ModalParecerConteudoInicial } from './modal-parecer-conteudo-inicial';
 
 type ModalParecerProps = {
   propostaId?: number;
-  campo: CamposParecerEnum;
+  campo: CampoConsideracaoEnum;
   onFecharButton: () => void;
 };
 
@@ -81,14 +84,14 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       const podeEnviarParecer = !!resposta.dados.podeEnviarConsideracoes;
       const podeEnviar = !!resposta.dados.podeEnviar;
       const situacao = resposta.dados.situacao;
-      const totalDePareceres = resposta.dados.totalDeConsideracoes;
+      const totalDeConsideracoes = resposta.dados.totalDeConsideracoes;
 
       setFormInitialValues((valoresAtuais) => ({
         ...valoresAtuais,
         podeEnviarParecer,
         podeEnviar,
         situacao,
-        totalDePareceres,
+        totalDeConsideracoes,
       }));
     }
   };
@@ -210,7 +213,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       okButtonProps={{
         hidden: true,
       }}
-      title={`Parecer - ${CamposParecerEnumDisplay[campo]}`}
+      title={`Parecer - ${CampoConsideracaoEnumDisplay[campo]}`}
     >
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
         {montarParecerInicial()}
