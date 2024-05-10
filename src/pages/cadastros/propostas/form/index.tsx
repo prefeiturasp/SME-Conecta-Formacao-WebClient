@@ -168,7 +168,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirJustificativaDevolucao =
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  // TODO: USAR PROP DO BACK E SE TIVER ITENS NA LISTA MOSTRA A MESMA
+  // TODO: USAR PROP DO BACK - AINDA VAI SER CRIADA
   const exibirJustificativaAprovacaoRecusa = true;
 
   const exibirBotoesAprovarRecusar =
@@ -1061,6 +1061,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                       propostaId={id}
                       disabled={false}
                       formInitialValues={formInitialValues}
+                      carregarDados={carregarDados}
                     />
                   </Col>
                 )}

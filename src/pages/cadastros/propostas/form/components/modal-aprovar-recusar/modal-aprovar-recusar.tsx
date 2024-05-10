@@ -1,6 +1,6 @@
 import { Form } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Modal from '~/components/lib/modal';
 import { notification } from '~/components/lib/notification';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -10,24 +10,10 @@ import { confirmacao } from '~/core/services/alerta-service';
 import {
   aprovarConsideracoesAdminDf,
   aprovarConsideracoesPareceristas,
-  obterSugestoesAprovadas,
-  obterSugestoesRecusadas,
   recusarConsideracoesAdminDf,
   recusarConsideracoesPareceristas,
 } from '~/core/services/proposta-service';
-import { ModalAprovarRecusarConteudo } from './modal-aprovar-recusar-conteudo';
 import { ModalAprovarRecusarConteudoInicial } from './modal-aprovar-recusar-conteudo-inicial';
-
-const mockSugestoes = [
-  {
-    id: 1,
-    descricao: 'SUGESTAO MOCK 1',
-  },
-  {
-    id: 2,
-    descricao: 'SUGESTAO MOCK 2',
-  },
-];
 
 type ModalAprovarRecusarProps = {
   propostaId: number;
@@ -39,25 +25,22 @@ type ModalAprovarRecusarProps = {
     | 'Sugerir recusa'
     | undefined
     | string;
+  carregarDados: () => void;
 };
 
 export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
   propostaId,
   onFecharButton,
   tipoJustificativa,
+  carregarDados,
 }) => {
   const [form] = useForm();
 
-  const [sugestoes, setSugestoes] = useState<string>();
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
-
   const aprovarSelecionado =
     tipoJustificativa === 'Aprovar' || tipoJustificativa === 'Sugerir aprovação';
-
   const ehPerfilAdminDf =
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
-
-  const temSugestoes = !!sugestoes?.length;
 
   const salvar = () => {
     const valoresSalvar = form.getFieldsValue(true);
@@ -80,6 +63,7 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
           description: 'Justificativa enviada com sucesso!',
         });
         onFecharButton();
+        carregarDados();
       }
     });
   };
@@ -107,48 +91,15 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
     }
   };
 
-  const montarJustificativasEdicao = () => {
-    if (ehPerfilAdminDf && temSugestoes) {
-      return (
-        <>
-          {mockSugestoes.map((item, index) => (
-            <React.Fragment key={item.id}>
-              <ModalAprovarRecusarConteudo
-                index={index}
-                sugestao={item}
-                carregarSugestoes={carregarSugestoes}
-              />
-            </React.Fragment>
-          ))}
-        </>
-      );
-    }
-  };
-
   const montarJustificativaInicial = () => {
     return (
       <ModalAprovarRecusarConteudoInicial
-        aprovarSelecionado={aprovarSelecionado}
+        propostaId={propostaId}
         onClickSalvar={validateFields}
+        aprovarSelecionado={aprovarSelecionado}
       />
     );
   };
-
-  const carregarSugestoes = async () => {
-    if (ehPerfilAdminDf) {
-      const endpoint = aprovarSelecionado ? obterSugestoesAprovadas : obterSugestoesRecusadas;
-      const resposta = await endpoint(propostaId);
-
-      if (resposta.sucesso) {
-        const dados = resposta.dados;
-        setSugestoes(dados);
-      }
-    }
-  };
-
-  useEffect(() => {
-    carregarSugestoes();
-  }, [ehPerfilAdminDf]);
 
   return (
     <Modal
@@ -165,7 +116,6 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
     >
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
         {montarJustificativaInicial()}
-        {montarJustificativasEdicao()}
       </Form>
     </Modal>
   );

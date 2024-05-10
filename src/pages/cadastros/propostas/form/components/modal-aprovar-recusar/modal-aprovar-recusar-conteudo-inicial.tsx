@@ -1,26 +1,31 @@
 import { Col, Form, Input, Row } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import { CF_INPUT_TEXT_AREA } from '~/core/constants/ids/input';
 import { JUSTIFICATIVA_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
+import { obterSugestoesAprovadas, obterSugestoesRecusadas } from '~/core/services/proposta-service';
 
 type ModalAprovarRecusarConteudoInicialProps = {
-  aprovarSelecionado: boolean;
+  propostaId: number;
   onClickSalvar: () => void;
+  aprovarSelecionado: boolean;
 };
 
 export const ModalAprovarRecusarConteudoInicial: React.FC<
   ModalAprovarRecusarConteudoInicialProps
-> = ({ onClickSalvar, aprovarSelecionado }) => {
+> = ({ onClickSalvar, aprovarSelecionado, propostaId }) => {
   const formInstance = useFormInstance();
+  const [sugestoes, setSugestoes] = useState<string>();
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
 
   const ehPerfilParecerista =
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.Parecerista];
+  const ehPerfilAdminDf =
+    perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
 
   const maxLength = () => {
     const situacao = formInstance.getFieldsValue(true).situacao;
@@ -34,13 +39,30 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
     }
   };
 
+  const carregarSugestoes = async () => {
+    if (ehPerfilAdminDf) {
+      const endpoint = aprovarSelecionado ? obterSugestoesAprovadas : obterSugestoesRecusadas;
+      const resposta = await endpoint(propostaId);
+
+      if (resposta.sucesso) {
+        const dados = resposta.dados;
+        setSugestoes(dados);
+      }
+    }
+  };
+
+  useEffect(() => {
+    carregarSugestoes();
+  }, [ehPerfilAdminDf]);
+
   return (
     <>
       <Form.Item
         label='Justificar:'
         name='justificativa'
-        rules={[{ required: !aprovarSelecionado, message: JUSTIFICATIVA_NAO_INFORMADA }]}
         style={{ marginBottom: 6 }}
+        initialValue={ehPerfilAdminDf ? sugestoes : ''}
+        rules={[{ required: !aprovarSelecionado, message: JUSTIFICATIVA_NAO_INFORMADA }]}
       >
         <Input.TextArea
           rows={5}
