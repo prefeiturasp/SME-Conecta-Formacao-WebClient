@@ -33,6 +33,7 @@ import {
   APOS_ENVIAR_PROPOSTA_PUBLICAR,
   DESEJA_ENVIAR_PARECER,
   DESEJA_ENVIAR_PROPOSTA,
+  DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
@@ -744,7 +745,9 @@ export const FormCadastroDePropostas: React.FC = () => {
           if (response.sucesso) {
             if (confirmarAntesDeEnviarProposta) {
               confirmacao({
-                content: DESEJA_ENVIAR_PROPOSTA,
+                content: ehPerfilAdminDf
+                  ? DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA
+                  : DESEJA_ENVIAR_PROPOSTA,
                 onOk() {
                   enviarProposta();
                 },
@@ -770,29 +773,37 @@ export const FormCadastroDePropostas: React.FC = () => {
       (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) ||
       FormacaoHomologada.NaoCursosPorIN;
 
-    const enviarProposta = enviarPropostaAnalise(id).then((response) => {
-      if (response.sucesso) {
-        notification.success({
-          message: 'Sucesso',
-          description: PROPOSTA_ENVIADA,
-        });
-        navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-      }
-      if (response.mensagens.length) {
-        setListaErros(response.mensagens);
-        showModalErros();
-      }
-    });
+    const finalizarEnvioProposta = () =>
+      enviarPropostaAnalise(id).then((response) => {
+        if (response.sucesso) {
+          notification.success({
+            message: 'Sucesso',
+            description: PROPOSTA_ENVIADA,
+          });
+          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+        }
+        if (response.mensagens.length) {
+          setListaErros(response.mensagens);
+          showModalErros();
+        }
+      });
 
     if (ehPerfilAdminDf) {
-      enviarProposta;
+      confirmacao({
+        content: DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
+        onOk() {
+          finalizarEnvioProposta();
+        },
+      });
     } else {
       confirmacao({
         content:
           formacaoHomologada === FormacaoHomologada.Sim
             ? APOS_ENVIAR_PROPOSTA_ANALISE
             : APOS_ENVIAR_PROPOSTA_PUBLICAR,
-        onOk: () => enviarProposta,
+        onOk() {
+          finalizarEnvioProposta();
+        },
       });
     }
   };
@@ -993,26 +1004,30 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
-                {(formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
+                {((formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
                   currentStep === StepPropostaEnum.Certificacao) ||
                   formInitialValues?.situacao === SituacaoProposta.Devolvida ||
-                  (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf && (
-                    <Col>
-                      <Button
-                        block
-                        type='primary'
-                        style={stylesButtons}
-                        onClick={validarAntesEnviarProposta}
-                        disabled={desabilitarCampos || pareceristaWatch}
-                        id={CF_BUTTON_ENVIAR_PROPOSTA}
-                      >
-                        Enviar
-                      </Button>
-                    </Col>
-                  ))}
+                  formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) && (
+                  <Col>
+                    <Button
+                      block
+                      type='primary'
+                      style={stylesButtons}
+                      onClick={validarAntesEnviarProposta}
+                      disabled={desabilitarCampos || (ehPerfilAdminDf && pareceristaWatch)}
+                      id={CF_BUTTON_ENVIAR_PROPOSTA}
+                    >
+                      Enviar
+                    </Button>
+                  </Col>
+                )}
                 {exibirBotoesAprovarRecusar && (
                   <Col>
-                    <ModalAprovarRecusarButton propostaId={id} disabled={false} />
+                    <ModalAprovarRecusarButton
+                      propostaId={id}
+                      disabled={false}
+                      formInitialValues={formInitialValues}
+                    />
                   </Col>
                 )}
               </Row>
@@ -1087,6 +1102,7 @@ export const FormCadastroDePropostas: React.FC = () => {
               </CardContent>
             </Col>
           )}
+
           {exibirJustificativaAprovacaoRecusa && (
             <Col span={24} style={{ marginTop: 16 }}>
               <CardContent>

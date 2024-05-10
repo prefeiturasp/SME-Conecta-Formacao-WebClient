@@ -25,7 +25,13 @@ const mockSugestoes = [
 type ModalAprovarRecusarProps = {
   propostaId: number;
   onFecharButton: () => void;
-  tipoJustificativa: 'Aprovar' | 'Sugerir aprovação' | 'Recusar' | undefined;
+  tipoJustificativa:
+    | 'Aprovar'
+    | 'Sugerir aprovação'
+    | 'Recusar'
+    | 'Sugerir recusa'
+    | undefined
+    | string;
 };
 
 export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
