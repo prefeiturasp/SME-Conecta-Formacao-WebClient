@@ -1,19 +1,20 @@
 import { ButtonProps, Space } from 'antd';
-import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React, { useState } from 'react';
 import { ButtonPrimary } from '~/components/lib/button/primary';
 import { CF_BUTTON_APROVAR, CF_BUTTON_RECUSAR } from '~/core/constants/ids/button/intex';
+import { PropostaFormDTO } from '~/core/dto/proposta-dto';
 import { ModalAprovarRecusar } from './modal-aprovar-recusar';
 
 type ModalAprovarRecusarButtonProps = {
   propostaId: number;
   buttonProps?: ButtonProps;
   disabled?: boolean;
+  formInitialValues: PropostaFormDTO;
 };
 
 type DefaultButtonProps = {
   id: string;
-  label: 'Aprovar' | 'Recusar' | undefined;
+  label: 'Aprovar' | 'Recusar' | undefined | string;
 };
 
 type ModalStateProps = {
@@ -25,12 +26,9 @@ export const ModalAprovarRecusarButton: React.FC<ModalAprovarRecusarButtonProps>
   propostaId,
   buttonProps,
   disabled,
+  formInitialValues,
 }) => {
-  const formInstance = useFormInstance();
   const [modal, setModal] = useState<ModalStateProps>({ openModal: false });
-
-  const labelAprovar = formInstance.getFieldsValue(true).labelAprovar;
-  const labelRecusar = formInstance.getFieldsValue(true).labelRecusar;
 
   const showModal = ({ openModal, tipoJustificativa }: ModalStateProps) => {
     if (modal) {
@@ -54,8 +52,8 @@ export const ModalAprovarRecusarButton: React.FC<ModalAprovarRecusarButtonProps>
 
   return (
     <Space>
-      <DefaultButtonProps id={CF_BUTTON_APROVAR} label={labelAprovar} />
-      <DefaultButtonProps id={CF_BUTTON_RECUSAR} label={labelRecusar} />
+      <DefaultButtonProps id={CF_BUTTON_APROVAR} label={formInitialValues?.labelAprovar} />
+      <DefaultButtonProps id={CF_BUTTON_RECUSAR} label={formInitialValues?.labelRecusar} />
       {modal?.openModal && (
         <ModalAprovarRecusar
           tipoJustificativa={modal?.tipoJustificativa}
