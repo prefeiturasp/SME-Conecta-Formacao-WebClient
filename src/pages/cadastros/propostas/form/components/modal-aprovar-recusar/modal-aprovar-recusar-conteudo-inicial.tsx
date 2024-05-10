@@ -38,7 +38,7 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
     <>
       <Form.Item
         label='Justificar:'
-        name='justificativaAprovarRecusar'
+        name='justificativa'
         rules={[{ required: !aprovarSelecionado, message: JUSTIFICATIVA_NAO_INFORMADA }]}
         style={{ marginBottom: 6 }}
       >

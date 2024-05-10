@@ -14,7 +14,6 @@ import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoDTO } from '../dto/retorno-dto';
-import { RetornoJustificativaDTO } from '../dto/retorno-justificativa-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import {
@@ -105,7 +104,7 @@ const alterarParecer = (params?: PropostaPareceristaConsideracaoCadastroDTO) =>
   alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/parecer`, params);
 
 const enviarParecer = (propostaId: number) =>
-  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecer/enviar`);
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/enviar`);
 
 const obterPropostaEncontrosPaginado = (
   propostaId: number | string,
@@ -150,12 +149,33 @@ const obterPropostaTutorPorId = (id: string | number) =>
 const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
   obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
-const obterSugestoesPareceristas = () =>
-  obterRegistro<RetornoJustificativaDTO[]>(`${URL_API_PROPOSTA}/sugestoes`);
+const obterSugestoesAprovadas = (propostaId: number) =>
+  obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/sugestao/aprovada`);
+
+const obterSugestoesRecusadas = (propostaId: number) =>
+  obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/sugestao/recusada`);
+
+const aprovarConsideracoesPareceristas = (propostaId: number, justificativa: string) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista​/aprovar`, {
+    justificativa,
+  });
+
+const recusarConsideracoesPareceristas = (propostaId: number, justificativa: string) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista​/recusar`, {
+    justificativa,
+  });
+
+const aprovarConsideracoesAdminDf = (propostaId: number, justificativa: string) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/aprovar`, { justificativa });
+
+const recusarConsideracoesAdminDf = (propostaId: number, justificativa: string) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/recusar`, { justificativa });
 
 export {
   alterarParecer,
   alterarProposta,
+  aprovarConsideracoesAdminDf,
+  aprovarConsideracoesPareceristas,
   deletarProposta,
   devolverProposta,
   enviarParecer,
@@ -177,11 +197,14 @@ export {
   obterPropostasDashboard,
   obterRoteiroPropostaFormativa,
   obterSituacoes,
-  obterSugestoesPareceristas,
+  obterSugestoesAprovadas,
+  obterSugestoesRecusadas,
   obterTipoEncontro,
   obterTipoFormacao,
   obterTipoInscricao,
   obterTurmasDaProposta,
+  recusarConsideracoesAdminDf,
+  recusarConsideracoesPareceristas,
   removerParecer,
   removerPropostaEncontro,
   salvarParecer,
