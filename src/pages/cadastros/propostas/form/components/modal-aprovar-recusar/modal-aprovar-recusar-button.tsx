@@ -10,6 +10,7 @@ type ModalAprovarRecusarButtonProps = {
   buttonProps?: ButtonProps;
   disabled?: boolean;
   formInitialValues: PropostaFormDTO;
+  carregarDados: () => void;
 };
 
 type DefaultButtonProps = {
@@ -27,6 +28,7 @@ export const ModalAprovarRecusarButton: React.FC<ModalAprovarRecusarButtonProps>
   buttonProps,
   disabled,
   formInitialValues,
+  carregarDados,
 }) => {
   const [modal, setModal] = useState<ModalStateProps>({ openModal: false });
 
@@ -56,8 +58,9 @@ export const ModalAprovarRecusarButton: React.FC<ModalAprovarRecusarButtonProps>
       <DefaultButtonProps id={CF_BUTTON_RECUSAR} label={formInitialValues?.labelRecusar} />
       {modal?.openModal && (
         <ModalAprovarRecusar
-          tipoJustificativa={modal?.tipoJustificativa}
           propostaId={propostaId}
+          carregarDados={carregarDados}
+          tipoJustificativa={modal?.tipoJustificativa}
           onFecharButton={() => {
             setModal({ openModal: false });
           }}

@@ -156,12 +156,12 @@ const obterSugestoesRecusadas = (propostaId: number) =>
   obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/sugestao/recusada`);
 
 const aprovarConsideracoesPareceristas = (propostaId: number, justificativa: string) =>
-  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista​/aprovar`, {
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/aprovar`, {
     justificativa,
   });
 
 const recusarConsideracoesPareceristas = (propostaId: number, justificativa: string) =>
-  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista​/recusar`, {
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/recusar`, {
     justificativa,
   });
 
