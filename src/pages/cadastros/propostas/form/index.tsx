@@ -143,11 +143,20 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
 
+  const situacaoDevolvida = formInitialValues?.situacao === SituacaoProposta.Devolvida;
+
+  const situacaoAguardandoAnaliseDf =
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf;
+
+  const ehAdminDfESituacaoAguardandoAnalisePeloParecerista =
+    ehPerfilAdminDf &&
+    formInitialValues.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista;
+
   const exibirBotaoDevolver =
-    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
-    formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+    situacaoAguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarConsideracoes;
+
   const exibirInputNumeroHomologacao =
     formInitialValues?.situacao === SituacaoProposta.Aprovada ||
     formInitialValues?.situacao === SituacaoProposta.Publicada;
@@ -163,9 +172,13 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotoesAprovarRecusar =
     !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
 
+  const situacaoCadastradaEStepCertificacao =
+    formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
+    currentStep === StepPropostaEnum.Certificacao;
+
   const podeEditarRfResponsavelDf =
     ehPerfilAdminDf &&
-    (formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf ||
+    (situacaoAguardandoAnaliseDf ||
       formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF ||
       formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
       formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista) &&
@@ -198,13 +211,12 @@ export const FormCadastroDePropostas: React.FC = () => {
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
           !(
-            ((ehPerfilDf || ehPerfilAdminDf) &&
-              formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) ||
+            ((ehPerfilDf || ehPerfilAdminDf) && situacaoAguardandoAnaliseDf) ||
             formInitialValues?.situacao === SituacaoProposta.Aprovada
           ) &&
           !(
             ehAreaPromotora &&
-            (formInitialValues?.situacao === SituacaoProposta.Devolvida ||
+            (situacaoDevolvida ||
               formInitialValues?.situacao === SituacaoProposta.AnaliseParecerPelaAreaPromotora)
           ));
 
@@ -743,11 +755,11 @@ export const FormCadastroDePropostas: React.FC = () => {
 
         salvar(false, situacao).then((response) => {
           if (response.sucesso) {
-            if (confirmarAntesDeEnviarProposta) {
+            if (ehPerfilAdminDf) {
+              carregarDados();
+            } else if (confirmarAntesDeEnviarProposta) {
               confirmacao({
-                content: ehPerfilAdminDf
-                  ? DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA
-                  : DESEJA_ENVIAR_PROPOSTA,
+                content: DESEJA_ENVIAR_PROPOSTA,
                 onOk() {
                   enviarProposta();
                 },
@@ -878,6 +890,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     id={CF_BUTTON_VOLTAR}
                   />
                 </Col>
+
                 {!!id && (
                   <Col>
                     <ButtonExcluir
@@ -887,6 +900,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     />
                   </Col>
                 )}
+
                 <Col>
                   <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
                     {() => (
@@ -903,6 +917,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     )}
                   </Form.Item>
                 </Col>
+
                 <Col>
                   <Button
                     block
@@ -914,6 +929,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     Passo anterior
                   </Button>
                 </Col>
+
                 <Col>
                   <Button
                     block
@@ -928,6 +944,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     Próximo passo
                   </Button>
                 </Col>
+
                 {exibirBotaoRascunho && (
                   <Col>
                     <Button
@@ -947,6 +964,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     <ModalDevolverButton propostaId={id} disabled={desabilitarBotaoDevolver} />
                   </Col>
                 )}
+
                 {exibirBotaoEnviarParecer && (
                   <Col>
                     <Button
@@ -961,6 +979,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
+
                 {exibirBotaoSalvar && (
                   <Col>
                     <Button
@@ -1004,21 +1023,28 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
-                {((formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
-                  currentStep === StepPropostaEnum.Certificacao) ||
-                  formInitialValues?.situacao === SituacaoProposta.Devolvida ||
-                  formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf) && (
+
+                {(situacaoCadastradaEStepCertificacao ||
+                  situacaoDevolvida ||
+                  situacaoAguardandoAnaliseDf ||
+                  ehAdminDfESituacaoAguardandoAnalisePeloParecerista) && (
                   <Col>
-                    <Button
-                      block
-                      type='primary'
-                      style={stylesButtons}
-                      onClick={validarAntesEnviarProposta}
-                      disabled={desabilitarCampos || (ehPerfilAdminDf && pareceristaWatch)}
-                      id={CF_BUTTON_ENVIAR_PROPOSTA}
-                    >
-                      Enviar
-                    </Button>
+                    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+                      {() => (
+                        <Button
+                          block
+                          type='primary'
+                          style={stylesButtons}
+                          onClick={validarAntesEnviarProposta}
+                          id={CF_BUTTON_ENVIAR_PROPOSTA}
+                          disabled={
+                            (ehPerfilAdminDf && pareceristaWatch) || !form.isFieldsTouched()
+                          }
+                        >
+                          Enviar
+                        </Button>
+                      )}
+                    </Form.Item>
                   </Col>
                 )}
                 {exibirBotoesAprovarRecusar && (
