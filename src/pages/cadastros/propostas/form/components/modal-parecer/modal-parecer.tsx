@@ -83,15 +83,19 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     const resposta = await obterPropostaPorId(propostaId);
 
     if (resposta.sucesso) {
-      const podeEnviarConsideracoes = !!resposta.dados.podeEnviarConsideracoes;
-      const podeEnviar = !!resposta.dados.podeEnviar;
       const situacao = resposta.dados.situacao;
+      const podeEnviar = !!resposta.dados.podeEnviar;
+      const podeAprovar = !!resposta.dados.podeAprovar;
+      const podeRecusar = !!resposta.dados.podeRecusar;
       const totalDeConsideracoes = resposta.dados.totalDeConsideracoes;
+      const podeEnviarConsideracoes = !!resposta.dados.podeEnviarConsideracoes;
 
       setFormInitialValues((valoresAtuais) => ({
         ...valoresAtuais,
         situacao,
         podeEnviar,
+        podeAprovar,
+        podeRecusar,
         totalDeConsideracoes,
         podeEnviarConsideracoes,
       }));
