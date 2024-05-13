@@ -1039,9 +1039,9 @@ export const FormCadastroDePropostas: React.FC = () => {
                       block
                       type='primary'
                       style={stylesButtons}
-                      onClick={validarAntesEnviarProposta}
                       id={CF_BUTTON_ENVIAR_PROPOSTA}
-                      disabled={(ehPerfilAdminDf && pareceristaWatch) || !form.isFieldsTouched()}
+                      onClick={validarAntesEnviarProposta}
+                      disabled={!formInitialValues.podeEnviar}
                     >
                       Enviar
                     </Button>
