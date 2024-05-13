@@ -11,6 +11,7 @@ import { PropostaDashboardDTO } from '../dto/proposta-dashboard-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
 import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
+import { PropostaPareceristaSugestaoDTO } from '../dto/proposta-parecerista-sugestao-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoDTO } from '../dto/retorno-dto';
@@ -149,11 +150,10 @@ const obterPropostaTutorPorId = (id: string | number) =>
 const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
   obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
-const obterSugestoesAprovadas = (propostaId: number) =>
-  obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/sugestao/aprovada`);
-
-const obterSugestoesRecusadas = (propostaId: number) =>
-  obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/sugestao/recusada`);
+const obterSugestoes = (propostaId: number) =>
+  obterRegistro<PropostaPareceristaSugestaoDTO[]>(
+    `${URL_API_PROPOSTA}/${propostaId}/parecerista/sugestao`,
+  );
 
 const aprovarConsideracoesPareceristas = (propostaId: number, justificativa: string) =>
   inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/aprovar`, {
@@ -197,8 +197,7 @@ export {
   obterPropostasDashboard,
   obterRoteiroPropostaFormativa,
   obterSituacoes,
-  obterSugestoesAprovadas,
-  obterSugestoesRecusadas,
+  obterSugestoes,
   obterTipoEncontro,
   obterTipoFormacao,
   obterTipoInscricao,

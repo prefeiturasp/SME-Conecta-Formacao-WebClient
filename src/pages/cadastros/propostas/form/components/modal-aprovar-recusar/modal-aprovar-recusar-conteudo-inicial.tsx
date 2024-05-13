@@ -1,13 +1,14 @@
-import { Col, Form, Input, Row } from 'antd';
+import { Col, Form, Input, Row, Typography } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React, { useEffect, useState } from 'react';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
 import { CF_INPUT_TEXT_AREA } from '~/core/constants/ids/input';
 import { JUSTIFICATIVA_NAO_INFORMADA } from '~/core/constants/mensagens';
+import { PropostaPareceristaSugestaoDTO } from '~/core/dto/proposta-parecerista-sugestao-dto';
 import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
-import { obterSugestoesAprovadas, obterSugestoesRecusadas } from '~/core/services/proposta-service';
+import { obterSugestoes } from '~/core/services/proposta-service';
 
 type ModalAprovarRecusarConteudoInicialProps = {
   propostaId: number;
@@ -19,7 +20,7 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
   ModalAprovarRecusarConteudoInicialProps
 > = ({ onClickSalvar, aprovarSelecionado, propostaId }) => {
   const formInstance = useFormInstance();
-  const [sugestoes, setSugestoes] = useState<string>();
+  const [sugestoes, setSugestoes] = useState<PropostaPareceristaSugestaoDTO[]>();
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
 
   const ehPerfilParecerista =
@@ -41,8 +42,7 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
 
   const carregarSugestoes = async () => {
     if (ehPerfilAdminDf) {
-      const endpoint = aprovarSelecionado ? obterSugestoesAprovadas : obterSugestoesRecusadas;
-      const resposta = await endpoint(propostaId);
+      const resposta = await obterSugestoes(propostaId);
 
       if (resposta.sucesso) {
         const dados = resposta.dados;
@@ -57,11 +57,26 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
 
   return (
     <>
+      {ehPerfilAdminDf && (
+        <Col>
+          <Typography.Title level={5}>Sugestões dos pareceristas</Typography.Title>
+          {sugestoes &&
+            sugestoes?.map((item) => {
+              return (
+                <Row key={item?.parecerista}>
+                  <Col style={{ fontWeight: 'bold' }}>
+                    {item.parecerista} - {item.sugestao}
+                  </Col>
+                  <Col style={{ marginBottom: 16 }}>{item?.justificativa} </Col>
+                </Row>
+              );
+            })}
+        </Col>
+      )}
       <Form.Item
         label='Justificar:'
         name='justificativa'
-        style={{ marginBottom: 6 }}
-        initialValue={ehPerfilAdminDf ? sugestoes : ''}
+        style={{ marginBottom: 6, fontWeight: 'bold' }}
         rules={[{ required: !aprovarSelecionado, message: JUSTIFICATIVA_NAO_INFORMADA }]}
       >
         <Input.TextArea
