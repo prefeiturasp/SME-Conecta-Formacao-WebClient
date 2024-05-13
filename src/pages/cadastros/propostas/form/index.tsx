@@ -862,9 +862,6 @@ export const FormCadastroDePropostas: React.FC = () => {
                   </Col>
                 )}
                 <Col>
-                  <ModalImprimirButton propostaId={id} disabled={false} />
-                </Col>
-                <Col>
                   <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
                     {() => (
                       <Button
