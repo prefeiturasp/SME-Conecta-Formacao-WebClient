@@ -66,6 +66,7 @@ export type PropostaDTO = {
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
   ultimaJustificativaDevolucao?: string;
+  ultimaJustificativa?: string;
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
   numeroHomologacao?: number;
@@ -141,6 +142,7 @@ export type PropostaFormDTO = {
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
   ultimaJustificativaDevolucao?: string;
+  ultimaJustificativa?: string;
   totalDeConsideracoes?: TotalDeConsideracoes[];
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;

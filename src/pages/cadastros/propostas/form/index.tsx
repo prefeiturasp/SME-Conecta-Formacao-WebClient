@@ -134,6 +134,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     StepPropostaEnum.InformacoesGerais,
   );
   const { formInitialValues, setFormInitialValues } = useContext(PropostaContext);
+
   const pareceristaWatch = !useWatch('pareceristas', form)?.length;
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
@@ -155,7 +156,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotaoDevolver =
     situacaoAguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
-  const exibirBotaoEnviarParecer = formInitialValues?.podeEnviarConsideracoes;
+  const exibirBotaoEnviarConsideracoes = formInitialValues?.podeEnviarConsideracoes;
 
   const exibirInputNumeroHomologacao =
     formInitialValues?.situacao === SituacaoProposta.Aprovada ||
@@ -168,21 +169,12 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirJustificativaDevolucao =
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  // TODO: USAR PROP DO BACK - AINDA VAI SER CRIADA
-  const exibirJustificativaAprovacaoRecusa = true;
+  const exibirJustificativaAprovacaoRecusa = formInitialValues?.ultimaJustificativa;
 
   const exibirBotoesAprovarRecusar =
     !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
 
-  const situacaoCadastradaEStepCertificacao =
-    formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
-    currentStep === StepPropostaEnum.Certificacao;
-
-  const exibirBotaoEnviar =
-    situacaoCadastradaEStepCertificacao ||
-    situacaoDevolvida ||
-    situacaoAguardandoAnaliseDf ||
-    ehAdminDfESituacaoAguardandoAnalisePeloParecerista;
+  const exibirBotaoEnviar = formInitialValues?.podeEnviar;
 
   const podeEditarRfResponsavelDf =
     ehPerfilAdminDf &&
@@ -191,6 +183,8 @@ export const FormCadastroDePropostas: React.FC = () => {
       formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
       formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista) &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+
+  const exibirCard = podeEditarRfResponsavelDf || exibirInputNumeroHomologacao;
 
   const stepsProposta: StepProps[] = [
     {
@@ -873,8 +867,6 @@ export const FormCadastroDePropostas: React.FC = () => {
     });
   };
 
-  const exibirCard = podeEditarRfResponsavelDf || exibirInputNumeroHomologacao;
-
   return (
     <Col>
       <Spin spinning={loading}>
@@ -975,19 +967,20 @@ export const FormCadastroDePropostas: React.FC = () => {
                     </Button>
                   </Col>
                 )}
+
                 {exibirBotaoDevolver && (
                   <Col>
                     <ModalDevolverButton propostaId={id} disabled={desabilitarBotaoDevolver} />
                   </Col>
                 )}
 
-                {exibirBotaoEnviarParecer && (
+                {exibirBotaoEnviarConsideracoes && (
                   <Col>
                     <Button
                       block
                       type='primary'
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                      disabled={!exibirBotaoEnviarParecer}
+                      disabled={!exibirBotaoEnviarConsideracoes}
                       onClick={finalizarParecer}
                       style={stylesButtons}
                     >
@@ -1145,7 +1138,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                   <AreaTexto
                     formItemProps={{
                       label: 'Justificativas de aprovacao/recusa:',
-                      // initialValue: formInitialValues?.ultimaJustificativaDevolucao,
+                      initialValue: formInitialValues?.ultimaJustificativa,
                     }}
                     textAreaProps={{
                       rows: 5,
