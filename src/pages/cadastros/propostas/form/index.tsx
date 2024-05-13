@@ -157,6 +157,10 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf &&
     formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
+  const podeImprimir =
+    formInitialValues?.situacao === SituacaoProposta.Publicada &&
+    formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+
   const stepsProposta: StepProps[] = [
     {
       title: STEP_PROPOSTA.INFORMACOES_GERAIS.TITULO,
@@ -851,6 +855,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                   </Col>
                 ) : (
                   <></>
+                )}
+                {podeImprimir && (
+                  <Col>
+                    <ModalImprimirButton propostaId={id} disabled={false} />
+                  </Col>
                 )}
                 <Col>
                   <ModalImprimirButton propostaId={id} disabled={false} />

@@ -9,7 +9,11 @@ type ModalImprimirProps = {
 export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFecharButton }) => {
   const handleImprimir = () => {
     console.log(propostaId);
-    // devolverProposta(propostaId, params)
+
+    // obterRelatorioLaudaPublicacao,
+    // obterRelatorioLaudaCompleta,
+
+    // devolverProposta(propostaId)
     //   .then((resposta) => {
     //     if (resposta.sucesso) {
     //       notification.success({
