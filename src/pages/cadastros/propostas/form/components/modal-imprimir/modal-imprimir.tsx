@@ -1,5 +1,13 @@
+import { useWatch } from 'antd/es/form/Form';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React from 'react';
 import Modal from '~/components/lib/modal';
+import { notification } from '~/components/lib/notification';
+import { RadioRelatorioLauda } from '~/components/main/input/imprimir-lauda';
+import {
+  obterRelatorioLaudaCompleta,
+  obterRelatorioLaudaPublicacao,
+} from '~/core/services/proposta-service';
 
 type ModalImprimirProps = {
   propostaId: number;
@@ -7,22 +15,23 @@ type ModalImprimirProps = {
 };
 
 export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFecharButton }) => {
+  const form = useFormInstance();
+  const relatorioLaudaWatch = useWatch('relatorioLauda', form);
+
   const handleImprimir = () => {
-    console.log(propostaId);
+    const endpoint = relatorioLaudaWatch
+      ? obterRelatorioLaudaPublicacao
+      : obterRelatorioLaudaCompleta;
 
-    // obterRelatorioLaudaPublicacao,
-    // obterRelatorioLaudaCompleta,
-
-    // devolverProposta(propostaId)
-    //   .then((resposta) => {
-    //     if (resposta.sucesso) {
-    //       notification.success({
-    //         message: 'Sucesso',
-    //         description: 'Proposta devolvida com sucesso!',
-    //       });
-    //       onFecharButton();
-    //     }
-    //   })
+    endpoint(propostaId).then((resposta) => {
+      if (resposta.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Seu relatório foi gerado com sucesso!',
+        });
+        onFecharButton();
+      }
+    });
   };
 
   const handleFechar = () => {
@@ -40,7 +49,16 @@ export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFech
       okText='Gerar'
       cancelText='Cancelar'
     >
-      <h1>CRIAR OPCOES PRA IMPRIMIR RELATORIO</h1>
+      <RadioRelatorioLauda
+        formItemProps={{
+          initialValue: true,
+          name: 'relatorioLauda',
+          label: 'Qual relatório você deseja gerar?',
+        }}
+        radioGroupProps={{
+          disabled: false,
+        }}
+      />
     </Modal>
   );
 };
