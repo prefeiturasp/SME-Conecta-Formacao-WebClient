@@ -15,7 +15,7 @@ import {
 } from '~/core/constants/mensagens';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
-import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
+import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
 import { Colors } from '~/core/styles/colors';
 import { ButtonParecer } from '../components/modal-parecer/modal-parecer-button';
 
@@ -123,7 +123,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             Cronograma geral
           </Col>
           <Col sm={24} md={12} lg={8}>
-            <ButtonParecer campo={CamposParecerEnum.periodoRealizacao}>
+            <ButtonParecer campo={CampoConsideracaoEnum.periodoRealizacao}>
               <b>
                 <DatePickerPeriodo
                   formItemProps={{
@@ -172,7 +172,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             Inscrição
           </Col>
           <Col sm={24} md={12} lg={8}>
-            <ButtonParecer campo={CamposParecerEnum.periodoInscricao}>
+            <ButtonParecer campo={CampoConsideracaoEnum.periodoInscricao}>
               <b>
                 <DatePickerPeriodo
                   formItemProps={{

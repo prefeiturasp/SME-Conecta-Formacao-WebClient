@@ -12,7 +12,10 @@ import {
   PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO,
   REFERENCIA_NAO_INFORMADA,
 } from '~/core/constants/mensagens';
-import { CamposParecerEnum, CamposParecerNomeEnumDisplay } from '~/core/enum/campos-proposta-enum';
+import {
+  CampoConsideracaoEnum,
+  CamposParecerNomeEnumDisplay,
+} from '~/core/enum/campos-proposta-enum';
 import { Formato } from '~/core/enum/formato';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
@@ -23,35 +26,35 @@ const FormularioDetalhamento: React.FC = () => {
 
   const collapsesComEditorDeTexto = [
     {
-      key: CamposParecerEnum.justificativa,
+      key: CampoConsideracaoEnum.justificativa,
       header: 'Justificativa',
       messageError: JUSTIFICATIVA_NAO_INFORMADA,
       textoTooltip:
         'Por que esta formação foi planejada? Por que ela é necessária? Qual o diagnóstico da realidade ou necessidade de aprofundamento no tema?',
     },
     {
-      key: CamposParecerEnum.objetivos,
+      key: CampoConsideracaoEnum.objetivos,
       header: 'Objetivos',
       messageError: OBJETIVO_NAO_INFORMADO,
       textoTooltip:
         ' Quais objetivos serão atingidos considerando o público-alvo proposto? Para que serão desenvolvidos os conteúdos e as metodologias? O que se espera que os profissionais aprendam / modifiquem?',
     },
     {
-      key: CamposParecerEnum.conteudoProgramatico,
+      key: CampoConsideracaoEnum.conteudoProgramatico,
       header: 'Conteúdo Programático',
       messageError: CONTEUDO_PROGRAMATICO_NAO_INFORMADO,
       textoTooltip:
         'O conteúdo programático deve estar alinhado a um ou mais princípios do Edital NTF 2023. Indique o que será desenvolvido como conteúdo da formação.',
     },
     {
-      key: CamposParecerEnum.procedimentoMetadologico,
+      key: CampoConsideracaoEnum.procedimentoMetadologico,
       header: 'Procedimentos metodológicos',
       messageError: PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO,
       textoTooltip:
         'Quais estratégias de formação serão utilizadas para abordar os conteúdos e alcançar os objetivos? Os procedimentos metodológicos devem favorecer a relação entre a teoria e a prática profissional.',
     },
     {
-      key: CamposParecerEnum.referencia,
+      key: CampoConsideracaoEnum.referencia,
       header: 'Referências',
       messageError: REFERENCIA_NAO_INFORMADA,
       textoTooltip: `Quais são os referenciais indicados e de onde foi extraído o conteúdo? Quais publicações da SME subsidiam esta proposta de formação?
@@ -110,7 +113,7 @@ const FormularioDetalhamento: React.FC = () => {
             </Col>
           </Row>
         </Col>
-        <ButtonParecer campo={CamposParecerEnum.cargaHoraria} />
+        <ButtonParecer campo={CampoConsideracaoEnum.cargaHoraria} />
       </CollapsePanelSME>
 
       {collapsesComEditorDeTexto.map((item) => {
@@ -140,7 +143,7 @@ const FormularioDetalhamento: React.FC = () => {
         collapseProps={{ defaultActiveKey: 'palavrasChave' }}
       >
         <SelectPalavrasChaves />
-        <ButtonParecer campo={CamposParecerEnum.palavrasChaves} />
+        <ButtonParecer campo={CampoConsideracaoEnum.palavrasChaves} />
       </CollapsePanelSME>
     </>
   );

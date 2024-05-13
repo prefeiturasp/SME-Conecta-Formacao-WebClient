@@ -6,11 +6,14 @@ import { notification } from '~/components/lib/notification';
 import Auditoria from '~/components/main/text/auditoria';
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
-  PropostaParecerCadastroDTO,
   PropostaParecerCompletoDTO,
   PropostaParecerFiltroDTO,
+  PropostaPareceristaConsideracaoCadastroDTO,
 } from '~/core/dto/parecer-proposta-dto';
-import { CamposParecerEnum, CamposParecerEnumDisplay } from '~/core/enum/campos-proposta-enum';
+import {
+  CampoConsideracaoEnum,
+  CampoConsideracaoEnumDisplay,
+} from '~/core/enum/campos-proposta-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
@@ -27,7 +30,7 @@ import { ModalParecerConteudoInicial } from './modal-parecer-conteudo-inicial';
 
 type ModalParecerProps = {
   propostaId?: number;
-  campo: CamposParecerEnum;
+  campo: CampoConsideracaoEnum;
   onFecharButton: () => void;
 };
 
@@ -76,19 +79,25 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
 
   const atualizarProposta = async () => {
     if (!propostaId) return;
+
     const resposta = await obterPropostaPorId(propostaId);
+
     if (resposta.sucesso) {
-      const podeEnviarParecer = !!resposta.dados.podeEnviarParecer;
-      const podeEnviar = !!resposta.dados.podeEnviar;
       const situacao = resposta.dados.situacao;
-      const totalDePareceres = resposta.dados.totalDePareceres;
+      const podeEnviar = !!resposta.dados.podeEnviar;
+      const podeAprovar = !!resposta.dados.podeAprovar;
+      const podeRecusar = !!resposta.dados.podeRecusar;
+      const totalDeConsideracoes = resposta.dados.totalDeConsideracoes;
+      const podeEnviarConsideracoes = !!resposta.dados.podeEnviarConsideracoes;
 
       setFormInitialValues((valoresAtuais) => ({
         ...valoresAtuais,
-        podeEnviarParecer,
-        podeEnviar,
         situacao,
-        totalDePareceres,
+        podeEnviar,
+        podeAprovar,
+        podeRecusar,
+        totalDeConsideracoes,
+        podeEnviarConsideracoes,
       }));
     }
   };
@@ -98,7 +107,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
 
     const valoresSalvar = form.getFieldsValue(true);
 
-    const params: PropostaParecerCadastroDTO = {
+    const params: PropostaPareceristaConsideracaoCadastroDTO = {
       campo,
       propostaId,
       id: null,
@@ -171,17 +180,20 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
     if (temParecer)
       return (
         <>
-          {dados?.itens?.map((parecer, index) => (
-            <React.Fragment key={parecer.id}>
-              <ModalParecerConteudo
-                index={index}
-                parecer={parecer}
-                propostaId={propostaId}
-                onClickExcluir={onClickExcluir}
-                carregarParecer={carregarParecer}
-              />
-            </React.Fragment>
-          ))}
+          {dados?.itens?.map((parecer, index) => {
+            return (
+              <React.Fragment key={parecer.id}>
+                <ModalParecerConteudo
+                  index={index}
+                  parecer={parecer}
+                  propostaId={propostaId}
+                  onClickExcluir={onClickExcluir}
+                  carregarParecer={carregarParecer}
+                />
+                <Auditoria dados={parecer?.auditoria} />
+              </React.Fragment>
+            );
+          })}
         </>
       );
 
@@ -207,7 +219,7 @@ export const ModalParecer: React.FC<ModalParecerProps> = ({
       okButtonProps={{
         hidden: true,
       }}
-      title={`Parecer - ${CamposParecerEnumDisplay[campo]}`}
+      title={`Parecer - ${CampoConsideracaoEnumDisplay[campo]}`}
     >
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
         {montarParecerInicial()}

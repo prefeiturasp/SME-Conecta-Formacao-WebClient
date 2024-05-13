@@ -3,14 +3,15 @@ import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscric
 import { DevolverPropostaDTO } from '../dto/devolver-proposta-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
 import {
-  PropostaParecerCadastroDTO,
   PropostaParecerCompletoDTO,
   PropostaParecerFiltroDTO,
+  PropostaPareceristaConsideracaoCadastroDTO,
 } from '../dto/parecer-proposta-dto';
 import { PropostaDashboardDTO } from '../dto/proposta-dashboard-dto';
 import { PropostaCompletoDTO, PropostaDTO } from '../dto/proposta-dto';
 import { PropostaEncontroDTO } from '../dto/proposta-encontro-dto';
 import { PropostaFiltrosDTO } from '../dto/proposta-filtro-dto';
+import { PropostaPareceristaSugestaoDTO } from '../dto/proposta-parecerista-sugestao-dto';
 import { PropostaRegenteDTO } from '../dto/proposta-regente-dto';
 import { PropostaTutorDTO } from '../dto/proposta-tutor-dto';
 import { RetornoDTO } from '../dto/retorno-dto';
@@ -97,14 +98,14 @@ const obterParecer = (
 ): Promise<ApiResult<PropostaParecerCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/parecer`, { params });
 
-const salvarParecer = (params?: PropostaParecerCadastroDTO) =>
+const salvarParecer = (params?: PropostaPareceristaConsideracaoCadastroDTO) =>
   inserirRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/parecer`, params);
 
-const alterarParecer = (params?: PropostaParecerCadastroDTO) =>
+const alterarParecer = (params?: PropostaPareceristaConsideracaoCadastroDTO) =>
   alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/parecer`, params);
 
 const enviarParecer = (propostaId: number) =>
-  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecer/enviar`);
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/enviar`);
 
 const obterPropostaEncontrosPaginado = (
   propostaId: number | string,
@@ -149,6 +150,27 @@ const obterPropostaTutorPorId = (id: string | number) =>
 const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
   obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
+const obterSugestoes = (propostaId: number) =>
+  obterRegistro<PropostaPareceristaSugestaoDTO[]>(
+    `${URL_API_PROPOSTA}/${propostaId}/parecerista/sugestao`,
+  );
+
+const aprovarConsideracoesPareceristas = (propostaId: number, justificativa: string) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/aprovar`, {
+    justificativa,
+  });
+
+const recusarConsideracoesPareceristas = (propostaId: number, justificativa: string) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/parecerista/recusar`, {
+    justificativa,
+  });
+
+const aprovarConsideracoesAdminDf = (propostaId: number, justificativa: string) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/aprovar`, { justificativa });
+
+const recusarConsideracoesAdminDf = (propostaId: number, justificativa: string) =>
+  inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/recusar`, { justificativa });
+
 const obterRelatorioLaudaPublicacao = (propostaId: number) =>
   obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-publicacao`);
 
@@ -158,6 +180,8 @@ const obterRelatorioLaudaCompleta = (propostaId: number) =>
 export {
   alterarParecer,
   alterarProposta,
+  aprovarConsideracoesAdminDf,
+  aprovarConsideracoesPareceristas,
   deletarProposta,
   devolverProposta,
   enviarParecer,
@@ -181,10 +205,13 @@ export {
   obterRelatorioLaudaPublicacao,
   obterRoteiroPropostaFormativa,
   obterSituacoes,
+  obterSugestoes,
   obterTipoEncontro,
   obterTipoFormacao,
   obterTipoInscricao,
   obterTurmasDaProposta,
+  recusarConsideracoesAdminDf,
+  recusarConsideracoesPareceristas,
   removerParecer,
   removerPropostaEncontro,
   salvarParecer,

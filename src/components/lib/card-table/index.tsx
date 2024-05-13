@@ -17,7 +17,7 @@ interface TableParams {
 type DataTableProps<T> = {
   filters?: any;
   realizouFiltro?: boolean;
-  alterarRealizouFiltro: (valor: boolean) => void;
+  alterarRealizouFiltro?: (valor: boolean) => void;
   desativarBotaoContinuar?: any;
   url?: string;
 } & TableProps<T>;
@@ -72,8 +72,7 @@ const DataTable = <T extends object>({
             if (newParams?.pagination?.current)
               if (newParams?.pagination?.current == 1)
                 newParams.pagination.current = realizouFiltro ? 1 : newParams.pagination?.current;
-            if(desativarBotaoContinuar)
-              desativarBotaoContinuar(response.data.sucesso)
+            if (desativarBotaoContinuar) desativarBotaoContinuar(response.data.sucesso);
             setData(response.data.items);
             setTableParams({
               ...newParams,
@@ -108,7 +107,7 @@ const DataTable = <T extends object>({
   }, [JSON.stringify(filters), fetchData]);
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    alterarRealizouFiltro(false);
+    alterarRealizouFiltro && alterarRealizouFiltro(false);
     const newParams = {
       ...tableParams,
       pagination,

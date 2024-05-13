@@ -14,6 +14,8 @@ export const DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA =
   'Suas alterações não foram salvas, deseja salvar agora?';
 export const REGISTRO_EXCLUIDO_SUCESSO = 'Registro excluído com sucesso!';
 export const DESEJA_ENVIAR_PROPOSTA = 'Gostaria de enviar a proposta também?';
+export const DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA =
+  'Gostaria de enviar a proposta para os pareceristas?';
 export const DESEJA_ENVIAR_PARECER = 'Deseja realmente enviar o parecer?';
 export const DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR =
   'Existem alterações que não foram salvas, deseja salvar antes de enviar?';
@@ -35,6 +37,7 @@ export const NOME_FORMACAO_NAO_INFORMADO = 'É necessário informar o nome da fo
 export const NOME_NAO_INFORMADO = 'É necessário informar o nome';
 export const RF_NAO_INFORMADO = 'É necessário informar o registro funcional';
 export const CPF_NAO_INFORMADO = 'É necessário informar o CPF';
+export const PARECERISTA_NAO_INFORMADO = 'É necessário informar pelo menos um parecerista';
 export const PUBLICO_ALVO_NAO_INFORMADO = 'É necessário informar o público alvo';
 export const COMPONENTE_NAO_INFORMADO = 'É necessário informar o componente curricular';
 export const ANO_ETAPA_NAO_INFORMADO = 'É necessário informar o ano/etapa';
