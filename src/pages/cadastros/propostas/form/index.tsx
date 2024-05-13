@@ -989,45 +989,50 @@ export const FormCadastroDePropostas: React.FC = () => {
 
                 {exibirBotaoSalvar && (
                   <Col>
-                    <Button
-                      block
-                      type='primary'
-                      id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                      disabled={!form.isFieldsTouched()}
-                      onClick={() => {
-                        const publicosAlvosNumeros: number[] = form.getFieldValue('publicosAlvo');
-                        const funcoesEspecificasNumeros: number[] =
-                          form.getFieldValue('funcoesEspecificas');
-                        const modalidade = form.getFieldValue('modalidade');
-                        const anosTurmas: number[] = form.getFieldValue('anosTurmas');
-                        const componentesCurriculares: number[] =
-                          form.getFieldValue('componentesCurriculares');
+                    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+                      {() => (
+                        <Button
+                          block
+                          type='primary'
+                          id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                          disabled={!form.isFieldsTouched()}
+                          onClick={() => {
+                            const publicosAlvosNumeros: number[] =
+                              form.getFieldValue('publicosAlvo');
+                            const funcoesEspecificasNumeros: number[] =
+                              form.getFieldValue('funcoesEspecificas');
+                            const modalidade = form.getFieldValue('modalidade');
+                            const anosTurmas: number[] = form.getFieldValue('anosTurmas');
+                            const componentesCurriculares: number[] =
+                              form.getFieldValue('componentesCurriculares');
 
-                        if (
-                          publicosAlvosNumeros.length == 0 &&
-                          funcoesEspecificasNumeros.length == 0
-                        ) {
-                          if (
-                            modalidade == undefined ||
-                            anosTurmas.length == 0 ||
-                            componentesCurriculares.length == 0
-                          ) {
-                            setListaErros([
-                              'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
-                            ]);
-                            showModalErros();
-                            return;
-                          }
-                        }
-                        const enviarProposta =
-                          formInitialValues?.situacao !== SituacaoProposta.Publicada &&
-                          formInitialValues?.situacao !== SituacaoProposta.Alterando;
-                        salvarProposta(enviarProposta);
-                      }}
-                      style={stylesButtons}
-                    >
-                      Salvar
-                    </Button>
+                            if (
+                              publicosAlvosNumeros.length == 0 &&
+                              funcoesEspecificasNumeros.length == 0
+                            ) {
+                              if (
+                                modalidade == undefined ||
+                                anosTurmas.length == 0 ||
+                                componentesCurriculares.length == 0
+                              ) {
+                                setListaErros([
+                                  'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
+                                ]);
+                                showModalErros();
+                                return;
+                              }
+                            }
+                            const enviarProposta =
+                              formInitialValues?.situacao !== SituacaoProposta.Publicada &&
+                              formInitialValues?.situacao !== SituacaoProposta.Alterando;
+                            salvarProposta(enviarProposta);
+                          }}
+                          style={stylesButtons}
+                        >
+                          Salvar
+                        </Button>
+                      )}
+                    </Form.Item>
                   </Col>
                 )}
 
