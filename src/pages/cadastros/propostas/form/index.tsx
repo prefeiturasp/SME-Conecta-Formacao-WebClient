@@ -1136,11 +1136,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                   <AreaTexto
                     formItemProps={{
                       label: 'Justificativas de aprovacao/recusa:',
-                      initialValue: formInitialValues?.ultimaJustificativa,
                     }}
                     textAreaProps={{
                       rows: 5,
                       disabled: true,
+                      value: formInitialValues?.ultimaJustificativa,
                     }}
                   />
                 </Col>
