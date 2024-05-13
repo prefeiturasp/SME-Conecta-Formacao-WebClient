@@ -112,7 +112,6 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
         hidden: true,
       }}
       onCancel={fecharModal}
-      title='Preenchimento das justificativas'
     >
       <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
         {montarJustificativaInicial()}
