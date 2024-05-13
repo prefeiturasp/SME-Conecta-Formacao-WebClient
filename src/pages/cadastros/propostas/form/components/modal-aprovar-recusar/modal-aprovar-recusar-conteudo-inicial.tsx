@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row, Typography } from 'antd';
+import { Col, Flex, Form, Input, Row, Typography } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React, { useEffect, useState } from 'react';
 import { ButtonSecundary } from '~/components/lib/button/secundary';
@@ -63,12 +63,12 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
           {sugestoes &&
             sugestoes?.map((item) => {
               return (
-                <Row key={item?.parecerista}>
+                <Flex vertical key={item?.parecerista}>
                   <Col style={{ fontWeight: 'bold' }}>
                     {item.parecerista} - {item.sugestao}
                   </Col>
                   <Col style={{ marginBottom: 16 }}>{item?.justificativa} </Col>
-                </Row>
+                </Flex>
               );
             })}
         </Col>

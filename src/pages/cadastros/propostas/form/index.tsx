@@ -128,6 +128,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
   const paramsRoute = useParams();
+  const pareceristaWatch = Form.useWatch('pareceristas', form)?.length;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<StepPropostaEnum>(
@@ -172,17 +173,36 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirBotoesAprovarRecusar =
     !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
 
-  const exibirBotaoEnviar = formInitialValues?.podeEnviar;
+  const exibirBotaoEnviar =
+    formInitialValues?.podeEnviar || !(ehPerfilAdminDf && !pareceristaWatch);
 
-  const podeEditarRfResponsavelDf =
-    ehPerfilAdminDf &&
-    (situacaoAguardandoAnaliseDf ||
-      formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF ||
-      formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
-      formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista) &&
-    formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+  const situacaoAguardandoAnaliseReanalisePeloParecerista =
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
+    formInitialValues.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista;
 
-  const exibirCard = podeEditarRfResponsavelDf || exibirInputNumeroHomologacao;
+  const desabilitarBotaoEnviar = () => {
+    if (
+      ehPerfilAdminDf &&
+      (situacaoAguardandoAnaliseDf || situacaoAguardandoAnaliseReanalisePeloParecerista) &&
+      !!pareceristaWatch
+    ) {
+      return false;
+    } else if (formInitialValues?.podeEnviar) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const podeExibirCard =
+    ehPerfilAdminDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+
+  const podeEditarRfResponsavelDfEPareceristas =
+    situacaoAguardandoAnaliseDf ||
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
+    formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista;
+
+  const exibirCard = podeExibirCard || exibirInputNumeroHomologacao;
 
   const stepsProposta: StepProps[] = [
     {
@@ -810,7 +830,10 @@ export const FormCadastroDePropostas: React.FC = () => {
 
     if (ehPerfilAdminDf) {
       confirmacao({
-        content: DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
+        content:
+          formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF
+            ? 'Gostaria de enviar a proposta para área promotora'
+            : DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
         onOk() {
           finalizarEnvioProposta();
         },
@@ -834,6 +857,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         content: DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
         onOk() {
           salvarProposta(true);
+          enviarProposta();
         },
         onCancel() {
           if (ehPerfilAdminDf) {
@@ -1038,16 +1062,20 @@ export const FormCadastroDePropostas: React.FC = () => {
 
                 {exibirBotaoEnviar && (
                   <Col>
-                    <Button
-                      block
-                      type='primary'
-                      style={stylesButtons}
-                      id={CF_BUTTON_ENVIAR_PROPOSTA}
-                      onClick={validarAntesEnviarProposta}
-                      disabled={!formInitialValues.podeEnviar}
-                    >
-                      Enviar
-                    </Button>
+                    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+                      {() => (
+                        <Button
+                          block
+                          type='primary'
+                          style={stylesButtons}
+                          id={CF_BUTTON_ENVIAR_PROPOSTA}
+                          onClick={validarAntesEnviarProposta}
+                          disabled={desabilitarBotaoEnviar()}
+                        >
+                          Enviar
+                        </Button>
+                      )}
+                    </Form.Item>
                   </Col>
                 )}
 
@@ -1072,14 +1100,14 @@ export const FormCadastroDePropostas: React.FC = () => {
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12} md={14} lg={12}>
                     <SelectResponsavelDf
-                      formItemProps={{ required: podeEditarRfResponsavelDf }}
-                      selectProps={{ disabled: !podeEditarRfResponsavelDf }}
+                      formItemProps={{ required: podeEditarRfResponsavelDfEPareceristas }}
+                      selectProps={{ disabled: !podeEditarRfResponsavelDfEPareceristas }}
                     />
                   </Col>
                   <Col xs={24} sm={12} md={14} lg={12}>
                     <SelectPareceristas
                       selectProps={{
-                        disabled: !podeEditarRfResponsavelDf,
+                        disabled: !podeEditarRfResponsavelDfEPareceristas,
                         maxCount: formInitialValues.qtdeLimitePareceristaProposta,
                       }}
                     />
