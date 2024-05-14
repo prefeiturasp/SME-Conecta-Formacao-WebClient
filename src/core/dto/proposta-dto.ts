@@ -4,7 +4,7 @@ import { Formato } from '../enum/formato';
 import { SituacaoProposta } from '../enum/situacao-proposta';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { AuditoriaDTO } from './auditoria-dto';
-import { TotalDePareceresDTO } from './parecer-proposta-dto';
+import { TotalDeConsideracoes } from './parecer-proposta-dto';
 import { PropostaAnoTurmaDTO } from './proposta-ano-turmas-dto';
 import { PropostaAreaPromotoraDTO } from './proposta-area-promotora-dto';
 import { PropostaComponenteCurricularDTO } from './proposta-componente-curriculares-dto';
@@ -66,13 +66,21 @@ export type PropostaDTO = {
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
   ultimaJustificativaDevolucao?: string;
+  ultimaJustificativa?: string;
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
   numeroHomologacao?: number;
   pareceristas?: PropostaPareceristaDTO[];
-  podeEnviarParecer?: boolean;
+  podeEnviarConsideracoes?: boolean;
   podeEnviar?: boolean;
-  totalDePareceres?: TotalDePareceresDTO[];
+  totalDeConsideracoes?: TotalDeConsideracoes[];
+  podeAprovar?: boolean;
+  labelAprovar?: string;
+  podeRecusar?: boolean;
+  labelRecusar?: string;
+  ehParecerista?: boolean;
+  ehAdminDF?: boolean;
+  ehAreaPromotora?: boolean;
 };
 
 export type TipoInscricaoType = {
@@ -134,15 +142,23 @@ export type PropostaFormDTO = {
   movimentacao?: PropostaMovimentacaoDTO;
   areaPromotora?: PropostaAreaPromotoraDTO;
   ultimaJustificativaDevolucao?: string;
-  totalDePareceres?: TotalDePareceresDTO[];
+  ultimaJustificativa?: string;
+  totalDeConsideracoes?: TotalDeConsideracoes[];
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
   numeroHomologacao?: number;
   qtdeLimitePareceristaProposta?: number;
   podeEnviar?: boolean;
-  exibirParecer?: boolean;
-  podeEnviarParecer?: boolean;
+  exibirConsideracoes?: boolean;
+  podeEnviarConsideracoes?: boolean;
   pareceristas?: PropostaPareceristaFormDTO[];
+  podeAprovar?: boolean;
+  labelAprovar?: string;
+  podeRecusar?: boolean;
+  labelRecusar?: string;
+  ehParecerista?: boolean;
+  ehAdminDF?: boolean;
+  ehAreaPromotora?: boolean;
 };
 
 export type PropostaPalavraChaveDTO = {

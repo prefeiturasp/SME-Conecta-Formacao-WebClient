@@ -4,7 +4,7 @@ import CheckboxAcaoInformatica from '~/components/lib/checkbox';
 import SelectCriterioCertificacao from '~/components/main/input/criterio-certificacao';
 import EditorTexto from '~/components/main/input/editor-texto';
 import { DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA } from '~/core/constants/mensagens';
-import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
+import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../components/modal-parecer/modal-parecer-button';
 
@@ -55,7 +55,7 @@ const FormularioCertificacao: React.FC = () => {
       <Col>
         <Row>
           <Col>
-            <ButtonParecer campo={CamposParecerEnum.cursoComCertificado}>
+            <ButtonParecer campo={CampoConsideracaoEnum.cursoComCertificado}>
               <Form.Item
                 label='Curso com certificação'
                 name='cursoComCertificado'
@@ -73,12 +73,12 @@ const FormularioCertificacao: React.FC = () => {
             </ButtonParecer>
           </Col>
           <Col span={24}>
-            <ButtonParecer campo={CamposParecerEnum.criterioCertificacao}>
+            <ButtonParecer campo={CampoConsideracaoEnum.criterioCertificacao}>
               <SelectCriterioCertificacao onchange={verificarCriteriosSelecionados} />
             </ButtonParecer>
           </Col>
           <Col span={24}>
-            <ButtonParecer campo={CamposParecerEnum.descricaoDaAtividade}>
+            <ButtonParecer campo={CampoConsideracaoEnum.descricaoDaAtividade}>
               <EditorTexto
                 nome='descricaoDaAtividade'
                 label='Descrição da atividade obrigatória para certificação'

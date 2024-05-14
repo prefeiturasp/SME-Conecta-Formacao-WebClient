@@ -6,7 +6,7 @@ import Select from '~/components/lib/inputs/select';
 import { CF_INPUT_CRITERIOS_VALIDACOES_INSCRICAO_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_CRITERIOS_VALIDACOES_INSCRICAO } from '~/core/constants/ids/select';
 import { PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS } from '~/core/constants/mensagens';
-import { CamposParecerEnum } from '~/core/enum/campos-proposta-enum';
+import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
 import { obterCriterioValidacaoInscricao } from '~/core/services/proposta-service';
 import { validarOnChangeMultiSelectUnico } from '~/core/utils/functions';
 import { ButtonParecer } from '~/pages/cadastros/propostas/form/components/modal-parecer/modal-parecer-button';
@@ -49,7 +49,7 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
 
           if (ehOutros) {
             campoOutros = (
-              <ButtonParecer campo={CamposParecerEnum.criteriosValidacaoInscricaoOutros}>
+              <ButtonParecer campo={CampoConsideracaoEnum.criteriosValidacaoInscricaoOutros}>
                 <Form.Item
                   label='Outros'
                   name='criterioValidacaoInscricaoOutros'
@@ -71,7 +71,7 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
 
         return (
           <>
-            <ButtonParecer campo={CamposParecerEnum.criteriosValidacaoInscricao}>
+            <ButtonParecer campo={CampoConsideracaoEnum.criteriosValidacaoInscricao}>
               <Form.Item
                 label='Critérios para validação das inscrições'
                 name='criteriosValidacaoInscricao'
