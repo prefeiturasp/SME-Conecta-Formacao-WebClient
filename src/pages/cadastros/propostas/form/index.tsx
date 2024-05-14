@@ -77,6 +77,7 @@ import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ModalAprovarRecusarButton } from './components/modal-aprovar-recusar/modal-aprovar-recusar-button';
 import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
+import ModalImprimirButton from './components/modal-imprimir/modal-imprimir-button';
 import { PropostaContext } from './provider';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
@@ -205,6 +206,10 @@ export const FormCadastroDePropostas: React.FC = () => {
     formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista;
 
   const exibirCard = podeExibirCard || exibirInputNumeroHomologacao;
+
+  const podeImprimir =
+    formInitialValues?.situacao === SituacaoProposta.Publicada &&
+    formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
   const stepsProposta: StepProps[] = [
     {
@@ -932,7 +937,11 @@ export const FormCadastroDePropostas: React.FC = () => {
                     />
                   </Col>
                 )}
-
+                {podeImprimir && (
+                  <Col>
+                    <ModalImprimirButton propostaId={id} disabled={false} />
+                  </Col>
+                )}
                 <Col>
                   <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
                     {() => (
