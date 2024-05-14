@@ -149,6 +149,12 @@ const obterPropostaTutorPorId = (id: string | number) =>
 const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
   obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
+const obterRelatorioLaudaPublicacao = (propostaId: number) =>
+  obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-publicacao`);
+
+const obterRelatorioLaudaCompleta = (propostaId: number) =>
+  obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-completa`);
+
 export {
   alterarParecer,
   alterarProposta,
@@ -171,6 +177,8 @@ export {
   obterPropostaRegentePorId,
   obterPropostaTutorPorId,
   obterPropostasDashboard,
+  obterRelatorioLaudaCompleta,
+  obterRelatorioLaudaPublicacao,
   obterRoteiroPropostaFormativa,
   obterSituacoes,
   obterTipoEncontro,
