@@ -16,6 +16,8 @@ export const REGISTRO_EXCLUIDO_SUCESSO = 'Registro excluído com sucesso!';
 export const DESEJA_ENVIAR_PROPOSTA = 'Gostaria de enviar a proposta também?';
 export const DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA =
   'Gostaria de enviar a proposta para os pareceristas?';
+export const DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA =
+  'Gostaria de enviar a proposta para área promotora?';
 export const DESEJA_ENVIAR_PARECER = 'Deseja realmente enviar o parecer?';
 export const DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR =
   'Existem alterações que não foram salvas, deseja salvar antes de enviar?';

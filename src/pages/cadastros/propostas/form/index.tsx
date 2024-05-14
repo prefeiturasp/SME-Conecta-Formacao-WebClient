@@ -33,6 +33,7 @@ import {
   APOS_ENVIAR_PROPOSTA_PUBLICAR,
   DESEJA_ENVIAR_PARECER,
   DESEJA_ENVIAR_PROPOSTA,
+  DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA,
   DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
@@ -185,7 +186,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     if (
       ehPerfilAdminDf &&
       (situacaoAguardandoAnaliseDf || situacaoAguardandoAnaliseReanalisePeloParecerista) &&
-      !!pareceristaWatch
+      !!pareceristaWatch &&
+      form.isFieldsTouched()
     ) {
       return false;
     } else if (formInitialValues?.podeEnviar) {
@@ -837,7 +839,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content:
           formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF
-            ? 'Gostaria de enviar a proposta para área promotora'
+            ? DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA
             : DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
         onOk() {
           finalizarEnvioProposta();

@@ -150,6 +150,12 @@ const obterPropostaTutorPorId = (id: string | number) =>
 const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
   obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
+const obterRelatorioLaudaPublicacao = (propostaId: number) =>
+  obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-publicacao`);
+
+const obterRelatorioLaudaCompleta = (propostaId: number) =>
+  obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-completa`);
+
 const obterSugestoes = (propostaId: number) =>
   obterRegistro<PropostaPareceristaSugestaoDTO[]>(
     `${URL_API_PROPOSTA}/${propostaId}/parecerista/sugestao`,
@@ -170,12 +176,6 @@ const aprovarConsideracoesAdminDf = (propostaId: number, justificativa: string) 
 
 const recusarConsideracoesAdminDf = (propostaId: number, justificativa: string) =>
   inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/recusar`, { justificativa });
-
-const obterRelatorioLaudaPublicacao = (propostaId: number) =>
-  obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-publicacao`);
-
-const obterRelatorioLaudaCompleta = (propostaId: number) =>
-  obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-completa`);
 
 export {
   alterarParecer,
