@@ -186,7 +186,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     if (
       ehPerfilAdminDf &&
       (situacaoAguardandoAnaliseDf || situacaoAguardandoAnaliseReanalisePeloParecerista) &&
-      !!pareceristaWatch
+      !!pareceristaWatch &&
+      form.isFieldsTouched()
     ) {
       return false;
     } else if (formInitialValues?.podeEnviar) {
