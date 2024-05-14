@@ -171,6 +171,12 @@ const aprovarConsideracoesAdminDf = (propostaId: number, justificativa: string) 
 const recusarConsideracoesAdminDf = (propostaId: number, justificativa: string) =>
   inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/recusar`, { justificativa });
 
+const obterRelatorioLaudaPublicacao = (propostaId: number) =>
+  obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-publicacao`);
+
+const obterRelatorioLaudaCompleta = (propostaId: number) =>
+  obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-completa`);
+
 export {
   alterarParecer,
   alterarProposta,
@@ -195,6 +201,8 @@ export {
   obterPropostaRegentePorId,
   obterPropostaTutorPorId,
   obterPropostasDashboard,
+  obterRelatorioLaudaCompleta,
+  obterRelatorioLaudaPublicacao,
   obterRoteiroPropostaFormativa,
   obterSituacoes,
   obterSugestoes,
