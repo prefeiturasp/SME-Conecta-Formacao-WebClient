@@ -5,6 +5,7 @@ import { ButtonSecundary } from '~/components/lib/button/secundary';
 import { CF_INPUT_TEXT_AREA } from '~/core/constants/ids/input';
 import { JUSTIFICATIVA_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { PropostaPareceristaSugestaoDTO } from '~/core/dto/proposta-parecerista-sugestao-dto';
+import { SituacaoParecerista } from '~/core/enum/situacao-parecerista-enum';
 import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
@@ -14,13 +15,24 @@ type ModalAprovarRecusarConteudoInicialProps = {
   propostaId: number;
   onClickSalvar: () => void;
   aprovarSelecionado: boolean;
+  situacao: SituacaoProposta;
 };
 
 export const ModalAprovarRecusarConteudoInicial: React.FC<
   ModalAprovarRecusarConteudoInicialProps
-> = ({ onClickSalvar, aprovarSelecionado, propostaId }) => {
+> = ({ onClickSalvar, aprovarSelecionado, propostaId, situacao }) => {
   const formInstance = useFormInstance();
   const [sugestoes, setSugestoes] = useState<PropostaPareceristaSugestaoDTO[]>();
+
+  const valorInicialJustificativa = sugestoes
+    ?.filter(
+      (item) =>
+        item.situacao ===
+        (aprovarSelecionado ? SituacaoParecerista.Aprovada : SituacaoParecerista.Recusada),
+    )
+    .map((item) => item.justificativa)
+    .join('\n');
+
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
 
   const ehPerfilParecerista =
@@ -29,8 +41,6 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
 
   const maxLength = () => {
-    const situacao = formInstance.getFieldsValue(true).situacao;
-
     if (
       ehPerfilParecerista &&
       (situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
@@ -52,6 +62,10 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
   };
 
   useEffect(() => {
+    formInstance.setFieldValue('justificativa', valorInicialJustificativa);
+  }, [valorInicialJustificativa, sugestoes]);
+
+  useEffect(() => {
     carregarSugestoes();
   }, [ehPerfilAdminDf]);
 
@@ -65,7 +79,7 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
               return (
                 <Flex vertical key={item?.parecerista}>
                   <Col style={{ fontWeight: 'bold' }}>
-                    {item.parecerista} - {item.sugestao}
+                    {item.parecerista} - {SituacaoParecerista[item.situacao]}
                   </Col>
                   <Col style={{ marginBottom: 16 }}>{item?.justificativa} </Col>
                 </Flex>
