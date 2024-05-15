@@ -151,10 +151,10 @@ const obterPropostasDashboard = (filters: PropostaFiltrosDTO) =>
   obterRegistro<PropostaDashboardDTO[]>(`${URL_API_PROPOSTA}/dashboard`, { params: filters });
 
 const obterRelatorioLaudaPublicacao = (propostaId: number) =>
-  obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-publicacao`);
+  obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-publicacao`);
 
 const obterRelatorioLaudaCompleta = (propostaId: number) =>
-  obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-completa`);
+  obterRegistro<string>(`${URL_API_PROPOSTA}/${propostaId}/relatorio/lauda-completa`);
 
 const obterSugestoes = (propostaId: number) =>
   obterRegistro<PropostaPareceristaSugestaoDTO[]>(
