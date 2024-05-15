@@ -2,7 +2,7 @@ import { Form, FormItemProps, Input, InputProps } from 'antd';
 import React from 'react';
 
 type InputTelefoneProps = {
-  inputProps: InputProps;
+  inputProps?: InputProps;
   formItemProps?: FormItemProps;
 };
 

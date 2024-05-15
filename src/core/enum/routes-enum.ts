@@ -13,6 +13,8 @@ export enum ROUTES {
   AREA_PROMOTORA = '/cadastro/area-promotora',
   AREA_PROMOTORA_NOVO = '/cadastro/area-promotora/novo',
   AREA_PROMOTORA_EDITAR = '/cadastro/area-promotora/editar/:id',
+  REDE_PARCERIA = '/cadastro/rede-parceria',
+  REDE_PARCERIA_NOVO = '/cadastro/rede-parceria/novo',
   SEM_PERMISSAO = '/sem-permissao',
   AREA_PUBLICA = '/area-publica',
   AREA_PUBLICA_VISUALIZAR_FORMACAO = '/area-publica/visualizar/:id',

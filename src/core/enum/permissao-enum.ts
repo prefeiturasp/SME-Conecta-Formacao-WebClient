@@ -11,4 +11,9 @@ export enum PermissaoEnum {
   Inscricao_I = '294',
   Inscricao_E = '295',
   Inscricao_A = '296',
+  //TODO: ALINHAR ENUM COM O BACK
+  RedeParceria_C = '297',
+  RedeParceria_I = '298',
+  RedeParceria_E = '299',
+  RedeParceria_A = '300',
 }

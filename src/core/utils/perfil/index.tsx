@@ -103,10 +103,11 @@ export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
     store.dispatch(setPerfilSelecionado(perfilSelecionado));
   }
 
-  let roles: RolesDTO['roles'] = [];
+  //TODO: REMOVER MOACK
+  let roles: RolesDTO['roles'] = ['297', '298', '299', '300'];
 
   if (decodeObject.roles?.length) {
-    roles = decodeObject.roles;
+    roles = [...roles, ...decodeObject.roles];
   }
 
   store.dispatch(setRoles(roles));

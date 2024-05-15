@@ -16,6 +16,8 @@ import { CadastroDeUsuario } from '~/pages/cadastros/novo-usuario';
 import { FormCadastroDePropostas } from '~/pages/cadastros/propostas/form';
 import { PropostaContextProvider } from '~/pages/cadastros/propostas/form/provider';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
+import { RedeParceriaUsuarios } from '~/pages/cadastros/rede-de-parceria-usuarios';
+import { NovoUsuarioRedeParceria } from '~/pages/cadastros/rede-de-parceria-usuarios/novo-usuario';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
@@ -68,7 +70,7 @@ const RoutesConfig = () => {
           <Route path={ROUTES.AREA_PUBLICA_VISUALIZAR_FORMACAO} element={visualizarAreaPublica} />
         </Route>
         <Route element={homePage}>
-              <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
+          <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
         </Route>
         {autenticado ? (
           <>
@@ -96,6 +98,15 @@ const RoutesConfig = () => {
                       path={ROUTES.AREA_PROMOTORA_EDITAR}
                       element={<FormCadastrosAreaPromotora />}
                     />
+                  </Route>
+                </Route>
+
+                <Route path={ROUTES.REDE_PARCERIA}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route path='' element={<RedeParceriaUsuarios />} />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route path={ROUTES.REDE_PARCERIA_NOVO} element={<NovoUsuarioRedeParceria />} />
                   </Route>
                 </Route>
 
