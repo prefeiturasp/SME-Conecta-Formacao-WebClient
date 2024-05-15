@@ -1,12 +1,12 @@
 import { AxiosResponse } from 'axios';
+import { AlterarEmailValidacaoDto } from '../dto/alterar-email-validacao-dto';
 import { CadastroUsuarioDTO, RetornoCadastroUsuarioDTO } from '../dto/cadastro-usuario-dto';
 import { DadosUsuarioDTO } from '../dto/dados-usuario-dto';
 import { RecuperacaoSenhaDTO } from '../dto/recuperacao-senha-dto';
+import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { RetornoPerfilUsuarioDTO } from '../dto/retorno-perfil-usuario-dto';
 import { SenhaNovaDTO } from '../dto/senha-nova-dto';
-import api, { ApiResult, inserirRegistro, obterRegistro } from './api';
-import { AlterarEmailValidacaoDto } from '../dto/alterar-email-validacao-dto';
-import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
+import api, { ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from './api';
 
 const URL_DEFAULT = 'v1/usuario';
 
@@ -52,7 +52,11 @@ const validaEmailToken = (token: string) =>
 const reenviarEmail = (login: string) => obterRegistro(`${URL_DEFAULT}/${login}/reenviar-email`);
 
 const obterEmailTipoUsuarioExterno = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
-    obterRegistro(`${URL_DEFAULT}/tipo-email`);
+  obterRegistro(`${URL_DEFAULT}/tipo-email`);
+
+// TODO: AGUARDAR O ENDPOINT FICAR PRONTO E ALTERAR URL
+const excluirUsuarioRedeParceria = (id: string | number): Promise<ApiResult<boolean>> =>
+  deletarRegistro(`${URL_DEFAULT}/${id}`);
 
 export default {
   obterMeusDados,
@@ -61,6 +65,7 @@ export default {
   alterarNome,
   validaEmailToken,
   reenviarEmail,
+  excluirUsuarioRedeParceria,
   solicitarRecuperacaoSenha,
   alterarSenhaComTokenRecuperacao,
   tokenRecuperacaoSenhaEstaValido,

@@ -17,6 +17,7 @@ type FunctionProps = {
   navigate?: NavigateFunction;
   paramsRoute?: Params;
   endpointExcluir?: (id: number | string) => Promise<any>;
+  inverterOnOkCancel?: boolean;
 };
 
 const onClickCancelar = ({ form, mensagem }: FunctionProps): void => {
@@ -30,16 +31,23 @@ const onClickCancelar = ({ form, mensagem }: FunctionProps): void => {
   }
 };
 
-const onClickVoltar = ({ form, route, navigate, mensagem, paramsRoute }: FunctionProps): void => {
+const onClickVoltar = ({
+  form,
+  route,
+  navigate,
+  mensagem,
+  paramsRoute,
+  inverterOnOkCancel,
+}: FunctionProps): void => {
   if (navigate && route) {
     if (form?.isFieldsTouched()) {
       confirmacao({
         content: mensagem ?? DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
         onOk() {
-          form.submit();
+          inverterOnOkCancel ? navigate(route, paramsRoute) : form.submit();
         },
         onCancel() {
-          navigate(route, paramsRoute);
+          inverterOnOkCancel ? form.submit() : navigate(route, paramsRoute);
         },
       });
     } else {

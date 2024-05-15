@@ -1,8 +1,9 @@
-import { Button, Col, Form, Row } from 'antd';
+import { Col, Form, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useContext, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ButtonPrimary } from '~/components/lib/button/primary';
+import { ButtonSecundary } from '~/components/lib/button/secundary';
 import CardContent from '~/components/lib/card-content';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import HeaderPage from '~/components/lib/header-page';
@@ -20,9 +21,15 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
-import { NOME_NAO_INFORMADO } from '~/core/constants/mensagens';
+import {
+  NOME_NAO_INFORMADO,
+  USUARIO_REDE_PARCERIA_NAO_SALVO,
+  USUARIO_REDE_PARCERIA_SALVAR,
+} from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { confirmacao } from '~/core/services/alerta-service';
+import usuarioService from '~/core/services/usuario-service';
 import { onClickCancelar, onClickExcluir, onClickVoltar } from '~/core/utils/form';
 import { validateNameAndSurname } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
@@ -37,10 +44,16 @@ export const FormUsuarioRedeParceria = () => {
   const initialValues = location.state;
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
+  // TODO: MUDAR PRO ENDPOINT DE EXCLUIR USUARIO
+
   const onClickSalvar = () => {
-    form.validateFields().then((resposta) => {
-      if (resposta.sucesso) {
-      }
+    form.validateFields().then(() => {
+      confirmacao({
+        content: USUARIO_REDE_PARCERIA_SALVAR,
+        onOk() {
+          // TODO: ADICIONAR ENDPOINT DE SALVAR USUARIO REDE PARCERIA
+        },
+      });
     });
   };
 
@@ -62,7 +75,15 @@ export const FormUsuarioRedeParceria = () => {
             <Row gutter={[8, 8]}>
               <Col>
                 <ButtonVoltar
-                  onClick={() => onClickVoltar({ navigate, route: ROUTES.USUARIO_REDE_PARCERIA })}
+                  onClick={() =>
+                    onClickVoltar({
+                      form,
+                      navigate,
+                      inverterOnOkCancel: true,
+                      route: ROUTES.USUARIO_REDE_PARCERIA,
+                      mensagem: USUARIO_REDE_PARCERIA_NAO_SALVO,
+                    })
+                  }
                   id={CF_BUTTON_VOLTAR}
                 />
               </Col>
@@ -73,28 +94,43 @@ export const FormUsuarioRedeParceria = () => {
                     id={CF_BUTTON_EXCLUIR}
                     disabled={!permissao.podeExcluir}
                     onClick={() =>
-                      onClickExcluir({ navigate, route: ROUTES.USUARIO_REDE_PARCERIA })
+                      onClickExcluir({
+                        id,
+                        navigate,
+                        route: ROUTES.USUARIO_REDE_PARCERIA,
+                        endpointExcluir: usuarioService.excluirUsuarioRedeParceria,
+                      })
                     }
                   />
                 </Col>
               )}
 
               <Col>
-                <Button
-                  block
-                  type='default'
-                  id={CF_BUTTON_CANCELAR}
-                  onClick={() => onClickCancelar({ form })}
-                  disabled={!form.isFieldsTouched()}
-                >
-                  Cancelar
-                </Button>
+                <Form.Item shouldUpdate style={{ margin: 0 }}>
+                  {() => (
+                    <ButtonSecundary
+                      id={CF_BUTTON_CANCELAR}
+                      disabled={!form.isFieldsTouched()}
+                      onClick={() => onClickCancelar({ form })}
+                    >
+                      Cancelar
+                    </ButtonSecundary>
+                  )}
+                </Form.Item>
               </Col>
 
               <Col>
-                <ButtonPrimary id={CF_BUTTON_SALVAR} onClick={onClickSalvar}>
-                  Salvar
-                </ButtonPrimary>
+                <Form.Item shouldUpdate style={{ margin: 0 }}>
+                  {() => (
+                    <ButtonPrimary
+                      id={CF_BUTTON_SALVAR}
+                      onClick={onClickSalvar}
+                      disabled={!form.isFieldsTouched()}
+                    >
+                      Salvar
+                    </ButtonPrimary>
+                  )}
+                </Form.Item>
               </Col>
             </Row>
           </Col>
