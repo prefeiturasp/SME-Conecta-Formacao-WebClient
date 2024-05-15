@@ -165,7 +165,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const exibirBotaoSalvar =
     currentStep === StepPropostaEnum.Certificacao ||
-    ehAdminDfESituacaoAguardandoAnalisePeloParecerista;
+    (ehAdminDfESituacaoAguardandoAnalisePeloParecerista && form.isFieldsTouched());
 
   const exibirJustificativaDevolucao =
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
@@ -176,7 +176,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
 
   const exibirBotaoEnviar =
-    formInitialValues?.podeEnviar || !(ehPerfilAdminDf && !pareceristaWatch);
+    formInitialValues?.podeEnviar ||
+    (!(ehPerfilAdminDf && !pareceristaWatch) && form.isFieldsTouched());
 
   const situacaoAguardandoAnaliseReanalisePeloParecerista =
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
@@ -864,7 +865,6 @@ export const FormCadastroDePropostas: React.FC = () => {
         content: DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
         onOk() {
           salvarProposta(true);
-          enviarProposta();
         },
         onCancel() {
           if (ehPerfilAdminDf) {
@@ -942,6 +942,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     <ModalImprimirButton propostaId={id} disabled={false} />
                   </Col>
                 )}
+
                 <Col>
                   <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
                     {() => (

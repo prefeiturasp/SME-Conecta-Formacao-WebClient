@@ -18,6 +18,30 @@ export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFech
   const form = useFormInstance();
   const relatorioLaudaWatch = useWatch('relatorioLauda', form);
 
+  const downloadBlob = (url: string) => {
+    fetch(url)
+      .then((response) => {
+        if (response.ok) {
+          return response.blob();
+        }
+      })
+      .then((blob) => {
+        if (!blob) return;
+
+        const urlBlob = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        document.body.appendChild(a);
+        a.setAttribute('style', 'display: none');
+        a.href = urlBlob;
+        a.download = relatorioLaudaWatch
+          ? 'Relatório Lauda de publicação.doc'
+          : 'Relatório Lauda completa.pdf';
+        a.click();
+        window.URL.revokeObjectURL(urlBlob);
+        document.body.removeChild(a);
+      });
+  };
+
   const handleImprimir = () => {
     const endpoint = relatorioLaudaWatch
       ? obterRelatorioLaudaPublicacao
@@ -25,10 +49,13 @@ export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFech
 
     endpoint(propostaId).then((resposta) => {
       if (resposta.sucesso) {
+        const url = resposta.dados;
         notification.success({
           message: 'Sucesso',
           description: 'Seu relatório foi gerado com sucesso!',
         });
+
+        downloadBlob(url);
         onFecharButton();
       }
     });

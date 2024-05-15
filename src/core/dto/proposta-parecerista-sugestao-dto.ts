@@ -1,5 +1,7 @@
+import { SituacaoParecerista } from '../enum/situacao-parecerista-enum';
+
 export type PropostaPareceristaSugestaoDTO = {
   parecerista: string;
-  sugestao: string;
   justificativa: string;
+  situacao: SituacaoParecerista;
 };
