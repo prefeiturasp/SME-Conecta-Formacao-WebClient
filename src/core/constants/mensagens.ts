@@ -110,3 +110,7 @@ export const ERRO_INSCRICAO_MANUAL =
 export const RESPONSAVEL_DF_NAO_INFORMADO = 'É necessário informar o responsável DF';
 export const LINK_INSCRICOES_EXTERNA = 'É necessário informar o link';
 export const BOTAO_INSCRICAO_EXTERNA = 'Link para inscrição';
+export const AREA_PROMOTORA_NAO_INFORMADA = 'É necessário informar a área promotora';
+export const EMAIL_NAO_INFORMADO = 'É necessário informar o email';
+export const TELEFONE_NAO_INFORMADO = 'É necessário informar o telefone';
+export const SITUACAO_USUARIO_REDE_PARCERIA_NAO_INFORMADO = 'É necessário informar a situação';

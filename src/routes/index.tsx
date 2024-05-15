@@ -16,8 +16,8 @@ import { CadastroDeUsuario } from '~/pages/cadastros/novo-usuario';
 import { FormCadastroDePropostas } from '~/pages/cadastros/propostas/form';
 import { PropostaContextProvider } from '~/pages/cadastros/propostas/form/provider';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
-import { RedeParceriaUsuarios } from '~/pages/cadastros/rede-de-parceria-usuarios';
-import { NovoUsuarioRedeParceria } from '~/pages/cadastros/rede-de-parceria-usuarios/novo-usuario';
+import { UsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria';
+import { FormUsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria/form-usuario';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
@@ -101,12 +101,21 @@ const RoutesConfig = () => {
                   </Route>
                 </Route>
 
-                <Route path={ROUTES.REDE_PARCERIA}>
+                <Route path={ROUTES.USUARIO_REDE_PARCERIA}>
                   <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
-                    <Route path='' element={<RedeParceriaUsuarios />} />
+                    <Route path='' element={<UsuarioRedeParceria />} />
                   </Route>
                   <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
-                    <Route path={ROUTES.REDE_PARCERIA_NOVO} element={<NovoUsuarioRedeParceria />} />
+                    <Route
+                      path={ROUTES.USUARIO_REDE_PARCERIA_NOVO}
+                      element={<FormUsuarioRedeParceria />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route
+                      path={ROUTES.USUARIO_REDE_PARCERIA_EDITAR}
+                      element={<FormUsuarioRedeParceria />}
+                    />
                   </Route>
                 </Route>
 

@@ -1,5 +1,6 @@
 import { Form, FormItemProps, Input, InputProps } from 'antd';
 import React from 'react';
+import { TELEFONE_NAO_INFORMADO } from '~/core/constants/mensagens';
 
 type InputTelefoneProps = {
   inputProps?: InputProps;
@@ -23,7 +24,7 @@ const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps
       name='telefone'
       getValueFromEvent={getValueFromEvent}
       rules={[
-        { required: !!formItemProps?.required },
+        { required: !!formItemProps?.required, message: TELEFONE_NAO_INFORMADO },
         {
           message:
             'Telefone inválido, você deve digitar o DDD com dois dígitos e o telefone com 8 ou 9 dígitos',

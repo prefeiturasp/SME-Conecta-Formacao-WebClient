@@ -34,9 +34,8 @@ export const MENU_CADASTRO: MenuItemConectaProps = {
     {
       key: MenuEnum.RedeParceria,
       title: 'Rede de Parceria (Usuários)',
-      url: ROUTES.REDE_PARCERIA,
+      url: ROUTES.USUARIO_REDE_PARCERIA,
       roles: {
-        //TODO: ALINHAR ENUM COM O BACK
         podeConsultar: PermissaoEnum.RedeParceria_C,
         podeIncluir: PermissaoEnum.RedeParceria_I,
         podeExcluir: PermissaoEnum.RedeParceria_E,

@@ -4,6 +4,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_AREA_PROMOTORA } from '~/core/constants/ids/select';
+import { AREA_PROMOTORA_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { obterAreaPromotoraLista } from '~/core/services/area-promotora-service';
 import { obterAreaPromotoraPublico } from '~/core/services/area-publica-service';
 
@@ -41,17 +42,22 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
   }, [disabledSelect]);
 
   return (
-    <>
-      <Form.Item {...formItemProps} label='Área promotora' rules={[{ required: false }]}>
-        <Select
-          {...selectProps}
-          options={options}
-          placeholder='Área promotora'
-          id={CF_SELECT_AREA_PROMOTORA}
-          disabled={disabledSelect}
-        />
-      </Form.Item>
-    </>
+    <Form.Item
+      name='areaPromotora'
+      label='Área promotora'
+      rules={[
+        { required: !!formItemProps?.required || false, message: AREA_PROMOTORA_NAO_INFORMADA },
+      ]}
+      {...formItemProps}
+    >
+      <Select
+        options={options}
+        placeholder='Área promotora'
+        id={CF_SELECT_AREA_PROMOTORA}
+        disabled={disabledSelect}
+        {...selectProps}
+      />
+    </Form.Item>
   );
 };
 
