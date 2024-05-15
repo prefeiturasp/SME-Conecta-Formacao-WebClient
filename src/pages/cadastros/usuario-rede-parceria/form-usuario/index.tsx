@@ -144,7 +144,7 @@ export const FormUsuarioRedeParceria = () => {
               </Col>
 
               <Col xs={24} sm={8} md={12}>
-                <InputCPF formItemProps={{ required: true }} />
+                <InputCPF formItemProps={{ required: true }} inputProps={{ disabled: !!id }} />
               </Col>
 
               <Col xs={24} sm={8} md={12}>
