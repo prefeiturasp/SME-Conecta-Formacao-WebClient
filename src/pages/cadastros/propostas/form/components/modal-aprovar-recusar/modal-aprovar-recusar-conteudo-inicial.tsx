@@ -15,11 +15,12 @@ type ModalAprovarRecusarConteudoInicialProps = {
   propostaId: number;
   onClickSalvar: () => void;
   aprovarSelecionado: boolean;
+  situacao: SituacaoProposta;
 };
 
 export const ModalAprovarRecusarConteudoInicial: React.FC<
   ModalAprovarRecusarConteudoInicialProps
-> = ({ onClickSalvar, aprovarSelecionado, propostaId }) => {
+> = ({ onClickSalvar, aprovarSelecionado, propostaId, situacao }) => {
   const formInstance = useFormInstance();
   const [sugestoes, setSugestoes] = useState<PropostaPareceristaSugestaoDTO[]>();
 
@@ -40,8 +41,6 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
 
   const maxLength = () => {
-    const situacao = formInstance.getFieldsValue(true).situacao;
-
     if (
       ehPerfilParecerista &&
       (situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
