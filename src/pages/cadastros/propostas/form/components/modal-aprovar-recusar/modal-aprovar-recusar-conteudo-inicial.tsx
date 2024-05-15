@@ -23,8 +23,12 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
   const formInstance = useFormInstance();
   const [sugestoes, setSugestoes] = useState<PropostaPareceristaSugestaoDTO[]>();
 
-  const sugestoesAprovadas = sugestoes
-    ?.filter((item) => item.situacao === SituacaoParecerista.Aprovada)
+  const valorInicialJustificativa = sugestoes
+    ?.filter(
+      (item) =>
+        item.situacao ===
+        (aprovarSelecionado ? SituacaoParecerista.Aprovada : SituacaoParecerista.Recusada),
+    )
     .map((item) => item.justificativa)
     .join('\n');
 
@@ -59,8 +63,8 @@ export const ModalAprovarRecusarConteudoInicial: React.FC<
   };
 
   useEffect(() => {
-    formInstance.setFieldValue('justificativa', sugestoesAprovadas);
-  }, [sugestoesAprovadas, sugestoes]);
+    formInstance.setFieldValue('justificativa', valorInicialJustificativa);
+  }, [valorInicialJustificativa, sugestoes]);
 
   useEffect(() => {
     carregarSugestoes();
