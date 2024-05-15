@@ -1,5 +1,6 @@
 import { Form } from 'antd';
 import { useForm } from 'antd/es/form/Form';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React from 'react';
 import Modal from '~/components/lib/modal';
 import { notification } from '~/components/lib/notification';
@@ -35,6 +36,8 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
   carregarDados,
 }) => {
   const [form] = useForm();
+  const formInstance = useFormInstance();
+  const situacao = formInstance.getFieldsValue(true).situacao;
 
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
   const aprovarSelecionado =
@@ -97,6 +100,7 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
         propostaId={propostaId}
         onClickSalvar={validateFields}
         aprovarSelecionado={aprovarSelecionado}
+        situacao={situacao}
       />
     );
   };
