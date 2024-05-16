@@ -154,8 +154,9 @@ export const FormCadastroDePropostas: React.FC = () => {
     ehPerfilAdminDf &&
     formInitialValues.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista;
 
-  const exibirBotaoDevolver =
-    situacaoAguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+  const ehFomacaoHomologada = formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+
+  const exibirBotaoDevolver = situacaoAguardandoAnaliseDf && ehFomacaoHomologada;
 
   const exibirBotaoEnviarConsideracoes = formInitialValues?.podeEnviarConsideracoes;
 
@@ -198,19 +199,17 @@ export const FormCadastroDePropostas: React.FC = () => {
     return true;
   };
 
-  const podeExibirCard =
-    ehPerfilAdminDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+  const podeExibirCard = ehPerfilAdminDf && ehFomacaoHomologada;
 
   const podeEditarRfResponsavelDfEPareceristas =
     situacaoAguardandoAnaliseDf ||
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
     formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista;
 
-  const exibirCard = podeExibirCard || exibirInputNumeroHomologacao;
+  const exibirCard = ehFomacaoHomologada && (podeExibirCard || exibirInputNumeroHomologacao);
 
   const podeImprimir =
-    formInitialValues?.situacao === SituacaoProposta.Publicada &&
-    formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+    formInitialValues?.situacao === SituacaoProposta.Publicada && ehFomacaoHomologada;
 
   const stepsProposta: StepProps[] = [
     {
