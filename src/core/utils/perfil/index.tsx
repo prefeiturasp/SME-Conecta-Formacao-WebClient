@@ -106,7 +106,7 @@ export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
   let roles: RolesDTO['roles'] = [];
 
   if (decodeObject.roles?.length) {
-    roles = decodeObject.roles;
+    roles = [...roles, ...decodeObject.roles];
   }
 
   store.dispatch(setRoles(roles));

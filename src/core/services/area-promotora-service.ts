@@ -26,11 +26,15 @@ const inserirAreaPromotora = (params: AreaPromotoraDTO): Promise<ApiResult<AreaP
 const deletarAreaPromotora = (id: string | number): Promise<ApiResult<boolean>> =>
   deletarRegistro(`${URL_DEFAULT}/${id}`);
 
+const obterUsuarioRedeParceria = () =>
+  obterRegistro<RetornoListagemDTO[]>(`${URL_DEFAULT}/lista/rede-parceria`);
+
 export {
   alterarAreaPromotora,
   deletarAreaPromotora,
   inserirAreaPromotora,
+  obterAreaPromotoraLista,
   obterAreaPromotoraPorId,
   obterTiposAreaPromotora,
-  obterAreaPromotoraLista,
+  obterUsuarioRedeParceria,
 };
