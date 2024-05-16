@@ -133,10 +133,14 @@ const validateNameAndSurname = ({ value, form, nameField }: ValidarNomeSobrenome
   return Promise.resolve();
 };
 
+const maskTelefone = (value: string | number | undefined) =>
+  `${value}`.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2');
+
 export {
   formatarDataHoraAuditoria,
   formatarDuasCasasDecimais,
   formatterCPFMask,
+  maskTelefone,
   mostrarQtdParecer,
   onchangeMultiSelectLabelInValueOpcaoTodos,
   onchangeMultiSelectOpcaoTodos,

@@ -6,7 +6,7 @@ import { RecuperacaoSenhaDTO } from '../dto/recuperacao-senha-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { RetornoPerfilUsuarioDTO } from '../dto/retorno-perfil-usuario-dto';
 import { SenhaNovaDTO } from '../dto/senha-nova-dto';
-import api, { ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from './api';
+import api, { ApiResult, inserirRegistro, obterRegistro } from './api';
 
 const URL_DEFAULT = 'v1/usuario';
 
@@ -54,10 +54,6 @@ const reenviarEmail = (login: string) => obterRegistro(`${URL_DEFAULT}/${login}/
 const obterEmailTipoUsuarioExterno = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_DEFAULT}/tipo-email`);
 
-// TODO: AGUARDAR O ENDPOINT FICAR PRONTO E ALTERAR URL
-const excluirUsuarioRedeParceria = (id: string | number): Promise<ApiResult<boolean>> =>
-  deletarRegistro(`${URL_DEFAULT}/${id}`);
-
 export default {
   obterMeusDados,
   alterarEmail,
@@ -65,7 +61,6 @@ export default {
   alterarNome,
   validaEmailToken,
   reenviarEmail,
-  excluirUsuarioRedeParceria,
   solicitarRecuperacaoSenha,
   alterarSenhaComTokenRecuperacao,
   tokenRecuperacaoSenhaEstaValido,

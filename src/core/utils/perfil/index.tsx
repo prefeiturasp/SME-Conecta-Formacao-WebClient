@@ -103,8 +103,7 @@ export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
     store.dispatch(setPerfilSelecionado(perfilSelecionado));
   }
 
-  //TODO: REMOVER MOCK
-  let roles: RolesDTO['roles'] = ['303', '304', '305', '306'];
+  let roles: RolesDTO['roles'] = [];
 
   if (decodeObject.roles?.length) {
     roles = [...roles, ...decodeObject.roles];

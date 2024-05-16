@@ -116,4 +116,6 @@ export const TELEFONE_NAO_INFORMADO = 'É necessário informar o telefone';
 export const SITUACAO_USUARIO_REDE_PARCERIA_NAO_INFORMADO = 'É necessário informar a situação';
 export const USUARIO_REDE_PARCERIA_NAO_SALVO =
   'Você não salvou as informações preenchidas, saindo desta página elas serão perdidas. Deseja realmente cancelar as alterações?';
-export const USUARIO_REDE_PARCERIA_SALVAR = 'Você realmente deseja salvar?';
+export const USUARIO_REDE_PARCERIA_SALVAR =
+  'Tem certeza de que deseja salvar o novo usuário agora?';
+export const USUARIO_REDE_PARCERIA_EDITAR = 'Tem certeza de que deseja salvar as alterações agora?';

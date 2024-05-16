@@ -13,13 +13,12 @@ import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME_FORMACAO } from '~/core/constants/ids/input';
 import { validateMessages } from '~/core/constants/validate-messages';
-import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { onClickVoltar } from '~/core/utils/form';
 import { UsuarioRedeParceriaListaPaginada } from './listagem';
 
 export interface FiltroUsuarioRedeParceriaProps {
-  areaPromotora: AreaPromotoraTipoEnum | null;
+  areaPromotoraIds: number[] | null;
   nome: number | null;
   cpf: string | null;
   situacao: string | null;
@@ -30,7 +29,7 @@ export const UsuarioRedeParceria = () => {
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState<FiltroUsuarioRedeParceriaProps>({
-    areaPromotora: null,
+    areaPromotoraIds: null,
     nome: null,
     cpf: null,
     situacao: null,
@@ -41,13 +40,13 @@ export const UsuarioRedeParceria = () => {
   }, [form]);
 
   const obterFiltros = () => {
-    const areaPromotora = form.getFieldValue('areaPromotora');
-    const nome = form.getFieldValue('nome');
     const cpf = form.getFieldValue('cpf');
+    const nome = form.getFieldValue('nome');
     const situacao = form.getFieldValue('situacao');
+    const areaPromotoraIds = form.getFieldValue('areaPromotoraId');
 
     setFilters({
-      areaPromotora,
+      areaPromotoraIds,
       nome,
       cpf,
       situacao,
@@ -84,7 +83,7 @@ export const UsuarioRedeParceria = () => {
           <Col span={24}>
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={8} md={6}>
-                <SelectAreaPromotora />
+                <SelectAreaPromotora usuarioRedeParceria selectProps={{ onChange: obterFiltros }} />
               </Col>
 
               <Col xs={24} sm={8} md={6}>
@@ -104,11 +103,11 @@ export const UsuarioRedeParceria = () => {
               </Col>
 
               <Col xs={24} sm={8} md={6}>
-                <InputCPF />
+                <InputCPF inputProps={{ onChange: obterFiltros }} />
               </Col>
 
               <Col xs={24} sm={8} md={6}>
-                <SelectSituacaoRedeParceriaUsuario />
+                <SelectSituacaoRedeParceriaUsuario selectProps={{ onChange: obterFiltros }} />
               </Col>
 
               <Col xs={24}>

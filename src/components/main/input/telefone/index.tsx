@@ -1,6 +1,7 @@
 import { Form, FormItemProps, Input, InputProps } from 'antd';
 import React from 'react';
 import { TELEFONE_NAO_INFORMADO } from '~/core/constants/mensagens';
+import { maskTelefone } from '~/core/utils/functions';
 
 type InputTelefoneProps = {
   inputProps?: InputProps;
@@ -9,9 +10,6 @@ type InputTelefoneProps = {
 
 const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps }) => {
   const removerTudoQueNaoEhDigito = (value: any) => `${value}`.replace(/\D/g, '');
-
-  const maskTelefone = (value: string | number | undefined) =>
-    `${value}`.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2');
 
   const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = removerTudoQueNaoEhDigito(e?.target?.value);
