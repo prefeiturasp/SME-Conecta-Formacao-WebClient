@@ -171,7 +171,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirJustificativaDevolucao =
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  const exibirJustificativaAprovacaoRecusa = formInitialValues?.ultimaJustificativa;
+  const exibirJustificativaAprovacaoRecusa = formInitialValues?.ultimaJustificativaAprovacaoRecusa;
 
   const exibirBotoesAprovarRecusar =
     !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
@@ -1184,7 +1184,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     textAreaProps={{
                       rows: 5,
                       disabled: true,
-                      value: formInitialValues?.ultimaJustificativa,
+                      value: formInitialValues?.ultimaJustificativaAprovacaoRecusa,
                     }}
                   />
                 </Col>
