@@ -5,7 +5,6 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_RESPONSAVEL_DF } from '~/core/constants/ids/select';
-import { RESPONSAVEL_DF_NAO_INFORMADO } from '~/core/constants/mensagens';
 import { obterUsuariosAdminDf } from '~/core/services/funcionario-service';
 import { getTooltipFormInfoCircleFilled } from '../../tooltip';
 
@@ -44,9 +43,9 @@ const SelectResponsavelDf: React.FC<SelectResponsavelDfProps> = ({
 
   return (
     <Form.Item
+      required
       label='Responsável DF'
       name='rfResponsavelDf'
-      rules={[{ required: true, message: RESPONSAVEL_DF_NAO_INFORMADO }]}
       tooltip={getTooltipFormInfoCircleFilled('Indicar o responsável DF.')}
       {...formItemProps}
     >
