@@ -4,6 +4,7 @@ import CollapsePanelSME from '~/components/lib/collapse';
 import InputTimer from '~/components/lib/inputs/timer';
 import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
+import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import {
   CARGA_HORARIA_NAO_INFORMADA,
   CONTEUDO_PROGRAMATICO_NAO_INFORMADO,
@@ -19,7 +20,8 @@ import {
 import { Formato } from '~/core/enum/formato';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
-import InputTimerCargaHorariaTotal from './components/carga-horaria-total';
+import { SelectCargaHorariaTotal } from './components/select-carga-horaria-total/select-carga-horaria-total';
+import { PropostaCargaHorariaTotalContextProvider } from './provider';
 
 const FormularioDetalhamento: React.FC = () => {
   const { desabilitarCampos } = useContext(PermissaoContext);
@@ -64,7 +66,7 @@ const FormularioDetalhamento: React.FC = () => {
   ];
 
   return (
-    <>
+    <PropostaCargaHorariaTotalContextProvider>
       <CollapsePanelSME
         panelProps={{ header: 'Carga horária', key: 'cargaHoraria' }}
         collapseProps={{ defaultActiveKey: 'cargaHoraria' }}
@@ -79,12 +81,16 @@ const FormularioDetalhamento: React.FC = () => {
 
                   return (
                     <InputTimer
-                      label='Carga horária presencial'
-                      nome='cargaHorariaPresencial'
-                      textToolTip='No caso de cursos a distância com opções de aulas presenciais (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade.'
                       key='cargaHorariaPresencial'
-                      required={requerido}
                       mensagemErro={CARGA_HORARIA_NAO_INFORMADA}
+                      formItemProps={{
+                        required: requerido,
+                        name: 'cargaHorariaPresencial',
+                        label: 'Carga horária presencial',
+                        tooltip: getTooltipFormInfoCircleFilled(
+                          'No caso de cursos a distância com opções de aulas presenciais (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade.',
+                        ),
+                      }}
                     />
                   );
                 }}
@@ -92,24 +98,30 @@ const FormularioDetalhamento: React.FC = () => {
             </Col>
             <Col xs={24} sm={12}>
               <InputTimer
-                label='Carga horária aulas síncronas'
-                nome='cargaHorariaSincrona'
-                textToolTip='No caso de cursos a distância com opções de aulas síncronas (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade'
                 key='cargaHorariaSincrona'
+                formItemProps={{
+                  label: 'Carga horária aulas síncronas',
+                  name: 'cargaHorariaSincrona',
+                  tooltip: getTooltipFormInfoCircleFilled(
+                    'No caso de cursos a distância com opções de aulas síncronas (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade',
+                  ),
+                }}
               />
             </Col>
             <Col xs={24} sm={12}>
               <InputTimer
-                label='Carga horária a distância'
-                nome='cargaHorariaDistancia'
-                textToolTip='Para os cursos presenciais, se houver atividades não presenciais (máximo de 10% da carga horária total), indicar neste campo. Para os cursos a distância indicar a carga horária relativa as aulas assíncronas'
                 key='cargaHorariaDistancia'
+                formItemProps={{
+                  label: 'Carga horária a distância',
+                  name: 'cargaHorariaDistancia',
+                  tooltip: getTooltipFormInfoCircleFilled(
+                    'Para os cursos presenciais, se houver atividades não presenciais (máximo de 10% da carga horária total), indicar neste campo. Para os cursos a distância indicar a carga horária relativa as aulas assíncronas',
+                  ),
+                }}
               />
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item label='Carga horária total' shouldUpdate>
-                {() => <InputTimerCargaHorariaTotal />}
-              </Form.Item>
+              <SelectCargaHorariaTotal />
             </Col>
           </Row>
         </Col>
@@ -145,7 +157,7 @@ const FormularioDetalhamento: React.FC = () => {
         <SelectPalavrasChaves />
         <ButtonParecer campo={CampoConsideracaoEnum.palavrasChaves} />
       </CollapsePanelSME>
-    </>
+    </PropostaCargaHorariaTotalContextProvider>
   );
 };
 
