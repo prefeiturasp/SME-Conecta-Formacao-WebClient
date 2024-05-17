@@ -505,6 +505,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     }
 
     const valoresSalvar: PropostaDTO = {
+      ehProximoPasso,
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       formato: clonedValues?.formato,
