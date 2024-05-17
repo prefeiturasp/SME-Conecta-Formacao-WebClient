@@ -16,6 +16,8 @@ import { CadastroDeUsuario } from '~/pages/cadastros/novo-usuario';
 import { FormCadastroDePropostas } from '~/pages/cadastros/propostas/form';
 import { PropostaContextProvider } from '~/pages/cadastros/propostas/form/provider';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
+import { UsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria';
+import { FormUsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria/form-usuario';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
@@ -68,7 +70,7 @@ const RoutesConfig = () => {
           <Route path={ROUTES.AREA_PUBLICA_VISUALIZAR_FORMACAO} element={visualizarAreaPublica} />
         </Route>
         <Route element={homePage}>
-              <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
+          <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
         </Route>
         {autenticado ? (
           <>
@@ -95,6 +97,24 @@ const RoutesConfig = () => {
                     <Route
                       path={ROUTES.AREA_PROMOTORA_EDITAR}
                       element={<FormCadastrosAreaPromotora />}
+                    />
+                  </Route>
+                </Route>
+
+                <Route path={ROUTES.USUARIO_REDE_PARCERIA}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route path='' element={<UsuarioRedeParceria />} />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route
+                      path={ROUTES.USUARIO_REDE_PARCERIA_NOVO}
+                      element={<FormUsuarioRedeParceria />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route
+                      path={ROUTES.USUARIO_REDE_PARCERIA_EDITAR}
+                      element={<FormUsuarioRedeParceria />}
                     />
                   </Route>
                 </Route>

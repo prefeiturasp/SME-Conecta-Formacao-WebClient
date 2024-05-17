@@ -31,5 +31,16 @@ export const MENU_CADASTRO: MenuItemConectaProps = {
         podeAlterar: PermissaoEnum.Proposta_A,
       },
     },
+    {
+      key: MenuEnum.RedeParceria,
+      title: 'Rede de Parceria (Usuários)',
+      url: ROUTES.USUARIO_REDE_PARCERIA,
+      roles: {
+        podeConsultar: PermissaoEnum.RedeParceria_C,
+        podeIncluir: PermissaoEnum.RedeParceria_I,
+        podeExcluir: PermissaoEnum.RedeParceria_E,
+        podeAlterar: PermissaoEnum.RedeParceria_A,
+      },
+    },
   ],
 };

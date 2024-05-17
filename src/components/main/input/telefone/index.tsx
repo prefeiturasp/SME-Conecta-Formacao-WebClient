@@ -1,16 +1,15 @@
 import { Form, FormItemProps, Input, InputProps } from 'antd';
 import React from 'react';
+import { TELEFONE_NAO_INFORMADO } from '~/core/constants/mensagens';
+import { maskTelefone } from '~/core/utils/functions';
 
 type InputTelefoneProps = {
-  inputProps: InputProps;
+  inputProps?: InputProps;
   formItemProps?: FormItemProps;
 };
 
 const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps }) => {
   const removerTudoQueNaoEhDigito = (value: any) => `${value}`.replace(/\D/g, '');
-
-  const maskTelefone = (value: string | number | undefined) =>
-    `${value}`.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2');
 
   const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = removerTudoQueNaoEhDigito(e?.target?.value);
@@ -23,7 +22,7 @@ const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps
       name='telefone'
       getValueFromEvent={getValueFromEvent}
       rules={[
-        { required: !!formItemProps?.required },
+        { required: !!formItemProps?.required, message: TELEFONE_NAO_INFORMADO },
         {
           message:
             'Telefone inválido, você deve digitar o DDD com dois dígitos e o telefone com 8 ou 9 dígitos',
