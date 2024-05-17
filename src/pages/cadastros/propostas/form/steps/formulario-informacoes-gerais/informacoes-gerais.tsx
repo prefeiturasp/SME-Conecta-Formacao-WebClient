@@ -126,19 +126,19 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         </ButtonParecer>
       </Col>
 
+      <Col xs={24} sm={12} md={14} lg={10}>
+        <ButtonParecer campo={CampoConsideracaoEnum.tiposInscricao}>
+          <SelectTipoInscricao
+            exibirLink={setExibirLinkExterno}
+            selectProps={{
+              mode: 'multiple',
+            }}
+          />
+        </ButtonParecer>
+      </Col>
+
       {tipoInstituicao && tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? (
         <>
-          <Col xs={24} sm={12} md={14} lg={10}>
-            <ButtonParecer campo={CampoConsideracaoEnum.tiposInscricao}>
-              <SelectTipoInscricao
-                exibirLink={setExibirLinkExterno}
-                selectProps={{
-                  mode: 'multiple',
-                }}
-              />
-            </ButtonParecer>
-          </Col>
-
           <Col xs={24} sm={12} md={6} lg={4}>
             <ButtonParecer
               childrenProps={{ flex: 'none' }}
