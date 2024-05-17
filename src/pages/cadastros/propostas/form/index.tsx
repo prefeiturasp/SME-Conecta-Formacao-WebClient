@@ -816,7 +816,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       });
   };
 
-  const enviarProposta = () => {
+  const enviarProposta = async () => {
     const formacaoHomologada =
       (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) ||
       FormacaoHomologada.NaoCursosPorIN;
@@ -837,15 +837,27 @@ export const FormCadastroDePropostas: React.FC = () => {
       });
 
     if (ehPerfilAdminDf) {
-      confirmacao({
-        content:
-          formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF
-            ? DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA
-            : DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
-        onOk() {
-          finalizarEnvioProposta();
-        },
-      });
+      const mostrarConfirmacao = () => {
+        confirmacao({
+          content:
+            formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF
+              ? DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA
+              : DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
+          onOk() {
+            finalizarEnvioProposta();
+          },
+        });
+      };
+      // TODO: será criado um campo na tabela do back para controlar a proposta em edicao
+      if (formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseDf) {
+        await salvar(false).then((resposta) => {
+          if (resposta.sucesso) {
+            mostrarConfirmacao();
+          }
+        });
+      } else {
+        mostrarConfirmacao();
+      }
     } else {
       confirmacao({
         content:
