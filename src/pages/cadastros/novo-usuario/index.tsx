@@ -139,7 +139,7 @@ export const CadastroDeUsuario = () => {
   const criarEmailEdu = () => {
     const cpf = removerTudoQueNaoEhDigito(form.getFieldValue('cpf'));
     const tipoEmail: TipoEmail = form.getFieldValue('tipoEmail') as TipoEmail;
-    const nome = form.getFieldValue('nomePessoa');
+    const nome = form.getFieldValue('nomePessoa').trim();
     let emailEdu = '';
     const nomeSplit = nome?.split(' ');
     if (nomeSplit && cpf.length === 11 && tipoEmail) {
