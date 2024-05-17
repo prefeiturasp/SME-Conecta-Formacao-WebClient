@@ -1124,7 +1124,6 @@ export const FormCadastroDePropostas: React.FC = () => {
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12} md={14} lg={12}>
                     <SelectResponsavelDf
-                      formItemProps={{ required: podeEditarRfResponsavelDfEPareceristas }}
                       selectProps={{ disabled: !podeEditarRfResponsavelDfEPareceristas }}
                     />
                   </Col>
