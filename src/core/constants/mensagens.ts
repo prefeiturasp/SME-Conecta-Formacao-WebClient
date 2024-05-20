@@ -119,3 +119,4 @@ export const USUARIO_REDE_PARCERIA_NAO_SALVO =
 export const USUARIO_REDE_PARCERIA_SALVAR =
   'Tem certeza de que deseja salvar o novo usuário agora?';
 export const USUARIO_REDE_PARCERIA_EDITAR = 'Tem certeza de que deseja salvar as alterações agora?';
+export const USUARIO_REDE_PARCERIA_EXCLUIR = 'Tem certeza de que deseja excluir este usuário?';

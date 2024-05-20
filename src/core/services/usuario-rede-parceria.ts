@@ -1,4 +1,5 @@
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
+import { RetornoDTO } from '../dto/retorno-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import {
   UsuarioRedeParceriaDTO,
@@ -17,16 +18,16 @@ const obterUsuarioRedeParceria = () => {
 };
 
 const inserirUsuarioRedeParceria = (params: UsuarioRedeParceriaDTO) =>
-  inserirRegistro<boolean>(`${URL_DEFAULT}`, params);
+  inserirRegistro<RetornoDTO>(`${URL_DEFAULT}`, params);
 
 const obterUsuarioRedeParceriaId = (id: string | number) =>
   obterRegistro<UsuarioRedeParceriaDTO>(`${URL_DEFAULT}/${id}`);
 
 const alterarUsuarioRedeParceria = (id: string | number, params: UsuarioRedeParceriaPaginadoDTO) =>
-  alterarRegistro<boolean>(`${URL_DEFAULT}/${id}`, params);
+  alterarRegistro<RetornoDTO>(`${URL_DEFAULT}/${id}`, params);
 
 const excluirUsuarioRedeParceria = (id: string | number) =>
-  deletarRegistro<boolean>(`${URL_DEFAULT}/${id}`);
+  deletarRegistro<RetornoDTO>(`${URL_DEFAULT}/${id}`);
 
 export default {
   excluirUsuarioRedeParceria,
