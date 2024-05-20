@@ -25,6 +25,7 @@ import { PropostaCargaHorariaTotalContextProvider } from './provider';
 
 const FormularioDetalhamento: React.FC = () => {
   const { desabilitarCampos } = useContext(PermissaoContext);
+  const dependencies = ['cargaHorariaTotal', 'cargaHorariaTotalOutros'];
 
   const collapsesComEditorDeTexto = [
     {
@@ -84,6 +85,7 @@ const FormularioDetalhamento: React.FC = () => {
                       key='cargaHorariaPresencial'
                       mensagemErro={CARGA_HORARIA_NAO_INFORMADA}
                       formItemProps={{
+                        dependencies,
                         required: requerido,
                         name: 'cargaHorariaPresencial',
                         label: 'Carga horária presencial',
@@ -100,8 +102,9 @@ const FormularioDetalhamento: React.FC = () => {
               <InputTimer
                 key='cargaHorariaSincrona'
                 formItemProps={{
-                  label: 'Carga horária aulas síncronas',
+                  dependencies,
                   name: 'cargaHorariaSincrona',
+                  label: 'Carga horária aulas síncronas',
                   tooltip: getTooltipFormInfoCircleFilled(
                     'No caso de cursos a distância com opções de aulas síncronas (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade',
                   ),
@@ -112,8 +115,9 @@ const FormularioDetalhamento: React.FC = () => {
               <InputTimer
                 key='cargaHorariaDistancia'
                 formItemProps={{
-                  label: 'Carga horária a distância',
+                  dependencies,
                   name: 'cargaHorariaDistancia',
+                  label: 'Carga horária a distância',
                   tooltip: getTooltipFormInfoCircleFilled(
                     'Para os cursos presenciais, se houver atividades não presenciais (máximo de 10% da carga horária total), indicar neste campo. Para os cursos a distância indicar a carga horária relativa as aulas assíncronas',
                   ),

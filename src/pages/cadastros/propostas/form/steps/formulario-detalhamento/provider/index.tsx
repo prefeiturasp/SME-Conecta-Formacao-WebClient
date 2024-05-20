@@ -1,33 +1,34 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import useFormInstance from 'antd/es/form/hooks/useFormInstance';
+import { useWatch } from 'antd/es/form/Form';
 import React, { PropsWithChildren, createContext, useEffect, useState } from 'react';
 
 type PropostaCargaHorariaTotalContextProps = {
-  cargasHorariaCorrespondem?: boolean;
-  // setCargasHorariaCorrespondem: React.Dispatch<React.SetStateAction<boolean>>;
+  ehOutros?: boolean;
+  cargasHorariaCorrespondem: boolean;
 };
 
 const DEFAULT_VALUES: PropostaCargaHorariaTotalContextProps = {
+  ehOutros: false,
   cargasHorariaCorrespondem: false,
-  // setCargasHorariaCorrespondem: () => false,
 };
 
 export const PropostaCargaHorariaTotalContext = createContext(DEFAULT_VALUES);
 
-// TODO: AJUSTAR CONTEXT PRA REFLETIR NAS RULES DOS CAMPOS DE CARGA
 export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
-  const form = useFormInstance();
   const [cargasHorariaCorrespondem, setCargasHorariaCorrespondem] = useState<boolean>(false);
 
-  const assicrona = form.getFieldValue('cargaHorariaSincrona');
-  const distancia = form.getFieldValue('cargaHorariaDistancia');
-  const presencial = form.getFieldValue('cargaHorariaPresencial');
-  const cargaHorariaTotal: number = form.getFieldValue('cargaHorariaTotal');
+  const assicrona = useWatch('cargaHorariaSincrona');
+  const distancia = useWatch('cargaHorariaDistancia');
+  const presencial = useWatch('cargaHorariaPresencial');
+  const cargaHorariaTotal: number = useWatch('cargaHorariaTotal');
+  const cargaHorariaTotalOutros: number = useWatch('cargaHorariaTotalOutros');
+
+  let ehOutros = cargaHorariaTotal === 99;
 
   const converterParaMinutos = (hora: string | number): number => {
-    if (typeof hora === 'string') {
+    if (typeof hora === 'string' && hora.length === 6) {
       const partes = hora?.split(':');
       const parteZero = partes[0] ?? '00';
       const horas = Number(parteZero);
@@ -56,16 +57,23 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
 
     const somaDosCamposEmMinutos = converterParaMinutos(newValue);
     const cargaHorariaTotalEmMinutos = converterParaMinutos(cargaHorariaTotal);
-    setCargasHorariaCorrespondem(somaDosCamposEmMinutos === cargaHorariaTotalEmMinutos);
+    const cargaHorariaTotalOutrosEmMinutos = converterParaMinutos(cargaHorariaTotalOutros);
+
+    if (ehOutros) {
+      setCargasHorariaCorrespondem(somaDosCamposEmMinutos === cargaHorariaTotalOutrosEmMinutos);
+    } else {
+      setCargasHorariaCorrespondem(somaDosCamposEmMinutos === cargaHorariaTotalEmMinutos);
+    }
   };
 
   useEffect(() => {
     validarCargas();
-  }, [assicrona, distancia, presencial, cargaHorariaTotal]);
+  }, [assicrona, distancia, presencial, cargaHorariaTotal, cargaHorariaTotalOutros]);
 
   return (
     <PropostaCargaHorariaTotalContext.Provider
       value={{
+        ehOutros,
         cargasHorariaCorrespondem,
       }}
     >

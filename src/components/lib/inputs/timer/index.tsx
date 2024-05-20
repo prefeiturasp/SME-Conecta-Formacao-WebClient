@@ -1,6 +1,8 @@
 import { Form, FormItemProps, Input, InputProps } from 'antd';
-import { FC } from 'react';
+import { Rule } from 'antd/es/form';
+import { FC, useContext } from 'react';
 import { formatarDuasCasasDecimais } from '~/core/utils/functions';
+import { PropostaCargaHorariaTotalContext } from '~/pages/cadastros/propostas/form/steps/formulario-detalhamento/provider';
 
 type InputTimerProp = {
   required?: boolean;
@@ -14,15 +16,30 @@ const InputTimer: FC<InputTimerProp> = ({
   formItemProps,
   inputProps,
 }) => {
+  const { cargasHorariaCorrespondem } = useContext(PropostaCargaHorariaTotalContext);
+
+  const rules: Rule[] = [
+    { required, message: mensagemErro || 'Campo obrigatório' },
+    { len: 6, message: 'Informe uma hora no formato 999:99' },
+  ];
+  rules.push({
+    validator() {
+      if (cargasHorariaCorrespondem) {
+        return Promise.reject(
+          'A soma dos campos de carga horária deve ser igual a carga horária total.',
+        );
+      }
+
+      return Promise.resolve();
+    },
+  });
+
   return (
     <Form.Item
       getValueFromEvent={(e: React.ChangeEvent<HTMLInputElement>) =>
         formatarDuasCasasDecimais(e.target.value)
       }
-      rules={[
-        { required, message: mensagemErro || 'Campo obrigatório' },
-        { len: 6, message: 'Informe uma hora no formato 999:99' },
-      ]}
+      rules={rules}
       {...formItemProps}
     >
       <Input maxLength={6} {...inputProps} />
