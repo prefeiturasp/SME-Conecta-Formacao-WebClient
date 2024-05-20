@@ -1,5 +1,4 @@
-import { Col, Form, FormItemProps } from 'antd';
-import { Rule } from 'antd/es/form';
+import { Form, FormItemProps } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import { useContext, useEffect, useState } from 'react';
@@ -26,7 +25,6 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
     'cargaHorariaDistancia',
     'cargaHorariaPresencial',
     'cargaHorariaPresencial',
-    'cargaHorariaTotalOutros',
   ];
 
   const obterDados = async () => {
@@ -46,6 +44,18 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
     obterDados();
   }, []);
 
+  const validator = () => {
+    return {
+      validator() {
+        if (cargasHorariaCorrespondem) return Promise.resolve();
+
+        return Promise.reject(
+          'A soma dos campos de carga horária deve ser igual a carga horária total.',
+        );
+      },
+    };
+  };
+
   const campoOutrosJsx = () => {
     if (ehOutros) {
       return (
@@ -54,6 +64,7 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
             dependencies,
             required: true,
             label: 'Outros',
+            rules: [validator],
             name: 'cargaHorariaTotalOutros',
           }}
         />
@@ -61,27 +72,13 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
     }
   };
 
-  const rules: Rule[] = [];
-
-  rules.push({
-    validator() {
-      if (!cargasHorariaCorrespondem) {
-        return Promise.reject(
-          'A soma dos campos de carga horária deve ser igual a carga horária total.',
-        );
-      }
-
-      return Promise.resolve();
-    },
-  });
-
   return (
     <>
       <Form.Item
         label='Carga horária total'
         name='cargaHorariaTotal'
         dependencies={dependencies}
-        rules={rules}
+        rules={ehOutros ? [] : [validator]}
         {...formItemProps}
       >
         <Select
@@ -93,7 +90,7 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
           {...selectProps}
         />
       </Form.Item>
-      <Col span={24}>{campoOutrosJsx()}</Col>
+      {campoOutrosJsx()}
     </>
   );
 };

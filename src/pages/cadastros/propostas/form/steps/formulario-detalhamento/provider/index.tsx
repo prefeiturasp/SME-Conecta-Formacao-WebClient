@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { useWatch } from 'antd/es/form/Form';
-import React, { PropsWithChildren, createContext, useEffect, useState } from 'react';
+import React, { PropsWithChildren, createContext, useMemo } from 'react';
 
 type PropostaCargaHorariaTotalContextProps = {
   ehOutros?: boolean;
-  cargasHorariaCorrespondem: boolean;
+  cargasHorariaCorrespondem?: boolean;
 };
 
 const DEFAULT_VALUES: PropostaCargaHorariaTotalContextProps = {
@@ -17,13 +17,11 @@ export const PropostaCargaHorariaTotalContext = createContext(DEFAULT_VALUES);
 export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
-  const [cargasHorariaCorrespondem, setCargasHorariaCorrespondem] = useState<boolean>(false);
-
   const assicrona = useWatch('cargaHorariaSincrona');
   const distancia = useWatch('cargaHorariaDistancia');
   const presencial = useWatch('cargaHorariaPresencial');
-  const cargaHorariaTotal: number = useWatch('cargaHorariaTotal');
-  const cargaHorariaTotalOutros: number = useWatch('cargaHorariaTotalOutros');
+  const cargaHorariaTotal = useWatch('cargaHorariaTotal');
+  const cargaHorariaTotalOutros = useWatch('cargaHorariaTotalOutros');
 
   let ehOutros = cargaHorariaTotal === 99;
 
@@ -42,7 +40,7 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
     }
   };
 
-  const validarCargas = () => {
+  const cargasHorariaCorrespondem = useMemo(() => {
     const minutosTotais =
       converterParaMinutos(presencial) +
       converterParaMinutos(assicrona) +
@@ -60,14 +58,10 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
     const cargaHorariaTotalOutrosEmMinutos = converterParaMinutos(cargaHorariaTotalOutros);
 
     if (ehOutros) {
-      setCargasHorariaCorrespondem(somaDosCamposEmMinutos === cargaHorariaTotalOutrosEmMinutos);
+      return somaDosCamposEmMinutos === cargaHorariaTotalOutrosEmMinutos;
     } else {
-      setCargasHorariaCorrespondem(somaDosCamposEmMinutos === cargaHorariaTotalEmMinutos);
+      return somaDosCamposEmMinutos === cargaHorariaTotalEmMinutos;
     }
-  };
-
-  useEffect(() => {
-    validarCargas();
   }, [assicrona, distancia, presencial, cargaHorariaTotal, cargaHorariaTotalOutros]);
 
   return (
