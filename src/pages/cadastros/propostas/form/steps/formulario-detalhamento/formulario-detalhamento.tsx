@@ -1,4 +1,5 @@
 import { Col, Form, Row } from 'antd';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React, { useContext } from 'react';
 import CollapsePanelSME from '~/components/lib/collapse';
 import InputTimer from '~/components/lib/inputs/timer';
@@ -6,7 +7,7 @@ import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
 import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import {
-  CARGA_HORARIA_NAO_INFORMADA,
+  CARGA_HORARIA_PRESENCIAL_NAO_INFORMADA,
   CONTEUDO_PROGRAMATICO_NAO_INFORMADO,
   JUSTIFICATIVA_NAO_INFORMADA,
   OBJETIVO_NAO_INFORMADO,
@@ -24,7 +25,9 @@ import { SelectCargaHorariaTotal } from './components/select-carga-horaria-total
 import { PropostaCargaHorariaTotalContextProvider } from './provider';
 
 const FormularioDetalhamento: React.FC = () => {
+  const formInstance = useFormInstance();
   const { desabilitarCampos } = useContext(PermissaoContext);
+  const modalidade: Formato = formInstance.getFieldValue('formato');
   const dependencies = ['cargaHorariaTotal', 'cargaHorariaTotalOutros'];
 
   const collapsesComEditorDeTexto = [
@@ -83,7 +86,7 @@ const FormularioDetalhamento: React.FC = () => {
                   return (
                     <InputTimer
                       key='cargaHorariaPresencial'
-                      mensagemErro={CARGA_HORARIA_NAO_INFORMADA}
+                      mensagemErro={CARGA_HORARIA_PRESENCIAL_NAO_INFORMADA}
                       formItemProps={{
                         dependencies,
                         required: requerido,
@@ -98,6 +101,23 @@ const FormularioDetalhamento: React.FC = () => {
                 }}
               </Form.Item>
             </Col>
+            {modalidade === Formato.Presencial && (
+              <Col xs={24} sm={12}>
+                <Form.Item shouldUpdate style={{ margin: 0 }}>
+                  <InputTimer
+                    key='cargaHorariaNaoPresencial'
+                    formItemProps={{
+                      dependencies,
+                      name: 'cargaHorariaNaoPresencial',
+                      label: 'Carga horária não presencial',
+                      tooltip: getTooltipFormInfoCircleFilled(
+                        'Para os cursos presenciais, se houver atividades não presenciais pode ser informado no máximo 10% da carga horária total',
+                      ),
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+            )}
             <Col xs={24} sm={12}>
               <InputTimer
                 key='cargaHorariaSincrona'

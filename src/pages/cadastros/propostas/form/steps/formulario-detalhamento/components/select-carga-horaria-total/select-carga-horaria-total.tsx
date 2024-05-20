@@ -22,9 +22,10 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
   const { ehOutros, cargasHorariaCorrespondem } = useContext(PropostaCargaHorariaTotalContext);
 
   const dependencies = [
+    'cargaHorariaPresencial',
+    'cargaHorariaNaoPresencial',
+    'cargaHorariaSincrona',
     'cargaHorariaDistancia',
-    'cargaHorariaPresencial',
-    'cargaHorariaPresencial',
   ];
 
   const obterDados = async () => {
