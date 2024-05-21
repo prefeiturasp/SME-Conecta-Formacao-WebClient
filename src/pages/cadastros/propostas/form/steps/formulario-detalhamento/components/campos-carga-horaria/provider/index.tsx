@@ -5,11 +5,13 @@ import React, { PropsWithChildren, createContext, useMemo } from 'react';
 type PropostaCargaHorariaTotalContextProps = {
   ehOutros?: boolean;
   cargasHorariaCorrespondem?: boolean;
+  naoPresencialEhMaiorQueDezPorcento?: boolean;
 };
 
 const DEFAULT_VALUES: PropostaCargaHorariaTotalContextProps = {
   ehOutros: false,
   cargasHorariaCorrespondem: false,
+  naoPresencialEhMaiorQueDezPorcento: false,
 };
 
 export const PropostaCargaHorariaTotalContext = createContext(DEFAULT_VALUES);
@@ -20,6 +22,7 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
   const assicrona = useWatch('cargaHorariaSincrona');
   const distancia = useWatch('cargaHorariaDistancia');
   const presencial = useWatch('cargaHorariaPresencial');
+  const naoPresencial = useWatch('cargaHorariaNaoPresencial');
   const cargaHorariaTotal = useWatch('cargaHorariaTotal');
   const cargaHorariaTotalOutros = useWatch('cargaHorariaTotalOutros');
 
@@ -40,9 +43,14 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
     }
   };
 
+  const naoPresencialEmMinutos = converterParaMinutos(naoPresencial);
+  const cargaHorariaTotalEmMinutos = converterParaMinutos(cargaHorariaTotal);
+  const cargaHorariaTotalOutrosEmMinutos = converterParaMinutos(cargaHorariaTotalOutros);
+
   const cargasHorariaCorrespondem = useMemo(() => {
     const minutosTotais =
       converterParaMinutos(presencial) +
+      converterParaMinutos(naoPresencial) +
       converterParaMinutos(assicrona) +
       converterParaMinutos(distancia);
 
@@ -54,20 +62,31 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
       .padStart(2, '0')}`;
 
     const somaDosCamposEmMinutos = converterParaMinutos(newValue);
-    const cargaHorariaTotalEmMinutos = converterParaMinutos(cargaHorariaTotal);
-    const cargaHorariaTotalOutrosEmMinutos = converterParaMinutos(cargaHorariaTotalOutros);
 
     if (ehOutros) {
       return somaDosCamposEmMinutos === cargaHorariaTotalOutrosEmMinutos;
     } else {
       return somaDosCamposEmMinutos === cargaHorariaTotalEmMinutos;
     }
-  }, [assicrona, distancia, presencial, cargaHorariaTotal, cargaHorariaTotalOutros]);
+  }, [assicrona, distancia, presencial, naoPresencial, cargaHorariaTotal, cargaHorariaTotalOutros]);
+
+  const naoPresencialEhMaiorQueDezPorcento = useMemo(() => {
+    let dezPorcentoCargaHorariaTotal: number = 0;
+
+    if (ehOutros) {
+      dezPorcentoCargaHorariaTotal = cargaHorariaTotalOutrosEmMinutos * 0.1;
+    } else {
+      dezPorcentoCargaHorariaTotal = cargaHorariaTotalEmMinutos * 0.1;
+    }
+
+    return naoPresencialEmMinutos > dezPorcentoCargaHorariaTotal;
+  }, [cargaHorariaTotal, cargaHorariaTotalOutros, naoPresencial]);
 
   return (
     <PropostaCargaHorariaTotalContext.Provider
       value={{
         ehOutros,
+        naoPresencialEhMaiorQueDezPorcento,
         cargasHorariaCorrespondem,
       }}
     >
