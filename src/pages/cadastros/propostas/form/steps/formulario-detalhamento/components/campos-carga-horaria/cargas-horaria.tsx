@@ -20,6 +20,9 @@ export const CamposCargaHoraria = () => {
     <Col xs={24}>
       <Row gutter={16}>
         <Col xs={24} sm={12}>
+          <SelectCargaHorariaTotal />
+        </Col>
+        <Col xs={24} sm={12}>
           <Form.Item shouldUpdate style={{ margin: 0 }}>
             {() => {
               return (
@@ -69,37 +72,40 @@ export const CamposCargaHoraria = () => {
             </Form.Item>
           </Col>
         )}
-        <Col xs={24} sm={12}>
-          <InputTimer
-            key='cargaHorariaSincrona'
-            campo='cargaHorariaSincrona'
-            formItemProps={{
-              dependencies,
-              name: 'cargaHorariaSincrona',
-              label: 'Carga horária aulas síncronas',
-              tooltip: getTooltipFormInfoCircleFilled(
-                'No caso de cursos a distância com opções de aulas síncronas (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade',
-              ),
-            }}
-          />
-        </Col>
-        <Col xs={24} sm={12}>
-          <InputTimer
-            key='cargaHorariaDistancia'
-            campo='cargaHorariaDistancia'
-            formItemProps={{
-              dependencies,
-              name: 'cargaHorariaDistancia',
-              label: 'Carga horária a distância',
-              tooltip: getTooltipFormInfoCircleFilled(
-                'Para os cursos presenciais, se houver atividades não presenciais (máximo de 10% da carga horária total), indicar neste campo. Para os cursos a distância indicar a carga horária relativa as aulas assíncronas',
-              ),
-            }}
-          />
-        </Col>
-        <Col xs={24} sm={12}>
-          <SelectCargaHorariaTotal />
-        </Col>
+        {modalidade === Formato.Presencial ? (
+          <></>
+        ) : (
+          <>
+            <Col xs={24} sm={12}>
+              <InputTimer
+                key='cargaHorariaSincrona'
+                campo='cargaHorariaSincrona'
+                formItemProps={{
+                  dependencies,
+                  name: 'cargaHorariaSincrona',
+                  label: 'Carga horária aulas síncronas',
+                  tooltip: getTooltipFormInfoCircleFilled(
+                    'No caso de cursos a distância com opções de aulas síncronas (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade',
+                  ),
+                }}
+              />
+            </Col>
+            <Col xs={24} sm={12}>
+              <InputTimer
+                key='cargaHorariaDistancia'
+                campo='cargaHorariaDistancia'
+                formItemProps={{
+                  dependencies,
+                  name: 'cargaHorariaDistancia',
+                  label: 'Carga horária a distância',
+                  tooltip: getTooltipFormInfoCircleFilled(
+                    'Para os cursos presenciais, se houver atividades não presenciais (máximo de 10% da carga horária total), indicar neste campo. Para os cursos a distância indicar a carga horária relativa as aulas assíncronas',
+                  ),
+                }}
+              />
+            </Col>
+          </>
+        )}
       </Row>
     </Col>
   );

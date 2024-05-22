@@ -1050,7 +1050,6 @@ export const FormCadastroDePropostas: React.FC = () => {
                           block
                           type='primary'
                           id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                          disabled={!form.isFieldsTouched()}
                           onClick={() => {
                             const publicosAlvosNumeros: number[] =
                               form.getFieldValue('publicosAlvo');
