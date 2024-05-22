@@ -154,8 +154,9 @@ export const FormCadastroDePropostas: React.FC = () => {
     ehPerfilAdminDf &&
     formInitialValues.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista;
 
-  const exibirBotaoDevolver =
-    situacaoAguardandoAnaliseDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+  const ehFomacaoHomologada = formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+
+  const exibirBotaoDevolver = situacaoAguardandoAnaliseDf && ehFomacaoHomologada;
 
   const exibirBotaoEnviarConsideracoes = formInitialValues?.podeEnviarConsideracoes;
 
@@ -170,7 +171,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirJustificativaDevolucao =
     ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
 
-  const exibirJustificativaAprovacaoRecusa = formInitialValues?.ultimaJustificativa;
+  const exibirJustificativaAprovacaoRecusa = formInitialValues?.ultimaJustificativaAprovacaoRecusa;
 
   const exibirBotoesAprovarRecusar =
     !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
@@ -198,19 +199,17 @@ export const FormCadastroDePropostas: React.FC = () => {
     return true;
   };
 
-  const podeExibirCard =
-    ehPerfilAdminDf && formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+  const podeExibirCard = ehPerfilAdminDf && ehFomacaoHomologada;
 
   const podeEditarRfResponsavelDfEPareceristas =
     situacaoAguardandoAnaliseDf ||
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
     formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista;
 
-  const exibirCard = podeExibirCard || exibirInputNumeroHomologacao;
+  const exibirCard = ehFomacaoHomologada && (podeExibirCard || exibirInputNumeroHomologacao);
 
   const podeImprimir =
-    formInitialValues?.situacao === SituacaoProposta.Publicada &&
-    formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+    formInitialValues?.situacao === SituacaoProposta.Publicada && ehFomacaoHomologada;
 
   const stepsProposta: StepProps[] = [
     {
@@ -291,6 +290,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const carregarDados = useCallback(async () => {
     setLoading(true);
     const resposta = await obterPropostaPorId(id);
+
     const dados = resposta.dados;
     if (resposta.sucesso) {
       const retornolistaDres = await obterDREs(true);
@@ -527,8 +527,11 @@ export const FormCadastroDePropostas: React.FC = () => {
       dataInscricaoInicio,
       dataInscricaoFim,
       cargaHorariaPresencial: clonedValues.cargaHorariaPresencial,
+      cargaHorariaNaoPresencial: clonedValues.cargaHorariaNaoPresencial,
       cargaHorariaSincrona: clonedValues.cargaHorariaSincrona,
       cargaHorariaDistancia: clonedValues.cargaHorariaDistancia,
+      horasTotais: clonedValues.horasTotais,
+      cargaHorariaTotalOutra: clonedValues.cargaHorariaTotalOutra,
       justificativa: clonedValues.justificativa,
       referencia: clonedValues.referencia,
       procedimentoMetadologico: clonedValues.procedimentoMetadologico,
@@ -536,6 +539,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       objetivos: clonedValues.objetivos,
       palavrasChaves: [],
       criterioCertificacao: [],
+      outrosCriterios: clonedValues?.outrosCriterios || '',
       cursoComCertificado: !!clonedValues.cursoComCertificado,
       acaoInformativa: !!clonedValues.acaoInformativa,
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
@@ -660,9 +664,11 @@ export const FormCadastroDePropostas: React.FC = () => {
         }),
       );
     }
+
     if (clonedValues?.arquivos?.length) {
       valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
     }
+
     if (id) {
       response = await alterarProposta(id, valoresSalvar, false);
     } else {
@@ -1185,7 +1191,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     textAreaProps={{
                       rows: 5,
                       disabled: true,
-                      value: formInitialValues?.ultimaJustificativa,
+                      value: formInitialValues?.ultimaJustificativaAprovacaoRecusa,
                     }}
                   />
                 </Col>

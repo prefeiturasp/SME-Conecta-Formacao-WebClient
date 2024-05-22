@@ -177,6 +177,9 @@ const aprovarConsideracoesAdminDf = (propostaId: number, justificativa: string) 
 const recusarConsideracoesAdminDf = (propostaId: number, justificativa: string) =>
   inserirRegistro<number>(`${URL_API_PROPOSTA}/${propostaId}/recusar`, { justificativa });
 
+const obterCargaHorariaTotal = () =>
+  obterRegistro<RetornoListagemDTO[]>(`${URL_API_PROPOSTA}/horas-totais-proposta`);
+
 export {
   alterarParecer,
   alterarProposta,
@@ -189,6 +192,7 @@ export {
   excluirRegente,
   excluirTutor,
   inserirProposta,
+  obterCargaHorariaTotal,
   obterComunicadoAcaoInformatica,
   obterCriterioValidacaoInscricao,
   obterDadosCadastrante,

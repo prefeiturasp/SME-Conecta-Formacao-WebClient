@@ -18,10 +18,8 @@ type ModalDevolverProps = {
 
 export const ModalDevolver: React.FC<ModalDevolverProps> = ({ propostaId, onFecharButton }) => {
   const [form] = useForm();
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const [justificativa, setJustificativa] = useState<string>('');
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const openNotificationSuccess = () => {
     notification.success({
@@ -32,6 +30,8 @@ export const ModalDevolver: React.FC<ModalDevolverProps> = ({ propostaId, onFech
 
   const handleDevolver = () => {
     setLoading(true);
+    const valoresSalvar = form.getFieldsValue(true);
+    const justificativa = valoresSalvar?.justificativaDevolver;
 
     const params: DevolverPropostaDTO = {
       justificativa: justificativa,
@@ -48,10 +48,6 @@ export const ModalDevolver: React.FC<ModalDevolverProps> = ({ propostaId, onFech
         setLoading(false);
         navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
       });
-  };
-
-  const handleChangeJustificativa = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setJustificativa(e.target.value);
   };
 
   const validateFields = () => {
@@ -81,18 +77,13 @@ export const ModalDevolver: React.FC<ModalDevolverProps> = ({ propostaId, onFech
     >
       <Spin spinning={loading}>
         <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
-          <Form.Item
-            label='Justificar:'
-            name='justificativaDevolver'
-            rules={[{ required: true, message: JUSTIFICATIVA_NAO_INFORMADA }]}
-          >
-            <AreaTexto
-              textAreaProps={{
-                onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  handleChangeJustificativa(e),
-              }}
-            />
-          </Form.Item>
+          <AreaTexto
+            formItemProps={{
+              label: 'Justificar:',
+              name: 'justificativaDevolver',
+              rules: [{ required: true, message: JUSTIFICATIVA_NAO_INFORMADA }],
+            }}
+          />
         </Form>
       </Spin>
     </Modal>
