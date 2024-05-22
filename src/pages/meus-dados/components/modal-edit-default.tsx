@@ -1,7 +1,7 @@
 import { Modal as ModalAntd, Spin } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import { AxiosResponse, HttpStatusCode } from 'axios';
-import React, { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren, useContext, useState } from 'react';
 import Modal from '~/components/lib/modal';
 import { notification, openNotificationErrors } from '~/components/lib/notification';
 import {
@@ -10,6 +10,7 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { SenhaNovaDTO } from '~/core/dto/senha-nova-dto';
 import { Colors } from '~/core/styles/colors';
+import { MeusDadosContext } from '../provider';
 
 const { confirm } = ModalAntd;
 
@@ -44,6 +45,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
   children,
 }) => {
   const [loading, setLoading] = useState(false);
+  const { obterDados } = useContext(MeusDadosContext);
 
   const mensagemSucesso = (
     <>
@@ -72,6 +74,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
           openNotificationSuccess();
         }
         closeModal();
+        obterDados();
       })
       .catch((erro) => {
         if (erro?.response?.data?.mensagens?.length) {
