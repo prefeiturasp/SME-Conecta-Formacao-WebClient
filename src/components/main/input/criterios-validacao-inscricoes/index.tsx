@@ -41,7 +41,6 @@ const SelectCriteriosValidacaoInscricoes: React.FC = () => {
         );
 
         let campoOutros = null;
-
         if (criteriosValidacaoInscricao?.length) {
           const ehOutros = options.some(
             (option: any) => criteriosValidacaoInscricao.includes(option.value) && option.outros,

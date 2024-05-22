@@ -1,11 +1,8 @@
-import { Col, Form, Row } from 'antd';
 import React, { useContext } from 'react';
 import CollapsePanelSME from '~/components/lib/collapse';
-import InputTimer from '~/components/lib/inputs/timer';
 import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
 import {
-  CARGA_HORARIA_NAO_INFORMADA,
   CONTEUDO_PROGRAMATICO_NAO_INFORMADO,
   JUSTIFICATIVA_NAO_INFORMADA,
   OBJETIVO_NAO_INFORMADO,
@@ -16,10 +13,9 @@ import {
   CampoConsideracaoEnum,
   CamposParecerNomeEnumDisplay,
 } from '~/core/enum/campos-proposta-enum';
-import { Formato } from '~/core/enum/formato';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
-import InputTimerCargaHorariaTotal from './components/carga-horaria-total';
+import CamposCargaHorariaProvider from './components/campos-carga-horaria/cargas-horaria-provider';
 
 const FormularioDetalhamento: React.FC = () => {
   const { desabilitarCampos } = useContext(PermissaoContext);
@@ -69,50 +65,7 @@ const FormularioDetalhamento: React.FC = () => {
         panelProps={{ header: 'Carga horária', key: 'cargaHoraria' }}
         collapseProps={{ defaultActiveKey: 'cargaHoraria' }}
       >
-        <Col xs={24}>
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item shouldUpdate style={{ margin: 0 }}>
-                {(form) => {
-                  const valor: Formato = form.getFieldValue('formato');
-                  const requerido = valor === Formato.Presencial;
-
-                  return (
-                    <InputTimer
-                      label='Carga horária presencial'
-                      nome='cargaHorariaPresencial'
-                      textToolTip='No caso de cursos a distância com opções de aulas presenciais (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade.'
-                      key='cargaHorariaPresencial'
-                      required={requerido}
-                      mensagemErro={CARGA_HORARIA_NAO_INFORMADA}
-                    />
-                  );
-                }}
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <InputTimer
-                label='Carga horária aulas síncronas'
-                nome='cargaHorariaSincrona'
-                textToolTip='No caso de cursos a distância com opções de aulas síncronas (mínimo de 20% e máximo de 40%). Os eventos híbridos devem respeitar a proporcionalidade entre mínimo e máximo de 40% e 60% de carga horária destinada para cada modalidade'
-                key='cargaHorariaSincrona'
-              />
-            </Col>
-            <Col xs={24} sm={12}>
-              <InputTimer
-                label='Carga horária a distância'
-                nome='cargaHorariaDistancia'
-                textToolTip='Para os cursos presenciais, se houver atividades não presenciais (máximo de 10% da carga horária total), indicar neste campo. Para os cursos a distância indicar a carga horária relativa as aulas assíncronas'
-                key='cargaHorariaDistancia'
-              />
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item label='Carga horária total' shouldUpdate>
-                {() => <InputTimerCargaHorariaTotal />}
-              </Form.Item>
-            </Col>
-          </Row>
-        </Col>
+        <CamposCargaHorariaProvider />
         <ButtonParecer campo={CampoConsideracaoEnum.cargaHoraria} />
       </CollapsePanelSME>
 

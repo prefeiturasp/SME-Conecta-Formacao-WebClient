@@ -48,7 +48,8 @@ export const PROPOSTA_CRITERIO_VALIDACAO_INSCRICAO_OUTROS =
 export const QUANTIDADE_DE_TURMAS_NAO_INFORMADA = 'É necessário informar a quantidade de turmas';
 export const QUANTIDADE_DE_VAGAS_POR_TURMAS_NAO_INFORMADA =
   'É necessário informar a quantidade de vagas por turma';
-export const CARGA_HORARIA_NAO_INFORMADA = 'É necessário informar a carga horária presencial';
+export const CARGA_HORARIA_PRESENCIAL_NAO_INFORMADA =
+  'É necessário informar a carga horária presencial';
 export const JUSTIFICATIVA_NAO_INFORMADA = 'É necessário informar a justificativa';
 export const PARECER_NAO_INFORMADO = 'É necessário informar o parecer';
 export const OBJETIVO_NAO_INFORMADO = 'É necessário informar os objetivos';
@@ -64,6 +65,8 @@ export const PERIODO_INSCRICAO_NAO_INFORMADO =
   'É necessário informar as datas do período de inscrição';
 export const CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO =
   'É necessário informar ao menos 3 critérios para certificação';
+export const CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO_OUTROS =
+  'É necessário informar o critério para certificação';
 export const DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA =
   'É necessario informar descrição da atividade para certificação';
 export const ACAO_INFORMATIVA_NAO_ACEITA = 'É necessário aceitar a ação formativa';

@@ -42,8 +42,11 @@ export type PropostaDTO = {
   vagasRemanecentes: PropostaVagaRemanecenteDTO[];
   criteriosValidacaoInscricao: PropostaCriterioValidacaoInscricaoDTO[];
   cargaHorariaPresencial?: string;
+  cargaHorariaNaoPresencial?: string;
   cargaHorariaSincrona?: string;
   cargaHorariaDistancia?: string;
+  horasTotais?: number;
+  cargaHorariaTotalOutra?: string;
   justificativa?: string;
   objetivos?: string;
   referencia?: string;
@@ -51,6 +54,7 @@ export type PropostaDTO = {
   conteudoProgramatico?: string;
   palavrasChaves: PropostaPalavraChaveDTO[];
   criterioCertificacao: CriterioCertificacaoDTO[];
+  outrosCriterios?: string;
   cursoComCertificado: boolean;
   acaoInformativa: boolean;
   acaoFormativaTexto?: string;
@@ -118,8 +122,11 @@ export type PropostaFormDTO = {
   periodoRealizacao?: Dayjs[];
   periodoInscricao?: Dayjs[];
   cargaHorariaPresencial?: string;
+  cargaHorariaNaoPresencial?: string;
   cargaHorariaSincrona?: string;
   cargaHorariaDistancia?: string;
+  horasTotais?: number;
+  cargaHorariaTotalOutra?: string;
   justificativa?: string;
   objetivos?: string;
   referencia?: string;
@@ -127,6 +134,7 @@ export type PropostaFormDTO = {
   conteudoProgramatico?: string;
   palavrasChaves?: number[];
   criterioCertificacao?: number[];
+  outrosCriterios?: string;
   cursoComCertificado?: boolean;
   acaoInformativa?: boolean;
   descricaoDaAtividade?: string;

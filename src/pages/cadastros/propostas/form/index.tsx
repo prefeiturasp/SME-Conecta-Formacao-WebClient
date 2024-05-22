@@ -290,6 +290,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const carregarDados = useCallback(async () => {
     setLoading(true);
     const resposta = await obterPropostaPorId(id);
+
     const dados = resposta.dados;
     if (resposta.sucesso) {
       const retornolistaDres = await obterDREs(true);
@@ -527,8 +528,11 @@ export const FormCadastroDePropostas: React.FC = () => {
       dataInscricaoInicio,
       dataInscricaoFim,
       cargaHorariaPresencial: clonedValues.cargaHorariaPresencial,
+      cargaHorariaNaoPresencial: clonedValues.cargaHorariaNaoPresencial,
       cargaHorariaSincrona: clonedValues.cargaHorariaSincrona,
       cargaHorariaDistancia: clonedValues.cargaHorariaDistancia,
+      horasTotais: clonedValues.horasTotais,
+      cargaHorariaTotalOutra: clonedValues.cargaHorariaTotalOutra,
       justificativa: clonedValues.justificativa,
       referencia: clonedValues.referencia,
       procedimentoMetadologico: clonedValues.procedimentoMetadologico,
@@ -536,6 +540,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       objetivos: clonedValues.objetivos,
       palavrasChaves: [],
       criterioCertificacao: [],
+      outrosCriterios: clonedValues?.outrosCriterios || '',
       cursoComCertificado: !!clonedValues.cursoComCertificado,
       acaoInformativa: !!clonedValues.acaoInformativa,
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
@@ -660,9 +665,11 @@ export const FormCadastroDePropostas: React.FC = () => {
         }),
       );
     }
+
     if (clonedValues?.arquivos?.length) {
       valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
     }
+
     if (id) {
       response = await alterarProposta(id, valoresSalvar, false);
     } else {

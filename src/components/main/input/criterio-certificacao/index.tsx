@@ -1,23 +1,31 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, Tooltip } from 'antd';
+import { Form, Input, Tooltip } from 'antd';
 import { DefaultOptionType } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
+import { CF_INPUT_CRITERIOS_CERTIFICACAO_INSCRICAO_OUTROS } from '~/core/constants/ids/input';
 import { CF_SELECT_CRITERIO_CERTIFICACAO } from '~/core/constants/ids/select';
-import { CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO } from '~/core/constants/mensagens';
+import {
+  CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO,
+  CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO_OUTROS,
+} from '~/core/constants/mensagens';
+import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
 import { obterCriterioCertificacao } from '~/core/services/criterio-certificacao-service';
 import { Colors } from '~/core/styles/colors';
+import { ButtonParecer } from '~/pages/cadastros/propostas/form/components/modal-parecer/modal-parecer-button';
 
 type SelectCriterioCertificacaoProps = {
   onchange: VoidFunction;
 };
 
 const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({ onchange }) => {
-  const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const mensagemErroQuantidadeCriterios =
     'É necessário informar ao menos 3 critérios para certificação.';
+
+  const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const [mensagemErro, setMensagemErro] = useState(mensagemErroQuantidadeCriterios);
+
   const obterDados = async () => {
     const resposta = await obterCriterioCertificacao();
     if (resposta.sucesso) {
@@ -33,7 +41,7 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
   }, []);
 
   return (
-    <Form.Item shouldUpdate>
+    <Form.Item shouldUpdate style={{ margin: 0 }}>
       {(form) => {
         const requerido: boolean = form.getFieldValue('cursoComCertificado');
         const criterios: number[] = form.getFieldValue('criterioCertificacao');
@@ -50,6 +58,36 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
         } else if (requerido && criterios?.length < 3 && error.length == 0) {
           setMensagemErro(mensagemErroQuantidadeCriterios);
         }
+
+        const outrosCriterios: number[] = form.getFieldValue('criterioCertificacao');
+
+        let campoOutros = null;
+        if (outrosCriterios?.length) {
+          const ehOutros = outrosCriterios?.includes(6);
+
+          if (ehOutros) {
+            campoOutros = (
+              <ButtonParecer campo={CampoConsideracaoEnum.outrosCriterios}>
+                <Form.Item
+                  label='Outros'
+                  name='outrosCriterios'
+                  style={{ marginTop: 16 }}
+                  rules={[
+                    { required: true, message: CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO_OUTROS },
+                  ]}
+                >
+                  <Input
+                    type='text'
+                    maxLength={200}
+                    placeholder='Outros'
+                    id={CF_INPUT_CRITERIOS_CERTIFICACAO_INSCRICAO_OUTROS}
+                  />
+                </Form.Item>
+              </ButtonParecer>
+            );
+          }
+        }
+
         return (
           <>
             <Form.Item
@@ -77,11 +115,14 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
                 id={CF_SELECT_CRITERIO_CERTIFICACAO}
               />
             </Form.Item>
+
             {requerido && criterios?.length < 3 && error.length == 0 ? (
               <span style={{ color: Colors.Suporte.Primary.ERROR }}>{mensagemErro}</span>
             ) : (
               ''
             )}
+
+            {campoOutros ? campoOutros : <></>}
           </>
         );
       }}

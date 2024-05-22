@@ -1,52 +1,99 @@
-import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, Input, Tooltip } from 'antd';
-import { WrapperTooltipProps } from 'antd/es/form/FormItemLabel';
-import { FC } from 'react';
-import { Colors } from '~/core/styles/colors';
+import { Form, FormItemProps, Input, InputProps } from 'antd';
+import { Rule, RuleObject } from 'antd/es/form';
+import { useWatch } from 'antd/es/form/Form';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
+import { FC, useEffect, useState } from 'react';
+import { Formato } from '~/core/enum/formato';
 import { formatarDuasCasasDecimais } from '~/core/utils/functions';
 
 type InputTimerProp = {
-  nome: string;
-  label: string;
-  textToolTip?: WrapperTooltipProps['title'];
-  required?: boolean;
   mensagemErro?: string;
+  formItemProps?: FormItemProps;
+  inputProps?: InputProps;
+  campo?: string;
+  validator?: RuleObject;
 };
 const InputTimer: FC<InputTimerProp> = ({
-  nome,
-  label,
-  textToolTip,
   mensagemErro,
-  required = false,
+  formItemProps,
+  inputProps,
+  campo,
+  validator,
 }) => {
-  let tooltip: WrapperTooltipProps | undefined = undefined;
+  const formInstance = useFormInstance();
+  const assicronaWatch = useWatch('cargaHorariaSincrona');
+  const distanciaWatch = useWatch('cargaHorariaDistancia');
+  const assincrona = formInstance.getFieldValue('cargaHorariaSincrona');
+  const distancia = formInstance.getFieldValue('cargaHorariaDistancia');
+  const modalidade: Formato = formInstance.getFieldValue('formato');
+  const [required, setRequired] = useState<boolean>(false);
 
-  if (textToolTip) {
-    tooltip = {
-      title: textToolTip,
-      icon: (
-        <Tooltip>
-          <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
-        </Tooltip>
-      ),
-    };
+  const modalidadeDistancia = modalidade === Formato.Distancia;
+  const modalidadePresencial = modalidade === Formato.Presencial;
+
+  const rules: Rule[] = [
+    { required, message: mensagemErro || 'Campo obrigatório' },
+    { len: 6, message: 'Informe uma hora no formato 999:99' },
+  ];
+
+  if (validator) {
+    rules.push(validator);
   }
+
+  const campoObrigatorioModoDistancia = () => {
+    if (modalidadePresencial) {
+      switch (campo) {
+        case 'cargaHorariaPresencial':
+          setRequired(true);
+          break;
+
+        default:
+          setRequired(false);
+          break;
+      }
+    }
+
+    if (modalidadeDistancia) {
+      const campoAssincronaTemValor = !!assicronaWatch?.length || !!assincrona?.length;
+      const campoDistanciaTemValor = !!distanciaWatch?.length || !!distancia?.length;
+
+      switch (campo) {
+        case 'cargaHorariaSincrona':
+          if (!campoDistanciaTemValor) {
+            setRequired(true);
+          } else {
+            setRequired(false);
+          }
+          break;
+
+        case 'cargaHorariaDistancia':
+          if (!campoAssincronaTemValor) {
+            setRequired(true);
+          } else {
+            setRequired(false);
+          }
+          break;
+
+        default:
+          setRequired(false);
+          break;
+      }
+    }
+  };
+
+  useEffect(() => {
+    campoObrigatorioModoDistancia();
+  }, [formInstance, distancia, assincrona]);
 
   return (
     <Form.Item
-      label={label}
-      name={nome}
-      key={nome}
       getValueFromEvent={(e: React.ChangeEvent<HTMLInputElement>) =>
         formatarDuasCasasDecimais(e.target.value)
       }
-      rules={[
-        { required, message: mensagemErro || 'Campo obrigatório' },
-        { len: 6, message: 'Informe uma hora no formato 999:99' },
-      ]}
-      tooltip={tooltip}
+      rules={rules}
+      {...formItemProps}
     >
-      <Input maxLength={6} />
+      <Input maxLength={6} {...inputProps} />
     </Form.Item>
   );
 };
