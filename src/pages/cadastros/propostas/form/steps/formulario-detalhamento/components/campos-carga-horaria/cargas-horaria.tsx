@@ -14,7 +14,7 @@ export const CamposCargaHoraria = () => {
 
   const { naoPresencialEhMaiorQueDezPorcento } = useContext(PropostaCargaHorariaTotalContext);
 
-  const dependencies = ['cargaHorariaTotal', 'cargaHorariaTotalOutros'];
+  const dependencies = ['horasTotais', 'cargaHorariaTotalOutra'];
 
   return (
     <Col xs={24}>

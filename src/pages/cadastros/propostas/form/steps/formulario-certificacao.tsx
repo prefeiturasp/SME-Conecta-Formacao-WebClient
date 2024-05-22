@@ -53,12 +53,13 @@ const FormularioCertificacao: React.FC = () => {
   return (
     <>
       <Col>
-        <Row>
+        <Row gutter={[16, 16]}>
           <Col>
             <ButtonParecer campo={CampoConsideracaoEnum.cursoComCertificado}>
               <Form.Item
                 label='Curso com certificação'
                 name='cursoComCertificado'
+                style={{ margin: 0 }}
                 rules={[{ required: true }]}
               >
                 <Radio.Group

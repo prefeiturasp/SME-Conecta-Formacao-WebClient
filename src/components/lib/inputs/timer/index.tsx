@@ -1,5 +1,5 @@
 import { Form, FormItemProps, Input, InputProps } from 'antd';
-import { Rule } from 'antd/es/form';
+import { Rule, RuleObject } from 'antd/es/form';
 import { useWatch } from 'antd/es/form/Form';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { FC, useEffect, useState } from 'react';
@@ -11,8 +11,15 @@ type InputTimerProp = {
   formItemProps?: FormItemProps;
   inputProps?: InputProps;
   campo?: string;
+  validator?: RuleObject;
 };
-const InputTimer: FC<InputTimerProp> = ({ mensagemErro, formItemProps, inputProps, campo }) => {
+const InputTimer: FC<InputTimerProp> = ({
+  mensagemErro,
+  formItemProps,
+  inputProps,
+  campo,
+  validator,
+}) => {
   const formInstance = useFormInstance();
   const assicronaWatch = useWatch('cargaHorariaSincrona');
   const distanciaWatch = useWatch('cargaHorariaDistancia');
@@ -29,8 +36,8 @@ const InputTimer: FC<InputTimerProp> = ({ mensagemErro, formItemProps, inputProp
     { len: 6, message: 'Informe uma hora no formato 999:99' },
   ];
 
-  if (formItemProps?.rules) {
-    rules.push(...formItemProps.rules);
+  if (validator) {
+    rules.push(validator);
   }
 
   const campoObrigatorioModoDistancia = () => {

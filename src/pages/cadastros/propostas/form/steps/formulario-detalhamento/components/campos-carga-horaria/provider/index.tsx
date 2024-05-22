@@ -23,10 +23,10 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
   const distancia = useWatch('cargaHorariaDistancia');
   const presencial = useWatch('cargaHorariaPresencial');
   const naoPresencial = useWatch('cargaHorariaNaoPresencial');
-  const cargaHorariaTotal = useWatch('cargaHorariaTotal');
-  const cargaHorariaTotalOutros = useWatch('cargaHorariaTotalOutros');
+  const horasTotais = useWatch('horasTotais');
+  const cargaHorariaTotalOutra = useWatch('cargaHorariaTotalOutra');
 
-  let ehOutros = cargaHorariaTotal === 99;
+  let ehOutros = horasTotais === 99;
 
   const converterParaMinutos = (hora: string | number): number => {
     if (typeof hora === 'string' && hora.length === 6) {
@@ -44,8 +44,8 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
   };
 
   const naoPresencialEmMinutos = converterParaMinutos(naoPresencial);
-  const cargaHorariaTotalEmMinutos = converterParaMinutos(cargaHorariaTotal);
-  const cargaHorariaTotalOutrosEmMinutos = converterParaMinutos(cargaHorariaTotalOutros);
+  const cargaHorariaTotalEmMinutos = converterParaMinutos(horasTotais);
+  const cargaHorariaTotalOutrosEmMinutos = converterParaMinutos(cargaHorariaTotalOutra);
 
   const cargasHorariaCorrespondem = useMemo(() => {
     const minutosTotais =
@@ -68,7 +68,7 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
     } else {
       return somaDosCamposEmMinutos === cargaHorariaTotalEmMinutos;
     }
-  }, [assicrona, distancia, presencial, naoPresencial, cargaHorariaTotal, cargaHorariaTotalOutros]);
+  }, [assicrona, distancia, presencial, naoPresencial, horasTotais, cargaHorariaTotalOutra]);
 
   const naoPresencialEhMaiorQueDezPorcento = useMemo(() => {
     let dezPorcentoCargaHorariaTotal: number = 0;
@@ -80,7 +80,7 @@ export const PropostaCargaHorariaTotalContextProvider: React.FC<PropsWithChildre
     }
 
     return naoPresencialEmMinutos > dezPorcentoCargaHorariaTotal;
-  }, [cargaHorariaTotal, cargaHorariaTotalOutros, naoPresencial]);
+  }, [horasTotais, cargaHorariaTotalOutra, naoPresencial]);
 
   return (
     <PropostaCargaHorariaTotalContext.Provider

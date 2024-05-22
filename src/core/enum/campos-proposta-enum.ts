@@ -31,6 +31,7 @@ export enum CampoConsideracaoEnum {
   linkParaInscricoesExterna = 30,
   funcoesEspecificasOutros = 31,
   criteriosValidacaoInscricaoOutros = 32,
+  outrosCriterios = 33,
 }
 
 export const CampoConsideracaoEnumDisplay: Record<CampoConsideracaoEnum, string> = {
@@ -68,6 +69,7 @@ export const CampoConsideracaoEnumDisplay: Record<CampoConsideracaoEnum, string>
   [CampoConsideracaoEnum.funcoesEspecificasOutros]: 'Funções Específicas (Outros)',
   [CampoConsideracaoEnum.criteriosValidacaoInscricaoOutros]:
     'Critérios para validação das inscrições (Outros)',
+  [CampoConsideracaoEnum.outrosCriterios]: 'Critérios para certificação (Outros)',
 };
 
 export const CamposParecerNomeEnumDisplay: Record<CampoConsideracaoEnum, string> = {
@@ -103,4 +105,5 @@ export const CamposParecerNomeEnumDisplay: Record<CampoConsideracaoEnum, string>
   [CampoConsideracaoEnum.linkParaInscricoesExterna]: 'linkParaInscricoesExterna',
   [CampoConsideracaoEnum.funcoesEspecificasOutros]: 'funcoesEspecificasOutros',
   [CampoConsideracaoEnum.criteriosValidacaoInscricaoOutros]: 'criteriosValidacaoInscricaoOutros',
+  [CampoConsideracaoEnum.outrosCriterios]: 'outrosCriterios',
 };

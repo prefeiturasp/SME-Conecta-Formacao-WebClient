@@ -65,6 +65,8 @@ export const PERIODO_INSCRICAO_NAO_INFORMADO =
   'É necessário informar as datas do período de inscrição';
 export const CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO =
   'É necessário informar ao menos 3 critérios para certificação';
+export const CRITERIOS_PARA_CERTIFICACAO_NAO_INFORMADO_OUTROS =
+  'É necessário informar o critério para certificação';
 export const DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA =
   'É necessario informar descrição da atividade para certificação';
 export const ACAO_INFORMATIVA_NAO_ACEITA = 'É necessário aceitar a ação formativa';

@@ -1,4 +1,5 @@
 import { Form, FormItemProps } from 'antd';
+import { Rule } from 'antd/es/form';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import { useContext, useEffect, useState } from 'react';
@@ -45,41 +46,44 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
     obterDados();
   }, []);
 
-  const validator = () => {
-    return {
-      validator() {
-        if (cargasHorariaCorrespondem) return Promise.resolve();
+  const validator = {
+    validator() {
+      if (cargasHorariaCorrespondem) return Promise.resolve();
 
-        return Promise.reject(
-          'A soma dos campos de carga horária deve ser igual a carga horária total.',
-        );
-      },
-    };
+      return Promise.reject(
+        'A soma dos campos de carga horária deve ser igual a carga horária total.',
+      );
+    },
   };
 
   const campoOutrosJsx = () => {
     if (ehOutros) {
       return (
         <InputTimer
+          validator={validator}
           formItemProps={{
             dependencies,
             required: true,
             label: 'Outros',
-            rules: [validator],
-            name: 'cargaHorariaTotalOutros',
+            name: 'cargaHorariaTotalOutra',
           }}
         />
       );
     }
   };
 
+  const rules: Rule[] = [];
+  if (!ehOutros) {
+    rules.push(validator);
+  }
+
   return (
     <>
       <Form.Item
         label='Carga horária total'
-        name='cargaHorariaTotal'
+        name='horasTotais'
         dependencies={dependencies}
-        rules={ehOutros ? [] : [validator]}
+        rules={rules}
         {...formItemProps}
       >
         <Select
@@ -87,7 +91,7 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
           options={options}
           id={CF_SELECT_CARGA_HORARIA_TOTAL}
           placeholder='Selecione a carga horária total'
-          onChange={() => ehOutros && form.setFieldValue('cargaHorariaTotalOutros', '')}
+          onChange={() => ehOutros && form.setFieldValue('cargaHorariaTotalOutra', '')}
           {...selectProps}
         />
       </Form.Item>
