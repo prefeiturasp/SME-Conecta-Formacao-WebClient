@@ -11,6 +11,7 @@ import { setDeslogar } from '~/core/redux/modules/auth/actions';
 import { BoxShadow, Colors } from '~/core/styles/colors';
 import DropdownPerfil from '../dropdown-perfil';
 import ExitButton from '../exit-button';
+import NotificationButton from '../notification-button';
 
 const contentStyle: React.CSSProperties = {
   position: 'sticky',
@@ -78,6 +79,11 @@ const Header: React.FC = () => {
         {autenticado && (
           <Space>
             <DropdownPerfil />
+            <NotificationButton
+              onClick={() => {
+                navigate(ROUTES.NOTIFICACOES);
+              }}
+            />
             <ExitButton
               onClick={() => {
                 store.dispatch(setDeslogar());
