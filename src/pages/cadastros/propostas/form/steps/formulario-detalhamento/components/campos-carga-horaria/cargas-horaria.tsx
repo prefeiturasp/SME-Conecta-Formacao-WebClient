@@ -3,7 +3,12 @@ import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { useContext } from 'react';
 import InputTimer from '~/components/lib/inputs/timer';
 import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
-import { CARGA_HORARIA_PRESENCIAL_NAO_INFORMADA } from '~/core/constants/mensagens';
+import {
+  CARGA_HORARIA_DISTANCIA_NAO_INFORMADA,
+  CARGA_HORARIA_NAO_PRESENCIAL_NAO_INFORMADA,
+  CARGA_HORARIA_PRESENCIAL_NAO_INFORMADA,
+  CARGA_HORARIA_SINCRONA_NAO_INFORMADA,
+} from '~/core/constants/mensagens';
 import { Formato } from '~/core/enum/formato';
 import { SelectCargaHorariaTotal } from './components/select-carga-horaria-total/select-carga-horaria-total';
 import { PropostaCargaHorariaTotalContext } from './provider';
@@ -49,6 +54,7 @@ export const CamposCargaHoraria = () => {
               <InputTimer
                 key='cargaHorariaNaoPresencial'
                 campo='cargaHorariaNaoPresencial'
+                mensagemErro={CARGA_HORARIA_NAO_PRESENCIAL_NAO_INFORMADA}
                 formItemProps={{
                   dependencies,
                   name: 'cargaHorariaNaoPresencial',
@@ -80,6 +86,7 @@ export const CamposCargaHoraria = () => {
               <InputTimer
                 key='cargaHorariaSincrona'
                 campo='cargaHorariaSincrona'
+                mensagemErro={CARGA_HORARIA_SINCRONA_NAO_INFORMADA}
                 formItemProps={{
                   dependencies,
                   name: 'cargaHorariaSincrona',
@@ -94,6 +101,7 @@ export const CamposCargaHoraria = () => {
               <InputTimer
                 key='cargaHorariaDistancia'
                 campo='cargaHorariaDistancia'
+                mensagemErro={CARGA_HORARIA_DISTANCIA_NAO_INFORMADA}
                 formItemProps={{
                   dependencies,
                   name: 'cargaHorariaDistancia',
