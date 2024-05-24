@@ -110,7 +110,10 @@ const SelectCriterioCertificacao: React.FC<SelectCriterioCertificacaoProps> = ({
                 allowClear
                 mode='multiple'
                 options={options}
-                onChange={onchange}
+                onChange={() => {
+                  onchange();
+                  form.setFieldValue('outrosCriterios', '');
+                }}
                 placeholder='Critérios para certificação'
                 id={CF_SELECT_CRITERIO_CERTIFICACAO}
               />
