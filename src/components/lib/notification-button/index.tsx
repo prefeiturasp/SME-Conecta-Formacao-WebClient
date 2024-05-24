@@ -1,8 +1,9 @@
 import { Badge, Button, ButtonProps } from 'antd';
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { IoNotificationsSharp } from 'react-icons/io5';
 import styled from 'styled-components';
+import { NotificacoesContext } from '~/pages/notificacoes/provider';
 
 const NotificationButtonContainer = styled.div`
   display: flex;
@@ -29,20 +30,23 @@ interface NotificationButtonProps extends ButtonProps {
 const NotificationButton: React.FC<NotificationButtonProps> = ({
   label = 'Notificações',
   ...rest
-}) => (
-  <NotificationButtonContainer>
-    {/* TODO: VERIFICAR COMO MOSTRAR O CONTADOR, QUAL ENDPOINT CONSUMIR */}
-    <Badge>
-      <Button
-        size='small'
-        type='primary'
-        shape='circle'
-        icon={<IoNotificationsSharp />}
-        {...rest}
-      />
-    </Badge>
-    <LabelButton>{label}</LabelButton>
-  </NotificationButtonContainer>
-);
+}) => {
+  const { quantidadeNotificacoes } = useContext(NotificacoesContext);
+
+  return (
+    <NotificationButtonContainer>
+      <Badge count={quantidadeNotificacoes}>
+        <Button
+          size='small'
+          type='primary'
+          shape='circle'
+          icon={<IoNotificationsSharp />}
+          {...rest}
+        />
+      </Badge>
+      <LabelButton>{label}</LabelButton>
+    </NotificationButtonContainer>
+  );
+};
 
 export default NotificationButton;

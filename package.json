@@ -12,8 +12,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.1.4",
+    "@microsoft/signalr": "^8.0.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/lodash": "^4.14.197",
+    "@types/node": "^20.12.12",
     "antd": "^5.16.4",
     "axios": "^1.4.0",
     "dayjs": "^1.11.8",
