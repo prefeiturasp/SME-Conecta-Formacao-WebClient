@@ -91,7 +91,16 @@ export const SelectCargaHorariaTotal: React.FC<SelectCargaHorariaTotalProps> = (
           options={options}
           id={CF_SELECT_CARGA_HORARIA_TOTAL}
           placeholder='Selecione a carga horária total'
-          onChange={() => ehOutros && form.setFieldValue('cargaHorariaTotalOutra', '')}
+          onChange={() => {
+            if (ehOutros) {
+              form.setFieldValue('cargaHorariaTotalOutra', '');
+            }
+
+            form.setFieldValue('cargaHorariaPresencial', '');
+            form.setFieldValue('cargaHorariaNaoPresencial', '');
+            form.setFieldValue('cargaHorariaSincrona', '');
+            form.setFieldValue('cargaHorariaDistancia', '');
+          }}
           {...selectProps}
         />
       </Form.Item>
