@@ -1,4 +1,4 @@
-import { Col, Flex, Row, Space, Typography } from 'antd';
+import { Col, Divider, Flex, Row, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
@@ -46,13 +46,9 @@ export const NotificacoesDetalhes = () => {
               </Space>
             </Row>
           </Col>
-          <Col xs={8} md={12} lg={12}>
-            <Flex vertical justify='space-between'>
-              <Typography.Text style={{ color: Colors.Neutral.LIGHT }}>
-                Notificação automática
-              </Typography.Text>
-
-              <Row justify='space-between'>
+          <Col xs={8} md={12} lg={12} style={{ display: 'flex' }}>
+            <Flex vertical justify='end'>
+              <Row gutter={[16, 16]}>
                 <Col>
                   <Typography.Title level={5} style={{ marginBottom: 0 }}>
                     Tipo
@@ -74,6 +70,8 @@ export const NotificacoesDetalhes = () => {
               </Row>
             </Flex>
           </Col>
+          <Divider />
+          <Col>MENSAGEM DO AVISO AQUI</Col>
         </Row>
       </CardContent>
     </>
