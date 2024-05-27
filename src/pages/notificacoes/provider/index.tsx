@@ -24,12 +24,17 @@ const DEFAULT_VALUES: NotificacoesContextProps = {
 export const NotificacoesContext = createContext<NotificacoesContextProps>(DEFAULT_VALUES);
 
 const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const { spinning } = useAppSelector((state) => state.spin);
+
   const [connection, setConnection] = useState<HubConnection | null>(null);
-  const [urlConnection, setUrlConnection] = useState('');
   const [quantidadeNotificacoes, setQuantidadeNotificacoes] = useState<number>(0);
+  const [iniciarNotificacoesSemWebSocket, setIniciarNotificacoesSemWebSocket] =
+    useState<boolean>(false);
 
   const usuarioRf = useAppSelector((store) => store.auth.usuarioLogin);
   const perfilID = useAppSelector((store) => store.perfil.perfilSelecionado?.perfil);
+
+  const urlConnection = import.meta.env.VITE_SME_CF_SIGNALR;
 
   const qtdNotificacoesNaoLidas = async () => {
     const resposta = await notificacaoService.obterNotificacoesNaoLida();
@@ -42,7 +47,7 @@ const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) 
   const conectarSignalR = useCallback(async () => {
     if (urlConnection) {
       const hubConnection = new HubConnectionBuilder()
-        .withUrl(`${urlConnection}/notificacao`, {
+        .withUrl(`${urlConnection}/notificacaoHub`, {
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })
@@ -57,7 +62,7 @@ const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) 
       setConnection(hubConnection);
     } else {
       setConnection(null);
-      // setIniciarNotificacoesSemWebSocket(true);
+      setIniciarNotificacoesSemWebSocket(true);
     }
   }, [urlConnection, usuarioRf]);
 
@@ -69,63 +74,41 @@ const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) 
     conectarSignalR();
   }, [urlConnection, conectarSignalR]);
 
-  useEffect(() => {
-    // if (obterUrlSignalR) {
-    // setUrlConnection(obterUrlSignalR);
-    // } else {
-    // setUrlConnection('');
-    // dispatch(setIniciarNotificacoesSemWebSocket(true));
-    // }
-  }, []);
-
   const startConnection = useCallback(async () => {
     if (connection) {
       await connection.stop();
+
       connection
         .start()
         .then(() => {
-          connection.on('NotificacaoCriada', (codigo, data, titulo, id) => {
-            const params = {
-              codigo,
-              data,
-              titulo,
-              id,
-            };
-            // webSocketNotificacaoCriada(params);
-          });
-          connection.on('NotificacaoLida', (codigo, isAnoAnterior) => {
-            const params = {
-              codigo,
-              isAnoAnterior,
-            };
-            // webSocketNotificacaoLida(params);
-          });
-          connection.on('NotificacaoExcluida', (codigo, status, isAnoAnterior) => {
-            const params = {
-              codigo,
-              status,
-              isAnoAnterior,
-            };
-            // webSocketNotificacaoExcluida(params);
-          });
-          // setIniciarNotificacoesSemWebSocket(false);
+          connection.on('Criada', () => qtdNotificacoesNaoLidas());
+
+          connection.on('Lida', () => qtdNotificacoesNaoLidas());
+
+          connection.on('Excluida', () => qtdNotificacoesNaoLidas());
+
+          setIniciarNotificacoesSemWebSocket(false);
         })
         .catch(async () => {
-          // setIniciarNotificacoesSemWebSocket(true);
+          setIniciarNotificacoesSemWebSocket(true);
+
           await connection.stop();
+
           setTimeout(() => {
             startConnection();
           }, 60000);
         });
 
       connection.onclose(async () => {
-        // setIniciarNotificacoesSemWebSocket(true);
+        setIniciarNotificacoesSemWebSocket(true);
       });
+
       connection.onreconnecting(() => {
-        // setIniciarNotificacoesSemWebSocket(true);
+        setIniciarNotificacoesSemWebSocket(true);
       });
+
       connection.onreconnected(() => {
-        // setIniciarNotificacoesSemWebSocket(false);
+        setIniciarNotificacoesSemWebSocket(false);
       });
     }
   }, [connection]);
@@ -136,6 +119,20 @@ const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) 
       if (connection) connection.stop();
     };
   }, [connection, startConnection]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!spinning) {
+        qtdNotificacoesNaoLidas();
+      }
+    }, 60000);
+
+    if (!iniciarNotificacoesSemWebSocket) {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [spinning, iniciarNotificacoesSemWebSocket]);
 
   return (
     <NotificacoesContext.Provider
