@@ -68,7 +68,7 @@ const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) 
 
   useEffect(() => {
     qtdNotificacoesNaoLidas();
-  }, []);
+  }, [connection]);
 
   useEffect(() => {
     conectarSignalR();

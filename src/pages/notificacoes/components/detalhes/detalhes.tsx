@@ -1,4 +1,5 @@
 import { Col, Divider, Flex, Row, Space, Typography } from 'antd';
+import parse, { DOMNode, Element, HTMLReactParserOptions, domToReact } from 'html-react-parser';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
@@ -17,6 +18,15 @@ export const NotificacoesDetalhes = () => {
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const [detalhes, setDetalhes] = useState<NotificacoDetalheDTO>();
+
+  const optionsParseDescription: HTMLReactParserOptions = {
+    replace: (domNode) => {
+      if (domNode instanceof Element && domNode.name === 'p') {
+        return <p style={{ marginBottom: 0 }}>{domToReact(domNode.children as DOMNode[])}</p>;
+      }
+    },
+  };
+  const mensagem = detalhes && parse(detalhes?.mensagem, optionsParseDescription);
 
   const obterDetalhes = useCallback(async () => {
     const resposta = await notificacaoService.obterNotificacoesDetalhe(id);
@@ -97,7 +107,7 @@ export const NotificacoesDetalhes = () => {
           {detalhes?.mensagem && (
             <>
               <Divider />
-              <Col>{detalhes?.mensagem}</Col>
+              <Col>{mensagem}</Col>
             </>
           )}
         </Row>
