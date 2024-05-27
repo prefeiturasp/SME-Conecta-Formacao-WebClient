@@ -7,38 +7,20 @@ import CardContent from '~/components/lib/card-content';
 import DataTable from '~/components/lib/card-table';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
+import { SelectCategoriaNotificacao } from '~/components/main/input/situacao-categoria-notificacao';
+import { SelectSituacaoNotificacao } from '~/components/main/input/situacao-situacao-notificacao';
+import { SelectTipoNotificacao } from '~/components/main/input/situacao-tipo-notificacao';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
-  CF_INPUT_CATEGORIA_NOTIFICACAO,
   CF_INPUT_CODIGO_NOTIFICACAO,
-  CF_INPUT_SITUACAO_NOTIFICACAO,
-  CF_INPUT_TIPO_NOTIFICACAO,
   CF_INPUT_TITULO_NOTIFICACAO,
 } from '~/core/constants/ids/input';
 import { NotificacaoFiltroDTO } from '~/core/dto/notificacao-filtro-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
+import notificacaoService from '~/core/services/notificacao-service';
 import { onClickVoltar } from '~/core/utils/form';
-
-const MOCK_DATA = [
-  {
-    codigo: '1',
-    tipo: 'Relatório',
-    categoria: 'Aviso',
-    titulo: 'MOCK Teste de notificacoes',
-    situacao: 'Lida',
-    dataHora: '22/05/204 15:45',
-  },
-  {
-    codigo: '2',
-    tipo: 'Relatório',
-    categoria: 'Aviso',
-    titulo: 'MOCK Teste de notificacoes 2',
-    situacao: 'Não Lida',
-    dataHora: '22/05/204 15:45',
-  },
-];
 
 export const Notificacoes = () => {
   const [form] = useForm();
@@ -110,30 +92,16 @@ export const Notificacoes = () => {
           </Col>
 
           <Col xs={24} sm={8}>
-            <InputTexto
-              formItemProps={{
-                label: 'Tipo',
-                name: 'tipo',
-                style: { fontWeight: 'bold' },
-              }}
-              inputProps={{
-                id: CF_INPUT_TIPO_NOTIFICACAO,
-                placeholder: 'Tipo',
+            <SelectTipoNotificacao
+              selectProps={{
                 onChange: obterFiltros,
               }}
             />
           </Col>
 
           <Col xs={24} sm={8}>
-            <InputTexto
-              formItemProps={{
-                label: 'Categoria',
-                name: 'categoria',
-                style: { fontWeight: 'bold' },
-              }}
-              inputProps={{
-                id: CF_INPUT_CATEGORIA_NOTIFICACAO,
-                placeholder: 'Categoria',
+            <SelectCategoriaNotificacao
+              selectProps={{
                 onChange: obterFiltros,
               }}
             />
@@ -155,16 +123,9 @@ export const Notificacoes = () => {
           </Col>
 
           <Col xs={24} sm={8}>
-            <InputNumero
-              formItemProps={{
-                label: 'Situação',
-                name: 'situacao',
-                style: { fontWeight: 'bold' },
-              }}
-              inputProps={{
+            <SelectSituacaoNotificacao
+              selectProps={{
                 onChange: obterFiltros,
-                id: CF_INPUT_SITUACAO_NOTIFICACAO,
-                placeholder: 'Situação',
               }}
             />
           </Col>
@@ -172,7 +133,7 @@ export const Notificacoes = () => {
         <DataTable
           filters={filters}
           columns={columns}
-          dataSource={MOCK_DATA}
+          url={notificacaoService.obterNotificacao()}
           onRow={(row) => ({
             onClick: () => {
               onClickEditar(row.codigo);
