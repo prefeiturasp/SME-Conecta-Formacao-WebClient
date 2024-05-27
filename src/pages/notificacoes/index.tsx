@@ -34,19 +34,19 @@ export const Notificacoes = () => {
   });
 
   const columns: ColumnsType = [
-    { key: 'codigo', title: 'Código', dataIndex: 'codigo' },
-    { key: 'tipo', title: 'Tipo', dataIndex: 'tipo' },
-    { key: 'categoria', title: 'Categoria', dataIndex: 'categoria' },
+    { key: 'id', title: 'Código', dataIndex: 'id' },
+    { key: 'tipoDescricao', title: 'Tipo', dataIndex: 'tipoDescricao' },
+    { key: 'categoriaDescricao', title: 'Categoria', dataIndex: 'categoriaDescricao' },
     { key: 'titulo', title: 'Título', dataIndex: 'titulo' },
-    { key: 'situacao', title: 'Situação', dataIndex: 'situacao' },
-    { key: 'dataHora', title: 'Data/Hora', dataIndex: 'dataHora' },
+    { key: 'situacaoDescricao', title: 'Situação', dataIndex: 'situacaoDescricao' },
+    // { key: 'dataHora', title: 'Data/Hora', dataIndex: 'dataHora' },
   ];
 
   const onClickEditar = (id: number) =>
     navigate(`${ROUTES.NOTIFICACOES}/detalhes/${id}`, { replace: true });
 
   const obterFiltros = () => {
-    const codigo = form.getFieldValue('codigo');
+    const codigo = form.getFieldValue('id');
     const titulo = form.getFieldValue('titulo');
     const categoria = form.getFieldValue('categoria');
     const tipo = form.getFieldValue('tipo');
@@ -80,7 +80,7 @@ export const Notificacoes = () => {
             <InputNumero
               formItemProps={{
                 label: 'Código',
-                name: 'codigo',
+                name: 'id',
                 style: { fontWeight: 'bold' },
               }}
               inputProps={{
@@ -136,7 +136,7 @@ export const Notificacoes = () => {
           url={notificacaoService.obterNotificacao()}
           onRow={(row) => ({
             onClick: () => {
-              onClickEditar(row.codigo);
+              onClickEditar(row.id);
             },
           })}
         />

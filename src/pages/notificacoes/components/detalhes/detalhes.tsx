@@ -94,8 +94,12 @@ export const NotificacoesDetalhes = () => {
               </Row>
             </Flex>
           </Col>
-          <Divider />
-          <Col>{detalhes?.mensagem}</Col>
+          {detalhes?.mensagem && (
+            <>
+              <Divider />
+              <Col>{detalhes?.mensagem}</Col>
+            </>
+          )}
         </Row>
       </CardContent>
     </>
