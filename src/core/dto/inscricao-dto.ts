@@ -1,6 +1,5 @@
 export type InscricaoDTO = {
   propostaTurmaId: number | undefined;
-  email: string;
   cargoCodigo: string | undefined;
   cargoDreCodigo: string | undefined;
   cargoUeCodigo: string | undefined;
