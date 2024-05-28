@@ -1,4 +1,4 @@
-import { Col, Divider, Flex, Row, Space, Typography } from 'antd';
+import { Col, Divider, Row, Space, Typography } from 'antd';
 import parse, { DOMNode, Element, HTMLReactParserOptions, domToReact } from 'html-react-parser';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -26,6 +26,7 @@ export const NotificacoesDetalhes = () => {
       }
     },
   };
+
   const mensagem = detalhes && parse(detalhes?.mensagem, optionsParseDescription);
 
   const obterDetalhes = useCallback(async () => {
@@ -64,12 +65,14 @@ export const NotificacoesDetalhes = () => {
       </HeaderPage>
       <CardContent>
         <Row
+          align='bottom'
           gutter={[16, 16]}
           style={{ border: `1px solid ${Colors.Neutral.LIGHT}`, borderRadius: 4, padding: 12 }}
         >
           <Col
-            xs={8}
-            md={8}
+            xs={24}
+            md={24}
+            lg={8}
             style={{
               background: Colors.BACKGROUND_CONTENT,
               display: 'flex',
@@ -86,23 +89,21 @@ export const NotificacoesDetalhes = () => {
             </Row>
           </Col>
 
-          <Col xs={8} md={12} lg={12} style={{ display: 'flex' }}>
-            <Flex vertical justify='end'>
-              <Row gutter={[16, 16]}>
-                <Col>
-                  <Typography.Title level={5} style={{ marginBottom: 0 }}>
-                    Tipo
-                  </Typography.Title>
-                  <Typography>{detalhes?.tipoDescricao}</Typography>
-                </Col>
-                <Col>
-                  <Typography.Title level={5} style={{ marginBottom: 0 }}>
-                    Titulo
-                  </Typography.Title>
-                  <Typography>{detalhes?.titulo}</Typography>
-                </Col>
-              </Row>
-            </Flex>
+          <Col xs={24} md={24} lg={16}>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={8}>
+                <Typography.Title level={5} style={{ marginBottom: 0 }}>
+                  Tipo
+                </Typography.Title>
+                <Typography>{detalhes?.tipoDescricao}</Typography>
+              </Col>
+              <Col xs={24} md={16}>
+                <Typography.Title level={5} style={{ marginBottom: 0 }}>
+                  Titulo
+                </Typography.Title>
+                <Typography>{detalhes?.titulo}</Typography>
+              </Col>
+            </Row>
           </Col>
           {detalhes?.mensagem && (
             <>
