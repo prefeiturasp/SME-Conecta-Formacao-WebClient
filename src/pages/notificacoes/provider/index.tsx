@@ -96,7 +96,7 @@ const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) 
 
           setTimeout(() => {
             startConnection();
-          }, 5000);
+          }, 60000);
         });
 
       connection.onclose(() => {
