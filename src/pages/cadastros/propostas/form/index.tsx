@@ -829,19 +829,29 @@ export const FormCadastroDePropostas: React.FC = () => {
       FormacaoHomologada.NaoCursosPorIN;
 
     const finalizarEnvioProposta = () =>
-      enviarPropostaAnalise(id).then((response) => {
-        if (response.sucesso) {
-          notification.success({
-            message: 'Sucesso',
-            description: PROPOSTA_ENVIADA,
+      form
+        .validateFields()
+        .then(() => {
+          enviarPropostaAnalise(id).then((response) => {
+            if (response.sucesso) {
+              notification.success({
+                message: 'Sucesso',
+                description: PROPOSTA_ENVIADA,
+              });
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+            }
+            if (response.mensagens.length) {
+              setListaErros(response.mensagens);
+              showModalErros();
+            }
           });
-          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-        }
-        if (response.mensagens.length) {
-          setListaErros(response.mensagens);
-          showModalErros();
-        }
-      });
+        })
+        .catch((error: any) => {
+          if (error?.errorFields?.length) {
+            setListaErros(error.errorFields.map((h: { errors: Array<string> }) => h.errors));
+            showModalErros();
+          }
+        });
 
     if (ehPerfilAdminDf) {
       const mostrarConfirmacao = () => {
