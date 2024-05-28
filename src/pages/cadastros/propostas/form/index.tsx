@@ -506,6 +506,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     }
 
     const valoresSalvar: PropostaDTO = {
+      ehProximoPasso,
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       formato: clonedValues?.formato,
@@ -822,7 +823,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       });
   };
 
-  const enviarProposta = () => {
+  const enviarProposta = async () => {
     const formacaoHomologada =
       (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) ||
       FormacaoHomologada.NaoCursosPorIN;
@@ -843,15 +844,27 @@ export const FormCadastroDePropostas: React.FC = () => {
       });
 
     if (ehPerfilAdminDf) {
-      confirmacao({
-        content:
-          formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF
-            ? DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA
-            : DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
-        onOk() {
-          finalizarEnvioProposta();
-        },
-      });
+      const mostrarConfirmacao = () => {
+        confirmacao({
+          content:
+            formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF
+              ? DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA
+              : DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
+          onOk() {
+            finalizarEnvioProposta();
+          },
+        });
+      };
+      // TODO: será criado um campo na tabela do back para controlar a proposta em edicao
+      if (formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseDf) {
+        await salvar(false).then((resposta) => {
+          if (resposta.sucesso) {
+            mostrarConfirmacao();
+          }
+        });
+      } else {
+        mostrarConfirmacao();
+      }
     } else {
       confirmacao({
         content:
@@ -1037,7 +1050,6 @@ export const FormCadastroDePropostas: React.FC = () => {
                           block
                           type='primary'
                           id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                          disabled={!form.isFieldsTouched()}
                           onClick={() => {
                             const publicosAlvosNumeros: number[] =
                               form.getFieldValue('publicosAlvo');
@@ -1118,7 +1130,6 @@ export const FormCadastroDePropostas: React.FC = () => {
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12} md={14} lg={12}>
                     <SelectResponsavelDf
-                      formItemProps={{ required: podeEditarRfResponsavelDfEPareceristas }}
                       selectProps={{ disabled: !podeEditarRfResponsavelDfEPareceristas }}
                     />
                   </Col>

@@ -26,6 +26,7 @@ import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import {
   NOME_NAO_INFORMADO,
   USUARIO_REDE_PARCERIA_EDITAR,
+  USUARIO_REDE_PARCERIA_EXCLUIR,
   USUARIO_REDE_PARCERIA_NAO_SALVO,
   USUARIO_REDE_PARCERIA_SALVAR,
 } from '~/core/constants/mensagens';
@@ -37,7 +38,7 @@ import {
 import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import usuarioRedeParceria from '~/core/services/usuario-rede-parceria';
-import { onClickCancelar, onClickExcluir, onClickVoltar } from '~/core/utils/form';
+import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import { formatterCPFMask, maskTelefone, validateNameAndSurname } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
@@ -69,6 +70,12 @@ export const FormUsuarioRedeParceria = () => {
     }
   }, [id, formInitialValues]);
 
+  const notificacao = (descricao: string) =>
+    notification.success({
+      message: 'Sucesso',
+      description: descricao,
+    });
+
   const onClickSalvar = () => {
     form.validateFields().then(() => {
       confirmacao({
@@ -86,32 +93,35 @@ export const FormUsuarioRedeParceria = () => {
             situacao: clonedValues?.situacao,
           };
 
-          const notificacao = () =>
-            notification.success({
-              message: 'Sucesso',
-              description: `Usuário ${id ? 'alterado' : 'salvo'} com sucesso!`,
-            });
+          const endpoint = id
+            ? usuarioRedeParceria.alterarUsuarioRedeParceria(id, valoresSalvar)
+            : usuarioRedeParceria.inserirUsuarioRedeParceria(valoresSalvar);
 
-          if (id) {
-            await usuarioRedeParceria
-              .alterarUsuarioRedeParceria(id, valoresSalvar)
-              .then((resposta) => {
-                if (resposta.sucesso) {
-                  notificacao();
-                  navigate(ROUTES.USUARIO_REDE_PARCERIA);
-                }
-              });
-          } else {
-            await usuarioRedeParceria.inserirUsuarioRedeParceria(valoresSalvar).then((resposta) => {
-              if (resposta.sucesso) {
-                notificacao();
-                navigate(ROUTES.USUARIO_REDE_PARCERIA);
-              }
-            });
-          }
+          await endpoint.then((resposta) => {
+            if (resposta.sucesso) {
+              notificacao(resposta.dados.mensagem);
+              navigate(ROUTES.USUARIO_REDE_PARCERIA);
+            }
+          });
         },
       });
     });
+  };
+
+  const onClickExcluir = async () => {
+    if (id) {
+      confirmacao({
+        content: USUARIO_REDE_PARCERIA_EXCLUIR,
+        onOk: async () => {
+          await usuarioRedeParceria.excluirUsuarioRedeParceria(id).then((resposta) => {
+            if (resposta.sucesso) {
+              notificacao(resposta.dados.mensagem);
+              navigate(ROUTES.USUARIO_REDE_PARCERIA);
+            }
+          });
+        },
+      });
+    }
   };
 
   useEffect(() => {
@@ -153,14 +163,7 @@ export const FormUsuarioRedeParceria = () => {
                 <ButtonExcluir
                   id={CF_BUTTON_EXCLUIR}
                   disabled={!permissao.podeExcluir}
-                  onClick={() =>
-                    onClickExcluir({
-                      id,
-                      navigate,
-                      route: ROUTES.USUARIO_REDE_PARCERIA,
-                      endpointExcluir: usuarioRedeParceria.excluirUsuarioRedeParceria,
-                    })
-                  }
+                  onClick={onClickExcluir}
                 />
               </Col>
             )}

@@ -27,4 +27,6 @@ export enum ROUTES {
   FORMACAOES_INSCRICOES_NOVO_ID = '/formacoes/inscricoes/novo/:id',
   FORMACAOES_INSCRICOES_POR_ARQUIVO = '/formacoes/inscricoes/arquivo',
   FORMACAOES_INSCRICOES_POR_ARQUIVO_ID = '/formacoes/inscricoes/arquivo/:id',
+  NOTIFICACOES = '/notificacoes',
+  NOTIFICACOES_DETALHES = '/notificacoes/detalhes/:id',
 }
