@@ -28,6 +28,8 @@ import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
 import LoginAutomatico from '~/pages/login-automatico';
 import MeusDados from '~/pages/meus-dados';
+import { Notificacoes } from '~/pages/notificacoes';
+import { NotificacoesDetalhes } from '~/pages/notificacoes/components/detalhes/detalhes';
 import Principal from '~/pages/principal/index';
 import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
@@ -82,6 +84,8 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={meusDadosPage} />
                 <Route path={ROUTES.INSCRICAO} element={<Inscricao />} />
+                <Route path={ROUTES.NOTIFICACOES} element={<Notificacoes />} />
+                <Route path={ROUTES.NOTIFICACOES_DETALHES} element={<NotificacoesDetalhes />} />
 
                 <Route path={ROUTES.AREA_PROMOTORA}>
                   <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
