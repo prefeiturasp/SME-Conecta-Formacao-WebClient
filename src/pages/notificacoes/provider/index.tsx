@@ -68,7 +68,7 @@ const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) 
 
   useEffect(() => {
     qtdNotificacoesNaoLidas();
-  }, [connection]);
+  }, []);
 
   useEffect(() => {
     conectarSignalR();
@@ -96,10 +96,10 @@ const NotificacoesContextProvider: React.FC<PropsWithChildren> = ({ children }) 
 
           setTimeout(() => {
             startConnection();
-          }, 60000);
+          }, 5000);
         });
 
-      connection.onclose(async () => {
+      connection.onclose(() => {
         setIniciarNotificacoesSemWebSocket(true);
       });
 
