@@ -31,7 +31,6 @@ import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/ac
 import { inserirInscricao, obterDadosInscricao } from '~/core/services/inscricao-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import SelectFuncaoAtividade from './components/funcao-atividade';
-import InputEmailInscricao from './components/input-email';
 import { ModalInscricao } from './components/modal';
 import SelectTurma from './components/turmas';
 
@@ -99,7 +98,6 @@ export const Inscricao = () => {
         usuarioNome: dados.usuarioNome,
         usuarioRf: ehServidorTemRF ? dados.usuarioRf : '',
         usuarioCpf: dados.usuarioCpf,
-        usuarioEmail: dados.usuarioEmail,
         usuarioCargos,
         usuarioCargoSelecionado,
       };
@@ -129,7 +127,6 @@ export const Inscricao = () => {
 
     const valoresSalvar: InscricaoDTO = {
       propostaTurmaId: clonedValues.propostaTurmaId,
-      email: clonedValues?.usuarioEmail,
       cargoCodigo: undefined,
       cargoDreCodigo: undefined,
       cargoUeCodigo: undefined,
@@ -258,10 +255,6 @@ export const Inscricao = () => {
               </Col>
 
               <Col xs={24} sm={8}>
-                <InputEmailInscricao formItemProps={{ name: 'usuarioEmail' }} />
-              </Col>
-
-              <Col xs={24} sm={8}>
                 <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
                   <Select
                     disabled={initialValues?.usuarioCargos?.length == 1}
@@ -280,7 +273,7 @@ export const Inscricao = () => {
                 {ehServidorTemRF && <SelectFuncaoAtividade />}
               </Col>
 
-              <Col xs={24} sm={24}>
+              <Col xs={24} sm={8}>
                 <SelectTurma propostaId={formacaoState?.id} />
               </Col>
 
