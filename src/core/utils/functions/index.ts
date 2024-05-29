@@ -119,7 +119,7 @@ const mostrarQtdParecer = (
     ?.filter((parecer) => parecer.campo === campo)
     .map((parecer) => parecer.quantidade);
 
-  return !!qtdParecer?.length ? qtdParecer[0] : 0;
+  return qtdParecer?.length ? qtdParecer[0] : 0;
 };
 
 const validateNameAndSurname = ({ value, form, nameField }: ValidarNomeSobrenomeProps) => {
@@ -136,6 +136,21 @@ const validateNameAndSurname = ({ value, form, nameField }: ValidarNomeSobrenome
 const maskTelefone = (value: string | number | undefined) =>
   `${value}`.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2');
 
+const downloadBlob = (data: any, fileName: string) => {
+  const a = document.createElement('a');
+  document.body.appendChild(a);
+  a.setAttribute('style', 'display: none');
+
+  const blob = new Blob([data]);
+  const url = window.URL.createObjectURL(blob);
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  window.URL.revokeObjectURL(url);
+
+  document.body.removeChild(a);
+};
+
 export {
   formatarDataHoraAuditoria,
   formatarDuasCasasDecimais,
@@ -150,4 +165,5 @@ export {
   validarOnChangeMultiSelectOutros,
   validarOnChangeMultiSelectUnico,
   validateNameAndSurname,
+  downloadBlob,
 };
