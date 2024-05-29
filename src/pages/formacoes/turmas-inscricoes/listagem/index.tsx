@@ -58,15 +58,21 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
       render: (_, record) => <BtbAcoesListaIncricaoPorTurma record={record} />,
     },
     {
-      title: 'Ações',
+      title: 'Anexo',
       width: 80,
-      render: (_, record) => (
-        <IconButtonDataTable
-          Icon={MdOutlineFileDownload}
-          tooltipTitle='Baixar anexo'
-          onClick={() => onClickDownload(record.anexos)}
-        />
-      ),
+      render: (_, record) => {
+        const temAnexo = record.anexos.length;
+
+        return temAnexo ? (
+          <IconButtonDataTable
+            Icon={MdOutlineFileDownload}
+            tooltipTitle='Baixar anexo'
+            onClick={() => onClickDownload(record.anexos)}
+          />
+        ) : (
+          'Sem anexo'
+        );
+      },
     },
   ];
 
