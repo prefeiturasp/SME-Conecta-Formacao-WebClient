@@ -29,6 +29,7 @@ const DataTable = <T extends object>({
   url,
   columns,
   desativarBotaoContinuar,
+  rowKey = 'id',
   ...rest
 }: DataTableProps<T>) => {
   const { setTableState } = useContext(DataTableContext);
@@ -135,10 +136,16 @@ const DataTable = <T extends object>({
     scrollNoInicio();
   }, [tableParams.pagination?.current, !tableParams.pagination?.pageSize]);
 
+  useEffect(() => {
+    if (rest.rowSelection?.onChange) {
+      rest.rowSelection.onChange([], [], { type: 'all' });
+    }
+  }, [data]);
+
   return (
     <Table
       bordered
-      rowKey='id'
+      rowKey={rowKey}
       size='small'
       columns={columns}
       loading={loading}
