@@ -84,7 +84,7 @@ const onchangeMultiSelectOpcaoTodos = (
   return valorParaSetar;
 };
 
-const removeAcentos = (texto: String) => {
+const removeAcentos = (texto: string) => {
   return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
@@ -152,6 +152,7 @@ const downloadBlob = (data: any, fileName: string) => {
 };
 
 export {
+  downloadBlob,
   formatarDataHoraAuditoria,
   formatarDuasCasasDecimais,
   formatterCPFMask,
@@ -165,5 +166,4 @@ export {
   validarOnChangeMultiSelectOutros,
   validarOnChangeMultiSelectUnico,
   validateNameAndSurname,
-  downloadBlob,
 };
