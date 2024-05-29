@@ -40,6 +40,11 @@ const columnsInconsistencias: ColumnsType<RegistroDaInscricaoInsconsistenteDTO> 
     dataIndex: 'nome',
   },
   {
+    key: 'vinculo',
+    title: 'Vínculo',
+    dataIndex: 'vinculo',
+  },
+  {
     key: 'erro',
     title: 'Erro',
     dataIndex: 'erro',
@@ -98,12 +103,9 @@ export const DrawerInconsistencias: React.FC<DrawerInconsistenciasProps> = ({
       }
     >
       <DataTable
-        alterarRealizouFiltro={(_) => {
-          ('');
-        }}
         columns={columnsInconsistencias}
-        desativarBotaoContinuar={setDesativarBotaoContinuar}
         dataSource={dataSourceInconsistencias}
+        desativarBotaoContinuar={setDesativarBotaoContinuar}
         url={`v1/ImportacaoArquivo/${linhaId}/registros-inconsistencia`}
       />
     </Drawer>
