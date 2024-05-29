@@ -16,6 +16,20 @@ type ColorsType = {
   };
   Components: {
     BACKGROUND_ALERT: string;
+    DataTable: {
+      ActionButtons: {
+        Primary: {
+          ERROR: string;
+          SUCCESS: string;
+          WARNING: string;
+        };
+        Secondary: {
+          ERROR: string;
+          SUCCESS: string;
+          WARNING: string;
+        };
+      };
+    };
   };
   Suporte: {
     Primary: SuporteType;
@@ -40,6 +54,20 @@ const Colors: ColorsType = {
   },
   Components: {
     BACKGROUND_ALERT: '#333638',
+    DataTable: {
+      ActionButtons: {
+        Primary: {
+          ERROR: '#B40C02',
+          SUCCESS: '#198459',
+          WARNING: '#F7822F',
+        },
+        Secondary: {
+          ERROR: '#F4DBD9',
+          SUCCESS: '#DDEDE6',
+          WARNING: '#FEECE0',
+        },
+      },
+    },
   },
   Suporte: {
     Primary: {

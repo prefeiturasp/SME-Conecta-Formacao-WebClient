@@ -8,6 +8,7 @@ import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
+import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import {
@@ -24,7 +25,7 @@ import { TipoInscricao } from '~/core/enum/tipo-inscricao';
 import { obterSeInscricaoEstaAberta } from '~/core/services/inscricao-service';
 import { onClickVoltar } from '~/core/utils/form';
 import { TurmasInscricoesListaPaginada } from './listagem';
-import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
+import { TurmasInscricoesListaPaginadaContextProvider } from './listagem/provider';
 
 export interface FiltroTurmaInscricoesProps {
   cpf: number | null;
@@ -218,11 +219,13 @@ export const TurmasInscricoes = () => {
                   Listagem de inscrições por turma
                 </Typography>
                 <DataTableContextProvider>
-                  <TurmasInscricoesListaPaginada
-                    filters={filters}
-                    realizouFiltro={realizouFiltro}
-                    alterarRealizouFiltro={alterarRealizouFiltro}
-                  />
+                  <TurmasInscricoesListaPaginadaContextProvider>
+                    <TurmasInscricoesListaPaginada
+                      filters={filters}
+                      realizouFiltro={realizouFiltro}
+                      alterarRealizouFiltro={alterarRealizouFiltro}
+                    />
+                  </TurmasInscricoesListaPaginadaContextProvider>
                 </DataTableContextProvider>
               </Col>
             </Row>
