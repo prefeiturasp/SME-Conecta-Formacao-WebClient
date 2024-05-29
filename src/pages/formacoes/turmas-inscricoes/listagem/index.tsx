@@ -1,39 +1,23 @@
-import { Button } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useContext } from 'react';
+import { TableRowSelection } from 'antd/es/table/interface';
+import React, { Key, useContext } from 'react';
+import { MdOutlineFileDownload } from 'react-icons/md';
 import { useParams } from 'react-router-dom';
 import DataTable from '~/components/lib/card-table';
-import { DataTableContext } from '~/components/lib/card-table/provider';
-import { notification } from '~/components/lib/notification';
-import {
-  CANCELAR_INSCRICAO,
-  DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
-} from '~/core/constants/mensagens';
-import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situacao-inscricao';
-import { confirmacao } from '~/core/services/alerta-service';
-import { cancelarInscricao } from '~/core/services/inscricao-service';
+import { IconButtonDataTable } from '~/components/main/button/icon-button-data-table';
+import { DadosAnexosInscricaoDTO } from '~/core/dto/dados-anexos-inscricao-dto';
+import { DadosListagemInscricaoDTO } from '~/core/dto/dados-listagem-inscricao-dto';
+import arquivoService from '~/core/services/arquivo-service';
+import { URL_INSCRICAO } from '~/core/services/inscricao-service';
+import { downloadBlob } from '~/core/utils/functions';
 import { FiltroTurmaInscricoesProps } from '..';
-import { useAppSelector } from '~/core/hooks/use-redux';
-import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-
+import { BtbAcoesListaIncricaoPorTurma } from './components/data-table-actions/botoes-acoes-linha';
+import { BtbAcoesListaIncricaoPorTurmaLinhasSelecionadas } from './components/data-table-actions/botoes-acoes-linhas-selecionadas';
+import { TurmasInscricoesListaPaginadaContext } from './provider';
 interface TurmasInscricoesListaPaginadaProps {
   filters?: FiltroTurmaInscricoesProps;
   realizouFiltro?: boolean;
   alterarRealizouFiltro: (valor: boolean) => void;
-}
-
-export interface DadosListagemInscricaoDTO {
-  inscricaoId: number;
-  nomeTurma?: string;
-  registroFuncional?: string;
-  cpf?: string;
-  nomeCursista?: string;
-  cargoFuncao?: string;
-  situacaoCodigo: SituacaoInscricao;
-  situacao: string;
-  podeCancelar?: boolean;
-  integrarNoSga: boolean;
-  iniciado: boolean;
 }
 
 export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPaginadaProps> = ({
@@ -43,16 +27,19 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
 }) => {
   const params = useParams();
   const id = params.id;
-  const { tableState } = useContext(DataTableContext);
-  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
-  const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
+  const { selectedRows, setSelectedRows } = useContext(TurmasInscricoesListaPaginadaContext);
 
-  const mensagemConfirmacao = (record: DadosListagemInscricaoDTO) => {
-    if (record.integrarNoSga && record.iniciado && !ehCursista) {
-      return DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA;
-    } else {
-      return CANCELAR_INSCRICAO;
+  const selectedRowKeys: Key[] = selectedRows?.length
+    ? selectedRows.map((item: DadosListagemInscricaoDTO) => item.inscricaoId)
+    : [];
+
+  const onClickDownload = async (anexos: DadosAnexosInscricaoDTO[]) => {
+    for (const item of anexos) {
+      if (item.codigo) {
+        const resposta = await arquivoService.obterArquivoParaDownload(item.codigo);
+        downloadBlob(resposta.data, item.nome);
+      }
     }
   };
 
@@ -66,44 +53,53 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     { title: 'Situação', dataIndex: 'situacao' },
     {
       title: 'Ações',
+      align: 'center',
+      width: '165px',
+      render: (_, record) => <BtbAcoesListaIncricaoPorTurma record={record} />,
+    },
+    {
+      title: 'Anexo',
+      width: 80,
       render: (_, record) => {
-        const cancelar = async () => {
-          confirmacao({
-            content: mensagemConfirmacao(record),
-            onOk: async () => {
-              const response = await cancelarInscricao(record.inscricaoId);
-              if (response.sucesso) {
-                notification.success({
-                  message: 'Sucesso',
-                  description: 'Inscrição cancelada com sucesso!',
-                });
-                tableState.reloadData();
-              }
-            },
-          });
-        };
+        const temAnexo = record.anexos.length;
 
-        return (
-          <Button
-            type='default'
-            size='small'
-            disabled={record.situacao === SituacaoInscricaoTagDisplay[SituacaoInscricao.Cancelada]}
-            onClick={cancelar}
-          >
-            Cancelar inscrição
-          </Button>
+        return temAnexo ? (
+          <IconButtonDataTable
+            Icon={MdOutlineFileDownload}
+            tooltipTitle='Baixar anexo'
+            onClick={() => onClickDownload(record.anexos)}
+          />
+        ) : (
+          'Sem anexo'
         );
       },
     },
   ];
 
+  const onSelectChange = (_: any, rows: DadosListagemInscricaoDTO[]) => {
+    setSelectedRows(rows);
+  };
+
+  const rowSelection: TableRowSelection<DadosListagemInscricaoDTO> = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    getCheckboxProps: (record: DadosListagemInscricaoDTO) => ({
+      disabled: !record.permissao.podeCancelar,
+    }),
+  };
+
   return (
-    <DataTable
-      url={`v1/Inscricao/${id}`}
-      columns={columns}
-      filters={filters}
-      realizouFiltro={realizouFiltro}
-      alterarRealizouFiltro={alterarRealizouFiltro}
-    />
+    <>
+      <BtbAcoesListaIncricaoPorTurmaLinhasSelecionadas selectedRows={selectedRows} />
+      <DataTable
+        rowKey='inscricaoId'
+        rowSelection={rowSelection}
+        url={`${URL_INSCRICAO}/${id}`}
+        columns={columns}
+        filters={filters}
+        realizouFiltro={realizouFiltro}
+        alterarRealizouFiltro={alterarRealizouFiltro}
+      />
+    </>
   );
 };

@@ -171,12 +171,23 @@ export const obterRegistro = async <T>(
 
 export const alterarRegistro = async <T>(
   url: string,
-  params?: any,
+  data?: any,
+  axiosRequestConfig?: AxiosRequestConfig,
   mostrarNotificacao = true,
 ): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
-    .put(url, params)
+    .put(url, data, {
+      paramsSerializer: {
+        serialize: (params) => {
+          return queryString.stringify(params, {
+            skipNull: true,
+            skipEmptyString: true,
+          });
+        },
+      },
+      ...axiosRequestConfig,
+    })
     .then((response: AxiosResponse<T>): ApiResult<T> => {
       return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
     })
