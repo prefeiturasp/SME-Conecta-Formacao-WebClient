@@ -1,6 +1,8 @@
-import { Button, Col, Form, Row } from 'antd';
+import { Button, Col, Form, Row, Select } from 'antd';
 import { useForm, useWatch } from 'antd/es/form/Form';
-import { useEffect } from 'react';
+import { DefaultOptionType } from 'antd/es/select';
+import { cloneDeep } from 'lodash';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
@@ -17,21 +19,25 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
+import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
 import { ERRO_INSCRICAO_MANUAL, RF_NAO_INFORMADO } from '~/core/constants/mensagens';
+import { DadosInscricaoCargoEolDTO } from '~/core/dto/dados-usuario-inscricao-dto';
 import { InscricaoManualDTO } from '~/core/dto/inscricao-manual-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import { inserirInscricaoManual, obterRfCpf } from '~/core/services/inscricao-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
+import SelectFuncaoAtividade from '~/pages/formacao-cursista/inscricao/components/funcao-atividade';
 
 export const FormCadastrosInscricoesManuais: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const location = useLocation();
   const paramsRoute = useParams();
-
   const profissionalRedeWatch = useWatch('profissionalRede', form);
+  const [optionsSelects, setOptionsSelects] = useState<DadosInscricaoCargoEolDTO[]>();
+  const [optionsCargo, setOptionsCargo] = useState<DefaultOptionType[]>();
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
   const inscriacaoState = location?.state;
@@ -42,6 +48,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
   };
 
   const salvar = (params: InscricaoManualDTO) => {
+    // TODO: FALTA AJUSTAR A PERSISTENCIAS DOS NOVOS VALORES
     const newParams = {
       ...params,
       cpf: removerTudoQueNaoEhDigito(params.cpf),
@@ -95,16 +102,56 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
 
         form.setFieldValue('cpf', dados.cpf);
         form.setFieldValue('nome', dados.nome);
+
+        setOptionsSelects(dados.usuarioCargos);
       }
     });
   };
 
   useEffect(() => {
-    form.resetFields(['nome', 'cpf', 'registroFuncional']);
+    form.resetFields(['nome', 'cpf', 'registroFuncional', 'usuarioCargoSelecionado']);
     form.setFieldValue('cpf', '');
     form.setFieldValue('nome', '');
     form.setFieldValue('registroFuncional', '');
+    form.setFieldValue('usuarioCargoSelecionado', undefined);
   }, [profissionalRedeWatch]);
+
+  useEffect(() => {
+    if (optionsSelects) {
+      let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
+      // TODO: FALTA TESTAR O SELECT FUNCAO/ATIVIDADE SE VAI MOSTRAR AS OPCOES
+      // let usuarioCargoSelecionado: DadosInscricaoDTO['usuarioCargoSelecionado'] = undefined;
+
+      usuarioCargos = cloneDeep(optionsSelects).map((item) => {
+        let funcoes: DadosInscricaoCargoEolDTO[] = [];
+
+        if (item?.funcoes?.length) {
+          funcoes = item.funcoes.map((f) => ({
+            ...f,
+            label: f.descricao,
+            value: f.codigo,
+            tipoVinculo: f.tipoVinculo,
+          }));
+        }
+
+        const valorValue =
+          item.tipoVinculo && optionsSelects.length > 1
+            ? `${item.codigo}-${item.tipoVinculo}`
+            : item.codigo;
+
+        return {
+          ...item,
+          value: valorValue,
+          label: item.descricao,
+          tipoVinculo: item.tipoVinculo,
+          funcoes,
+          codigo: item.codigo,
+        };
+      });
+
+      setOptionsCargo(usuarioCargos);
+    }
+  }, [optionsSelects]);
 
   return (
     <Col>
@@ -167,6 +214,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   formItemProps={{ tooltip: false, name: 'propostaTurmaId' }}
                 />
               </Col>
+
               <Col xs={12} sm={6} md={8}>
                 <RadioSimNao
                   formItemProps={{
@@ -176,6 +224,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   }}
                 />
               </Col>
+
               <Col xs={12} sm={6} md={8}>
                 <InputRegistroFuncional
                   habilitarInputSearch
@@ -193,6 +242,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   }}
                 />
               </Col>
+
               <Col xs={12} sm={6} md={8}>
                 <InputCPF
                   habilitarInputSearch
@@ -205,6 +255,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   }}
                 />
               </Col>
+
               <Col xs={24} sm={12} md={8}>
                 <InputTexto
                   formItemProps={{
@@ -218,6 +269,24 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   }}
                 />
               </Col>
+
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
+                  <Select
+                    allowClear
+                    options={optionsCargo?.length ? optionsCargo : []}
+                    onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
+                    placeholder='Selecione um cargo'
+                    id={CF_SELECT_CARGO}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                {/* TODO: AINDA PRECISA VERIFICAR SE ESSE SELECT
+                VAI SERVIR PRA ESSA TELA OU SE PRECISARÁ CRIAR UMA VARIACAO DELA */}
+                <SelectFuncaoAtividade />
+              </Col>
+              {/* TODO: FALTA ADICIONAR O CAMPO DE VINCULO */}
             </Row>
           </Col>
         </CardContent>

@@ -58,8 +58,8 @@ export const Inscricao = () => {
 
     if (obterDados.sucesso) {
       let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
-
       let usuarioCargoSelecionado: DadosInscricaoDTO['usuarioCargoSelecionado'] = undefined;
+
       setUsuarioCargosQuantidade(dados.usuarioCargos?.length);
       if (ehServidorTemRF && Array.isArray(dados.usuarioCargos)) {
         usuarioCargos = cloneDeep(dados.usuarioCargos).map((item) => {
@@ -73,6 +73,7 @@ export const Inscricao = () => {
               tipoVinculo: f.tipoVinculo,
             }));
           }
+
           const valorValue =
             item.tipoVinculo && dados.usuarioCargos.length > 1
               ? `${item.codigo}-${item.tipoVinculo}`
