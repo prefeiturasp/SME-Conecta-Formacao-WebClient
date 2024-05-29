@@ -67,9 +67,10 @@ const VisualizarFormacao: FC = () => {
         {SOBRE_ESTE_EVENTO}
       </Typography.Title>
       <Row>
-        <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
-          {dadosFormacao?.justificativa}
-        </Typography.Text>
+        <Typography
+          style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}
+          dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa || '' }}
+        />
       </Row>
       <Row style={{ paddingTop: 20 }}>
         {dadosFormacao?.publicosAlvo?.length ? (

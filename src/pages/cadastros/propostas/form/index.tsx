@@ -1,4 +1,4 @@
-import { Badge, Button, Col, Divider, Form, Input, Row, StepProps } from 'antd';
+import { Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
@@ -84,6 +84,7 @@ import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
+import InputNumero from '~/components/main/numero';
 
 const stylesButtons = {
   fontWeight: 700,
@@ -559,7 +560,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao,
       linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
       codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
-      numeroHomologacao: clonedValues?.numeroHomologacao,
+      numeroHomologacao: clonedValues?.numeroHomologacao || null,
       pareceristas: [],
     };
 
@@ -829,19 +830,29 @@ export const FormCadastroDePropostas: React.FC = () => {
       FormacaoHomologada.NaoCursosPorIN;
 
     const finalizarEnvioProposta = () =>
-      enviarPropostaAnalise(id).then((response) => {
-        if (response.sucesso) {
-          notification.success({
-            message: 'Sucesso',
-            description: PROPOSTA_ENVIADA,
+      form
+        .validateFields()
+        .then(() => {
+          enviarPropostaAnalise(id).then((response) => {
+            if (response.sucesso) {
+              notification.success({
+                message: 'Sucesso',
+                description: PROPOSTA_ENVIADA,
+              });
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+            }
+            if (response.mensagens.length) {
+              setListaErros(response.mensagens);
+              showModalErros();
+            }
           });
-          navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-        }
-        if (response.mensagens.length) {
-          setListaErros(response.mensagens);
-          showModalErros();
-        }
-      });
+        })
+        .catch((error: any) => {
+          if (error?.errorFields?.length) {
+            setListaErros(error.errorFields.map((h: { errors: Array<string> }) => h.errors));
+            showModalErros();
+          }
+        });
 
     if (ehPerfilAdminDf) {
       const mostrarConfirmacao = () => {
@@ -868,7 +879,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     } else {
       confirmacao({
         content:
-          formacaoHomologada === FormacaoHomologada.Sim
+          formacaoHomologada === FormacaoHomologada.Sim &&
+          formInitialValues.situacao !== SituacaoProposta.Aprovada
             ? APOS_ENVIAR_PROPOSTA_ANALISE
             : APOS_ENVIAR_PROPOSTA_PUBLICAR,
         onOk() {
@@ -1143,18 +1155,17 @@ export const FormCadastroDePropostas: React.FC = () => {
                   </Col>
                   {exibirInputNumeroHomologacao && (
                     <Col xs={24} sm={12} md={14} lg={12}>
-                      <Form.Item
-                        key='numeroHomologacao'
-                        name='numeroHomologacao'
-                        label='Número de homologação'
-                      >
-                        <Input
-                          type='text'
-                          maxLength={15}
-                          id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                          placeholder='Número de homologação'
-                        />
-                      </Form.Item>
+                      <InputNumero
+                        formItemProps={{
+                          name: 'numeroHomologacao',
+                          label: 'Número de homologação',
+                        }}
+                        inputProps={{
+                          maxLength: 15,
+                          id: CF_INPUT_NUMERO_HOMOLOGACAO,
+                          placeholder: 'Número de homologação',
+                        }}
+                      />
                     </Col>
                   )}
                 </Row>
