@@ -97,7 +97,7 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
               type='primary'
               onClick={() => onClickSortear(record.propostaTurmaId)}
               id={CF_BUTTON_SORTEAR}
-              //disabled={!record.permissao.podeRealizarSorteio}
+              disabled={!record.permissao.podeRealizarSorteio}
             >
               Sortear inscrições
             </Button>
