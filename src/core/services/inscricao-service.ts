@@ -71,6 +71,9 @@ const cancelarInscricoes = (ids: number[], motivo: InscricaoMotivoCancelamentoDT
     params: { ids },
   });
 
+const sortearInscricao = (propostaId: number) =>
+  alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/sortear/${propostaId}`);
+
 export {
   alterarVinculo,
   cancelarInscricao,
@@ -86,4 +89,5 @@ export {
   obterSeInscricaoEstaAberta,
   obterTiposInscricao,
   obterTurmasInscricao,
+  sortearInscricao,
 };

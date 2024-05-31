@@ -1,9 +1,17 @@
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { Tag, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React from 'react';
+import { LuPartyPopper } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
+import { ButtonPrimary } from '~/components/lib/button/primary';
 import DataTable from '~/components/lib/card-table';
+import { notification } from '~/components/lib/notification';
+import { CF_BUTTON_SORTEAR } from '~/core/constants/ids/button/intex';
+import { INSCRICAO_CONFIRMA_SORTEIO } from '~/core/constants/mensagens';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { confirmacao } from '~/core/services/alerta-service';
+import { sortearInscricao } from '~/core/services/inscricao-service';
 import { FiltroInscricoesProps } from '..';
 
 interface InscricoesListaPaginadaProps {
@@ -19,10 +27,22 @@ interface InscricoesProps {
 }
 
 interface TurmasProps {
+  propostaTurmaId: number;
   nomeTurma: string;
   data: string;
   quantidadeVagas: number;
   quantidadeInscricoes: number;
+  quantidadeConfirmada: number;
+  quantidadeAguardandoAnalise: number;
+  quantidadeEmEspera: number;
+  quantidadeCancelada: number;
+  quantidadeDisponivel: number;
+  quantidadeExcedida: number;
+  permissao: TurmasPermissaoProps;
+}
+
+interface TurmasPermissaoProps {
+  podeRealizarSorteio: boolean;
 }
 
 export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = ({
@@ -39,25 +59,87 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
   const onClickEditar = (row: InscricoesProps) =>
     navigate(`${ROUTES.FORMACAOES_INSCRICOES}/editar/${row.id}`, { replace: true, state: row });
 
+  const onClickSortear = (propostaTurmaId: number) => {
+    confirmacao({
+      content: INSCRICAO_CONFIRMA_SORTEIO,
+      onOk() {
+        sortearInscricao(propostaTurmaId).then((response) => {
+          if (response.sucesso) {
+            notification.success({
+              message: response?.dados?.mensagem,
+              description: 'Registro sorteado com sucesso',
+            });
+          }
+        });
+      },
+    });
+  };
+
   const expandedRowRender = (record: InscricoesProps) => {
     const columns: ColumnsType<TurmasProps> = [
+      { title: 'id', dataIndex: 'propostaTurmaId' },
       { title: 'Turma', dataIndex: 'nomeTurma' },
       { title: 'Data', dataIndex: 'data' },
-      { title: 'Quantidade de vagas', dataIndex: 'quantidadeVagas' },
-      { title: 'Quantidade de inscrições', dataIndex: 'quantidadeInscricoes' },
+      {
+        title: 'Vagas',
+        dataIndex: 'quantidadeVagas',
+        render: (quantidadeVagas: number) => (
+          <Tag>
+            <Typography.Text strong>{quantidadeVagas || 0}</Typography.Text>
+          </Tag>
+        ),
+      },
+
+      {
+        title: (
+          <Typography.Text strong type='warning'>
+            Inscrições
+          </Typography.Text>
+        ),
+        dataIndex: 'quantidadeInscricoes',
+        render: (quantidadeInscricoes: number) => (
+          <Tag color='warning'>
+            <Typography.Text strong type='warning'>
+              {quantidadeInscricoes || 0}
+            </Typography.Text>
+          </Tag>
+        ),
+      },
+
+      { title: 'Aguardando análise', dataIndex: 'quantidadeAguardandoAnalise' },
+      { title: 'Em espera', dataIndex: 'quantidadeEmEspera' },
+      { title: 'Confirmadas', dataIndex: 'quantidadeConfirmada' },
+      { title: 'Canceladas', dataIndex: 'quantidadeCancelada' },
+      { title: 'Vagas disponíveis', dataIndex: 'quantidadeDisponivel' },
+      {
+        title: <Typography.Text type='danger'>Vagas excedidas</Typography.Text>,
+        dataIndex: 'quantidadeExcedida',
+        render: (quantidadeExcedida: number) => (
+          <Tag color='error'>
+            <Typography.Text type='danger' strong>
+              {quantidadeExcedida || 0}
+            </Typography.Text>
+          </Tag>
+        ),
+      },
+      {
+        title: 'Ações',
+        align: 'center',
+        width: '165px',
+        render: (_, record) => (
+          <ButtonPrimary
+            id={CF_BUTTON_SORTEAR}
+            icon={<LuPartyPopper size={20} />}
+            disabled={!record?.permissao?.podeRealizarSorteio}
+            onClick={() => onClickSortear(record.propostaTurmaId)}
+          >
+            Sortear inscrições
+          </ButtonPrimary>
+        ),
+      },
     ];
 
-    return (
-      <DataTable
-        dataSource={record.turmas}
-        columns={columns}
-        alterarRealizouFiltro={() => {
-          () => {
-            ('');
-          };
-        }}
-      />
-    );
+    return <DataTable dataSource={record.turmas} columns={columns} />;
   };
 
   return (
@@ -65,11 +147,6 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
       url='v1/Inscricao/formacao-turmas'
       filters={filters}
       realizouFiltro={realizouFiltro}
-      alterarRealizouFiltro={() => {
-        () => {
-          ('');
-        };
-      }}
       columns={columns}
       expandable={{
         expandedRowRender,
