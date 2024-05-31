@@ -72,7 +72,7 @@ const cancelarInscricoes = (ids: number[], motivo: InscricaoMotivoCancelamentoDT
   });
 
 const sortearInscricao = (propostaId: number) =>
-  alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/sortear/${propostaId}`, null);
+  alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/sortear/${propostaId}`);
 
 export {
   alterarVinculo,
@@ -89,5 +89,5 @@ export {
   obterSeInscricaoEstaAberta,
   obterTiposInscricao,
   obterTurmasInscricao,
-  sortearInscricao
+  sortearInscricao,
 };

@@ -1,16 +1,18 @@
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { Tag, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React from 'react';
+import { LuPartyPopper } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
+import { ButtonPrimary } from '~/components/lib/button/primary';
 import DataTable from '~/components/lib/card-table';
-import { ROUTES } from '~/core/enum/routes-enum';
-import { FiltroInscricoesProps } from '..';
-import { Button } from 'antd';
+import { notification } from '~/components/lib/notification';
 import { CF_BUTTON_SORTEAR } from '~/core/constants/ids/button/intex';
 import { INSCRICAO_CONFIRMA_SORTEIO } from '~/core/constants/mensagens';
+import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import { sortearInscricao } from '~/core/services/inscricao-service';
-import { notification } from '~/components/lib/notification';
+import { FiltroInscricoesProps } from '..';
 
 interface InscricoesListaPaginadaProps {
   filters?: FiltroInscricoesProps;
@@ -65,7 +67,7 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
           if (response.sucesso) {
             notification.success({
               message: response?.dados?.mensagem,
-              description: 'Registro excluído com sucesso',
+              description: 'Registro sorteado com sucesso',
             });
           }
         });
@@ -78,45 +80,66 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
       { title: 'id', dataIndex: 'propostaTurmaId' },
       { title: 'Turma', dataIndex: 'nomeTurma' },
       { title: 'Data', dataIndex: 'data' },
-      { title: 'Vagas', dataIndex: 'quantidadeVagas' },
-      { title: 'Inscrições', dataIndex: 'quantidadeInscricoes' },
+      {
+        title: 'Vagas',
+        dataIndex: 'quantidadeVagas',
+        render: (quantidadeVagas: number) => (
+          <Tag>
+            <Typography.Text strong>{quantidadeVagas || 0}</Typography.Text>
+          </Tag>
+        ),
+      },
+
+      {
+        title: (
+          <Typography.Text strong type='warning'>
+            Inscrições
+          </Typography.Text>
+        ),
+        dataIndex: 'quantidadeInscricoes',
+        render: (quantidadeInscricoes: number) => (
+          <Tag color='warning'>
+            <Typography.Text strong type='warning'>
+              {quantidadeInscricoes || 0}
+            </Typography.Text>
+          </Tag>
+        ),
+      },
+
       { title: 'Aguardando análise', dataIndex: 'quantidadeAguardandoAnalise' },
       { title: 'Em espera', dataIndex: 'quantidadeEmEspera' },
       { title: 'Confirmadas', dataIndex: 'quantidadeConfirmada' },
       { title: 'Canceladas', dataIndex: 'quantidadeCancelada' },
       { title: 'Vagas disponíveis', dataIndex: 'quantidadeDisponivel' },
-      { title: 'Vagas excedidas', dataIndex: 'quantidadeExcedida' },
+      {
+        title: <Typography.Text type='danger'>Vagas excedidas</Typography.Text>,
+        dataIndex: 'quantidadeExcedida',
+        render: (quantidadeExcedida: number) => (
+          <Tag color='error'>
+            <Typography.Text type='danger' strong>
+              {quantidadeExcedida || 0}
+            </Typography.Text>
+          </Tag>
+        ),
+      },
       {
         title: 'Ações',
         align: 'center',
         width: '165px',
         render: (_, record) => (
-          <>
-            <Button
-              block
-              type='primary'
-              onClick={() => onClickSortear(record.propostaTurmaId)}
-              id={CF_BUTTON_SORTEAR}
-              disabled={!record.permissao.podeRealizarSorteio}
-            >
-              Sortear inscrições
-            </Button>
-          </>
+          <ButtonPrimary
+            id={CF_BUTTON_SORTEAR}
+            icon={<LuPartyPopper size={20} />}
+            disabled={!record?.permissao?.podeRealizarSorteio}
+            onClick={() => onClickSortear(record.propostaTurmaId)}
+          >
+            Sortear inscrições
+          </ButtonPrimary>
         ),
       },
     ];
 
-    return (
-      <DataTable
-        dataSource={record.turmas}
-        columns={columns}
-        alterarRealizouFiltro={() => {
-          () => {
-            ('');
-          };
-        }}
-      />
-    );
+    return <DataTable dataSource={record.turmas} columns={columns} />;
   };
 
   return (
@@ -124,11 +147,6 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
       url='v1/Inscricao/formacao-turmas'
       filters={filters}
       realizouFiltro={realizouFiltro}
-      alterarRealizouFiltro={() => {
-        () => {
-          ('');
-        };
-      }}
       columns={columns}
       expandable={{
         expandedRowRender,
