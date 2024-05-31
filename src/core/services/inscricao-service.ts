@@ -1,8 +1,10 @@
 import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/listagem';
 import { CursistaDTO } from '../dto/cursista-dto';
+import { DadosListagemInscricaoDTO } from '../dto/dados-listagem-inscricao-dto';
 import { DadosInscricaoDTO, DadosVinculoInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { InscricaoManualDTO } from '../dto/inscricao-manual-dto';
+import { InscricaoMotivoCancelamentoDTO } from '../dto/inscricao-motivo-cancelamento-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
 import { PodeInscreverMensagemDTO } from '../dto/pode-inscrever-mensagem-dto';
 import { RetornoDTO } from '../dto/retorno-dto';
@@ -33,6 +35,12 @@ const obterInscricao = () => {
   return obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(URL_INSCRICAO);
 };
 
+const obterInscricaoId = (id?: number | string) => {
+  return obterRegistro<PaginacaoResultadoDTO<DadosListagemInscricaoDTO[]>>(
+    `${URL_INSCRICAO}/${id}`,
+  );
+};
+
 const cancelarInscricao = (id: number) => {
   return alterarRegistro(`${URL_INSCRICAO}/${id}/cancelar`);
 };
@@ -52,15 +60,34 @@ const alterarVinculo = (params: DadosVinculoInscricaoDTO) =>
 const obterSeInscricaoEstaAberta = (propostaId: number) =>
   obterRegistro<PodeInscreverMensagemDTO>(`${URL_INSCRICAO}/${propostaId}/abertas`);
 
+const colocarEmEsperaInscricao = (ids: number[]) =>
+  alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/em-espera`, null, { params: { ids } });
+
+const confirmarInscricao = (ids: number[]) =>
+  alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/confirmar`, null, { params: { ids } });
+
+const cancelarInscricoes = (ids: number[], motivo: InscricaoMotivoCancelamentoDTO) =>
+  alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/cancelar`, motivo, {
+    params: { ids },
+  });
+
+const sortearInscricao = (propostaId: number) =>
+  alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/sortear/${propostaId}`, null);
+
 export {
   alterarVinculo,
   cancelarInscricao,
+  cancelarInscricoes,
+  colocarEmEsperaInscricao,
+  confirmarInscricao,
   inserirInscricao,
   inserirInscricaoManual,
   obterDadosInscricao,
   obterInscricao,
+  obterInscricaoId,
   obterRfCpf,
   obterSeInscricaoEstaAberta,
   obterTiposInscricao,
   obterTurmasInscricao,
+  sortearInscricao
 };

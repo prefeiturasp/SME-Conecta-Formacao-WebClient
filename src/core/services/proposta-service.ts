@@ -67,7 +67,7 @@ const inserirProposta = (params: PropostaDTO) =>
   inserirRegistro<RetornoDTO>(URL_API_PROPOSTA, params);
 
 const alterarProposta = (id: string | number, params: PropostaDTO, mostrarNotificacao: boolean) =>
-  alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/${id}`, params, mostrarNotificacao);
+  alterarRegistro<RetornoDTO>(`${URL_API_PROPOSTA}/${id}`, params, undefined, mostrarNotificacao);
 
 const devolverProposta = (
   id: string | number,
