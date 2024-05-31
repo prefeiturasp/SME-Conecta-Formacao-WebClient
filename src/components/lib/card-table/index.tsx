@@ -100,11 +100,13 @@ const DataTable = <T extends object>({
 
   useEffect(() => {
     fetchData(tableParams);
-    setTableState({
-      reloadData: () => {
-        fetchData(tableParams);
-      },
-    });
+    if (rest?.id !== 'EXPANDED_DATA_TABLE') {
+      setTableState({
+        reloadData: () => {
+          fetchData(tableParams);
+        },
+      });
+    }
   }, [JSON.stringify(filters), fetchData]);
 
   const handleTableChange = (pagination: TablePaginationConfig) => {

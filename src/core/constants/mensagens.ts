@@ -135,3 +135,4 @@ export const MOTIVO_NAO_INFORMADO = 'É necessário informar o motivo';
 export const INSCRICAO_CONFIRMADA_SUCESSO = 'Inscrição confirmada!';
 export const INSCRICAO_COLOCADA_ESPERA_SUCESSO = 'Inscrição colocada em espera!';
 export const INSCRICAO_CANCELADA_SUCESSO = 'Inscrição cancelada com sucesso!';
+export const INSCRICAO_CONFIRMA_SORTEIO = 'Deseja realmente sortear as inscrições?';

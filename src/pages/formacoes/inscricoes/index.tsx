@@ -18,6 +18,7 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { onClickVoltar } from '~/core/utils/form';
 import { InscricoesListaPaginada } from './listagem';
+import DataTableContextProvider from '~/components/lib/card-table/provider';
 
 export interface FiltroInscricoesProps {
   codigoFormacao: number | null;
@@ -131,7 +132,9 @@ export const Inscricoes = () => {
                 <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>
                   Listagem de cursos/turmas
                 </Typography>
-                <InscricoesListaPaginada filters={filters} realizouFiltro={realizouFiltro} />
+                <DataTableContextProvider>
+                  <InscricoesListaPaginada filters={filters} realizouFiltro={realizouFiltro} />
+                </DataTableContextProvider>
               </Col>
             </Row>
           </Col>
