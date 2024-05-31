@@ -1,7 +1,7 @@
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Tag, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React from 'react';
+import React, { useContext } from 'react';
 import { LuPartyPopper } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 import { ButtonPrimary } from '~/components/lib/button/primary';
@@ -13,6 +13,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import { sortearInscricao } from '~/core/services/inscricao-service';
 import { FiltroInscricoesProps } from '..';
+import { DataTableContext } from '~/components/lib/card-table/provider';
 
 interface InscricoesListaPaginadaProps {
   filters?: FiltroInscricoesProps;
@@ -49,6 +50,8 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
   filters,
   realizouFiltro,
 }) => {
+  const { tableState } = useContext(DataTableContext);
+
   const navigate = useNavigate();
 
   const columns: ColumnsType<InscricoesProps> = [
@@ -69,6 +72,7 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
               message: response?.dados?.mensagem,
               description: 'Registro sorteado com sucesso',
             });
+            tableState.reloadData();
           }
         });
       },
@@ -139,7 +143,7 @@ export const InscricoesListaPaginada: React.FC<InscricoesListaPaginadaProps> = (
       },
     ];
 
-    return <DataTable dataSource={record.turmas} columns={columns} />;
+    return <DataTable id='EXPANDED_DATA_TABLE' dataSource={record.turmas} columns={columns} />;
   };
 
   return (
