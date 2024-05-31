@@ -1,4 +1,4 @@
-import { Button, Col, Form, Row, Select } from 'antd';
+import { Button, Col, Form, Row } from 'antd';
 import { useForm, useWatch } from 'antd/es/form/Form';
 import { DefaultOptionType } from 'antd/es/select';
 import { cloneDeep } from 'lodash';
@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
+import Select from '~/components/lib/inputs/select';
 import { notification } from '~/components/lib/notification';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputCPF from '~/components/main/input/cpf';
@@ -47,23 +48,40 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
     state: location.state,
   };
 
-  const salvar = (params: InscricaoManualDTO) => {
-    // TODO: FALTA AJUSTAR A PERSISTENCIAS DOS NOVOS VALORES
-    const newParams = {
-      ...params,
+  const notificacao = (resposta: any) => {
+    if (resposta.sucesso) {
+      notification.success({
+        message: 'Sucesso',
+        description: 'Inscrição manual realizada com sucesso!',
+      });
+
+      navigate(URL_ROUTE_VOLTAR, devolverStateNoVoltarESalvar);
+    }
+  };
+
+  const salvar = (params: any) => {
+    const newParams: InscricaoManualDTO = {
+      propostaTurmaId: params?.propostaTurmaId,
+      profissionalRede: params?.profissionalRede,
+      registroFuncional: params?.registroFuncional,
       cpf: removerTudoQueNaoEhDigito(params.cpf),
     };
 
-    const notificacao = (resposta: any) => {
-      if (resposta.sucesso) {
-        notification.success({
-          message: 'Sucesso',
-          description: 'Inscrição manual realizada com sucesso!',
-        });
+    if (optionsCargo?.length && params?.usuarioCargoSelecionado) {
+      const cargoSelecionado: any = optionsCargo.find(
+        (item) => item?.value === params?.usuarioCargoSelecionado,
+      );
+      newParams.cargoCodigo = params?.usuarioCargoSelecionado;
+      newParams.cargoDreCodigo = cargoSelecionado?.dreCodigo;
+      newParams.cargoUeCodigo = cargoSelecionado?.ueCodigo;
+    }
 
-        navigate(URL_ROUTE_VOLTAR, devolverStateNoVoltarESalvar);
-      }
-    };
+    if (params?.usuarioFuncaoSelecionado) {
+      newParams.funcaoCodigo = params?.usuarioFuncaoSelecionado?.codigo;
+      newParams.funcaoDreCodigo = params?.usuarioFuncaoSelecionado?.dreCodigo;
+      newParams.funcaoUeCodigo = params?.usuarioFuncaoSelecionado?.ueCodigo;
+      newParams.tipoVinculo = params?.usuarioFuncaoSelecionado?.tipoVinculo;
+    }
 
     inserirInscricaoManual(newParams, false).then((resposta) => {
       notificacao(resposta);
@@ -72,11 +90,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
         confirmacao({
           content: resposta.mensagens,
           onOk() {
-            const newParams = {
-              ...params,
-              podeContinuar: true,
-            };
-
+            newParams.podeContinuar = true;
             inserirInscricaoManual(newParams).then((resposta) => notificacao(resposta));
           },
         });
@@ -94,6 +108,11 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
   };
 
   const buscarRfCPF = (rfCpf?: string) => {
+    setOptionsCargo([]);
+    form.setFieldValue('usuarioCargos', []);
+    form.setFieldValue('usuarioCargoSelecionado', undefined);
+    form.setFieldValue('usuarioFuncaoSelecionado', undefined);
+
     if (!rfCpf) return;
 
     obterRfCpf(removerTudoQueNaoEhDigito(rfCpf)).then((resposta) => {
@@ -114,13 +133,13 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
     form.setFieldValue('nome', '');
     form.setFieldValue('registroFuncional', '');
     form.setFieldValue('usuarioCargoSelecionado', undefined);
+    form.setFieldValue('usuarioCargos', []);
+    form.setFieldValue('usuarioFuncaoSelecionado', undefined);
   }, [profissionalRedeWatch]);
 
   useEffect(() => {
     if (optionsSelects) {
       let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
-      // TODO: FALTA TESTAR O SELECT FUNCAO/ATIVIDADE SE VAI MOSTRAR AS OPCOES
-      // let usuarioCargoSelecionado: DadosInscricaoDTO['usuarioCargoSelecionado'] = undefined;
 
       usuarioCargos = cloneDeep(optionsSelects).map((item) => {
         let funcoes: DadosInscricaoCargoEolDTO[] = [];
@@ -150,6 +169,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
       });
 
       setOptionsCargo(usuarioCargos);
+      form.setFieldValue('usuarioCargos', usuarioCargos);
     }
   }, [optionsSelects]);
 
@@ -238,6 +258,10 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                       if (!e.target.value.length) {
                         form.resetFields(['nome', 'cpf']);
                       }
+
+                      setOptionsCargo([]);
+                      form.setFieldValue('usuarioCargos', []);
+                      form.setFieldValue('usuarioCargoSelecionado', undefined);
                     },
                   }}
                 />
@@ -273,7 +297,6 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
               <Col xs={24} sm={12} md={8}>
                 <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
                   <Select
-                    allowClear
                     options={optionsCargo?.length ? optionsCargo : []}
                     onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
                     placeholder='Selecione um cargo'
@@ -282,11 +305,8 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={8}>
-                {/* TODO: AINDA PRECISA VERIFICAR SE ESSE SELECT
-                VAI SERVIR PRA ESSA TELA OU SE PRECISARÁ CRIAR UMA VARIACAO DELA */}
                 <SelectFuncaoAtividade />
               </Col>
-              {/* TODO: FALTA ADICIONAR O CAMPO DE VINCULO */}
             </Row>
           </Col>
         </CardContent>
