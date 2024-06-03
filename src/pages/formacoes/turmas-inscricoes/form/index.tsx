@@ -1,9 +1,12 @@
 import { Button, Col, Form, Row } from 'antd';
 import { useForm, useWatch } from 'antd/es/form/Form';
-import { useEffect } from 'react';
+import { DefaultOptionType } from 'antd/es/select';
+import { cloneDeep } from 'lodash';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
+import Select from '~/components/lib/inputs/select';
 import { notification } from '~/components/lib/notification';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputCPF from '~/components/main/input/cpf';
@@ -17,21 +20,25 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
+import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
 import { ERRO_INSCRICAO_MANUAL, RF_NAO_INFORMADO } from '~/core/constants/mensagens';
+import { DadosInscricaoCargoEolDTO } from '~/core/dto/dados-usuario-inscricao-dto';
 import { InscricaoManualDTO } from '~/core/dto/inscricao-manual-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { confirmacao } from '~/core/services/alerta-service';
 import { inserirInscricaoManual, obterRfCpf } from '~/core/services/inscricao-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import { removerTudoQueNaoEhDigito } from '~/core/utils/functions';
+import SelectFuncaoAtividade from '~/pages/formacao-cursista/inscricao/components/funcao-atividade';
 
 export const FormCadastrosInscricoesManuais: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const location = useLocation();
   const paramsRoute = useParams();
-
   const profissionalRedeWatch = useWatch('profissionalRede', form);
+  const [optionsSelects, setOptionsSelects] = useState<DadosInscricaoCargoEolDTO[]>();
+  const [optionsCargo, setOptionsCargo] = useState<DefaultOptionType[]>();
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
   const inscriacaoState = location?.state;
@@ -41,22 +48,40 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
     state: location.state,
   };
 
-  const salvar = (params: InscricaoManualDTO) => {
-    const newParams = {
-      ...params,
+  const notificacao = (resposta: any) => {
+    if (resposta.sucesso) {
+      notification.success({
+        message: 'Sucesso',
+        description: 'Inscrição manual realizada com sucesso!',
+      });
+
+      navigate(URL_ROUTE_VOLTAR, devolverStateNoVoltarESalvar);
+    }
+  };
+
+  const salvar = (params: any) => {
+    const newParams: InscricaoManualDTO = {
+      propostaTurmaId: params?.propostaTurmaId,
+      profissionalRede: params?.profissionalRede,
+      registroFuncional: params?.registroFuncional,
       cpf: removerTudoQueNaoEhDigito(params.cpf),
     };
 
-    const notificacao = (resposta: any) => {
-      if (resposta.sucesso) {
-        notification.success({
-          message: 'Sucesso',
-          description: 'Inscrição manual realizada com sucesso!',
-        });
+    if (optionsCargo?.length && params?.usuarioCargoSelecionado) {
+      const cargoSelecionado: any = optionsCargo.find(
+        (item) => item?.value === params?.usuarioCargoSelecionado,
+      );
+      newParams.cargoCodigo = params?.usuarioCargoSelecionado;
+      newParams.cargoDreCodigo = cargoSelecionado?.dreCodigo;
+      newParams.cargoUeCodigo = cargoSelecionado?.ueCodigo;
+    }
 
-        navigate(URL_ROUTE_VOLTAR, devolverStateNoVoltarESalvar);
-      }
-    };
+    if (params?.usuarioFuncaoSelecionado) {
+      newParams.funcaoCodigo = params?.usuarioFuncaoSelecionado?.codigo;
+      newParams.funcaoDreCodigo = params?.usuarioFuncaoSelecionado?.dreCodigo;
+      newParams.funcaoUeCodigo = params?.usuarioFuncaoSelecionado?.ueCodigo;
+      newParams.tipoVinculo = params?.usuarioFuncaoSelecionado?.tipoVinculo;
+    }
 
     inserirInscricaoManual(newParams, false).then((resposta) => {
       notificacao(resposta);
@@ -65,11 +90,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
         confirmacao({
           content: resposta.mensagens,
           onOk() {
-            const newParams = {
-              ...params,
-              podeContinuar: true,
-            };
-
+            newParams.podeContinuar = true;
             inserirInscricaoManual(newParams).then((resposta) => notificacao(resposta));
           },
         });
@@ -87,6 +108,11 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
   };
 
   const buscarRfCPF = (rfCpf?: string) => {
+    setOptionsCargo([]);
+    form.setFieldValue('usuarioCargos', []);
+    form.setFieldValue('usuarioCargoSelecionado', undefined);
+    form.setFieldValue('usuarioFuncaoSelecionado', undefined);
+
     if (!rfCpf) return;
 
     obterRfCpf(removerTudoQueNaoEhDigito(rfCpf)).then((resposta) => {
@@ -95,16 +121,57 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
 
         form.setFieldValue('cpf', dados.cpf);
         form.setFieldValue('nome', dados.nome);
+
+        setOptionsSelects(dados.usuarioCargos);
       }
     });
   };
 
   useEffect(() => {
-    form.resetFields(['nome', 'cpf', 'registroFuncional']);
+    form.resetFields(['nome', 'cpf', 'registroFuncional', 'usuarioCargoSelecionado']);
     form.setFieldValue('cpf', '');
     form.setFieldValue('nome', '');
     form.setFieldValue('registroFuncional', '');
+    form.setFieldValue('usuarioCargoSelecionado', undefined);
+    form.setFieldValue('usuarioCargos', []);
+    form.setFieldValue('usuarioFuncaoSelecionado', undefined);
   }, [profissionalRedeWatch]);
+
+  useEffect(() => {
+    if (optionsSelects) {
+      let usuarioCargos: DadosInscricaoCargoEolDTO[] = [];
+
+      usuarioCargos = cloneDeep(optionsSelects).map((item) => {
+        let funcoes: DadosInscricaoCargoEolDTO[] = [];
+
+        if (item?.funcoes?.length) {
+          funcoes = item.funcoes.map((f) => ({
+            ...f,
+            label: f.descricao,
+            value: f.codigo,
+            tipoVinculo: f.tipoVinculo,
+          }));
+        }
+
+        const valorValue =
+          item.tipoVinculo && optionsSelects.length > 1
+            ? `${item.codigo}-${item.tipoVinculo}`
+            : item.codigo;
+
+        return {
+          ...item,
+          value: valorValue,
+          label: item.descricao,
+          tipoVinculo: item.tipoVinculo,
+          funcoes,
+          codigo: item.codigo,
+        };
+      });
+
+      setOptionsCargo(usuarioCargos);
+      form.setFieldValue('usuarioCargos', usuarioCargos);
+    }
+  }, [optionsSelects]);
 
   return (
     <Col>
@@ -167,6 +234,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   formItemProps={{ tooltip: false, name: 'propostaTurmaId' }}
                 />
               </Col>
+
               <Col xs={12} sm={6} md={8}>
                 <RadioSimNao
                   formItemProps={{
@@ -176,6 +244,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   }}
                 />
               </Col>
+
               <Col xs={12} sm={6} md={8}>
                 <InputRegistroFuncional
                   habilitarInputSearch
@@ -189,10 +258,15 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                       if (!e.target.value.length) {
                         form.resetFields(['nome', 'cpf']);
                       }
+
+                      setOptionsCargo([]);
+                      form.setFieldValue('usuarioCargos', []);
+                      form.setFieldValue('usuarioCargoSelecionado', undefined);
                     },
                   }}
                 />
               </Col>
+
               <Col xs={12} sm={6} md={8}>
                 <InputCPF
                   habilitarInputSearch
@@ -205,6 +279,7 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                   }}
                 />
               </Col>
+
               <Col xs={24} sm={12} md={8}>
                 <InputTexto
                   formItemProps={{
@@ -217,6 +292,20 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
                     placeholder: 'Informe o Nome',
                   }}
                 />
+              </Col>
+
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item label='Cargo' name='usuarioCargoSelecionado'>
+                  <Select
+                    options={optionsCargo?.length ? optionsCargo : []}
+                    onChange={() => form.setFieldValue('usuarioFuncaoSelecionado', undefined)}
+                    placeholder='Selecione um cargo'
+                    id={CF_SELECT_CARGO}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <SelectFuncaoAtividade />
               </Col>
             </Row>
           </Col>
