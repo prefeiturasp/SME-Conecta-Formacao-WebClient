@@ -6,4 +6,5 @@ export type RegistroDaInscricaoInsconsistenteDTO = {
   cpf: string;
   nome: string;
   erro: string;
+  vinculo: string;
 };

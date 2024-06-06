@@ -1,18 +1,28 @@
+import { FormInstance } from 'antd';
+import { RuleObject } from 'antd/es/form';
 import { cloneDeep } from 'lodash';
 import { dayjs } from '~/core/date/dayjs';
+import { TotalDeConsideracoes } from '~/core/dto/parecer-proposta-dto';
+import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
 import { OpcaoListagem } from '~/core/enum/opcao-listagem';
 
-export const scrollNoInicio = () => window.scrollTo(0, 0);
+type ValidarNomeSobrenomeProps = {
+  rule?: RuleObject;
+  value: string;
+  form: FormInstance;
+  nameField: string;
+};
 
-export const removerTudoQueNaoEhDigito = (value: any) => `${value}`.replace(/\D/g, '');
+const scrollNoInicio = () => window.scrollTo(0, 0);
 
-export const formatarDataHoraAuditoria = (data: string) =>
-  dayjs(data).format('DD/MM/YYYY [às] HH:mm');
+const removerTudoQueNaoEhDigito = (value: any) => `${value}`.replace(/\D/g, '');
 
-export const formatarDuasCasasDecimais = (value: any) =>
+const formatarDataHoraAuditoria = (data: string) => dayjs(data).format('DD/MM/YYYY [às] HH:mm');
+
+const formatarDuasCasasDecimais = (value: any) =>
   removerTudoQueNaoEhDigito(value).replace(/(\d{3})(\d{2})$/, '$1:$2');
 
-export const validarOnChangeMultiSelectOutros = (newValues: any[], currentValues: any[]) => {
+const validarOnChangeMultiSelectOutros = (newValues: any[], currentValues: any[]) => {
   let valorParaSetar: any[] = newValues;
   const valorAtualTemOpcaoOutros = currentValues?.includes(OpcaoListagem.Outros);
   const valoresNovosTemOpcaoOutros = newValues.includes(OpcaoListagem.Outros);
@@ -28,7 +38,7 @@ export const validarOnChangeMultiSelectOutros = (newValues: any[], currentValues
   return valorParaSetar;
 };
 
-export const validarOnChangeMultiSelectUnico = (valoresNovos: any, valoreAtuais: any) => {
+const validarOnChangeMultiSelectUnico = (valoresNovos: any, valoreAtuais: any) => {
   if (!valoresNovos?.length) return [];
 
   let valorParaSetar: any[] = valoresNovos;
@@ -47,14 +57,14 @@ export const validarOnChangeMultiSelectUnico = (valoresNovos: any, valoreAtuais:
   return valorParaSetar.map((item) => item?.value);
 };
 
-export const formatterCPFMask = (value: string | number | undefined) =>
+const formatterCPFMask = (value: string | number | undefined) =>
   `${value}`
     .replace(/(\d{3})(\d)/, '$1.$2')
     .replace(/(\d{3})(\d)/, '$1.$2')
     .replace(/(\d{3})(\d{1,2})/, '$1-$2')
     .replace(/(-\d{2})\d+?$/, '$1');
 
-export const onchangeMultiSelectOpcaoTodos = (
+const onchangeMultiSelectOpcaoTodos = (
   valores: any[],
   valorAtual: any[],
   valorTodosComparacao: any = OpcaoListagem.Todos,
@@ -74,11 +84,11 @@ export const onchangeMultiSelectOpcaoTodos = (
   return valorParaSetar;
 };
 
-export const removeAcentos = (texto:String) => {
-  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
+const removeAcentos = (texto: string) => {
+  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+};
 
-export const onchangeMultiSelectLabelInValueOpcaoTodos = (
+const onchangeMultiSelectLabelInValueOpcaoTodos = (
   valores: any[],
   valorAtual: any[],
   valorTodosComparacao: any = OpcaoListagem.Todos,
@@ -99,4 +109,61 @@ export const onchangeMultiSelectLabelInValueOpcaoTodos = (
   }
 
   return valorParaSetar;
+};
+
+const mostrarQtdParecer = (
+  campo: CampoConsideracaoEnum,
+  totalDeConsideracoes: TotalDeConsideracoes[],
+) => {
+  const qtdParecer = totalDeConsideracoes
+    ?.filter((parecer) => parecer.campo === campo)
+    .map((parecer) => parecer.quantidade);
+
+  return qtdParecer?.length ? qtdParecer[0] : 0;
+};
+
+const validateNameAndSurname = ({ value, form, nameField }: ValidarNomeSobrenomeProps) => {
+  const names = value?.split(' ');
+
+  if (names?.length <= 1 || names[1]?.trim() === '') {
+    return Promise.reject('Por favor, informe seu nome e sobrenome.');
+  }
+  const newValue = value.replace(/[^\p{L}\s]/gu, '');
+  form.setFieldValue(nameField, newValue);
+  return Promise.resolve();
+};
+
+const maskTelefone = (value: string | number | undefined) =>
+  `${value}`.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2');
+
+const downloadBlob = (data: any, fileName: string) => {
+  const a = document.createElement('a');
+  document.body.appendChild(a);
+  a.setAttribute('style', 'display: none');
+
+  const blob = new Blob([data]);
+  const url = window.URL.createObjectURL(blob);
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  window.URL.revokeObjectURL(url);
+
+  document.body.removeChild(a);
+};
+
+export {
+  downloadBlob,
+  formatarDataHoraAuditoria,
+  formatarDuasCasasDecimais,
+  formatterCPFMask,
+  maskTelefone,
+  mostrarQtdParecer,
+  onchangeMultiSelectLabelInValueOpcaoTodos,
+  onchangeMultiSelectOpcaoTodos,
+  removeAcentos,
+  removerTudoQueNaoEhDigito,
+  scrollNoInicio,
+  validarOnChangeMultiSelectOutros,
+  validarOnChangeMultiSelectUnico,
+  validateNameAndSurname,
 };

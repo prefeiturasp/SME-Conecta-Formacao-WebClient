@@ -1,5 +1,5 @@
 import { InfoCircleFilled } from '@ant-design/icons';
-import { Form, Tooltip } from 'antd';
+import { Form, FormItemProps, Tooltip } from 'antd';
 import { FC } from 'react';
 import JoditEditorSME from '~/components/lib/inputs/editor/index.tsx';
 import { Colors } from '~/core/styles/colors';
@@ -12,6 +12,7 @@ type EditorTextoProps = {
   exibirTooltip?: boolean;
   disabled?: boolean;
   mensagemErro?: string;
+  formItemProps?: FormItemProps;
 };
 
 const EditorTexto: FC<EditorTextoProps> = ({
@@ -22,6 +23,7 @@ const EditorTexto: FC<EditorTextoProps> = ({
   required = true,
   exibirTooltip = false,
   disabled = false,
+  formItemProps,
 }) => {
   const config = {
     placeholder: label || '',
@@ -49,6 +51,7 @@ const EditorTexto: FC<EditorTextoProps> = ({
               title: mensagemTooltip,
               icon: iconTooltip,
             }}
+            {...formItemProps}
           >
             <JoditEditorSME hasError={temErro} config={config} />
           </Form.Item>

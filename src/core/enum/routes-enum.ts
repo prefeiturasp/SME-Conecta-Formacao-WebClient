@@ -13,6 +13,9 @@ export enum ROUTES {
   AREA_PROMOTORA = '/cadastro/area-promotora',
   AREA_PROMOTORA_NOVO = '/cadastro/area-promotora/novo',
   AREA_PROMOTORA_EDITAR = '/cadastro/area-promotora/editar/:id',
+  USUARIO_REDE_PARCERIA = '/cadastro/rede-parceria',
+  USUARIO_REDE_PARCERIA_NOVO = '/cadastro/rede-parceria/novo',
+  USUARIO_REDE_PARCERIA_EDITAR = '/cadastro/rede-parceria/editar/:id',
   SEM_PERMISSAO = '/sem-permissao',
   AREA_PUBLICA = '/area-publica',
   AREA_PUBLICA_VISUALIZAR_FORMACAO = '/area-publica/visualizar/:id',
@@ -24,4 +27,6 @@ export enum ROUTES {
   FORMACAOES_INSCRICOES_NOVO_ID = '/formacoes/inscricoes/novo/:id',
   FORMACAOES_INSCRICOES_POR_ARQUIVO = '/formacoes/inscricoes/arquivo',
   FORMACAOES_INSCRICOES_POR_ARQUIVO_ID = '/formacoes/inscricoes/arquivo/:id',
+  NOTIFICACOES = '/notificacoes',
+  NOTIFICACOES_DETALHES = '/notificacoes/detalhes/:id',
 }

@@ -1,21 +1,26 @@
 import { Dayjs } from 'dayjs';
+import { FormacaoHomologada } from '../enum/formacao-homologada';
 import { Formato } from '../enum/formato';
 import { SituacaoProposta } from '../enum/situacao-proposta';
 import { TipoFormacao } from '../enum/tipo-formacao';
 import { AuditoriaDTO } from './auditoria-dto';
+import { TotalDeConsideracoes } from './parecer-proposta-dto';
 import { PropostaAnoTurmaDTO } from './proposta-ano-turmas-dto';
+import { PropostaAreaPromotoraDTO } from './proposta-area-promotora-dto';
 import { PropostaComponenteCurricularDTO } from './proposta-componente-curriculares-dto';
 import { PropostaCriterioValidacaoInscricaoDTO } from './proposta-criterio-validacao-inscricao-dto';
 import { PropostaDresDTO } from './proposta-dres-dto';
 import { PropostaFuncaoEspecificaDTO } from './proposta-funcao-especifica-dto';
 import { PropostaImagemDivulgacaoDTO } from './proposta-imagem-divulgacao-dto';
 import { PropostaModalidadeDTO } from './proposta-modalidade-dto';
+import { PropostaMovimentacaoDTO } from './proposta-movimentacao-dto';
 import { PropostaPublicoAlvoDTO } from './proposta-publico-alvo-dto';
 import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 import { DreDTO } from './retorno-listagem-dto';
 
 export type PropostaDTO = {
-  formacaoHomologada?: boolean;
+  ehProximoPasso?: boolean;
+  formacaoHomologada?: FormacaoHomologada;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
   tiposInscricao?: TipoInscricaoType[];
@@ -37,8 +42,11 @@ export type PropostaDTO = {
   vagasRemanecentes: PropostaVagaRemanecenteDTO[];
   criteriosValidacaoInscricao: PropostaCriterioValidacaoInscricaoDTO[];
   cargaHorariaPresencial?: string;
+  cargaHorariaNaoPresencial?: string;
   cargaHorariaSincrona?: string;
   cargaHorariaDistancia?: string;
+  horasTotais?: number;
+  cargaHorariaTotalOutra?: string;
   justificativa?: string;
   objetivos?: string;
   referencia?: string;
@@ -46,6 +54,7 @@ export type PropostaDTO = {
   conteudoProgramatico?: string;
   palavrasChaves: PropostaPalavraChaveDTO[];
   criterioCertificacao: CriterioCertificacaoDTO[];
+  outrosCriterios?: string;
   cursoComCertificado: boolean;
   acaoInformativa: boolean;
   acaoFormativaTexto?: string;
@@ -57,7 +66,26 @@ export type PropostaDTO = {
   anosTurmas?: PropostaAnoTurmaDTO[];
   componentesCurriculares?: PropostaComponenteCurricularDTO[];
   integrarNoSGA?: boolean;
-  desativarAnoEhComponente: boolean;
+  desativarAnoEhComponente?: boolean;
+  rfResponsavelDf?: string;
+  movimentacao?: PropostaMovimentacaoDTO;
+  areaPromotora?: PropostaAreaPromotoraDTO;
+  ultimaJustificativaDevolucao?: string;
+  ultimaJustificativaAprovacaoRecusa?: string;
+  linkParaInscricoesExterna?: string;
+  codigoEventoSigpec?: number;
+  numeroHomologacao?: number | null;
+  pareceristas?: PropostaPareceristaDTO[];
+  podeEnviarConsideracoes?: boolean;
+  podeEnviar?: boolean;
+  totalDeConsideracoes?: TotalDeConsideracoes[];
+  podeAprovar?: boolean;
+  labelAprovar?: string;
+  podeRecusar?: boolean;
+  labelRecusar?: string;
+  ehParecerista?: boolean;
+  ehAdminDF?: boolean;
+  ehAreaPromotora?: boolean;
 };
 
 export type TipoInscricaoType = {
@@ -70,7 +98,8 @@ export type PropostaCompletoDTO = {
 } & PropostaDTO;
 
 export type PropostaFormDTO = {
-  formacaoHomologada?: boolean;
+  ehProximoPasso?: boolean;
+  formacaoHomologada?: FormacaoHomologada;
   tipoFormacao?: TipoFormacao;
   formato?: Formato;
   tiposInscricao?: number[];
@@ -93,17 +122,21 @@ export type PropostaFormDTO = {
   periodoRealizacao?: Dayjs[];
   periodoInscricao?: Dayjs[];
   cargaHorariaPresencial?: string;
+  cargaHorariaNaoPresencial?: string;
   cargaHorariaSincrona?: string;
   cargaHorariaDistancia?: string;
+  horasTotais?: number;
+  cargaHorariaTotalOutra?: string;
   justificativa?: string;
   objetivos?: string;
   referencia?: string;
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;
   palavrasChaves?: number[];
-  criterioCertificacao: number[];
-  cursoComCertificado: boolean;
-  acaoInformativa: boolean;
+  criterioCertificacao?: number[];
+  outrosCriterios?: string;
+  cursoComCertificado?: boolean;
+  acaoInformativa?: boolean;
   descricaoDaAtividade?: string;
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
@@ -114,7 +147,28 @@ export type PropostaFormDTO = {
   componentesCurriculares?: number[];
   listaDres?: DreDTO[];
   integrarNoSGA?: boolean;
-  desativarAnoEhComponente: boolean;
+  desativarAnoEhComponente?: boolean;
+  rfResponsavelDf?: string;
+  movimentacao?: PropostaMovimentacaoDTO;
+  areaPromotora?: PropostaAreaPromotoraDTO;
+  ultimaJustificativaDevolucao?: string;
+  ultimaJustificativaAprovacaoRecusa?: string;
+  totalDeConsideracoes?: TotalDeConsideracoes[];
+  linkParaInscricoesExterna?: string;
+  codigoEventoSigpec?: number;
+  numeroHomologacao?: number | null;
+  qtdeLimitePareceristaProposta?: number;
+  podeEnviar?: boolean;
+  exibirConsideracoes?: boolean;
+  podeEnviarConsideracoes?: boolean;
+  pareceristas?: PropostaPareceristaFormDTO[];
+  podeAprovar?: boolean;
+  labelAprovar?: string;
+  podeRecusar?: boolean;
+  labelRecusar?: string;
+  ehParecerista?: boolean;
+  ehAdminDF?: boolean;
+  ehAreaPromotora?: boolean;
 };
 
 export type PropostaPalavraChaveDTO = {
@@ -136,4 +190,16 @@ export type PropostaTurmaFormDTO = {
   id?: number;
   nome: string;
   dres?: DreDTO[];
+};
+
+export type PropostaPareceristaFormDTO = {
+  id?: number;
+  label?: string;
+  value?: string;
+};
+
+export type PropostaPareceristaDTO = {
+  id?: number;
+  nomeParecerista?: string;
+  registroFuncional?: string;
 };

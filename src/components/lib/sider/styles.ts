@@ -50,9 +50,10 @@ export const SiderSubMenuContainer = styled(SubMenu)<SiderSubMenuStylePros>`
     }
 
     .ant-menu-submenu-title {
-      padding: 0 !important;
       margin: 0;
       width: 100%;
+      color: inherit;
+      padding: 0 !important;
       line-height: 20px !important;
       height: ${(props) => (props?.collapsed ? '60px' : '40px')} !important;
 

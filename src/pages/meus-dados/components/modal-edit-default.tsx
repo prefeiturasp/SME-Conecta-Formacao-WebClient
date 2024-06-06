@@ -1,4 +1,4 @@
-import { Modal as ModalAntd, Spin } from 'antd';
+import { Spin } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import React, { PropsWithChildren, useContext, useState } from 'react';
@@ -9,10 +9,8 @@ import {
   CF_BUTTON_MODAL_CANCELAR,
 } from '~/core/constants/ids/button/intex';
 import { SenhaNovaDTO } from '~/core/dto/senha-nova-dto';
-import { Colors } from '~/core/styles/colors';
+import { confirmacao } from '~/core/services/alerta-service';
 import { MeusDadosContext } from '../provider';
-
-const { confirm } = ModalAntd;
 
 type ModalEditDefaultServiceProps = {
   nome: string;
@@ -97,18 +95,10 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
 
   const showConfirmCancel = () => {
     if (form.isFieldsTouched()) {
-      confirm({
-        width: 500,
-        title: 'Atenção',
-        icon: <></>,
+      confirmacao({
         content: mensagemConfirmarCancelar,
         onOk() {
           handleCancel();
-        },
-        okButtonProps: { type: 'default' },
-        cancelButtonProps: {
-          type: 'text',
-          style: { color: Colors.Neutral.DARK },
         },
         okText: 'Confirmar',
         cancelText: 'Cancelar',

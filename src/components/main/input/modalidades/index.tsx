@@ -37,7 +37,7 @@ const SelectModalidade: React.FC<SelectModalidadesProps> = ({
 
   return (
     <Form.Item
-      label='Modalidade'
+      label='Etapa/Modalidade'
       name='modalidade'
       rules={[{ required: campoRequerido, message: MODALIDADE_NAO_INFORMADA }]}
       {...formItemProps}
@@ -45,7 +45,7 @@ const SelectModalidade: React.FC<SelectModalidadesProps> = ({
       <Select
         allowClear
         options={options}
-        placeholder='Modalidade'
+        placeholder='Etapa/Modalidade'
         id={CF_SELECT_MODALIDADE}
         onChange={() => {
           form.setFieldValue('anosTurmas', []);
