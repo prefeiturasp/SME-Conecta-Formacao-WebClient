@@ -106,6 +106,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
   const [desabilitarBotaoDevolver, setDesabilitarBotaoDevolver] = useState(true);
+  const [exibirBotaoEnviar, setExibirBotaoEnviar] = useState(false);
 
   const token = useAppSelector((store) => store.auth.token);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
@@ -176,10 +177,6 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const exibirBotoesAprovarRecusar =
     !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
-
-  const exibirBotaoEnviar =
-    formInitialValues?.podeEnviar ||
-    (!(ehPerfilAdminDf && !pareceristaWatch) && form.isFieldsTouched());
 
   const situacaoAguardandoAnaliseReanalisePeloParecerista =
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
@@ -472,6 +469,10 @@ export const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     setDesabilitarBotaoDevolver(!form.getFieldValue('rfResponsavelDf'));
   }, [rfResponsavelDfWatch]);
+
+  useEffect(() => {
+    setExibirBotaoEnviar(formInitialValues?.podeEnviar || (!(ehPerfilAdminDf && !pareceristaWatch) && form.isFieldsTouched()));
+  }, [carregarDados, id, formInitialValues]);
 
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
@@ -799,7 +800,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
         salvar(false, situacao).then((response) => {
           if (response.sucesso) {
-            if (ehPerfilAdminDf) {
+            if (ehAreaPromotora) {
               carregarDados();
             } else if (confirmarAntesDeEnviarProposta) {
               confirmacao({
