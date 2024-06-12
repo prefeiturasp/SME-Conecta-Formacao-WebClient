@@ -11,9 +11,12 @@ import ModalErroProposta from '~/components/lib/modal-erros-proposta';
 import { notification } from '~/components/lib/notification';
 import CardInformacoesCadastrante from '~/components/lib/object-card/dados-cadastrante';
 import ButtonVoltar from '~/components/main/button/voltar';
+import { SelectPareceristas } from '~/components/main/input/parecerista';
+import SelectResponsavelDf from '~/components/main/input/responsavel-df';
 import Spin from '~/components/main/spin';
 import Steps from '~/components/main/steps';
 import Auditoria from '~/components/main/text/auditoria';
+import AreaTexto from '~/components/main/text/text-area';
 import {
   CF_BUTTON_CADASTRAR_PROPOSTA,
   CF_BUTTON_CANCELAR,
@@ -24,9 +27,14 @@ import {
   CF_BUTTON_STEP_ANTERIOR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
+import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 import {
-  APOS_ENVIAR_PROPOSTA_NAO_EDITA,
+  APOS_ENVIAR_PROPOSTA_ANALISE,
+  APOS_ENVIAR_PROPOSTA_PUBLICAR,
+  DESEJA_ENVIAR_PARECER,
   DESEJA_ENVIAR_PROPOSTA,
+  DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA,
+  DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
   DESEJA_EXCLUIR_REGISTRO,
   DESEJA_SALVAR_ALTERACOES_AO_SAIR_DA_PAGINA,
   DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
@@ -41,20 +49,25 @@ import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
   PropostaDTO,
   PropostaFormDTO,
+  PropostaPareceristaDTO,
+  PropostaPareceristaFormDTO,
   PropostaTurmaDTO,
   PropostaTurmaFormDTO,
 } from '~/core/dto/proposta-dto';
 import { DreDTO } from '~/core/dto/retorno-listagem-dto';
 import { AreaPromotoraTipoEnum } from '~/core/enum/area-promotora-tipo';
+import { FormacaoHomologada } from '~/core/enum/formacao-homologada';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
 import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { obterDREs } from '~/core/services/dre-service';
 import {
   alterarProposta,
   deletarProposta,
+  enviarParecer,
   enviarPropostaAnalise,
   inserirProposta,
   obterPropostaPorId,
@@ -62,16 +75,26 @@ import {
 import { onClickCancelar } from '~/core/utils/form';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
+import { ModalAprovarRecusarButton } from './components/modal-aprovar-recusar/modal-aprovar-recusar-button';
+import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
+import ModalImprimirButton from './components/modal-imprimir/modal-imprimir-button';
+import { PropostaContext } from './provider';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
 import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
+import InputNumero from '~/components/main/numero';
+
+const stylesButtons = {
+  fontWeight: 700,
+};
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
   const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
+  const rfResponsavelDfWatch = Form.useWatch('rfResponsavelDf', form);
 
   const [openModalErros, setOpenModalErros] = useState(false);
   const [existePublicoAlvo, setExistePublicoAlvo] = useState(false);
@@ -82,8 +105,11 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [listaDres, setListaDres] = useState<any[]>([]);
 
   const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
+  const [desabilitarBotaoDevolver, setDesabilitarBotaoDevolver] = useState(true);
+  const [exibirBotaoEnviar, setExibirBotaoEnviar] = useState(false);
 
   const token = useAppSelector((store) => store.auth.token);
+  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadaDoToken = decodeObject?.dres;
 
@@ -99,22 +125,92 @@ export const FormCadastroDePropostas: React.FC = () => {
     return [];
   };
 
+  const ehPerfilAdminDf =
+    perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
+
+  const ehPerfilDf = perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
+
   const showModalErros = () => setOpenModalErros(true);
   const navigate = useNavigate();
   const paramsRoute = useParams();
+  const pareceristaWatch = Form.useWatch('pareceristas', form)?.length;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<StepPropostaEnum>(
     StepPropostaEnum.InformacoesGerais,
   );
+  const { formInitialValues, setFormInitialValues } = useContext(PropostaContext);
 
-  const [formInitialValues, setFormInitialValues] = useState<PropostaFormDTO>();
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
+
+  const ehAreaPromotora = perfilSelecionado?.perfil === formInitialValues?.areaPromotora?.grupoId;
 
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
 
-  const exibirBotaoSalvar = currentStep === StepPropostaEnum.Certificacao;
+  const situacaoDevolvida = formInitialValues?.situacao === SituacaoProposta.Devolvida;
+
+  const situacaoAguardandoAnaliseDf =
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf;
+
+  const ehAdminDfESituacaoAguardandoAnalisePeloParecerista = ehPerfilAdminDf &&
+    formInitialValues.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista;
+
+  const ehFomacaoHomologada = formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
+
+  const exibirBotaoDevolver = situacaoAguardandoAnaliseDf && ehFomacaoHomologada;
+
+  const exibirBotaoEnviarConsideracoes = formInitialValues?.podeEnviarConsideracoes;
+
+  const exibirInputNumeroHomologacao =
+    formInitialValues?.situacao === SituacaoProposta.Aprovada ||
+    formInitialValues?.situacao === SituacaoProposta.Publicada;
+
+  const exibirBotaoSalvar =
+    currentStep === StepPropostaEnum.Certificacao ||
+    (ehAdminDfESituacaoAguardandoAnalisePeloParecerista && form.isFieldsTouched());
+
+  const exibirJustificativaDevolucao =
+    ehAreaPromotora && formInitialValues?.movimentacao?.situacao === SituacaoProposta.Devolvida;
+
+  const exibirJustificativaAprovacaoRecusa = formInitialValues?.ultimaJustificativaAprovacaoRecusa;
+
+  const exibirBotoesAprovarRecusar =
+    !!formInitialValues?.podeAprovar && !!formInitialValues?.podeRecusar;
+
+  const situacaoAguardandoAnaliseReanalisePeloParecerista =
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
+    formInitialValues.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista;
+
+  const desabilitarBotaoEnviar = () => {
+    if (
+      ehPerfilAdminDf &&
+      (situacaoAguardandoAnaliseDf || situacaoAguardandoAnaliseReanalisePeloParecerista) &&
+      !!pareceristaWatch &&
+      form.isFieldsTouched()
+    ) {
+      return false;
+    } else if (formInitialValues?.podeEnviar) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const podeExibirCard = ehPerfilAdminDf && ehFomacaoHomologada;
+
+  const podeEditarRfResponsavelDfEPareceristas =
+    situacaoAguardandoAnaliseDf ||
+    formInitialValues?.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista ||
+    formInitialValues?.situacao === SituacaoProposta.AguardandoReanalisePeloParecerista;
+
+  const exibirCard = ehFomacaoHomologada && (podeExibirCard || exibirInputNumeroHomologacao);
+
+  const podeImprimir =
+    ((formInitialValues?.situacao === SituacaoProposta.Publicada) || (formInitialValues?.situacao === SituacaoProposta.Aprovada)) &&
+    ehFomacaoHomologada;
+
+  const podeEditarNumeroHomologacao = id && ehFomacaoHomologada && formInitialValues?.situacao === SituacaoProposta.Aprovada;
 
   const stepsProposta: StepProps[] = [
     {
@@ -141,7 +237,16 @@ export const FormCadastroDePropostas: React.FC = () => {
         (formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
-          formInitialValues?.situacao !== SituacaoProposta.Alterando);
+          formInitialValues?.situacao !== SituacaoProposta.Alterando &&
+          !(
+            ((ehPerfilDf || ehPerfilAdminDf) && situacaoAguardandoAnaliseDf) ||
+            formInitialValues?.situacao === SituacaoProposta.Aprovada
+          ) &&
+          !(
+            ehAreaPromotora &&
+            (situacaoDevolvida ||
+              formInitialValues?.situacao === SituacaoProposta.AnaliseParecerPelaAreaPromotora)
+          ));
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
@@ -186,6 +291,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const carregarDados = useCallback(async () => {
     setLoading(true);
     const resposta = await obterPropostaPorId(id);
+
     const dados = resposta.dados;
     if (resposta.sucesso) {
       const retornolistaDres = await obterDREs(true);
@@ -242,6 +348,15 @@ export const FormCadastroDePropostas: React.FC = () => {
             key: index,
           };
         });
+      }
+
+      let pareceristas: PropostaPareceristaFormDTO[] = [];
+      if (dados.pareceristas?.length) {
+        pareceristas = dados.pareceristas.map((parecerista) => ({
+          id: parecerista.id,
+          label: parecerista.nomeParecerista,
+          value: parecerista.registroFuncional,
+        }));
       }
 
       let publicosAlvo: number[] = [];
@@ -328,6 +443,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         tiposInscricao,
         quantidadeTurmasOriginal,
         desativarAnoEhComponente,
+        pareceristas,
       };
 
       setListaDres(listaDres);
@@ -352,6 +468,14 @@ export const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     scrollNoInicio();
   }, [currentStep]);
+
+  useEffect(() => {
+    setDesabilitarBotaoDevolver(!form.getFieldValue('rfResponsavelDf'));
+  }, [rfResponsavelDfWatch]);
+
+  useEffect(() => {
+    setExibirBotaoEnviar(formInitialValues?.podeEnviar || (!(ehPerfilAdminDf && !pareceristaWatch) && form.isFieldsTouched()));
+  }, [carregarDados, id, formInitialValues]);
 
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
     let response = null;
@@ -387,6 +511,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     }
 
     const valoresSalvar: PropostaDTO = {
+      ehProximoPasso,
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       formato: clonedValues?.formato,
@@ -408,8 +533,11 @@ export const FormCadastroDePropostas: React.FC = () => {
       dataInscricaoInicio,
       dataInscricaoFim,
       cargaHorariaPresencial: clonedValues.cargaHorariaPresencial,
+      cargaHorariaNaoPresencial: clonedValues.cargaHorariaNaoPresencial,
       cargaHorariaSincrona: clonedValues.cargaHorariaSincrona,
       cargaHorariaDistancia: clonedValues.cargaHorariaDistancia,
+      horasTotais: clonedValues.horasTotais,
+      cargaHorariaTotalOutra: clonedValues.cargaHorariaTotalOutra,
       justificativa: clonedValues.justificativa,
       referencia: clonedValues.referencia,
       procedimentoMetadologico: clonedValues.procedimentoMetadologico,
@@ -417,8 +545,9 @@ export const FormCadastroDePropostas: React.FC = () => {
       objetivos: clonedValues.objetivos,
       palavrasChaves: [],
       criterioCertificacao: [],
-      cursoComCertificado: clonedValues.cursoComCertificado,
-      acaoInformativa: clonedValues.acaoInformativa,
+      outrosCriterios: clonedValues?.outrosCriterios || '',
+      cursoComCertificado: !!clonedValues.cursoComCertificado,
+      acaoInformativa: !!clonedValues.acaoInformativa,
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
@@ -429,6 +558,14 @@ export const FormCadastroDePropostas: React.FC = () => {
       componentesCurriculares: [],
       integrarNoSGA: clonedValues?.integrarNoSGA,
       desativarAnoEhComponente: clonedValues?.desativarAnoEhComponente,
+      rfResponsavelDf: clonedValues?.rfResponsavelDf,
+      movimentacao: clonedValues?.movimentacao,
+      areaPromotora: clonedValues?.areaPromotora,
+      ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao,
+      linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
+      codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
+      numeroHomologacao: clonedValues?.numeroHomologacao || null,
+      pareceristas: [],
     };
 
     if (clonedValues?.dres?.length) {
@@ -474,6 +611,26 @@ export const FormCadastroDePropostas: React.FC = () => {
       });
     }
 
+    if (clonedValues?.pareceristas?.length) {
+      valoresSalvar.pareceristas = clonedValues.pareceristas.map((item) => {
+        const newPareceristas = formInitialValues.pareceristas?.find(
+          (newItem) => newItem.value === item.value,
+        );
+
+        const id = newPareceristas ? newPareceristas.id : 0;
+        const nomeParecerista = newPareceristas ? newPareceristas.label : item.label;
+        const registroFuncional = newPareceristas ? newPareceristas.value : item.value;
+
+        const parecerista: PropostaPareceristaDTO = {
+          id,
+          nomeParecerista,
+          registroFuncional,
+        };
+
+        return parecerista;
+      });
+    }
+
     if (clonedValues?.publicosAlvo?.length) {
       valoresSalvar.publicosAlvo = clonedValues.publicosAlvo.map((cargoFuncaoId) => ({
         cargoFuncaoId,
@@ -513,9 +670,11 @@ export const FormCadastroDePropostas: React.FC = () => {
         }),
       );
     }
+
     if (clonedValues?.arquivos?.length) {
       valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
     }
+
     if (id) {
       response = await alterarProposta(id, valoresSalvar, false);
     } else {
@@ -644,7 +803,9 @@ export const FormCadastroDePropostas: React.FC = () => {
 
         salvar(false, situacao).then((response) => {
           if (response.sucesso) {
-            if (confirmarAntesDeEnviarProposta) {
+            if (ehAreaPromotora) {
+              carregarDados();
+            } else if (confirmarAntesDeEnviarProposta) {
               confirmacao({
                 content: DESEJA_ENVIAR_PROPOSTA,
                 onOk() {
@@ -667,25 +828,71 @@ export const FormCadastroDePropostas: React.FC = () => {
       });
   };
 
-  const enviarProposta = () => {
-    confirmacao({
-      content: APOS_ENVIAR_PROPOSTA_NAO_EDITA,
-      onOk() {
-        enviarPropostaAnalise(id).then((response) => {
-          if (response.sucesso) {
-            notification.success({
-              message: 'Sucesso',
-              description: PROPOSTA_ENVIADA,
-            });
-            navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
-          }
-          if (response.mensagens.length) {
-            setListaErros(response.mensagens);
+  const enviarProposta = async () => {
+    const formacaoHomologada =
+      (form.getFieldValue('formacaoHomologada') as FormacaoHomologada) ||
+      FormacaoHomologada.NaoCursosPorIN;
+
+    const finalizarEnvioProposta = () =>
+      form
+        .validateFields()
+        .then(() => {
+          enviarPropostaAnalise(id).then((response) => {
+            if (response.sucesso) {
+              notification.success({
+                message: 'Sucesso',
+                description: PROPOSTA_ENVIADA,
+              });
+              navigate(ROUTES.CADASTRO_DE_PROPOSTAS);
+            }
+            if (response.mensagens.length) {
+              setListaErros(response.mensagens);
+              showModalErros();
+            }
+          });
+        })
+        .catch((error: any) => {
+          if (error?.errorFields?.length) {
+            setListaErros(error.errorFields.map((h: { errors: Array<string> }) => h.errors));
             showModalErros();
           }
         });
-      },
-    });
+
+    if (ehPerfilAdminDf) {
+      const salvarComConfirmacao = async (mensagemConfirmacao: string) => {
+        await salvar(false).then((resposta) => {
+          if (resposta.sucesso) {
+            confirmacao({
+              content:
+                mensagemConfirmacao,
+              onOk() {
+                finalizarEnvioProposta();
+              }
+            })
+          }
+        });
+      };
+
+      // TODO: será criado um campo na tabela do back para controlar a proposta em edicao
+      if (formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseDf) {
+        await salvarComConfirmacao(DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA);
+      } else if (formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF) {
+        await salvarComConfirmacao(DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA);
+      } else {
+        finalizarEnvioProposta();
+      }
+    } else {
+      confirmacao({
+        content:
+          formacaoHomologada === FormacaoHomologada.Sim &&
+          formInitialValues.situacao !== SituacaoProposta.Aprovada
+            ? APOS_ENVIAR_PROPOSTA_ANALISE
+            : APOS_ENVIAR_PROPOSTA_PUBLICAR,
+        onOk() {
+          finalizarEnvioProposta();
+        },
+      });
+    }
   };
 
   const validarAntesEnviarProposta = () => {
@@ -693,15 +900,36 @@ export const FormCadastroDePropostas: React.FC = () => {
       confirmacao({
         content: DESEJA_SALVAR_PROPOSTA_ANTES_DE_ENVIAR,
         onOk() {
-          salvarProposta(false);
+          salvarProposta(true);
         },
         onCancel() {
-          enviarProposta();
+          if (ehPerfilAdminDf) {
+            form.resetFields();
+          } else {
+            enviarProposta();
+          }
         },
       });
     } else {
       enviarProposta();
     }
+  };
+
+  const finalizarParecer = () => {
+    confirmacao({
+      content: DESEJA_ENVIAR_PARECER,
+      onOk() {
+        enviarParecer(id).then((response) => {
+          if (response.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: PROPOSTA_ENVIADA,
+            });
+            carregarDados();
+          }
+        });
+      },
+    });
   };
 
   return (
@@ -734,8 +962,9 @@ export const FormCadastroDePropostas: React.FC = () => {
                     }}
                     id={CF_BUTTON_VOLTAR}
                   />
-                </Col>{' '}
-                {id ? (
+                </Col>
+
+                {!!id && (
                   <Col>
                     <ButtonExcluir
                       id={CF_BUTTON_EXCLUIR}
@@ -743,9 +972,13 @@ export const FormCadastroDePropostas: React.FC = () => {
                       disabled={!permissao.podeExcluir}
                     />
                   </Col>
-                ) : (
-                  <></>
                 )}
+                {podeImprimir && (
+                  <Col>
+                    <ModalImprimirButton propostaId={id} disabled={false} />
+                  </Col>
+                )}
+
                 <Col>
                   <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
                     {() => (
@@ -754,7 +987,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                         type='default'
                         id={CF_BUTTON_CANCELAR}
                         onClick={() => onClickCancelar({ form })}
-                        style={{ fontWeight: 700 }}
+                        style={stylesButtons}
                         disabled={!form.isFieldsTouched()}
                       >
                         Cancelar
@@ -762,23 +995,25 @@ export const FormCadastroDePropostas: React.FC = () => {
                     )}
                   </Form.Item>
                 </Col>
+
                 <Col>
                   <Button
                     block
                     onClick={passoAnterior}
                     id={CF_BUTTON_STEP_ANTERIOR}
-                    style={{ fontWeight: 700 }}
+                    style={stylesButtons}
                     disabled={currentStep < StepPropostaEnum.Detalhamento}
                   >
                     Passo anterior
                   </Button>
                 </Col>
+
                 <Col>
                   <Button
                     block
                     onClick={proximoPasso}
                     id={CF_BUTTON_PROXIMO_STEP}
-                    style={{ fontWeight: 700 }}
+                    style={stylesButtons}
                     disabled={
                       (!form.isFieldsTouched() && !(parseInt(id.toString()) > 0)) ||
                       currentStep >= StepPropostaEnum.Certificacao
@@ -787,6 +1022,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     Próximo passo
                   </Button>
                 </Col>
+
                 {exibirBotaoRascunho && (
                   <Col>
                     <Button
@@ -795,75 +1031,153 @@ export const FormCadastroDePropostas: React.FC = () => {
                       id={CF_BUTTON_SALVAR_RASCUNHO}
                       onClick={() => salvar(false)}
                       disabled={desabilitarCampos}
-                      style={{ fontWeight: 700 }}
+                      style={stylesButtons}
                     >
                       Salvar rascunho
                     </Button>
                   </Col>
                 )}
-                {exibirBotaoSalvar && (
+
+                {exibirBotaoDevolver && (
+                  <Col>
+                    <ModalDevolverButton propostaId={id} disabled={desabilitarBotaoDevolver} />
+                  </Col>
+                )}
+
+                {exibirBotaoEnviarConsideracoes && (
                   <Col>
                     <Button
                       block
                       type='primary'
                       id={CF_BUTTON_CADASTRAR_PROPOSTA}
-                      disabled={desabilitarCampos}
-                      onClick={() => {
-                        const publicosAlvosNumeros: number[] = form.getFieldValue('publicosAlvo');
-                        const funcoesEspecificasNumeros: number[] =
-                          form.getFieldValue('funcoesEspecificas');
-                        const modalidade = form.getFieldValue('modalidade');
-                        const anosTurmas: number[] = form.getFieldValue('anosTurmas');
-                        const componentesCurriculares: number[] =
-                          form.getFieldValue('componentesCurriculares');
-
-                        if (
-                          publicosAlvosNumeros.length == 0 &&
-                          funcoesEspecificasNumeros.length == 0
-                        ) {
-                          if (
-                            modalidade == undefined ||
-                            anosTurmas.length == 0 ||
-                            componentesCurriculares.length == 0
-                          ) {
-                            setListaErros([
-                              'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
-                            ]);
-                            showModalErros();
-                            return;
-                          }
-                        }
-                        const enviarProposta =
-                          formInitialValues?.situacao !== SituacaoProposta.Publicada &&
-                          formInitialValues?.situacao !== SituacaoProposta.Alterando;
-                        salvarProposta(enviarProposta);
-                      }}
-                      style={{ fontWeight: 700 }}
+                      disabled={!exibirBotaoEnviarConsideracoes}
+                      onClick={finalizarParecer}
+                      style={stylesButtons}
                     >
-                      Salvar
+                      Enviar Parecer
                     </Button>
                   </Col>
                 )}
-                {formInitialValues?.situacao === SituacaoProposta.Cadastrada &&
-                  currentStep === StepPropostaEnum.Certificacao && (
-                    <Col>
-                      <Button
-                        block
-                        type='primary'
-                        onClick={validarAntesEnviarProposta}
-                        style={{ fontWeight: 700 }}
-                        disabled={desabilitarCampos}
-                        id={CF_BUTTON_ENVIAR_PROPOSTA}
-                      >
-                        Enviar
-                      </Button>
-                    </Col>
-                  )}
+
+                {exibirBotaoSalvar && (
+                  <Col>
+                    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+                      {() => (
+                        <Button
+                          block
+                          type='primary'
+                          id={CF_BUTTON_CADASTRAR_PROPOSTA}
+                          onClick={() => {
+                            const publicosAlvosNumeros: number[] =
+                              form.getFieldValue('publicosAlvo');
+                            const funcoesEspecificasNumeros: number[] =
+                              form.getFieldValue('funcoesEspecificas');
+                            const modalidade = form.getFieldValue('modalidade');
+                            const anosTurmas: number[] = form.getFieldValue('anosTurmas');
+                            const componentesCurriculares: number[] =
+                              form.getFieldValue('componentesCurriculares');
+
+                            if (
+                              publicosAlvosNumeros.length == 0 &&
+                              funcoesEspecificasNumeros.length == 0
+                            ) {
+                              if (
+                                modalidade == undefined ||
+                                anosTurmas.length == 0 ||
+                                componentesCurriculares.length == 0
+                              ) {
+                                setListaErros([
+                                  'É necessário informar o público alvo ou função especifica ou Modalidade com Ano/Etapa com Componente Curricular',
+                                ]);
+                                showModalErros();
+                                return;
+                              }
+                            }
+                            const enviarProposta =
+                              formInitialValues?.situacao !== SituacaoProposta.Publicada &&
+                              formInitialValues?.situacao !== SituacaoProposta.Alterando;
+                            salvarProposta(enviarProposta);
+                          }}
+                          style={stylesButtons}
+                        >
+                          Salvar
+                        </Button>
+                      )}
+                    </Form.Item>
+                  </Col>
+                )}
+
+                {exibirBotaoEnviar && (
+                  <Col>
+                    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+                      {() => (
+                        <Button
+                          block
+                          type='primary'
+                          style={stylesButtons}
+                          id={CF_BUTTON_ENVIAR_PROPOSTA}
+                          onClick={validarAntesEnviarProposta}
+                          disabled={desabilitarBotaoEnviar()}
+                        >
+                          Enviar
+                        </Button>
+                      )}
+                    </Form.Item>
+                  </Col>
+                )}
+
+                {exibirBotoesAprovarRecusar && (
+                  <Col>
+                    <ModalAprovarRecusarButton
+                      propostaId={id}
+                      disabled={false}
+                      formInitialValues={formInitialValues}
+                      carregarDados={carregarDados}
+                    />
+                  </Col>
+                )}
               </Row>
             </Col>
           </HeaderPage>
-
           <CardInformacoesCadastrante setTipoInstituicao={setTipoInstituicao} />
+
+          {exibirCard && (
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <CardContent>
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} sm={12} md={14} lg={12}>
+                    <SelectResponsavelDf
+                      selectProps={{ disabled: !podeEditarRfResponsavelDfEPareceristas }}
+                    />
+                  </Col>
+                  <Col xs={24} sm={12} md={14} lg={12}>
+                    <SelectPareceristas
+                      selectProps={{
+                        disabled: !podeEditarRfResponsavelDfEPareceristas,
+                        maxCount: formInitialValues.qtdeLimitePareceristaProposta,
+                      }}
+                    />
+                  </Col>
+                  {exibirInputNumeroHomologacao && (
+                    <Col xs={24} sm={12} md={14} lg={12}>
+                      <InputNumero
+                        formItemProps={{
+                          name: 'numeroHomologacao',
+                          label: 'Número de homologação',
+                        }}
+                        inputProps={{
+                          maxLength: 15,
+                          id: CF_INPUT_NUMERO_HOMOLOGACAO,
+                          placeholder: 'Número de homologação',
+                          disabled: !podeEditarNumeroHomologacao,
+                        }}
+                      />
+                    </Col>
+                  )}
+                </Row>
+              </CardContent>
+            </Col>
+          )}
 
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
@@ -873,6 +1187,45 @@ export const FormCadastroDePropostas: React.FC = () => {
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
+
+          {exibirJustificativaDevolucao && (
+            <Col span={24} style={{ marginTop: 16 }}>
+              <CardContent>
+                <Row>
+                  <Col xs={24} sm={12} md={14} lg={24}>
+                    <AreaTexto
+                      formItemProps={{
+                        label: 'Justificativa da devolução:',
+                      }}
+                      textAreaProps={{
+                        disabled: true,
+                        value: formInitialValues?.ultimaJustificativaDevolucao,
+                      }}
+                    />
+                  </Col>
+                </Row>
+              </CardContent>
+            </Col>
+          )}
+
+          {exibirJustificativaAprovacaoRecusa && (
+            <Col span={24} style={{ marginTop: 16 }}>
+              <CardContent>
+                <Col xs={24}>
+                  <AreaTexto
+                    formItemProps={{
+                      label: 'Justificativas de aprovacao/recusa:',
+                    }}
+                    textAreaProps={{
+                      rows: 5,
+                      disabled: true,
+                      value: formInitialValues?.ultimaJustificativaAprovacaoRecusa,
+                    }}
+                  />
+                </Col>
+              </CardContent>
+            </Col>
+          )}
         </Form>
         {openModalErros && (
           <ModalErroProposta closeModal={() => setOpenModalErros(false)} erros={listaErros} />

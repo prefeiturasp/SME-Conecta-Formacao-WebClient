@@ -6,4 +6,5 @@ export enum MenuEnum {
   CadastroProposta,
   Formacoes,
   Inscricoes,
+  RedeParceria,
 }

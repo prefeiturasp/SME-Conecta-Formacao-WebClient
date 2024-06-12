@@ -14,7 +14,10 @@ import FormCadastrosAreaPromotora from '~/pages/cadastros/area-promotora/form';
 import ListAreaPromotora from '~/pages/cadastros/area-promotora/list';
 import { CadastroDeUsuario } from '~/pages/cadastros/novo-usuario';
 import { FormCadastroDePropostas } from '~/pages/cadastros/propostas/form';
+import { PropostaContextProvider } from '~/pages/cadastros/propostas/form/provider';
 import ListCadastroDePropostas from '~/pages/cadastros/propostas/list';
+import { UsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria';
+import { FormUsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria/form-usuario';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
@@ -24,6 +27,8 @@ import Home from '~/pages/home';
 import Inicial from '~/pages/inicial';
 import Login from '~/pages/login';
 import LoginAutomatico from '~/pages/login-automatico';
+import { Notificacoes } from '~/pages/notificacoes';
+import { NotificacoesDetalhes } from '~/pages/notificacoes/components/detalhes/detalhes';
 import { MeusDadosProvider } from '~/pages/meus-dados';
 import Principal from '~/pages/principal/index';
 import RedefinirSenha from '~/pages/redefinir-senha';
@@ -66,7 +71,7 @@ const RoutesConfig = () => {
           <Route path={ROUTES.AREA_PUBLICA_VISUALIZAR_FORMACAO} element={visualizarAreaPublica} />
         </Route>
         <Route element={homePage}>
-              <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
+          <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
         </Route>
         {autenticado ? (
           <>
@@ -78,6 +83,8 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={<MeusDadosProvider />} />
                 <Route path={ROUTES.INSCRICAO} element={<Inscricao />} />
+                <Route path={ROUTES.NOTIFICACOES} element={<Notificacoes />} />
+                <Route path={ROUTES.NOTIFICACOES_DETALHES} element={<NotificacoesDetalhes />} />
 
                 <Route path={ROUTES.AREA_PROMOTORA}>
                   <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
@@ -97,6 +104,24 @@ const RoutesConfig = () => {
                   </Route>
                 </Route>
 
+                <Route path={ROUTES.USUARIO_REDE_PARCERIA}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route path='' element={<UsuarioRedeParceria />} />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route
+                      path={ROUTES.USUARIO_REDE_PARCERIA_NOVO}
+                      element={<FormUsuarioRedeParceria />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                    <Route
+                      path={ROUTES.USUARIO_REDE_PARCERIA_EDITAR}
+                      element={<FormUsuarioRedeParceria />}
+                    />
+                  </Route>
+                </Route>
+
                 <Route path={ROUTES.CADASTRO_DE_PROPOSTAS}>
                   <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
                     <Route path='' element={<ListCadastroDePropostas />} />
@@ -104,13 +129,21 @@ const RoutesConfig = () => {
                   <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
                     <Route
                       path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
-                      element={<FormCadastroDePropostas />}
+                      element={
+                        <PropostaContextProvider>
+                          <FormCadastroDePropostas />
+                        </PropostaContextProvider>
+                      }
                     />
                   </Route>
                   <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
                     <Route
                       path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
-                      element={<FormCadastroDePropostas />}
+                      element={
+                        <PropostaContextProvider>
+                          <FormCadastroDePropostas />
+                        </PropostaContextProvider>
+                      }
                     />
                   </Route>
                 </Route>

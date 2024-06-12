@@ -8,15 +8,16 @@ import axios, {
 
 import { dayjs } from '~/core/date/dayjs';
 
-import { setDeslogar } from '~/core/redux/modules/auth/actions';
+import { setDadosLogin, setDeslogar } from '~/core/redux/modules/auth/actions';
 
 import queryString from 'query-string';
 import { openNotificationErrors } from '~/components/lib/notification';
+import { SERVICO_INDISPONIVEL } from '~/core/constants/mensagens';
 import { RetornoBaseDTO } from '~/core/dto/retorno-base-dto';
+import { RetornoPerfilUsuarioDTO } from '~/core/dto/retorno-perfil-usuario-dto';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
 import { store } from '../../redux';
 import autenticacaoService, { URL_AUTENTICACAO_REVALIDAR } from '../autenticacao-service';
-import { SERVICO_INDISPONIVEL } from '~/core/constants/mensagens';
 
 const config: AxiosRequestConfig = {
   baseURL: import.meta.env.VITE_SME_CF_API,
@@ -49,10 +50,9 @@ const revalidarAutenticacao = async (tokenAntigo: string) => {
       });
   }
 
-  return refreshTokenPromise.then((dadosRefresh: any) => {
+  return refreshTokenPromise.then((dadosRefresh: RetornoPerfilUsuarioDTO) => {
     if (dadosRefresh?.token) {
-      // TODO Refresh Token ainda não foi criado
-      // store.dispatch(setDadosRevalidarLogin(dadosRefresh));
+      store.dispatch(setDadosLogin(dadosRefresh));
     } else {
       deslogarDoSistema();
     }
@@ -68,7 +68,7 @@ const configPadraoAutenticacao = async (
 ) => {
   const now = dayjs();
 
-  const diff = now.diff(dayjs(dataHoraExpiracao), 'seconds');
+  const qtdSegundosExpirados = now.diff(dayjs(dataHoraExpiracao), 'seconds');
 
   if (requestConfig.headers) {
     if (token) requestConfig.headers.Authorization = `Bearer ${token}`;
@@ -78,9 +78,10 @@ const configPadraoAutenticacao = async (
     requestConfig?.url !== URL_AUTENTICACAO_REVALIDAR &&
     token &&
     dataHoraExpiracao &&
-    diff >= SEGUNDOS_ANTES_EXPIRAR
+    qtdSegundosExpirados >= SEGUNDOS_ANTES_EXPIRAR
   ) {
     const dadosRevalidacao = await revalidarAutenticacao(token);
+
     if (requestConfig.headers && dadosRevalidacao?.token) {
       requestConfig.headers.Authorization = `Bearer ${dadosRevalidacao.token}`;
     } else {
@@ -170,12 +171,23 @@ export const obterRegistro = async <T>(
 
 export const alterarRegistro = async <T>(
   url: string,
-  params?: any,
+  data?: any,
+  axiosRequestConfig?: AxiosRequestConfig,
   mostrarNotificacao = true,
 ): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
-    .put(url, params)
+    .put(url, data, {
+      paramsSerializer: {
+        serialize: (params) => {
+          return queryString.stringify(params, {
+            skipNull: true,
+            skipEmptyString: true,
+          });
+        },
+      },
+      ...axiosRequestConfig,
+    })
     .then((response: AxiosResponse<T>): ApiResult<T> => {
       return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
     })

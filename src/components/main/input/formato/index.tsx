@@ -67,7 +67,7 @@ const SelectFormato: React.FC<SelectFormatoProps> = ({
 
   return (
     <Form.Item
-      label='Formato'
+      label='Modalidade formativa'
       name='formato'
       rules={[{ required: required, message: FORMATO_NAO_INFORMADO }]}
       tooltip={{
@@ -77,7 +77,7 @@ const SelectFormato: React.FC<SelectFormatoProps> = ({
       }}
       {...formItemProps}
     >
-      <Select {...selectProps} options={options} placeholder='Formato' id={CF_SELECT_FORMATO} />
+      <Select {...selectProps} options={options} placeholder='Modalidade formativa' id={CF_SELECT_FORMATO} />
     </Form.Item>
   );
 };

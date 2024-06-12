@@ -165,7 +165,7 @@ const ListCadastroDePropostas: React.FC = () => {
     const valoreIniciais: PropostaFormListDTO = {
       areaPromotora: 0,
       codigoFormacao: 0,
-      formacaoHomologada: FormacaoHomologada.Nao,
+      formacaoHomologada: FormacaoHomologada.NaoCursosPorIN,
       nomeFormacao: '',
       pubicoAlvo: [],
     };

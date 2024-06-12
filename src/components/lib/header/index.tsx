@@ -9,8 +9,10 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 import { store } from '~/core/redux';
 import { setDeslogar } from '~/core/redux/modules/auth/actions';
 import { BoxShadow, Colors } from '~/core/styles/colors';
+import NotificacoesContextProvider from '~/pages/notificacoes/provider';
 import DropdownPerfil from '../dropdown-perfil';
 import ExitButton from '../exit-button';
+import NotificationButton from '../notification-button';
 
 const contentStyle: React.CSSProperties = {
   position: 'sticky',
@@ -78,6 +80,13 @@ const Header: React.FC = () => {
         {autenticado && (
           <Space>
             <DropdownPerfil />
+            <NotificacoesContextProvider>
+              <NotificationButton
+                onClick={() => {
+                  navigate(ROUTES.NOTIFICACOES);
+                }}
+              />
+            </NotificacoesContextProvider>
             <ExitButton
               onClick={() => {
                 store.dispatch(setDeslogar());

@@ -1,5 +1,6 @@
 import { Form, FormItemProps, Input, InputProps } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { EMAIL_NAO_INFORMADO } from '~/core/constants/mensagens';
 
 type InputEmailProps = {
   inputProps?: InputProps;
@@ -40,14 +41,15 @@ const InputEmail: React.FC<InputEmailProps> = ({ inputProps, formItemProps }) =>
     ]);
   };
   useEffect(() => {
-    setExibirErro(!!formItemProps?.required);
+    setExibirErro(!formItemProps?.required);
   }, [formItemProps?.required]);
+
   return (
     <Form.Item
       label='E-mail'
       name='email'
       rules={[
-        { required: !!formItemProps?.required },
+        { required: !!formItemProps?.required, message: EMAIL_NAO_INFORMADO },
         { message: exibirErro ? 'Não é um e-mail válido' : '' },
       ]}
       {...formItemProps}

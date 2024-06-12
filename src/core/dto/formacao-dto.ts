@@ -13,4 +13,5 @@ export type FormacaoDTO = {
   formatoDescricao?: string;
   inscricaoEncerrada?: boolean;
   imagemUrl?: string;
+  linkParaInscricoesExterna?:string;
 };
