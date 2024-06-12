@@ -127,6 +127,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const ehPerfilAdminDf =
     perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
+
   const ehPerfilDf = perfilSelecionado?.perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
 
   const showModalErros = () => setOpenModalErros(true);
@@ -152,8 +153,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const situacaoAguardandoAnaliseDf =
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf;
 
-  const ehAdminDfESituacaoAguardandoAnalisePeloParecerista =
-    ehPerfilAdminDf &&
+  const ehAdminDfESituacaoAguardandoAnalisePeloParecerista = ehPerfilAdminDf &&
     formInitialValues.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista;
 
   const ehFomacaoHomologada = formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
@@ -856,26 +856,27 @@ export const FormCadastroDePropostas: React.FC = () => {
         });
 
     if (ehPerfilAdminDf) {
-      const mostrarConfirmacao = () => {
-        confirmacao({
-          content:
-            formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF
-              ? DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA
-              : DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA,
-          onOk() {
-            finalizarEnvioProposta();
-          },
-        });
-      };
-      // TODO: será criado um campo na tabela do back para controlar a proposta em edicao
-      if (formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseDf) {
+      const salvarComConfirmacao = async (mensagemConfirmacao: string) => {
         await salvar(false).then((resposta) => {
           if (resposta.sucesso) {
-            mostrarConfirmacao();
+            confirmacao({
+              content:
+                mensagemConfirmacao,
+              onOk() {
+                finalizarEnvioProposta();
+              }
+            })
           }
         });
+      };
+
+      // TODO: será criado um campo na tabela do back para controlar a proposta em edicao
+      if (formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseDf) {
+        await salvarComConfirmacao(DESEJA_ENVIAR_PROPOSTA_PRO_PARECERISTA);
+      } else if (formInitialValues.situacao === SituacaoProposta.AguardandoAnaliseParecerPelaDF) {
+        await salvarComConfirmacao(DESEJA_ENVIAR_PROPOSTA_PRA_AREA_PROMOTORA);
       } else {
-        mostrarConfirmacao();
+        finalizarEnvioProposta();
       }
     } else {
       confirmacao({
