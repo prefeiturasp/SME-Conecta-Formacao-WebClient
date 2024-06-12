@@ -207,7 +207,8 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirCard = ehFomacaoHomologada && (podeExibirCard || exibirInputNumeroHomologacao);
 
   const podeImprimir =
-    formInitialValues?.situacao === SituacaoProposta.Publicada && ehFomacaoHomologada;
+    ((formInitialValues?.situacao === SituacaoProposta.Publicada) || (formInitialValues?.situacao === SituacaoProposta.Aprovada)) &&
+    ehFomacaoHomologada;
 
   const stepsProposta: StepProps[] = [
     {
