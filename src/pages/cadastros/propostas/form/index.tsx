@@ -210,6 +210,8 @@ export const FormCadastroDePropostas: React.FC = () => {
     ((formInitialValues?.situacao === SituacaoProposta.Publicada) || (formInitialValues?.situacao === SituacaoProposta.Aprovada)) &&
     ehFomacaoHomologada;
 
+  const podeEditarNumeroHomologacao = id && ehFomacaoHomologada && formInitialValues?.situacao === SituacaoProposta.Aprovada;
+
   const stepsProposta: StepProps[] = [
     {
       title: STEP_PROPOSTA.INFORMACOES_GERAIS.TITULO,
@@ -1167,6 +1169,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                           maxLength: 15,
                           id: CF_INPUT_NUMERO_HOMOLOGACAO,
                           placeholder: 'Número de homologação',
+                          disabled: !podeEditarNumeroHomologacao,
                         }}
                       />
                     </Col>
