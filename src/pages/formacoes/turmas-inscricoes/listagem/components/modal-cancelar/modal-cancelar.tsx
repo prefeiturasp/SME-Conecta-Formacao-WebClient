@@ -73,7 +73,7 @@ export const ModalCancelarInscricao: React.FC<ModalCancelarInscricaoProps> = ({
             formItemProps={{
               label: 'Informar motivo',
               name: 'motivo',
-              rules: [{ required: true, message: MOTIVO_NAO_INFORMADO }],
+              rules: [{ required: false, message: MOTIVO_NAO_INFORMADO }],
             }}
           />
         </FormDefault>

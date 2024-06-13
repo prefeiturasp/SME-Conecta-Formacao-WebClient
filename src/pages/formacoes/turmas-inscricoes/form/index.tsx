@@ -71,9 +71,10 @@ export const FormCadastrosInscricoesManuais: React.FC = () => {
       const cargoSelecionado: any = optionsCargo.find(
         (item) => item?.value === params?.usuarioCargoSelecionado,
       );
-      newParams.cargoCodigo = params?.usuarioCargoSelecionado;
+      newParams.cargoCodigo = cargoSelecionado?.codigo;
       newParams.cargoDreCodigo = cargoSelecionado?.dreCodigo;
       newParams.cargoUeCodigo = cargoSelecionado?.ueCodigo;
+      newParams.tipoVinculo = cargoSelecionado?.tipoVinculo;
     }
 
     if (params?.usuarioFuncaoSelecionado) {

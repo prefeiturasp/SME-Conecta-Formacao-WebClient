@@ -46,8 +46,9 @@ const progressColor: ProgressProps['strokeColor'] = {
 const CustomTypography = (value: string, linha: ArquivoInscricaoImportadoDTO) => {
   const statusEhValidado = linha.situacao === SituacaoImportacaoArquivoEnum.Validado;
   const statusEhCancelado = linha.situacao === SituacaoImportacaoArquivoEnum.Cancelado;
+  const statusEhProcessado = linha.situacao === SituacaoImportacaoArquivoEnum.Processado;
   return (
-    <Typography style={{ cursor: statusEhValidado || statusEhCancelado ? 'pointer' : 'default' }}>
+    <Typography style={{ cursor: statusEhValidado || statusEhCancelado || statusEhProcessado ? 'pointer' : 'default' }}>
       {value}
     </Typography>
   );
@@ -83,6 +84,7 @@ const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
       const statusEhValidado = linha.situacao === SituacaoImportacaoArquivoEnum.Validado;
       const statusEhValidando = linha.situacao === SituacaoImportacaoArquivoEnum.Validando;
       const statusEhCancelado = linha.situacao === SituacaoImportacaoArquivoEnum.Cancelado;
+      const statusEhProcessado = linha.situacao === SituacaoImportacaoArquivoEnum.Processado;
 
       if (statusEhValidando) {
         status = 'active';
@@ -90,6 +92,10 @@ const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
 
       if (statusEhCancelado) {
         status = 'exception';
+      }
+
+      if (statusEhProcessado) {
+        status = 'success';
       }
 
       if (linha.totalProcessados === 100) {
@@ -102,7 +108,7 @@ const columns: ColumnsType<ArquivoInscricaoImportadoDTO> = [
           status={status}
           percent={percent}
           strokeColor={progressColor}
-          style={{ cursor: statusEhValidado || statusEhCancelado ? 'pointer' : 'default' }}
+          style={{ cursor: statusEhValidado || statusEhCancelado || statusEhProcessado ? 'pointer' : 'default' }}
         />
       );
     },
@@ -134,7 +140,8 @@ export const InscricoesPorArquivoListagem = forwardRef(() => {
   const onClickEditar = async (linha: ArquivoInscricaoImportadoDTO) => {
     if (
       linha.situacao !== SituacaoImportacaoArquivoEnum.Validado &&
-      linha.situacao !== SituacaoImportacaoArquivoEnum.Cancelado
+      linha.situacao !== SituacaoImportacaoArquivoEnum.Cancelado &&
+      linha.situacao !== SituacaoImportacaoArquivoEnum.Processado
     )
       return;
 
