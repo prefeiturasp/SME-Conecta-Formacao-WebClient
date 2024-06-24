@@ -29,7 +29,7 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 import {
-  FORMALIZAR_PROPOSTA,
+  APOS_ENVIAR_PROPOSTA_ANALISE,
   APOS_ENVIAR_PROPOSTA_PUBLICAR,
   DESEJA_ENVIAR_PARECER,
   DESEJA_ENVIAR_PROPOSTA,
@@ -887,7 +887,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         content:
           formacaoHomologada === FormacaoHomologada.Sim &&
           formInitialValues.situacao !== SituacaoProposta.Aprovada
-            ? FORMALIZAR_PROPOSTA
+            ? APOS_ENVIAR_PROPOSTA_ANALISE
             : APOS_ENVIAR_PROPOSTA_PUBLICAR,
         onOk() {
           finalizarEnvioProposta();

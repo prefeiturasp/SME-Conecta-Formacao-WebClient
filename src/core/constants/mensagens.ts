@@ -28,8 +28,8 @@ export const PROPOSTA_ENVIADA = 'Proposta enviada com sucesso';
 export const ERRO_CAMPOS_OBRIGATORIOS = 'Existem campos obrigatórios não preenchidos';
 export const APOS_ENVIAR_PROPOSTA_PUBLICAR =
   'Após enviar, a proposta será publicada e poderá ser apresentada na área pública. Tem certeza que deseja enviar a proposta?';
-export const FORMALIZAR_PROPOSTA =
-  'A proposta será enviada para ser formalizada e não poderá ser feita alterações pela área promotora. Tem certeza que deseja enviar a proposta?';
+export const APOS_ENVIAR_PROPOSTA_ANALISE =
+  'A proposta será enviada para análise e não poderá ser feita alterações pela área promotora. Tem certeza que deseja enviar a proposta?';
 export const MODALIDADE_NAO_INFORMADA = 'É necessário informar a etapa/modalidade';
 export const FORMATO_NAO_INFORMADO = 'É necessário informar o formato';
 export const FORMACAO_HOMOLOGADA_NAO_INFORMADA =
