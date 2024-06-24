@@ -29,7 +29,7 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NUMERO_HOMOLOGACAO } from '~/core/constants/ids/input';
 import {
-  APOS_ENVIAR_PROPOSTA_ANALISE,
+  FORMALIZAR_PROPOSTA,
   APOS_ENVIAR_PROPOSTA_PUBLICAR,
   DESEJA_ENVIAR_PARECER,
   DESEJA_ENVIAR_PROPOSTA,
@@ -234,12 +234,13 @@ export const FormCadastroDePropostas: React.FC = () => {
     if (formInitialValues?.situacao) {
       const desabilitarTodosFormularios =
         desabilitarCampos ||
-        (formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
+        (!ehPerfilAdminDf &&
+          formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
           formInitialValues?.situacao !== SituacaoProposta.Cadastrada &&
           formInitialValues?.situacao !== SituacaoProposta.Publicada &&
           formInitialValues?.situacao !== SituacaoProposta.Alterando &&
           !(
-            ((ehPerfilDf || ehPerfilAdminDf) && situacaoAguardandoAnaliseDf) ||
+            (ehPerfilDf && situacaoAguardandoAnaliseDf) ||
             formInitialValues?.situacao === SituacaoProposta.Aprovada
           ) &&
           !(
@@ -886,7 +887,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         content:
           formacaoHomologada === FormacaoHomologada.Sim &&
           formInitialValues.situacao !== SituacaoProposta.Aprovada
-            ? APOS_ENVIAR_PROPOSTA_ANALISE
+            ? FORMALIZAR_PROPOSTA
             : APOS_ENVIAR_PROPOSTA_PUBLICAR,
         onOk() {
           finalizarEnvioProposta();
