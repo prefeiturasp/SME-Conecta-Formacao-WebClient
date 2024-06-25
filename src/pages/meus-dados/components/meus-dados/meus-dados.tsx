@@ -24,7 +24,6 @@ import { TipoUsuario } from '~/core/enum/tipo-usuario';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { onClickVoltar } from '~/core/utils/form';
 import { MeusDadosContext } from '../../provider';
-import ModalEditEmailEducacionalButton from '../modal-edit-email-educacional/modal-edit-email-educacional-button';
 import ModalEditEmailButton from '../modal-edit-email/modal-edit-email-button';
 import { ModalEditNomeButton } from '../modal-edit-nome/modal-edit-nome-button';
 import ModalEditNovaSenhaButton from '../modal-edit-nova-senha/modal-edit-nova-senha-button';
@@ -132,7 +131,6 @@ const MeusDados: React.FC = () => {
                         required: false,
                       }}
                     />
-                    <ModalEditEmailEducacionalButton formPreview={form} />
                   </Row>
                 </Col>
                 {meusDados?.tipo == TipoUsuario.Externo ? (
