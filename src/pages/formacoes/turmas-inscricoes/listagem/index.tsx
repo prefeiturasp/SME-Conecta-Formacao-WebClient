@@ -45,6 +45,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
 
   const columns: ColumnsType<DadosListagemInscricaoDTO> = [
     { title: 'Turma', dataIndex: 'nomeTurma' },
+    { title: 'Data/hora da inscrição', dataIndex: 'dataInscricao' },
     { title: 'RF', dataIndex: 'registroFuncional' },
     { title: 'CPF', dataIndex: 'cpf' },
     { title: 'Nome do cursista', dataIndex: 'nomeCursista' },

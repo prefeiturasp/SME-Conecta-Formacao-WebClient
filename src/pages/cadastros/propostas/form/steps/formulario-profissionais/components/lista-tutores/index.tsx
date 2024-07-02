@@ -13,7 +13,7 @@ import DataTableProfissionalTutor from '~/components/lib/card-table-profissional
 const columns: ColumnsType<PropostaTutorDTO> = [
   { title: 'RF', dataIndex: 'registroFuncional' },
   { title: 'CPF', dataIndex: 'cpf' },
-  { title: 'Tutor', dataIndex: 'nomeTutor' },
+  { title: 'Mediador', dataIndex: 'nomeTutor' },
   { title: 'Turmas', dataIndex: 'nomesTurmas' },
 ];
 
@@ -66,7 +66,7 @@ const ListaTutores: React.FC<ListaTutoresProps> = ({ recarregarTurmas }) => {
           <Col xs={24}>
             <Row wrap={false} justify='space-between'>
               <Col>
-                <TituloSecao>Tutores</TituloSecao>
+                <TituloSecao>Mediadores</TituloSecao>
               </Col>
               <Col>
                 <Button
@@ -75,14 +75,14 @@ const ListaTutores: React.FC<ListaTutoresProps> = ({ recarregarTurmas }) => {
                   onClick={abrirModal}
                   disabled={desabilitarCampos}
                 >
-                  Adicionar tutores
+                  Adicionar mediadores
                 </Button>
               </Col>
             </Row>
           </Col>
 
           <Col xs={24} sm={14} md={24}>
-            <TituloListaPaginada>Lista de tutores</TituloListaPaginada>
+            <TituloListaPaginada>Lista de mediadores</TituloListaPaginada>
           </Col>
 
           <Col span={24}>
