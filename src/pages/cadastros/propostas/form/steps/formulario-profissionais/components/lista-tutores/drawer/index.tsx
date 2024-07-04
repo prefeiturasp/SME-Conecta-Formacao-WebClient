@@ -124,7 +124,7 @@ const DrawerTutor: React.FC<DrawerTutorProps> = ({ openModal, onCloseModal, id =
           disabled={desabilitarCampos}
         >
           <Drawer
-            title='Tutor'
+            title='Mediador'
             size='large'
             onClose={() => fecharModal()}
             open

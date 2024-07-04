@@ -50,8 +50,9 @@ export const MinhasInscricoesListaPaginada = () => {
   };
 
   const columns: ColumnsType<InscricaoProps> = [
-    { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '6%' },
+    { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '7%' },
     { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '30%' },
+    { title: 'Data/hora da inscrição', dataIndex: 'dataInscricao', width: '8%' },
     { title: 'Turma', dataIndex: 'nomeTurma', width: '12%' },
     { title: 'Datas', dataIndex: 'datas', width: '10%' },
     {
@@ -73,8 +74,8 @@ export const MinhasInscricoesListaPaginada = () => {
         );
       },
     },
-    { title: 'Origem', dataIndex: 'origem', width: '10%' },
-    { title: 'Situação', dataIndex: 'situacao', width: '10%' },
+    { title: 'Origem', dataIndex: 'origem', width: '8%' },
+    { title: 'Situação', dataIndex: 'situacao', width: '8%' },
     {
       title: 'Ações',
       dataIndex: 'podeCancelar',
