@@ -66,6 +66,9 @@ const colocarEmEsperaInscricao = (ids: number[]) =>
 const confirmarInscricao = (ids: number[]) =>
   alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/confirmar`, null, { params: { ids } });
 
+const reativarInscricao = (ids: number[]) =>
+  alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/reativar`, null, { params: { ids } });
+
 const cancelarInscricoes = (ids: number[], motivo: InscricaoMotivoCancelamentoDTO) =>
   alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/cancelar`, motivo, {
     params: { ids },
@@ -90,4 +93,5 @@ export {
   obterTiposInscricao,
   obterTurmasInscricao,
   sortearInscricao,
+  reativarInscricao,
 };
