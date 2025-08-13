@@ -131,6 +131,7 @@ export const USUARIO_REDE_PARCERIA_EDITAR = 'Tem certeza de que deseja salvar as
 export const USUARIO_REDE_PARCERIA_EXCLUIR = 'Tem certeza de que deseja excluir este usuário?';
 export const DESEJA_COLOCAR_INSCRICAO_EM_ESPERA = 'Tem certeza de que deseja colocar em espera?';
 export const DESEJA_CONFIRMAR_INSCRICAO = 'Deseja confirmar inscrição?';
+export const DESEJA_REATIVAR_INSCRICAO = 'Deseja reativar inscrição?';
 export const MOTIVO_NAO_INFORMADO = 'É necessário informar o motivo';
 export const INSCRICAO_CONFIRMADA_SUCESSO = 'Inscrição confirmada!';
 export const INSCRICAO_COLOCADA_ESPERA_SUCESSO = 'Inscrição colocada em espera!';

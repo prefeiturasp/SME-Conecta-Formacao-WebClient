@@ -55,7 +55,7 @@ export const TurmasInscricoesListaPaginada: React.FC<TurmasInscricoesListaPagina
     {
       title: 'Ações',
       align: 'center',
-      width: '165px',
+      width: '200px',
       render: (_, record) => <BtbAcoesListaIncricaoPorTurma record={record} />,
     },
     {

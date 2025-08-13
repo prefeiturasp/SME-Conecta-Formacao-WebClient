@@ -24,11 +24,13 @@ import { TipoUsuario } from '~/core/enum/tipo-usuario';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { onClickVoltar } from '~/core/utils/form';
 import { MeusDadosContext } from '../../provider';
-import ModalEditEmailEducacionalButton from '../modal-edit-email-educacional/modal-edit-email-educacional-button';
 import ModalEditEmailButton from '../modal-edit-email/modal-edit-email-button';
 import { ModalEditNomeButton } from '../modal-edit-nome/modal-edit-nome-button';
 import ModalEditNovaSenhaButton from '../modal-edit-nova-senha/modal-edit-nova-senha-button';
 import ModalEditUnidadeButton from '../modal-edit-unidade/modal-edit-unidade-button';
+import SelectTipoEmail from '~/components/main/input/tipo-email';
+import ModalEditTipoEmailEducacionalButton from '../modal-edit-tipo-email-educacional/modal-edit-tipo-email-educacional-button';
+import { CF_SELECT_TIPO_EMAIL } from '~/core/constants/ids/select';
 
 export const DadosPerfil = styled.div`
   color: #a4a4a4;
@@ -61,7 +63,6 @@ const MeusDados: React.FC = () => {
   const perfilNome = perfil.perfilSelecionado?.perfilNome;
 
   const { meusDados } = useContext(MeusDadosContext);
-
   useEffect(() => {
     form.setFieldsValue({ ...meusDados });
   }, [meusDados]);
@@ -123,6 +124,20 @@ const MeusDados: React.FC = () => {
                 </Col>
                 <Col span={24}>
                   <Row wrap={false} align='middle'>
+                    <SelectTipoEmail 
+                      selectProps={{ id: CF_SELECT_TIPO_EMAIL, disabled: true }}
+                      formItemProps={{
+                        style: { width: '100%', marginRight: '8px' },
+                        required: false,
+                      }}
+                    />
+                    {meusDados?.tipo == TipoUsuario.Externo 
+                      ? (<ModalEditTipoEmailEducacionalButton formPreview={form}/>) 
+                      : (<></>)}
+                  </Row>
+                </Col>
+                <Col span={24}>
+                  <Row wrap={false} align='middle'>
                     <InputEmail
                       inputProps={{ id: CF_INPUT_EMAIL_EDUCACIONAL, disabled: true }}
                       formItemProps={{
@@ -132,7 +147,6 @@ const MeusDados: React.FC = () => {
                         required: false,
                       }}
                     />
-                    <ModalEditEmailEducacionalButton formPreview={form} />
                   </Row>
                 </Col>
                 {meusDados?.tipo == TipoUsuario.Externo ? (
