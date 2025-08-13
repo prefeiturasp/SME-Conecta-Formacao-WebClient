@@ -1,6 +1,6 @@
 import { Col, Row } from 'antd';
 import React, { useContext } from 'react';
-import { FaCheckCircle, FaPauseCircle, FaSync } from 'react-icons/fa';
+import { FaCheckCircle, FaPauseCircle, FaToggleOff, FaToggleOn } from 'react-icons/fa';
 import { IconButtonDataTable } from '~/components/main/button/icon-button-data-table';
 import { DadosListagemInscricaoDTO } from '~/core/dto/dados-listagem-inscricao-dto';
 import { Colors } from '~/core/styles/colors';
@@ -29,6 +29,16 @@ export const BtbAcoesListaIncricaoPorTurma: React.FC<BtbAcoesListaIncricaoPorTur
       <Col>
         <ModalCancelarButton record={[record]} />
       </Col>
+        <Col>
+        <IconButtonDataTable
+          Icon={desabilitarReativar ? FaToggleOff : FaToggleOn }
+          disabled={desabilitarReativar}
+          tooltipTitle='Reativar incrição'
+          onClick={() => onClickReativar([record.inscricaoId])}
+          color={Colors.Components.DataTable.ActionButtons.Primary.WARNING}
+          backgroundColor={Colors.Components.DataTable.ActionButtons.Secondary.WARNING}
+        />
+      </Col>
       <Col>
         <IconButtonDataTable
           Icon={FaPauseCircle}
@@ -49,16 +59,7 @@ export const BtbAcoesListaIncricaoPorTurma: React.FC<BtbAcoesListaIncricaoPorTur
           backgroundColor={Colors.Components.DataTable.ActionButtons.Secondary.SUCCESS}
         />
       </Col>
-      <Col>
-        <IconButtonDataTable
-          Icon={FaSync}
-          disabled={desabilitarReativar}
-          tooltipTitle='Reativar incrição'
-          onClick={() => onClickReativar([record.inscricaoId])}
-          color={Colors.Components.DataTable.ActionButtons.Primary.WARNING}
-          backgroundColor={Colors.Components.DataTable.ActionButtons.Secondary.WARNING}
-        />
-      </Col>
+    
     </Row>
   );
 };
