@@ -36,10 +36,6 @@ function FormTransferir() {
     !idTurmaDestino ||
     selectedCursistas.length === 0;
 
-  console.log(isBotaoDesabilitado);
-
-  console.log(selectedCursistas.length);
-
   useEffect(() => {
     setSelectedCursistas([]);
   }, [idTurmaOrigem, idFormacaoOrigem]);
