@@ -36,9 +36,13 @@ function FormTransferir() {
     !idTurmaDestino ||
     selectedCursistas.length === 0;
 
+  console.log(isBotaoDesabilitado);
+
+  console.log(selectedCursistas.length);
+
   useEffect(() => {
     setSelectedCursistas([]);
-  }, [idTurmaOrigem, idFormacaoOrigem, idFormacaoDestino, idTurmaDestino]);
+  }, [idTurmaOrigem, idFormacaoOrigem]);
 
   const showErrorModal = (titulo: string, cursistas: any[]) => {
     Modal.error({
@@ -266,7 +270,9 @@ function FormTransferir() {
                 placeholder='Selecione'
                 style={{ width: '100%', marginTop: 8 }}
                 value={idTurmaDestino}
-                onChange={(id) => setIdTurmaDestino(id)}
+                onChange={(id) => {
+                  setIdTurmaDestino(id);
+                }}
                 options={turmasDestino.map((t) => ({
                   label: `${t.nomeTurma} - ${t.data}`,
                   value: t.propostaTurmaId,
