@@ -1,12 +1,14 @@
 import { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
-import { Input, Row, Col, Space } from 'antd';
+import { Input, Row, Col, Space, Tooltip, Checkbox } from 'antd';
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import DataTable from '~/components/lib/card-table';
 import {
   useCursistasPorFormacao,
   CursistaInscricaoDTO,
 } from '~/core/hooks/useCursistasPorFormacao';
 import { useDebounce } from '~/core/hooks/useDebounce';
+import { Colors } from '~/core/styles/colors';
 
 type SelecionarCursistasProps = {
   idFormacao: number | null;
@@ -24,6 +26,7 @@ const SelecionarCursistas = ({
   const [cpf, setCpf] = useState<string>();
   const [nomeCursista, setNomeCursista] = useState<string>();
   const [registroFuncional, setRegistroFuncional] = useState<string>();
+  const [mostrarCanceladas, setMostrarCanceladas] = useState(false);
 
   const cpfDebounced = useDebounce(cpf, 500);
   const nomeCursistaDebounced = useDebounce(nomeCursista, 500);
@@ -44,7 +47,9 @@ const SelecionarCursistas = ({
     numeroRegistros: tamanhoPagina,
   });
 
-  const cursistasAtivos = cursistas.filter((c) => c.situacao !== 'Cancelada');
+  const cursistasFiltrados = cursistas.filter(
+    (c) => mostrarCanceladas || (c.situacao !== 'Cancelada' && c.situacao !== 'Transferida'),
+  );
 
   const [selectedRows, setSelectedRows] = useState<CursistaInscricaoDTO[]>([]);
   const selectedRowKeys = selectedRows.map((c) => c.inscricaoId);
@@ -57,6 +62,9 @@ const SelecionarCursistas = ({
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
+    getCheckboxProps: (record: CursistaInscricaoDTO) => ({
+      disabled: record.situacao === 'Cancelada' || record.situacao === 'Transferida',
+    }),
   };
 
   const columns: ColumnsType<CursistaInscricaoDTO> = [
@@ -74,7 +82,7 @@ const SelecionarCursistas = ({
   return (
     <>
       <Space direction='vertical' style={{ width: '100%', marginBottom: 16 }}>
-        <Row gutter={8}>
+        <Row gutter={12}>
           <Col span={6}>
             <Input
               placeholder='Nome do Cursista'
@@ -99,6 +107,28 @@ const SelecionarCursistas = ({
               allowClear
             />
           </Col>
+          <Col span={8} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                cursor: 'pointer',
+                color: Colors.SystemSME.ConectaFormacao.PRIMARY_DARK,
+                userSelect: 'none',
+              }}
+              onClick={() => setMostrarCanceladas(!mostrarCanceladas)}
+            >
+              {mostrarCanceladas ? (
+                <EyeInvisibleOutlined style={{ fontSize: 18 }} />
+              ) : (
+                <EyeOutlined style={{ fontSize: 18 }} />
+              )}
+              {mostrarCanceladas
+                ? 'Ocultar canceladas e transferidas'
+                : 'Mostrar canceladas e transferidas'}
+            </span>
+          </Col>
         </Row>
       </Space>
 
@@ -106,7 +136,7 @@ const SelecionarCursistas = ({
         rowKey='inscricaoId'
         rowSelection={rowSelection}
         columns={columns}
-        dataSource={cursistasAtivos}
+        dataSource={cursistasFiltrados}
         loading={loading}
         pagination={{
           current: paginaAtual,
