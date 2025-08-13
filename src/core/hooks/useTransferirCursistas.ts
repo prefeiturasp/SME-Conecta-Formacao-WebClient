@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '~/core/services/api';
 
 interface TransferirCursistasDTO {
@@ -6,52 +6,50 @@ interface TransferirCursistasDTO {
   idTurmaOrigem: number;
   idFormacaoDestino: number;
   idTurmaDestino: number;
-  inscricaoIds: number[];          // para query string
-  registroFuncionais: string[];    // para body
+  cursistas: {
+    rf: string | number;
+    idInscricao: string | number;
+  }[];
 }
 
 export function useTransferirCursistas() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<boolean>(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const transferir = async (dados: TransferirCursistasDTO) => {
     setLoading(true);
-    setError(null);
-    setSuccess(false);
+    setMessage(null);
 
     try {
-      // monta query string com inscriçãoId
-      const queryString = dados.inscricaoIds
-        .map(id => `id=${id}`)
-        .join('&');
+      const response = await api.post(`/v1/inscricao/transferir`, dados);
 
-      // monta body com registroFuncional
-      const body = {
-        idFormacaoOrigem: dados.idFormacaoOrigem,
-        idTurmaOrigem: dados.idTurmaOrigem,
-        idFormacaoDestino: dados.idFormacaoDestino,
-        idTurmaDestino: dados.idTurmaDestino,
-        Cursistas: dados.registroFuncionais
-      };
-
-      const response = await api.post(
-        `/v1/inscricao/transferir?${queryString}`,
-        body
-      );
-
-      if (response?.data?.sucesso) {
-        setSuccess(true);
+      if (response?.data?.mensagem) {
+        setMessage(response.data.mensagem);
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+          setMessage(null);
+        }, 9000);
       }
 
       return response.data;
     } catch (err) {
-      setError('Erro ao transferir cursistas');
+      setMessage('Algumas transferências não puderam ser concluídas. Verifique os itens.');
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        setMessage(null);
+      }, 9000);
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  return { transferir, loading, error, success };
+  return { transferir, loading, message };
 }

@@ -1,23 +1,130 @@
-import { Select, Alert, Spin, Typography, Button, message, Modal } from 'antd';
+import { Select, Alert, Spin, Typography, Button, Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import { useFormacoesSimples } from '~/core/hooks/useFormacoes';
 import SelecionarCursistas from '../selecionar-cursistas';
 import { useTransferirCursistas } from '~/core/hooks/useTransferirCursistas';
 import { CursistaInscricaoDTO } from '~/core/hooks/useCursistasPorFormacao';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
-import { ColumnsType } from 'antd/es/table';
+import Table, { ColumnsType } from 'antd/es/table';
 import DataTable from '~/components/lib/card-table';
 import { Colors } from '~/core/styles/colors';
 
 const { Text } = Typography;
 
 function FormTransferir() {
+  const { data: formacoes = [], loading, erro } = useFormacoesSimples({ nomeFormacao: '' });
+  const { transferir, loading: loadingTransfer, message } = useTransferirCursistas();
+
+  const [idFormacaoOrigem, setIdFormacaoOrigem] = useState<number | null>(null);
+  const [idTurmaOrigem, setIdTurmaOrigem] = useState<number | null>(null);
+  const [idFormacaoDestino, setIdFormacaoDestino] = useState<number | null>(null);
+  const [idTurmaDestino, setIdTurmaDestino] = useState<number | null>(null);
+
+  const [selectedCursistas, setSelectedCursistas] = useState<CursistaInscricaoDTO[]>([]);
+
+  const formacaoOrigem = formacoes.find((f) => f.id === idFormacaoOrigem) || null;
+  const formacaoDestino = formacoes.find((f) => f.id === idFormacaoDestino) || null;
+
+  const turmasOrigem = formacaoOrigem?.turmas || [];
+  const turmasDestino =
+    formacaoDestino?.turmas.filter((t) => t.propostaTurmaId !== idTurmaOrigem) || [];
+
+  const isBotaoDesabilitado =
+    !idFormacaoOrigem ||
+    !idTurmaOrigem ||
+    !idFormacaoDestino ||
+    !idTurmaDestino ||
+    selectedCursistas.length === 0;
+
+  useEffect(() => {
+    setSelectedCursistas([]);
+  }, [idTurmaOrigem, idFormacaoOrigem, idFormacaoDestino, idTurmaDestino]);
+
+  const showErrorModal = (titulo: string, cursistas: any[]) => {
+    Modal.error({
+      title: titulo,
+      width: 800,
+      centered: true,
+      okButtonProps: {
+        style: {
+          backgroundColor: Colors.SystemSME.ConectaFormacao.PRIMARY,
+          borderColor: Colors.SystemSME.ConectaFormacao.PRIMARY,
+        },
+      },
+      content: (
+        <Table
+          dataSource={cursistas.map((c: any, idx: number) => ({
+            key: idx,
+            nome: c.nomeCursista,
+            rf: c.rf,
+            mensagem: c.mensagem,
+          }))}
+          columns={[
+            {
+              title: 'Cursista',
+              dataIndex: 'nome',
+              key: 'nome',
+              render: (text: string) => <strong>{text}</strong>,
+            },
+            {
+              title: 'RF',
+              dataIndex: 'rf',
+              key: 'rf',
+              width: 120,
+            },
+            {
+              title: 'Mensagem',
+              dataIndex: 'mensagem',
+              key: 'mensagem',
+            },
+          ]}
+          pagination={false}
+          size='small'
+        />
+      ),
+    });
+  };
+
+  const handleTransferir = async () => {
+    if (!idFormacaoOrigem || !idTurmaOrigem || !idFormacaoDestino || !idTurmaDestino) return;
+
+    try {
+      const dto = {
+        idFormacaoOrigem,
+        idTurmaOrigem,
+        idFormacaoDestino,
+        idTurmaDestino,
+        cursistas: selectedCursistas.map((c) => ({
+          rf: c.registroFuncional,
+          idInscricao: c.inscricaoId,
+        })),
+      };
+
+      const result = await transferir(dto);
+
+      if (result?.sucesso) {
+        setIdFormacaoOrigem(null);
+        setIdTurmaOrigem(null);
+        setIdFormacaoDestino(null);
+        setIdTurmaDestino(null);
+        setSelectedCursistas([]);
+      } else if (result?.cursistas?.length) {
+        showErrorModal('PPPP', result.cursistas);
+      }
+    } catch (err: any) {
+      const data = err?.response?.data;
+      if (data?.cursistas?.length) {
+        showErrorModal('Transferência incompleta: revise os casos abaixo', data.cursistas);
+      }
+    }
+  };
+
   const confirmarTransferencia = () => {
     const columns: ColumnsType<CursistaInscricaoDTO> = [
       { title: 'Cursista', dataIndex: 'nomeCursista' },
       {
         title: 'Origem',
-        render: (c) => `${formacaoOrigem?.nomeFormacao} - ${c.nomeTurma} `,
+        render: (c) => `${formacaoOrigem?.nomeFormacao} - ${c.nomeTurma}`,
       },
       {
         title: 'Destino',
@@ -39,7 +146,7 @@ function FormTransferir() {
           <DataTable<CursistaInscricaoDTO>
             columns={columns}
             dataSource={selectedCursistas}
-            pagination={false} // sem paginação no modal
+            pagination={false}
             bordered
             size='small'
           />
@@ -63,63 +170,6 @@ function FormTransferir() {
       onOk: handleTransferir,
     });
   };
-
-  const { data: formacoes = [], loading, erro } = useFormacoesSimples({ nomeFormacao: '' });
-  const { transferir, loading: loadingTransfer, error: errorTransfer } = useTransferirCursistas();
-
-  const [idFormacaoOrigem, setIdFormacaoOrigem] = useState<number | null>(null);
-  const [idTurmaOrigem, setIdTurmaOrigem] = useState<number | null>(null);
-
-  const [idFormacaoDestino, setIdFormacaoDestino] = useState<number | null>(null);
-  const [idTurmaDestino, setIdTurmaDestino] = useState<number | null>(null);
-
-  const [selectedCursistas, setSelectedCursistas] = useState<CursistaInscricaoDTO[]>([]);
-
-  const formacaoOrigem = formacoes.find((f) => f.id === idFormacaoOrigem) || null;
-  const formacaoDestino = formacoes.find((f) => f.id === idFormacaoDestino) || null;
-
-  const turmasOrigem = formacaoOrigem?.turmas || [];
-  const turmasDestino =
-    formacaoDestino?.turmas.filter((t) => t.propostaTurmaId !== idTurmaOrigem) || [];
-
-  const handleTransferir = async () => {
-    if (!idFormacaoOrigem || !idTurmaOrigem || !idFormacaoDestino || !idTurmaDestino) return;
-
-    try {
-      const dto = {
-        idFormacaoOrigem,
-        idTurmaOrigem,
-        idFormacaoDestino,
-        idTurmaDestino,
-        inscricaoIds: selectedCursistas.map((c) => c.inscricaoId),
-        registroFuncionais: selectedCursistas.map((c) => c.registroFuncional),
-      };
-
-      const result = await transferir(dto);
-
-      if (result?.sucesso) {
-        message.success('Cursistas transferidos com sucesso!');
-        setIdFormacaoOrigem(null);
-        setIdTurmaOrigem(null);
-        setIdFormacaoDestino(null);
-        setIdTurmaDestino(null);
-        setSelectedCursistas([]);
-      }
-    } catch {
-      message.error('Erro ao transferir cursistas');
-    }
-  };
-
-  const isBotaoDesabilitado =
-    !idFormacaoOrigem ||
-    !idTurmaOrigem ||
-    !idFormacaoDestino ||
-    !idTurmaDestino ||
-    selectedCursistas.length === 0;
-
-  useEffect(() => {
-    setSelectedCursistas([]);
-  }, [idTurmaOrigem]);
 
   return (
     <>
@@ -176,7 +226,7 @@ function FormTransferir() {
       )}
 
       {idTurmaOrigem && (
-        <div style={{ padding: '16px', gap: 8, display: 'Flex', flexDirection: 'column' }}>
+        <div style={{ padding: '16px', gap: 8, display: 'flex', flexDirection: 'column' }}>
           <Text>Selecione os cursistas que deseja transferir</Text>
           <SelecionarCursistas
             idFormacao={idFormacaoOrigem}
@@ -231,8 +281,18 @@ function FormTransferir() {
 
       {idFormacaoDestino && idTurmaDestino && (
         <div style={{ padding: '16px' }}>
-          {errorTransfer && (
-            <Alert type='error' message={errorTransfer} style={{ marginBottom: 12 }} />
+          {message && (
+            <Alert
+              message={message}
+              type='info'
+              showIcon={false}
+              style={{
+                marginBottom: 12,
+                backgroundColor: '#f5f5f5',
+                border: '1px solid #d9d9d9',
+                color: '#595959',
+              }}
+            />
           )}
           <Button
             block

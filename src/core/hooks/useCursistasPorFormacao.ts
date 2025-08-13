@@ -65,7 +65,7 @@ export function useCursistasPorFormacao({
             nomeTurma: item.nomeTurma,
           }));
           setData(cursistas);
-          setTotal(response.data.total || 0);
+          setTotal(response.data.totalRegistros || 0);
         }
       })
       .catch(() => {
