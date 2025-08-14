@@ -1,6 +1,6 @@
 import { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
-import { Input, Row, Col, Space, Tooltip, Checkbox } from 'antd';
+import { Input, Row, Col, Space } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import DataTable from '~/components/lib/card-table';
 import {
