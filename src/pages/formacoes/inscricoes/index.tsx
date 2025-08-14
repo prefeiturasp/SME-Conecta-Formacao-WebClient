@@ -1,4 +1,4 @@
-import { Col, Form, Row } from 'antd';
+import { Button, Col, Form, Modal, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import Typography from 'antd/es/typography/Typography';
 import { useEffect, useState } from 'react';
@@ -8,7 +8,7 @@ import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
-import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
+import { CF_BUTTON_VOLTAR, CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import {
   CF_INPUT_CODIGO_FORMACAO,
   CF_INPUT_NOME_FORMACAO,
@@ -19,6 +19,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { onClickVoltar } from '~/core/utils/form';
 import { InscricoesListaPaginada } from './listagem';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
+import FormTransferir from '../components/transferir-cursistas';
 
 export interface FiltroInscricoesProps {
   codigoFormacao: number | null;
@@ -58,88 +59,120 @@ export const Inscricoes = () => {
     });
   };
 
+  const [openModal, setOpenModal] = useState<boolean>(false);
+
   return (
-    <Col>
-      <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
-        <HeaderPage title='Inscrições'>
-          <Col span={24}>
-            <Row gutter={[8, 8]}>
-              <Col>
-                <ButtonVoltar
-                  onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
-                  id={CF_BUTTON_VOLTAR}
-                />
-              </Col>
-            </Row>
-          </Col>
-        </HeaderPage>
+    <>
+      {openModal ? (
+        <Modal
+          open
+          title='Transferência de cursistas para outra formação'
+          centered
+          destroyOnClose
+          footer={null}
+          onCancel={() => setOpenModal(false)}
+          width={'70%'}
+          style={{ margin: '16px', overflowY: 'auto' }}
+        >
+          <FormTransferir />
+        </Modal>
+      ) : (
+        <></>
+      )}
+      <Col>
+        <Form form={form} layout='vertical' autoComplete='off' validateMessages={validateMessages}>
+          <HeaderPage title='Inscrições'>
+            <Col span={24}>
+              <Row gutter={[8, 8]}>
+                <Col>
+                  <ButtonVoltar
+                    onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
+                    id={CF_BUTTON_VOLTAR}
+                  />
+                </Col>
+                <Col>
+                  <Button
+                    block
+                    onClick={() => setOpenModal(true)}
+                    type='primary'
+                    htmlType='submit'
+                    id={CF_BUTTON_NOVO}
+                    style={{ fontWeight: 700 }}
+                  >
+                    Transferir
+                  </Button>
+                </Col>
+              </Row>
+            </Col>
+          </HeaderPage>
 
-        <CardContent>
-          <Col span={24}>
-            <Row gutter={[16, 8]}>
-              <Col xs={24} sm={8}>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Código',
-                    name: 'codigoFormacao',
-                    style: { fontWeight: 'bold' },
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    maxLength: 100,
-                    onChange: obterFiltros,
-                    id: CF_INPUT_CODIGO_FORMACAO,
-                    placeholder: 'Código da formação',
-                  }}
-                />
-              </Col>
+          <CardContent>
+            <Col span={24}>
+              <Row gutter={[16, 8]}>
+                <Col xs={24} sm={8}>
+                  <InputNumero
+                    formItemProps={{
+                      label: 'Código',
+                      name: 'codigoFormacao',
+                      style: { fontWeight: 'bold' },
+                      rules: [{ required: false }],
+                    }}
+                    inputProps={{
+                      maxLength: 100,
+                      onChange: obterFiltros,
+                      id: CF_INPUT_CODIGO_FORMACAO,
+                      placeholder: 'Código da formação',
+                    }}
+                  />
+                </Col>
 
-              <Col xs={24} sm={8}>
-                <InputTexto
-                  formItemProps={{
-                    label: 'Nome da formação',
-                    name: 'nomeFormacao',
-                    style: { fontWeight: 'bold' },
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_NOME_FORMACAO,
-                    placeholder: 'Nome da formação',
-                    maxLength: 100,
-                    onChange: obterFiltros,
-                  }}
-                />
-              </Col>
+                <Col xs={24} sm={8}>
+                  <InputTexto
+                    formItemProps={{
+                      label: 'Nome da formação',
+                      name: 'nomeFormacao',
+                      style: { fontWeight: 'bold' },
+                      rules: [{ required: false }],
+                    }}
+                    inputProps={{
+                      id: CF_INPUT_NOME_FORMACAO,
+                      placeholder: 'Nome da formação',
+                      maxLength: 100,
+                      onChange: obterFiltros,
+                    }}
+                  />
+                </Col>
 
-              <Col xs={24} sm={8}>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Número de homologação',
-                    name: 'numeroHomologacao',
-                    style: { fontWeight: 'bold' },
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    maxLength: 100,
-                    onChange: obterFiltros,
-                    id: CF_INPUT_NUMERO_HOMOLOGACAO,
-                    placeholder: 'Número de homologação',
-                  }}
-                />
-              </Col>
+                <Col xs={24} sm={8}>
+                  <InputNumero
+                    formItemProps={{
+                      label: 'Número de homologação',
+                      name: 'numeroHomologacao',
+                      style: { fontWeight: 'bold' },
+                      rules: [{ required: false }],
+                    }}
+                    inputProps={{
+                      maxLength: 100,
+                      onChange: obterFiltros,
+                      id: CF_INPUT_NUMERO_HOMOLOGACAO,
+                      placeholder: 'Número de homologação',
+                    }}
+                  />
+                </Col>
 
-              <Col xs={24}>
-                <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>
-                  Listagem de cursos/turmas
-                </Typography>
-                <DataTableContextProvider>
-                  <InscricoesListaPaginada filters={filters} realizouFiltro={realizouFiltro} />
-                </DataTableContextProvider>
-              </Col>
-            </Row>
-          </Col>
-        </CardContent>
-      </Form>
-    </Col>
+                <Col xs={24}>
+                  <Typography style={{ marginBottom: 12, fontWeight: 'bold' }}>
+                    Listagem de cursos/turmas
+                  </Typography>
+                  <DataTableContextProvider>
+                    <InscricoesListaPaginada filters={filters} realizouFiltro={realizouFiltro} />
+                  </DataTableContextProvider>
+                </Col>
+              </Row>
+            </Col>
+          </CardContent>
+        </Form>
+      </Col>
+    </>
   );
 };
