@@ -1,4 +1,3 @@
-// src/core/hooks/useFormacoesSimples.ts
 import { useEffect, useState } from 'react';
 import api from '~/core/services/api';
 import queryString from 'query-string';
