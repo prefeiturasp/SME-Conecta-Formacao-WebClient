@@ -29,3 +29,6 @@ dist-ssr
 /.vs/SME-Conecta-Formacao-WebClient/FileContentIndex
 /.vs/slnx.sqlite
 *.json
+
+
+coverage

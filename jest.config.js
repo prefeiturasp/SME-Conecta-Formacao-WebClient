@@ -8,7 +8,7 @@ export default {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       useESM: true,
     }],
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(js|jsx)$': ['babel-jest'],
     '^.+\\.(svg|jpg|jpeg|png|woff|woff2|eot|ttf|otf)$': 'jest-transform-stub',
   },
   testEnvironment: 'jsdom',
@@ -42,6 +42,9 @@ export default {
   globals: {
     'ts-jest': {
       useESM: true,
+      tsconfig: {
+        jsx: 'react-jsx'
+      }
     },
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
