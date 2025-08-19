@@ -18,6 +18,8 @@ interface UseCursistasParams {
   turmasId?: number;
   numeroPagina?: number;
   numeroRegistros?: number;
+  ocultarCancelada?: boolean;
+  ocultarTransferida?: boolean;
 }
 
 export function useCursistasPorFormacao({
@@ -28,6 +30,8 @@ export function useCursistasPorFormacao({
   turmasId,
   numeroPagina = 1,
   numeroRegistros = 10,
+  ocultarCancelada = false,
+  ocultarTransferida = false,
 }: UseCursistasParams) {
   const [data, setData] = useState<CursistaInscricaoDTO[]>([]);
   const [total, setTotal] = useState(0);
@@ -45,6 +49,8 @@ export function useCursistasPorFormacao({
     if (nomeCursista) params.nomeCursista = nomeCursista;
     if (registroFuncional) params.registroFuncional = registroFuncional;
     if (turmasId) params.turmasId = turmasId;
+    if (ocultarCancelada !== undefined) params.ocultarCancelada = ocultarCancelada;
+    if (ocultarTransferida !== undefined) params.ocultarTransferida = ocultarTransferida;
 
     api
       .get(`/v1/Inscricao/${idFormacao}`, {
@@ -80,6 +86,8 @@ export function useCursistasPorFormacao({
     turmasId,
     numeroPagina,
     numeroRegistros,
+    ocultarCancelada,
+    ocultarTransferida,
   ]);
 
   return { data, total, loading, error };

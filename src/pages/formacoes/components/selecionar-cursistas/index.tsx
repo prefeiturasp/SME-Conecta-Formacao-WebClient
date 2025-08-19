@@ -26,7 +26,8 @@ const SelecionarCursistas = ({
   const [cpf, setCpf] = useState<string>();
   const [nomeCursista, setNomeCursista] = useState<string>();
   const [registroFuncional, setRegistroFuncional] = useState<string>();
-  const [mostrarCanceladas, setMostrarCanceladas] = useState(false);
+  const [exibirCanceladas, setExibirCanceladas] = useState(false);
+  const [exibirTransferidas, setExibirTransferidas] = useState(false);
 
   const cpfDebounced = useDebounce(cpf, 500);
   const nomeCursistaDebounced = useDebounce(nomeCursista, 500);
@@ -45,11 +46,9 @@ const SelecionarCursistas = ({
     turmasId: propostaTurmaIdDebounced ?? undefined,
     numeroPagina: paginaAtual,
     numeroRegistros: tamanhoPagina,
+    ocultarCancelada: !exibirCanceladas,
+    ocultarTransferida: !exibirTransferidas,
   });
-
-  const cursistasFiltrados = cursistas.filter(
-    (c) => mostrarCanceladas || (c.situacao !== 'Cancelada' && c.situacao !== 'Transferida'),
-  );
 
   const [selectedRows, setSelectedRows] = useState<CursistaInscricaoDTO[]>([]);
   const selectedRowKeys = selectedRows.map((c) => c.inscricaoId);
@@ -117,16 +116,33 @@ const SelecionarCursistas = ({
                 color: Colors.SystemSME.ConectaFormacao.PRIMARY_DARK,
                 userSelect: 'none',
               }}
-              onClick={() => setMostrarCanceladas(!mostrarCanceladas)}
+              onClick={() => setExibirCanceladas(!exibirCanceladas)}
             >
-              {mostrarCanceladas ? (
+              {exibirCanceladas ? (
                 <EyeInvisibleOutlined style={{ fontSize: 18 }} />
               ) : (
                 <EyeOutlined style={{ fontSize: 18 }} />
               )}
-              {mostrarCanceladas
-                ? 'Ocultar canceladas e transferidas'
-                : 'Mostrar canceladas e transferidas'}
+              {exibirCanceladas ? 'Ocultar canceladas' : 'Mostrar canceladas'}
+            </span>
+
+            <span
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                cursor: 'pointer',
+                color: Colors.SystemSME.ConectaFormacao.PRIMARY_DARK,
+                userSelect: 'none',
+              }}
+              onClick={() => setExibirTransferidas(!exibirTransferidas)}
+            >
+              {exibirTransferidas ? (
+                <EyeInvisibleOutlined style={{ fontSize: 18 }} />
+              ) : (
+                <EyeOutlined style={{ fontSize: 18 }} />
+              )}
+              {exibirTransferidas ? 'Ocultar transferidas' : 'Mostrar transferidas'}
             </span>
           </Col>
         </Row>
@@ -136,7 +152,7 @@ const SelecionarCursistas = ({
         rowKey='inscricaoId'
         rowSelection={rowSelection}
         columns={columns}
-        dataSource={cursistasFiltrados}
+        dataSource={cursistas}
         loading={loading}
         pagination={{
           current: paginaAtual,
