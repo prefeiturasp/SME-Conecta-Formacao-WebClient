@@ -8,6 +8,7 @@ import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import Table, { ColumnsType } from 'antd/es/table';
 import DataTable from '~/components/lib/card-table';
 import { Colors } from '~/core/styles/colors';
+import { notification } from '~/components/lib/notification';
 
 const { Text } = Typography;
 
@@ -19,7 +20,7 @@ function FormTransferir() {
   const [idTurmaOrigem, setIdTurmaOrigem] = useState<number | null>(null);
   const [idFormacaoDestino, setIdFormacaoDestino] = useState<number | null>(null);
   const [idTurmaDestino, setIdTurmaDestino] = useState<number | null>(null);
-
+  const [refreshKey, setRefreshKey] = useState(0);
   const [selectedCursistas, setSelectedCursistas] = useState<CursistaInscricaoDTO[]>([]);
 
   const formacaoOrigem = formacoes.find((f) => f.id === idFormacaoOrigem) || null;
@@ -102,20 +103,23 @@ function FormTransferir() {
 
       const result = await transferir(dto);
 
-      if (result?.sucesso) {
-        setIdFormacaoOrigem(null);
-        setIdTurmaOrigem(null);
-        setIdFormacaoDestino(null);
-        setIdTurmaDestino(null);
+      console.log('result', result);
+
+      if (result.status === 200) {
+        setRefreshKey((prev) => prev + 1);
         setSelectedCursistas([]);
-      } else if (result?.cursistas?.length) {
-        showErrorModal('PPPP', result.cursistas);
+
+        notification.success({
+          message: result.mensagem || 'Transferências realizadas com sucesso!',
+          description: `Foram transferidos ${selectedCursistas.length} cursista(s)`,
+        });
       }
     } catch (err: any) {
       const data = err?.response?.data;
       if (data?.cursistas?.length) {
         showErrorModal('Transferência incompleta: revise os casos abaixo', data.cursistas);
       }
+      setRefreshKey((prev) => prev + 1);
     }
   };
 
@@ -231,6 +235,8 @@ function FormTransferir() {
           <SelecionarCursistas
             idFormacao={idFormacaoOrigem}
             propostaTurmaId={idTurmaOrigem ?? undefined}
+            selectedCursistas={selectedCursistas}
+            refreshKey={refreshKey}
             onSelectionChange={(rows: CursistaInscricaoDTO[]) => setSelectedCursistas(rows)}
           />
         </div>

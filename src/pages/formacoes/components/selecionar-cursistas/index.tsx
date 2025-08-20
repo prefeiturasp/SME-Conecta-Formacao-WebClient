@@ -14,12 +14,16 @@ type SelecionarCursistasProps = {
   idFormacao: number | null;
   propostaTurmaId?: number | null;
   onSelectionChange: (rows: CursistaInscricaoDTO[]) => void;
+  selectedCursistas?: CursistaInscricaoDTO[];
+  refreshKey?: number;
 };
 
 const SelecionarCursistas = ({
+  selectedCursistas = [],
   idFormacao,
   propostaTurmaId,
   onSelectionChange,
+  refreshKey = 0,
 }: SelecionarCursistasProps) => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [tamanhoPagina, setTamanhoPagina] = useState(10);
@@ -48,15 +52,25 @@ const SelecionarCursistas = ({
     numeroRegistros: tamanhoPagina,
     ocultarCancelada: !exibirCanceladas,
     ocultarTransferida: !exibirTransferidas,
+    refreshKey,
   });
 
   const [selectedRows, setSelectedRows] = useState<CursistaInscricaoDTO[]>([]);
   const selectedRowKeys = selectedRows.map((c) => c.inscricaoId);
 
+  useEffect(() => {
+    setSelectedRows([]);
+    onSelectionChange([]);
+  }, [refreshKey]);
+
   const onSelectChange = (_: React.Key[], rows: CursistaInscricaoDTO[]) => {
     setSelectedRows(rows);
     onSelectionChange(rows);
   };
+
+  useEffect(() => {
+    setSelectedRows(selectedCursistas);
+  }, [selectedCursistas]);
 
   const rowSelection = {
     selectedRowKeys,
@@ -157,11 +171,15 @@ const SelecionarCursistas = ({
         pagination={{
           current: paginaAtual,
           pageSize: tamanhoPagina,
+          pageSizeOptions: ['10', '20', '50', '100'],
           total: total,
           showSizeChanger: true,
           onChange: (page, pageSize) => {
             setPaginaAtual(page);
             setTamanhoPagina(pageSize);
+          },
+          locale: {
+            items_per_page: '',
           },
         }}
       />
