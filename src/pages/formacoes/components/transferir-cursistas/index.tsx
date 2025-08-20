@@ -103,8 +103,6 @@ function FormTransferir() {
 
       const result = await transferir(dto);
 
-      console.log('result', result);
-
       if (result.status === 200) {
         setRefreshKey((prev) => prev + 1);
         setSelectedCursistas([]);
