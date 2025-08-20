@@ -20,6 +20,7 @@ interface UseCursistasParams {
   numeroRegistros?: number;
   ocultarCancelada?: boolean;
   ocultarTransferida?: boolean;
+  refreshKey?: number;
 }
 
 export function useCursistasPorFormacao({
@@ -32,6 +33,7 @@ export function useCursistasPorFormacao({
   numeroRegistros = 10,
   ocultarCancelada = false,
   ocultarTransferida = false,
+  refreshKey = 0,
 }: UseCursistasParams) {
   const [data, setData] = useState<CursistaInscricaoDTO[]>([]);
   const [total, setTotal] = useState(0);
@@ -88,6 +90,7 @@ export function useCursistasPorFormacao({
     numeroRegistros,
     ocultarCancelada,
     ocultarTransferida,
+    refreshKey    
   ]);
 
   return { data, total, loading, error };
