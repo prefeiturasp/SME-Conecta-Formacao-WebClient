@@ -1,14 +1,12 @@
 import { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { Input, Row, Col, Space } from 'antd';
-import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import DataTable from '~/components/lib/card-table';
 import {
   useCursistasPorFormacao,
   CursistaInscricaoDTO,
 } from '~/core/hooks/useCursistasPorFormacao';
 import { useDebounce } from '~/core/hooks/useDebounce';
-import { Colors } from '~/core/styles/colors';
 
 type SelecionarCursistasProps = {
   idFormacao: number | null;
@@ -30,8 +28,6 @@ const SelecionarCursistas = ({
   const [cpf, setCpf] = useState<string>();
   const [nomeCursista, setNomeCursista] = useState<string>();
   const [registroFuncional, setRegistroFuncional] = useState<string>();
-  const [exibirCanceladas, setExibirCanceladas] = useState(false);
-  const [exibirTransferidas, setExibirTransferidas] = useState(false);
 
   const cpfDebounced = useDebounce(cpf, 500);
   const nomeCursistaDebounced = useDebounce(nomeCursista, 500);
@@ -50,8 +46,6 @@ const SelecionarCursistas = ({
     turmasId: propostaTurmaIdDebounced ?? undefined,
     numeroPagina: paginaAtual,
     numeroRegistros: tamanhoPagina,
-    ocultarCancelada: !exibirCanceladas,
-    ocultarTransferida: !exibirTransferidas,
     refreshKey,
   });
 
@@ -119,45 +113,6 @@ const SelecionarCursistas = ({
               onChange={(e) => setRegistroFuncional(e.target.value)}
               allowClear
             />
-          </Col>
-          <Col span={8} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                cursor: 'pointer',
-                color: Colors.SystemSME.ConectaFormacao.PRIMARY_DARK,
-                userSelect: 'none',
-              }}
-              onClick={() => setExibirCanceladas(!exibirCanceladas)}
-            >
-              {exibirCanceladas ? (
-                <EyeInvisibleOutlined style={{ fontSize: 18 }} />
-              ) : (
-                <EyeOutlined style={{ fontSize: 18 }} />
-              )}
-              {exibirCanceladas ? 'Ocultar canceladas' : 'Mostrar canceladas'}
-            </span>
-
-            <span
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                cursor: 'pointer',
-                color: Colors.SystemSME.ConectaFormacao.PRIMARY_DARK,
-                userSelect: 'none',
-              }}
-              onClick={() => setExibirTransferidas(!exibirTransferidas)}
-            >
-              {exibirTransferidas ? (
-                <EyeInvisibleOutlined style={{ fontSize: 18 }} />
-              ) : (
-                <EyeOutlined style={{ fontSize: 18 }} />
-              )}
-              {exibirTransferidas ? 'Ocultar transferidas' : 'Mostrar transferidas'}
-            </span>
           </Col>
         </Row>
       </Space>

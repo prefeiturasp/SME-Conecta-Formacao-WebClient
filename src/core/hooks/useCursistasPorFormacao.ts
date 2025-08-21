@@ -31,8 +31,8 @@ export function useCursistasPorFormacao({
   turmasId,
   numeroPagina = 1,
   numeroRegistros = 10,
-  ocultarCancelada = false,
-  ocultarTransferida = false,
+  ocultarCancelada = true,
+  ocultarTransferida = true,
   refreshKey = 0,
 }: UseCursistasParams) {
   const [data, setData] = useState<CursistaInscricaoDTO[]>([]);
