@@ -5,6 +5,7 @@ import { notification } from '~/components/lib/notification';
 import {
   DESEJA_COLOCAR_INSCRICAO_EM_ESPERA,
   DESEJA_CONFIRMAR_INSCRICAO,
+  DESEJA_REATIVAR_INSCRICAO,
   INSCRICAO_CANCELADA_SUCESSO,
   INSCRICAO_COLOCADA_ESPERA_SUCESSO,
   INSCRICAO_CONFIRMADA_SUCESSO,
@@ -15,12 +16,14 @@ import {
   cancelarInscricoes,
   colocarEmEsperaInscricao,
   confirmarInscricao,
+  reativarInscricao,
 } from '~/core/services/inscricao-service';
 
 type DataTableContextProps = {
   onClickCancelar: (ids: number[], motivo: string) => Promise<boolean>;
   onClickConfirmar: (ids: number[]) => void;
   onClickColocarEspera: (ids: number[]) => void;
+  onClickReativar: (ids: number[]) => void;
   setSelectedRows: React.Dispatch<React.SetStateAction<DadosListagemInscricaoDTO[]>>;
   selectedRows: DadosListagemInscricaoDTO[];
 };
@@ -29,6 +32,7 @@ const DEFAULT_VALUES: DataTableContextProps = {
   onClickCancelar: () => new Promise((resolve) => resolve(false)),
   onClickConfirmar: () => null,
   onClickColocarEspera: () => null,
+  onClickReativar: () => null,
   setSelectedRows: () => {},
   selectedRows: [],
 };
@@ -96,12 +100,32 @@ export const TurmasInscricoesListaPaginadaContextProvider: React.FC<PropsWithChi
     return response.sucesso;
   };
 
+  const onClickReativar = (ids: number[]) => {
+    confirmacao({
+      content: DESEJA_REATIVAR_INSCRICAO,
+      onOk: () => {
+        reativarInscricao(ids).then((response) => {
+          if (response.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: response?.dados?.mensagem || INSCRICAO_CONFIRMADA_SUCESSO,
+            });
+
+            tableState.reloadData();
+            setSelectedRows([]);
+          }
+        });
+      },
+    });
+  };
+
   return (
     <TurmasInscricoesListaPaginadaContext.Provider
       value={{
         onClickCancelar,
         onClickConfirmar,
         onClickColocarEspera,
+        onClickReativar,
         setSelectedRows,
         selectedRows,
       }}
