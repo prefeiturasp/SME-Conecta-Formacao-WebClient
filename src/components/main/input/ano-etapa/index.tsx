@@ -34,8 +34,9 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({
     typeof modalidade === 'number' || (Array.isArray(modalidade) && modalidade.length > 0);
 
   const obterDados = useCallback(async () => {
+    const anoLetivoAtual = dayjs().year();
     if (valormodalidadeValido || obterValorModalidadeValido) {
-      const resposta = await obterAnoEtapa(0, modalidadeWatch, exibirOpcaoTodos);
+      const resposta = await obterAnoEtapa(anoLetivoAtual, modalidadeWatch, exibirOpcaoTodos);
 
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
