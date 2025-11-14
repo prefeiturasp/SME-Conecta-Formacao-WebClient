@@ -1,7 +1,6 @@
 import { Form } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType } from 'antd/es/select';
-import { dayjs } from '~/core/date/dayjs';
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
