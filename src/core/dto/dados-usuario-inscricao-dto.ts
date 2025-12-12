@@ -21,6 +21,10 @@ export type DadosInscricaoDTO = {
   propostaTurmaId?: number;
 };
 
+export type DadosInscricaoPropostaDto = DadosInscricaoDTO & {
+  vagaRemanescente: boolean;
+};
+
 export type DadosVinculoInscricaoDTO = {
   id: number;
   cargoCodigo: string;

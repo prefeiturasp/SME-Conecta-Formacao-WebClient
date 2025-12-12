@@ -137,3 +137,4 @@ export const INSCRICAO_CONFIRMADA_SUCESSO = 'Inscrição confirmada!';
 export const INSCRICAO_COLOCADA_ESPERA_SUCESSO = 'Inscrição colocada em espera!';
 export const INSCRICAO_CANCELADA_SUCESSO = 'Inscrição cancelada com sucesso!';
 export const INSCRICAO_CONFIRMA_SORTEIO = 'Deseja realmente sortear as inscrições?';
+export const INSCRICAO_NAO_ATENDE_CRITERIOS_VAGAS_REMANESCENTES = 'No momento, você não atende aos critérios de participação definidos para as vagas remanescentes da formação. Se atente às próximas oportunidades.';
