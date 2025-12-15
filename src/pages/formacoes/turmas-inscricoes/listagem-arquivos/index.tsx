@@ -137,7 +137,7 @@ export const InscricoesPorArquivoListagem = forwardRef(() => {
     state: location.state,
   };
 
-  const onClickEditar = async (linha: ArquivoInscricaoImportadoDTO) => {
+  const onClickEditar = async (linha: ArquivoInscricaoImportadoDTO) => {debugger;
     if (
       linha.situacao !== SituacaoImportacaoArquivoEnum.Validado &&
       linha.situacao !== SituacaoImportacaoArquivoEnum.Cancelado &&

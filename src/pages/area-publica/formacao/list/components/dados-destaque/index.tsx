@@ -16,6 +16,7 @@ import { validarAutenticacao } from '~/core/utils/perfil';
 
 type DadosDestaqueProps = {
   dadosFormacao: RetornoDetalheFormacaoDTO | undefined;
+  propostaId?: number;
 };
 
 const styleTypographyText = {
@@ -57,7 +58,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
         validarAutenticacao(response.data);
       });
 
-      navigate(ROUTES.INSCRICAO, {
+      navigate(`${ROUTES.INSCRICAO}/${dadosFormacao?.propostaId}`, {
         replace: true,
       });
     } else {
