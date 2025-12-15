@@ -1,6 +1,6 @@
-import { Button, Col, Form, Input, Modal, Row, Select, Space, Typography } from 'antd';
+import { Button, Col, Form, Input, Modal, Row, Select, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { cloneDeep, set } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -34,7 +34,6 @@ import SelectFuncaoAtividade from './components/funcao-atividade';
 import { ModalInscricao } from './components/modal';
 import SelectTurma from './components/turmas';
 import { openNotificationErrors } from '~/components/lib/notification';
-import { env } from 'process';
 
 export const Inscricao = () => {
   const paramsRoute = useParams();
