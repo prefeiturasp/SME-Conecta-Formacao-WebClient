@@ -35,12 +35,12 @@ describe('TipoInscricao Enum', () => {
   });
 
   test('deve ser possível verificar se um valor é um TipoInscricao válido', () => {
-    expect(Object.values(TipoInscricao).includes(1)).toBe(true);
-    expect(Object.values(TipoInscricao).includes(2)).toBe(true);
-    expect(Object.values(TipoInscricao).includes(3)).toBe(true);
-    expect(Object.values(TipoInscricao).includes(4)).toBe(true);
-    expect(Object.values(TipoInscricao).includes(5)).toBe(true);
-    expect(Object.values(TipoInscricao).includes(99)).toBe(false);
+    expect(Object.values(TipoInscricao).includes(TipoInscricao.Optativa)).toBe(true);
+    expect(Object.values(TipoInscricao).includes(TipoInscricao.Automatica)).toBe(true);
+    expect(Object.values(TipoInscricao).includes(TipoInscricao.AutomaticaJEIF)).toBe(true);
+    expect(Object.values(TipoInscricao).includes(TipoInscricao.Manual)).toBe(true);
+    expect(Object.values(TipoInscricao).includes(TipoInscricao.Externa)).toBe(true);
+    expect(Object.values(TipoInscricao).includes(99 as TipoInscricao)).toBe(false);
   });
 
   test('deve ter os nomes corretos para cada tipo', () => {

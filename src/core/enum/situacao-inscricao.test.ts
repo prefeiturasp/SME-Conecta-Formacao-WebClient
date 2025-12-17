@@ -25,8 +25,8 @@ describe('SituacaoInscricao Enum', () => {
   test('todas as situações devem ter uma label correspondente', () => {
     const situacoes = Object.keys(SituacaoInscricao).filter((key) => !Number.isNaN(Number(key)));
     situacoes.forEach((key) => {
-      expect(SituacaoInscricaoTagDisplay[Number(key)]).toBeDefined();
-      expect(SituacaoInscricaoTagDisplay[Number(key)]).not.toBe('');
+      expect(SituacaoInscricaoTagDisplay[Number(key) as SituacaoInscricao]).toBeDefined();
+      expect(SituacaoInscricaoTagDisplay[Number(key) as SituacaoInscricao]).not.toBe('');
     });
   });
 });

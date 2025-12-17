@@ -28,8 +28,8 @@ describe('Modalidade Enum', () => {
   test('todas as modalidades devem ter uma label correspondente', () => {
     const modalidades = Object.keys(Modalidade).filter((key) => !Number.isNaN(Number(key)));
     modalidades.forEach((key) => {
-      expect(ModalidadeDisplay[Number(key)]).toBeDefined();
-      expect(ModalidadeDisplay[Number(key)]).not.toBe('');
+      expect(ModalidadeDisplay[Number(key) as Modalidade]).toBeDefined();
+      expect(ModalidadeDisplay[Number(key) as Modalidade]).not.toBe('');
     });
   });
 

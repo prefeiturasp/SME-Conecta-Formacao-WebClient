@@ -7,6 +7,8 @@ describe('FiltroTurmaInscricoesProps', () => {
       turmasId: null,
       nomeCursista: null,
       registroFuncional: null,
+      Situacao: null,
+      CargoFuncaoId: null,
     };
 
     expect(filtro.cpf).toBeNull();
@@ -21,6 +23,8 @@ describe('FiltroTurmaInscricoesProps', () => {
       turmasId: [1, 2, 3],
       nomeCursista: 'João da Silva',
       registroFuncional: 123456,
+      Situacao: 1,
+      CargoFuncaoId: 1,
     };
 
     expect(filtro.cpf).toBe(12345678900);
@@ -35,6 +39,8 @@ describe('FiltroTurmaInscricoesProps', () => {
       turmasId: null,
       nomeCursista: null,
       registroFuncional: null,
+      Situacao: null,
+      CargoFuncaoId: null,
     };
 
     expect(typeof filtro.cpf).toBe('number');
@@ -46,6 +52,8 @@ describe('FiltroTurmaInscricoesProps', () => {
       turmasId: [10, 20, 30],
       nomeCursista: null,
       registroFuncional: null,
+      Situacao: null,
+      CargoFuncaoId: null,
     };
 
     expect(Array.isArray(filtro.turmasId)).toBe(true);
@@ -58,6 +66,8 @@ describe('FiltroTurmaInscricoesProps', () => {
       turmasId: null,
       nomeCursista: 'Maria Santos',
       registroFuncional: null,
+      Situacao: null,
+      CargoFuncaoId: null,
     };
 
     expect(typeof filtro.nomeCursista).toBe('string');

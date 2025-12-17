@@ -21,8 +21,8 @@ describe('Formato Enum', () => {
   test('todos os formatos devem ter uma label correspondente', () => {
     const formatos = Object.keys(Formato).filter((key) => !Number.isNaN(Number(key)));
     formatos.forEach((key) => {
-      expect(FormatoDisplay[Number(key)]).toBeDefined();
-      expect(FormatoDisplay[Number(key)]).not.toBe('');
+      expect(FormatoDisplay[Number(key) as Formato]).toBeDefined();
+      expect(FormatoDisplay[Number(key) as Formato]).not.toBe('');
     });
   });
 
