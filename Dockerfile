@@ -1,11 +1,10 @@
-FROM node:16.15-alpine3.16 AS build-deps
+FROM node:22-alpine AS build-deps
 WORKDIR /usr/src/app
 
 ENV NODE_OPTIONS="--max_old_space_size=4096"
 
 COPY / .
-RUN set NODE_OPTIONS=--max_old_space_size=4096 && \
-    yarn install && \
+RUN yarn install && \
     yarn build
 
 FROM nginx:1.21-alpine
