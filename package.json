@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "testpipeline": "yarn tsc --noEmit"
   },
   "dependencies": {
     "@ant-design/icons": "^5.1.4",
@@ -27,7 +28,7 @@
     "jodit": "^4.0.0-beta.86",
     "jwt-decode": "3.1.2",
     "lodash": "^4.17.21",
-    "query-string": "^8.1.0",
+    "query-string": "^9.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.9.0",
