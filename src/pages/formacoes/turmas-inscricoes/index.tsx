@@ -8,7 +8,9 @@ import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
+import SelectCargoFuncao from '~/components/main/input/cargo-funcao';
 import SelectTodasTurmas from '~/components/main/input/selecionar-todas-turmas';
+import SelectSituacaoInscricao from '~/components/main/input/situacao-inscricao';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import {
@@ -32,6 +34,8 @@ export interface FiltroTurmaInscricoesProps {
   turmasId: number[] | null;
   nomeCursista: string | null;
   registroFuncional: number | null;
+  Situacao: number | null;
+  CargoFuncaoId: number | null;
 }
 
 export const TurmasInscricoes = () => {
@@ -64,6 +68,8 @@ export const TurmasInscricoes = () => {
     turmasId: null,
     nomeCursista: null,
     registroFuncional: null,
+    Situacao: null,
+    CargoFuncaoId: null,
   });
 
   const onClickNovo = () => navigate(`${ROUTES.FORMACAOES_INSCRICOES_NOVO}/${id}`, paramsRoute);
@@ -83,7 +89,16 @@ export const TurmasInscricoes = () => {
     const turmasId = form.getFieldValue('turmas');
     const nomeCursista = form.getFieldValue('nomeCursista');
     const registroFuncional = form.getFieldValue('registroFuncional');
-    if (!cpf && turmasId?.length == 0 && !nomeCursista && !registroFuncional) {
+    const Situacao = form.getFieldValue('situacaoInscricao');
+    const CargoFuncaoId = form.getFieldValue('cargoFuncaoId');
+    if (
+      !cpf &&
+      turmasId?.length == 0 &&
+      !nomeCursista &&
+      !registroFuncional &&
+      !Situacao &&
+      !CargoFuncaoId
+    ) {
       setRealizouFiltro(false);
     }
     setFilters({
@@ -91,6 +106,8 @@ export const TurmasInscricoes = () => {
       turmasId: turmasId,
       nomeCursista: nomeCursista,
       registroFuncional: registroFuncional,
+      Situacao: Situacao,
+      CargoFuncaoId: CargoFuncaoId,
     });
   };
 
@@ -162,6 +179,28 @@ export const TurmasInscricoes = () => {
                     name: 'turmas',
                     style: { fontWeight: 'bold' },
                     rules: [{ required: false }],
+                  }}
+                />
+              </Col>
+
+              <Col xs={24} sm={6}>
+                <SelectCargoFuncao
+                  formItemProps={{
+                    style: { fontWeight: 'bold' },
+                  }}
+                  selectProps={{
+                    onChange: obterFiltros,
+                  }}
+                />
+              </Col>
+
+              <Col xs={24} sm={6}>
+                <SelectSituacaoInscricao
+                  formItemProps={{
+                    style: { fontWeight: 'bold' },
+                  }}
+                  selectProps={{
+                    onChange: obterFiltros,
                   }}
                 />
               </Col>

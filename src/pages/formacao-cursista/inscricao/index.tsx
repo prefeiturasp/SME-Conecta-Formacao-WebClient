@@ -189,11 +189,10 @@ export const Inscricao = () => {
     if (response.sucesso) {
       if (vagaRemanescente) {
         setAbrirModalInscricaoNaListaDeEspera(true);
+      } else {
+        setConfirmacaoInscricao(response.dados.mensagem);
+        setOpenModal(true);
       }
-      else{
-      setConfirmacaoInscricao(response.dados.mensagem);
-      setOpenModal(true);
-    }
       dispatch(setDadosFormacao({}));
     }
   };
@@ -201,7 +200,7 @@ export const Inscricao = () => {
   const cancelarInscricaoModal = () => {
     setAbrirModalListaDeEspera(false);
     openNotificationErrors([INSCRICAO_NAO_ATENDE_CRITERIOS_VAGAS_REMANESCENTES]);
-  }
+  };
 
   return (
     <Col>
@@ -323,14 +322,45 @@ export const Inscricao = () => {
               {abrirModalListaDeEspera && (
                 <Modal
                   open
-                  title='Esta formação possui lista de espera!'
+                  title={
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: '20px',
+                        lineHeight: '100%',
+                        letterSpacing: '0%',
+                        color: '#42474A',
+                        display: 'block',
+                        marginTop: '16px',
+                      }}
+                    >
+                      Esta formação possui lista de espera!
+                    </span>
+                  }
                   centered
                   destroyOnClose
                   okText='Realizar inscrição'
                   cancelText='Cancelar'
                   onOk={() => { enviarInscricaoContinuar(); }}
-                  onCancel={cancelarInscricaoModal}>
-                  <Typography.Text style={{ fontSize: 16 }}>
+                  onCancel={cancelarInscricaoModal}
+                  styles={{
+                    header: {
+                      paddingTop: '16px',
+                    },
+                    footer: {
+                      display: 'flex',
+                      gap: '8px',
+                      paddingTop: '8px',
+                      paddingBottom: '8px',
+                    }
+                  }}
+                  okButtonProps={{
+                    style: { flex: 1, margin: 0 }
+                  }}
+                  cancelButtonProps={{
+                    style: { flex: 1, margin: 0, marginLeft: 0, paddingLeft: 0 }
+                  }}>
+                  <Typography.Text style={{ fontSize: 12 }}>
                     Deseja realizar a inscrição mesmo assim?
                   </Typography.Text>
                 </Modal>
@@ -339,27 +369,58 @@ export const Inscricao = () => {
               {abrirModalInscricaoNaListaDeEspera && (
                 <Modal
                   open
-                  title='Você está na lista de espera!'
+                  title={
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: '20px',
+                        lineHeight: '100%',
+                        letterSpacing: '0%',
+                        color: '#42474A',
+                        display: 'block',
+                        marginTop: '16px',
+                      }}
+                    >
+                      Você está na lista de espera!
+                    </span>
+                  }
                   centered
                   destroyOnClose
                   okText='Voltar à tela inicial'
                   cancelText='Conferir mais informações'
-                  onOk={() => { navigate(ROUTES.PRINCIPAL); }}
+                  onOk={() => {
+                    navigate(ROUTES.PRINCIPAL);
+                  }}
                   // Ao cancelar ainda não há uma ação definida não fazer nada
-                  onCancel={() => { }}
+                  onCancel={() => {}}
                   styles={{
                     header: {
-                      fontSize: '20px'
+                      paddingTop: '16px',
+                    },
+                    footer: {
+                      display: 'flex',
+                      gap: '8px',
+                      paddingTop: '8px',
+                      paddingBottom: '8px',
                     }
-                  }}>
+                  }}
+                  okButtonProps={{
+                    style: { flex: 1, margin: 0 }
+                  }}
+                  cancelButtonProps={{
+                    style: { flex: 1, margin: 0, marginLeft: 0, paddingLeft: 0 }
+                  }}
+                >
                   <Typography.Text style={{ fontSize: 12 }}>
-                    Olá {perfil.usuarioNome}!
-                    <br /><br />
-                    Sua inscrição na lista de espera da formação "<strong>{formacaoState?.titulo}</strong>" foi realizada com sucesso!
+                    <br/><p>Olá {perfil.usuarioNome}!</p>
+                    Sua inscrição na lista de espera da formação "
+                    <strong>{formacaoState?.titulo}</strong>" foi realizada com sucesso!
                     <br />
-                     Você receberá um e-mail de confirmação da sua participação.
-                    <br /><br />
-                    Você pode acompanhar suas inscrições clicando no botão “voltar à tela inicial”
+                    Você receberá um e-mail de confirmação da sua participação.
+                    <br/><br/><p>
+                      Você pode acompanhar suas inscrições clicando no botão “voltar à tela inicial”
+                    </p>
+                    
                   </Typography.Text>
                 </Modal>
               )}
