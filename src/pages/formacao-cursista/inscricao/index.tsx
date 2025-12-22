@@ -17,7 +17,7 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
-import { ENVIAR_INSCRICAO, INSCRICAO_NAO_ATENDE_CRITERIOS_VAGAS_REMANESCENTES, SUA_INSCRICAO_NAO_FOI_ENVIADA } from '~/core/constants/mensagens';
+import { ENVIAR_INSCRICAO, SUA_INSCRICAO_NAO_FOI_ENVIADA } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
   DadosInscricaoCargoEolDTO,
@@ -29,11 +29,11 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import { inserirInscricao, obterDadosInscricaoProposta } from '~/core/services/inscricao-service';
+import { obterDadosFormacao } from '~/core/services/area-publica-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import SelectFuncaoAtividade from './components/funcao-atividade';
 import { ModalInscricao } from './components/modal';
 import SelectTurma from './components/turmas';
-import { openNotificationErrors } from '~/components/lib/notification';
 
 export const Inscricao = () => {
   const paramsRoute = useParams();
@@ -50,7 +50,8 @@ export const Inscricao = () => {
   const [initialValues, setFormInitialValues] = useState<DadosInscricaoPropostaDto>();
   const [vagaRemanescente, setVagaRemanescente] = useState<boolean>(false);
   const [abrirModalListaDeEspera, setAbrirModalListaDeEspera] = useState<boolean>(false);
-  const [abrirModalInscricaoNaListaDeEspera, setAbrirModalInscricaoNaListaDeEspera] = useState<boolean>(false);
+  const [abrirModalInscricaoNaListaDeEspera, setAbrirModalInscricaoNaListaDeEspera] =
+    useState<boolean>(false);
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
@@ -114,16 +115,41 @@ export const Inscricao = () => {
     }
   }, [initialValues]);
 
+  const carregarDadosFormacao = useCallback(async () => {
+    if (!formacaoState?.titulo && propostaId) {
+      const formacao = await obterDadosFormacao(propostaId);
+      if (formacao.sucesso && formacao.dados) {
+        setFormacaoState({
+          id: propostaId,
+          titulo: formacao.dados.titulo,
+          periodo: formacao.dados.periodo,
+          periodoInscricao: formacao.dados.periodoInscricao,
+          areaPromotora: formacao.dados.areaPromotora,
+          tipoFormacao: formacao.dados.tipoFormacao,
+          tipoFormacaoDescricao: formacao.dados.tipoFormacaoDescricao,
+          formato: formacao.dados.formato,
+          formatoDescricao: formacao.dados.formatoDescricao,
+          inscricaoEncerrada: formacao.dados.inscricaoEncerrada,
+          imagemUrl: formacao.dados.imagemUrl,
+          linkParaInscricoesExterna: formacao.dados.linkParaInscricoesExterna,
+        });
+      }
+    }
+  }, [propostaId, formacaoState?.titulo]);
+
   useEffect(() => {
     carregarPerfil();
+    carregarDadosFormacao();
   }, []);
 
   useEffect(() => {
     if (inscricao?.formacao?.id) {
       setFormacaoState({ ...inscricao.formacao });
       dispatch(setDadosFormacao({}));
+    } else {
+      carregarDadosFormacao();
     }
-  }, [dispatch, inscricao]);
+  }, [dispatch, inscricao, carregarDadosFormacao]);
 
   useEffect(() => {
     form.resetFields();
@@ -199,7 +225,6 @@ export const Inscricao = () => {
 
   const cancelarInscricaoModal = () => {
     setAbrirModalListaDeEspera(false);
-    openNotificationErrors([INSCRICAO_NAO_ATENDE_CRITERIOS_VAGAS_REMANESCENTES]);
   };
 
   return (
@@ -321,7 +346,7 @@ export const Inscricao = () => {
 
               {abrirModalListaDeEspera && (
                 <Modal
-                  open
+                  open={abrirModalListaDeEspera}
                   title={
                     <span
                       style={{
@@ -341,7 +366,9 @@ export const Inscricao = () => {
                   destroyOnClose
                   okText='Realizar inscrição'
                   cancelText='Cancelar'
-                  onOk={() => { enviarInscricaoContinuar(); }}
+                  onOk={() => {
+                    enviarInscricaoContinuar();
+                  }}
                   onCancel={cancelarInscricaoModal}
                   styles={{
                     header: {
@@ -352,14 +379,15 @@ export const Inscricao = () => {
                       gap: '8px',
                       paddingTop: '8px',
                       paddingBottom: '8px',
-                    }
+                    },
                   }}
                   okButtonProps={{
-                    style: { flex: 1, margin: 0 }
+                    style: { flex: 1, margin: 0 },
                   }}
                   cancelButtonProps={{
-                    style: { flex: 1, margin: 0, marginLeft: 0, paddingLeft: 0 }
-                  }}>
+                    style: { flex: 1, margin: 0, marginLeft: 0, paddingLeft: 0 },
+                  }}
+                >
                   <Typography.Text style={{ fontSize: 12 }}>
                     Deseja realizar a inscrição mesmo assim?
                   </Typography.Text>
@@ -368,7 +396,7 @@ export const Inscricao = () => {
 
               {abrirModalInscricaoNaListaDeEspera && (
                 <Modal
-                  open
+                  open={abrirModalInscricaoNaListaDeEspera}
                   title={
                     <span
                       style={{
@@ -386,13 +414,23 @@ export const Inscricao = () => {
                   }
                   centered
                   destroyOnClose
+                  closable={true}
+                  maskClosable={false}
                   okText='Voltar à tela inicial'
                   cancelText='Conferir mais informações'
                   onOk={() => {
-                    navigate(ROUTES.PRINCIPAL);
+                    navigate('/');
                   }}
-                  // Ao cancelar ainda não há uma ação definida não fazer nada
-                  onCancel={() => {}}
+                  onCancel={(e) => {
+                    if (
+                      (e as any).target?.classList?.contains('ant-modal-close') ||
+                      (e as any).target?.closest('.ant-modal-close')
+                    ) {
+                      setAbrirModalInscricaoNaListaDeEspera(false);
+                    } else {
+                      navigate('/area-publica');
+                    }
+                  }}
                   styles={{
                     header: {
                       paddingTop: '16px',
@@ -402,25 +440,28 @@ export const Inscricao = () => {
                       gap: '8px',
                       paddingTop: '8px',
                       paddingBottom: '8px',
-                    }
+                    },
                   }}
                   okButtonProps={{
-                    style: { flex: 1, margin: 0 }
+                    style: { flex: 1, margin: 0 },
                   }}
                   cancelButtonProps={{
-                    style: { flex: 1, margin: 0, marginLeft: 0, paddingLeft: 0 }
+                    style: { flex: 1, margin: 0, marginLeft: 0, paddingLeft: 0 },
                   }}
                 >
                   <Typography.Text style={{ fontSize: 12 }}>
-                    <br/><p>Olá {perfil.usuarioNome}!</p>
-                    Sua inscrição na lista de espera da formação "
-                    <strong>{formacaoState?.titulo}</strong>" foi realizada com sucesso!
+                    <br />
+                    <p>Olá {perfil.usuarioNome}!</p>
+                    Sua inscrição na lista de espera da formação &quot;
+                    <strong>{formacaoState?.titulo}</strong>&quot; foi realizada com sucesso!
                     <br />
                     Você receberá um e-mail de confirmação da sua participação.
-                    <br/><br/><p>
-                      Você pode acompanhar suas inscrições clicando no botão “voltar à tela inicial”
+                    <br />
+                    <br />
+                    <p>
+                      Você pode acompanhar suas inscrições clicando no botão &quot;voltar à tela
+                      inicial&quot;
                     </p>
-                    
                   </Typography.Text>
                 </Modal>
               )}
