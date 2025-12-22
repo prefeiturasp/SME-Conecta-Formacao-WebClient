@@ -17,7 +17,7 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import { CF_SELECT_CARGO } from '~/core/constants/ids/select';
-import { ENVIAR_INSCRICAO, INSCRICAO_NAO_ATENDE_CRITERIOS_VAGAS_REMANESCENTES, SUA_INSCRICAO_NAO_FOI_ENVIADA } from '~/core/constants/mensagens';
+import { ENVIAR_INSCRICAO, SUA_INSCRICAO_NAO_FOI_ENVIADA } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
   DadosInscricaoCargoEolDTO,
@@ -34,7 +34,6 @@ import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import SelectFuncaoAtividade from './components/funcao-atividade';
 import { ModalInscricao } from './components/modal';
 import SelectTurma from './components/turmas';
-import { openNotificationErrors } from '~/components/lib/notification';
 
 export const Inscricao = () => {
   const paramsRoute = useParams();
@@ -226,11 +225,6 @@ export const Inscricao = () => {
 
   const cancelarInscricaoModal = () => {
     setAbrirModalListaDeEspera(false);
-    openNotificationErrors([INSCRICAO_NAO_ATENDE_CRITERIOS_VAGAS_REMANESCENTES]);
-  };
-
-  const cancelarInscricaoModalNova = () => {
-    setAbrirModalListaDeEspera(false);
   };
 
   return (
@@ -375,7 +369,7 @@ export const Inscricao = () => {
                   onOk={() => {
                     enviarInscricaoContinuar();
                   }}
-                  onCancel={cancelarInscricaoModalNova}
+                  onCancel={cancelarInscricaoModal}
                   styles={{
                     header: {
                       paddingTop: '16px',
