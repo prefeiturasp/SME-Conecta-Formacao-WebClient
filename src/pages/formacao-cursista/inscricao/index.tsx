@@ -417,7 +417,7 @@ export const Inscricao = () => {
                   closable={true}
                   maskClosable={false}
                   okText='Voltar à tela inicial'
-                  cancelText='Conferir mais informações'
+                  cancelText='Conferir mais formações'
                   onOk={() => {
                     navigate('/');
                   }}
