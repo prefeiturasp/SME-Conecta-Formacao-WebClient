@@ -30,4 +30,5 @@ export enum ROUTES {
   FORMACAOES_INSCRICOES_POR_ARQUIVO_ID = '/formacoes/inscricoes/arquivo/:id',
   NOTIFICACOES = '/notificacoes',
   NOTIFICACOES_DETALHES = '/notificacoes/detalhes/:id',
+  LISTA_PRESENCA_CODAF = '/formacoes/lista-presenca-codaf',
 }
