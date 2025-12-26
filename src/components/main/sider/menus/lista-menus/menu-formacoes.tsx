@@ -22,7 +22,7 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
     },
     {
       key: MenuEnum.ListaPresencaCodaf,
-      title: 'Lista Presença Codaf',
+      title: 'Lista de Presença CODAF',
       url: ROUTES.LISTA_PRESENCA_CODAF,
       roles: {
         podeConsultar: PermissaoEnum.Inscricao_C,

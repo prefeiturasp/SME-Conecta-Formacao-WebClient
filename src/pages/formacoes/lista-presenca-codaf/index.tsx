@@ -35,7 +35,7 @@ const ListaPresencaCodaf: React.FC = () => {
   const permissao = obterPermissaoPorMenu(MenuEnum.ListaPresencaCodaf);
 
   const [dados, setDados] = useState<CodafListaPresencaDTO[]>([]);
-  const [dadosOriginais, setDadosOriginais] = useState<CodafListaPresencaDTO[]>([]);
+  //const [dadosOriginais, setDadosOriginais] = useState<CodafListaPresencaDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalRegistros, setTotalRegistros] = useState(0);
