@@ -21,6 +21,7 @@ import { FormUsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
 import ListaPresencaCodaf from '~/pages/formacoes/lista-presenca-codaf';
+import CadastroListaPresencaCodaf from '~/pages/formacoes/lista-presenca-codaf/cadastro';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
 import { FormCadastrosInscricoesManuais } from '~/pages/formacoes/turmas-inscricoes/form';
 import { InscricoesPorArquivoListagem } from '~/pages/formacoes/turmas-inscricoes/listagem-arquivos';
@@ -176,6 +177,12 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
                   <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
                     <Route path='' element={<ListaPresencaCodaf />} />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                    <Route
+                      path={ROUTES.LISTA_PRESENCA_CODAF_NOVO}
+                      element={<CadastroListaPresencaCodaf />}
+                    />
                   </Route>
                 </Route>
               </Route>

@@ -31,11 +31,14 @@ import {
 } from '~/core/services/codaf-lista-presenca-service';
 import { onClickVoltar } from '~/core/utils/form';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
+import { useAppSelector } from '~/core/hooks/use-redux';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 
 const ListaPresencaCodaf: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const permissao = obterPermissaoPorMenu(MenuEnum.ListaPresencaCodaf);
+  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
   const [dados, setDados] = useState<CodafListaPresencaDTO[]>([]);
   //const [dadosOriginais, setDadosOriginais] = useState<CodafListaPresencaDTO[]>([]);
@@ -44,6 +47,11 @@ const ListaPresencaCodaf: React.FC = () => {
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [registrosPorPagina] = useState(10);
   const [filtroAplicado, setFiltroAplicado] = useState(false);
+
+  // Verifica se o perfil é EMFORPEF ou DF
+  const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
+  const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
+  const ocultarColunas = ehPerfilDF || ehPerfilEMFORPEF;
 
   const situacoes = [
     { id: 1, descricao: 'Iniciado' },
@@ -62,7 +70,7 @@ const ListaPresencaCodaf: React.FC = () => {
   ];
 
   const onClickNovo = () => {
-    console.log('Novo registro');
+    navigate(ROUTES.LISTA_PRESENCA_CODAF_NOVO);
   };
 
   const onClickEmitirCertificado = (record: CodafListaPresencaDTO) => {
@@ -93,7 +101,7 @@ const ListaPresencaCodaf: React.FC = () => {
     return situacao?.descricao || 'Desconhecido';
   };
 
-  const columns: ColumnsType<CodafListaPresencaDTO> = [
+  const colunasBase: ColumnsType<CodafListaPresencaDTO> = [
     {
       key: 'codigoFormacao',
       title: 'Código da formação',
@@ -133,6 +141,9 @@ const ListaPresencaCodaf: React.FC = () => {
       width: 100,
       render: (status: number) => obterSituacaoTexto(status),
     },
+  ];
+
+  const colunasAdicionais: ColumnsType<CodafListaPresencaDTO> = [
     {
       key: 'certificado',
       title: 'Certificado',
@@ -172,6 +183,8 @@ const ListaPresencaCodaf: React.FC = () => {
       ),
     },
   ];
+
+  const columns = ocultarColunas ? colunasBase : [...colunasBase, ...colunasAdicionais];
 
   const buscarDados = async (pagina = 1) => {
     setLoading(true);
