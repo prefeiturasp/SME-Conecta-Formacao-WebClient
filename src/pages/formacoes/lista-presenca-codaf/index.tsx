@@ -1,17 +1,20 @@
-import { Button, Col, Dropdown, Form, MenuProps, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Dropdown, Form, MenuProps, Row, Select, Table } from 'antd';
+import locale from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
 import React, { useState } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiPrinter } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+
+dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
 import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
-import { DatePickerPeriodo } from '~/components/main/input/date-range';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
@@ -40,6 +43,7 @@ const ListaPresencaCodaf: React.FC = () => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [registrosPorPagina] = useState(10);
+  const [filtroAplicado, setFiltroAplicado] = useState(false);
 
   const situacoes = [
     { id: 1, descricao: 'Iniciado' },
@@ -172,10 +176,8 @@ const ListaPresencaCodaf: React.FC = () => {
   const buscarDados = async (pagina = 1) => {
     setLoading(true);
     try {
-      const periodoEnvio = form.getFieldValue('periodoEnvio');
-      const dataEnvioDf = periodoEnvio?.[0]
-        ? dayjs(periodoEnvio[0]).format('YYYY-MM-DD')
-        : undefined;
+      const dataEnvio = form.getFieldValue('dataEnvio');
+      const dataEnvioDf = dataEnvio ? dayjs(dataEnvio).format('YYYY-MM-DD') : undefined;
 
       const filtros = {
         NomeFormacao: form.getFieldValue('nomeFormacao') || undefined,
@@ -229,6 +231,7 @@ const ListaPresencaCodaf: React.FC = () => {
   };
 
   const onClickFiltrar = () => {
+    setFiltroAplicado(true);
     buscarDados(1);
   };
 
@@ -237,6 +240,7 @@ const ListaPresencaCodaf: React.FC = () => {
     setDados([]);
     setTotalRegistros(0);
     setPaginaAtual(1);
+    setFiltroAplicado(false);
   };
 
   const handleTableChange = (pagination: any) => {
@@ -339,12 +343,14 @@ const ListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <DatePickerPeriodo
-                  formItemProps={{
-                    label: 'Período de envio para finalizar',
-                    name: 'periodoEnvio',
-                  }}
-                />
+                <Form.Item label='Data de envio para finalizar' name='dataEnvio'>
+                  <DatePicker
+                    placeholder='Selecione a data'
+                    format='DD/MM/YYYY'
+                    style={{ width: '100%' }}
+                    locale={locale}
+                  />
+                </Form.Item>
               </b>
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
@@ -384,29 +390,31 @@ const ListaPresencaCodaf: React.FC = () => {
               </Button>
             </Col>
           </Row>
-          <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
-            <Col span={24}>
-              <Table
-                columns={columns}
-                dataSource={dados}
-                rowKey='id'
-                loading={loading}
-                pagination={{
-                  current: paginaAtual,
-                  pageSize: registrosPorPagina,
-                  total: totalRegistros,
-                  showSizeChanger: false,
-                  showTotal: (total) => `Total de ${total} registros`,
-                  style: { textAlign: 'center' },
-                }}
-                onChange={handleTableChange}
-                scroll={{ x: 'max-content' }}
-                locale={{
-                  emptyText: 'Não encontramos registros para os filtros aplicados',
-                }}
-              />
-            </Col>
-          </Row>
+          {filtroAplicado && (
+            <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
+              <Col span={24}>
+                <Table
+                  columns={columns}
+                  dataSource={dados}
+                  rowKey='id'
+                  loading={loading}
+                  pagination={{
+                    current: paginaAtual,
+                    pageSize: registrosPorPagina,
+                    total: totalRegistros,
+                    showSizeChanger: false,
+                    showTotal: (total) => `Total de ${total} registros`,
+                    style: { textAlign: 'center' },
+                  }}
+                  onChange={handleTableChange}
+                  scroll={{ x: 'max-content' }}
+                  locale={{
+                    emptyText: 'Não encontramos registros para os filtros aplicados',
+                  }}
+                />
+              </Col>
+            </Row>
+          )}
         </CardContent>
       </Form>
     </Col>
