@@ -106,39 +106,40 @@ const ListaPresencaCodaf: React.FC = () => {
       key: 'codigoFormacao',
       title: 'Código da formação',
       dataIndex: 'codigoFormacao',
-      width: 100,
+      width: ocultarColunas ? 120 : 100,
     },
     {
       key: 'numeroHomologacao',
       title: 'Número de homologação',
       dataIndex: 'numeroHomologacao',
-      width: 140,
+      width: ocultarColunas ? 160 : 140,
     },
     {
       key: 'nomeFormacao',
       title: 'Nome da formação',
       dataIndex: 'nomeFormacao',
       ellipsis: true,
+      width: ocultarColunas ? undefined : 'auto',
     },
     {
       key: 'nomeAreaPromotora',
       title: 'Área promotora',
       dataIndex: 'nomeAreaPromotora',
-      width: 150,
+      width: ocultarColunas ? 200 : 150,
       ellipsis: true,
     },
     {
       key: 'nomeTurma',
       title: 'Turma',
       dataIndex: 'nomeTurma',
-      width: 120,
+      width: ocultarColunas ? 150 : 120,
       ellipsis: true,
     },
     {
       key: 'status',
       title: 'Situação',
       dataIndex: 'status',
-      width: 100,
+      width: ocultarColunas ? 150 : 100,
       render: (status: number) => obterSituacaoTexto(status),
     },
   ];
@@ -310,7 +311,10 @@ const ListaPresencaCodaf: React.FC = () => {
           <Row gutter={[16, 8]}>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <SelectAreaPromotora formItemProps={{ name: 'areaPromotoraId' }} />
+                <SelectAreaPromotora
+                  formItemProps={{ name: 'areaPromotoraId' }}
+                  selectProps={{ disabled: false }}
+                />
               </b>
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
