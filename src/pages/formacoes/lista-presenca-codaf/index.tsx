@@ -306,6 +306,7 @@ const ListaPresencaCodaf: React.FC = () => {
       form.setFieldsValue({
         turmaId: undefined,
       });
+      console.log(propostaSelecionada);
 
       // Buscar turmas da proposta selecionada
       try {

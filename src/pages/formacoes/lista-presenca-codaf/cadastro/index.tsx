@@ -83,6 +83,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [formValido, setFormValido] = useState(false);
   const [registroId, setRegistroId] = useState<number | null>(null);
   const [status, setStatus] = useState<number | null>(null);
+  const [paginaAtualInscritos, setPaginaAtualInscritos] = useState(1);
+  const [totalRegistrosInscritos, setTotalRegistrosInscritos] = useState(0);
+  const [registrosPorPaginaInscritos, setRegistrosPorPaginaInscritos] = useState(10);
 
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -204,48 +207,60 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   }, [id, form, navigate]);
 
   // Busca os inscritos quando uma turma é selecionada
-  React.useEffect(() => {
-    const buscarInscritos = async () => {
-      if (!turmaId) {
-        setCursistas([]);
-        return;
-      }
+  const buscarInscritos = async (pagina = 1) => {
+    if (!turmaId) {
+      setCursistas([]);
+      setTotalRegistrosInscritos(0);
+      setPaginaAtualInscritos(1);
+      return;
+    }
 
-      setLoading(true);
-      try {
-        const response = await obterInscritosTurma(turmaId);
-        if (response.sucesso && response.dados && response.dados.items) {
-          const inscritosFormatados = response.dados.items.map((inscrito) => ({
-            id: inscrito.id,
-            rfOuCpf: inscrito.cpf,
-            nomeCursista: inscrito.nome,
-            frequencia: inscrito.percentualFrequencia ?? 0,
-            atividade: inscrito.atividadeObrigatorio ? 'S' : 'N',
-            conceitoFinal: inscrito.conceitoFinal ?? 'NS',
-            aprovado: inscrito.aprovado,
-          }));
-          setCursistas(inscritosFormatados);
-        } else {
-          setCursistas([]);
-          notification.warning({
-            message: 'Atenção',
-            description: 'Nenhum inscrito encontrado para esta turma',
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao buscar inscritos:', error);
+    setLoading(true);
+    try {
+      const response = await obterInscritosTurma(turmaId, pagina, registrosPorPaginaInscritos);
+      if (response.sucesso && response.dados) {
+        const inscritosFormatados = response.dados.items.map((inscrito) => ({
+          id: inscrito.id,
+          rfOuCpf: inscrito.cpf,
+          nomeCursista: inscrito.nome,
+          frequencia: inscrito.percentualFrequencia ?? 0,
+          atividade: inscrito.atividadeObrigatorio ? 'S' : 'N',
+          conceitoFinal: inscrito.conceitoFinal ?? 'NS',
+          aprovado: inscrito.aprovado,
+        }));
+        setCursistas(inscritosFormatados);
+        setTotalRegistrosInscritos(response.dados.totalRegistros || 0);
+        setPaginaAtualInscritos(pagina);
+      } else {
         setCursistas([]);
-        notification.error({
-          message: 'Erro',
-          description: 'Erro ao buscar inscritos da turma',
+        setTotalRegistrosInscritos(0);
+        notification.warning({
+          message: 'Atenção',
+          description: 'Nenhum inscrito encontrado para esta turma',
         });
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Erro ao buscar inscritos:', error);
+      setCursistas([]);
+      setTotalRegistrosInscritos(0);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao buscar inscritos da turma',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    buscarInscritos();
+  React.useEffect(() => {
+    buscarInscritos(1);
   }, [turmaId]);
+
+  React.useEffect(() => {
+    if (turmaId) {
+      buscarInscritos(1);
+    }
+  }, [registrosPorPaginaInscritos]);
 
   const handleCursistaChange = (id: number, field: keyof CursistaDTO, value: any) => {
     setCursistas((prev) =>
@@ -259,6 +274,15 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : 0;
 
     handleCursistaChange(id, 'frequencia', numValue);
+  };
+
+  const handleTableChangeInscritos = (pagination: any) => {
+    if (pagination.pageSize !== registrosPorPaginaInscritos) {
+      setRegistrosPorPaginaInscritos(pagination.pageSize);
+      setPaginaAtualInscritos(1);
+    } else {
+      buscarInscritos(pagination.current);
+    }
   };
 
   const colunasCursistas: ColumnsType<CursistaDTO> = [
@@ -798,16 +822,32 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           </Row>
           <Row gutter={[16, 8]}>
             <Col span={24}>
-              <Table
-                columns={colunasCursistas}
-                dataSource={cursistas}
-                rowKey='id'
-                pagination={false}
-                locale={{
-                  emptyText: 'Nenhum cursista cadastrado',
-                }}
-                scroll={{ x: 'max-content' }}
-              />
+              <div className='table-pagination-center'>
+                <Table
+                  columns={colunasCursistas}
+                  dataSource={cursistas}
+                  rowKey='id'
+                  pagination={{
+                    current: paginaAtualInscritos,
+                    pageSize: registrosPorPaginaInscritos,
+                    total: totalRegistrosInscritos,
+                    showSizeChanger: true,
+                    pageSizeOptions: [10, 20, 30, 50, 100],
+                    locale: { items_per_page: '' },
+                  }}
+                  onChange={handleTableChangeInscritos}
+                  locale={{
+                    emptyText: 'Nenhum cursista cadastrado',
+                  }}
+                  scroll={{ x: 'max-content' }}
+                />
+              </div>
+              <style>{`
+                .table-pagination-center .ant-pagination {
+                  display: flex;
+                  justify-content: center;
+                }
+              `}</style>
             </Col>
           </Row>
           <Row gutter={[16, 8]}>
