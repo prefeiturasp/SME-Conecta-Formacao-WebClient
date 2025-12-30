@@ -47,6 +47,7 @@ import {
   atualizarCodafListaPresenca,
   criarCodafListaPresenca,
   obterCodafListaPresencaPorId,
+  obterInscritosTurma,
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -71,7 +72,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
   const [loading, setLoading] = useState(false);
-  const [cursistas, _setCursistas] = useState<CursistaDTO[]>([]);
+  const [cursistas, setCursistas] = useState<CursistaDTO[]>([]);
   const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
   const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
   const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
@@ -202,6 +203,50 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     carregarDados();
   }, [id, form, navigate]);
 
+  // Busca os inscritos quando uma turma é selecionada
+  React.useEffect(() => {
+    const buscarInscritos = async () => {
+      if (!turmaId) {
+        setCursistas([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const response = await obterInscritosTurma(turmaId);
+        if (response.sucesso && response.dados && response.dados.items) {
+          const inscritosFormatados = response.dados.items.map((inscrito) => ({
+            id: inscrito.id,
+            rfOuCpf: inscrito.cpf,
+            nomeCursista: inscrito.nome,
+            frequencia: inscrito.percentualFrequencia,
+            atividade: inscrito.atividadeObrigatorio ? 'Sim' : 'Não',
+            conceitoFinal: inscrito.conceitoFinal,
+            aprovado: inscrito.aprovado,
+          }));
+          setCursistas(inscritosFormatados);
+        } else {
+          setCursistas([]);
+          notification.warning({
+            message: 'Atenção',
+            description: 'Nenhum inscrito encontrado para esta turma',
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao buscar inscritos:', error);
+        setCursistas([]);
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao buscar inscritos da turma',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    buscarInscritos();
+  }, [turmaId]);
+
   const colunasCursistas: ColumnsType<CursistaDTO> = [
     {
       key: 'rfOuCpf',
@@ -327,14 +372,18 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           inscricaoId: cursista.id,
           percentualFrequencia: cursista.frequencia,
           conceitoFinal: cursista.conceitoFinal,
-          atividadeObrigatorio: cursista.atividade ? true : false,
+          atividadeObrigatorio: cursista.atividade === 'Sim',
           aprovado: cursista.aprovado,
         })),
       };
 
+      console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
+
       const response = modoEdicao
         ? await atualizarCodafListaPresenca(registroId!, dados)
         : await criarCodafListaPresenca(dados);
+
+      console.log('Resposta da API:', response);
 
       if (response.sucesso) {
         notification.success({
@@ -345,18 +394,37 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         });
         navigate(ROUTES.LISTA_PRESENCA_CODAF);
       } else {
+        const mensagensErro = response.mensagens || [];
+        const mensagemDetalhada =
+          mensagensErro.length > 0
+            ? mensagensErro.join(', ')
+            : modoEdicao
+              ? 'Erro ao atualizar o registro'
+              : 'Erro ao salvar o registro';
+
+        console.error('Erro da API:', mensagensErro);
+
         notification.error({
-          message: 'Erro',
-          description:
-            response.mensagens?.[0] ||
-            (modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro'),
+          message: 'Erro ao salvar',
+          description: mensagemDetalhada,
         });
       }
-    } catch (error) {
-      console.error('Erro ao salvar:', error);
+    } catch (error: any) {
+      console.error('Erro ao salvar (catch):', error);
+      console.error('Detalhes do erro:', {
+        message: error?.message,
+        response: error?.response,
+        data: error?.response?.data,
+      });
+
+      const mensagemErro =
+        error?.response?.data?.mensagens?.[0] ||
+        error?.message ||
+        (modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro');
+
       notification.error({
         message: 'Erro',
-        description: modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro',
+        description: mensagemErro,
       });
     } finally {
       setLoading(false);

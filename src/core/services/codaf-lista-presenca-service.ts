@@ -116,3 +116,31 @@ export const atualizarCodafListaPresenca = (
 ): Promise<ApiResult<any>> => {
   return alterarRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`, dados);
 };
+
+export type InscritoTurmaDTO = {
+  id: number;
+  cpf: string;
+  nome: string;
+  percentualFrequencia: number;
+  conceitoFinal: string;
+  atividadeObrigatorio: boolean;
+  aprovado: boolean;
+};
+
+export type InscritoTurmaRetornoDTO = {
+  items: InscritoTurmaDTO[];
+  totalPaginas: number;
+  totalRegistros: number;
+};
+
+export const obterInscritosTurma = (
+  turmaId: number,
+  numeroPagina = 1,
+  numeroRegistros = 9999,
+): Promise<ApiResult<InscritoTurmaRetornoDTO>> => {
+  const params = {
+    numeroPagina,
+    numeroRegistros,
+  };
+  return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/inscritos-turma/${turmaId}`, { params });
+};
