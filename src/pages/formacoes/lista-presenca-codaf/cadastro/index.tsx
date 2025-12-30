@@ -254,10 +254,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const handleFrequenciaChange = (id: number, value: string) => {
-    // Remove tudo que não é número
     const numericValue = value.replace(/[^0-9]/g, '');
 
-    // Converte para número e limita a 100
     const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : 0;
 
     handleCursistaChange(id, 'frequencia', numValue);
@@ -455,8 +453,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           mensagensErro.length > 0
             ? mensagensErro.join(', ')
             : modoEdicao
-              ? 'Erro ao atualizar o registro'
-              : 'Erro ao salvar o registro';
+            ? 'Erro ao atualizar o registro'
+            : 'Erro ao salvar o registro';
 
         console.error('Erro da API:', mensagensErro);
 
@@ -513,7 +511,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       setLoading(true);
 
       console.log('Enviando para DF:', values);
-
 
       notification.success({
         message: 'Sucesso',
