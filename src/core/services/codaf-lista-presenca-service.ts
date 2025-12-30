@@ -86,7 +86,7 @@ export type CodafListaPresencaDetalheDTO = {
   dataPublicacao: string | null;
   paginaComunicadoDom: number;
   dataPublicacaoDom: string | null;
-  coidgoCursoEol: number | null;
+  codigoCursoEol: number | null;
   codigoNivel: number;
   observacao: string | null;
   status: number;

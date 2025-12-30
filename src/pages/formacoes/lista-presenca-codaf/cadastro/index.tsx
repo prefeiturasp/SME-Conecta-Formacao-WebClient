@@ -155,7 +155,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             dataPublicacaoDiarioOficial: dados.dataPublicacaoDom
               ? dayjs(dados.dataPublicacaoDom)
               : null,
-            codigoCursoEol: dados.coidgoCursoEol,
+            codigoCursoEol: dados.codigoCursoEol,
             codigoNivel: dados.codigoNivel,
             observacao: dados.observacao || '',
           });
@@ -219,9 +219,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             id: inscrito.id,
             rfOuCpf: inscrito.cpf,
             nomeCursista: inscrito.nome,
-            frequencia: inscrito.percentualFrequencia,
-            atividade: inscrito.atividadeObrigatorio ? 'Sim' : 'Não',
-            conceitoFinal: inscrito.conceitoFinal,
+            frequencia: inscrito.percentualFrequencia ?? 0,
+            atividade: inscrito.atividadeObrigatorio ? 'S' : 'N',
+            conceitoFinal: inscrito.conceitoFinal ?? 'NS',
             aprovado: inscrito.aprovado,
           }));
           setCursistas(inscritosFormatados);
@@ -247,6 +247,22 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     buscarInscritos();
   }, [turmaId]);
 
+  const handleCursistaChange = (id: number, field: keyof CursistaDTO, value: any) => {
+    setCursistas((prev) =>
+      prev.map((cursista) => (cursista.id === id ? { ...cursista, [field]: value } : cursista)),
+    );
+  };
+
+  const handleFrequenciaChange = (id: number, value: string) => {
+    // Remove tudo que não é número
+    const numericValue = value.replace(/[^0-9]/g, '');
+
+    // Converte para número e limita a 100
+    const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : 0;
+
+    handleCursistaChange(id, 'frequencia', numValue);
+  };
+
   const colunasCursistas: ColumnsType<CursistaDTO> = [
     {
       key: 'rfOuCpf',
@@ -265,26 +281,66 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       title: 'Frequência (%)',
       dataIndex: 'frequencia',
       width: 150,
-      render: (freq: number) => `${freq}%`,
+      render: (freq: number, record: CursistaDTO) => (
+        <Input
+          value={`${freq}%`}
+          onChange={(e) => handleFrequenciaChange(record.id, e.target.value)}
+          style={{ width: '100%' }}
+          maxLength={4}
+        />
+      ),
     },
     {
       key: 'atividade',
       title: 'Atividade',
       dataIndex: 'atividade',
       width: 150,
+      render: (atividade: string, record: CursistaDTO) => (
+        <Select
+          value={atividade}
+          onChange={(value) => handleCursistaChange(record.id, 'atividade', value)}
+          style={{ width: '100%' }}
+          options={[
+            { label: 'Sim', value: 'S' },
+            { label: 'Não', value: 'N' },
+          ]}
+        />
+      ),
     },
     {
       key: 'conceitoFinal',
       title: 'Conceito final',
       dataIndex: 'conceitoFinal',
-      width: 150,
+      width: 250,
+      render: (conceitoFinal: string, record: CursistaDTO) => (
+        <Select
+          value={conceitoFinal}
+          onChange={(value) => handleCursistaChange(record.id, 'conceitoFinal', value)}
+          style={{ width: '100%' }}
+          options={[
+            { label: 'Plenamente satisfatório (P)', value: 'P' },
+            { label: 'Satisfatório (S)', value: 'S' },
+            { label: 'Não Satisfatório (NS)', value: 'NS' },
+          ]}
+        />
+      ),
     },
     {
       key: 'aprovado',
       title: 'Aprovado',
       dataIndex: 'aprovado',
       width: 120,
-      render: (aprovado: boolean) => (aprovado ? 'Sim' : 'Não'),
+      render: (aprovado: boolean, record: CursistaDTO) => (
+        <Select
+          value={aprovado ? 'S' : 'N'}
+          onChange={(value) => handleCursistaChange(record.id, 'aprovado', value === 'S')}
+          style={{ width: '100%' }}
+          options={[
+            { label: 'Sim', value: 'S' },
+            { label: 'Não', value: 'N' },
+          ]}
+        />
+      ),
     },
   ];
 
@@ -372,7 +428,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           inscricaoId: cursista.id,
           percentualFrequencia: cursista.frequencia,
           conceitoFinal: cursista.conceitoFinal,
-          atividadeObrigatorio: cursista.atividade === 'Sim',
+          atividadeObrigatorio: cursista.atividade === 'S',
           aprovado: cursista.aprovado,
         })),
       };
