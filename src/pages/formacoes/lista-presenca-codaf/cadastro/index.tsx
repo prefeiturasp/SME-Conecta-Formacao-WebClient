@@ -432,7 +432,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       // Formatar datas para o formato esperado pela API (yyyy-mm-dd)
       const formatarData = (data: any) => {
-        if (!data) return '';
+        if (!data) return null;
         return dayjs(data).format('YYYY-MM-DD');
       };
 
@@ -729,11 +729,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <Form.Item
-                  label='Data da publicação'
-                  name='dataPublicacao'
-                  rules={[{ required: true, message: 'Campo obrigatório' }]}
-                >
+                <Form.Item label='Data da publicação' name='dataPublicacao'>
                   <DatePicker
                     placeholder='Selecione a data'
                     format='DD/MM/YYYY'
@@ -765,7 +761,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 <Form.Item
                   label='Data de publicação do Diário Oficial'
                   name='dataPublicacaoDiarioOficial'
-                  rules={[{ required: true, message: 'Campo obrigatório' }]}
                 >
                   <DatePicker
                     placeholder='Selecione a data'
@@ -980,8 +975,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 backgroundColor: 'white',
                 boxShadow: '0px 0px 12px 0px #0000001F',
                 padding: '24px',
-
-
               }}
             >
               <Row gutter={[16, 8]} align='middle' justify='space-between'>

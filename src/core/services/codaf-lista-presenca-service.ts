@@ -65,8 +65,8 @@ export type InscritoDTO = {
 export type CriarCodafListaPresencaDTO = {
   propostaId: number;
   propostaTurmaId: number;
-  dataPublicacao: string;
-  dataPublicacaoDom: string;
+  dataPublicacao: string | null;
+  dataPublicacaoDom: string | null;
   numeroComunicado: number;
   paginaComunicadoDom: number;
   codigoCursoEol: number;
