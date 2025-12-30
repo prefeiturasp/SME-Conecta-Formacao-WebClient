@@ -466,7 +466,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             <Col>
               <Button
                 type='primary'
-                /* onClick={onClickEnviarParaDF} */
+                onClick={onClickEnviarParaDF}
                 loading={loading}
                 disabled={!formValido}
                 style={{ fontWeight: 700 }}
