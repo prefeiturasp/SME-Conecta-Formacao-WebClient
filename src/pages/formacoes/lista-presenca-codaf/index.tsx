@@ -304,9 +304,6 @@ const ListaPresencaCodaf: React.FC = () => {
     if (proposta) {
       setPropostaSelecionada(proposta);
       form.setFieldsValue({
-        numeroHomologacao: proposta.numeroHomologacao,
-        nomeFormacao: proposta.nomeFormacao,
-        codigoFormacao: proposta.codigoFormacao,
         turmaId: undefined,
       });
 
