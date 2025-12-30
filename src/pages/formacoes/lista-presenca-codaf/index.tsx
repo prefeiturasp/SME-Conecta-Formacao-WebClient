@@ -411,7 +411,7 @@ const ListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <Form.Item label='Data de envio para finalizar' name='dataEnvio'>
+                <Form.Item label='Data de envio para finalização' name='dataEnvio'>
                   <DatePicker
                     placeholder='Selecione a data'
                     format='DD/MM/YYYY'
