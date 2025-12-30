@@ -632,7 +632,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           <Row gutter={[16, 8]}>
             <Col xs={24} sm={12} md={12} lg={12} xl={12}>
               <b>
-                <Form.Item label='Número de homologação' name='numeroHomologacao'>
+                <Form.Item
+                  label='Número de homologação'
+                  name='numeroHomologacao'
+                  rules={[{ required: true, message: 'Campo obrigatório' }]}
+                >
                   <AutoComplete
                     id={CF_INPUT_NUMERO_HOMOLOGACAO}
                     placeholder='Digite para buscar formação'
@@ -657,6 +661,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   formItemProps={{
                     label: 'Nome da formação',
                     name: 'nomeFormacao',
+                    rules: [{ required: true, message: 'Campo obrigatório' }],
                   }}
                   inputProps={{
                     id: CF_INPUT_NOME_FORMACAO,
@@ -675,6 +680,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   formItemProps={{
                     label: 'Código da formação',
                     name: 'codigoFormacao',
+                    rules: [{ required: true, message: 'Campo obrigatório' }],
                   }}
                   inputProps={{
                     id: CF_INPUT_CODIGO_FORMACAO,
@@ -687,7 +693,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={12} lg={12} xl={12}>
               <b>
-                <Form.Item label='Turma' name='turmaId'>
+                <Form.Item
+                  label='Turma'
+                  name='turmaId'
+                  rules={[{ required: true, message: 'Campo obrigatório' }]}
+                >
                   <Select
                     placeholder='Selecione a turma'
                     options={turmas.map((turma) => ({
