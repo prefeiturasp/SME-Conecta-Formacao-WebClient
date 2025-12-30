@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Dropdown, Form, MenuProps, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Dropdown, Form, MenuProps, Modal, Row, Select, Table } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
@@ -47,8 +47,8 @@ const ListaPresencaCodaf: React.FC = () => {
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [registrosPorPagina] = useState(10);
   const [filtroAplicado, setFiltroAplicado] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // Verifica se o perfil é EMFORPEF ou DF
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
   const ocultarColunas = ehPerfilDF || ehPerfilEMFORPEF;
@@ -70,6 +70,16 @@ const ListaPresencaCodaf: React.FC = () => {
   ];
 
   const onClickNovo = () => {
+    setModalVisible(true);
+  };
+
+  const onClickIrParaInscricoes = () => {
+    setModalVisible(false);
+    navigate(ROUTES.FORMACAOES_INSCRICOES);
+  };
+
+  const onClickContinuarRegistro = () => {
+    setModalVisible(false);
     navigate(ROUTES.LISTA_PRESENCA_CODAF_NOVO);
   };
 
@@ -263,6 +273,47 @@ const ListaPresencaCodaf: React.FC = () => {
 
   return (
     <Col>
+      <Modal
+        title={
+          <span
+            style={{
+              fontWeight: 700,
+              fontSize: '20px',
+              lineHeight: '100%',
+              letterSpacing: '0%',
+            }}
+          >
+            Atenção!
+          </span>
+        }
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        centered
+        width={600}
+        footer={[
+          <Button
+            key='inscricoes'
+            onClick={onClickIrParaInscricoes}
+            style={{
+              borderColor: '#ff6b35',
+              color: '#ff6b35',
+              fontWeight: 500,
+            }}
+          >
+            Ir para tela de inscrições
+          </Button>,
+          <Button key='continuar' type='primary' onClick={onClickContinuarRegistro}>
+            Continuar registro
+          </Button>,
+        ]}
+      >
+        <br></br>
+        <p>
+          Antes de iniciar o registro CODAF, verifique se todos os cursistas estão inscritos na
+          formação. Caso necessário, você pode realizar o cadastro pela tela de inscrições.
+        </p>
+        <br></br>
+      </Modal>
       <HeaderPage title='Lista Presença Codaf'>
         <Col span={24}>
           <Row gutter={[8, 8]}>
@@ -424,6 +475,10 @@ const ListaPresencaCodaf: React.FC = () => {
                     style: { textAlign: 'center' },
                   }}
                   onChange={handleTableChange}
+                  onRow={(record) => ({
+                    onClick: () => navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
+                    style: { cursor: 'pointer' },
+                  })}
                   scroll={{ x: 'max-content' }}
                   locale={{
                     emptyText: 'Não encontramos registros para os filtros aplicados',
