@@ -632,7 +632,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           <Row gutter={[16, 8]}>
             <Col xs={24} sm={12} md={12} lg={12} xl={12}>
               <b>
-                <Form.Item label='Número de homologação' name='numeroHomologacao'>
+                <Form.Item
+                  label='Número de homologação'
+                  name='numeroHomologacao'
+                  rules={[{ required: true, message: 'Campo obrigatório' }]}
+                >
                   <AutoComplete
                     id={CF_INPUT_NUMERO_HOMOLOGACAO}
                     placeholder='Digite para buscar formação'
@@ -657,6 +661,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   formItemProps={{
                     label: 'Nome da formação',
                     name: 'nomeFormacao',
+                    rules: [{ required: true, message: 'Campo obrigatório' }],
                   }}
                   inputProps={{
                     id: CF_INPUT_NOME_FORMACAO,
@@ -675,6 +680,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   formItemProps={{
                     label: 'Código da formação',
                     name: 'codigoFormacao',
+                    rules: [{ required: true, message: 'Campo obrigatório' }],
                   }}
                   inputProps={{
                     id: CF_INPUT_CODIGO_FORMACAO,
@@ -687,7 +693,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={12} lg={12} xl={12}>
               <b>
-                <Form.Item label='Turma' name='turmaId'>
+                <Form.Item
+                  label='Turma'
+                  name='turmaId'
+                  rules={[{ required: true, message: 'Campo obrigatório' }]}
+                >
                   <Select
                     placeholder='Selecione a turma'
                     options={turmas.map((turma) => ({
@@ -799,11 +809,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               </b>
             </Col>
           </Row>
-          <Row gutter={[16, 8]}>
+          <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
             <Col span={24}>
-              <br></br>
-              <br></br>
-              <br></br>
               <div
                 style={{
                   fontWeight: 700,
@@ -850,11 +857,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               `}</style>
             </Col>
           </Row>
-          <Row gutter={[16, 8]}>
+          <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
             <Col span={24}>
-              <br></br>
-              <br></br>
-              <br></br>
               <div
                 style={{
                   fontWeight: 700,
@@ -941,11 +945,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               </Button>
             </Col>
           </Row>
-          <Row gutter={[16, 8]}>
+          <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
             <Col span={24}>
-              <br></br>
-              <br></br>
-              <br></br>
               <div
                 style={{
                   fontWeight: 700,
@@ -977,18 +978,20 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 height: '100%',
                 borderRadius: '4px',
                 backgroundColor: 'white',
-                boxShadow: '0 0.125rem 0.5rem rgba(0, 0, 0, 0.08)',
+                boxShadow: '0px 0px 12px 0px #0000001F',
                 padding: '24px',
+
+
               }}
             >
-              <Row gutter={[16, 8]} align='middle'>
-                <Col xs={24} sm={18} md={20} lg={20} xl={20}>
+              <Row gutter={[16, 8]} align='middle' justify='space-between'>
+                <Col>
                   <p style={{ margin: 0 }}>
                     Você pode baixar o modelo do termo de responsabilidade para preenchimento.
                     Clique no botão "Termo de Responsabilidade" para fazer o download.
                   </p>
                 </Col>
-                <Col xs={24} sm={6} md={4} lg={4} xl={4}>
+                <Col>
                   <Button
                     type='default'
                     icon={<DownloadOutlined />}
@@ -996,8 +999,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                       borderColor: '#ff6b35',
                       color: '#ff6b35',
                       fontWeight: 500,
-                      width: '100%',
-                      paddingLeft: 5,
+                      padding: '9px',
                     }}
                   >
                     Termo de responsabilidade
@@ -1007,10 +1009,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </div>
           </div>
 
-          <Row gutter={[16, 8]}>
+          <Row gutter={[16, 8]} style={{ marginTop: 32 }}>
             <Col span={24}>
-              <br></br>
-              <br></br>
               <div
                 style={{
                   fontWeight: 700,
