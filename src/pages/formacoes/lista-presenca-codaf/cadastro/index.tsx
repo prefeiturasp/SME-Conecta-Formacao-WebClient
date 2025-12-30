@@ -390,14 +390,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       console.log('Enviando para DF:', values);
 
-      // TODO: Chamar serviço de envio para DF quando estiver disponível
 
       notification.success({
         message: 'Sucesso',
         description: 'Registro enviado para DF com sucesso!',
       });
-
-      navigate(ROUTES.LISTA_PRESENCA_CODAF);
     } catch (error) {
       console.error('Erro ao enviar para DF:', error);
       notification.error({
@@ -498,7 +495,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                     onSelect={onSelectFormacao}
                     options={opcoesFormacao.map((opcao) => ({
                       value: opcao.numeroHomologacao.toString(),
-                      label: `${opcao.numeroHomologacao} - ${opcao.nomeFormacao}`,
+                      label: opcao.numeroHomologacao.toString(),
                       numeroHomologacao: opcao.numeroHomologacao,
                     }))}
                     filterOption={false}
@@ -520,6 +517,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                     id: CF_INPUT_NOME_FORMACAO,
                     placeholder: 'Nome da formação',
                     maxLength: 200,
+                    disabled: true,
                   }}
                 />
               </b>
@@ -537,6 +535,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                     id: CF_INPUT_CODIGO_FORMACAO,
                     placeholder: 'Código da formação',
                     maxLength: 20,
+                    disabled: true,
                   }}
                 />
               </b>
@@ -575,7 +574,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <Form.Item label='Data da publicação' name='dataPublicacao'>
+                <Form.Item
+                  label='Data da publicação'
+                  name='dataPublicacao'
+                  rules={[{ required: true, message: 'Campo obrigatório' }]}
+                >
                   <DatePicker
                     placeholder='Selecione a data'
                     format='DD/MM/YYYY'
@@ -607,6 +610,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 <Form.Item
                   label='Data de publicação do Diário Oficial'
                   name='dataPublicacaoDiarioOficial'
+                  rules={[{ required: true, message: 'Campo obrigatório' }]}
                 >
                   <DatePicker
                     placeholder='Selecione a data'
