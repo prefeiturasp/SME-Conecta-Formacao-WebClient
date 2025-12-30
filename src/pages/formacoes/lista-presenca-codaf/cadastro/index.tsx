@@ -83,6 +83,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [formValido, setFormValido] = useState(false);
   const [registroId, setRegistroId] = useState<number | null>(null);
   const [status, setStatus] = useState<number | null>(null);
+  const [paginaAtualInscritos, setPaginaAtualInscritos] = useState(1);
+  const [totalRegistrosInscritos, setTotalRegistrosInscritos] = useState(0);
+  const [registrosPorPaginaInscritos, setRegistrosPorPaginaInscritos] = useState(10);
 
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -155,7 +158,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             dataPublicacaoDiarioOficial: dados.dataPublicacaoDom
               ? dayjs(dados.dataPublicacaoDom)
               : null,
-            codigoCursoEol: dados.coidgoCursoEol,
+            codigoCursoEol: dados.codigoCursoEol,
             codigoNivel: dados.codigoNivel,
             observacao: dados.observacao || '',
           });
@@ -204,48 +207,83 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   }, [id, form, navigate]);
 
   // Busca os inscritos quando uma turma é selecionada
-  React.useEffect(() => {
-    const buscarInscritos = async () => {
-      if (!turmaId) {
-        setCursistas([]);
-        return;
-      }
+  const buscarInscritos = async (pagina = 1) => {
+    if (!turmaId) {
+      setCursistas([]);
+      setTotalRegistrosInscritos(0);
+      setPaginaAtualInscritos(1);
+      return;
+    }
 
-      setLoading(true);
-      try {
-        const response = await obterInscritosTurma(turmaId);
-        if (response.sucesso && response.dados && response.dados.items) {
-          const inscritosFormatados = response.dados.items.map((inscrito) => ({
-            id: inscrito.id,
-            rfOuCpf: inscrito.cpf,
-            nomeCursista: inscrito.nome,
-            frequencia: inscrito.percentualFrequencia,
-            atividade: inscrito.atividadeObrigatorio ? 'Sim' : 'Não',
-            conceitoFinal: inscrito.conceitoFinal,
-            aprovado: inscrito.aprovado,
-          }));
-          setCursistas(inscritosFormatados);
-        } else {
-          setCursistas([]);
-          notification.warning({
-            message: 'Atenção',
-            description: 'Nenhum inscrito encontrado para esta turma',
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao buscar inscritos:', error);
+    setLoading(true);
+    try {
+      const response = await obterInscritosTurma(turmaId, pagina, registrosPorPaginaInscritos);
+      if (response.sucesso && response.dados) {
+        const inscritosFormatados = response.dados.items.map((inscrito) => ({
+          id: inscrito.id,
+          rfOuCpf: inscrito.cpf,
+          nomeCursista: inscrito.nome,
+          frequencia: inscrito.percentualFrequencia ?? 0,
+          atividade: inscrito.atividadeObrigatorio ? 'S' : 'N',
+          conceitoFinal: inscrito.conceitoFinal ?? 'NS',
+          aprovado: inscrito.aprovado,
+        }));
+        setCursistas(inscritosFormatados);
+        setTotalRegistrosInscritos(response.dados.totalRegistros || 0);
+        setPaginaAtualInscritos(pagina);
+      } else {
         setCursistas([]);
-        notification.error({
-          message: 'Erro',
-          description: 'Erro ao buscar inscritos da turma',
+        setTotalRegistrosInscritos(0);
+        notification.warning({
+          message: 'Atenção',
+          description: 'Nenhum inscrito encontrado para esta turma',
         });
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Erro ao buscar inscritos:', error);
+      setCursistas([]);
+      setTotalRegistrosInscritos(0);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao buscar inscritos da turma',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    buscarInscritos();
+  React.useEffect(() => {
+    buscarInscritos(1);
   }, [turmaId]);
+
+  React.useEffect(() => {
+    if (turmaId) {
+      buscarInscritos(1);
+    }
+  }, [registrosPorPaginaInscritos]);
+
+  const handleCursistaChange = (id: number, field: keyof CursistaDTO, value: any) => {
+    setCursistas((prev) =>
+      prev.map((cursista) => (cursista.id === id ? { ...cursista, [field]: value } : cursista)),
+    );
+  };
+
+  const handleFrequenciaChange = (id: number, value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+
+    const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : 0;
+
+    handleCursistaChange(id, 'frequencia', numValue);
+  };
+
+  const handleTableChangeInscritos = (pagination: any) => {
+    if (pagination.pageSize !== registrosPorPaginaInscritos) {
+      setRegistrosPorPaginaInscritos(pagination.pageSize);
+      setPaginaAtualInscritos(1);
+    } else {
+      buscarInscritos(pagination.current);
+    }
+  };
 
   const colunasCursistas: ColumnsType<CursistaDTO> = [
     {
@@ -265,26 +303,66 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       title: 'Frequência (%)',
       dataIndex: 'frequencia',
       width: 150,
-      render: (freq: number) => `${freq}%`,
+      render: (freq: number, record: CursistaDTO) => (
+        <Input
+          value={`${freq}%`}
+          onChange={(e) => handleFrequenciaChange(record.id, e.target.value)}
+          style={{ width: '100%' }}
+          maxLength={4}
+        />
+      ),
     },
     {
       key: 'atividade',
       title: 'Atividade',
       dataIndex: 'atividade',
       width: 150,
+      render: (atividade: string, record: CursistaDTO) => (
+        <Select
+          value={atividade}
+          onChange={(value) => handleCursistaChange(record.id, 'atividade', value)}
+          style={{ width: '100%' }}
+          options={[
+            { label: 'Sim', value: 'S' },
+            { label: 'Não', value: 'N' },
+          ]}
+        />
+      ),
     },
     {
       key: 'conceitoFinal',
       title: 'Conceito final',
       dataIndex: 'conceitoFinal',
-      width: 150,
+      width: 250,
+      render: (conceitoFinal: string, record: CursistaDTO) => (
+        <Select
+          value={conceitoFinal}
+          onChange={(value) => handleCursistaChange(record.id, 'conceitoFinal', value)}
+          style={{ width: '100%' }}
+          options={[
+            { label: 'Plenamente satisfatório (P)', value: 'P' },
+            { label: 'Satisfatório (S)', value: 'S' },
+            { label: 'Não Satisfatório (NS)', value: 'NS' },
+          ]}
+        />
+      ),
     },
     {
       key: 'aprovado',
       title: 'Aprovado',
       dataIndex: 'aprovado',
       width: 120,
-      render: (aprovado: boolean) => (aprovado ? 'Sim' : 'Não'),
+      render: (aprovado: boolean, record: CursistaDTO) => (
+        <Select
+          value={aprovado ? 'S' : 'N'}
+          onChange={(value) => handleCursistaChange(record.id, 'aprovado', value === 'S')}
+          style={{ width: '100%' }}
+          options={[
+            { label: 'Sim', value: 'S' },
+            { label: 'Não', value: 'N' },
+          ]}
+        />
+      ),
     },
   ];
 
@@ -372,7 +450,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           inscricaoId: cursista.id,
           percentualFrequencia: cursista.frequencia,
           conceitoFinal: cursista.conceitoFinal,
-          atividadeObrigatorio: cursista.atividade === 'Sim',
+          atividadeObrigatorio: cursista.atividade === 'S',
           aprovado: cursista.aprovado,
         })),
       };
@@ -399,8 +477,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           mensagensErro.length > 0
             ? mensagensErro.join(', ')
             : modoEdicao
-              ? 'Erro ao atualizar o registro'
-              : 'Erro ao salvar o registro';
+            ? 'Erro ao atualizar o registro'
+            : 'Erro ao salvar o registro';
 
         console.error('Erro da API:', mensagensErro);
 
@@ -457,7 +535,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       setLoading(true);
 
       console.log('Enviando para DF:', values);
-
 
       notification.success({
         message: 'Sucesso',
@@ -745,16 +822,32 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           </Row>
           <Row gutter={[16, 8]}>
             <Col span={24}>
-              <Table
-                columns={colunasCursistas}
-                dataSource={cursistas}
-                rowKey='id'
-                pagination={false}
-                locale={{
-                  emptyText: 'Nenhum cursista cadastrado',
-                }}
-                scroll={{ x: 'max-content' }}
-              />
+              <div className='table-pagination-center'>
+                <Table
+                  columns={colunasCursistas}
+                  dataSource={cursistas}
+                  rowKey='id'
+                  pagination={{
+                    current: paginaAtualInscritos,
+                    pageSize: registrosPorPaginaInscritos,
+                    total: totalRegistrosInscritos,
+                    showSizeChanger: true,
+                    pageSizeOptions: [10, 20, 30, 50, 100],
+                    locale: { items_per_page: '' },
+                  }}
+                  onChange={handleTableChangeInscritos}
+                  locale={{
+                    emptyText: 'Nenhum cursista cadastrado',
+                  }}
+                  scroll={{ x: 'max-content' }}
+                />
+              </div>
+              <style>{`
+                .table-pagination-center .ant-pagination {
+                  display: flex;
+                  justify-content: center;
+                }
+              `}</style>
             </Col>
           </Row>
           <Row gutter={[16, 8]}>
