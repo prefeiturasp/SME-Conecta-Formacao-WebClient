@@ -1,4 +1,5 @@
 import {
+  AutoComplete,
   Button,
   Col,
   DatePicker,
@@ -41,6 +42,9 @@ import {
   CodafListaPresencaDTO,
   obterListaPresencaCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
+import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
+import { obterTurmasInscricao } from '~/core/services/inscricao-service';
+import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
@@ -60,6 +64,13 @@ const ListaPresencaCodaf: React.FC = () => {
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [filtroAplicado, setFiltroAplicado] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
+  const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
+  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
+    null,
+  );
+  const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
+  const [turmaDisabled, setTurmaDisabled] = useState(true);
 
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
@@ -70,15 +81,6 @@ const ListaPresencaCodaf: React.FC = () => {
     { id: 2, descricao: 'Aguardando DF' },
     { id: 3, descricao: 'Devolvido pelo DF' },
     { id: 4, descricao: 'Finalizado' },
-  ];
-
-  const turmas = [
-    { label: 'DRE FB', value: 1 },
-    { label: 'DRE CS', value: 2 },
-    { label: 'DRE CL', value: 3 },
-    { label: 'DRE BT', value: 4 },
-    { label: 'DRE MP', value: 5 },
-    { label: 'Turma 1', value: 6 },
   ];
 
   const onClickNovo = () => {
@@ -232,11 +234,13 @@ const ListaPresencaCodaf: React.FC = () => {
       const dataEnvio = form.getFieldValue('dataEnvio');
       const dataEnvioDf = dataEnvio ? dayjs(dataEnvio).format('YYYY-MM-DD') : undefined;
 
+      const numeroHomologacao = form.getFieldValue('numeroHomologacao');
+
       const filtros = {
         NomeFormacao: form.getFieldValue('nomeFormacao') || undefined,
         CodigoFormacao: form.getFieldValue('codigoFormacao') || undefined,
-        NumeroHomologacao: form.getFieldValue('numeroHomologacao') || undefined,
-        //PropostaTurmaId: form.getFieldValue('turmaId') || undefined,
+        NumeroHomologacao: numeroHomologacao ? Number(numeroHomologacao) : undefined,
+        PropostaTurmaId: form.getFieldValue('turmaId') || undefined,
         AreaPromotoraId: form.getFieldValue('areaPromotoraId') || undefined,
         Status: form.getFieldValue('situacao'),
         DataEnvioDf: dataEnvioDf,
@@ -247,21 +251,8 @@ const ListaPresencaCodaf: React.FC = () => {
       const response = await obterListaPresencaCodaf(filtros);
 
       if (response.sucesso && response.dados) {
-        let dadosFiltrados = response.dados.items || [];
-        let totalRegistrosAPI = response.dados.totalRegistros || 0;
-
-        // Filtro manual por turma
-        const turmaIdSelecionada = form.getFieldValue('turmaId');
-        if (turmaIdSelecionada) {
-          const turmaSelecionada = turmas.find((t) => t.value === turmaIdSelecionada);
-          if (turmaSelecionada) {
-            dadosFiltrados = dadosFiltrados.filter(
-              (item) => item.nomeTurma === turmaSelecionada.label,
-            );
-            // Quando há filtro manual de turma, usa o tamanho da lista filtrada
-            totalRegistrosAPI = dadosFiltrados.length;
-          }
-        }
+        const dadosFiltrados = response.dados.items || [];
+        const totalRegistrosAPI = response.dados.totalRegistros || 0;
 
         setDados(dadosFiltrados);
         setTotalRegistros(totalRegistrosAPI);
@@ -286,6 +277,65 @@ const ListaPresencaCodaf: React.FC = () => {
     }
   };
 
+  const onSearchFormacao = async (searchText: string) => {
+    if (!searchText || searchText.length < 0) {
+      setOpcoesFormacao([]);
+      return;
+    }
+
+    setLoadingAutocomplete(true);
+    try {
+      const response = await autocompletarFormacao(searchText);
+      if (response.sucesso && response.dados && response.dados.items) {
+        setOpcoesFormacao(response.dados.items);
+      } else {
+        setOpcoesFormacao([]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar formações:', error);
+      setOpcoesFormacao([]);
+    } finally {
+      setLoadingAutocomplete(false);
+    }
+  };
+
+  const onSelectFormacao = async (_value: string, option: any) => {
+    const proposta = opcoesFormacao.find((p) => p.numeroHomologacao === option.numeroHomologacao);
+    if (proposta) {
+      setPropostaSelecionada(proposta);
+      form.setFieldsValue({
+        numeroHomologacao: proposta.numeroHomologacao,
+        nomeFormacao: proposta.nomeFormacao,
+        codigoFormacao: proposta.codigoFormacao,
+        turmaId: undefined,
+      });
+
+      // Buscar turmas da proposta selecionada
+      try {
+        const response = await obterTurmasInscricao(proposta.propostaId);
+        if (response.sucesso && response.dados) {
+          setTurmasAPI(response.dados);
+          setTurmaDisabled(false);
+        } else {
+          setTurmasAPI([]);
+          setTurmaDisabled(true);
+          notification.warning({
+            message: 'Atenção',
+            description: 'Nenhuma turma encontrada para esta formação',
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao buscar turmas:', error);
+        setTurmasAPI([]);
+        setTurmaDisabled(true);
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao buscar turmas da formação',
+        });
+      }
+    }
+  };
+
   const onClickFiltrar = () => {
     setFiltroAplicado(true);
     buscarDados(1);
@@ -297,6 +347,10 @@ const ListaPresencaCodaf: React.FC = () => {
     setTotalRegistros(0);
     setPaginaAtual(1);
     setFiltroAplicado(false);
+    setPropostaSelecionada(null);
+    setOpcoesFormacao([]);
+    setTurmasAPI([]);
+    setTurmaDisabled(true);
   };
 
   const handleTableChange = (pagination: any) => {
@@ -432,18 +486,23 @@ const ListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Número de homologação',
-                    name: 'numeroHomologacao',
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_NUMERO_HOMOLOGACAO,
-                    placeholder: 'Número de homologação',
-                    maxLength: 100,
-                  }}
-                />
+                <Form.Item label='Número de homologação' name='numeroHomologacao'>
+                  <AutoComplete
+                    id={CF_INPUT_NUMERO_HOMOLOGACAO}
+                    placeholder='Digite para buscar formação'
+                    onSearch={onSearchFormacao}
+                    onSelect={onSelectFormacao}
+                    options={opcoesFormacao.map((opcao) => ({
+                      value: opcao.numeroHomologacao.toString(),
+                      label: opcao.numeroHomologacao.toString(),
+                      numeroHomologacao: opcao.numeroHomologacao,
+                    }))}
+                    filterOption={false}
+                    notFoundContent={
+                      loadingAutocomplete ? 'Buscando...' : 'Nenhuma formação encontrada'
+                    }
+                  />
+                </Form.Item>
               </b>
             </Col>
           </Row>
@@ -451,7 +510,15 @@ const ListaPresencaCodaf: React.FC = () => {
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
                 <Form.Item label='Turma' name='turmaId' rules={[{ required: false }]}>
-                  <Select placeholder='Selecione a turma' options={turmas} allowClear />
+                  <Select
+                    placeholder='Selecione a turma'
+                    options={turmasAPI.map((turma) => ({
+                      label: turma.descricao,
+                      value: turma.id,
+                    }))}
+                    disabled={turmaDisabled}
+                    allowClear
+                  />
                 </Form.Item>
               </b>
             </Col>
