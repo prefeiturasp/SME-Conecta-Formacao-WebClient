@@ -1,4 +1,16 @@
-import { Button, Col, DatePicker, Dropdown, Form, MenuProps, Modal, Row, Select, Table } from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Dropdown,
+  Form,
+  MenuProps,
+  Modal,
+  Row,
+  Select,
+  Table,
+  Tooltip,
+} from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
@@ -102,7 +114,7 @@ const ListaPresencaCodaf: React.FC = () => {
         key: 'CODAF',
         label: 'CODAF',
         onClick: () => console.log('Editar', record),
-      }
+      },
     ],
   });
 
@@ -116,20 +128,38 @@ const ListaPresencaCodaf: React.FC = () => {
       key: 'codigoFormacao',
       title: 'Código da formação',
       dataIndex: 'codigoFormacao',
-      width: ocultarColunas ? 120 : 100,
+      width: ocultarColunas ? 100 : 80,
     },
     {
       key: 'numeroHomologacao',
       title: 'Número de homologação',
       dataIndex: 'numeroHomologacao',
-      width: ocultarColunas ? 160 : 140,
+      width: ocultarColunas ? 100 : 80,
     },
     {
       key: 'nomeFormacao',
       title: 'Nome da formação',
       dataIndex: 'nomeFormacao',
-      ellipsis: true,
-      width: ocultarColunas ? undefined : 'auto',
+      /*ellipsis: true,
+      width: ocultarColunas ? undefined : 'auto',*/
+      ellipsis: {
+        showTitle: false,
+      },
+      width: 300,
+      render: (text: string) => (
+        <Tooltip title={text}>
+          <div
+            style={{
+              maxWidth: 300,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      ),
     },
     {
       key: 'nomeAreaPromotora',
@@ -179,7 +209,6 @@ const ListaPresencaCodaf: React.FC = () => {
       title: 'Ações',
       width: 80,
       align: 'center',
-      fixed: 'right',
       render: (_: any, record: CodafListaPresencaDTO) => (
         <Dropdown menu={getMenuAcoes(record)} trigger={['click']} placement='bottomRight'>
           <Button
@@ -224,10 +253,10 @@ const ListaPresencaCodaf: React.FC = () => {
         // Filtro manual por turma
         const turmaIdSelecionada = form.getFieldValue('turmaId');
         if (turmaIdSelecionada) {
-          const turmaSelecionada = turmas.find(t => t.value === turmaIdSelecionada);
+          const turmaSelecionada = turmas.find((t) => t.value === turmaIdSelecionada);
           if (turmaSelecionada) {
             dadosFiltrados = dadosFiltrados.filter(
-              item => item.nomeTurma === turmaSelecionada.label
+              (item) => item.nomeTurma === turmaSelecionada.label,
             );
             // Quando há filtro manual de turma, usa o tamanho da lista filtrada
             totalRegistrosAPI = dadosFiltrados.length;
