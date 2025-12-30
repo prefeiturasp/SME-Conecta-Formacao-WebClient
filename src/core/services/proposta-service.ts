@@ -28,6 +28,30 @@ import {
 
 export const URL_API_PROPOSTA = 'v1/Proposta';
 
+export type PropostaAutocompletarDTO = {
+  propostaId: number;
+  numeroHomologacao: number;
+  nomeFormacao: string;
+  codigoFormacao: number;
+};
+
+export type PropostaAutocompletarRetornoDTO = {
+  items: PropostaAutocompletarDTO[];
+  totalRegistros: number;
+  totalPaginas: number;
+};
+
+const autocompletarFormacao = (
+  termoBusca: string,
+): Promise<ApiResult<PropostaAutocompletarRetornoDTO>> => {
+  const params = {
+    TermoBusca: termoBusca,
+    NumeroPagina: 1,
+    NumeroRegistros: 99999,
+  };
+  return obterRegistro(`${URL_API_PROPOSTA}/autocompletar-formacao`, { params });
+};
+
 const obterCriterioValidacaoInscricao = (
   exibirOpcaoOutros: boolean,
 ): Promise<ApiResult<CriterioValidacaoInscricaoDTO[]>> =>
@@ -197,6 +221,7 @@ export {
   obterCriterioValidacaoInscricao,
   obterDadosCadastrante,
   obterFormacaoHomologada,
+  autocompletarFormacao,
   obterFormato,
   obterNomeProfissional,
   obterParecer,

@@ -1,5 +1,5 @@
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { ApiResult, obterRegistro } from './api';
+import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
 
@@ -53,3 +53,66 @@ export const obterListaPresencaCodaf = (
 
 export const obterSituacoesCodaf = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/situacao`);
+
+export type InscritoDTO = {
+  inscricaoId: number;
+  percentualFrequencia: number;
+  conceitoFinal: string;
+  atividadeObrigatorio: boolean;
+  aprovado: boolean;
+};
+
+export type CriarCodafListaPresencaDTO = {
+  propostaId: number;
+  propostaTurmaId: number;
+  dataPublicacao: string;
+  dataPublicacaoDom: string;
+  numeroComunicado: number;
+  paginaComunicadoDom: number;
+  codigoCursoEol: number;
+  codigoNivel: number;
+  observacao: string;
+  inscritos: InscritoDTO[];
+};
+
+export type CodafListaPresencaDetalheDTO = {
+  id: number;
+  propostaId: number;
+  propostaTurmaId: number;
+  numeroHomologacao: number;
+  nomeFormacao: string;
+  codigoFormacao: number;
+  numeroComunicado: number;
+  dataPublicacao: string | null;
+  paginaComunicadoDom: number;
+  dataPublicacaoDom: string | null;
+  coidgoCursoEol: number | null;
+  codigoNivel: number;
+  observacao: string | null;
+  status: number;
+  alteradoEm: string | null;
+  alteradoPor: string | null;
+  alteradoLogin: string | null;
+  criadoEm: string;
+  criadoPor: string;
+  criadoLogin: string;
+};
+
+export const criarCodafListaPresenca = (
+  dados: CriarCodafListaPresencaDTO,
+): Promise<ApiResult<any>> => {
+  return inserirRegistro(URL_API_CODAF_LISTA_PRESENCA, dados);
+};
+
+export const obterCodafListaPresencaPorId = (
+  id: number,
+): Promise<ApiResult<CodafListaPresencaDetalheDTO>> => {
+  return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`);
+};
+
+export const atualizarCodafListaPresenca = (
+  id: number,
+  dados: CriarCodafListaPresencaDTO,
+): Promise<ApiResult<any>> => {
+  return alterarRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`, dados);
+};

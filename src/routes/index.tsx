@@ -184,6 +184,12 @@ const RoutesConfig = () => {
                       element={<CadastroListaPresencaCodaf />}
                     />
                   </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                    <Route
+                      path={ROUTES.LISTA_PRESENCA_CODAF_EDITAR}
+                      element={<CadastroListaPresencaCodaf />}
+                    />
+                  </Route>
                 </Route>
               </Route>
             </Route>

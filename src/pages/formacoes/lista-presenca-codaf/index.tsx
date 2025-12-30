@@ -461,6 +461,10 @@ const ListaPresencaCodaf: React.FC = () => {
                     style: { textAlign: 'center' },
                   }}
                   onChange={handleTableChange}
+                  onRow={(record) => ({
+                    onClick: () => navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
+                    style: { cursor: 'pointer' },
+                  })}
                   scroll={{ x: 'max-content' }}
                   locale={{
                     emptyText: 'Não encontramos registros para os filtros aplicados',
