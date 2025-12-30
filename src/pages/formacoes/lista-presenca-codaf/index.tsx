@@ -45,7 +45,7 @@ const ListaPresencaCodaf: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalRegistros, setTotalRegistros] = useState(0);
-  const [registrosPorPagina] = useState(10);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [filtroAplicado, setFiltroAplicado] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -219,6 +219,7 @@ const ListaPresencaCodaf: React.FC = () => {
 
       if (response.sucesso && response.dados) {
         let dadosFiltrados = response.dados.items || [];
+        let totalRegistrosAPI = response.dados.totalRegistros || 0;
 
         // Filtro manual por turma
         const turmaIdSelecionada = form.getFieldValue('turmaId');
@@ -228,11 +229,13 @@ const ListaPresencaCodaf: React.FC = () => {
             dadosFiltrados = dadosFiltrados.filter(
               item => item.nomeTurma === turmaSelecionada.label
             );
+            // Quando há filtro manual de turma, usa o tamanho da lista filtrada
+            totalRegistrosAPI = dadosFiltrados.length;
           }
         }
 
         setDados(dadosFiltrados);
-        setTotalRegistros(dadosFiltrados.length);
+        setTotalRegistros(totalRegistrosAPI);
         setPaginaAtual(pagina);
       } else {
         notification.error({
@@ -268,8 +271,22 @@ const ListaPresencaCodaf: React.FC = () => {
   };
 
   const handleTableChange = (pagination: any) => {
-    buscarDados(pagination.current);
+    if (pagination.pageSize !== registrosPorPagina) {
+      setRegistrosPorPagina(pagination.pageSize);
+      setPaginaAtual(1);
+      // A busca será feita pelo useEffect
+    } else {
+      buscarDados(pagination.current);
+    }
   };
+
+  // Recarrega os dados quando o tamanho da página muda
+  React.useEffect(() => {
+    if (filtroAplicado) {
+      buscarDados(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registrosPorPagina]);
 
   return (
     <Col>
@@ -461,29 +478,38 @@ const ListaPresencaCodaf: React.FC = () => {
           {filtroAplicado && (
             <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
               <Col span={24}>
-                <Table
-                  columns={columns}
-                  dataSource={dados}
-                  rowKey='id'
-                  loading={loading}
-                  pagination={{
-                    current: paginaAtual,
-                    pageSize: registrosPorPagina,
-                    total: totalRegistros,
-                    showSizeChanger: false,
-                    showTotal: (total) => `Total de ${total} registros`,
-                    style: { textAlign: 'center' },
-                  }}
-                  onChange={handleTableChange}
-                  onRow={(record) => ({
-                    onClick: () => navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
-                    style: { cursor: 'pointer' },
-                  })}
-                  scroll={{ x: 'max-content' }}
-                  locale={{
-                    emptyText: 'Não encontramos registros para os filtros aplicados',
-                  }}
-                />
+                <div className='table-pagination-center'>
+                  <Table
+                    columns={columns}
+                    dataSource={dados}
+                    rowKey='id'
+                    loading={loading}
+                    pagination={{
+                      current: paginaAtual,
+                      pageSize: registrosPorPagina,
+                      total: totalRegistros,
+                      showSizeChanger: true,
+                      pageSizeOptions: [10, 20, 30, 50, 100],
+                      locale: { items_per_page: '' },
+                    }}
+                    onChange={handleTableChange}
+                    onRow={(record) => ({
+                      onClick: () =>
+                        navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
+                      style: { cursor: 'pointer' },
+                    })}
+                    scroll={{ x: 'max-content' }}
+                    locale={{
+                      emptyText: 'Não encontramos registros para os filtros aplicados',
+                    }}
+                  />
+                </div>
+                <style>{`
+                  .table-pagination-center .ant-pagination {
+                    display: flex;
+                    justify-content: center;
+                  }
+                `}</style>
               </Col>
             </Row>
           )}
