@@ -9,9 +9,10 @@ import {
   Row,
   Select,
   Table,
+  Tooltip,
 } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
-import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
+import { DownloadOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -48,6 +49,7 @@ import {
   criarCodafListaPresenca,
   obterCodafListaPresencaPorId,
   obterInscritosTurma,
+  verificarTurmaPossuiLista,
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -79,6 +81,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     null,
   );
   const [turmas, setTurmas] = useState<RetornoListagemDTO[]>([]);
+  const [turmasFiltradas, setTurmasFiltradas] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [formValido, setFormValido] = useState(false);
   const [registroId, setRegistroId] = useState<number | null>(null);
@@ -86,6 +89,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [paginaAtualInscritos, setPaginaAtualInscritos] = useState(1);
   const [totalRegistrosInscritos, setTotalRegistrosInscritos] = useState(0);
   const [registrosPorPaginaInscritos, setRegistrosPorPaginaInscritos] = useState(10);
+  const [tooltipAberto, setTooltipAberto] = useState(false);
+  const [todasTurmasPossuemLista, setTodasTurmasPossuemLista] = useState(false);
 
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -165,12 +170,39 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             codigoFormacao: dados.codigoFormacao,
           });
 
-          // Busca as turmas da proposta
           try {
             const turmasResponse = await obterTurmasInscricao(dados.propostaId);
             if (turmasResponse.sucesso && turmasResponse.dados) {
               setTurmas(turmasResponse.dados);
+              console.log(turmas);
+
+              const turmaSelecionada = turmasResponse.dados.find(
+                (t) => t.id === dados.propostaTurmaId,
+              );
+              const turmasDisponiveis: RetornoListagemDTO[] = [];
+
+              if (turmaSelecionada) {
+                turmasDisponiveis.push(turmaSelecionada);
+              }
+
+              for (const turma of turmasResponse.dados) {
+                if (turma.id === dados.propostaTurmaId) continue;
+
+                try {
+                  const possuiLista = await verificarTurmaPossuiLista(turma.id, dados.id || 0);
+                  if (possuiLista.sucesso && possuiLista.dados === false) {
+                    turmasDisponiveis.push(turma);
+                  }
+                } catch (error) {
+                  console.error(`Erro ao verificar turma ${turma.id}:`, error);
+                }
+              }
+
+              setTurmasFiltradas(turmasDisponiveis);
               setTurmaDisabled(false);
+              setTooltipAberto(false);
+              // No modo edição, sempre permite salvar
+              setTodasTurmasPossuemLista(false);
             }
           } catch (error) {
             console.error('Erro ao buscar turmas:', error);
@@ -280,6 +312,15 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const colunasCursistas: ColumnsType<CursistaDTO> = [
+    {
+      key: 'indice',
+      title: ' ',
+      width: 60,
+      align: 'center',
+      render: (_text: any, _record: CursistaDTO, index: number) => {
+        return (paginaAtualInscritos - 1) * registrosPorPaginaInscritos + index + 1;
+      },
+    },
     {
       key: 'rfOuCpf',
       title: 'Funcional (RF) ou CPF',
@@ -393,14 +434,52 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         turmaId: undefined, // Limpa o campo turma
       });
 
+      // Reseta o estado ao selecionar nova formação
+      setTodasTurmasPossuemLista(false);
+
       // Buscar turmas da proposta selecionada
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados) {
           setTurmas(response.dados);
-          setTurmaDisabled(false);
+          console.log(turmas);
+
+          // Filtrar turmas que já possuem lista
+          const turmasDisponiveis: RetornoListagemDTO[] = [];
+          for (const turma of response.dados) {
+            try {
+              const possuiLista = await verificarTurmaPossuiLista(turma.id, 0);
+              // Somente adiciona se possuiLista retornar false
+              if (possuiLista.sucesso && possuiLista.dados === false) {
+                turmasDisponiveis.push(turma);
+              }
+            } catch (error) {
+              console.error(`Erro ao verificar turma ${turma.id}:`, error);
+            }
+          }
+
+          if (turmasDisponiveis.length === 0) {
+            // Se não sobrar nenhuma turma, deixe apenas a primeira e desabilite
+            const primeiraTurma = response.dados.length > 0 ? response.dados[0] : null;
+            if (primeiraTurma) {
+              setTurmasFiltradas([primeiraTurma]);
+              form.setFieldValue('turmaId', primeiraTurma.id);
+            } else {
+              setTurmasFiltradas([]);
+            }
+            setTurmaDisabled(true);
+            setTooltipAberto(true);
+            // Marca que todas as turmas possuem lista (modo criação)
+            setTodasTurmasPossuemLista(true);
+          } else {
+            setTurmasFiltradas(turmasDisponiveis);
+            setTurmaDisabled(false);
+            setTooltipAberto(false);
+            setTodasTurmasPossuemLista(false);
+          }
         } else {
           setTurmas([]);
+          setTurmasFiltradas([]);
           setTurmaDisabled(true);
           notification.warning({
             message: 'Atenção',
@@ -410,6 +489,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       } catch (error) {
         console.error('Erro ao buscar turmas:', error);
         setTurmas([]);
+        setTurmasFiltradas([]);
         setTurmaDisabled(true);
         notification.error({
           message: 'Erro',
@@ -593,6 +673,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 type='primary'
                 onClick={onClickSalvar}
                 loading={loading}
+                disabled={!modoEdicao && todasTurmasPossuemLista}
                 id={CF_BUTTON_SALVAR}
                 style={{ fontWeight: 700 }}
               >
@@ -688,13 +769,23 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             <Col xs={24} sm={12} md={12} lg={12} xl={12}>
               <b>
                 <Form.Item
-                  label='Turma'
+                  label={
+                    <span>
+                      Turma{' '}
+                      <Tooltip
+                        title='Não é possível selecionar uma turma já inserida em um CODAF'
+                        open={tooltipAberto || undefined}
+                      >
+                        <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
+                      </Tooltip>
+                    </span>
+                  }
                   name='turmaId'
                   rules={[{ required: true, message: 'Campo obrigatório' }]}
                 >
                   <Select
                     placeholder='Selecione a turma'
-                    options={turmas.map((turma) => ({
+                    options={turmasFiltradas.map((turma) => ({
                       label: turma.descricao,
                       value: turma.id,
                     }))}
@@ -723,10 +814,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <Form.Item
-                  label='Data da publicação'
-                  name='dataPublicacao'
-                >
+                <Form.Item label='Data da publicação' name='dataPublicacao'>
                   <DatePicker
                     placeholder='Selecione a data'
                     format='DD/MM/YYYY'
@@ -973,8 +1061,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 backgroundColor: 'white',
                 boxShadow: '0px 0px 12px 0px #0000001F',
                 padding: '24px',
-
-
               }}
             >
               <Row gutter={[16, 8]} align='middle' justify='space-between'>
