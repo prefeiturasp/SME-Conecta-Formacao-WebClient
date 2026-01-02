@@ -98,9 +98,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const codigoFormacao = Form.useWatch('codigoFormacao', form);
   const turmaId = Form.useWatch('turmaId', form);
   const numeroComunicado = Form.useWatch('numeroComunicado', form);
-  const dataPublicacao = Form.useWatch('dataPublicacao', form);
   const paginaComunicado = Form.useWatch('paginaComunicado', form);
-  const dataPublicacaoDiarioOficial = Form.useWatch('dataPublicacaoDiarioOficial', form);
   const codigoCursoEol = Form.useWatch('codigoCursoEol', form);
   const codigoNivel = Form.useWatch('codigoNivel', form);
 
@@ -112,9 +110,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       codigoFormacao &&
       turmaId &&
       numeroComunicado &&
-      dataPublicacao &&
       paginaComunicado &&
-      dataPublicacaoDiarioOficial &&
       codigoCursoEol &&
       codigoNivel;
 
@@ -125,9 +121,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     codigoFormacao,
     turmaId,
     numeroComunicado,
-    dataPublicacao,
     paginaComunicado,
-    dataPublicacaoDiarioOficial,
     codigoCursoEol,
     codigoNivel,
   ]);
@@ -432,7 +426,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       // Formatar datas para o formato esperado pela API (yyyy-mm-dd)
       const formatarData = (data: any) => {
-        if (!data) return '';
+        if (!data) return null;
         return dayjs(data).format('YYYY-MM-DD');
       };
 
@@ -732,7 +726,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 <Form.Item
                   label='Data da publicação'
                   name='dataPublicacao'
-                  rules={[{ required: true, message: 'Campo obrigatório' }]}
                 >
                   <DatePicker
                     placeholder='Selecione a data'
@@ -765,7 +758,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 <Form.Item
                   label='Data de publicação do Diário Oficial'
                   name='dataPublicacaoDiarioOficial'
-                  rules={[{ required: true, message: 'Campo obrigatório' }]}
                 >
                   <DatePicker
                     placeholder='Selecione a data'
@@ -968,6 +960,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 draggerProps={{ multiple: true }}
                 subTitulo='Deve permitir apenas arquivos PDF com no máximo 20MB cada.'
                 tipoArquivosPermitidos=',.pdf'
+                tamanhoMaxUploadPorArquivo={20}
               />
             </Col>
           </Row>
