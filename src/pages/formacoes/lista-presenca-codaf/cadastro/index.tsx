@@ -170,31 +170,25 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             codigoFormacao: dados.codigoFormacao,
           });
 
-          // Busca as turmas da proposta
           try {
             const turmasResponse = await obterTurmasInscricao(dados.propostaId);
             if (turmasResponse.sucesso && turmasResponse.dados) {
               setTurmas(turmasResponse.dados);
 
-              // No modo edição: sempre incluir a turma atual selecionada
               const turmaSelecionada = turmasResponse.dados.find(
                 (t) => t.id === dados.propostaTurmaId,
               );
               const turmasDisponiveis: RetornoListagemDTO[] = [];
 
-              // Sempre adiciona a turma selecionada primeiro
               if (turmaSelecionada) {
                 turmasDisponiveis.push(turmaSelecionada);
               }
 
-              // Para as outras turmas, esconde as que retornam true
               for (const turma of turmasResponse.dados) {
-                // Pula a turma selecionada (já foi adicionada)
                 if (turma.id === dados.propostaTurmaId) continue;
 
                 try {
                   const possuiLista = await verificarTurmaPossuiLista(turma.id, dados.id || 0);
-                  // Somente adiciona se possuiLista retornar false (esconde os true)
                   if (possuiLista.sucesso && possuiLista.dados === false) {
                     turmasDisponiveis.push(turma);
                   }
@@ -777,7 +771,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                     <span>
                       Turma{' '}
                       <Tooltip
-                        title="Não é possível selecionar uma turma já inserida em um CODAF"
+                        title='Não é possível selecionar uma turma já inserida em um CODAF'
                         open={tooltipAberto || undefined}
                       >
                         <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
@@ -818,10 +812,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <Form.Item
-                  label='Data da publicação'
-                  name='dataPublicacao'
-                >
+                <Form.Item label='Data da publicação' name='dataPublicacao'>
                   <DatePicker
                     placeholder='Selecione a data'
                     format='DD/MM/YYYY'
@@ -1068,8 +1059,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 backgroundColor: 'white',
                 boxShadow: '0px 0px 12px 0px #0000001F',
                 padding: '24px',
-
-
               }}
             >
               <Row gutter={[16, 8]} align='middle' justify='space-between'>
