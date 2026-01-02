@@ -174,6 +174,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             const turmasResponse = await obterTurmasInscricao(dados.propostaId);
             if (turmasResponse.sucesso && turmasResponse.dados) {
               setTurmas(turmasResponse.dados);
+              console.log(turmas);
 
               const turmaSelecionada = turmasResponse.dados.find(
                 (t) => t.id === dados.propostaTurmaId,
@@ -441,6 +442,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados) {
           setTurmas(response.dados);
+          console.log(turmas);
 
           // Filtrar turmas que já possuem lista
           const turmasDisponiveis: RetornoListagemDTO[] = [];
