@@ -144,3 +144,13 @@ export const obterInscritosTurma = (
   };
   return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/inscritos-turma/${turmaId}`, { params });
 };
+
+export const verificarTurmaPossuiLista = (
+  propostaTurmaId: number,
+  listaPresencaId?: number,
+): Promise<ApiResult<boolean>> => {
+  const body = listaPresencaId ? { listaPresencaId } : {};
+  return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/turmas/${propostaTurmaId}/possui-lista`, {
+    data: body,
+  });
+};
