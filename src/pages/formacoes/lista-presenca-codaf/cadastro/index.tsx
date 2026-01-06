@@ -1066,8 +1066,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               <Row gutter={[16, 8]} align='middle' justify='space-between'>
                 <Col>
                   <p style={{ margin: 0 }}>
-                    Você pode baixar o modelo do termo de responsabilidade para preenchimento.
-                    Clique no botão "Termo de Responsabilidade" para fazer o download.
+                    Você pode baixar o modelo de termo de responsabilidade clicando em &quot;termo
+                    de responsabilidade&quot;.
                   </p>
                 </Col>
                 <Col>
