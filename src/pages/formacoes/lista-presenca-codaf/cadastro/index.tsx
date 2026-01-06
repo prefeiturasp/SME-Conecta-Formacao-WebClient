@@ -580,7 +580,15 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             }
             return null;
           })
-          .filter((retificacao) => retificacao !== null),
+          .filter(
+            (
+              retificacao,
+            ): retificacao is {
+              id: number;
+              dataRetificacao: string | null;
+              paginaRetificacaoDom: number;
+            } => retificacao !== null,
+          ),
       };
 
       console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
