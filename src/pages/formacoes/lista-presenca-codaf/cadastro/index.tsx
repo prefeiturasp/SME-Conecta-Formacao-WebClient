@@ -12,7 +12,12 @@ import {
   Tooltip,
 } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
-import { DownloadOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import {
+  DownloadOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -47,6 +52,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import {
   atualizarCodafListaPresenca,
   criarCodafListaPresenca,
+  deletarRetificacao,
   obterCodafListaPresencaPorId,
   obterInscritosTurma,
   verificarTurmaPossuiLista,
@@ -91,6 +97,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [registrosPorPaginaInscritos, setRegistrosPorPaginaInscritos] = useState(10);
   const [tooltipAberto, setTooltipAberto] = useState(false);
   const [todasTurmasPossuemLista, setTodasTurmasPossuemLista] = useState(false);
+  const [retificacoes, setRetificacoes] = useState<number[]>([1]);
+  const [contadorRetificacoes, setContadorRetificacoes] = useState(1);
+  const [retificacoesOriginais, setRetificacoesOriginais] = useState<
+    Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
+  >(new Map());
 
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -161,6 +172,31 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             codigoNivel: dados.codigoNivel,
             observacao: dados.observacao || '',
           });
+
+          if (dados.retificacoes && dados.retificacoes.length > 0) {
+            const numerosRetificacoes = dados.retificacoes.map((_, index) => index + 1);
+            setRetificacoes(numerosRetificacoes);
+            setContadorRetificacoes(dados.retificacoes.length);
+
+            const mapaRetificacoes = new Map<
+              number,
+              { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }
+            >();
+            dados.retificacoes.forEach((retificacao, index) => {
+              mapaRetificacoes.set(index + 1, retificacao);
+            });
+            setRetificacoesOriginais(mapaRetificacoes);
+
+            dados.retificacoes.forEach((retificacao, index) => {
+              const numeroFormatado = (index + 1).toString().padStart(2, '0');
+              form.setFieldsValue({
+                [`dataRetificacao${numeroFormatado}`]: retificacao.dataRetificacao
+                  ? dayjs(retificacao.dataRetificacao)
+                  : null,
+                [`paginaRetificacao${numeroFormatado}`]: retificacao.paginaRetificacaoDom,
+              });
+            });
+          }
 
           // Define a proposta selecionada
           setPropostaSelecionada({
@@ -527,6 +563,32 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           atividadeObrigatorio: cursista.atividade === 'S',
           aprovado: cursista.aprovado,
         })),
+        retificacoes: retificacoes
+          .map((numero) => {
+            const numeroFormatado = numero.toString().padStart(2, '0');
+            const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
+            const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
+
+            if (dataRetificacao || paginaRetificacao) {
+              const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
+
+              return {
+                id: retificacaoOriginal?.id || 0,
+                dataRetificacao: formatarData(dataRetificacao),
+                paginaRetificacaoDom: Number(paginaRetificacao) || 0,
+              };
+            }
+            return null;
+          })
+          .filter(
+            (
+              retificacao,
+            ): retificacao is {
+              id: number;
+              dataRetificacao: string | null;
+              paginaRetificacaoDom: number;
+            } => retificacao !== null,
+          ),
       };
 
       console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
@@ -623,6 +685,73 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const adicionarNovaRetificacao = () => {
+    const novoContador = contadorRetificacoes + 1;
+    setContadorRetificacoes(novoContador);
+    setRetificacoes([...retificacoes, novoContador]);
+  };
+
+  const excluirRetificacao = (numero: number) => {
+    if (retificacoes.length === 1) {
+      form.setFieldValue(`dataRetificacao${numero.toString().padStart(2, '0')}`, undefined);
+      form.setFieldValue(`paginaRetificacao${numero.toString().padStart(2, '0')}`, undefined);
+      return;
+    }
+
+    Modal.confirm({
+      title: 'Excluir retificação',
+      content: (
+        <div>
+          <p style={{ marginBottom: 8 }}>
+            Deseja realmente excluir a <strong>Retificação {numero.toString().padStart(2, '0')}</strong>?
+          </p>
+          <p style={{ color: '#8c8c8c', fontSize: '13px', marginBottom: 0 }}>
+            Esta ação não poderá ser desfeita.
+          </p>
+        </div>
+      ),
+      okText: 'Excluir',
+      cancelText: 'Cancelar',
+      okButtonProps: {
+        danger: true,
+      },
+      centered: true,
+      onOk: async () => {
+        try {
+          const retificacaoOriginal = retificacoesOriginais.get(numero);
+
+          if (retificacaoOriginal && retificacaoOriginal.id > 0) {
+            const response = await deletarRetificacao(retificacaoOriginal.id);
+            if (response.sucesso) {
+              notification.success({
+                message: 'Sucesso',
+                description: 'Retificação excluída com sucesso',
+              });
+            } else {
+              notification.error({
+                message: 'Erro',
+                description: response.mensagens?.[0] || 'Erro ao excluir retificação',
+              });
+              return;
+            }
+          }
+
+          setRetificacoes(retificacoes.filter((r) => r !== numero));
+          retificacoesOriginais.delete(numero);
+          setRetificacoesOriginais(new Map(retificacoesOriginais));
+          form.setFieldValue(`dataRetificacao${numero.toString().padStart(2, '0')}`, undefined);
+          form.setFieldValue(`paginaRetificacao${numero.toString().padStart(2, '0')}`, undefined);
+        } catch (error) {
+          console.error('Erro ao excluir retificação:', error);
+          notification.error({
+            message: 'Erro',
+            description: 'Erro ao excluir retificação',
+          });
+        }
+      },
+    });
   };
 
   return (
@@ -957,57 +1086,87 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </Col>
           </Row>
 
-          <Row gutter={[16, 8]}>
-            <Col span={24}>
-              <div
-                style={{
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '2px',
-                  overflow: 'hidden',
-                }}
+          <Row gutter={[16, 16]}>
+            {retificacoes.map((numero) => (
+              <Col
+                key={numero}
+                xs={24}
+                sm={24}
+                md={retificacoes.length === 1 ? 24 : 12}
+                lg={retificacoes.length === 1 ? 24 : 12}
+                xl={retificacoes.length === 1 ? 24 : 12}
               >
                 <div
                   style={{
-                    backgroundColor: '#ff9a52',
-                    color: '#fff',
-                    padding: '8px',
-                    fontWeight: 600,
-                    fontSize: '14px',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '2px',
+                    overflow: 'hidden',
                   }}
                 >
-                  Retificação 01
-                </div>
-                <div style={{ padding: '16px', backgroundColor: '#fff' }}>
-                  <Row gutter={[16, 8]}>
-                    <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                      <Form.Item
-                        label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
-                        name='dataRetificacao01'
-                      >
-                        <DatePicker
-                          format='DD/MM/YYYY'
-                          placeholder='Selecione a data'
-                          locale={locale}
-                          style={{ width: '100%' }}
+                  <div
+                    style={{
+                      backgroundColor: '#ff9a52',
+                      color: '#fff',
+                      padding: '8px',
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span>Retificação {numero.toString().padStart(2, '0')}</span>
+                    <Button
+                      type='text'
+                      icon={<DeleteOutlined />}
+                      onClick={() => excluirRetificacao(numero)}
+                      style={{
+                        color: '#fff',
+                        border: '1px solid #fff',
+                        backgroundColor: '#ff9a52',
+                        fontWeight: 500,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '4px 12px',
+                        height: 'auto',
+                      }}
+                    >
+                      Excluir
+                    </Button>
+                  </div>
+                  <div style={{ padding: '16px', backgroundColor: '#fff' }}>
+                    <Row gutter={[16, 8]}>
+                      <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                        <Form.Item
+                          label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
+                          name={`dataRetificacao${numero.toString().padStart(2, '0')}`}
+                        >
+                          <DatePicker
+                            format='DD/MM/YYYY'
+                            placeholder='Selecione a data'
+                            locale={locale}
+                            style={{ width: '100%' }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                        <InputNumero
+                          formItemProps={{
+                            label: 'Página da retificação',
+                            name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
+                          }}
+                          inputProps={{
+                            placeholder: 'Número da página',
+                            maxLength: 10,
+                          }}
                         />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                      <InputNumero
-                        formItemProps={{
-                          label: 'Página da retificação',
-                          name: 'paginaRetificacao01',
-                        }}
-                        inputProps={{
-                          placeholder: 'Número da página',
-                          maxLength: 10,
-                        }}
-                      />
-                    </Col>
-                  </Row>
+                      </Col>
+                    </Row>
+                  </div>
                 </div>
-              </div>
-            </Col>
+              </Col>
+            ))}
           </Row>
 
           <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
@@ -1015,6 +1174,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               <Button
                 type='default'
                 icon={<PlusOutlined />}
+                onClick={adicionarNovaRetificacao}
                 style={{
                   borderColor: '#ff6b35',
                   color: '#ff6b35',

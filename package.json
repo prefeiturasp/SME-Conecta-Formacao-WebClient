@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "testpipeline": "tsc --noEmit"
   },
   "dependencies": {
     "@ant-design/icons": "^5.1.4",

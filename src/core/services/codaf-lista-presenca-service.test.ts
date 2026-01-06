@@ -1,17 +1,32 @@
 import {
   obterListaPresencaCodaf,
   obterSituacoesCodaf,
+  criarCodafListaPresenca,
+  atualizarCodafListaPresenca,
+  obterCodafListaPresencaPorId,
+  obterInscritosTurma,
+  verificarTurmaPossuiLista,
+  deletarRetificacao,
   URL_API_CODAF_LISTA_PRESENCA,
   CodafListaPresencaFiltroDTO,
+  CriarCodafListaPresencaDTO,
+  InscritoDTO,
+  RetificacaoDTO,
 } from './codaf-lista-presenca-service';
 
 jest.mock('./api', () => ({
   obterRegistro: jest.fn(),
+  inserirRegistro: jest.fn(),
+  alterarRegistro: jest.fn(),
+  deletarRegistro: jest.fn(),
   ApiResult: jest.fn(),
 }));
 
-import { obterRegistro } from './api';
+import { obterRegistro, inserirRegistro, alterarRegistro, deletarRegistro } from './api';
 const mockObterRegistro = obterRegistro as jest.MockedFunction<typeof obterRegistro>;
+const mockInserirRegistro = inserirRegistro as jest.MockedFunction<typeof inserirRegistro>;
+const mockAlterarRegistro = alterarRegistro as jest.MockedFunction<typeof alterarRegistro>;
+const mockDeletarRegistro = deletarRegistro as jest.MockedFunction<typeof deletarRegistro>;
 
 describe('CodafListaPresencaService', () => {
   beforeEach(() => {
@@ -277,6 +292,540 @@ describe('CodafListaPresencaService', () => {
       };
       expect(filtro.NomeFormacao).toBe('Teste');
       expect(filtro.Status).toBe(1);
+    });
+  });
+
+  describe('criarCodafListaPresenca', () => {
+    test('deve criar lista de presença sem retificações', async () => {
+      const inscritos: InscritoDTO[] = [
+        {
+          inscricaoId: 1,
+          percentualFrequencia: 85,
+          conceitoFinal: 'S',
+          atividadeObrigatorio: true,
+          aprovado: true,
+        },
+      ];
+
+      const dados: CriarCodafListaPresencaDTO = {
+        propostaId: 1,
+        propostaTurmaId: 10,
+        dataPublicacao: '2024-01-01',
+        dataPublicacaoDom: '2024-01-02',
+        numeroComunicado: 100,
+        paginaComunicadoDom: 5,
+        codigoCursoEol: 123,
+        codigoNivel: 1,
+        observacao: 'Observação teste',
+        inscritos,
+      };
+
+      const mockResponse = {
+        sucesso: true,
+        dados: { id: 1, mensagem: 'Lista criada com sucesso' },
+        mensagens: [],
+        status: 201,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await criarCodafListaPresenca(dados);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(URL_API_CODAF_LISTA_PRESENCA, dados);
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve criar lista de presença com retificações', async () => {
+      const inscritos: InscritoDTO[] = [
+        {
+          inscricaoId: 1,
+          percentualFrequencia: 85,
+          conceitoFinal: 'S',
+          atividadeObrigatorio: true,
+          aprovado: true,
+        },
+      ];
+
+      const retificacoes: RetificacaoDTO[] = [
+        {
+          id: 0,
+          codafListaPresencaId: 0,
+          paginaRetificacaoDom: 10,
+          dataRetificacao: '2024-01-15',
+        },
+        {
+          id: 0,
+          codafListaPresencaId: 0,
+          paginaRetificacaoDom: 15,
+          dataRetificacao: '2024-02-01',
+        },
+      ];
+
+      const dados: CriarCodafListaPresencaDTO = {
+        propostaId: 1,
+        propostaTurmaId: 10,
+        dataPublicacao: '2024-01-01',
+        dataPublicacaoDom: '2024-01-02',
+        numeroComunicado: 100,
+        paginaComunicadoDom: 5,
+        codigoCursoEol: 123,
+        codigoNivel: 1,
+        observacao: 'Observação teste',
+        inscritos,
+        retificacoes,
+      };
+
+      const mockResponse = {
+        sucesso: true,
+        dados: { id: 1, mensagem: 'Lista criada com sucesso' },
+        mensagens: [],
+        status: 201,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await criarCodafListaPresenca(dados);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(URL_API_CODAF_LISTA_PRESENCA, dados);
+      expect(result).toEqual(mockResponse);
+      expect(result.dados).toBeDefined();
+    });
+
+    test('deve criar lista de presença com múltiplas retificações', async () => {
+      const inscritos: InscritoDTO[] = [
+        {
+          inscricaoId: 1,
+          percentualFrequencia: 90,
+          conceitoFinal: 'S',
+          atividadeObrigatorio: true,
+          aprovado: true,
+        },
+      ];
+
+      const retificacoes: RetificacaoDTO[] = [
+        {
+          id: 0,
+          codafListaPresencaId: 0,
+          paginaRetificacaoDom: 5,
+          dataRetificacao: '2024-01-10',
+        },
+        {
+          id: 0,
+          codafListaPresencaId: 0,
+          paginaRetificacaoDom: 8,
+          dataRetificacao: '2024-01-20',
+        },
+        {
+          id: 0,
+          codafListaPresencaId: 0,
+          paginaRetificacaoDom: 12,
+          dataRetificacao: '2024-02-05',
+        },
+      ];
+
+      const dados: CriarCodafListaPresencaDTO = {
+        propostaId: 1,
+        propostaTurmaId: 10,
+        dataPublicacao: '2024-01-01',
+        dataPublicacaoDom: '2024-01-02',
+        numeroComunicado: 100,
+        paginaComunicadoDom: 5,
+        codigoCursoEol: 123,
+        codigoNivel: 1,
+        observacao: 'Observação com 3 retificações',
+        inscritos,
+        retificacoes,
+      };
+
+      const mockResponse = {
+        sucesso: true,
+        dados: { id: 1 },
+        mensagens: [],
+        status: 201,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await criarCodafListaPresenca(dados);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(URL_API_CODAF_LISTA_PRESENCA, dados);
+      expect(result.sucesso).toBe(true);
+    });
+  });
+
+  describe('atualizarCodafListaPresenca', () => {
+    test('deve atualizar lista de presença sem retificações', async () => {
+      const id = 1;
+      const inscritos: InscritoDTO[] = [
+        {
+          inscricaoId: 1,
+          percentualFrequencia: 90,
+          conceitoFinal: 'S',
+          atividadeObrigatorio: true,
+          aprovado: true,
+        },
+      ];
+
+      const dados: CriarCodafListaPresencaDTO = {
+        propostaId: 1,
+        propostaTurmaId: 10,
+        dataPublicacao: '2024-01-01',
+        dataPublicacaoDom: '2024-01-02',
+        numeroComunicado: 100,
+        paginaComunicadoDom: 5,
+        codigoCursoEol: 123,
+        codigoNivel: 1,
+        observacao: 'Observação atualizada',
+        inscritos,
+      };
+
+      const mockResponse = {
+        sucesso: true,
+        dados: { id: 1, mensagem: 'Lista atualizada com sucesso' },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockAlterarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await atualizarCodafListaPresenca(id, dados);
+
+      expect(mockAlterarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/${id}`,
+        dados,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve atualizar lista de presença com retificações', async () => {
+      const id = 1;
+      const inscritos: InscritoDTO[] = [
+        {
+          inscricaoId: 1,
+          percentualFrequencia: 90,
+          conceitoFinal: 'S',
+          atividadeObrigatorio: true,
+          aprovado: true,
+        },
+      ];
+
+      const retificacoes: RetificacaoDTO[] = [
+        {
+          id: 1,
+          codafListaPresencaId: 1,
+          paginaRetificacaoDom: 10,
+          dataRetificacao: '2024-01-15',
+        },
+      ];
+
+      const dados: CriarCodafListaPresencaDTO = {
+        propostaId: 1,
+        propostaTurmaId: 10,
+        dataPublicacao: '2024-01-01',
+        dataPublicacaoDom: '2024-01-02',
+        numeroComunicado: 100,
+        paginaComunicadoDom: 5,
+        codigoCursoEol: 123,
+        codigoNivel: 1,
+        observacao: 'Observação atualizada',
+        inscritos,
+        retificacoes,
+      };
+
+      const mockResponse = {
+        sucesso: true,
+        dados: { id: 1, mensagem: 'Lista atualizada com sucesso' },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockAlterarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await atualizarCodafListaPresenca(id, dados);
+
+      expect(mockAlterarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/${id}`,
+        dados,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('obterCodafListaPresencaPorId', () => {
+    test('deve obter lista de presença por ID', async () => {
+      const id = 1;
+      const mockResponse = {
+        sucesso: true,
+        dados: {
+          id: 1,
+          propostaId: 10,
+          propostaTurmaId: 20,
+          numeroHomologacao: 100,
+          nomeFormacao: 'Formação Teste',
+          codigoFormacao: 1001,
+          numeroComunicado: 50,
+          dataPublicacao: '2024-01-01',
+          paginaComunicadoDom: 5,
+          dataPublicacaoDom: '2024-01-02',
+          codigoCursoEol: 123,
+          codigoNivel: 1,
+          observacao: 'Observação',
+          status: 1,
+          alteradoEm: null,
+          alteradoPor: null,
+          alteradoLogin: null,
+          criadoEm: '2024-01-01T10:00:00',
+          criadoPor: 'Admin',
+          criadoLogin: 'admin@teste.com',
+        },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterCodafListaPresencaPorId(id);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('obterInscritosTurma', () => {
+    test('deve obter inscritos de uma turma com paginação padrão', async () => {
+      const turmaId = 10;
+      const mockResponse = {
+        sucesso: true,
+        dados: {
+          items: [
+            {
+              id: 1,
+              cpf: '12345678900',
+              nome: 'João Silva',
+              percentualFrequencia: 85,
+              conceitoFinal: 'S',
+              atividadeObrigatorio: true,
+              aprovado: true,
+            },
+          ],
+          totalPaginas: 1,
+          totalRegistros: 1,
+        },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterInscritosTurma(turmaId);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/inscritos-turma/${turmaId}`,
+        {
+          params: {
+            numeroPagina: 1,
+            numeroRegistros: 9999,
+          },
+        },
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve obter inscritos com paginação customizada', async () => {
+      const turmaId = 10;
+      const numeroPagina = 2;
+      const numeroRegistros = 50;
+
+      const mockResponse = {
+        sucesso: true,
+        dados: {
+          items: [],
+          totalPaginas: 1,
+          totalRegistros: 0,
+        },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      await obterInscritosTurma(turmaId, numeroPagina, numeroRegistros);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/inscritos-turma/${turmaId}`,
+        {
+          params: {
+            numeroPagina: 2,
+            numeroRegistros: 50,
+          },
+        },
+      );
+    });
+  });
+
+  describe('verificarTurmaPossuiLista', () => {
+    test('deve verificar se turma possui lista sem lista de presença ID', async () => {
+      const propostaTurmaId = 10;
+      const mockResponse = {
+        sucesso: true,
+        dados: false,
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await verificarTurmaPossuiLista(propostaTurmaId);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/turmas/${propostaTurmaId}/possui-lista`,
+        {
+          data: {},
+        },
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve verificar se turma possui lista com lista de presença ID', async () => {
+      const propostaTurmaId = 10;
+      const listaPresencaId = 5;
+      const mockResponse = {
+        sucesso: true,
+        dados: true,
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await verificarTurmaPossuiLista(propostaTurmaId, listaPresencaId);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/turmas/${propostaTurmaId}/possui-lista`,
+        {
+          data: { listaPresencaId: 5 },
+        },
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('deletarRetificacao', () => {
+    test('deve deletar retificação por ID', async () => {
+      const retificacaoId = 5;
+      const mockResponse = {
+        sucesso: true,
+        dados: true,
+        mensagens: [],
+        status: 200,
+      };
+
+      mockDeletarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await deletarRetificacao(retificacaoId);
+
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/retificacoes/${retificacaoId}`,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve deletar retificação por ID em string', async () => {
+      const retificacaoId = '10';
+      const mockResponse = {
+        sucesso: true,
+        dados: true,
+        mensagens: [],
+        status: 200,
+      };
+
+      mockDeletarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await deletarRetificacao(retificacaoId);
+
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/retificacoes/${retificacaoId}`,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve retornar erro ao deletar retificação inexistente', async () => {
+      const retificacaoId = 999;
+      const mockResponse = {
+        sucesso: false,
+        dados: false,
+        mensagens: ['Retificação não encontrada'],
+        status: 404,
+      };
+
+      mockDeletarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await deletarRetificacao(retificacaoId);
+
+      expect(result.sucesso).toBe(false);
+      expect(result.mensagens).toContain('Retificação não encontrada');
+    });
+  });
+
+  describe('Integração - Fluxo completo com retificações', () => {
+    test('deve criar e depois atualizar uma lista de presença com retificações', async () => {
+      const inscritos: InscritoDTO[] = [
+        {
+          inscricaoId: 1,
+          percentualFrequencia: 85,
+          conceitoFinal: 'S',
+          atividadeObrigatorio: true,
+          aprovado: true,
+        },
+      ];
+
+      const dadosCriacao: CriarCodafListaPresencaDTO = {
+        propostaId: 1,
+        propostaTurmaId: 10,
+        dataPublicacao: '2024-01-01',
+        dataPublicacaoDom: '2024-01-02',
+        numeroComunicado: 100,
+        paginaComunicadoDom: 5,
+        codigoCursoEol: 123,
+        codigoNivel: 1,
+        observacao: 'Observação inicial',
+        inscritos,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce({
+        sucesso: true,
+        dados: { id: 1 },
+        mensagens: [],
+        status: 201,
+      } as any);
+
+      const resultCriacao = await criarCodafListaPresenca(dadosCriacao);
+      expect(resultCriacao.sucesso).toBe(true);
+
+      const retificacoes: RetificacaoDTO[] = [
+        {
+          id: 0,
+          codafListaPresencaId: 0,
+          paginaRetificacaoDom: 10,
+          dataRetificacao: '2024-01-15',
+        },
+      ];
+
+      const dadosAtualizacao: CriarCodafListaPresencaDTO = {
+        ...dadosCriacao,
+        observacao: 'Observação atualizada',
+        retificacoes,
+      };
+
+      mockAlterarRegistro.mockResolvedValueOnce({
+        sucesso: true,
+        dados: { id: 1 },
+        mensagens: [],
+        status: 200,
+      } as any);
+
+      const resultAtualizacao = await atualizarCodafListaPresenca(1, dadosAtualizacao);
+      expect(resultAtualizacao.sucesso).toBe(true);
     });
   });
 });
