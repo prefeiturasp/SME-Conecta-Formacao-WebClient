@@ -693,12 +693,23 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
 
     Modal.confirm({
-      title: 'Confirmar exclusão',
-      content: `Tem certeza que deseja excluir a Retificação ${numero
-        .toString()
-        .padStart(2, '0')}?`,
-      okText: 'Sim',
-      cancelText: 'Não',
+      title: 'Excluir retificação',
+      content: (
+        <div>
+          <p style={{ marginBottom: 8 }}>
+            Deseja realmente excluir a <strong>Retificação {numero.toString().padStart(2, '0')}</strong>?
+          </p>
+          <p style={{ color: '#8c8c8c', fontSize: '13px', marginBottom: 0 }}>
+            Esta ação não poderá ser desfeita.
+          </p>
+        </div>
+      ),
+      okText: 'Excluir',
+      cancelText: 'Cancelar',
+      okButtonProps: {
+        danger: true,
+      },
+      centered: true,
       onOk: async () => {
         try {
           const retificacaoOriginal = retificacoesOriginais.get(numero);
