@@ -1,5 +1,5 @@
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
+import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
 
@@ -62,6 +62,12 @@ export type InscritoDTO = {
   aprovado: boolean;
 };
 
+export type RetificacaoDTO = {
+  id: number;
+  dataRetificacao: string | null;
+  paginaRetificacaoDom: number;
+};
+
 export type CriarCodafListaPresencaDTO = {
   propostaId: number;
   propostaTurmaId: number;
@@ -73,6 +79,7 @@ export type CriarCodafListaPresencaDTO = {
   codigoNivel: number;
   observacao: string;
   inscritos: InscritoDTO[];
+  retificacoes?: RetificacaoDTO[];
 };
 
 export type CodafListaPresencaDetalheDTO = {
@@ -96,6 +103,7 @@ export type CodafListaPresencaDetalheDTO = {
   criadoEm: string;
   criadoPor: string;
   criadoLogin: string;
+  retificacoes?: RetificacaoDTO[];
 };
 
 export const criarCodafListaPresenca = (
@@ -116,6 +124,9 @@ export const atualizarCodafListaPresenca = (
 ): Promise<ApiResult<any>> => {
   return alterarRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`, dados);
 };
+
+export const deletarRetificacao = (id: string | number): Promise<ApiResult<boolean>> =>
+  deletarRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/retificacoes/${id}`);
 
 export type InscritoTurmaDTO = {
   id: number;
