@@ -7,6 +7,7 @@ import {
   obterInscritosTurma,
   verificarTurmaPossuiLista,
   deletarRetificacao,
+  baixarModeloTermoResponsabilidade,
   URL_API_CODAF_LISTA_PRESENCA,
   CodafListaPresencaFiltroDTO,
   CriarCodafListaPresencaDTO,
@@ -15,18 +16,24 @@ import {
 } from './codaf-lista-presenca-service';
 
 jest.mock('./api', () => ({
+  __esModule: true,
   obterRegistro: jest.fn(),
   inserirRegistro: jest.fn(),
   alterarRegistro: jest.fn(),
   deletarRegistro: jest.fn(),
   ApiResult: jest.fn(),
+  default: {
+    get: jest.fn(),
+  },
 }));
 
 import { obterRegistro, inserirRegistro, alterarRegistro, deletarRegistro } from './api';
+import api from './api';
 const mockObterRegistro = obterRegistro as jest.MockedFunction<typeof obterRegistro>;
 const mockInserirRegistro = inserirRegistro as jest.MockedFunction<typeof inserirRegistro>;
 const mockAlterarRegistro = alterarRegistro as jest.MockedFunction<typeof alterarRegistro>;
 const mockDeletarRegistro = deletarRegistro as jest.MockedFunction<typeof deletarRegistro>;
+const mockApiGet = api.get as jest.MockedFunction<typeof api.get>;
 
 describe('CodafListaPresencaService', () => {
   beforeEach(() => {
@@ -826,6 +833,119 @@ describe('CodafListaPresencaService', () => {
 
       const resultAtualizacao = await atualizarCodafListaPresenca(1, dadosAtualizacao);
       expect(resultAtualizacao.sucesso).toBe(true);
+    });
+  });
+
+  describe('baixarModeloTermoResponsabilidade', () => {
+    test('deve baixar modelo do termo de responsabilidade com sucesso', async () => {
+      const mockArrayBuffer = new ArrayBuffer(8);
+      const mockResponse = {
+        data: mockArrayBuffer,
+        status: 200,
+        headers: {
+          'content-type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'content-disposition': 'attachment; filename="Modelo_Termo_Responsabilidade.docx"',
+        },
+      };
+
+      mockApiGet.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await baixarModeloTermoResponsabilidade();
+
+      expect(mockApiGet).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/termo-responsabilidade/modelo`,
+        {
+          responseType: 'arraybuffer',
+        },
+      );
+      expect(result.data).toEqual(mockArrayBuffer);
+      expect(result.status).toBe(200);
+    });
+
+    test('deve retornar dados do arquivo com headers corretos', async () => {
+      const mockArrayBuffer = new ArrayBuffer(1024);
+      const mockResponse = {
+        data: mockArrayBuffer,
+        status: 200,
+        headers: {
+          'content-type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'content-disposition': 'attachment; filename="Termo.docx"',
+        },
+      };
+
+      mockApiGet.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await baixarModeloTermoResponsabilidade();
+
+      expect(result.headers['content-type']).toBe(
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      );
+      expect(result.headers['content-disposition']).toContain('attachment');
+      expect(result.headers['content-disposition']).toContain('filename');
+    });
+
+    test('deve retornar erro quando falhar ao baixar modelo', async () => {
+      const mockError = {
+        response: {
+          status: 500,
+          data: 'Erro ao gerar arquivo',
+        },
+      };
+
+      mockApiGet.mockRejectedValueOnce(mockError);
+
+      await expect(baixarModeloTermoResponsabilidade()).rejects.toEqual(mockError);
+    });
+
+    test('deve retornar erro 404 quando modelo não encontrado', async () => {
+      const mockError = {
+        response: {
+          status: 404,
+          data: 'Modelo não encontrado',
+        },
+      };
+
+      mockApiGet.mockRejectedValueOnce(mockError);
+
+      await expect(baixarModeloTermoResponsabilidade()).rejects.toEqual(mockError);
+    });
+
+    test('deve chamar API com responseType arraybuffer', async () => {
+      const mockResponse = {
+        data: new ArrayBuffer(8),
+        status: 200,
+        headers: {},
+      };
+
+      mockApiGet.mockResolvedValueOnce(mockResponse as any);
+
+      await baixarModeloTermoResponsabilidade();
+
+      expect(mockApiGet).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          responseType: 'arraybuffer',
+        }),
+      );
+    });
+
+    test('deve retornar arquivo com tamanho correto', async () => {
+      const fileSize = 2048;
+      const mockArrayBuffer = new ArrayBuffer(fileSize);
+      const mockResponse = {
+        data: mockArrayBuffer,
+        status: 200,
+        headers: {
+          'content-length': fileSize.toString(),
+        },
+      };
+
+      mockApiGet.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await baixarModeloTermoResponsabilidade();
+
+      expect(result.data.byteLength).toBe(fileSize);
+      expect(result.headers['content-length']).toBe(fileSize.toString());
     });
   });
 });

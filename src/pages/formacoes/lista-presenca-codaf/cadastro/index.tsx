@@ -51,6 +51,7 @@ import {
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
   atualizarCodafListaPresenca,
+  baixarModeloTermoResponsabilidade,
   criarCodafListaPresenca,
   deletarRetificacao,
   obterCodafListaPresencaPorId,
@@ -63,6 +64,7 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
+import { downloadBlob } from '~/core/utils/functions';
 
 interface CursistaDTO {
   id: number;
@@ -665,6 +667,54 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     });
   };
 
+  const onBaixarModelo = async () => {
+    try {
+      setLoading(true);
+      const response = await baixarModeloTermoResponsabilidade();
+
+      if (response.status === 200) {
+        const contentDisposition = response.headers['content-disposition'];
+        const contentType = response.headers['content-type'];
+        let fileName = 'Modelo_Termo_Responsabilidade';
+
+        if (contentType?.includes('pdf')) {
+          fileName += '.pdf';
+        } else if (contentType?.includes('wordprocessingml') || contentType?.includes('msword')) {
+          fileName += '.docx';
+        } else {
+          fileName += '.pdf';
+        }
+
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (fileNameMatch && fileNameMatch[1]) {
+            fileName = fileNameMatch[1].replace(/['"]/g, '');
+          }
+        }
+
+        downloadBlob(response.data, fileName);
+
+        notification.success({
+          message: 'Sucesso',
+          description: 'Modelo baixado com sucesso!',
+        });
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao baixar modelo do termo de responsabilidade',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao baixar modelo:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao baixar modelo do termo de responsabilidade',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onClickEnviarParaDF = async () => {
     try {
       const values = await form.validateFields();
@@ -1240,6 +1290,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                       fontWeight: 500,
                       padding: '9px',
                     }}
+                    onClick={onBaixarModelo}
                   >
                     Termo de responsabilidade
                   </Button>

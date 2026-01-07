@@ -1,5 +1,6 @@
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
+import api from './api';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
 
@@ -163,5 +164,11 @@ export const verificarTurmaPossuiLista = (
   const body = listaPresencaId ? { listaPresencaId } : {};
   return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/turmas/${propostaTurmaId}/possui-lista`, {
     data: body,
+  });
+};
+
+export const baixarModeloTermoResponsabilidade = () => {
+  return api.get(`${URL_API_CODAF_LISTA_PRESENCA}/termo-responsabilidade/modelo`, {
+    responseType: 'arraybuffer',
   });
 };
