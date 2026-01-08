@@ -567,7 +567,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       };
 
       const anexos =
-        values.anexos?.map((arquivo: any, index: number) => ({
+        values.anexos?.map((arquivo: any) => ({
           arquivoCodigo: arquivo.xhr || arquivo.arquivoCodigo,
           nomeArquivo: arquivo.name || arquivo.nomeArquivo,
           tipoAnexoId: 3, // Primeiro arquivo é tipo 1, demais tipo 2
