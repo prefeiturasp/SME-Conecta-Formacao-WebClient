@@ -195,7 +195,7 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
     if (status === 'done') {
       notification.success({
         message: 'Sucesso',
-        description: `${file.name} ${mensagemSucessoUpload}`,
+        description: `${mensagemSucessoUpload}`,
       });
     } else if (status === 'error') {
       atualizaListaArquivos(fileList, file);
