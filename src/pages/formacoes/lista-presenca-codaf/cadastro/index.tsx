@@ -110,6 +110,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
+  const podeGerenciarAnexos = ehPerfilDF || ehPerfilEMFORPEF;
   const mostrarBotaoExcluir = modoEdicao && status === 1;
 
   // Monitora mudanças nos campos do formulário
@@ -1322,7 +1323,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   name: 'anexos',
                   label: '',
                 }}
-                draggerProps={{ multiple: true, onDownload: onDownloadAnexo }}
+                draggerProps={{
+                  multiple: true,
+                  onDownload: onDownloadAnexo,
+                  disabled: !podeGerenciarAnexos,
+                }}
                 subTitulo='Deve permitir apenas arquivos PDF com no máximo 20MB cada.'
                 tipoArquivosPermitidos='.pdf'
                 tamanhoMaxUploadPorArquivo={20}
