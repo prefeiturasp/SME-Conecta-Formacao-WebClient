@@ -51,8 +51,11 @@ import {
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
   atualizarCodafListaPresenca,
+  baixarModeloTermoResponsabilidade,
   criarCodafListaPresenca,
   deletarRetificacao,
+  fazerUploadAnexoCodaf,
+  obterAnexoCodafParaDownload,
   obterCodafListaPresencaPorId,
   obterInscritosTurma,
   verificarTurmaPossuiLista,
@@ -63,6 +66,7 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
+import { downloadBlob } from '~/core/utils/functions';
 
 interface CursistaDTO {
   id: number;
@@ -172,6 +176,22 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             codigoNivel: dados.codigoNivel,
             observacao: dados.observacao || '',
           });
+
+          if (dados.anexos && dados.anexos.length > 0) {
+            const anexosCarregados = dados.anexos.map((anexo) => ({
+              uid: anexo.arquivoCodigo,
+              name: anexo.nomeArquivo,
+              status: 'done',
+              xhr: anexo.arquivoCodigo,
+              arquivoCodigo: anexo.arquivoCodigo,
+              nomeArquivo: anexo.nomeArquivo,
+              tipoAnexoId: anexo.tipoAnexoId,
+              urlDownload: anexo.urlDownload,
+            }));
+            form.setFieldsValue({
+              anexos: anexosCarregados,
+            });
+          }
 
           if (dados.retificacoes && dados.retificacoes.length > 0) {
             const numerosRetificacoes = dados.retificacoes.map((_, index) => index + 1);
@@ -546,6 +566,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         return dayjs(data).format('YYYY-MM-DD');
       };
 
+      const anexos =
+        values.anexos?.map((arquivo: any) => ({
+          arquivoCodigo: arquivo.xhr || arquivo.arquivoCodigo,
+          nomeArquivo: arquivo.name || arquivo.nomeArquivo,
+          tipoAnexoId: 3, // Primeiro arquivo é tipo 1, demais tipo 2
+        })) || [];
+
       const dados = {
         propostaId: propostaSelecionada?.propostaId || 0,
         propostaTurmaId: values.turmaId || 0,
@@ -563,6 +590,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           atividadeObrigatorio: cursista.atividade === 'S',
           aprovado: cursista.aprovado,
         })),
+        anexos,
         retificacoes: retificacoes
           .map((numero) => {
             const numeroFormatado = numero.toString().padStart(2, '0');
@@ -663,6 +691,93 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         navigate(ROUTES.LISTA_PRESENCA_CODAF);
       },
     });
+  };
+
+  const onBaixarModelo = async () => {
+    try {
+      setLoading(true);
+      const response = await baixarModeloTermoResponsabilidade();
+
+      if (response.status === 200) {
+        const contentDisposition = response.headers['content-disposition'];
+        const contentType = response.headers['content-type'];
+        let fileName = 'Modelo_Termo_Responsabilidade';
+
+        if (contentType?.includes('pdf')) {
+          fileName += '.pdf';
+        } else if (contentType?.includes('wordprocessingml') || contentType?.includes('msword')) {
+          fileName += '.docx';
+        } else {
+          fileName += '.pdf';
+        }
+
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (fileNameMatch && fileNameMatch[1]) {
+            fileName = fileNameMatch[1].replace(/['"]/g, '');
+          }
+        }
+
+        downloadBlob(response.data, fileName);
+
+        notification.success({
+          message: 'Sucesso',
+          description: 'Modelo baixado com sucesso!',
+        });
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao baixar modelo do termo de responsabilidade',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao baixar modelo:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao baixar modelo do termo de responsabilidade',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onDownloadAnexo = async (arquivo: any) => {
+    try {
+      console.log('Arquivo completo para download:', arquivo);
+
+      if (arquivo.urlDownload) {
+        window.open(arquivo.urlDownload, '_blank');
+        return;
+      }
+
+      const codigoArquivo = arquivo.xhr || arquivo.arquivoCodigo || arquivo.response;
+      console.log('Código do arquivo extraído:', codigoArquivo);
+
+      if (!codigoArquivo) {
+        notification.error({
+          message: 'Erro',
+          description: 'Código do arquivo não encontrado',
+        });
+        return;
+      }
+
+      const response = await obterAnexoCodafParaDownload(codigoArquivo);
+
+      if (response.status === 200) {
+        downloadBlob(response.data, arquivo.name);
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao fazer download do arquivo',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao fazer download:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao fazer download do arquivo',
+      });
+    }
   };
 
   const onClickEnviarParaDF = async () => {
@@ -1066,125 +1181,127 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               `}</style>
             </Col>
           </Row>
-          <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
-            <Col span={24}>
-              <div
-                style={{
-                  fontWeight: 700,
-                  fontSize: '20px',
-                  lineHeight: '100%',
-                  color: '#42474A',
-                  marginBottom: 8,
-                }}
-              >
-                Retificações
-              </div>
-              <p style={{ marginBottom: 16 }}>
-                Caso haja retificações realizadas, insira nos campos abaixo. Caso seja necessário o
-                registro de mais de uma, clique em &quot;Nova retificação&quot;.
-              </p>
-            </Col>
-          </Row>
-
-          <Row gutter={[16, 16]}>
-            {retificacoes.map((numero) => (
-              <Col
-                key={numero}
-                xs={24}
-                sm={24}
-                md={retificacoes.length === 1 ? 24 : 12}
-                lg={retificacoes.length === 1 ? 24 : 12}
-                xl={retificacoes.length === 1 ? 24 : 12}
-              >
+          <div style={{ display: ehPerfilDF || ehPerfilEMFORPEF ? 'block' : 'none' }}>
+            <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
+              <Col span={24}>
                 <div
                   style={{
-                    border: '1px solid #d9d9d9',
-                    borderRadius: '2px',
-                    overflow: 'hidden',
+                    fontWeight: 700,
+                    fontSize: '20px',
+                    lineHeight: '100%',
+                    color: '#42474A',
+                    marginBottom: 8,
                   }}
+                >
+                  Retificações
+                </div>
+                <p style={{ marginBottom: 16 }}>
+                  Caso haja retificações realizadas, insira nos campos abaixo. Caso seja necessário
+                  o registro de mais de uma, clique em &quot;Nova retificação&quot;.
+                </p>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 16]}>
+              {retificacoes.map((numero) => (
+                <Col
+                  key={numero}
+                  xs={24}
+                  sm={24}
+                  md={retificacoes.length === 1 ? 24 : 12}
+                  lg={retificacoes.length === 1 ? 24 : 12}
+                  xl={retificacoes.length === 1 ? 24 : 12}
                 >
                   <div
                     style={{
-                      backgroundColor: '#ff9a52',
-                      color: '#fff',
-                      padding: '8px',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
+                      border: '1px solid #d9d9d9',
+                      borderRadius: '2px',
+                      overflow: 'hidden',
                     }}
                   >
-                    <span>Retificação {numero.toString().padStart(2, '0')}</span>
-                    <Button
-                      type='text'
-                      icon={<DeleteOutlined />}
-                      onClick={() => excluirRetificacao(numero)}
+                    <div
                       style={{
-                        color: '#fff',
-                        border: '1px solid #fff',
                         backgroundColor: '#ff9a52',
-                        fontWeight: 500,
+                        color: '#fff',
+                        padding: '8px',
+                        fontWeight: 600,
+                        fontSize: '14px',
                         display: 'flex',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
-                        gap: '8px',
-                        padding: '4px 12px',
-                        height: 'auto',
                       }}
                     >
-                      Excluir
-                    </Button>
-                  </div>
-                  <div style={{ padding: '16px', backgroundColor: '#fff' }}>
-                    <Row gutter={[16, 8]}>
-                      <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                        <Form.Item
-                          label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
-                          name={`dataRetificacao${numero.toString().padStart(2, '0')}`}
-                        >
-                          <DatePicker
-                            format='DD/MM/YYYY'
-                            placeholder='Selecione a data'
-                            locale={locale}
-                            style={{ width: '100%' }}
+                      <span>Retificação {numero.toString().padStart(2, '0')}</span>
+                      <Button
+                        type='text'
+                        icon={<DeleteOutlined />}
+                        onClick={() => excluirRetificacao(numero)}
+                        style={{
+                          color: '#fff',
+                          border: '1px solid #fff',
+                          backgroundColor: '#ff9a52',
+                          fontWeight: 500,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '4px 12px',
+                          height: 'auto',
+                        }}
+                      >
+                        Excluir
+                      </Button>
+                    </div>
+                    <div style={{ padding: '16px', backgroundColor: '#fff' }}>
+                      <Row gutter={[16, 8]}>
+                        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                          <Form.Item
+                            label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
+                            name={`dataRetificacao${numero.toString().padStart(2, '0')}`}
+                          >
+                            <DatePicker
+                              format='DD/MM/YYYY'
+                              placeholder='Selecione a data'
+                              locale={locale}
+                              style={{ width: '100%' }}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                          <InputNumero
+                            formItemProps={{
+                              label: 'Página da retificação',
+                              name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
+                            }}
+                            inputProps={{
+                              placeholder: 'Número da página',
+                              maxLength: 10,
+                            }}
                           />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                        <InputNumero
-                          formItemProps={{
-                            label: 'Página da retificação',
-                            name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
-                          }}
-                          inputProps={{
-                            placeholder: 'Número da página',
-                            maxLength: 10,
-                          }}
-                        />
-                      </Col>
-                    </Row>
+                        </Col>
+                      </Row>
+                    </div>
                   </div>
-                </div>
-              </Col>
-            ))}
-          </Row>
+                </Col>
+              ))}
+            </Row>
 
-          <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
-            <Col>
-              <Button
-                type='default'
-                icon={<PlusOutlined />}
-                onClick={adicionarNovaRetificacao}
-                style={{
-                  borderColor: '#ff6b35',
-                  color: '#ff6b35',
-                  fontWeight: 500,
-                }}
-              >
-                Nova retificação
-              </Button>
-            </Col>
-          </Row>
+            <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
+              <Col>
+                <Button
+                  type='default'
+                  icon={<PlusOutlined />}
+                  onClick={adicionarNovaRetificacao}
+                  style={{
+                    borderColor: '#ff6b35',
+                    color: '#ff6b35',
+                    fontWeight: 500,
+                  }}
+                >
+                  Nova retificação
+                </Button>
+              </Col>
+            </Row>
+          </div>
           <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
             <Col span={24}>
               <div
@@ -1205,10 +1322,15 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   name: 'anexos',
                   label: '',
                 }}
-                draggerProps={{ multiple: true }}
+                draggerProps={{ multiple: true, onDownload: onDownloadAnexo }}
                 subTitulo='Deve permitir apenas arquivos PDF com no máximo 20MB cada.'
-                tipoArquivosPermitidos=',.pdf'
+                tipoArquivosPermitidos='.pdf'
                 tamanhoMaxUploadPorArquivo={20}
+                uploadService={fazerUploadAnexoCodaf}
+                downloadService={obterAnexoCodafParaDownload}
+                formDataFieldName='arquivo'
+                mensagemFormatoNaoPermitido='Arquivo deve estar no formato PDF'
+                mensagemSucessoUpload='Arquivo carregado com sucesso'
               />
             </Col>
           </Row>
@@ -1240,6 +1362,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                       fontWeight: 500,
                       padding: '9px',
                     }}
+                    onClick={onBaixarModelo}
                   >
                     Termo de responsabilidade
                   </Button>

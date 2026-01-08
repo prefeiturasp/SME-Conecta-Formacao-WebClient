@@ -64,6 +64,9 @@ type UploadArquivosProps = {
   subTitulo?: string;
   downloadService: (codigosArquivo: string) => any;
   uploadService: (formData: FormData, configuracaoHeader: any) => any;
+  formDataFieldName?: string;
+  mensagemFormatoNaoPermitido?: string;
+  mensagemSucessoUpload?: string;
 };
 
 const TAMANHO_PADRAO_MAXIMO_UPLOAD = 100;
@@ -78,6 +81,9 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
     subTitulo,
     tiposArquivosPermitidos = '',
     tamanhoMaxUploadPorArquivo = TAMANHO_PADRAO_MAXIMO_UPLOAD,
+    formDataFieldName = 'file',
+    mensagemFormatoNaoPermitido = 'Formato não permitido',
+    mensagemSucessoUpload = 'arquivo carregado com sucesso',
   } = props;
 
   if (!formItemProps.name) {
@@ -101,7 +107,7 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
     if (!permiteInserirFormato(arquivo, tiposArquivosPermitidos)) {
       notification.error({
         message: 'Erro',
-        description: 'Formato não permitido',
+        description: mensagemFormatoNaoPermitido,
       });
       return false;
     }
@@ -129,13 +135,25 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
       },
     };
 
-    fmData.append('file', file);
+    fmData.append(formDataFieldName, file);
 
     uploadService(fmData, config)
       .then((resposta: any) => {
-        const codigo = resposta?.data?.codigo || resposta?.dados?.codigo || resposta.data;
+        const codigo =
+          resposta?.data?.codigo ||
+          resposta?.dados?.codigo ||
+          resposta?.data?.arquivoCodigo ||
+          resposta?.dados?.arquivoCodigo ||
+          resposta.data;
         const id = resposta?.data?.id || resposta?.dados?.id;
+        const urlDownload = resposta?.dados?.urlDownload || resposta?.data?.urlDownload;
+
         file.id = id;
+        file.arquivoCodigo = codigo;
+        if (urlDownload) {
+          file.urlDownload = urlDownload;
+        }
+
         onSuccess(file, codigo);
       })
       .catch((e: any) => onError({ event: e }));
@@ -177,7 +195,7 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
     if (status === 'done') {
       notification.success({
         message: 'Sucesso',
-        description: `${file.name} arquivo carregado com sucesso`,
+        description: `${mensagemSucessoUpload}`,
       });
     } else if (status === 'error') {
       atualizaListaArquivos(fileList, file);
