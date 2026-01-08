@@ -69,6 +69,37 @@ export type RetificacaoDTO = {
   paginaRetificacaoDom: number;
 };
 
+export type AnexoTemporarioDTO = {
+  arquivoCodigo: string;
+  nomeArquivo: string;
+  extensao: string;
+  urlDownload: string;
+  contentType: string;
+  tamanhoBytes: number;
+};
+
+export type AnexoCodafDTO = {
+  arquivoCodigo: string;
+  nomeArquivo: string;
+  tipoAnexoId: number;
+};
+
+export type AnexoCodafDetalheDTO = {
+  id: number;
+  codafListaPresencaId: number;
+  arquivoCodigo: string;
+  nomeArquivo: string;
+  extensao: string;
+  tipoAnexoId: number;
+  urlDownload: string;
+  alteradoEm: string | null;
+  alteradoPor: string | null;
+  alteradoLogin: string | null;
+  criadoEm: string;
+  criadoPor: string;
+  criadoLogin: string;
+};
+
 export type CriarCodafListaPresencaDTO = {
   propostaId: number;
   propostaTurmaId: number;
@@ -81,6 +112,7 @@ export type CriarCodafListaPresencaDTO = {
   observacao: string;
   inscritos: InscritoDTO[];
   retificacoes?: RetificacaoDTO[];
+  anexos?: AnexoCodafDTO[];
 };
 
 export type CodafListaPresencaDetalheDTO = {
@@ -105,6 +137,7 @@ export type CodafListaPresencaDetalheDTO = {
   criadoPor: string;
   criadoLogin: string;
   retificacoes?: RetificacaoDTO[];
+  anexos?: AnexoCodafDetalheDTO[];
 };
 
 export const criarCodafListaPresenca = (
@@ -169,6 +202,22 @@ export const verificarTurmaPossuiLista = (
 
 export const baixarModeloTermoResponsabilidade = () => {
   return api.get(`${URL_API_CODAF_LISTA_PRESENCA}/termo-responsabilidade/modelo`, {
+    responseType: 'arraybuffer',
+  });
+};
+
+export const fazerUploadAnexoCodaf = (
+  formData: FormData,
+  configuracaoHeader: any,
+): Promise<ApiResult<AnexoTemporarioDTO>> =>
+  inserirRegistro(
+    `${URL_API_CODAF_LISTA_PRESENCA}/anexos/temporarios`,
+    formData,
+    configuracaoHeader,
+  );
+
+export const obterAnexoCodafParaDownload = (arquivoCodigo: string) => {
+  return api.get(`${URL_API_CODAF_LISTA_PRESENCA}/anexos/${arquivoCodigo}`, {
     responseType: 'arraybuffer',
   });
 };

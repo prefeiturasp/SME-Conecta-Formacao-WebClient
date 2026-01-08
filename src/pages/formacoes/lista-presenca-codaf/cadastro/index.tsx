@@ -54,6 +54,8 @@ import {
   baixarModeloTermoResponsabilidade,
   criarCodafListaPresenca,
   deletarRetificacao,
+  fazerUploadAnexoCodaf,
+  obterAnexoCodafParaDownload,
   obterCodafListaPresencaPorId,
   obterInscritosTurma,
   verificarTurmaPossuiLista,
@@ -174,6 +176,22 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             codigoNivel: dados.codigoNivel,
             observacao: dados.observacao || '',
           });
+
+          if (dados.anexos && dados.anexos.length > 0) {
+            const anexosCarregados = dados.anexos.map((anexo) => ({
+              uid: anexo.arquivoCodigo,
+              name: anexo.nomeArquivo,
+              status: 'done',
+              xhr: anexo.arquivoCodigo,
+              arquivoCodigo: anexo.arquivoCodigo,
+              nomeArquivo: anexo.nomeArquivo,
+              tipoAnexoId: anexo.tipoAnexoId,
+              urlDownload: anexo.urlDownload,
+            }));
+            form.setFieldsValue({
+              anexos: anexosCarregados,
+            });
+          }
 
           if (dados.retificacoes && dados.retificacoes.length > 0) {
             const numerosRetificacoes = dados.retificacoes.map((_, index) => index + 1);
@@ -548,6 +566,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         return dayjs(data).format('YYYY-MM-DD');
       };
 
+      const anexos =
+        values.anexos?.map((arquivo: any, index: number) => ({
+          arquivoCodigo: arquivo.xhr || arquivo.arquivoCodigo,
+          nomeArquivo: arquivo.name || arquivo.nomeArquivo,
+          tipoAnexoId: 3, // Primeiro arquivo é tipo 1, demais tipo 2
+        })) || [];
+
       const dados = {
         propostaId: propostaSelecionada?.propostaId || 0,
         propostaTurmaId: values.turmaId || 0,
@@ -565,6 +590,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           atividadeObrigatorio: cursista.atividade === 'S',
           aprovado: cursista.aprovado,
         })),
+        anexos,
         retificacoes: retificacoes
           .map((numero) => {
             const numeroFormatado = numero.toString().padStart(2, '0');
@@ -712,6 +738,33 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onDownloadAnexo = async (arquivo: any) => {
+    try {
+      if (arquivo.urlDownload) {
+        window.open(arquivo.urlDownload, '_blank');
+        return;
+      }
+
+      const codigoArquivo = arquivo.xhr;
+      const response = await obterAnexoCodafParaDownload(codigoArquivo);
+
+      if (response.status === 200) {
+        downloadBlob(response.data, arquivo.name);
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao fazer download do arquivo',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao fazer download:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao fazer download do arquivo',
+      });
     }
   };
 
@@ -1255,10 +1308,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   name: 'anexos',
                   label: '',
                 }}
-                draggerProps={{ multiple: true }}
+                draggerProps={{ multiple: true, onDownload: onDownloadAnexo }}
                 subTitulo='Deve permitir apenas arquivos PDF com no máximo 20MB cada.'
                 tipoArquivosPermitidos=',.pdf'
                 tamanhoMaxUploadPorArquivo={20}
+                uploadService={fazerUploadAnexoCodaf}
+                downloadService={obterAnexoCodafParaDownload}
+                formDataFieldName='arquivo'
               />
             </Col>
           </Row>

@@ -64,6 +64,7 @@ type UploadArquivosProps = {
   subTitulo?: string;
   downloadService: (codigosArquivo: string) => any;
   uploadService: (formData: FormData, configuracaoHeader: any) => any;
+  formDataFieldName?: string;
 };
 
 const TAMANHO_PADRAO_MAXIMO_UPLOAD = 100;
@@ -78,6 +79,7 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
     subTitulo,
     tiposArquivosPermitidos = '',
     tamanhoMaxUploadPorArquivo = TAMANHO_PADRAO_MAXIMO_UPLOAD,
+    formDataFieldName = 'file',
   } = props;
 
   if (!formItemProps.name) {
@@ -129,11 +131,16 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
       },
     };
 
-    fmData.append('file', file);
+    fmData.append(formDataFieldName, file);
 
     uploadService(fmData, config)
       .then((resposta: any) => {
-        const codigo = resposta?.data?.codigo || resposta?.dados?.codigo || resposta.data;
+        const codigo =
+          resposta?.data?.codigo ||
+          resposta?.dados?.codigo ||
+          resposta?.data?.arquivoCodigo ||
+          resposta?.dados?.arquivoCodigo ||
+          resposta.data;
         const id = resposta?.data?.id || resposta?.dados?.id;
         file.id = id;
         onSuccess(file, codigo);

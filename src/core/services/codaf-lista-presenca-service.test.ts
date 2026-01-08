@@ -8,11 +8,14 @@ import {
   verificarTurmaPossuiLista,
   deletarRetificacao,
   baixarModeloTermoResponsabilidade,
+  fazerUploadAnexoCodaf,
+  obterAnexoCodafParaDownload,
   URL_API_CODAF_LISTA_PRESENCA,
   CodafListaPresencaFiltroDTO,
   CriarCodafListaPresencaDTO,
   InscritoDTO,
   RetificacaoDTO,
+  AnexoTemporarioDTO,
 } from './codaf-lista-presenca-service';
 
 jest.mock('./api', () => ({
@@ -946,6 +949,168 @@ describe('CodafListaPresencaService', () => {
 
       expect(result.data.byteLength).toBe(fileSize);
       expect(result.headers['content-length']).toBe(fileSize.toString());
+    });
+  });
+
+  describe('fazerUploadAnexoCodaf', () => {
+    test('deve fazer upload de anexo com sucesso', async () => {
+      const formData = new FormData();
+      formData.append('file', new Blob(['conteúdo']), 'anexo.pdf');
+
+      const configuracaoHeader = {
+        headers: { 'content-type': 'multipart/form-data' },
+      };
+
+      const mockResponse: AnexoTemporarioDTO = {
+        arquivoCodigo: '077667eb-830f-4276-b585-f3ab718d5bb1',
+        nomeArquivo: 'anexo.pdf',
+        extensao: '.pdf',
+        urlDownload: 'https://example.com/anexo.pdf',
+        contentType: 'application/pdf',
+        tamanhoBytes: 1024,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce({
+        sucesso: true,
+        dados: mockResponse,
+        mensagens: [],
+        status: 201,
+      } as any);
+
+      const result = await fazerUploadAnexoCodaf(formData, configuracaoHeader);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/anexos/temporarios`,
+        formData,
+        configuracaoHeader,
+      );
+      expect(result.sucesso).toBe(true);
+      expect(result.dados?.arquivoCodigo).toBe('077667eb-830f-4276-b585-f3ab718d5bb1');
+    });
+
+    test('deve retornar erro ao fazer upload de arquivo inválido', async () => {
+      const formData = new FormData();
+      const configuracaoHeader = {};
+
+      mockInserirRegistro.mockResolvedValueOnce({
+        sucesso: false,
+        dados: null,
+        mensagens: ['Arquivo inválido'],
+        status: 400,
+      } as any);
+
+      const result = await fazerUploadAnexoCodaf(formData, configuracaoHeader);
+
+      expect(result.sucesso).toBe(false);
+      expect(result.mensagens).toContain('Arquivo inválido');
+    });
+
+    test('deve fazer upload de múltiplos anexos', async () => {
+      const formData1 = new FormData();
+      formData1.append('file', new Blob(['conteúdo1']), 'anexo1.pdf');
+
+      const formData2 = new FormData();
+      formData2.append('file', new Blob(['conteúdo2']), 'anexo2.pdf');
+
+      const configuracaoHeader = {};
+
+      mockInserirRegistro
+        .mockResolvedValueOnce({
+          sucesso: true,
+          dados: {
+            arquivoCodigo: 'codigo1',
+            nomeArquivo: 'anexo1.pdf',
+            extensao: '.pdf',
+            urlDownload: 'url1',
+            contentType: 'application/pdf',
+            tamanhoBytes: 100,
+          },
+          mensagens: [],
+          status: 201,
+        } as any)
+        .mockResolvedValueOnce({
+          sucesso: true,
+          dados: {
+            arquivoCodigo: 'codigo2',
+            nomeArquivo: 'anexo2.pdf',
+            extensao: '.pdf',
+            urlDownload: 'url2',
+            contentType: 'application/pdf',
+            tamanhoBytes: 200,
+          },
+          mensagens: [],
+          status: 201,
+        } as any);
+
+      const result1 = await fazerUploadAnexoCodaf(formData1, configuracaoHeader);
+      const result2 = await fazerUploadAnexoCodaf(formData2, configuracaoHeader);
+
+      expect(result1.dados?.arquivoCodigo).toBe('codigo1');
+      expect(result2.dados?.arquivoCodigo).toBe('codigo2');
+      expect(mockInserirRegistro).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('obterAnexoCodafParaDownload', () => {
+    test('deve baixar anexo com sucesso', async () => {
+      const arquivoCodigo = '077667eb-830f-4276-b585-f3ab718d5bb1';
+      const mockArrayBuffer = new ArrayBuffer(1024);
+      const mockResponse = {
+        data: mockArrayBuffer,
+        status: 200,
+        headers: {
+          'content-type': 'application/pdf',
+          'content-disposition': 'attachment; filename="anexo.pdf"',
+        },
+      };
+
+      mockApiGet.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterAnexoCodafParaDownload(arquivoCodigo);
+
+      expect(mockApiGet).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/anexos/${arquivoCodigo}`,
+        {
+          responseType: 'arraybuffer',
+        },
+      );
+      expect(result.data).toEqual(mockArrayBuffer);
+      expect(result.status).toBe(200);
+    });
+
+    test('deve retornar erro 404 quando anexo não encontrado', async () => {
+      const arquivoCodigo = 'codigo-inexistente';
+      const mockError = {
+        response: {
+          status: 404,
+          data: 'Anexo não encontrado',
+        },
+      };
+
+      mockApiGet.mockRejectedValueOnce(mockError);
+
+      await expect(obterAnexoCodafParaDownload(arquivoCodigo)).rejects.toEqual(mockError);
+    });
+
+    test('deve retornar anexo com headers corretos', async () => {
+      const arquivoCodigo = 'test-codigo';
+      const mockResponse = {
+        data: new ArrayBuffer(2048),
+        status: 200,
+        headers: {
+          'content-type': 'application/pdf',
+          'content-disposition': 'attachment; filename="documento.pdf"',
+          'content-length': '2048',
+        },
+      };
+
+      mockApiGet.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterAnexoCodafParaDownload(arquivoCodigo);
+
+      expect(result.headers['content-type']).toBe('application/pdf');
+      expect(result.headers['content-disposition']).toContain('attachment');
+      expect(result.headers['content-length']).toBe('2048');
     });
   });
 });
