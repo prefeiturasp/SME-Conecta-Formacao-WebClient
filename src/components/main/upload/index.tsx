@@ -14,6 +14,8 @@ type UploadArquivosConectaFormacaoProps = {
   uploadService?: (formData: FormData, configuracaoHeader: any) => Promise<any>;
   downloadService?: (codigoArquivo: string) => Promise<any>;
   formDataFieldName?: string;
+  mensagemFormatoNaoPermitido?: string;
+  mensagemSucessoUpload?: string;
 };
 const UploadArquivosConectaFormacao: React.FC<UploadArquivosConectaFormacaoProps> = ({
   form,
@@ -25,6 +27,8 @@ const UploadArquivosConectaFormacao: React.FC<UploadArquivosConectaFormacaoProps
   uploadService = arquivoService.fazerUploadArquivo,
   downloadService = arquivoService.obterArquivoParaDownload,
   formDataFieldName = 'file',
+  mensagemFormatoNaoPermitido,
+  mensagemSucessoUpload,
 }) => {
   return (
     <UploadArquivosSME
@@ -32,11 +36,13 @@ const UploadArquivosConectaFormacao: React.FC<UploadArquivosConectaFormacaoProps
       form={form}
       subTitulo={subTitulo}
       formItemProps={formItemProps}
-      tiposArquivosPermitidos={`.jpg,.jpeg,.png,.tiff${tipoArquivosPermitidos}`}
+      tiposArquivosPermitidos={tipoArquivosPermitidos || '.jpg,.jpeg,.png,.tiff'}
       uploadService={uploadService}
       downloadService={downloadService}
       tamanhoMaxUploadPorArquivo={tamanhoMaxUploadPorArquivo}
       formDataFieldName={formDataFieldName}
+      mensagemFormatoNaoPermitido={mensagemFormatoNaoPermitido}
+      mensagemSucessoUpload={mensagemSucessoUpload}
     />
   );
 };

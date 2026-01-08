@@ -743,12 +743,24 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const onDownloadAnexo = async (arquivo: any) => {
     try {
+      console.log('Arquivo completo para download:', arquivo);
+
       if (arquivo.urlDownload) {
         window.open(arquivo.urlDownload, '_blank');
         return;
       }
 
-      const codigoArquivo = arquivo.xhr;
+      const codigoArquivo = arquivo.xhr || arquivo.arquivoCodigo || arquivo.response;
+      console.log('Código do arquivo extraído:', codigoArquivo);
+
+      if (!codigoArquivo) {
+        notification.error({
+          message: 'Erro',
+          description: 'Código do arquivo não encontrado',
+        });
+        return;
+      }
+
       const response = await obterAnexoCodafParaDownload(codigoArquivo);
 
       if (response.status === 200) {
@@ -1310,11 +1322,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 }}
                 draggerProps={{ multiple: true, onDownload: onDownloadAnexo }}
                 subTitulo='Deve permitir apenas arquivos PDF com no máximo 20MB cada.'
-                tipoArquivosPermitidos=',.pdf'
+                tipoArquivosPermitidos='.pdf'
                 tamanhoMaxUploadPorArquivo={20}
                 uploadService={fazerUploadAnexoCodaf}
                 downloadService={obterAnexoCodafParaDownload}
                 formDataFieldName='arquivo'
+                mensagemFormatoNaoPermitido='Arquivo deve estar no formato PDF'
+                mensagemSucessoUpload='Arquivo carregado com sucesso'
               />
             </Col>
           </Row>
