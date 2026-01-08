@@ -1264,6 +1264,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                               placeholder='Selecione a data'
                               locale={locale}
                               style={{ width: '100%' }}
+                              disabledDate={(current) => current && current > dayjs().endOf('day')}
                             />
                           </Form.Item>
                         </Col>
