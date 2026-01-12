@@ -17,6 +17,7 @@ import {
   PlusOutlined,
   QuestionCircleOutlined,
   DeleteOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
@@ -24,6 +25,8 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import ModalEnviarDF from './componentes/modal-enviar-df/modal-enviar-df';
+import ModalExcluir from './componentes/modal-excluir/modal-excluir';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -54,6 +57,7 @@ import {
   baixarModeloTermoResponsabilidade,
   criarCodafListaPresenca,
   deletarRetificacao,
+  enviarCodafParaDF,
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
   obterCodafListaPresencaPorId,
@@ -106,6 +110,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [retificacoesOriginais, setRetificacoesOriginais] = useState<
     Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
   >(new Map());
+  const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
+  const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
+  const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
 
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -679,19 +686,27 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const onClickExcluir = () => {
-    Modal.confirm({
-      title: 'Confirmar exclusão',
-      content: 'Tem certeza que deseja excluir este registro?',
-      okText: 'Sim',
-      cancelText: 'Não',
-      onOk: () => {
-        notification.success({
-          message: 'Sucesso',
-          description: 'Registro excluído com sucesso!',
-        });
-        navigate(ROUTES.LISTA_PRESENCA_CODAF);
-      },
-    });
+    setModalExcluirVisible(true);
+  };
+
+  const confirmarExclusao = () => {
+    setModalExcluirVisible(false);
+    setLoading(true);
+
+    // TODO: Implementar chamada à API de exclusão quando disponível
+    // Por enquanto, apenas simula o sucesso
+    setTimeout(() => {
+      setLoading(false);
+      notification.success({
+        message: 'Sucesso',
+        description: 'Registro excluído com sucesso!',
+      });
+      navigate(ROUTES.LISTA_PRESENCA_CODAF);
+    }, 500);
+  };
+
+  const cancelarExclusao = () => {
+    setModalExcluirVisible(false);
   };
 
   const onBaixarModelo = async () => {
@@ -782,25 +797,123 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const onClickEnviarParaDF = async () => {
-    try {
-      const values = await form.validateFields();
-      setLoading(true);
+    if (!formValido) {
+      const camposVazios: string[] = [];
 
-      console.log('Enviando para DF:', values);
+      if (!numeroHomologacao) camposVazios.push('Número de homologação');
+      if (!nomeFormacao) camposVazios.push('Nome da formação');
+      if (!codigoFormacao) camposVazios.push('Código da formação');
+      if (!turmaId) camposVazios.push('Turma');
+      if (!numeroComunicado) camposVazios.push('Número do comunicado');
+      if (!paginaComunicado) camposVazios.push('Página do comunicado');
+      if (!codigoCursoEol) camposVazios.push('Código do curso no EOL');
+      if (!codigoNivel) camposVazios.push('Código do nível');
 
-      notification.success({
-        message: 'Sucesso',
-        description: 'Registro enviado para DF com sucesso!',
+      notification.warning({
+        message: 'Atenção',
+        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(', ')})`,
       });
-    } catch (error) {
+      return;
+    }
+
+    if (cursistas.length === 0) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Não é possível enviar para DF sem inscritos na lista de presença',
+      });
+      return;
+    }
+
+    // Validar se todos os cursistas têm valores preenchidos
+    const cursistasIncompletos = cursistas.filter(
+      (cursista) =>
+        cursista.frequencia === null ||
+        cursista.atividade === null ||
+        cursista.conceitoFinal === null ||
+        cursista.aprovado === null,
+    );
+
+    if (cursistasIncompletos.length > 0) {
+      const nomesCursistas = cursistasIncompletos
+        .map((c) => c.nomeCursista)
+        .slice(0, 3)
+        .join(', ');
+      const mensagem =
+        cursistasIncompletos.length > 3
+          ? `${nomesCursistas} e mais ${cursistasIncompletos.length - 3} cursista(s)`
+          : nomesCursistas;
+
+      notification.warning({
+        message: 'Atenção',
+        description: `Os seguintes cursistas possuem campos não preenchidos (Frequência, Atividade, Conceito final ou Aprovado): ${mensagem}`,
+      });
+      return;
+    }
+
+    const anexos = form.getFieldValue('anexos');
+
+    if (!anexos || anexos.length === 0) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF',
+      });
+      return;
+    }
+
+    setModalEnviarDFVisible(true);
+  };
+
+  const confirmarEnvioParaDF = async () => {
+    try {
+      if (!registroId) {
+        notification.warning({
+          message: 'Atenção',
+          description: 'É necessário salvar o registro antes de enviar para DF',
+        });
+        setModalEnviarDFVisible(false);
+        return;
+      }
+
+      setLoading(true);
+      setModalEnviarDFVisible(false);
+
+      const response = await enviarCodafParaDF(registroId);
+
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Registro enviado para DF com sucesso!',
+        });
+        navigate(ROUTES.LISTA_PRESENCA_CODAF);
+      } else {
+        const mensagemErro =
+          response.mensagens && response.mensagens.length > 0
+            ? response.mensagens.join(', ')
+            : 'Erro ao enviar o registro para DF';
+
+        notification.error({
+          message: 'Erro',
+          description: mensagemErro,
+        });
+      }
+    } catch (error: any) {
       console.error('Erro ao enviar para DF:', error);
+      const mensagemErro =
+        error?.response?.data?.mensagens?.[0] ||
+        error?.message ||
+        'Erro ao enviar o registro para DF';
+
       notification.error({
         message: 'Erro',
-        description: 'Erro ao enviar o registro para DF',
+        description: mensagemErro,
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const cancelarEnvioParaDF = () => {
+    setModalEnviarDFVisible(false);
   };
 
   const adicionarNovaRetificacao = () => {
@@ -821,7 +934,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       content: (
         <div>
           <p style={{ marginBottom: 8 }}>
-            Deseja realmente excluir a <strong>Retificação {numero.toString().padStart(2, '0')}</strong>?
+            Deseja realmente excluir a{' '}
+            <strong>Retificação {numero.toString().padStart(2, '0')}</strong>?
           </p>
           <p style={{ color: '#8c8c8c', fontSize: '13px', marginBottom: 0 }}>
             Esta ação não poderá ser desfeita.
@@ -868,6 +982,34 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         }
       },
     });
+  };
+
+  const onClickAtualizarInscritos = async () => {
+    if (!turmaId) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Selecione uma turma para atualizar os inscritos',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await buscarInscritos(1);
+      setMostrarDivergencia(false);
+      notification.success({
+        message: 'Sucesso',
+        description: 'Lista de inscritos atualizada com sucesso!',
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar inscritos:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao atualizar lista de inscritos',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -930,10 +1072,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 type='primary'
                 onClick={onClickEnviarParaDF}
                 loading={loading}
-                disabled={!formValido}
+                /* disabled={!formValido} */
                 style={{ fontWeight: 700 }}
               >
-                {ehPerfilDF || ehPerfilEMFORPEF ? 'Devolver para DF' : 'Enviar para DF'}
+                {ehPerfilDF || ehPerfilEMFORPEF ? 'Enviar para DF' : 'Devolver para DF'}
               </Button>
             </Col>
           </Row>
@@ -1152,6 +1294,88 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               </p>
             </Col>
           </Row>
+          {mostrarDivergencia && (
+            <Row gutter={[16, 8]} style={{ marginBottom: 16 }}>
+              <Col span={24}>
+                <div
+                  style={{
+                    backgroundColor: '#ff9a52',
+                    borderRadius: '4px',
+                    padding: '16px 24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '32px',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      flex: 1,
+                      width: '70%',
+                    }}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: '#fff',
+                        borderRadius: '50%',
+                        width: '25px',
+                        height: '25px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <img
+                        src='/Vector.png'
+                        alt='Warning'
+                        style={{
+                          width: '15px',
+                          height: '15px',
+                        }}
+                      />
+                    </div>
+                    <span style={{ color: '#fff', fontSize: '14px' }}>
+                      Há divergência entre a quantidade de inscritos na formação{' '}
+                      <strong>{nomeFormacao || '[nome da formação]'}</strong>
+                      <br></br> e a lista de presença. Clique no botão &quot;atualizar
+                      inscritos&quot; para reprocessar a lista.
+                    </span>
+                  </div>
+                  <Button
+                    type='default'
+                    icon={
+                      <ReloadOutlined
+                        style={{
+                          color: '#ff9a52',
+                        }}
+                      />
+                    }
+                    onClick={onClickAtualizarInscritos}
+                    loading={loading}
+                    style={{
+                      backgroundColor: '#fff',
+                      borderColor: '#fff',
+                      color: '#ff9a52',
+                      fontWeight: 500,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      whiteSpace: 'nowrap',
+                      padding: '4px 16px',
+                      minWidth: '250px',
+                      height: '38px',
+                    }}
+                  >
+                    Atualizar inscritos
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+          )}
           <Row gutter={[16, 8]}>
             <Col span={24}>
               <div className='table-pagination-center'>
@@ -1439,6 +1663,20 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           </Row>
         </CardContent>
       </div> */}
+
+      <ModalEnviarDF
+        visible={modalEnviarDFVisible}
+        onConfirm={confirmarEnvioParaDF}
+        onCancel={cancelarEnvioParaDF}
+        loading={loading}
+      />
+
+      <ModalExcluir
+        visible={modalExcluirVisible}
+        onConfirm={confirmarExclusao}
+        onCancel={cancelarExclusao}
+        loading={loading}
+      />
     </Col>
   );
 };

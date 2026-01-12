@@ -221,3 +221,7 @@ export const obterAnexoCodafParaDownload = (arquivoCodigo: string) => {
     responseType: 'arraybuffer',
   });
 };
+
+export const enviarCodafParaDF = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
+  return api.patch(`${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/enviar-para-df`);
+};
