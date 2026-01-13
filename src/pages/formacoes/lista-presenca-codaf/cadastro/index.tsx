@@ -113,6 +113,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
   const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
+  const formOriginal = React.useRef<any>(null);
+  const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
 
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -160,6 +162,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       if (!id) return;
 
       setLoading(true);
+
       try {
         const response = await obterCodafListaPresencaPorId(Number(id));
 
@@ -272,8 +275,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             console.error('Erro ao buscar turmas:', error);
           }
 
-          // Nota: A API não retorna a lista de inscritos no GET,
-          // então a tabela de cursistas ficará vazia no modo de edição
+          setTimeout(() => {
+            formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
+          }, 100);
         } else {
           notification.error({
             message: 'Erro',
@@ -326,6 +330,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         setCursistas(inscritosFormatados);
         setTotalRegistrosInscritos(response.dados.totalRegistros || 0);
         setPaginaAtualInscritos(1);
+        setTimeout(() => {
+          cursistasOriginais.current = JSON.parse(JSON.stringify(inscritosFormatados));
+        }, 100);
       } else {
         setCursistas([]);
         setTotalRegistrosInscritos(0);
@@ -649,6 +656,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       console.log('Resposta da API:', response);
 
       if (response.sucesso) {
+        formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
+        cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
         notification.success({
           message: 'Sucesso',
           description: modoEdicao
@@ -657,6 +666,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         });
         if (!id) {
           navigate(ROUTES.LISTA_PRESENCA_CODAF);
+          /* } else if (!registroId && response.dados?.id) {
+          setRegistroId(response.dados.id); */
         }
       } else {
         const mensagensErro = response.mensagens || [];
@@ -811,7 +822,27 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
+  const verificarAlteracoes = () => {
+    if (!modoEdicao || !formOriginal.current) return false;
+
+    const formAtual = form.getFieldsValue();
+    const formOriginalStr = JSON.stringify(formOriginal.current);
+    const formAtualStr = JSON.stringify(formAtual);
+    const cursistasOriginaisStr = JSON.stringify(cursistasOriginais.current);
+    const cursistasAtuaisStr = JSON.stringify(cursistas);
+
+    return formOriginalStr !== formAtualStr || cursistasOriginaisStr !== cursistasAtuaisStr;
+  };
+
   const onClickEnviarParaDF = async () => {
+    if (verificarAlteracoes()) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Você possui alterações não salvas. Por favor, salve antes de enviar para DF.',
+      });
+      return;
+    }
+
     if (!formValido) {
       const camposVazios: string[] = [];
 
