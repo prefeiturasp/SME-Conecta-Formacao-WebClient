@@ -297,7 +297,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   }, [id, form, navigate]);
 
   // Busca os inscritos quando uma turma é selecionada
-  const buscarInscritos = async (pagina = 1) => {
+  const buscarInscritos = async () => {
     if (!turmaId) {
       setCursistas([]);
       setTotalRegistrosInscritos(0);
@@ -307,22 +307,25 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await obterInscritosTurma(turmaId, pagina, registrosPorPaginaInscritos);
+      const response = await obterInscritosTurma(turmaId, 1, 99999);
       if (response.sucesso && response.dados) {
         const inscritosFormatados = response.dados.items.map((inscrito) => ({
           id: inscrito.id,
           rfOuCpf: inscrito.cpf,
           nomeCursista: inscrito.nome,
           frequencia: inscrito.percentualFrequencia ?? null,
-          atividade: inscrito.atividadeObrigatorio !== undefined && inscrito.atividadeObrigatorio !== null
-            ? (inscrito.atividadeObrigatorio ? 'S' : 'N')
-            : null,
+          atividade:
+            inscrito.atividadeObrigatorio !== undefined && inscrito.atividadeObrigatorio !== null
+              ? inscrito.atividadeObrigatorio
+                ? 'S'
+                : 'N'
+              : null,
           conceitoFinal: inscrito.conceitoFinal ?? null,
           aprovado: inscrito.aprovado ?? null,
         }));
         setCursistas(inscritosFormatados);
         setTotalRegistrosInscritos(response.dados.totalRegistros || 0);
-        setPaginaAtualInscritos(pagina);
+        setPaginaAtualInscritos(1);
       } else {
         setCursistas([]);
         setTotalRegistrosInscritos(0);
@@ -345,12 +348,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   React.useEffect(() => {
-    buscarInscritos(1);
+    buscarInscritos();
   }, [turmaId]);
 
   React.useEffect(() => {
     if (turmaId) {
-      buscarInscritos(1);
+      buscarInscritos();
     }
   }, [registrosPorPaginaInscritos]);
 
@@ -371,10 +374,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const handleTableChangeInscritos = (pagination: any) => {
     if (pagination.pageSize !== registrosPorPaginaInscritos) {
       setRegistrosPorPaginaInscritos(pagination.pageSize);
-      setPaginaAtualInscritos(1);
-    } else {
-      buscarInscritos(pagination.current);
     }
+    setPaginaAtualInscritos(pagination.current);
   };
 
   const colunasCursistas: ColumnsType<CursistaDTO> = [
@@ -654,7 +655,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             ? 'Registro atualizado com sucesso!'
             : 'Registro salvo com sucesso!',
         });
-        navigate(ROUTES.LISTA_PRESENCA_CODAF);
+        if (!id) {
+          navigate(ROUTES.LISTA_PRESENCA_CODAF);
+        }
       } else {
         const mensagensErro = response.mensagens || [];
         const mensagemDetalhada =
@@ -823,7 +826,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       notification.warning({
         message: 'Atenção',
-        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(', ')})`,
+        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(
+          ', ',
+        )})`,
       });
       return;
     }
@@ -847,7 +852,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     if (cursistasIncompletos.length > 0) {
       notification.warning({
         message: 'Atenção',
-        description: 'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
+        description:
+          'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
       });
       return;
     }
@@ -997,7 +1003,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     setLoading(true);
     try {
-      await buscarInscritos(1);
+      await buscarInscritos();
       setMostrarDivergencia(false);
       notification.success({
         message: 'Sucesso',
