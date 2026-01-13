@@ -113,6 +113,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
   >(new Map());
   const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
+  const [mostrarBanner, setMostrarBanner] = useState(false);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
   const [modalDevolverDFVisible, setModalDevolverDFVisible] = useState(false);
   const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
@@ -123,11 +124,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
   const ehAreaPromotora = ehPerfilDF || ehPerfilEMFORPEF;
+  const ehPerfilAdmin = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
 
   const podeGerenciarAnexos = ehPerfilDF || ehPerfilEMFORPEF;
   const mostrarBotaoExcluir = modoEdicao && status === 1;
   const mostrarBotaoEnviarDF = status === 1;
-  const mostrarBotaoDevolverDF = status === 3;
+  const mostrarBotaoDevolverDF = status === 2;
 
   // Monitora mudanças nos campos do formulário
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
@@ -1109,6 +1111,35 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
+  const onConferirComentarios = async () => {
+    if (!turmaId) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Selecione uma turma para atualizar os inscritos',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      //await buscarInscritos();
+      setMostrarBanner(false);
+      notification.success({
+        message: 'Sucesso',
+        description: 'Lista de inscritos atualizada com sucesso!',
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar inscritos:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao atualizar lista de inscritos',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <Col>
       <HeaderPage
@@ -1182,7 +1213,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   type='primary'
                   onClick={() => setModalDevolverDFVisible(true)}
                   loading={loading}
-                  disabled={!formValido}
+                  disabled={ehPerfilAdmin ? false : !formValido}
                   style={{ fontWeight: 700 }}
                 >
                   Devolver para DF
@@ -1194,6 +1225,96 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       </HeaderPage>
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
+
+
+
+          {mostrarBanner && (
+            <Row gutter={[16, 8]} style={{ marginBottom: 16 }}>
+              <Col span={24}>
+                <div
+                  style={{
+                    backgroundColor: '#ff9a52',
+                    borderRadius: '4px',
+                    padding: '16px 24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '32px',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      flex: 1,
+                      width: '70%',
+                    }}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: '#fff',
+                        borderRadius: '50%',
+                        width: '25px',
+                        height: '25px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <img
+                        src='/Vector.png'
+                        alt='Warning'
+                        style={{
+                          width: '15px',
+                          height: '15px',
+                        }}
+                      />
+                    </div>
+                    <span style={{ color: '#fff', fontSize: '14px' }}>
+                      <strong>{nomeFormacao || '[nome da formação]'}</strong>
+                      XXXXXXXXXXXX inseriu comentários no CODAF. Clique no botão “conferir comentários” para acessar as informações
+                    </span>
+                  </div>
+                  <Button
+                    type='default'
+                    icon={
+                      <ReloadOutlined
+                        style={{
+                          color: '#ff9a52',
+                        }}
+                      />
+                    }
+                    onClick={onConferirComentarios}
+                    loading={loading}
+                    style={{
+                      backgroundColor: '#fff',
+                      borderColor: '#fff',
+                      color: '#ff9a52',
+                      fontWeight: 500,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      whiteSpace: 'nowrap',
+                      padding: '4px 16px',
+                      minWidth: '250px',
+                      height: '38px',
+                    }}
+                  >
+                    Conferir comentários
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+          )}
+
+
+
+
+
+
+
           <Row gutter={[16, 8]}>
             <Col span={24}>
               <p>
