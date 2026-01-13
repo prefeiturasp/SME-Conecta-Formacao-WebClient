@@ -20,6 +20,7 @@ export enum ROUTES {
   AREA_PUBLICA = '/area-publica',
   AREA_PUBLICA_VISUALIZAR_FORMACAO = '/area-publica/visualizar/:id',
   INSCRICAO = '/inscricao',
+  INSCRICAO_CURSISTA = '/inscricao/:id',
   FORMACAOES_INSCRICOES = '/formacoes/inscricoes',
   FORMACAOES_INSCRICOES_EDITAR = '/formacoes/inscricoes/editar',
   FORMACAOES_INSCRICOES_EDITAR_ID = '/formacoes/inscricoes/editar/:id',

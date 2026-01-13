@@ -1,7 +1,7 @@
 import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/listagem';
 import { CursistaDTO } from '../dto/cursista-dto';
 import { DadosListagemInscricaoDTO } from '../dto/dados-listagem-inscricao-dto';
-import { DadosInscricaoDTO, DadosVinculoInscricaoDTO } from '../dto/dados-usuario-inscricao-dto';
+import { DadosInscricaoDTO, DadosVinculoInscricaoDTO, DadosInscricaoPropostaDto } from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { InscricaoManualDTO } from '../dto/inscricao-manual-dto';
 import { InscricaoMotivoCancelamentoDTO } from '../dto/inscricao-motivo-cancelamento-dto';
@@ -24,6 +24,10 @@ const inserirInscricaoManual = (params: InscricaoManualDTO, mostrarNotificacao?:
 const obterDadosInscricao = () => {
   return obterRegistro<DadosInscricaoDTO>(`${URL_INSCRICAO}/dados-inscricao`);
 };
+
+const obterDadosInscricaoProposta = (propostaId: number) => {
+  return obterRegistro<DadosInscricaoPropostaDto>(`${URL_INSCRICAO}/dados-inscricao-proposta/${propostaId}`);
+}
 
 const obterRfCpf = (rfCpf: string) => {
   const params = rfCpf && rfCpf.length > 7 ? { cpf: rfCpf } : { registroFuncional: rfCpf };
@@ -87,6 +91,7 @@ export {
   inserirInscricaoManual,
   obterDadosInscricao,
   obterInscricao,
+  obterDadosInscricaoProposta,
   obterInscricaoId,
   obterRfCpf,
   obterSeInscricaoEstaAberta,

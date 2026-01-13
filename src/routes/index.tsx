@@ -82,7 +82,7 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={<MeusDadosProvider />} />
-                <Route path={ROUTES.INSCRICAO} element={<Inscricao />} />
+                <Route path={ROUTES.INSCRICAO_CURSISTA} element={<Inscricao />} />
                 <Route path={ROUTES.NOTIFICACOES} element={<Notificacoes />} />
                 <Route path={ROUTES.NOTIFICACOES_DETALHES} element={<NotificacoesDetalhes />} />
 

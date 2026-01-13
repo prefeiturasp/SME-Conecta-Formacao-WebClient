@@ -25,6 +25,7 @@ dist-ssr
 *.sw?
 
 # env
+.env
 .env.development
 /.vs/SME-Conecta-Formacao-WebClient/FileContentIndex
 /.vs/slnx.sqlite
