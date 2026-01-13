@@ -26,6 +26,7 @@ import 'dayjs/locale/pt-br';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ModalEnviarDF from './componentes/modal-enviar-df/modal-enviar-df';
+import ModalDevolverDF from './componentes/modal-devolver-df/modal-devolver-df';
 import ModalExcluir from './componentes/modal-excluir/modal-excluir';
 
 dayjs.locale('pt-br');
@@ -57,6 +58,7 @@ import {
   baixarModeloTermoResponsabilidade,
   criarCodafListaPresenca,
   deletarRetificacao,
+  devolverCodafParaCorrecao,
   enviarCodafParaDF,
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
@@ -112,6 +114,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   >(new Map());
   const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
+  const [modalDevolverDFVisible, setModalDevolverDFVisible] = useState(false);
   const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
@@ -119,8 +122,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
+  const ehAreaPromotora = ehPerfilDF || ehPerfilEMFORPEF;
+
   const podeGerenciarAnexos = ehPerfilDF || ehPerfilEMFORPEF;
   const mostrarBotaoExcluir = modoEdicao && status === 1;
+  const mostrarBotaoEnviarDF = status === 1;
+  const mostrarBotaoDevolverDF = status === 3;
 
   // Monitora mudanças nos campos do formulário
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
@@ -134,15 +141,18 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   // Verifica se todos os campos obrigatórios estão preenchidos
   React.useEffect(() => {
-    const todosPreenchidos =
+    const camposBasicosPreenchidos =
       numeroHomologacao &&
       nomeFormacao &&
       codigoFormacao &&
       turmaId &&
       numeroComunicado &&
-      paginaComunicado &&
-      codigoCursoEol &&
-      codigoNivel;
+      paginaComunicado;
+
+    // Se for área promotora, ignora codigoCursoEol e codigoNivel
+    const todosPreenchidos = ehAreaPromotora
+      ? camposBasicosPreenchidos
+      : camposBasicosPreenchidos && codigoCursoEol && codigoNivel;
 
     setFormValido(!!todosPreenchidos);
   }, [
@@ -154,6 +164,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     paginaComunicado,
     codigoCursoEol,
     codigoNivel,
+    ehAreaPromotora,
   ]);
 
   // Carrega dados quando está em modo de edição
@@ -607,8 +618,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         dataPublicacaoDom: formatarData(values.dataPublicacaoDiarioOficial),
         numeroComunicado: Number(values.numeroComunicado) || 0,
         paginaComunicadoDom: Number(values.paginaComunicado) || 0,
-        codigoCursoEol: Number(values.codigoCursoEol) || 0,
-        codigoNivel: Number(values.codigoNivel) || 0,
+        codigoCursoEol: Number(values.codigoCursoEol) || null,
+        codigoNivel: Number(values.codigoNivel) || null,
         observacao: values.observacao || '',
         inscritos: cursistas.map((cursista) => ({
           inscricaoId: cursista.id,
@@ -665,7 +676,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             : 'Registro salvo com sucesso!',
         });
         if (!id) {
-          navigate(ROUTES.LISTA_PRESENCA_CODAF);
+          navigate(ROUTES.LISTA_PRESENCA_CODAF_NOVO + '/' + response.dados.id);
           /* } else if (!registroId && response.dados?.id) {
           setRegistroId(response.dados.id); */
         }
@@ -838,7 +849,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     if (verificarAlteracoes()) {
       notification.warning({
         message: 'Atenção',
-        description: 'Você possui alterações não salvas. Por favor, salve antes de enviar para DF.',
+        description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.',
+      });
+      return;
+    }
+
+    const anexos = form.getFieldValue('anexos');
+
+    if (!anexos || anexos.length === 0) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF',
       });
       return;
     }
@@ -885,16 +906,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         message: 'Atenção',
         description:
           'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
-      });
-      return;
-    }
-
-    const anexos = form.getFieldValue('anexos');
-
-    if (!anexos || anexos.length === 0) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF',
       });
       return;
     }
@@ -953,6 +964,53 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const cancelarEnvioParaDF = () => {
     setModalEnviarDFVisible(false);
+  };
+
+  const confirmarDevolucaoParaDF = async (justificativa: string) => {
+    try {
+      if (!registroId) {
+        notification.warning({
+          message: 'Atenção',
+          description: 'É necessário salvar o registro antes de devolver para correção',
+        });
+        setModalDevolverDFVisible(false);
+        return;
+      }
+
+      setLoading(true);
+      setModalDevolverDFVisible(false);
+
+      const response = await devolverCodafParaCorrecao(registroId, justificativa);
+
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Registro devolvido para correção com sucesso!',
+        });
+        navigate(ROUTES.LISTA_PRESENCA_CODAF);
+      } else {
+        const mensagemErro =
+          response.mensagens && response.mensagens.length > 0
+            ? response.mensagens.join(', ')
+            : 'Erro ao devolver o registro para correção';
+
+        notification.error({
+          message: 'Erro',
+          description: mensagemErro,
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao devolver o registro para correção',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelarDevolucaoParaDF = () => {
+    setModalDevolverDFVisible(false);
   };
 
   const adicionarNovaRetificacao = () => {
@@ -1107,15 +1165,29 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               </Button>
             </Col>
             <Col>
-              <Button
-                type='primary'
-                onClick={onClickEnviarParaDF}
-                loading={loading}
-                /* disabled={!formValido} */
-                style={{ fontWeight: 700 }}
-              >
-                {ehPerfilDF || ehPerfilEMFORPEF ? 'Enviar para DF' : 'Devolver para DF'}
-              </Button>
+              {mostrarBotaoEnviarDF && (
+                <Button
+                  type='primary'
+                  onClick={onClickEnviarParaDF}
+                  loading={loading}
+                  disabled={!formValido}
+                  style={{ fontWeight: 700 }}
+                >
+                  Enviar para DF
+                </Button>
+              )}
+
+              {mostrarBotaoDevolverDF && (
+                <Button
+                  type='primary'
+                  onClick={() => setModalDevolverDFVisible(true)}
+                  loading={loading}
+                  disabled={!formValido}
+                  style={{ fontWeight: 700 }}
+                >
+                  Devolver para DF
+                </Button>
+              )}
             </Col>
           </Row>
         </Col>
@@ -1707,6 +1779,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         visible={modalEnviarDFVisible}
         onConfirm={confirmarEnvioParaDF}
         onCancel={cancelarEnvioParaDF}
+        loading={loading}
+      />
+
+      <ModalDevolverDF
+        visible={modalDevolverDFVisible}
+        onConfirm={confirmarDevolucaoParaDF}
+        onCancel={cancelarDevolucaoParaDF}
         loading={loading}
       />
 

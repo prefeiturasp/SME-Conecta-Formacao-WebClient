@@ -57,10 +57,10 @@ export const obterSituacoesCodaf = (): Promise<ApiResult<RetornoListagemDTO[]>> 
 
 export type InscritoDTO = {
   inscricaoId: number;
-  percentualFrequencia: number;
-  conceitoFinal: string;
-  atividadeObrigatorio: boolean;
-  aprovado: boolean;
+  percentualFrequencia: number | null;
+  conceitoFinal: string | null;
+  atividadeObrigatorio: boolean | null;
+  aprovado: boolean | null;
 };
 
 export type RetificacaoDTO = {
@@ -107,8 +107,8 @@ export type CriarCodafListaPresencaDTO = {
   dataPublicacaoDom: string | null;
   numeroComunicado: number;
   paginaComunicadoDom: number;
-  codigoCursoEol: number;
-  codigoNivel: number;
+  codigoCursoEol: number | null;
+  codigoNivel: number | null;
   observacao: string;
   inscritos: InscritoDTO[];
   retificacoes?: RetificacaoDTO[];
@@ -224,4 +224,14 @@ export const obterAnexoCodafParaDownload = (arquivoCodigo: string) => {
 
 export const enviarCodafParaDF = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
   return api.patch(`${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/enviar-para-df`);
+};
+
+export const devolverCodafParaCorrecao = (
+  codafListaPresencaId: number,
+  justificativa: string,
+): Promise<ApiResult<any>> => {
+  return api.patch(
+    `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/devolver-para-correcao`,
+    { justificativa },
+  );
 };
