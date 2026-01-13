@@ -28,6 +28,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ModalEnviarDF from './componentes/modal-enviar-df/modal-enviar-df';
 import ModalDevolverDF from './componentes/modal-devolver-df/modal-devolver-df';
 import ModalExcluir from './componentes/modal-excluir/modal-excluir';
+import ModalComentario from './componentes/modal-comentario/modal-comentario';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -56,6 +57,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import {
   atualizarCodafListaPresenca,
   baixarModeloTermoResponsabilidade,
+  ComentarioCodafDTO,
   criarCodafListaPresenca,
   deletarRetificacao,
   devolverCodafParaCorrecao,
@@ -114,9 +116,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   >(new Map());
   const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
   const [mostrarBanner, setMostrarBanner] = useState(false);
+  const [comentario, setComentario] = useState<ComentarioCodafDTO | null>(null);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
   const [modalDevolverDFVisible, setModalDevolverDFVisible] = useState(false);
   const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
+  const [modalComentarioVisible, setModalComentarioVisible] = useState(false);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
 
@@ -183,6 +187,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           const dados = response.dados;
           setRegistroId(dados.id);
           setStatus(dados.status);
+
+          // Verifica se há comentário e exibe o banner
+          if (dados.comentario) {
+            setComentario(dados.comentario);
+            setMostrarBanner(true);
+          }
 
           // Preenche os campos do formulário
           form.setFieldsValue({
@@ -931,7 +941,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       const response = await enviarCodafParaDF(registroId);
 
-      if (response.sucesso) {
+      if (response.status === 200) {
         notification.success({
           message: 'Sucesso',
           description: 'Registro enviado para DF com sucesso!',
@@ -984,7 +994,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       const response = await devolverCodafParaCorrecao(registroId, justificativa);
 
-      if (response.sucesso) {
+      if (response.status === 200) {
         notification.success({
           message: 'Sucesso',
           description: 'Registro devolvido para correção com sucesso!',
@@ -1111,34 +1121,22 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
-  const onConferirComentarios = async () => {
-    if (!turmaId) {
+  const onConferirComentarios = () => {
+    if (!comentario) {
       notification.warning({
         message: 'Atenção',
-        description: 'Selecione uma turma para atualizar os inscritos',
+        description: 'Nenhum comentário disponível',
       });
       return;
     }
 
-    setLoading(true);
-    try {
-      //await buscarInscritos();
-      setMostrarBanner(false);
-      notification.success({
-        message: 'Sucesso',
-        description: 'Lista de inscritos atualizada com sucesso!',
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar inscritos:', error);
-      notification.error({
-        message: 'Erro',
-        description: 'Erro ao atualizar lista de inscritos',
-      });
-    } finally {
-      setLoading(false);
-    }
+    setModalComentarioVisible(true);
   };
 
+  const onCloseModalComentario = () => {
+    setModalComentarioVisible(false);
+    //setMostrarBanner(false);
+  };
 
   return (
     <Col>
@@ -1213,7 +1211,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   type='primary'
                   onClick={() => setModalDevolverDFVisible(true)}
                   loading={loading}
-                  disabled={ehPerfilAdmin ? false : !formValido}
+                  disabled={!ehPerfilAdmin}
                   style={{ fontWeight: 700 }}
                 >
                   Devolver para DF
@@ -1225,11 +1223,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       </HeaderPage>
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
-
-
-
-          {mostrarBanner && (
-            <Row gutter={[16, 8]} style={{ marginBottom: 16 }}>
+          {mostrarBanner && status === 3 && ehAreaPromotora && (
+            <Row gutter={[16, 8]} style={{ marginBottom: 0 }}>
               <Col span={24}>
                 <div
                   style={{
@@ -1240,6 +1235,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: '32px',
+                    marginTop: '8px',
                   }}
                 >
                   <div
@@ -1273,8 +1269,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                       />
                     </div>
                     <span style={{ color: '#fff', fontSize: '14px' }}>
-                      <strong>{nomeFormacao || '[nome da formação]'}</strong>
-                      XXXXXXXXXXXX inseriu comentários no CODAF. Clique no botão “conferir comentários” para acessar as informações
+                      <strong>{comentario?.criadoPor || 'Usuário'}</strong> inseriu comentários no
+                      CODAF. Clique no botão “conferir comentários” para acessar as informações
                     </span>
                   </div>
                   <Button
@@ -1309,18 +1305,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             </Row>
           )}
 
-
-
-
-
-
-
           <Row gutter={[16, 8]}>
             <Col span={24}>
-              <p>
+              <div style={{padding: '24px 0px'}}>
                 Aqui você cria um novo CODAF. Preencha todas as informações antes de enviar a
                 aprovação da Divisão de Formação (DF).
-              </p>
+              </div>
             </Col>
           </Row>
           <Row gutter={[16, 8]}>
@@ -1915,6 +1905,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         onConfirm={confirmarExclusao}
         onCancel={cancelarExclusao}
         loading={loading}
+      />
+
+      <ModalComentario
+        visible={modalComentarioVisible}
+        onClose={onCloseModalComentario}
+        comentario={comentario}
       />
     </Col>
   );

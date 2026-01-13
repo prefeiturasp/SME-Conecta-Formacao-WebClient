@@ -115,6 +115,15 @@ export type CriarCodafListaPresencaDTO = {
   anexos?: AnexoCodafDTO[];
 };
 
+export type ComentarioCodafDTO = {
+  id: number;
+  codafListaPresencaId: number;
+  comentario: string;
+  criadoPor: string;
+  criadoLogin: string;
+  criadoEm: string;
+};
+
 export type CodafListaPresencaDetalheDTO = {
   id: number;
   propostaId: number;
@@ -138,6 +147,7 @@ export type CodafListaPresencaDetalheDTO = {
   criadoLogin: string;
   retificacoes?: RetificacaoDTO[];
   anexos?: AnexoCodafDetalheDTO[];
+  comentario?: ComentarioCodafDTO;
 };
 
 export const criarCodafListaPresenca = (
@@ -232,6 +242,11 @@ export const devolverCodafParaCorrecao = (
 ): Promise<ApiResult<any>> => {
   return api.patch(
     `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/devolver-para-correcao`,
-    { justificativa },
+    justificativa,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
   );
 };
