@@ -76,10 +76,10 @@ interface CursistaDTO {
   id: number;
   rfOuCpf: string;
   nomeCursista: string;
-  frequencia: number;
-  atividade: string;
-  conceitoFinal: string;
-  aprovado: boolean;
+  frequencia: number | null;
+  atividade: string | null;
+  conceitoFinal: string | null;
+  aprovado: boolean | null;
 }
 
 const CadastroListaPresencaCodaf: React.FC = () => {
@@ -313,10 +313,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           id: inscrito.id,
           rfOuCpf: inscrito.cpf,
           nomeCursista: inscrito.nome,
-          frequencia: inscrito.percentualFrequencia ?? 0,
-          atividade: inscrito.atividadeObrigatorio ? 'S' : 'N',
-          conceitoFinal: inscrito.conceitoFinal ?? 'NS',
-          aprovado: inscrito.aprovado,
+          frequencia: inscrito.percentualFrequencia ?? null,
+          atividade: inscrito.atividadeObrigatorio !== undefined && inscrito.atividadeObrigatorio !== null
+            ? (inscrito.atividadeObrigatorio ? 'S' : 'N')
+            : null,
+          conceitoFinal: inscrito.conceitoFinal ?? null,
+          aprovado: inscrito.aprovado ?? null,
         }));
         setCursistas(inscritosFormatados);
         setTotalRegistrosInscritos(response.dados.totalRegistros || 0);
@@ -361,7 +363,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const handleFrequenciaChange = (id: number, value: string) => {
     const numericValue = value.replace(/[^0-9]/g, '');
 
-    const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : 0;
+    const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : null;
 
     handleCursistaChange(id, 'frequencia', numValue);
   };
@@ -402,9 +404,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       title: 'Frequência (%)',
       dataIndex: 'frequencia',
       width: 150,
-      render: (freq: number, record: CursistaDTO) => (
+      render: (freq: number | null, record: CursistaDTO) => (
         <Input
-          value={`${freq}%`}
+          value={freq !== null ? `${freq}%` : ''}
+          placeholder='%'
           onChange={(e) => handleFrequenciaChange(record.id, e.target.value)}
           style={{ width: '100%' }}
           maxLength={4}
@@ -416,15 +419,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       title: 'Atividade',
       dataIndex: 'atividade',
       width: 150,
-      render: (atividade: string, record: CursistaDTO) => (
+      render: (atividade: string | null, record: CursistaDTO) => (
         <Select
           value={atividade}
+          placeholder='Selecione'
           onChange={(value) => handleCursistaChange(record.id, 'atividade', value)}
           style={{ width: '100%' }}
           options={[
             { label: 'Sim', value: 'S' },
             { label: 'Não', value: 'N' },
           ]}
+          allowClear
         />
       ),
     },
@@ -433,16 +438,18 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       title: 'Conceito final',
       dataIndex: 'conceitoFinal',
       width: 250,
-      render: (conceitoFinal: string, record: CursistaDTO) => (
+      render: (conceitoFinal: string | null, record: CursistaDTO) => (
         <Select
           value={conceitoFinal}
-          onChange={(value) => handleCursistaChange(record.id, 'conceitoFinal', value)}
+          placeholder='Selecione'
+          onChange={(value) => handleCursistaChange(record.id, 'conceitoFinal', value || null)}
           style={{ width: '100%' }}
           options={[
             { label: 'Plenamente satisfatório (P)', value: 'P' },
             { label: 'Satisfatório (S)', value: 'S' },
             { label: 'Não Satisfatório (NS)', value: 'NS' },
           ]}
+          allowClear
         />
       ),
     },
@@ -451,15 +458,19 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       title: 'Aprovado',
       dataIndex: 'aprovado',
       width: 120,
-      render: (aprovado: boolean, record: CursistaDTO) => (
+      render: (aprovado: boolean | null, record: CursistaDTO) => (
         <Select
-          value={aprovado ? 'S' : 'N'}
-          onChange={(value) => handleCursistaChange(record.id, 'aprovado', value === 'S')}
+          value={aprovado !== null ? (aprovado ? 'S' : 'N') : null}
+          placeholder='Selecione'
+          onChange={(value) =>
+            handleCursistaChange(record.id, 'aprovado', value ? value === 'S' : null)
+          }
           style={{ width: '100%' }}
           options={[
             { label: 'Sim', value: 'S' },
             { label: 'Não', value: 'N' },
           ]}
+          allowClear
         />
       ),
     },
@@ -593,10 +604,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         observacao: values.observacao || '',
         inscritos: cursistas.map((cursista) => ({
           inscricaoId: cursista.id,
-          percentualFrequencia: cursista.frequencia,
-          conceitoFinal: cursista.conceitoFinal,
-          atividadeObrigatorio: cursista.atividade === 'S',
-          aprovado: cursista.aprovado,
+          percentualFrequencia: cursista.frequencia ?? null,
+          conceitoFinal: cursista.conceitoFinal ?? null,
+          atividadeObrigatorio:
+            cursista.atividade === 'S' ? true : cursista.atividade === 'N' ? false : null,
+          aprovado: cursista.aprovado ?? null,
         })),
         anexos,
         retificacoes: retificacoes
@@ -828,24 +840,14 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     const cursistasIncompletos = cursistas.filter(
       (cursista) =>
         cursista.frequencia === null ||
-        cursista.atividade === null ||
         cursista.conceitoFinal === null ||
         cursista.aprovado === null,
     );
 
     if (cursistasIncompletos.length > 0) {
-      const nomesCursistas = cursistasIncompletos
-        .map((c) => c.nomeCursista)
-        .slice(0, 3)
-        .join(', ');
-      const mensagem =
-        cursistasIncompletos.length > 3
-          ? `${nomesCursistas} e mais ${cursistasIncompletos.length - 3} cursista(s)`
-          : nomesCursistas;
-
       notification.warning({
         message: 'Atenção',
-        description: `Os seguintes cursistas possuem campos não preenchidos (Frequência, Atividade, Conceito final ou Aprovado): ${mensagem}`,
+        description: 'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
       });
       return;
     }
