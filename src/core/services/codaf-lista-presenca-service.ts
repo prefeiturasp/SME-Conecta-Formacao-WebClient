@@ -57,10 +57,10 @@ export const obterSituacoesCodaf = (): Promise<ApiResult<RetornoListagemDTO[]>> 
 
 export type InscritoDTO = {
   inscricaoId: number;
-  percentualFrequencia: number;
-  conceitoFinal: string;
-  atividadeObrigatorio: boolean;
-  aprovado: boolean;
+  percentualFrequencia: number | null;
+  conceitoFinal: string | null;
+  atividadeObrigatorio: boolean | null;
+  aprovado: boolean | null;
 };
 
 export type RetificacaoDTO = {
@@ -107,12 +107,21 @@ export type CriarCodafListaPresencaDTO = {
   dataPublicacaoDom: string | null;
   numeroComunicado: number;
   paginaComunicadoDom: number;
-  codigoCursoEol: number;
-  codigoNivel: number;
+  codigoCursoEol: number | null;
+  codigoNivel: number | null;
   observacao: string;
   inscritos: InscritoDTO[];
   retificacoes?: RetificacaoDTO[];
   anexos?: AnexoCodafDTO[];
+};
+
+export type ComentarioCodafDTO = {
+  id: number;
+  codafListaPresencaId: number;
+  comentario: string;
+  criadoPor: string;
+  criadoLogin: string;
+  criadoEm: string;
 };
 
 export type CodafListaPresencaDetalheDTO = {
@@ -138,6 +147,7 @@ export type CodafListaPresencaDetalheDTO = {
   criadoLogin: string;
   retificacoes?: RetificacaoDTO[];
   anexos?: AnexoCodafDetalheDTO[];
+  comentario?: ComentarioCodafDTO;
 };
 
 export const criarCodafListaPresenca = (
@@ -220,4 +230,23 @@ export const obterAnexoCodafParaDownload = (arquivoCodigo: string) => {
   return api.get(`${URL_API_CODAF_LISTA_PRESENCA}/anexos/${arquivoCodigo}`, {
     responseType: 'arraybuffer',
   });
+};
+
+export const enviarCodafParaDF = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
+  return api.patch(`${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/enviar-para-df`);
+};
+
+export const devolverCodafParaCorrecao = (
+  codafListaPresencaId: number,
+  justificativa: string,
+): Promise<ApiResult<any>> => {
+  return api.patch(
+    `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/devolver-para-correcao`,
+    justificativa,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
 };
