@@ -106,7 +106,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const podeGerenciarAnexos = ehPerfilDF || ehPerfilEMFORPEF;
   const mostrarBotaoExcluir = modoEdicao && status === 1;
-  const mostrarBotaoEnviarDF = status === 1 || status === null;
+  const mostrarBotaoEnviarDF = status === 1 || status === null || status === 3;
   const mostrarBotaoDevolverDF = status === 2;
 
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
