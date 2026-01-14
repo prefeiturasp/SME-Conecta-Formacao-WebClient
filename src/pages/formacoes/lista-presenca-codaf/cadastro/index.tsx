@@ -1,24 +1,4 @@
-import {
-  AutoComplete,
-  Button,
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  Modal,
-  Row,
-  Select,
-  Table,
-  Tooltip,
-} from 'antd';
-import locale from 'antd/es/date-picker/locale/pt_BR';
-import {
-  DownloadOutlined,
-  PlusOutlined,
-  QuestionCircleOutlined,
-  DeleteOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
+import { Button, Col, Form, Input, Row, Select } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -29,37 +9,30 @@ import ModalEnviarDF from './componentes/modal-enviar-df/modal-enviar-df';
 import ModalDevolverDF from './componentes/modal-devolver-df/modal-devolver-df';
 import ModalExcluir from './componentes/modal-excluir/modal-excluir';
 import ModalComentario from './componentes/modal-comentario/modal-comentario';
+import SecaoRetificacoes from './componentes/secao-retificacoes/secao-retificacoes';
+import { BannerDownloadTermo } from './componentes/banner-download-termo';
+import { SecaoAnexos } from './componentes/secao-anexos';
+import { SecaoListaInscritos } from './componentes/secao-lista-inscritos';
+import { SecaoFormulario } from './componentes/secao-formulario';
+import { BannerComentarios } from './componentes/banner-comentarios';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
 import ButtonVoltar from '~/components/main/button/voltar';
-import InputNumero from '~/components/main/numero';
-import InputTexto from '~/components/main/text/input-text';
-import UploadArquivosConectaFormacao from '~/components/main/upload';
 import {
   CF_BUTTON_CANCELAR,
   CF_BUTTON_EXCLUIR,
   CF_BUTTON_SALVAR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
-import {
-  CF_INPUT_CODIGO_CURSO_EOL,
-  CF_INPUT_CODIGO_FORMACAO,
-  CF_INPUT_CODIGO_NIVEL,
-  CF_INPUT_NOME_FORMACAO,
-  CF_INPUT_NUMERO_COMUNICADO,
-  CF_INPUT_NUMERO_HOMOLOGACAO,
-  CF_INPUT_PAGINA_COMUNICADO,
-} from '~/core/constants/ids/input';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
   atualizarCodafListaPresenca,
   baixarModeloTermoResponsabilidade,
   ComentarioCodafDTO,
   criarCodafListaPresenca,
-  deletarRetificacao,
   devolverCodafParaCorrecao,
   enviarCodafParaDF,
   fazerUploadAnexoCodaf,
@@ -132,10 +105,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const podeGerenciarAnexos = ehPerfilDF || ehPerfilEMFORPEF;
   const mostrarBotaoExcluir = modoEdicao && status === 1;
-  const mostrarBotaoEnviarDF = status === 1;
+  const mostrarBotaoEnviarDF = status === 1 || status === null;
   const mostrarBotaoDevolverDF = status === 2;
 
-  // Monitora mudanças nos campos do formulário
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
   const nomeFormacao = Form.useWatch('nomeFormacao', form);
   const codigoFormacao = Form.useWatch('codigoFormacao', form);
@@ -145,7 +117,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const codigoCursoEol = Form.useWatch('codigoCursoEol', form);
   const codigoNivel = Form.useWatch('codigoNivel', form);
 
-  // Verifica se todos os campos obrigatórios estão preenchidos
   React.useEffect(() => {
     const camposBasicosPreenchidos =
       numeroHomologacao &&
@@ -155,7 +126,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       numeroComunicado &&
       paginaComunicado;
 
-    // Se for área promotora, ignora codigoCursoEol e codigoNivel
     const todosPreenchidos = ehAreaPromotora
       ? camposBasicosPreenchidos
       : camposBasicosPreenchidos && codigoCursoEol && codigoNivel;
@@ -173,7 +143,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     ehAreaPromotora,
   ]);
 
-  // Carrega dados quando está em modo de edição
   React.useEffect(() => {
     const carregarDados = async () => {
       if (!id) return;
@@ -188,13 +157,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           setRegistroId(dados.id);
           setStatus(dados.status);
 
-          // Verifica se há comentário e exibe o banner
           if (dados.comentario) {
             setComentario(dados.comentario);
             setMostrarBanner(true);
           }
 
-          // Preenche os campos do formulário
           form.setFieldsValue({
             numeroHomologacao: dados.numeroHomologacao,
             nomeFormacao: dados.nomeFormacao,
@@ -291,7 +258,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               setTurmasFiltradas(turmasDisponiveis);
               setTurmaDisabled(false);
               setTooltipAberto(false);
-              // No modo edição, sempre permite salvar
               setTodasTurmasPossuemLista(false);
             }
           } catch (error) {
@@ -323,7 +289,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     carregarDados();
   }, [id, form, navigate]);
 
-  // Busca os inscritos quando uma turma é selecionada
   const buscarInscritos = async () => {
     if (!turmaId) {
       setCursistas([]);
@@ -537,25 +502,21 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         numeroHomologacao: proposta.numeroHomologacao,
         nomeFormacao: proposta.nomeFormacao,
         codigoFormacao: proposta.codigoFormacao,
-        turmaId: undefined, // Limpa o campo turma
+        turmaId: undefined,
       });
 
-      // Reseta o estado ao selecionar nova formação
       setTodasTurmasPossuemLista(false);
 
-      // Buscar turmas da proposta selecionada
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados) {
           setTurmas(response.dados);
           console.log(turmas);
 
-          // Filtrar turmas que já possuem lista
           const turmasDisponiveis: RetornoListagemDTO[] = [];
           for (const turma of response.dados) {
             try {
               const possuiLista = await verificarTurmaPossuiLista(turma.id, 0);
-              // Somente adiciona se possuiLista retornar false
               if (possuiLista.sucesso && possuiLista.dados === false) {
                 turmasDisponiveis.push(turma);
               }
@@ -610,7 +571,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       const values = await form.validateFields();
       setLoading(true);
 
-      // Formatar datas para o formato esperado pela API (yyyy-mm-dd)
       const formatarData = (data: any) => {
         if (!data) return null;
         return dayjs(data).format('YYYY-MM-DD');
@@ -620,7 +580,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         values.anexos?.map((arquivo: any) => ({
           arquivoCodigo: arquivo.xhr || arquivo.arquivoCodigo,
           nomeArquivo: arquivo.name || arquivo.nomeArquivo,
-          tipoAnexoId: 3, // Primeiro arquivo é tipo 1, demais tipo 2
+          tipoAnexoId: 3,
         })) || [];
 
       const dados = {
@@ -688,9 +648,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             : 'Registro salvo com sucesso!',
         });
         if (!id) {
-          navigate(ROUTES.LISTA_PRESENCA_CODAF_NOVO + '/' + response.dados.id);
-          /* } else if (!registroId && response.dados?.id) {
-          setRegistroId(response.dados.id); */
+          navigate(ROUTES.LISTA_PRESENCA_CODAF_EDITAR.replace(':id', response.dados.id));
         }
       } else {
         const mensagensErro = response.mensagens || [];
@@ -858,6 +816,15 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const onClickEnviarParaDF = async () => {
+    if (!registroId) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'É necessário salvar o registro antes de enviar para DF',
+      });
+      setModalEnviarDFVisible(false);
+      return;
+    }
+
     if (verificarAlteracoes()) {
       notification.warning({
         message: 'Atenção',
@@ -905,7 +872,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       return;
     }
 
-    // Validar se todos os cursistas têm valores preenchidos
     const cursistasIncompletos = cursistas.filter(
       (cursista) =>
         cursista.frequencia === null ||
@@ -1023,74 +989,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const cancelarDevolucaoParaDF = () => {
     setModalDevolverDFVisible(false);
-  };
-
-  const adicionarNovaRetificacao = () => {
-    const novoContador = contadorRetificacoes + 1;
-    setContadorRetificacoes(novoContador);
-    setRetificacoes([...retificacoes, novoContador]);
-  };
-
-  const excluirRetificacao = (numero: number) => {
-    if (retificacoes.length === 1) {
-      form.setFieldValue(`dataRetificacao${numero.toString().padStart(2, '0')}`, undefined);
-      form.setFieldValue(`paginaRetificacao${numero.toString().padStart(2, '0')}`, undefined);
-      return;
-    }
-
-    Modal.confirm({
-      title: 'Excluir retificação',
-      content: (
-        <div>
-          <p style={{ marginBottom: 8 }}>
-            Deseja realmente excluir a{' '}
-            <strong>Retificação {numero.toString().padStart(2, '0')}</strong>?
-          </p>
-          <p style={{ color: '#8c8c8c', fontSize: '13px', marginBottom: 0 }}>
-            Esta ação não poderá ser desfeita.
-          </p>
-        </div>
-      ),
-      okText: 'Excluir',
-      cancelText: 'Cancelar',
-      okButtonProps: {
-        danger: true,
-      },
-      centered: true,
-      onOk: async () => {
-        try {
-          const retificacaoOriginal = retificacoesOriginais.get(numero);
-
-          if (retificacaoOriginal && retificacaoOriginal.id > 0) {
-            const response = await deletarRetificacao(retificacaoOriginal.id);
-            if (response.sucesso) {
-              notification.success({
-                message: 'Sucesso',
-                description: 'Retificação excluída com sucesso',
-              });
-            } else {
-              notification.error({
-                message: 'Erro',
-                description: response.mensagens?.[0] || 'Erro ao excluir retificação',
-              });
-              return;
-            }
-          }
-
-          setRetificacoes(retificacoes.filter((r) => r !== numero));
-          retificacoesOriginais.delete(numero);
-          setRetificacoesOriginais(new Map(retificacoesOriginais));
-          form.setFieldValue(`dataRetificacao${numero.toString().padStart(2, '0')}`, undefined);
-          form.setFieldValue(`paginaRetificacao${numero.toString().padStart(2, '0')}`, undefined);
-        } catch (error) {
-          console.error('Erro ao excluir retificação:', error);
-          notification.error({
-            message: 'Erro',
-            description: 'Erro ao excluir retificação',
-          });
-        }
-      },
-    });
   };
 
   const onClickAtualizarInscritos = async () => {
@@ -1224,604 +1122,65 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
           {mostrarBanner && status === 3 && ehAreaPromotora && (
-            <Row gutter={[16, 8]} style={{ marginBottom: 0 }}>
-              <Col span={24}>
-                <div
-                  style={{
-                    backgroundColor: '#ff9a52',
-                    borderRadius: '4px',
-                    padding: '16px 24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '32px',
-                    marginTop: '8px',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      flex: 1,
-                      width: '70%',
-                    }}
-                  >
-                    <div
-                      style={{
-                        backgroundColor: '#fff',
-                        borderRadius: '50%',
-                        width: '25px',
-                        height: '25px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      <img
-                        src='/Vector.png'
-                        alt='Warning'
-                        style={{
-                          width: '15px',
-                          height: '15px',
-                        }}
-                      />
-                    </div>
-                    <span style={{ color: '#fff', fontSize: '14px' }}>
-                      <strong>{comentario?.criadoPor || 'Usuário'}</strong> inseriu comentários no
-                      CODAF. Clique no botão “conferir comentários” para acessar as informações
-                    </span>
-                  </div>
-                  <Button
-                    type='default'
-                    icon={
-                      <ReloadOutlined
-                        style={{
-                          color: '#ff9a52',
-                        }}
-                      />
-                    }
-                    onClick={onConferirComentarios}
-                    loading={loading}
-                    style={{
-                      backgroundColor: '#fff',
-                      borderColor: '#fff',
-                      color: '#ff9a52',
-                      fontWeight: 500,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      whiteSpace: 'nowrap',
-                      padding: '4px 16px',
-                      minWidth: '250px',
-                      height: '38px',
-                    }}
-                  >
-                    Conferir comentários
-                  </Button>
-                </div>
-              </Col>
-            </Row>
+            <BannerComentarios
+              comentario={comentario}
+              onConferirComentarios={onConferirComentarios}
+              loading={loading}
+            />
           )}
 
           <Row gutter={[16, 8]}>
             <Col span={24}>
-              <div style={{padding: '24px 0px'}}>
+              <div style={{ paddingBottom: '24px' }}>
                 Aqui você cria um novo CODAF. Preencha todas as informações antes de enviar a
                 aprovação da Divisão de Formação (DF).
               </div>
             </Col>
           </Row>
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-              <b>
-                <Form.Item
-                  label='Número de homologação'
-                  name='numeroHomologacao'
-                  rules={[{ required: true, message: 'Campo obrigatório' }]}
-                >
-                  <AutoComplete
-                    id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                    placeholder='Digite para buscar formação'
-                    onSearch={onSearchFormacao}
-                    onSelect={onSelectFormacao}
-                    options={opcoesFormacao.map((opcao) => ({
-                      value: opcao.numeroHomologacao.toString(),
-                      label: opcao.numeroHomologacao.toString(),
-                      numeroHomologacao: opcao.numeroHomologacao,
-                    }))}
-                    filterOption={false}
-                    notFoundContent={
-                      loadingAutocomplete ? 'Buscando...' : 'Nenhuma formação encontrada'
-                    }
-                  />
-                </Form.Item>
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-              <b>
-                <InputTexto
-                  formItemProps={{
-                    label: 'Nome da formação',
-                    name: 'nomeFormacao',
-                    rules: [{ required: true, message: 'Campo obrigatório' }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_NOME_FORMACAO,
-                    placeholder: 'Nome da formação',
-                    maxLength: 200,
-                    disabled: true,
-                  }}
-                />
-              </b>
-            </Col>
-          </Row>
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-              <b>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Código da formação',
-                    name: 'codigoFormacao',
-                    rules: [{ required: true, message: 'Campo obrigatório' }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_CODIGO_FORMACAO,
-                    placeholder: 'Código da formação',
-                    maxLength: 20,
-                    disabled: true,
-                  }}
-                />
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-              <b>
-                <Form.Item
-                  label={
-                    <span>
-                      Turma{' '}
-                      <Tooltip
-                        title='Não é possível selecionar uma turma já inserida em um CODAF'
-                        open={tooltipAberto || undefined}
-                      >
-                        <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
-                      </Tooltip>
-                    </span>
-                  }
-                  name='turmaId'
-                  rules={[{ required: true, message: 'Campo obrigatório' }]}
-                >
-                  <Select
-                    placeholder='Selecione a turma'
-                    options={turmasFiltradas.map((turma) => ({
-                      label: turma.descricao,
-                      value: turma.id,
-                    }))}
-                    disabled={turmaDisabled}
-                    allowClear
-                  />
-                </Form.Item>
-              </b>
-            </Col>
-          </Row>
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Número do comunicado',
-                    name: 'numeroComunicado',
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_NUMERO_COMUNICADO,
-                    placeholder: 'Número do comunicado',
-                    maxLength: 20,
-                  }}
-                />
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <Form.Item label='Data da publicação' name='dataPublicacao'>
-                  <DatePicker
-                    placeholder='Selecione a data'
-                    format='DD/MM/YYYY'
-                    style={{ width: '100%' }}
-                    locale={locale}
-                  />
-                </Form.Item>
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Página do comunicado no Diário Oficial',
-                    name: 'paginaComunicado',
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_PAGINA_COMUNICADO,
-                    placeholder: 'Página do comunicado',
-                    maxLength: 10,
-                  }}
-                />
-              </b>
-            </Col>
-          </Row>
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <Form.Item
-                  label='Data de publicação do Diário Oficial'
-                  name='dataPublicacaoDiarioOficial'
-                >
-                  <DatePicker
-                    placeholder='Selecione a data'
-                    format='DD/MM/YYYY'
-                    style={{ width: '100%' }}
-                    locale={locale}
-                  />
-                </Form.Item>
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <InputTexto
-                  formItemProps={{
-                    label: 'Código do curso no EOL',
-                    name: 'codigoCursoEol',
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_CODIGO_CURSO_EOL,
-                    placeholder: 'Código do curso no EOL',
-                    maxLength: 50,
-                    disabled: ehPerfilDF || ehPerfilEMFORPEF,
-                  }}
-                />
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <InputTexto
-                  formItemProps={{
-                    label: 'Código do nível',
-                    name: 'codigoNivel',
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_CODIGO_NIVEL,
-                    placeholder: 'Código do nível',
-                    maxLength: 50,
-                    disabled: ehPerfilDF || ehPerfilEMFORPEF,
-                  }}
-                />
-              </b>
-            </Col>
-          </Row>
-          <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
-            <Col span={24}>
-              <div
-                style={{
-                  fontWeight: 700,
-                  fontSize: '20px',
-                  lineHeight: '100%',
-                  color: '#42474A',
-                  marginBottom: 8,
-                }}
-              >
-                Lista de inscritos na formação
-              </div>
-              <p style={{ marginBottom: 16 }}>
-                Insira as informações dos cursistas que finalizaram a formação.
-              </p>
-            </Col>
-          </Row>
-          {mostrarDivergencia && (
-            <Row gutter={[16, 8]} style={{ marginBottom: 16 }}>
-              <Col span={24}>
-                <div
-                  style={{
-                    backgroundColor: '#ff9a52',
-                    borderRadius: '4px',
-                    padding: '16px 24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '32px',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      flex: 1,
-                      width: '70%',
-                    }}
-                  >
-                    <div
-                      style={{
-                        backgroundColor: '#fff',
-                        borderRadius: '50%',
-                        width: '25px',
-                        height: '25px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      <img
-                        src='/Vector.png'
-                        alt='Warning'
-                        style={{
-                          width: '15px',
-                          height: '15px',
-                        }}
-                      />
-                    </div>
-                    <span style={{ color: '#fff', fontSize: '14px' }}>
-                      Há divergência entre a quantidade de inscritos na formação{' '}
-                      <strong>{nomeFormacao || '[nome da formação]'}</strong>
-                      <br></br> e a lista de presença. Clique no botão &quot;atualizar
-                      inscritos&quot; para reprocessar a lista.
-                    </span>
-                  </div>
-                  <Button
-                    type='default'
-                    icon={
-                      <ReloadOutlined
-                        style={{
-                          color: '#ff9a52',
-                        }}
-                      />
-                    }
-                    onClick={onClickAtualizarInscritos}
-                    loading={loading}
-                    style={{
-                      backgroundColor: '#fff',
-                      borderColor: '#fff',
-                      color: '#ff9a52',
-                      fontWeight: 500,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      whiteSpace: 'nowrap',
-                      padding: '4px 16px',
-                      minWidth: '250px',
-                      height: '38px',
-                    }}
-                  >
-                    Atualizar inscritos
-                  </Button>
-                </div>
-              </Col>
-            </Row>
-          )}
-          <Row gutter={[16, 8]}>
-            <Col span={24}>
-              <div className='table-pagination-center'>
-                <Table
-                  columns={colunasCursistas}
-                  dataSource={cursistas}
-                  rowKey='id'
-                  pagination={{
-                    current: paginaAtualInscritos,
-                    pageSize: registrosPorPaginaInscritos,
-                    total: totalRegistrosInscritos,
-                    showSizeChanger: true,
-                    pageSizeOptions: [10, 20, 30, 50, 100],
-                    locale: { items_per_page: '' },
-                  }}
-                  onChange={handleTableChangeInscritos}
-                  locale={{
-                    emptyText: 'Nenhum cursista cadastrado',
-                  }}
-                  scroll={{ x: 'max-content' }}
-                />
-              </div>
-              <style>{`
-                .table-pagination-center .ant-pagination {
-                  display: flex;
-                  justify-content: center;
-                }
-              `}</style>
-            </Col>
-          </Row>
+
+          <SecaoFormulario
+            opcoesFormacao={opcoesFormacao}
+            onSearchFormacao={onSearchFormacao}
+            onSelectFormacao={onSelectFormacao}
+            loadingAutocomplete={loadingAutocomplete}
+            turmasFiltradas={turmasFiltradas}
+            turmaDisabled={turmaDisabled}
+            tooltipAberto={tooltipAberto}
+            ehPerfilDF={ehPerfilDF}
+            ehPerfilEMFORPEF={ehPerfilEMFORPEF}
+          />
+          <SecaoListaInscritos
+            mostrarDivergencia={mostrarDivergencia}
+            nomeFormacao={nomeFormacao}
+            onClickAtualizarInscritos={onClickAtualizarInscritos}
+            loading={loading}
+            colunasCursistas={colunasCursistas}
+            cursistas={cursistas}
+            paginaAtualInscritos={paginaAtualInscritos}
+            registrosPorPaginaInscritos={registrosPorPaginaInscritos}
+            totalRegistrosInscritos={totalRegistrosInscritos}
+            handleTableChangeInscritos={handleTableChangeInscritos}
+          />
           <div style={{ display: ehPerfilDF || ehPerfilEMFORPEF ? 'block' : 'none' }}>
-            <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
-              <Col span={24}>
-                <div
-                  style={{
-                    fontWeight: 700,
-                    fontSize: '20px',
-                    lineHeight: '100%',
-                    color: '#42474A',
-                    marginBottom: 8,
-                  }}
-                >
-                  Retificações
-                </div>
-                <p style={{ marginBottom: 16 }}>
-                  Caso haja retificações realizadas, insira nos campos abaixo. Caso seja necessário
-                  o registro de mais de uma, clique em &quot;Nova retificação&quot;.
-                </p>
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]}>
-              {retificacoes.map((numero) => (
-                <Col
-                  key={numero}
-                  xs={24}
-                  sm={24}
-                  md={retificacoes.length === 1 ? 24 : 12}
-                  lg={retificacoes.length === 1 ? 24 : 12}
-                  xl={retificacoes.length === 1 ? 24 : 12}
-                >
-                  <div
-                    style={{
-                      border: '1px solid #d9d9d9',
-                      borderRadius: '2px',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <div
-                      style={{
-                        backgroundColor: '#ff9a52',
-                        color: '#fff',
-                        padding: '8px',
-                        fontWeight: 600,
-                        fontSize: '14px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <span>Retificação {numero.toString().padStart(2, '0')}</span>
-                      <Button
-                        type='text'
-                        icon={<DeleteOutlined />}
-                        onClick={() => excluirRetificacao(numero)}
-                        style={{
-                          color: '#fff',
-                          border: '1px solid #fff',
-                          backgroundColor: '#ff9a52',
-                          fontWeight: 500,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '4px 12px',
-                          height: 'auto',
-                        }}
-                      >
-                        Excluir
-                      </Button>
-                    </div>
-                    <div style={{ padding: '16px', backgroundColor: '#fff' }}>
-                      <Row gutter={[16, 8]}>
-                        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                          <Form.Item
-                            label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
-                            name={`dataRetificacao${numero.toString().padStart(2, '0')}`}
-                          >
-                            <DatePicker
-                              format='DD/MM/YYYY'
-                              placeholder='Selecione a data'
-                              locale={locale}
-                              style={{ width: '100%' }}
-                              disabledDate={(current) => current && current > dayjs().endOf('day')}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                          <InputNumero
-                            formItemProps={{
-                              label: 'Página da retificação',
-                              name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
-                            }}
-                            inputProps={{
-                              placeholder: 'Número da página',
-                              maxLength: 10,
-                            }}
-                          />
-                        </Col>
-                      </Row>
-                    </div>
-                  </div>
-                </Col>
-              ))}
-            </Row>
-
-            <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
-              <Col>
-                <Button
-                  type='default'
-                  icon={<PlusOutlined />}
-                  onClick={adicionarNovaRetificacao}
-                  style={{
-                    borderColor: '#ff6b35',
-                    color: '#ff6b35',
-                    fontWeight: 500,
-                  }}
-                >
-                  Nova retificação
-                </Button>
-              </Col>
-            </Row>
+            <SecaoRetificacoes
+              retificacoes={retificacoes}
+              setRetificacoes={setRetificacoes}
+              contadorRetificacoes={contadorRetificacoes}
+              setContadorRetificacoes={setContadorRetificacoes}
+              retificacoesOriginais={retificacoesOriginais}
+              setRetificacoesOriginais={setRetificacoesOriginais}
+              form={form}
+            />
           </div>
-          <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
-            <Col span={24}>
-              <div
-                style={{
-                  fontWeight: 700,
-                  fontSize: '20px',
-                  lineHeight: '100%',
-                  color: '#42474A',
-                  marginBottom: 8,
-                }}
-              >
-                Anexos
-              </div>
-              <p style={{ marginBottom: 16 }}>Anexe os documentos úteis para a criação do CODAF.</p>
-              <UploadArquivosConectaFormacao
-                form={form}
-                formItemProps={{
-                  name: 'anexos',
-                  label: '',
-                }}
-                draggerProps={{
-                  multiple: true,
-                  onDownload: onDownloadAnexo,
-                  disabled: !podeGerenciarAnexos,
-                }}
-                subTitulo='Deve permitir apenas arquivos PDF com no máximo 20MB cada.'
-                tipoArquivosPermitidos='.pdf'
-                tamanhoMaxUploadPorArquivo={20}
-                uploadService={fazerUploadAnexoCodaf}
-                downloadService={obterAnexoCodafParaDownload}
-                formDataFieldName='arquivo'
-                mensagemFormatoNaoPermitido='Arquivo deve estar no formato PDF'
-                mensagemSucessoUpload='Arquivo carregado com sucesso'
-              />
-            </Col>
-          </Row>
+          <SecaoAnexos
+            form={form}
+            podeGerenciarAnexos={podeGerenciarAnexos}
+            onDownloadAnexo={onDownloadAnexo}
+            fazerUploadAnexoCodaf={fazerUploadAnexoCodaf}
+            obterAnexoCodafParaDownload={obterAnexoCodafParaDownload}
+          />
 
-          <div style={{ marginTop: 16 }}>
-            <div
-              style={{
-                height: '100%',
-                borderRadius: '4px',
-                backgroundColor: 'white',
-                boxShadow: '0px 0px 12px 0px #0000001F',
-                padding: '24px',
-              }}
-            >
-              <Row gutter={[16, 8]} align='middle' justify='space-between'>
-                <Col>
-                  <p style={{ margin: 0 }}>
-                    Você pode baixar o modelo de termo de responsabilidade clicando em &quot;termo
-                    de responsabilidade&quot;.
-                  </p>
-                </Col>
-                <Col>
-                  <Button
-                    type='default'
-                    icon={<DownloadOutlined />}
-                    style={{
-                      borderColor: '#ff6b35',
-                      color: '#ff6b35',
-                      fontWeight: 500,
-                      padding: '9px',
-                    }}
-                    onClick={onBaixarModelo}
-                  >
-                    Termo de responsabilidade
-                  </Button>
-                </Col>
-              </Row>
-            </div>
-          </div>
+          <BannerDownloadTermo onBaixarModelo={onBaixarModelo} />
 
           <Row gutter={[16, 8]} style={{ marginTop: 32 }}>
             <Col span={24}>
@@ -1854,37 +1213,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           </Row>
         </CardContent>
       </Form>
-
-      {/* <div style={{ marginTop: 16 }}>
-        <CardContent>
-          <Row gutter={[16, 8]} justify='end'>
-            <Col>
-              <Button
-                type='default'
-                onClick={onClickCancelar}
-                style={{
-                  fontWeight: 700,
-                  borderColor: '#ff6b35',
-                  color: '#ff6b35',
-                }}
-              >
-                Cancelar
-              </Button>
-            </Col>
-            <Col>
-              <Button
-                type='primary'
-                onClick={onClickSalvar}
-                loading={loading}
-                id={CF_BUTTON_SALVAR}
-                style={{ fontWeight: 700 }}
-              >
-                Salvar
-              </Button>
-            </Col>
-          </Row>
-        </CardContent>
-      </div> */}
 
       <ModalEnviarDF
         visible={modalEnviarDFVisible}

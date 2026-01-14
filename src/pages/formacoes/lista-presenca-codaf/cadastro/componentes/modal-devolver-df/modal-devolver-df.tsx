@@ -8,7 +8,12 @@ interface ModalEnviarDFProps {
   loading?: boolean;
 }
 
-const ModalDevolverDF: React.FC<ModalEnviarDFProps> = ({ visible, onConfirm, onCancel, loading }) => {
+const ModalDevolverDF: React.FC<ModalEnviarDFProps> = ({
+  visible,
+  onConfirm,
+  onCancel,
+  loading,
+}) => {
   const [justificativa, setJustificativa] = useState('');
 
   useEffect(() => {
@@ -56,11 +61,15 @@ const ModalDevolverDF: React.FC<ModalEnviarDFProps> = ({ visible, onConfirm, onC
           Devolver CODAF
         </Button>,
       ]}
-    ><br></br>
+    >
+      <br></br>
       <p>Insira as sugestões de melhorias para o CODAF antes de encaminhar à área promotora.</p>
       <br></br>
       <div style={{ marginBottom: '16px' }}>
-        <label htmlFor='justificativa' style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+        <label
+          htmlFor='justificativa'
+          style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}
+        >
           Justifique (obrigatório)*
         </label>
         <textarea

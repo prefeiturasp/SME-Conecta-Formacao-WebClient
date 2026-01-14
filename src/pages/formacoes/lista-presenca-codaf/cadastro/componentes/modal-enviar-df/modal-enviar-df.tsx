@@ -45,7 +45,10 @@ const ModalEnviarDF: React.FC<ModalEnviarDFProps> = ({ visible, onConfirm, onCan
       ]}
     >
       <br />
-      <p>O registro não poderá ser modificado enquanto estiver com a situação &quot;Aguardando DF&quot;</p>
+      <p>
+        O registro não poderá ser modificado enquanto estiver com a situação &quot;Aguardando
+        DF&quot;
+      </p>
       <br />
     </Modal>
   );
