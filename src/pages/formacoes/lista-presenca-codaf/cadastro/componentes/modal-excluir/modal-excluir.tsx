@@ -20,7 +20,7 @@ const ModalExcluir: React.FC<ModalExcluirProps> = ({ visible, onConfirm, onCance
             letterSpacing: '0%',
           }}
         >
-          Confirmar exclusão
+          Excluir registro CODAF
         </span>
       }
       open={visible}
@@ -37,14 +37,14 @@ const ModalExcluir: React.FC<ModalExcluirProps> = ({ visible, onConfirm, onCance
             fontWeight: 500,
           }}
         >
-          Não
+          Cancelar
         </Button>,
         <Button key='enviar' type='primary' onClick={onConfirm} loading={loading}>
-          Sim
+          Excluir registro
         </Button>,
       ]}
     >
-      <p>Tem certeza que deseja excluir este registro?</p>
+      <p>Esta ação não poderá ser desfeita. Deseja continuar?</p>
     </Modal>
   );
 };
