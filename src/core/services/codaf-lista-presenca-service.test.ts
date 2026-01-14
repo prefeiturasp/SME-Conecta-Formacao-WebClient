@@ -7,6 +7,7 @@ import {
   obterInscritosTurma,
   verificarTurmaPossuiLista,
   deletarRetificacao,
+  excluirCodafListaPresenca,
   baixarModeloTermoResponsabilidade,
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
@@ -1111,6 +1112,63 @@ describe('CodafListaPresencaService', () => {
       expect(result.headers['content-type']).toBe('application/pdf');
       expect(result.headers['content-disposition']).toContain('attachment');
       expect(result.headers['content-length']).toBe('2048');
+    });
+  });
+
+  describe('excluirCodafListaPresenca', () => {
+    test('deve chamar deletarRegistro com ID correto', async () => {
+      const codafListaPresencaId = 123;
+
+      await excluirCodafListaPresenca(codafListaPresencaId);
+
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}`,
+      );
+    });
+
+    test('deve excluir com sucesso e retornar status 200', async () => {
+      const codafListaPresencaId = 456;
+      const mockResponse = {
+        sucesso: true,
+        mensagens: ['Registro excluído com sucesso'],
+        dados: null,
+        status: 200,
+      };
+
+      mockDeletarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await excluirCodafListaPresenca(codafListaPresencaId);
+
+      expect(result.sucesso).toBe(true);
+      expect(result.status).toBe(200);
+      expect(result.mensagens).toContain('Registro excluído com sucesso');
+    });
+
+    test('deve retornar erro quando registro não encontrado', async () => {
+      const codafListaPresencaId = 999;
+      const mockError = {
+        response: {
+          status: 404,
+          data: {
+            mensagens: ['Registro não encontrado'],
+          },
+        },
+      };
+
+      mockDeletarRegistro.mockRejectedValueOnce(mockError);
+
+      await expect(excluirCodafListaPresenca(codafListaPresencaId)).rejects.toEqual(mockError);
+    });
+
+    test('deve aceitar ID como número', async () => {
+      const codafListaPresencaId = 789;
+
+      await excluirCodafListaPresenca(codafListaPresencaId);
+
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}`,
+      );
+      expect(typeof codafListaPresencaId).toBe('number');
     });
   });
 });

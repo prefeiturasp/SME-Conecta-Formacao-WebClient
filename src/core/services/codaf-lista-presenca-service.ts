@@ -250,3 +250,9 @@ export const devolverCodafParaCorrecao = (
     },
   );
 };
+
+export const excluirCodafListaPresenca = (
+  codafListaPresencaId: number,
+): Promise<ApiResult<any>> => {
+  return deletarRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}`);
+};

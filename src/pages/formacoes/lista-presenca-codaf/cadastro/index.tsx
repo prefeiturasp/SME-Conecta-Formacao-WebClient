@@ -35,6 +35,7 @@ import {
   criarCodafListaPresenca,
   devolverCodafParaCorrecao,
   enviarCodafParaDF,
+  excluirCodafListaPresenca,
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
   obterCodafListaPresencaPorId,
@@ -696,20 +697,51 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     setModalExcluirVisible(true);
   };
 
-  const confirmarExclusao = () => {
-    setModalExcluirVisible(false);
-    setLoading(true);
+  const confirmarExclusao = async () => {
+    try {
+      if (!registroId) {
+        notification.warning({
+          message: 'Atenção',
+          description: 'Registro não encontrado',
+        });
+        setModalExcluirVisible(false);
+        return;
+      }
 
-    // TODO: Implementar chamada à API de exclusão quando disponível
-    // Por enquanto, apenas simula o sucesso
-    setTimeout(() => {
-      setLoading(false);
-      notification.success({
-        message: 'Sucesso',
-        description: 'Registro excluído com sucesso!',
+      setLoading(true);
+      setModalExcluirVisible(false);
+
+      const response = await excluirCodafListaPresenca(registroId);
+
+      if (response.status === 204) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Registro excluído com sucesso!',
+        });
+        navigate(ROUTES.LISTA_PRESENCA_CODAF);
+      } else {
+        const mensagemErro =
+          response.mensagens && response.mensagens.length > 0
+            ? response.mensagens.join(', ')
+            : 'Erro ao excluir o registro';
+
+        notification.error({
+          message: 'Erro',
+          description: mensagemErro,
+        });
+      }
+    } catch (error: any) {
+      console.error('Erro ao excluir:', error);
+      const mensagemErro =
+        error?.response?.data?.mensagens?.[0] || error?.message || 'Erro ao excluir o registro';
+
+      notification.error({
+        message: 'Erro',
+        description: mensagemErro,
       });
-      navigate(ROUTES.LISTA_PRESENCA_CODAF);
-    }, 500);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const cancelarExclusao = () => {
