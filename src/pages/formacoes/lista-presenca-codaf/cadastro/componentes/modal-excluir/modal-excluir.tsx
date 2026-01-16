@@ -44,7 +44,9 @@ const ModalExcluir: React.FC<ModalExcluirProps> = ({ visible, onConfirm, onCance
         </Button>,
       ]}
     >
+      <br />
       <p>Esta ação não poderá ser desfeita. Deseja continuar?</p>
+      <br />
     </Modal>
   );
 };
