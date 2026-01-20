@@ -10,4 +10,5 @@ export type PropostaFiltrosDTO = {
   periodoRealizacaoInicio: string | null;
   periodoRealizacaoFim: string | null;
   situacao: SituacaoProposta | null;
+  revalidacao: number | null;
 };
