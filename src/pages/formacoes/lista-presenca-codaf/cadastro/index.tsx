@@ -106,8 +106,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const podeGerenciarAnexos = ehPerfilDF || ehPerfilEMFORPEF;
   const mostrarBotaoExcluir = modoEdicao && status === 1;
-  const mostrarBotaoEnviarDF = status === 1 || status === null || status === 3;
-  const mostrarBotaoDevolverDF = status === 2;
+  const mostrarBotaoEnviarDF =
+    (status === 1 || status === null || status === 3) && ehAreaPromotora == true;
+  const mostrarBotaoDevolverDF = status === 2 && ehPerfilAdmin == true;
 
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
   const nomeFormacao = Form.useWatch('nomeFormacao', form);
@@ -117,6 +118,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const paginaComunicado = Form.useWatch('paginaComunicado', form);
   const codigoCursoEol = Form.useWatch('codigoCursoEol', form);
   const codigoNivel = Form.useWatch('codigoNivel', form);
+  const dataPublicacao = Form.useWatch('dataPublicacao', form);
+  const dataPublicacaoDiarioOficial = Form.useWatch('dataPublicacaoDiarioOficial', form);
 
   React.useEffect(() => {
     const camposBasicosPreenchidos =
@@ -125,7 +128,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       codigoFormacao &&
       turmaId &&
       numeroComunicado &&
-      paginaComunicado;
+      paginaComunicado &&
+      dataPublicacao &&
+      dataPublicacaoDiarioOficial;
 
     const todosPreenchidos = ehAreaPromotora
       ? camposBasicosPreenchidos
@@ -142,6 +147,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     codigoCursoEol,
     codigoNivel,
     ehAreaPromotora,
+    dataPublicacao,
+    dataPublicacaoDiarioOficial,
   ]);
 
   React.useEffect(() => {
@@ -884,8 +891,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       if (!turmaId) camposVazios.push('Turma');
       if (!numeroComunicado) camposVazios.push('Número do comunicado');
       if (!paginaComunicado) camposVazios.push('Página do comunicado');
-      if (!codigoCursoEol) camposVazios.push('Código do curso no EOL');
-      if (!codigoNivel) camposVazios.push('Código do nível');
+      if (!dataPublicacao) camposVazios.push('Data de publicação');
+      if (!dataPublicacaoDiarioOficial) camposVazios.push('Data de publicação no Diário Oficial');
+      if (!ehAreaPromotora && !codigoCursoEol) camposVazios.push('Código do curso no EOL');
+      if (!ehAreaPromotora && !codigoNivel) camposVazios.push('Código do nível');
 
       notification.warning({
         message: 'Atenção',
