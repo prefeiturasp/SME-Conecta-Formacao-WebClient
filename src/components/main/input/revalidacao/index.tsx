@@ -12,8 +12,8 @@ type SelectRevalidacaoProps = {
 
 const SelectRevalidacao: React.FC<SelectRevalidacaoProps> = ({ selectProps, formItemProps }) => {
   const options: DefaultOptionType[] = [
-    { label: 'Sim', value: 1 },
-    { label: 'Não', value: 0 },
+    { label: 'Sim', value: 'true' },
+    { label: 'Não', value: 'false' },
   ];
 
   return (
