@@ -109,6 +109,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const mostrarBotaoEnviarDF =
     (status === 1 || status === null || status === 3) && ehAreaPromotora == true;
   const mostrarBotaoDevolverDF = status === 2 && ehPerfilAdmin == true;
+  const mostrarBotaoSalvar = status !== 2 || (status === 2 && ehPerfilAdmin == true);
 
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
   const nomeFormacao = Form.useWatch('nomeFormacao', form);
@@ -683,6 +684,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       });
 
       const mensagemErro =
+        error?.response?.data?.erros?.[0] ||
         error?.response?.data?.mensagens?.[0] ||
         error?.message ||
         (modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro');
@@ -740,7 +742,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     } catch (error: any) {
       console.error('Erro ao excluir:', error);
       const mensagemErro =
-        error?.response?.data?.mensagens?.[0] || error?.message || 'Erro ao excluir o registro';
+        error?.response?.data?.erros?.[0] ||
+        error?.response?.data?.mensagens?.[0] ||
+        error?.message ||
+        'Erro ao excluir o registro';
 
       notification.error({
         message: 'Erro',
@@ -854,14 +859,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     return formOriginalStr !== formAtualStr || cursistasOriginaisStr !== cursistasAtuaisStr;
   };
 
-  const onClickEnviarParaDF = async () => {
+  const validarParaEnvio = (): boolean => {
     if (!registroId) {
       notification.warning({
         message: 'Atenção',
         description: 'É necessário salvar o registro antes de enviar para DF',
       });
-      setModalEnviarDFVisible(false);
-      return;
+      return false;
     }
 
     if (verificarAlteracoes()) {
@@ -869,7 +873,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         message: 'Atenção',
         description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.',
       });
-      return;
+      return false;
     }
 
     const anexos = form.getFieldValue('anexos');
@@ -879,7 +883,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         message: 'Atenção',
         description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF',
       });
-      return;
+      return false;
     }
 
     if (!formValido) {
@@ -902,7 +906,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           ', ',
         )})`,
       });
-      return;
+      return false;
     }
 
     if (cursistas.length === 0) {
@@ -910,7 +914,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         message: 'Atenção',
         description: 'Não é possível enviar para DF sem inscritos na lista de presença',
       });
-      return;
+      return false;
     }
 
     const cursistasIncompletos = cursistas.filter(
@@ -926,10 +930,24 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         description:
           'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
       });
-      return;
+      return false;
     }
 
+    return true;
+  };
+
+  const onClickEnviarParaDF = async () => {
+    if (!validarParaEnvio()) {
+      return;
+    }
     setModalEnviarDFVisible(true);
+  };
+
+  const onClickDevolverParaDF = async () => {
+    if (!validarParaEnvio()) {
+      return;
+    }
+    setModalDevolverDFVisible(true);
   };
 
   const confirmarEnvioParaDF = async () => {
@@ -968,6 +986,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     } catch (error: any) {
       console.error('Erro ao enviar para DF:', error);
       const mensagemErro =
+        error?.response?.data?.erros?.[0] ||
         error?.response?.data?.mensagens?.[0] ||
         error?.message ||
         'Erro ao enviar o registro para DF';
@@ -986,20 +1005,16 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const confirmarDevolucaoParaDF = async (justificativa: string) => {
-    try {
-      if (!registroId) {
-        notification.warning({
-          message: 'Atenção',
-          description: 'É necessário salvar o registro antes de devolver para correção',
-        });
-        setModalDevolverDFVisible(false);
-        return;
-      }
+    if (!validarParaEnvio()) {
+      setModalDevolverDFVisible(false);
+      return;
+    }
 
+    try {
       setLoading(true);
       setModalDevolverDFVisible(false);
 
-      const response = await devolverCodafParaCorrecao(registroId, justificativa);
+      const response = await devolverCodafParaCorrecao(registroId!, justificativa);
 
       if (response.status === 200) {
         notification.success({
@@ -1106,32 +1121,36 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 </Button>
               </Col>
             )}
-            <Col>
-              <Button
-                type='default'
-                onClick={onClickCancelar}
-                id={CF_BUTTON_CANCELAR}
-                style={{
-                  fontWeight: 700,
-                  borderColor: '#ff6b35',
-                  color: '#ff6b35',
-                }}
-              >
-                Cancelar
-              </Button>
-            </Col>
-            <Col>
-              <Button
-                type='primary'
-                onClick={onClickSalvar}
-                loading={loading}
-                disabled={!modoEdicao && todasTurmasPossuemLista}
-                id={CF_BUTTON_SALVAR}
-                style={{ fontWeight: 700 }}
-              >
-                Salvar
-              </Button>
-            </Col>
+            {mostrarBotaoSalvar && (
+              <Col>
+                <Button
+                  type='default'
+                  onClick={onClickCancelar}
+                  id={CF_BUTTON_CANCELAR}
+                  style={{
+                    fontWeight: 700,
+                    borderColor: '#ff6b35',
+                    color: '#ff6b35',
+                  }}
+                >
+                  Cancelar
+                </Button>
+              </Col>
+            )}
+            {mostrarBotaoSalvar && (
+              <Col>
+                <Button
+                  type='primary'
+                  onClick={onClickSalvar}
+                  loading={loading}
+                  disabled={!modoEdicao && todasTurmasPossuemLista}
+                  id={CF_BUTTON_SALVAR}
+                  style={{ fontWeight: 700 }}
+                >
+                  Salvar
+                </Button>
+              </Col>
+            )}
             <Col>
               {mostrarBotaoEnviarDF && (
                 <Button
@@ -1148,9 +1167,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               {mostrarBotaoDevolverDF && (
                 <Button
                   type='primary'
-                  onClick={() => setModalDevolverDFVisible(true)}
+                  onClick={onClickDevolverParaDF}
                   loading={loading}
-                  disabled={!ehPerfilAdmin}
+                  disabled={!formValido}
                   style={{ fontWeight: 700 }}
                 >
                   Devolver para DF
