@@ -144,7 +144,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
               inputProps={{
                 id: CF_INPUT_NUMERO_COMUNICADO,
                 placeholder: 'Número do comunicado',
-                maxLength: 20,
+                maxLength: 4,
               }}
             />
           </b>
@@ -171,7 +171,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
               inputProps={{
                 id: CF_INPUT_PAGINA_COMUNICADO,
                 placeholder: 'Página do comunicado',
-                maxLength: 10,
+                maxLength: 4,
               }}
             />
           </b>
@@ -203,7 +203,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
               inputProps={{
                 id: CF_INPUT_CODIGO_CURSO_EOL,
                 placeholder: 'Código do curso no EOL',
-                maxLength: 50,
+                maxLength: 9,
                 disabled: ehPerfilDF || ehPerfilEMFORPEF,
               }}
             />
@@ -219,7 +219,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
               inputProps={{
                 id: CF_INPUT_CODIGO_NIVEL,
                 placeholder: 'Código do nível',
-                maxLength: 50,
+                maxLength: 9,
                 disabled: ehPerfilDF || ehPerfilEMFORPEF,
               }}
             />
