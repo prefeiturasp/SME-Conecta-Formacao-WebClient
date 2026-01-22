@@ -12,6 +12,7 @@ import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import { DatePickerPeriodo } from '~/components/main/input/date-range';
 import SelectFormato from '~/components/main/input/formato';
 import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
+import SelectRevalidacao from '~/components/main/input/revalidacao';
 import SelectSituacaoProposta from '~/components/main/input/situacao-proposta';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
@@ -60,6 +61,7 @@ const ListCadastroDePropostas: React.FC = () => {
       periodoRealizacaoInicio: null,
       periodoRealizacaoFim: null,
       situacao: null,
+      revalidacao: null,
     },
   );
   const columns: ColumnsType<PropostaPaginadaDTO> = [
@@ -108,6 +110,11 @@ const ListCadastroDePropostas: React.FC = () => {
       title: 'Situação',
       dataIndex: 'situacao',
     },
+    {
+      key: 'revalidacao',
+      title: 'Revalidação',
+      dataIndex: 'revalidacao',
+    },
   ];
 
   const onClickEditar = (id: number) =>
@@ -133,6 +140,7 @@ const ListCadastroDePropostas: React.FC = () => {
     const publicoAlvoIds = form.getFieldValue('publicosAlvo');
     const periodoRealizacaoFim = dataFim;
     const situacao = form.getFieldValue('situacao');
+    const revalidacao = form.getFieldValue('revalidacao');
 
     if (
       !numeroHomologacao &&
@@ -143,7 +151,8 @@ const ListCadastroDePropostas: React.FC = () => {
       !periodoRealizacaoInicio &&
       !publicoAlvoIds &&
       !periodoRealizacaoFim &&
-      !situacao
+      !situacao &&
+      revalidacao === undefined
     ) {
       setRealizouFiltro(false);
     }
@@ -158,6 +167,7 @@ const ListCadastroDePropostas: React.FC = () => {
       publicoAlvoIds: publicoAlvoIds,
       periodoRealizacaoFim: periodoRealizacaoFim,
       situacao: situacao,
+      revalidacao: revalidacao ?? null,
     });
   }, [filters]);
 
@@ -192,6 +202,7 @@ const ListCadastroDePropostas: React.FC = () => {
         situacao,
         periodoRealizacaoFim,
         periodoRealizacaoInicio,
+        revalidacao,
       } = filtroDaURL;
 
       if (periodoRealizacaoInicio && periodoRealizacaoFim) {
@@ -209,6 +220,7 @@ const ListCadastroDePropostas: React.FC = () => {
         situacao,
         publicoAlvoIds,
         periodoRealizacao,
+        revalidacao,
       });
     }
   }, [filtersLocationState]);
@@ -246,7 +258,7 @@ const ListCadastroDePropostas: React.FC = () => {
             {() => (
               <>
                 <Row gutter={[16, 8]}>
-                  <Col xs={24} sm={10} md={7} lg={7} xl={12}>
+                  <Col xs={24} sm={12} md={8}>
                     <b>
                       <SelectAreaPromotora
                         formItemProps={{ name: 'areaPromotoraId' }}
@@ -254,7 +266,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-                  <Col xs={24} sm={10} md={7} lg={7} xl={12}>
+                  <Col xs={24} sm={12} md={8}>
                     <b>
                       <SelectFormato
                         formItemProps={{ rules: [{ required: false }] }}
@@ -263,7 +275,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-                  <Col span={8}>
+                  <Col xs={24} sm={12} md={8}>
                     <b>
                       <SelectPublicoAlvo
                         selectProps={{ onChange: obterFiltros }}
@@ -272,7 +284,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-                  <Col span={8}>
+                  <Col xs={24} sm={12} md={8}>
                     <b>
                       <InputTexto
                         formItemProps={{
@@ -289,7 +301,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-                  <Col span={8}>
+                  <Col xs={24} sm={12} md={8}>
                     <b>
                       <InputNumero
                         formItemProps={{
@@ -306,9 +318,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-                </Row>
-                <Row gutter={[16, 8]}>
-                  <Col xs={24} sm={10} md={7} lg={7} xl={5}>
+                  <Col xs={24} sm={12} md={8}>
                     <b>
                       <DatePickerPeriodo
                         formItemProps={{
@@ -319,8 +329,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-
-                  <Col xs={24} sm={10} md={7} lg={7} xl={9}>
+                  <Col xs={24} sm={12} md={8}>
                     <b>
                       <InputNumero
                         formItemProps={{
@@ -337,9 +346,14 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-                  <Col xs={24} sm={10} md={7} lg={7} xl={10}>
+                  <Col xs={24} sm={12} md={8}>
                     <b>
                       <SelectSituacaoProposta selectProps={{ onChange: obterFiltros }} />
+                    </b>
+                  </Col>
+                  <Col xs={24} sm={12} md={8}>
+                    <b>
+                      <SelectRevalidacao selectProps={{ onChange: obterFiltros }} />
                     </b>
                   </Col>
                   <Col span={24}>
