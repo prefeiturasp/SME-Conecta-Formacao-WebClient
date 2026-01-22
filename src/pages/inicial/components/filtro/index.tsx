@@ -36,6 +36,7 @@ export const FiltroPaginaInicial: React.FC = () => {
     periodoRealizacaoInicio: null,
     periodoRealizacaoFim: null,
     situacao: null,
+    revalidacao: null,
   });
 
   const obterFiltros = useCallback(async () => {
@@ -59,6 +60,7 @@ export const FiltroPaginaInicial: React.FC = () => {
       periodoRealizacaoInicio,
       periodoRealizacaoFim,
       situacao: form.getFieldValue('situacao'),
+      revalidacao: form.getFieldValue('revalidacao'),
     });
   }, [form]);
 
