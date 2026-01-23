@@ -63,6 +63,8 @@ export const CONTEUDO_PROGRAMATICO_NAO_INFORMADO = 'É necessário informar o co
 export const PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO =
   'É necessário informar os procedimentos metodológicos';
 export const REFERENCIA_NAO_INFORMADA = 'É necessário informar as referências';
+export const JUSTIFICATIVA_REVALIDACAO_NAO_INFORMADA =
+  'É necessário informar a justificativa da revalidação';
 export const PALAVRA_CHAVE_NAO_INFORMADA =
   'É necessário informar no mínimo 3 e no máximo 5 palavras chaves';
 export const PERIODO_REALIZACAO_NAO_INFORMADO =
