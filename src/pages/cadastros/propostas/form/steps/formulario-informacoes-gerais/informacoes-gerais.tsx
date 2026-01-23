@@ -164,7 +164,12 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         <></>
       )}
 
-      <Col xs={24} sm={12} md={7} lg={5}>
+      <Col
+        xs={24}
+        sm={12}
+        md={tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? 7 : 10}
+        lg={tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? 5 : 7}
+      >
         <ButtonParecer campo={CampoConsideracaoEnum.codigoEventoSigpec}>
           <Form.Item
             key='codigoEventoSigpec'
@@ -182,7 +187,12 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         </ButtonParecer>
       </Col>
 
-      <Col xs={24} sm={12} md={7} lg={5}>
+      <Col
+        xs={24}
+        sm={12}
+        md={tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? 7 : 10}
+        lg={tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? 5 : 7}
+      >
         <SelectRevalidacao
           onRevalidacaoChange={setExibirJustificativaRevalidacao}
           formItemProps={{ rules: [{ required: true, message: 'É necessário informar a revalidação' }] }}
