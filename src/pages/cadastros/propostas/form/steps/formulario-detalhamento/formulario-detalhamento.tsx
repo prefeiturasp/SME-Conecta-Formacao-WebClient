@@ -5,6 +5,7 @@ import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
 import {
   CONTEUDO_PROGRAMATICO_NAO_INFORMADO,
   JUSTIFICATIVA_NAO_INFORMADA,
+  JUSTIFICATIVA_REVALIDACAO_NAO_INFORMADA,
   OBJETIVO_NAO_INFORMADO,
   PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO,
   REFERENCIA_NAO_INFORMADA,
@@ -17,7 +18,11 @@ import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
 import CamposCargaHorariaProvider from './components/campos-carga-horaria/cargas-horaria-provider';
 
-const FormularioDetalhamento: React.FC = () => {
+type FormularioDetalhamentoProps = {
+  revalidacao: boolean;
+};
+
+const FormularioDetalhamento: React.FC<FormularioDetalhamentoProps> = ({ revalidacao }) => {
   const { desabilitarCampos } = useContext(PermissaoContext);
 
   const collapsesComEditorDeTexto = [
@@ -98,6 +103,22 @@ const FormularioDetalhamento: React.FC = () => {
         <SelectPalavrasChaves />
         <ButtonParecer campo={CampoConsideracaoEnum.palavrasChaves} />
       </CollapsePanelSME>
+
+      {revalidacao && (
+        <CollapsePanelSME
+          panelProps={{ header: 'Justificativa da revalidação', key: 'justificativaRevalidacao' }}
+          collapseProps={{ defaultActiveKey: 'justificativaRevalidacao' }}
+          exibirTooltip={true}
+          titleToolTip={'O que se pretende com a reapresentação da ação formativa?'}
+        >
+          <EditorTexto
+            nome='justificativaRevalidacao'
+            mensagemErro={JUSTIFICATIVA_REVALIDACAO_NAO_INFORMADA}
+            disabled={desabilitarCampos}
+            formItemProps={{ style: { marginBottom: 0 }, preserve: false }}
+          />
+        </CollapsePanelSME>
+      )}
     </>
   );
 };
