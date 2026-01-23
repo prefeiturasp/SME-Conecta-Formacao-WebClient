@@ -8,13 +8,23 @@ import { CF_SELECT_REVALIDACAO } from '~/core/constants/ids/select';
 type SelectRevalidacaoProps = {
   selectProps?: SelectProps;
   formItemProps?: FormItemProps;
+  onRevalidacaoChange?: (value: boolean) => void;
 };
 
-const SelectRevalidacao: React.FC<SelectRevalidacaoProps> = ({ selectProps, formItemProps }) => {
+const SelectRevalidacao: React.FC<SelectRevalidacaoProps> = ({
+  selectProps,
+  formItemProps,
+  onRevalidacaoChange,
+}) => {
   const options: DefaultOptionType[] = [
     { label: 'Sim', value: 'true' },
     { label: 'Não', value: 'false' },
   ];
+
+  const handleChange = (value: string) => {
+    onRevalidacaoChange?.(value === 'true');
+    selectProps?.onChange?.(value, options);
+  };
 
   return (
     <Form.Item
@@ -25,6 +35,7 @@ const SelectRevalidacao: React.FC<SelectRevalidacaoProps> = ({ selectProps, form
     >
       <Select
         {...selectProps}
+        onChange={handleChange}
         options={options}
         placeholder='Revalidação'
         id={CF_SELECT_REVALIDACAO}

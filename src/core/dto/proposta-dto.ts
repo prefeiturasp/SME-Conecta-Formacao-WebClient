@@ -74,6 +74,8 @@ export type PropostaDTO = {
   ultimaJustificativaAprovacaoRecusa?: string;
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
+  revalidacao?: boolean;
+  justificativaRevalidacao?: string;
   numeroHomologacao?: number | null;
   pareceristas?: PropostaPareceristaDTO[];
   podeEnviarConsideracoes?: boolean;
@@ -156,6 +158,8 @@ export type PropostaFormDTO = {
   totalDeConsideracoes?: TotalDeConsideracoes[];
   linkParaInscricoesExterna?: string;
   codigoEventoSigpec?: number;
+  revalidacao?: string;
+  justificativaRevalidacao?: string;
   numeroHomologacao?: number | null;
   qtdeLimitePareceristaProposta?: number;
   podeEnviar?: boolean;
