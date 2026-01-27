@@ -12,6 +12,7 @@ import {
   Table,
   Tooltip,
 } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
@@ -172,8 +173,17 @@ const ListaPresencaCodaf: React.FC = () => {
         {
           key: 'exportar-lista-inscritos',
           disabled: isDisabled,
-          label: (
-            <Tooltip title={getTooltipMessage()}>
+          label: isDisabled ? (
+            <span style={{ display: 'block' }}>
+              Gerar TXT EOL &nbsp;
+              <Tooltip title={getTooltipMessage()}>
+                <QuestionCircleOutlined
+                  style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
+                />
+              </Tooltip>
+            </span>
+          ) : (
+            <Tooltip title='Clique para gerar TXT EOL'>
               <span style={{ display: 'block' }}>Gerar TXT EOL</span>
             </Tooltip>
           ),
