@@ -39,6 +39,7 @@ import {
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
+  baixarRelatorioCodaf,
   CodafListaPresencaDTO,
   obterListaPresencaCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
@@ -105,20 +106,89 @@ const ListaPresencaCodaf: React.FC = () => {
     });
   };
 
-  const getMenuAcoes = (record: CodafListaPresencaDTO): MenuProps => ({
-    items: [
-      {
-        key: '.TXT EOL',
-        label: '.TXT EOL',
-        onClick: () => console.log('Visualizar', record),
-      },
-      {
-        key: 'CODAF',
-        label: 'CODAF',
-        onClick: () => console.log('Editar', record),
-      },
-    ],
-  });
+  const downloadTxtFile = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const onClickExportarListaInscritos = async (record: CodafListaPresencaDTO) => {
+    try {
+      const response = await baixarRelatorioCodaf(record.id);
+      if (response.sucesso && response.dados) {
+        const filename = `HOM${record.numeroHomologacao}${record.id}.txt`;
+        downloadTxtFile(response.dados, filename);
+        notification.success({
+          message: 'Sucesso',
+          description: `O arquivo ${filename} foi gerado com sucesso!`,
+        });
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao exportar lista de inscritos',
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao exportar lista de inscritos',
+      });
+    }
+  };
+
+  const onClickBaixarRelatorioCodaf = (record: CodafListaPresencaDTO) => {
+    console.log('Baixar relatório CODAF:', record);
+    notification.info({
+      message: 'Relatório CODAF',
+      description: 'Funcionalidade em desenvolvimento',
+    });
+  };
+
+  const getMenuAcoes = (record: CodafListaPresencaDTO): MenuProps => {
+    const hasCodigoCursoEol = record.codigoCursoEol !== null && record.codigoCursoEol !== undefined;
+    const hasCodigoNivel = record.codigoNivel !== null && record.codigoNivel !== undefined;
+    const isDisabled = !hasCodigoCursoEol || !hasCodigoNivel;
+
+    return {
+      items: [
+        {
+          key: 'exportar-lista-inscritos',
+          disabled: isDisabled,
+          label: (
+            <Tooltip
+              title={
+                isDisabled
+                  ? 'Informe o valor de Cód. Curso EOL e Cód. Nível para gerar arquivo'
+                  : 'Clique para gerar TXT EOL'
+              }
+            >
+              <span style={{ display: 'block' }}>TXT EOL</span>
+            </Tooltip>
+          ),
+          onClick: (e) => {
+            e.domEvent.stopPropagation();
+            if (!isDisabled) {
+              onClickExportarListaInscritos(record);
+            }
+          },
+        },
+        {
+          key: 'baixar-relatorio-codaf',
+          label: 'Baixar Relatório CODAF',
+          onClick: (e) => {
+            e.domEvent.stopPropagation();
+            onClickBaixarRelatorioCodaf(record);
+          },
+        },
+      ],
+    };
+  };
 
   const obterSituacaoTexto = (status: number): string => {
     const situacao = situacoes.find((s) => s.id === status);
@@ -212,7 +282,24 @@ const ListaPresencaCodaf: React.FC = () => {
       width: 80,
       align: 'center',
       render: (_: any, record: CodafListaPresencaDTO) => (
-        <Dropdown menu={getMenuAcoes(record)} trigger={['click']} placement='bottomRight'>
+        <Dropdown
+          menu={getMenuAcoes(record)}
+          trigger={['click']}
+          placement='bottomRight'
+          dropdownRender={(menu) => (
+            <div
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: 4,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+              }}
+            >
+              {React.cloneElement(menu as React.ReactElement, {
+                style: { boxShadow: 'none' },
+              })}
+            </div>
+          )}
+        >
           <Button
             type='default'
             icon={<BsThreeDotsVertical />}
@@ -220,6 +307,7 @@ const ListaPresencaCodaf: React.FC = () => {
               borderColor: '#ff6b35',
               color: '#ff6b35',
             }}
+            onClick={(e) => e.stopPropagation()}
           />
         </Dropdown>
       ),
@@ -602,6 +690,16 @@ const ListaPresencaCodaf: React.FC = () => {
                   .table-pagination-center .ant-pagination {
                     display: flex;
                     justify-content: center;
+                  }
+                  .table-pagination-center .ant-dropdown-menu {
+                    background-color: #FFFFFF;
+                  }
+                  .table-pagination-center .ant-dropdown-menu-item {
+                    color: #42474A;
+                  }
+                  .table-pagination-center .ant-dropdown-menu-item:hover {
+                    background-color: #f5f5f5;
+                    color: #42474A;
                   }
                 `}</style>
               </Col>

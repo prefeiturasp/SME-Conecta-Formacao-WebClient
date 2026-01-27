@@ -25,6 +25,8 @@ export type CodafListaPresencaDTO = {
   nomeAreaPromotora: string;
   status: number;
   statusCertificacaoTurma: number;
+  codigoCursoEol: number | null;
+  codigoNivel: number | null;
 };
 
 export type CodafListaPresencaRetornoDTO = {
@@ -255,4 +257,11 @@ export const excluirCodafListaPresenca = (
   codafListaPresencaId: number,
 ): Promise<ApiResult<any>> => {
   return deletarRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}`);
+};
+
+export const baixarRelatorioCodaf = (codafListaPresencaId: number): Promise<ApiResult<string>> => {
+  return inserirRegistro(
+    `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/gerar-remessa-conclusao`,
+    {},
+  );
 };
