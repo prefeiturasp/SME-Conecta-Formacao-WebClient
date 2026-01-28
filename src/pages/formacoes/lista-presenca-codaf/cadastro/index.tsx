@@ -135,7 +135,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     const todosPreenchidos = ehAreaPromotora
       ? camposBasicosPreenchidos
-      : camposBasicosPreenchidos && codigoCursoEol && codigoNivel;
+      : camposBasicosPreenchidos && codigoCursoEol;
 
     setFormValido(!!todosPreenchidos);
   }, [
@@ -898,7 +898,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       if (!dataPublicacao) camposVazios.push('Data de publicação');
       if (!dataPublicacaoDiarioOficial) camposVazios.push('Data de publicação no Diário Oficial');
       if (!ehAreaPromotora && !codigoCursoEol) camposVazios.push('Código do curso no EOL');
-      if (!ehAreaPromotora && !codigoNivel) camposVazios.push('Código do nível');
 
       notification.warning({
         message: 'Atenção',
