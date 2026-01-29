@@ -154,9 +154,8 @@ const ListaPresencaCodaf: React.FC = () => {
 
   const getMenuAcoes = (record: CodafListaPresencaDTO): MenuProps => {
     const hasCodigoCursoEol = record.codigoCursoEol !== null && record.codigoCursoEol !== undefined;
-    const hasCodigoNivel = record.codigoNivel !== null && record.codigoNivel !== undefined;
     const isStatusAguardandoDF = record.status === 2;
-    const isDisabledByEol = !hasCodigoCursoEol || !hasCodigoNivel;
+    const isDisabledByEol = !hasCodigoCursoEol;
     const isDisabled = isDisabledByEol || !isStatusAguardandoDF;
 
     const getTooltipMessage = () => {
@@ -164,7 +163,7 @@ const ListaPresencaCodaf: React.FC = () => {
         return 'Função ativa apenas para a situação Aguardando DF com valor de Cod. Curso EOL informado';
       }
       if (isDisabledByEol) {
-        return 'Informe o valor de Cód. Curso EOL e Cód. Nível para gerar arquivo';
+        return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
       }
       return 'Clique para gerar TXT EOL';
     };
