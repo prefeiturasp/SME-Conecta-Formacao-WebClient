@@ -12,6 +12,7 @@ import { PermissaoPorMenuDTO } from '~/core/dto/permissao-por-menu-dto';
 import { RolesDTO } from '~/core/dto/roles-menu-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { PermissaoEnum } from '~/core/enum/permissao-enum';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { setPermissaoPorMenu, setRoles } from '~/core/redux/modules/roles/actions';
 
 export const verificaSomenteConsulta = (permissao: PermissaoMenusAcoesDTO): boolean => {
@@ -32,7 +33,9 @@ const menuTemPermissao = (permissao: PermissaoMenusAcoesDTO) =>
     permissao.podeIncluir
   );
 
-const carregarMenusEPermissao = (roles: RolesDTO['roles']) => {
+const carregarMenusEPermissao = (roles: RolesDTO['roles'], perfilNome?: string) => {
+  const ehCursista = perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
+
   if (menus?.length) {
     const permissaoMenus: PermissaoPorMenuDTO[] = [];
 
@@ -57,8 +60,12 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles']) => {
 
           switch (subMenu.key) {
             case MenuEnum.MeusDados:
-            case MenuEnum.Certificados:
               permissaoMenus[subMenu.key] = permissaoMenu;
+              break;
+            case MenuEnum.Certificados:
+              if (ehCursista) {
+                permissaoMenus[subMenu.key] = permissaoMenu;
+              }
               break;
             default:
               if (subMenu.roles) {
@@ -111,7 +118,7 @@ export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
   }
 
   store.dispatch(setRoles(roles));
-  carregarMenusEPermissao(roles);
+  carregarMenusEPermissao(roles, perfilSelecionado?.perfilNome);
 };
 
 export const obterPermissaoPorMenu = (menuEnum: MenuEnum) =>

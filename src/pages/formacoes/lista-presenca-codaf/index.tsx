@@ -273,6 +273,7 @@ const ListaPresencaCodaf: React.FC = () => {
     const gerado = wasGenerated(record.id);
     const emitido = wasEmitido(record.id);
     const status = record.statusCertificacaoTurma;
+    console.log(loading);
 
     if (status === 0 || status === 1) {
       return { text: 'Sem certificado', disabled: true };
