@@ -43,6 +43,7 @@ import {
   baixarRelatorioCodaf,
   CodafListaPresencaDTO,
   obterListaPresencaCodaf,
+  emitirCertificadosCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -73,6 +74,7 @@ const ListaPresencaCodaf: React.FC = () => {
   );
   const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
+  const [, forceUpdate] = useState(0);
 
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
@@ -84,6 +86,41 @@ const ListaPresencaCodaf: React.FC = () => {
     { id: 3, descricao: 'Devolvido pelo DF' },
     { id: 4, descricao: 'Finalizado' },
   ];
+
+  const LOCAL_STORAGE_KEY = 'codaf_emitir_certificados_clicked';
+
+  const getEmitidos = (): number[] => {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  };
+
+  const saveEmitido = (id: number) => {
+    const emitidos = getEmitidos();
+    if (!emitidos.includes(id)) {
+      emitidos.push(id);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(emitidos));
+    }
+  };
+
+  const wasEmitido = (id: number): boolean => {
+    return getEmitidos().includes(id);
+  };
+
+  const EOL_STORAGE_KEY = 'eol_txt_generated';
+
+  const getGeneratedMap = (): Record<number, boolean> => {
+    return JSON.parse(localStorage.getItem(EOL_STORAGE_KEY) || '{}');
+  };
+
+  const setGenerated = (id: number) => {
+    const map = getGeneratedMap();
+    map[id] = true;
+    localStorage.setItem(EOL_STORAGE_KEY, JSON.stringify(map));
+  };
+
+  const wasGenerated = (id: number): boolean => {
+    return !!getGeneratedMap()[id];
+  };
 
   const onClickNovo = () => {
     setModalVisible(true);
@@ -99,12 +136,36 @@ const ListaPresencaCodaf: React.FC = () => {
     navigate(ROUTES.LISTA_PRESENCA_CODAF_NOVO);
   };
 
-  const onClickEmitirCertificado = (record: CodafListaPresencaDTO) => {
-    console.log('Emitir certificado para:', record);
-    notification.success({
-      message: 'Certificado',
-      description: `Emitindo certificado para ${record.nomeFormacao}`,
-    });
+  const onClickEmitirCertificado = async (record: CodafListaPresencaDTO) => {
+    try {
+      setLoading(true);
+
+      // 👇 SAVE immediately so refresh keeps state
+      saveEmitido(record.id);
+
+      const response = await emitirCertificadosCodaf(record.id);
+      forceUpdate((x) => x + 1);
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Certificados emitidos com sucesso!',
+        });
+
+        buscarDados(paginaAtual);
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao emitir certificados',
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao emitir certificados',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const downloadTxtFile = (content: string, filename: string) => {
@@ -126,17 +187,14 @@ const ListaPresencaCodaf: React.FC = () => {
       if (response.sucesso && response.dados) {
         const filename = `HOM${record.numeroHomologacao}${record.id}.txt`;
         downloadTxtFile(response.dados, filename);
+        setGenerated(record.id);
         notification.success({
           message: 'Sucesso',
           description: `O arquivo ${filename} foi gerado com sucesso!`,
         });
-      } else {
-        notification.error({
-          message: 'Erro',
-          description: 'Erro ao exportar lista de inscritos',
-        });
+        setDados((prev) => [...prev]);
       }
-    } catch (error) {
+    } catch {
       notification.error({
         message: 'Erro',
         description: 'Erro ao exportar lista de inscritos',
@@ -211,6 +269,31 @@ const ListaPresencaCodaf: React.FC = () => {
     return situacao?.descricao || 'Desconhecido';
   };
 
+  const getCertificadoButtonState = (record: CodafListaPresencaDTO, loading: boolean) => {
+    const gerado = wasGenerated(record.id);
+    const emitido = wasEmitido(record.id);
+    const status = record.statusCertificacaoTurma;
+    console.log(loading);
+
+    if (status === 0 || status === 1) {
+      return { text: 'Sem certificado', disabled: true };
+    }
+
+    if (status === 2 && !gerado) {
+      return { text: 'Não emitidos', disabled: true };
+    }
+
+    if (status === 2 && gerado && emitido) {
+      return { text: 'Emitindo certificado', disabled: true };
+    }
+
+    if (status === 2 && gerado) {
+      return { text: 'Emitir certificados', disabled: false };
+    }
+
+    return { text: '—', disabled: true };
+  };
+
   const colunasBase: ColumnsType<CodafListaPresencaDTO> = [
     {
       key: 'codigoFormacao',
@@ -276,22 +359,34 @@ const ListaPresencaCodaf: React.FC = () => {
     {
       key: 'certificado',
       title: 'Certificado',
-      width: 150,
-      render: (_: any, record: CodafListaPresencaDTO) => (
-        <Button
-          type='default'
-          icon={<FiPrinter />}
-          onClick={() => onClickEmitirCertificado(record)}
-          style={{
-            borderColor: '#ff6b35',
-            color: '#ff6b35',
-            fontWeight: 500,
-          }}
-        >
-          Emitir certificados
-        </Button>
-      ),
+      width: 200,
+      render: (_: any, record: CodafListaPresencaDTO) => {
+        const { text, disabled } = getCertificadoButtonState(record, loading);
+
+        return (
+          <Button
+            type='default'
+            icon={<FiPrinter />}
+            loading={loading && text === 'Estamos emitindo certificado'}
+            disabled={disabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClickEmitirCertificado(record);
+            }}
+            style={{
+              width: 190,
+              borderColor: !disabled ? '#ff6b35' : '#ccc',
+              color: !disabled ? '#ff6b35' : '#999',
+              fontWeight: 500,
+              cursor: disabled ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {text}
+          </Button>
+        );
+      },
     },
+
     {
       key: 'acoes',
       title: 'Ações',

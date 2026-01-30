@@ -3,6 +3,7 @@ import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegi
 import api from './api';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
+export const URL_API_CERTIFICADO = 'v1/CodafCertificado';
 
 export type CodafListaPresencaFiltroDTO = {
   NomeFormacao?: string | null;
@@ -264,4 +265,72 @@ export const baixarRelatorioCodaf = (codafListaPresencaId: number): Promise<ApiR
     `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/gerar-remessa-conclusao`,
     {},
   );
+};
+
+export const emitirCertificadosCodaf = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
+  return inserirRegistro(`v1/CodafCertificado/${codafListaPresencaId}/emitir-certificados`, {});
+};
+
+export type CertificadoUsuarioFiltroDTO = {
+  NumeroHomologacao?: number;
+  NomeFormacao?: string;
+  CodigoCertificado?: number;
+  TipoParticipacao?: number;
+  DataEmissaoInicio?: string;
+  DataEmissaoFim?: string;
+  NumeroPagina?: number;
+  NumeroRegistros?: number;
+};
+
+export type CertificadoUsuarioDTO = {
+  id: number;
+  numeroHomologacao: number;
+  nomeFormacao: string;
+  codigoCertificado: number;
+  temRf: boolean;
+  tipoParticipacao: number;
+  dataEmissao: string;
+};
+
+export type CertificadoUsuarioRetornoDTO = {
+  items: CertificadoUsuarioDTO[];
+  totalPaginas: number;
+  totalRegistros: number;
+};
+
+export const obterCertificadosUsuario = (
+  filtros: CertificadoUsuarioFiltroDTO,
+): Promise<ApiResult<CertificadoUsuarioRetornoDTO>> => {
+  const params: any = {
+    NumeroPagina: filtros.NumeroPagina || 1,
+    NumeroRegistros: filtros.NumeroRegistros || 10,
+  };
+
+  if (filtros.NumeroHomologacao) params.NumeroHomologacao = filtros.NumeroHomologacao;
+
+  if (filtros.NomeFormacao) params.NomeFormacao = filtros.NomeFormacao;
+
+  if (filtros.CodigoCertificado) params.CodigoCertificado = filtros.CodigoCertificado;
+
+  if (filtros.TipoParticipacao) params.TipoParticipacao = filtros.TipoParticipacao;
+
+  if (filtros.DataEmissaoInicio) params.DataEmissaoInicio = filtros.DataEmissaoInicio;
+
+  if (filtros.DataEmissaoFim) params.DataEmissaoFim = filtros.DataEmissaoFim;
+
+  return obterRegistro(`${URL_API_CERTIFICADO}/certificados-usuario`, { params });
+};
+
+export type CertificadoDownloadDTO = {
+  id: number;
+  codigoCertificado: number;
+  urlDownload: string;
+  nomeCompleto: string;
+  nomeFormacao: string;
+};
+
+export const downloadCertificado = (
+  certificadoCodafId: number,
+): Promise<ApiResult<CertificadoDownloadDTO>> => {
+  return obterRegistro(`${URL_API_CERTIFICADO}/${certificadoCodafId}/download`);
 };
