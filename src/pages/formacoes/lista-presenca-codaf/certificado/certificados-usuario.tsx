@@ -31,9 +31,9 @@ const MeusCertificados: React.FC = () => {
   const mapTipoParticipacao = (tipo: number) => {
     switch (tipo) {
       case 1:
-        return 'Participação';
+        return 'Cursista';
       case 2:
-        return 'Conclusão';
+        return 'Regente';
       default:
         return '—';
     }
@@ -67,6 +67,7 @@ const MeusCertificados: React.FC = () => {
     {
       title: 'Código do certificado',
       dataIndex: 'codigoCertificado',
+      render: (v: number) => String(v).padStart(5, '0'),
     },
     {
       title: 'Nome da formação',
@@ -200,8 +201,8 @@ const MeusCertificados: React.FC = () => {
                 <Select
                   allowClear
                   options={[
-                    { label: 'Participação', value: 1 },
-                    { label: 'Conclusão', value: 2 },
+                    { label: 'Cursista', value: 1 },
+                    { label: 'Regente', value: 2 },
                   ]}
                 />
               </Form.Item>
