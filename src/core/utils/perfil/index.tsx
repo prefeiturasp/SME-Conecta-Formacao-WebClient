@@ -57,6 +57,7 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles']) => {
 
           switch (subMenu.key) {
             case MenuEnum.MeusDados:
+            case MenuEnum.Certificados:
               permissaoMenus[subMenu.key] = permissaoMenu;
               break;
             default:

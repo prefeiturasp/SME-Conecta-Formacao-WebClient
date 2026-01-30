@@ -37,6 +37,7 @@ import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
+import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -84,6 +85,7 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={<MeusDadosProvider />} />
+                <Route path={ROUTES.CERTIFICADOS} element={<MeusCertificados />} />
                 <Route path={ROUTES.INSCRICAO_CURSISTA} element={<Inscricao />} />
                 <Route path={ROUTES.NOTIFICACOES} element={<Notificacoes />} />
                 <Route path={ROUTES.NOTIFICACOES_DETALHES} element={<NotificacoesDetalhes />} />

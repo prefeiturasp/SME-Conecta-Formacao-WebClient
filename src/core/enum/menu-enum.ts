@@ -8,4 +8,5 @@ export enum MenuEnum {
   Inscricoes,
   RedeParceria,
   ListaPresencaCodaf,
+  Certificados,
 }

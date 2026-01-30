@@ -5,6 +5,7 @@ import { PermissaoEnum } from '~/core/enum/permissao-enum';
 import { MENU_CADASTRO } from './lista-menus/menu-cadastros';
 import { MENU_FORMACOES } from './lista-menus/menu-formacoes';
 import { MENU_MEUS_DADOS } from './lista-menus/menu-meus-dados';
+import { MENU_MEUS_CERTIFICADOS } from './lista-menus/meus-certificados';
 
 export interface RolesMenu {
   podeConsultar: PermissaoEnum;
@@ -20,4 +21,9 @@ export interface MenuItemConectaProps extends MenuItemSMEProps {
   children?: MenuItemConectaProps[];
 }
 
-export const menus: MenuItemConectaProps[] = [MENU_MEUS_DADOS, MENU_CADASTRO, MENU_FORMACOES];
+export const menus: MenuItemConectaProps[] = [
+  MENU_MEUS_DADOS,
+  MENU_MEUS_CERTIFICADOS,
+  MENU_CADASTRO,
+  MENU_FORMACOES,
+];
