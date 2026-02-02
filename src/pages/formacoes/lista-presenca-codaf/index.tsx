@@ -285,7 +285,7 @@ const ListaPresencaCodaf: React.FC = () => {
     }
 
     if (status === 3) {
-      return { text: 'Certificados em processamento', disabled: true };
+      return { text: 'Emitindo certificado', disabled: true };
     }
 
     if (status === 2 && gerado) {
