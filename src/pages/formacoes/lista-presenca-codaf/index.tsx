@@ -272,7 +272,7 @@ const ListaPresencaCodaf: React.FC = () => {
   const getCertificadoButtonState = (record: CodafListaPresencaDTO, loading: boolean) => {
     const gerado = wasGenerated(record.id);
     const emitido = wasEmitido(record.id);
-    console.log(emitido)
+    console.log(emitido);
     const status = record.statusCertificacaoTurma;
     console.log(loading);
 
