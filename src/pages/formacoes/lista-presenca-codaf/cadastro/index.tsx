@@ -98,6 +98,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
 
+  const situacoes = [
+    { id: 1, descricao: 'Iniciado' },
+    { id: 2, descricao: 'Aguardando DF' },
+    { id: 3, descricao: 'Devolvido pelo DF' },
+    { id: 4, descricao: 'Finalizado' },
+  ];
+
   const modoEdicao = !!id;
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
@@ -1190,9 +1197,34 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
           <Row gutter={[16, 8]}>
             <Col span={24}>
-              <div style={{ paddingBottom: '24px' }}>
-                Aqui você cria um novo CODAF. Preencha todas as informações antes de enviar a
-                aprovação da Divisão de Formação (DF).
+              <div
+                style={{
+                  paddingBottom: '24px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  Aqui você cria um novo CODAF. Preencha todas as informações antes de enviar a
+                  aprovação da Divisão de Formação (DF).
+                </div>
+                {modoEdicao && status !== null && (
+                  <div
+                    style={{
+                      backgroundColor: '#FF9A52',
+                      color: '#fff',
+                      borderRadius: 50,
+                      padding: '4px 16px',
+                      fontWeight: 700,
+                      fontSize: 14,
+                      whiteSpace: 'nowrap',
+                      marginLeft: 16,
+                    }}
+                  >
+                    <b>Situação:</b> {situacoes.find((s) => s.id === status)?.descricao || 'Desconhecido'}
+                  </div>
+                )}
               </div>
             </Col>
           </Row>

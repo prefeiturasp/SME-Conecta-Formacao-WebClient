@@ -169,7 +169,7 @@ const ListaPresencaCodaf: React.FC = () => {
   };
 
   const downloadTxtFile = (content: string, filename: string) => {
-    const formattedContent = content.replace(/\|/g, ' | ');
+    const formattedContent = content.replace(/\|00\|HOM/g, '||HOM');
     const blob = new Blob([formattedContent], { type: 'text/plain;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -192,7 +192,7 @@ const ListaPresencaCodaf: React.FC = () => {
           message: 'Sucesso',
           description: `O arquivo ${filename} foi gerado com sucesso!`,
         });
-        setDados((prev) => [...prev]);
+        buscarDados(paginaAtual);
       }
     } catch {
       notification.error({
@@ -272,24 +272,24 @@ const ListaPresencaCodaf: React.FC = () => {
   const getCertificadoButtonState = (record: CodafListaPresencaDTO, loading: boolean) => {
     const gerado = wasGenerated(record.id);
     const emitido = wasEmitido(record.id);
-    console.log(emitido);
+    console.log(emitido, gerado);
     const status = record.statusCertificacaoTurma;
     console.log(loading);
 
-    if (status === 0 || status === 1) {
+    if (status === 0) {
       return { text: 'Sem certificado', disabled: true };
     }
 
-    if (status === 2 && !gerado) {
+    if (status === 1) {
       return { text: 'Não emitidos', disabled: true };
+    }
+
+    if (status === 2) {
+      return { text: 'Emitir certificados', disabled: false };
     }
 
     if (status === 3) {
       return { text: 'Emitindo certificado', disabled: true };
-    }
-
-    if (status === 2 && gerado) {
-      return { text: 'Emitir certificados', disabled: false };
     }
 
     if (status === 4) {
@@ -363,7 +363,14 @@ const ListaPresencaCodaf: React.FC = () => {
   const colunasAdicionais: ColumnsType<CodafListaPresencaDTO> = [
     {
       key: 'certificado',
-      title: 'Certificado',
+      title: (
+        <span>
+          Certificado{' '}
+          <Tooltip title='Ao emitir certificado, a conclusão do curso é gerada tanto para cursistas quanto para regentes.'>
+            <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
+          </Tooltip>
+        </span>
+      ),
       width: 200,
       render: (_: any, record: CodafListaPresencaDTO) => {
         const { text, disabled } = getCertificadoButtonState(record, loading);
