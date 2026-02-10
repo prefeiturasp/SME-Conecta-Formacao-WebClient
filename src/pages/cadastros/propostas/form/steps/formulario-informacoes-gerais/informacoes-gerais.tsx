@@ -14,6 +14,7 @@ import SelectModalidade from '~/components/main/input/modalidades';
 import RadioSimNao from '~/components/main/input/profissional-rede-municipal';
 import SelectTipoInscricao from '~/components/main/input/tipo-Inscricao';
 import RadioTipoFormacao from '~/components/main/input/tipo-formacao';
+import SelectRevalidacao from '~/components/main/input/revalidacao';
 import SelectVagasRemanescentes from '~/components/main/input/vagas-remanescentes';
 import InputNumero from '~/components/main/numero';
 import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
@@ -52,6 +53,7 @@ type FormInformacoesGeraisProps = {
   tipoInstituicao?: AreaPromotoraTipoEnum;
   existePublicoAlvo: boolean;
   existeFuncaoEspecifica: boolean;
+  setExibirJustificativaRevalidacao: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
@@ -60,6 +62,7 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
   formInitialValues,
   existePublicoAlvo,
   existeFuncaoEspecifica,
+  setExibirJustificativaRevalidacao,
 }) => {
   const form = Form.useFormInstance();
 
@@ -161,7 +164,12 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
         <></>
       )}
 
-      <Col xs={24} sm={12} md={14} lg={10}>
+      <Col
+        xs={24}
+        sm={12}
+        md={tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? 7 : 10}
+        lg={tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? 5 : 7}
+      >
         <ButtonParecer campo={CampoConsideracaoEnum.codigoEventoSigpec}>
           <Form.Item
             key='codigoEventoSigpec'
@@ -177,6 +185,18 @@ const FormInformacoesGerais: React.FC<FormInformacoesGeraisProps> = ({
             />
           </Form.Item>
         </ButtonParecer>
+      </Col>
+
+      <Col
+        xs={24}
+        sm={12}
+        md={tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? 7 : 10}
+        lg={tipoInstituicao === AreaPromotoraTipoEnum.RedeDireta ? 5 : 7}
+      >
+        <SelectRevalidacao
+          onRevalidacaoChange={setExibirJustificativaRevalidacao}
+          formItemProps={{ rules: [{ required: true, message: 'É necessário informar a revalidação' }] }}
+        />
       </Col>
 
       {exibirLinkExterno ? (

@@ -97,6 +97,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const rfResponsavelDfWatch = Form.useWatch('rfResponsavelDf', form);
 
   const [openModalErros, setOpenModalErros] = useState(false);
+  const [exibirJustificativaRevalidacao, setExibirJustificativaRevalidacao] = useState(false);
   const [existePublicoAlvo, setExistePublicoAlvo] = useState(false);
   const [existeFuncaoEspecifica, setFuncaoEspecifica] = useState(false);
   const [recarregarTurmas, setRecarregarTurmas] = useState(false);
@@ -252,6 +253,11 @@ export const FormCadastroDePropostas: React.FC = () => {
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
   }, [formInitialValues, desabilitarCampos]);
+
+  useEffect(() => {
+    const revalidacao = formInitialValues?.revalidacao;
+    setExibirJustificativaRevalidacao(revalidacao === 'true');
+  }, [formInitialValues?.revalidacao]);
 
   const carregarValoresDefault = async () => {
     setLoading(true);
@@ -425,6 +431,8 @@ export const FormCadastroDePropostas: React.FC = () => {
 
       const quantidadeTurmasOriginal = dados?.quantidadeTurmas;
       const desativarAnoEhComponente = dados?.desativarAnoEhComponente;
+      const revalidacaoString =
+        dados?.revalidacao === true ? 'true' : dados?.revalidacao === false ? 'false' : undefined;
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
@@ -445,9 +453,11 @@ export const FormCadastroDePropostas: React.FC = () => {
         quantidadeTurmasOriginal,
         desativarAnoEhComponente,
         pareceristas,
+        revalidacao: revalidacaoString,
       };
 
       setListaDres(listaDres);
+      setExibirJustificativaRevalidacao(dados?.revalidacao === true);
       setFormInitialValues({ ...valoresIniciais });
     }
     setLoading(false);
@@ -565,6 +575,8 @@ export const FormCadastroDePropostas: React.FC = () => {
       ultimaJustificativaDevolucao: clonedValues?.ultimaJustificativaDevolucao,
       linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
       codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
+      revalidacao: clonedValues?.revalidacao === 'true',
+      justificativaRevalidacao: clonedValues?.revalidacao === 'true' ? clonedValues?.justificativaRevalidacao : undefined,
       numeroHomologacao: clonedValues?.numeroHomologacao || null,
       pareceristas: [],
     };
@@ -773,10 +785,11 @@ export const FormCadastroDePropostas: React.FC = () => {
             existePublicoAlvo={existePublicoAlvo}
             existeFuncaoEspecifica={existeFuncaoEspecifica}
             tipoInstituicao={tipoInstituicao}
+            setExibirJustificativaRevalidacao={setExibirJustificativaRevalidacao}
           />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Detalhamento !== stepSelecionado}>
-          <FormularioDetalhamento />
+          <FormularioDetalhamento revalidacao={exibirJustificativaRevalidacao} />
         </Form.Item>
         <Form.Item hidden={StepPropostaEnum.Datas !== stepSelecionado}>
           <FormularioDatas recarregarTurmas={recarregarTurmas} />
