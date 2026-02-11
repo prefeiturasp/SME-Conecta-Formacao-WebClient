@@ -267,6 +267,12 @@ export const baixarRelatorioCodaf = (codafListaPresencaId: number): Promise<ApiR
   );
 };
 
+export const imprimirRelatorioCodaf = (codafId: number) => {
+  return api.get(`${URL_API_CODAF_LISTA_PRESENCA}/${codafId}/imprimir`, {
+    responseType: 'arraybuffer',
+  });
+};
+
 export const emitirCertificadosCodaf = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
   return inserirRegistro(`v1/CodafCertificado/${codafListaPresencaId}/emitir-certificados`, {});
 };
