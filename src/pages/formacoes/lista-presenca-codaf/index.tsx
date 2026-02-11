@@ -44,11 +44,13 @@ import {
   CodafListaPresencaDTO,
   obterListaPresencaCodaf,
   emitirCertificadosCodaf,
+  imprimirRelatorioCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
+import { downloadBlob } from '~/core/utils/functions';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
@@ -148,7 +150,8 @@ const ListaPresencaCodaf: React.FC = () => {
       if (response.sucesso) {
         notification.success({
           message: 'Sucesso',
-          description: 'Certificados emitidos com sucesso!',
+          description:
+            'O certificado está sendo emitido, volte mais tarde para acompanhar a atualização.',
         });
 
         buscarDados(paginaAtual);
@@ -202,12 +205,42 @@ const ListaPresencaCodaf: React.FC = () => {
     }
   };
 
-  const onClickBaixarRelatorioCodaf = (record: CodafListaPresencaDTO) => {
-    console.log('Baixar relatório CODAF:', record);
-    notification.info({
-      message: 'Relatório CODAF',
-      description: 'Funcionalidade em desenvolvimento',
-    });
+  const onClickBaixarRelatorioCodaf = async (record: CodafListaPresencaDTO) => {
+    try {
+      setLoading(true);
+      const response = await imprimirRelatorioCodaf(record.id);
+
+      if (response.status === 200) {
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = `CODAF_${record.numeroHomologacao}_${record.nomeTurma}.xlsx`;
+
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (fileNameMatch && fileNameMatch[1]) {
+            fileName = fileNameMatch[1].replace(/['"]/g, '');
+          }
+        }
+
+        downloadBlob(response.data, fileName);
+
+        notification.success({
+          message: 'Sucesso',
+          description: `O arquivo CODAF para a turma ${record.nomeTurma} foi gerado com sucesso!`,
+        });
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao baixar relatório CODAF',
+        });
+      }
+    } catch {
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao baixar relatório CODAF',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getMenuAcoes = (record: CodafListaPresencaDTO): MenuProps => {
@@ -254,10 +287,25 @@ const ListaPresencaCodaf: React.FC = () => {
         },
         {
           key: 'baixar-relatorio-codaf',
-          label: 'Baixar Relatório CODAF',
+          disabled: record.statusCertificacaoTurma !== 4,
+          label:
+            record.statusCertificacaoTurma !== 4 ? (
+              <span style={{ display: 'block' }}>
+                Baixar Relatório CODAF &nbsp;
+                <Tooltip title='Gere os certificados para baixar o relatório CODAF.'>
+                  <QuestionCircleOutlined
+                    style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
+                  />
+                </Tooltip>
+              </span>
+            ) : (
+              <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
+            ),
           onClick: (e) => {
             e.domEvent.stopPropagation();
-            onClickBaixarRelatorioCodaf(record);
+            if (record.statusCertificacaoTurma === 4) {
+              onClickBaixarRelatorioCodaf(record);
+            }
           },
         },
       ],
