@@ -208,11 +208,11 @@ const ListaPresencaCodaf: React.FC = () => {
   const onClickBaixarRelatorioCodaf = async (record: CodafListaPresencaDTO) => {
     try {
       setLoading(true);
+      let fileName = `CODAF_${record.numeroHomologacao}_${record.nomeTurma.replace(' ', '_')}.xlsx`;
       const response = await imprimirRelatorioCodaf(record.id);
 
       if (response.status === 200) {
         const contentDisposition = response.headers['content-disposition'];
-        let fileName = `CODAF_${record.numeroHomologacao}_${record.nomeTurma}.xlsx`;
 
         if (contentDisposition) {
           const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
@@ -225,18 +225,18 @@ const ListaPresencaCodaf: React.FC = () => {
 
         notification.success({
           message: 'Sucesso',
-          description: `O arquivo CODAF para a turma ${record.nomeTurma} foi gerado com sucesso!`,
+          description: `${fileName}. Arquivo baixado com sucesso`,
         });
       } else {
         notification.error({
           message: 'Erro',
-          description: 'Erro ao baixar relatório CODAF',
+          description: `${fileName}. Não conseguimos gerar o seu arquivo. Tente novamente.`,
         });
       }
     } catch {
       notification.error({
         message: 'Erro',
-        description: 'Erro ao baixar relatório CODAF',
+        description: '${fileName}. Não conseguimos gerar o seu arquivo. Tente novamente.',
       });
     } finally {
       setLoading(false);
