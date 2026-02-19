@@ -52,6 +52,8 @@ export const Inscricao = () => {
   const [abrirModalListaDeEspera, setAbrirModalListaDeEspera] = useState<boolean>(false);
   const [abrirModalInscricaoNaListaDeEspera, setAbrirModalInscricaoNaListaDeEspera] =
     useState<boolean>(false);
+  const [pessoaComDeficiencia, setPessoaComDeficiencia] = useState<string | undefined>(undefined);
+  const [precisaDeAdaptacao, setPrecisaDeAdaptacao] = useState<string | undefined>(undefined);
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
@@ -331,7 +333,72 @@ export const Inscricao = () => {
               <Col xs={24} sm={8}>
                 <SelectTurma propostaId={propostaId} />
               </Col>
+              <Col xs={24} sm={8}>
+                <Form.Item label='Pessoa com deficiência?' name='pessoaComDeficiencia'>
+                  <Select
+                    allowClear
+                    placeholder='Selecione'
+                    options={[
+                      { label: 'Sim', value: 'Sim' },
+                      { label: 'Não', value: 'Não' },
+                    ]}
+                    onChange={(value) => {
+                      setPessoaComDeficiencia(value);
+                      form.setFieldValue('qualDeficiencia', undefined);
+                      setPrecisaDeAdaptacao(undefined);
+                      form.setFieldValue('precisaDeAdaptacao', undefined);
+                      form.setFieldValue('qualTipoAdaptacao', undefined);
+                    }}
+                  />
+                </Form.Item>
+              </Col>
 
+              {pessoaComDeficiencia === 'Sim' && (
+                <>
+                  <Col xs={24} sm={8}>
+                    <Form.Item
+                      label='Qual deficiência?'
+                      name='qualDeficiencia'
+                      rules={[{ required: true }]}
+                    >
+                      <Input placeholder='Informe a deficiência' maxLength={200} />
+                    </Form.Item>
+                  </Col>
+
+                  <Col xs={24} sm={8}>
+                    <Form.Item
+                      label='Precisa de adaptação?'
+                      name='precisaDeAdaptacao'
+                      rules={[{ required: true }]}
+                    >
+                      <Select
+                        allowClear
+                        placeholder='Selecione'
+                        options={[
+                          { label: 'Sim', value: 'Sim' },
+                          { label: 'Não', value: 'Não' },
+                        ]}
+                        onChange={(value) => {
+                          setPrecisaDeAdaptacao(value);
+                          form.setFieldValue('qualTipoAdaptacao', undefined);
+                        }}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  {precisaDeAdaptacao === 'Sim' && (
+                    <Col xs={24} sm={8}>
+                      <Form.Item
+                        label='Qual tipo de adaptação?'
+                        name='qualTipoAdaptacao'
+                        rules={[{ required: true }]}
+                      >
+                        <Input placeholder='Informe o tipo de adaptação' maxLength={200} />
+                      </Form.Item>
+                    </Col>
+                  )}
+                </>
+              )}
               <Col xs={24}>
                 <UploadArquivosConectaFormacao
                   form={form}
