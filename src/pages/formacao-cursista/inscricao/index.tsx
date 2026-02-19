@@ -21,7 +21,7 @@ import { ENVIAR_INSCRICAO, SUA_INSCRICAO_NAO_FOI_ENVIADA } from '~/core/constant
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
   DadosInscricaoCargoEolDTO,
-  DadosInscricaoPropostaDto
+  DadosInscricaoPropostaDto,
 } from '~/core/dto/dados-usuario-inscricao-dto';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { InscricaoDTO } from '~/core/dto/inscricao-dto';
@@ -54,6 +54,7 @@ export const Inscricao = () => {
     useState<boolean>(false);
   const [pessoaComDeficiencia, setPessoaComDeficiencia] = useState<string | undefined>(undefined);
   const [precisaDeAdaptacao, setPrecisaDeAdaptacao] = useState<string | undefined>(undefined);
+  const [abrirModalAcessibilidade, setAbrirModalAcessibilidade] = useState<boolean>(false);
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
@@ -160,9 +161,10 @@ export const Inscricao = () => {
   const enviarInscricaoContinuar = async () => {
     setAbrirModalListaDeEspera(false);
     await enviarInscricao(true);
-  }
+  };
 
-  const enviarInscricao = async (forcarContinuacao = false) => {debugger;
+  const enviarInscricao = async (forcarContinuacao = false) => {
+    debugger;
     if (vagaRemanescente && !forcarContinuacao) {
       setAbrirModalListaDeEspera(true);
       return;
@@ -235,7 +237,13 @@ export const Inscricao = () => {
         form={form}
         layout='vertical'
         autoComplete='off'
-        onFinish={() => enviarInscricao(false)}
+        onFinish={() => {
+          if (pessoaComDeficiencia === 'Sim') {
+            setAbrirModalAcessibilidade(true);
+          } else {
+            enviarInscricao(false);
+          }
+        }}
         initialValues={initialValues}
         validateMessages={validateMessages}
       >
@@ -535,6 +543,75 @@ export const Inscricao = () => {
             </Row>
           </Col>
         </CardContent>
+
+        {abrirModalAcessibilidade && (
+          <Modal
+            open={abrirModalAcessibilidade}
+            title={
+              <span
+                style={{
+                  fontWeight: 800,
+                  fontSize: '20px',
+                  lineHeight: '100%',
+                  letterSpacing: '0%',
+                }}
+              >
+                <br></br>
+                Salvar informações de acessibilidade no seu cadastro?
+                
+              </span>
+              
+            }
+            centered
+            width={670}
+            onCancel={() => setAbrirModalAcessibilidade(false)}
+            styles={{
+              footer: {
+                display: 'flex',
+                gap: '8px',
+                paddingTop: '8px',
+                paddingBottom: '8px',
+              },
+            }}
+            footer={[
+              <Button
+                key='nao-salvar'
+                onClick={() => setAbrirModalAcessibilidade(false)}
+                style={{
+                  flex: 1,
+                  margin: 0,
+                  borderColor: '#ff6b35',
+                  color: '#ff6b35',
+                  fontWeight: 500,
+                }}
+              >
+                Não salvar
+              </Button>,
+              <Button
+                key='salvar'
+                type='primary'
+                onClick={() => {
+                  setAbrirModalAcessibilidade(false);
+                  enviarInscricao(false);
+                }}
+                style={{ flex: 1, margin: 0 }}
+              >
+                Salvar informações
+              </Button>,
+            ]}
+          >
+            <br></br>
+            <p>
+              Você informou necessidades de acessibilidade para esta formação. Deseja salvar essas
+              informações no seu cadastro para usar automaticamente em próximas inscrições?
+            </p>
+            <p>
+              {' '}
+              Você poderá atualizar ou remover essas informações a qualquer momento acessando a aba{' '}
+              <b>&quot;meus dados&quot;</b>.
+            </p>
+          </Modal>
+        )}
 
         {openModal && (
           <ModalInscricao
