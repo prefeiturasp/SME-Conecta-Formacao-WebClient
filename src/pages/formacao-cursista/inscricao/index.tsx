@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Modal, Row, Select, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { cloneDeep } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
@@ -55,6 +55,7 @@ export const Inscricao = () => {
   const [pessoaComDeficiencia, setPessoaComDeficiencia] = useState<string | undefined>(undefined);
   const [precisaDeAdaptacao, setPrecisaDeAdaptacao] = useState<string | undefined>(undefined);
   const [abrirModalAcessibilidade, setAbrirModalAcessibilidade] = useState<boolean>(false);
+  const acessibilidadeValuesRef = useRef<Record<string, unknown> | null>(null);
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
@@ -152,14 +153,16 @@ export const Inscricao = () => {
               ? 'Não'
               : undefined;
 
-          setPessoaComDeficiencia(deficiencia);
-          setPrecisaDeAdaptacao(adaptacao);
-          form.setFieldsValue({
+          const acessibilidadeValues = {
             pessoaComDeficiencia: deficiencia,
             qualDeficiencia: ua.descricaoDeficiencia,
             precisaDeAdaptacao: adaptacao,
             qualTipoAdaptacao: ua.descricaoAdaptacao,
-          });
+          };
+          acessibilidadeValuesRef.current = acessibilidadeValues;
+          setPessoaComDeficiencia(deficiencia);
+          setPrecisaDeAdaptacao(adaptacao);
+          form.setFieldsValue(acessibilidadeValues);
         }
       }
     }
@@ -181,6 +184,9 @@ export const Inscricao = () => {
 
   useEffect(() => {
     form.resetFields();
+    if (acessibilidadeValuesRef.current) {
+      form.setFieldsValue(acessibilidadeValuesRef.current);
+    }
   }, [form, initialValues]);
 
   const enviarInscricaoContinuar = async (salvar: boolean) => {
@@ -279,7 +285,7 @@ export const Inscricao = () => {
         layout='vertical'
         autoComplete='off'
         onFinish={() => {
-          if (pessoaComDeficiencia === 'Sim') {
+          if (pessoaComDeficiencia !== undefined) {
             setAbrirModalAcessibilidade(true);
           } else {
             enviarInscricao(false);
