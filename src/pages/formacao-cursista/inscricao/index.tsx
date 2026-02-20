@@ -24,7 +24,7 @@ import {
   DadosInscricaoPropostaDto,
 } from '~/core/dto/dados-usuario-inscricao-dto';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
-import { InscricaoDTO } from '~/core/dto/inscricao-dto';
+import { InscricaoDTO, UsuarioAcessibilidadeDTO } from '~/core/dto/inscricao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
@@ -136,6 +136,31 @@ export const Inscricao = () => {
           imagemUrl: formacao.dados.imagemUrl,
           linkParaInscricoesExterna: formacao.dados.linkParaInscricoesExterna,
         });
+
+        const ua = formacao.dados.usuarioAcessibilidade;
+        if (ua) {
+          const deficiencia =
+            ua.possuiDeficiencia === true
+              ? 'Sim'
+              : ua.possuiDeficiencia === false
+                ? 'Não'
+                : 'Prefiro não responder';
+          const adaptacao =
+            ua.necessitaAdaptacao === true
+              ? 'Sim'
+              : ua.necessitaAdaptacao === false
+              ? 'Não'
+              : undefined;
+
+          setPessoaComDeficiencia(deficiencia);
+          setPrecisaDeAdaptacao(adaptacao);
+          form.setFieldsValue({
+            pessoaComDeficiencia: deficiencia,
+            qualDeficiencia: ua.descricaoDeficiencia,
+            precisaDeAdaptacao: adaptacao,
+            qualTipoAdaptacao: ua.descricaoAdaptacao,
+          });
+        }
       }
     }
   }, [propostaId, formacaoState?.titulo]);
@@ -158,13 +183,12 @@ export const Inscricao = () => {
     form.resetFields();
   }, [form, initialValues]);
 
-  const enviarInscricaoContinuar = async () => {
+  const enviarInscricaoContinuar = async (salvar: boolean) => {
     setAbrirModalListaDeEspera(false);
-    await enviarInscricao(true);
+    await enviarInscricao(true, salvar);
   };
 
-  const enviarInscricao = async (forcarContinuacao = false) => {
-    debugger;
+  const enviarInscricao = async (forcarContinuacao = false, salvar = false) => {
     if (vagaRemanescente && !forcarContinuacao) {
       setAbrirModalListaDeEspera(true);
       return;
@@ -212,6 +236,23 @@ export const Inscricao = () => {
         valoresSalvar.funcaoUeCodigo = itemFuncoes?.ueCodigo;
         valoresSalvar.tipoVinculo = itemFuncoes?.tipoVinculo;
       }
+    }
+
+    if (pessoaComDeficiencia !== undefined) {
+      const possuiDeficiencia =
+        pessoaComDeficiencia === 'Sim' ? true : pessoaComDeficiencia === 'Não' ? false : null;
+
+      const acessibilidade: UsuarioAcessibilidadeDTO = {
+        possuiDeficiencia,
+        ...(pessoaComDeficiencia === 'Sim' && {
+          descricaoDeficiencia: (clonedValues as any).qualDeficiencia,
+          necessitaAdaptacao: precisaDeAdaptacao === 'Sim',
+          descricaoAdaptacao:
+            precisaDeAdaptacao === 'Sim' ? (clonedValues as any).qualTipoAdaptacao : undefined,
+        }),
+        salvar,
+      };
+      valoresSalvar.usuarioAcessibilidade = acessibilidade;
     }
 
     response = await inserirInscricao(valoresSalvar);
@@ -349,6 +390,7 @@ export const Inscricao = () => {
                     options={[
                       { label: 'Sim', value: 'Sim' },
                       { label: 'Não', value: 'Não' },
+                      { label: 'Prefiro não responder', value: 'Prefiro não responder' },
                     ]}
                     onChange={(value) => {
                       setPessoaComDeficiencia(value);
@@ -442,9 +484,12 @@ export const Inscricao = () => {
                   okText='Realizar inscrição'
                   cancelText='Cancelar'
                   onOk={() => {
-                    enviarInscricaoContinuar();
+                    enviarInscricaoContinuar(true);
                   }}
-                  onCancel={cancelarInscricaoModal}
+                  onCancel={() => {
+                    enviarInscricaoContinuar(false);
+                  }}
+                  /* onCancel={cancelarInscricaoModal} */
                   styles={{
                     header: {
                       paddingTop: '16px',
@@ -576,7 +621,10 @@ export const Inscricao = () => {
             footer={[
               <Button
                 key='nao-salvar'
-                onClick={() => setAbrirModalAcessibilidade(false)}
+                onClick={() => {
+                  setAbrirModalAcessibilidade(false);
+                  enviarInscricao(false, false);
+                }}
                 style={{
                   flex: 1,
                   margin: 0,
@@ -592,7 +640,7 @@ export const Inscricao = () => {
                 type='primary'
                 onClick={() => {
                   setAbrirModalAcessibilidade(false);
-                  enviarInscricao(false);
+                  enviarInscricao(false, true);
                 }}
                 style={{ flex: 1, margin: 0 }}
               >
