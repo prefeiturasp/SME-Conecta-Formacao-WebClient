@@ -151,7 +151,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
         </Col>
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <b>
-            <Form.Item label='Data da publicação' name='dataPublicacao'>
+            <Form.Item label='Data do comunicado' name='dataPublicacao'>
               <DatePicker
                 placeholder='Selecione a data'
                 format='DD/MM/YYYY'
