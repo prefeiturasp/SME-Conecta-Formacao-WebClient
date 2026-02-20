@@ -144,7 +144,7 @@ const MeusDados: React.FC = () => {
 
   return (
     <>
-      <HeaderPage title='Meus dadosxxxx'>
+      <HeaderPage title='Meus dados'>
         <Col span={24}>
           <Row gutter={[8, 8]}>
             <Col>
@@ -294,7 +294,10 @@ const MeusDados: React.FC = () => {
                 </Col>
 
                 <Col xs={24} sm={12}>
-                  <Form.Item label='Pessoa com deficiência?' name='pessoaComDeficiencia'>
+                  <Form.Item
+                    label={<strong>Pessoa com deficiência?</strong>}
+                    name='pessoaComDeficiencia'
+                  >
                     <Select
                       allowClear
                       placeholder='Selecione'
@@ -315,7 +318,7 @@ const MeusDados: React.FC = () => {
                 </Col>
 
                 <Col xs={24} sm={12}>
-                  <Form.Item label='Qual deficiência?' name='qualDeficiencia'>
+                  <Form.Item label={<strong>Qual deficiência?</strong>} name='qualDeficiencia'>
                     <Input
                       placeholder='Informe a deficiência'
                       maxLength={200}
@@ -325,7 +328,10 @@ const MeusDados: React.FC = () => {
                 </Col>
 
                 <Col xs={24} sm={12}>
-                  <Form.Item label='Precisa de adaptação?' name='precisaDeAdaptacao'>
+                  <Form.Item
+                    label={<strong>Precisa de adaptação?</strong>}
+                    name='precisaDeAdaptacao'
+                  >
                     <Select
                       allowClear
                       placeholder='Selecione'
@@ -343,7 +349,10 @@ const MeusDados: React.FC = () => {
                 </Col>
 
                 <Col xs={24} sm={12}>
-                  <Form.Item label='Qual tipo de adaptação?' name='qualTipoAdaptacao'>
+                  <Form.Item
+                    label={<strong>Qual tipo de adaptação?</strong>}
+                    name='qualTipoAdaptacao'
+                  >
                     <Input
                       placeholder='Informe o tipo de adaptação'
                       maxLength={200}
