@@ -129,7 +129,7 @@ const MeusDados: React.FC = () => {
       if (response.sucesso) {
         notification.success({
           message: 'Sucesso',
-          description: 'Acessibilidade salva com sucesso!',
+          description: 'Seus dados foram salvos com sucesso!',
         });
       } else {
         notification.error({
