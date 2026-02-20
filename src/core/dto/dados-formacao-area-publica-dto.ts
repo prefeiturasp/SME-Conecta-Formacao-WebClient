@@ -1,6 +1,15 @@
 import { Modalidade } from '../enum/modalidade';
 import { TipoFormacao } from '../enum/tipo-formacao';
 
+export type UsuarioAcessibilidadeResponseDTO = {
+  usuarioId: number;
+  possuiDeficiencia: boolean | null;
+  descricaoDeficiencia?: string;
+  necessitaAdaptacao?: boolean;
+  descricaoAdaptacao?: string;
+  salvar: boolean;
+};
+
 export type RetornoDetalheFormacaoDTO = {
   titulo?: string;
   areaPromotora?: string;
@@ -16,7 +25,8 @@ export type RetornoDetalheFormacaoDTO = {
   inscricaoEncerrada: boolean;
   imagemUrl?: string;
   turmas: RetornoTurmaDetalheDTO[];
-  linkParaInscricoesExterna?:string;
+  linkParaInscricoesExterna?: string;
+  usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDTO | null;
 };
 export type RetornoTurmaDetalheDTO = {
   nome: string;
