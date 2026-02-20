@@ -56,6 +56,7 @@ export const Inscricao = () => {
   const [precisaDeAdaptacao, setPrecisaDeAdaptacao] = useState<string | undefined>(undefined);
   const [abrirModalAcessibilidade, setAbrirModalAcessibilidade] = useState<boolean>(false);
   const acessibilidadeValuesRef = useRef<Record<string, unknown> | null>(null);
+  const salvarAcessibilidadeRef = useRef<boolean>(false);
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
@@ -189,9 +190,9 @@ export const Inscricao = () => {
     }
   }, [form, initialValues]);
 
-  const enviarInscricaoContinuar = async (salvar: boolean) => {
+  const enviarInscricaoContinuar = async () => {
     setAbrirModalListaDeEspera(false);
-    await enviarInscricao(true, salvar);
+    await enviarInscricao(true, salvarAcessibilidadeRef.current);
   };
 
   const enviarInscricao = async (forcarContinuacao = false, salvar = false) => {
@@ -490,12 +491,9 @@ export const Inscricao = () => {
                   okText='Realizar inscrição'
                   cancelText='Cancelar'
                   onOk={() => {
-                    enviarInscricaoContinuar(true);
+                    enviarInscricaoContinuar();
                   }}
-                  onCancel={() => {
-                    enviarInscricaoContinuar(false);
-                  }}
-                  /* onCancel={cancelarInscricaoModal} */
+                  onCancel={cancelarInscricaoModal}
                   styles={{
                     header: {
                       paddingTop: '16px',
@@ -628,6 +626,7 @@ export const Inscricao = () => {
               <Button
                 key='nao-salvar'
                 onClick={() => {
+                  salvarAcessibilidadeRef.current = false;
                   setAbrirModalAcessibilidade(false);
                   enviarInscricao(false, false);
                 }}
@@ -645,6 +644,7 @@ export const Inscricao = () => {
                 key='salvar'
                 type='primary'
                 onClick={() => {
+                  salvarAcessibilidadeRef.current = true;
                   setAbrirModalAcessibilidade(false);
                   enviarInscricao(false, true);
                 }}
