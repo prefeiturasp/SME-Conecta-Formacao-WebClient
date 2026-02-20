@@ -1,6 +1,6 @@
-import { Button, Row } from 'antd';
+import { Button, Row, Tabs, Form, Input, Select, DatePicker, Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import DataTable from '~/components/lib/card-table';
 import { DataTableContext } from '~/components/lib/card-table/provider';
 import { notification } from '~/components/lib/notification';
@@ -15,6 +15,8 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
 import { URL_INSCRICAO, cancelarInscricao } from '~/core/services/inscricao-service';
 import ModalEditCargoFuncaoButton from '../components/modal-edit-cargo-funcao/modal-edit-cargo-funcao-button';
+
+const { RangePicker } = DatePicker;
 
 export interface InscricaoProps {
   id: number;
@@ -35,6 +37,8 @@ export const MinhasInscricoesListaPaginada = () => {
   const { tableState } = useContext(DataTableContext);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
+  const [abaAtiva, setAbaAtiva] = useState<'andamento' | 'finalizadas'>('andamento');
+
   const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
   const mensagemConfirmacao = (record: InscricaoProps) => {
@@ -48,13 +52,14 @@ export const MinhasInscricoesListaPaginada = () => {
       return DESEJA_CANCELAR_INSCRICAO;
     }
   };
-
+  
+  
   const columns: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao', width: '7%' },
     { title: 'Título da formação', dataIndex: 'nomeFormacao', width: '30%' },
     { title: 'Data/hora da inscrição', dataIndex: 'dataInscricao', width: '8%' },
     { title: 'Turma', dataIndex: 'nomeTurma', width: '12%' },
-    { title: 'Datas', dataIndex: 'datas', width: '10%' },
+    { title: 'Período', dataIndex: 'datas', width: '10%' },
     {
       title: 'Cargo/Função',
       dataIndex: 'cargoFuncao',
@@ -109,15 +114,91 @@ export const MinhasInscricoesListaPaginada = () => {
     },
   ];
 
+
+  const renderFiltros = () => {
+    if (abaAtiva === 'finalizadas') {
+      return (
+        <Form layout="vertical">
+          <Space wrap>
+            <Form.Item label="Nome da formação">
+              <Input />
+            </Form.Item>
+            <Form.Item label="Situação da inscrição">
+              <Select style={{ width: 200 }} />
+            </Form.Item>
+            <Form.Item label="Situação da aprovação">
+              <Select style={{ width: 200 }} />
+            </Form.Item>
+            <Form.Item label="Período da formação">
+              <RangePicker />
+            </Form.Item>
+          </Space>
+        </Form>
+      );
+    }
+
+    return (
+      <Form layout="vertical">
+        <Space wrap>
+          <Form.Item label="Código da formação">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Nome da formação">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Data da inscrição">
+            <DatePicker />
+          </Form.Item>
+          <Form.Item label="Turma">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Período">
+            <RangePicker />
+          </Form.Item>
+
+          {/* Filtro oculto para uso futuro */}
+          <Form.Item name="situacao" hidden>
+            <Select />
+          </Form.Item>
+        </Space>
+      </Form>
+    );
+  };
+
   return (
-    <DataTable
-      url={URL_INSCRICAO}
-      columns={columns}
-      alterarRealizouFiltro={() => {
-        () => {
-          ('');
-        };
-      }}
+    <Tabs
+      activeKey={abaAtiva}
+      onChange={(key) =>
+        setAbaAtiva(key as 'andamento' | 'finalizadas')
+      }
+      items={[
+        {
+          key: 'andamento',
+          label: 'Formações em andamento',
+          children: (
+            <>
+              {renderFiltros()}
+              <DataTable
+                url={`${URL_INSCRICAO}?tipo=andamento`}
+                columns={columns}
+              />
+            </>
+          ),
+        },
+        {
+          key: 'finalizadas',
+          label: 'Formações finalizadas',
+          children: (
+            <>
+              {renderFiltros()}
+              <DataTable
+                url={`${URL_INSCRICAO}?tipo=finalizadas`}
+                columns={columns}
+              />
+            </>
+          ),
+        },
+      ]}
     />
   );
 };
