@@ -33,6 +33,7 @@ import { obterDadosFormacao } from '~/core/services/area-publica-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import SelectFuncaoAtividade from './components/funcao-atividade';
 import { ModalInscricao } from './components/modal';
+import { ModalAcessibilidade } from './components/modal/modal-acessibilidade';
 import SelectTurma from './components/turmas';
 
 export const Inscricao = () => {
@@ -593,79 +594,20 @@ export const Inscricao = () => {
           </Col>
         </CardContent>
 
-        {abrirModalAcessibilidade && (
-          <Modal
-            open={abrirModalAcessibilidade}
-            title={
-              <span
-                style={{
-                  fontWeight: 800,
-                  fontSize: '20px',
-                  lineHeight: '100%',
-                  letterSpacing: '0%',
-                }}
-              >
-                <br></br>
-                Salvar informações de acessibilidade no seu cadastro?
-                
-              </span>
-              
-            }
-            centered
-            width={670}
-            onCancel={() => setAbrirModalAcessibilidade(false)}
-            styles={{
-              footer: {
-                display: 'flex',
-                gap: '8px',
-                paddingTop: '8px',
-                paddingBottom: '8px',
-              },
-            }}
-            footer={[
-              <Button
-                key='nao-salvar'
-                onClick={() => {
-                  salvarAcessibilidadeRef.current = false;
-                  setAbrirModalAcessibilidade(false);
-                  enviarInscricao(false, false);
-                }}
-                style={{
-                  flex: 1,
-                  margin: 0,
-                  borderColor: '#ff6b35',
-                  color: '#ff6b35',
-                  fontWeight: 500,
-                }}
-              >
-                Não salvar
-              </Button>,
-              <Button
-                key='salvar'
-                type='primary'
-                onClick={() => {
-                  salvarAcessibilidadeRef.current = true;
-                  setAbrirModalAcessibilidade(false);
-                  enviarInscricao(false, true);
-                }}
-                style={{ flex: 1, margin: 0 }}
-              >
-                Salvar informações
-              </Button>,
-            ]}
-          >
-            <br></br>
-            <p>
-              Você informou necessidades de acessibilidade para esta formação. Deseja salvar essas
-              informações no seu cadastro para usar automaticamente em próximas inscrições?
-            </p>
-            <p>
-              {' '}
-              Você poderá atualizar ou remover essas informações a qualquer momento acessando a aba{' '}
-              <b>&quot;meus dados&quot;</b>.
-            </p>
-          </Modal>
-        )}
+        <ModalAcessibilidade
+          open={abrirModalAcessibilidade}
+          onCancel={() => setAbrirModalAcessibilidade(false)}
+          onNaoSalvar={() => {
+            salvarAcessibilidadeRef.current = false;
+            setAbrirModalAcessibilidade(false);
+            enviarInscricao(false, false);
+          }}
+          onSalvar={() => {
+            salvarAcessibilidadeRef.current = true;
+            setAbrirModalAcessibilidade(false);
+            enviarInscricao(false, true);
+          }}
+        />
 
         {openModal && (
           <ModalInscricao
