@@ -78,7 +78,7 @@ const MeusDados: React.FC = () => {
         ua.possuiDeficiencia === true
           ? 'Sim'
           : ua.possuiDeficiencia === false
-            ? 'Não'
+          ? 'Não'
           : 'Prefiro não responder';
       const adaptacao =
         ua.necessitaAdaptacao === true
@@ -129,7 +129,7 @@ const MeusDados: React.FC = () => {
       if (response.sucesso) {
         notification.success({
           message: 'Sucesso',
-          description: 'Acessibilidade salva com sucesso!',
+          description: 'Seus dados foram salvos com sucesso!',
         });
       } else {
         notification.error({
@@ -187,6 +187,29 @@ const MeusDados: React.FC = () => {
             <Form form={form} layout='vertical' autoComplete='off'>
               <Row gutter={16}>
                 <Col span={24}>
+                  <p
+                    style={{
+                      fontWeight: 700,
+                      fontStyle: 'Bold',
+                      fontSize: '20px',
+                      lineHeight: '100%',
+                      letterSpacing: '0%',
+                      marginBottom: '16px',
+                      marginTop: '16px',
+                    }}
+                  >
+                    Dados pessoais
+                  </p>
+                </Col>
+
+                <Col span={24}>
+                  <p style={{ marginBottom: '16px' }}>
+                    Mantenha suas informações atualizadas para garantir acesso e comunicação
+                    adequada no sistema.
+                  </p>
+                </Col>
+
+                <Col span={24}>
                   <Row wrap={false} align='middle'>
                     <InputNome
                       inputProps={{ disabled: true }}
@@ -212,16 +235,18 @@ const MeusDados: React.FC = () => {
                 </Col>
                 <Col span={24}>
                   <Row wrap={false} align='middle'>
-                    <SelectTipoEmail 
+                    <SelectTipoEmail
                       selectProps={{ id: CF_SELECT_TIPO_EMAIL, disabled: true }}
                       formItemProps={{
                         style: { width: '100%', marginRight: '8px' },
                         required: false,
                       }}
                     />
-                    {meusDados?.tipo == TipoUsuario.Externo 
-                      ? (<ModalEditTipoEmailEducacionalButton formPreview={form}/>) 
-                      : (<></>)}
+                    {meusDados?.tipo == TipoUsuario.Externo ? (
+                      <ModalEditTipoEmailEducacionalButton formPreview={form} />
+                    ) : (
+                      <></>
+                    )}
                   </Row>
                 </Col>
                 <Col span={24}>
