@@ -112,7 +112,7 @@ const MeusDados: React.FC = () => {
         : undefined;
 
     const payload = {
-      usuarioId: meusDados?.usuarioAcessibilidade?.usuarioId ?? 0,
+      usuarioId: meusDados?.usuarioAcessibilidade?.usuarioId || null,
       possuiDeficiencia: possuiDeficiencia ?? null,
       descricaoDeficiencia: pessoaComDeficiencia === 'Sim' ? values.qualDeficiencia : undefined,
       necessitaAdaptacao: pessoaComDeficiencia === 'Sim' ? precisaDeAdaptacao === 'Sim' : undefined,

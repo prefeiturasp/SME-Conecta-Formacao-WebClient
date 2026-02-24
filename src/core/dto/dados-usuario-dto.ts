@@ -1,5 +1,5 @@
 export type UsuarioAcessibilidadeResponseDTO = {
-  usuarioId?: number;
+  usuarioId?: number | null;
   possuiDeficiencia?: boolean | null;
   descricaoDeficiencia?: string;
   necessitaAdaptacao?: boolean;
