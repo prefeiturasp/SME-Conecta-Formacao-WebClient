@@ -1,4 +1,5 @@
 import { ApiResult, obterRegistro } from './api';
+import api from './api';
 
 const URL_DEFAULT = 'v1/CodafCertificado';
 
@@ -53,4 +54,25 @@ export const obterCertificadosCodaf = (
   if (filtros.DreId) params.DreId = filtros.DreId;
 
   return obterRegistro(URL_DEFAULT, { params });
+};
+
+export const downloadCertificadosLote = async (ids: number[]): Promise<{ sucesso: boolean; blob?: Blob; mensagensErro?: string[] }> => {
+  try {
+    const response = await api.post(`${URL_DEFAULT}/download-lote`, ids, {
+      responseType: 'blob',
+    });
+    return { sucesso: true, blob: response.data as Blob };
+  } catch (error: any) {
+    const responseBlob: Blob = error?.response?.data;
+    if (responseBlob) {
+      const text = await responseBlob.text();
+      try {
+        const json = JSON.parse(text);
+        return { sucesso: false, mensagensErro: json.mensagensErro ?? [] };
+      } catch {
+        // ignorar erro de parse
+      }
+    }
+    return { sucesso: false, mensagensErro: ['Erro ao baixar os certificados.'] };
+  }
 };

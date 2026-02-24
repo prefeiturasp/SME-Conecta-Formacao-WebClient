@@ -1,4 +1,15 @@
-import { AutoComplete, Button, Checkbox, Col, DatePicker, Form, Row, Select, Table } from 'antd';
+import {
+  AutoComplete,
+  Button,
+  Checkbox,
+  Col,
+  DatePicker,
+  Form,
+  Row,
+  Select,
+  Table,
+  Tooltip,
+} from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
@@ -27,6 +38,7 @@ import { onClickVoltar } from '~/core/utils/form';
 import {
   CodafCertificadoDTO,
   obterCertificadosCodaf,
+  downloadCertificadosLote,
 } from '~/core/services/codaf-certificado-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
@@ -217,19 +229,24 @@ const CertificadosPesquisa: React.FC = () => {
     setTurmaDisabled(true);
   };
 
-  const onClickBaixarCertificado = () => {
-    if (selectedRowKeys.length === 0) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'Selecione ao menos um certificado para baixar.',
+  const onClickBaixarCertificado = async () => {
+    const ids = selectedRowKeys as number[];
+    const resultado = await downloadCertificadosLote(ids);
+
+    if (resultado.sucesso && resultado.blob) {
+      const url = window.URL.createObjectURL(resultado.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'certificados.zip';
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } else {
+      const mensagens = resultado.mensagensErro ?? ['Erro ao baixar os certificados.'];
+      notification.error({
+        message: 'Erro',
+        description: mensagens.join(' '),
       });
-      return;
     }
-    // TODO: implementar download dos certificados selecionados
-    notification.info({
-      message: 'Download',
-      description: `Baixando ${selectedRowKeys.length} certificado(s)...`,
-    });
   };
 
   const handleTableChange = (pagination: any) => {
@@ -260,18 +277,27 @@ const CertificadosPesquisa: React.FC = () => {
               />
             </Col>
             <Col>
-              <Button
-                block
-                type='default'
-                onClick={onClickBaixarCertificado}
-                style={{
-                  fontWeight: 700,
-                  borderColor: '#ff6b35',
-                  color: '#ff6b35',
-                }}
+              <Tooltip
+                title={
+                  selectedRowKeys.length === 0
+                    ? 'Selecione um ou mais registros para baixar os certificados.'
+                    : undefined
+                }
               >
-                Baixar certificado
-              </Button>
+                <Button
+                  block
+                  type='default'
+                  onClick={onClickBaixarCertificado}
+                  disabled={selectedRowKeys.length === 0}
+                  style={{
+                    fontWeight: 700,
+                    borderColor: '#ff6b35',
+                    color: '#ff6b35',
+                  }}
+                >
+                  Baixar certificado
+                </Button>
+              </Tooltip>
             </Col>
           </Row>
         </Col>
@@ -452,7 +478,7 @@ const CertificadosPesquisa: React.FC = () => {
 
           {/* Botões de ação */}
           <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
-            <Col>
+            {/* <Col>
               <Button
                 type='default'
                 onClick={onClickLimpar}
@@ -464,7 +490,7 @@ const CertificadosPesquisa: React.FC = () => {
               >
                 Limpar
               </Button>
-            </Col>
+            </Col> */}
             <Col>
               <Button
                 type='primary'
