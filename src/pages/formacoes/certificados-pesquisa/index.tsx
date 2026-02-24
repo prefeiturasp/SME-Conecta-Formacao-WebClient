@@ -250,9 +250,7 @@ const CertificadosPesquisa: React.FC = () => {
 
   return (
     <Col>
-      <HeaderPage
-        title='Pesquisar certificados'
-      >
+      <HeaderPage title='Pesquisar certificados'>
         <Col span={24}>
           <Row gutter={[8, 8]}>
             <Col>
@@ -288,8 +286,11 @@ const CertificadosPesquisa: React.FC = () => {
         <CardContent>
           {/* Linha 1 */}
           <Row gutter={[16, 8]}>
-            <p>Consulte os certificados emitidos para cursistas e regentes em formações já concluídas. Use os filtros para encontrar o que precisa com mais facilidade.</p>
-        
+            <p>
+              Consulte os certificados emitidos para cursistas e regentes em formações já
+              concluídas. Use os filtros para encontrar o que precisa com mais facilidade.
+            </p>
+
             <Col xs={24} sm={12} md={12} lg={12} xl={12}>
               <InputTexto
                 formItemProps={{
