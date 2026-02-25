@@ -179,7 +179,7 @@ export const MinhasInscricoesListaPaginada = () => {
             <>
               {renderFiltros()}
               <DataTable
-                url={`${URL_INSCRICAO}?tipo=andamento`}
+                url={`${URL_INSCRICAO}/proximas`}
                 columns={columns}
               />
             </>
@@ -192,7 +192,7 @@ export const MinhasInscricoesListaPaginada = () => {
             <>
               {renderFiltros()}
               <DataTable
-                url={`${URL_INSCRICAO}?tipo=finalizadas`}
+                url={`${URL_INSCRICAO}/finalizadas`}
                 columns={columns}
               />
             </>
