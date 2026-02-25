@@ -256,11 +256,14 @@ const CertificadosPesquisa: React.FC = () => {
       if (resultado.sucesso && resultado.dados?.urlDownload) {
         const { nomeFormacao, nomeCompleto, urlDownload } = resultado.dados;
         const sanitize = (s: string) => s.replace(/[/\\:*?"<>|]/g, '_').trim();
-        const nomePdf = `CERTIFICADO_${sanitize(nomeFormacao)}_${sanitize(nomeCompleto)}.pdf`;
+        const nomePdf = `CERTIFICADO_${sanitize(nomeFormacao)}_${sanitize(nomeCompleto)}.PDF`;
+        const blob = await fetch(urlDownload).then((r) => r.blob());
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = urlDownload;
+        link.href = url;
         link.download = nomePdf;
         link.click();
+        window.URL.revokeObjectURL(url);
         notification.success({
           message: 'Sucesso',
           description: 'O certificado foi baixado com sucesso.',
