@@ -38,6 +38,7 @@ import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
 import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario';
+import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -192,6 +193,10 @@ const RoutesConfig = () => {
                       element={<CadastroListaPresencaCodaf />}
                     />
                   </Route>
+                </Route>
+
+                <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
+                  <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
                 </Route>
               </Route>
             </Route>
