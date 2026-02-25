@@ -6,13 +6,14 @@ const URL_DEFAULT = 'v1/CodafCertificado';
 export type CodafCertificadoFiltroDTO = {
   NumeroHomologacao?: number | null;
   NomeFormacao?: string | null;
-  CodigoCertificado?: string | null;
+  CodigoCertificado?: number | null;
   TipoCertificado?: number | null;
   DocumentoCursista?: string | null;
   DocumentoRegente?: string | null;
   NomeCursista?: string | null;
   DataEmissao?: string | null;
   DreId?: number | null;
+  PropostaTurmaId?: number | null;
   NumeroPagina?: number;
   NumeroRegistros?: number;
 };
@@ -52,6 +53,7 @@ export const obterCertificadosCodaf = (
   if (filtros.NomeCursista) params.NomeCursista = filtros.NomeCursista;
   if (filtros.DataEmissao) params.DataEmissao = filtros.DataEmissao;
   if (filtros.DreId) params.DreId = filtros.DreId;
+  if (filtros.PropostaTurmaId) params.PropostaTurmaId = filtros.PropostaTurmaId;
 
   return obterRegistro(URL_DEFAULT, { params });
 };

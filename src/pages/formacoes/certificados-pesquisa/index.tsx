@@ -4,6 +4,7 @@ import {
   Checkbox,
   Col,
   DatePicker,
+  Empty,
   Form,
   Row,
   Select,
@@ -34,20 +35,17 @@ import {
   CF_INPUT_RF,
 } from '~/core/constants/ids/input';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { TipoCertificado, TipoCertificadoDescricao } from '~/core/enum/tipo-certificado';
 import { onClickVoltar } from '~/core/utils/form';
 import {
   CodafCertificadoDTO,
   obterCertificadosCodaf,
   downloadCertificadosLote,
 } from '~/core/services/codaf-certificado-service';
+import { downloadCertificado } from '~/core/services/codaf-lista-presenca-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
-
-const tiposCertificado = [
-  { id: 1, descricao: 'Cursista' },
-  { id: 2, descricao: 'Regente' },
-];
 
 const CertificadosPesquisa: React.FC = () => {
   const [form] = useForm();
@@ -65,44 +63,56 @@ const CertificadosPesquisa: React.FC = () => {
   const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
 
+  const tipoCertificadoSelecionado = Form.useWatch('tipoCertificado', form);
+  const rfCursistaDisabled = tipoCertificadoSelecionado === TipoCertificado.Regente;
+  const rfRegenteDisabled = tipoCertificadoSelecionado === TipoCertificado.Cursista;
+
+  React.useEffect(() => {
+    if (rfCursistaDisabled) {
+      form.setFieldValue('rfOuCpfCursista', undefined);
+    }
+    if (rfRegenteDisabled) {
+      form.setFieldValue('rfRegente', undefined);
+    }
+  }, [rfCursistaDisabled, rfRegenteDisabled, form]);
+
   const columns: ColumnsType<CodafCertificadoDTO> = [
     {
       key: 'codigoCertificado',
       title: 'Código do certificado',
       dataIndex: 'codigoCertificado',
-      width: 160,
+      width: 1,
     },
     {
       key: 'nomeFormacao',
       title: 'Nome da formação',
       dataIndex: 'nomeFormacao',
       ellipsis: true,
-      width: 250,
     },
     {
       key: 'nomeParticipante',
       title: 'Nome do participante',
       dataIndex: 'nomeParticipante',
       ellipsis: true,
-      width: 200,
     },
     {
       key: 'tipoCertificado',
       title: 'Tipo de certificado',
       dataIndex: 'tipoCertificado',
-      width: 150,
+      width: 1,
+      render: (value: TipoCertificado) => TipoCertificadoDescricao[value] ?? '-',
     },
     {
       key: 'documento',
       title: 'RF ou CPF',
       dataIndex: 'documento',
-      width: 120,
+      width: 1,
     },
     {
       key: 'dataEmissao',
       title: 'Data de emissão',
       dataIndex: 'dataEmissao',
-      width: 140,
+      width: 1,
       render: (value: string) => (value ? dayjs(value).format('DD/MM/YYYY') : '-'),
     },
   ];
@@ -113,7 +123,7 @@ const CertificadosPesquisa: React.FC = () => {
     columnTitle: (
       <Checkbox
         checked={dados.length > 0 && selectedRowKeys.length === dados.length}
-        indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < dados.length}
+        //indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < dados.length}
         onChange={(e) => {
           if (e.target.checked) {
             setSelectedRowKeys(dados.map((item) => item.id));
@@ -179,12 +189,15 @@ const CertificadosPesquisa: React.FC = () => {
         NumeroHomologacao: form.getFieldValue('numeroHomologacao')
           ? Number(form.getFieldValue('numeroHomologacao'))
           : undefined,
-        CodigoCertificado: form.getFieldValue('codigoCertificado') || undefined,
+        CodigoCertificado: form.getFieldValue('codigoCertificado')
+          ? Number(form.getFieldValue('codigoCertificado'))
+          : undefined,
         DocumentoCursista: form.getFieldValue('rfOuCpfCursista') || undefined,
         DocumentoRegente: form.getFieldValue('rfRegente') || undefined,
         NomeCursista: form.getFieldValue('nomeCursista') || undefined,
         DataEmissao: dataEmissaoFormatada,
-        DreId: form.getFieldValue('dreId') || undefined,
+        DreId: form.getFieldValue('dreId')?.id || undefined,
+        PropostaTurmaId: form.getFieldValue('turmaId') || undefined,
         NumeroPagina: pagina,
         NumeroRegistros: registrosPorPagina,
       };
@@ -194,9 +207,15 @@ const CertificadosPesquisa: React.FC = () => {
       if (response.sucesso && response.dados) {
         setDados(response.dados.items);
         setTotalRegistros(response.dados.totalRegistros);
+        if (response.dados.items.length === 1) {
+          setSelectedRowKeys([response.dados.items[0].id]);
+        } else {
+          setSelectedRowKeys([]);
+        }
       } else {
         setDados([]);
         setTotalRegistros(0);
+        setSelectedRowKeys([]);
       }
       setPaginaAtual(pagina);
     } catch {
@@ -217,7 +236,7 @@ const CertificadosPesquisa: React.FC = () => {
     buscarDados(1);
   };
 
-  const onClickLimpar = () => {
+  /* const onClickLimpar = () => {
     form.resetFields();
     setDados([]);
     setTotalRegistros(0);
@@ -227,9 +246,34 @@ const CertificadosPesquisa: React.FC = () => {
     setOpcoesFormacao([]);
     setTurmasAPI([]);
     setTurmaDisabled(true);
-  };
+  }; */
 
   const onClickBaixarCertificado = async () => {
+    if (selectedRowKeys.length === 1) {
+      const id = selectedRowKeys[0] as number;
+      const resultado = await downloadCertificado(id);
+
+      if (resultado.sucesso && resultado.dados?.urlDownload) {
+        const { nomeFormacao, nomeCompleto, urlDownload } = resultado.dados;
+        const sanitize = (s: string) => s.replace(/[/\\:*?"<>|]/g, '_').trim();
+        const nomePdf = `CERTIFICADO_${sanitize(nomeFormacao)}_${sanitize(nomeCompleto)}.pdf`;
+        const link = document.createElement('a');
+        link.href = urlDownload;
+        link.download = nomePdf;
+        link.click();
+        notification.success({
+          message: 'Sucesso',
+          description: 'O certificado foi baixado com sucesso.',
+        });
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Não conseguimos baixar o certificado selecionado. Tente novamente.',
+        });
+      }
+      return;
+    }
+
     const ids = selectedRowKeys as number[];
     const resultado = await downloadCertificadosLote(ids);
 
@@ -237,14 +281,18 @@ const CertificadosPesquisa: React.FC = () => {
       const url = window.URL.createObjectURL(resultado.blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'certificados.zip';
+      const now = dayjs();
+      link.download = `CERTIFICADOS_${now.format('DDMMYYYY')}_${now.format('HHmmss')}.zip`;
       link.click();
       window.URL.revokeObjectURL(url);
+      notification.success({
+        message: 'Sucesso',
+        description: 'Os certificados selecionados foram baixados com sucesso.',
+      });
     } else {
-      const mensagens = resultado.mensagensErro ?? ['Erro ao baixar os certificados.'];
       notification.error({
         message: 'Erro',
-        description: mensagens.join(' '),
+        description: 'Não conseguimos baixar os certificados selecionados. Tente novamente.',
       });
     }
   };
@@ -286,14 +334,10 @@ const CertificadosPesquisa: React.FC = () => {
               >
                 <Button
                   block
-                  type='default'
+                  type='primary'
                   onClick={onClickBaixarCertificado}
                   disabled={selectedRowKeys.length === 0}
-                  style={{
-                    fontWeight: 700,
-                    borderColor: '#ff6b35',
-                    color: '#ff6b35',
-                  }}
+                  style={{ fontWeight: 700 }}
                 >
                   Baixar certificado
                 </Button>
@@ -328,6 +372,7 @@ const CertificadosPesquisa: React.FC = () => {
                   id: CF_INPUT_NOME_FORMACAO,
                   placeholder: 'Nome da formação',
                   maxLength: 200,
+                  allowClear: true,
                 }}
               />
             </Col>
@@ -335,10 +380,12 @@ const CertificadosPesquisa: React.FC = () => {
               <Form.Item label='Tipo de certificado' name='tipoCertificado'>
                 <Select
                   placeholder='Selecione o tipo de certificado'
-                  options={tiposCertificado.map((t) => ({
-                    label: t.descricao,
-                    value: t.id,
-                  }))}
+                  options={Object.values(TipoCertificado)
+                    .filter((v): v is TipoCertificado => typeof v === 'number')
+                    .map((t) => ({
+                      label: TipoCertificadoDescricao[t],
+                      value: t,
+                    }))}
                   allowClear
                 />
               </Form.Item>
@@ -358,6 +405,7 @@ const CertificadosPesquisa: React.FC = () => {
                   id: CF_INPUT_CODIGO_FORMACAO,
                   placeholder: 'Código da formação',
                   maxLength: 20,
+                  allowClear: true,
                 }}
               />
             </Col>
@@ -366,6 +414,7 @@ const CertificadosPesquisa: React.FC = () => {
                 <AutoComplete
                   id={CF_INPUT_NUMERO_HOMOLOGACAO}
                   placeholder='Digite para buscar formação'
+                  allowClear
                   onSearch={onSearchFormacao}
                   onSelect={onSelectFormacao}
                   options={opcoesFormacao.map((opcao) => ({
@@ -398,7 +447,7 @@ const CertificadosPesquisa: React.FC = () => {
           {/* Linha 3 */}
           <Row gutter={[16, 8]}>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputTexto
+              <InputNumero
                 formItemProps={{
                   label: 'Código do certificado',
                   name: 'codigoCertificado',
@@ -407,6 +456,7 @@ const CertificadosPesquisa: React.FC = () => {
                 inputProps={{
                   placeholder: 'Código do certificado',
                   maxLength: 100,
+                  allowClear: true,
                 }}
               />
             </Col>
@@ -421,6 +471,8 @@ const CertificadosPesquisa: React.FC = () => {
                   id: CF_INPUT_RF,
                   placeholder: 'RF ou CPF do cursista',
                   maxLength: 20,
+                  allowClear: true,
+                  disabled: rfCursistaDisabled,
                 }}
               />
             </Col>
@@ -434,6 +486,8 @@ const CertificadosPesquisa: React.FC = () => {
                 inputProps={{
                   placeholder: 'RF do regente',
                   maxLength: 20,
+                  allowClear: true,
+                  disabled: rfRegenteDisabled,
                 }}
               />
             </Col>
@@ -451,6 +505,7 @@ const CertificadosPesquisa: React.FC = () => {
                 inputProps={{
                   placeholder: 'Nome do cursista',
                   maxLength: 200,
+                  allowClear: true,
                 }}
               />
             </Col>
@@ -471,7 +526,8 @@ const CertificadosPesquisa: React.FC = () => {
                   name: 'dreId',
                   rules: [{ required: false }],
                 }}
-                selectProps={{ mode: undefined }}
+                selectProps={{ mode: undefined, allowClear: true }}
+                exibirOpcaoTodos
               />
             </Col>
           </Row>
@@ -484,8 +540,9 @@ const CertificadosPesquisa: React.FC = () => {
                 onClick={onClickLimpar}
                 style={{
                   fontWeight: 700,
+                  backgroundColor: '#ff6b35',
                   borderColor: '#ff6b35',
-                  color: '#ff6b35',
+                  color: '#ffffff',
                 }}
               >
                 Limpar
@@ -507,28 +564,39 @@ const CertificadosPesquisa: React.FC = () => {
           {filtroAplicado && (
             <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
               <Col span={24}>
-                <div className='table-pagination-center'>
-                  <Table
-                    rowSelection={rowSelection}
-                    columns={columns}
-                    dataSource={dados}
-                    rowKey='id'
-                    loading={loading}
-                    pagination={{
-                      current: paginaAtual,
-                      pageSize: registrosPorPagina,
-                      total: totalRegistros,
-                      showSizeChanger: true,
-                      pageSizeOptions: [10, 20, 30, 50, 100],
-                      locale: { items_per_page: '' },
+                {!loading && dados.length === 0 ? (
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '30vh',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
-                    onChange={handleTableChange}
-                    scroll={{ x: 'max-content' }}
-                    locale={{
-                      emptyText: 'Não encontramos registros para os filtros aplicados',
-                    }}
-                  />
-                </div>
+                  >
+                    <Empty description='Sem dados' />
+                  </div>
+                ) : (
+                  <div className='table-pagination-center'>
+                    <Table
+                      rowSelection={rowSelection}
+                      columns={columns}
+                      dataSource={dados}
+                      rowKey='id'
+                      loading={loading}
+                      pagination={{
+                        current: paginaAtual,
+                        pageSize: registrosPorPagina,
+                        total: totalRegistros,
+                        showSizeChanger: true,
+                        pageSizeOptions: [10, 20, 30, 50, 100],
+                        locale: { items_per_page: '' },
+                      }}
+                      onChange={handleTableChange}
+                      scroll={{ x: 'max-content' }}
+                    />
+                  </div>
+                )}
                 <style>{`
                   .table-pagination-center .ant-pagination {
                     display: flex;
@@ -543,6 +611,12 @@ const CertificadosPesquisa: React.FC = () => {
                   .table-pagination-center .ant-dropdown-menu-item:hover {
                     background-color: #f5f5f5;
                     color: #42474A;
+                  }
+                  .table-pagination-center .ant-table-tbody > tr.ant-table-row-selected > td {
+                    background: #fff !important;
+                  }
+                  .table-pagination-center .ant-table-tbody > tr.ant-table-row-selected:hover > td {
+                    background: #fafafa !important;
                   }
                 `}</style>
               </Col>
