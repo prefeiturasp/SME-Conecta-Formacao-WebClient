@@ -1,5 +1,6 @@
 import {
   Button,
+  Col,
   Empty,
   Row,
   Tabs,
@@ -7,10 +8,9 @@ import {
   Input,
   Select,
   DatePicker,
-  Space,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
@@ -34,10 +34,9 @@ import {
   cancelarInscricao,
 } from '~/core/services/inscricao-service';
 import ModalEditCargoFuncaoButton from '../components/modal-edit-cargo-funcao/modal-edit-cargo-funcao-button';
-import ptBR from "antd/es/date-picker/locale/pt_BR";
-import "dayjs/locale/pt-br";
+import ptBR from 'antd/es/date-picker/locale/pt_BR';
+import 'dayjs/locale/pt-br';
 import { ROUTES } from '~/core/enum/routes-enum';
-
 
 const { RangePicker } = DatePicker;
 
@@ -56,23 +55,31 @@ export interface InscricaoProps {
   iniciado: boolean;
 }
 
+type AbaType = 'andamento' | 'finalizadas';
+
 export const MinhasInscricoesListaPaginada = () => {
   const { tableState } = useContext(DataTableContext);
   const navigate = useNavigate();
+
   const perfilSelecionado = useAppSelector(
     (store) => store.perfil.perfilSelecionado?.perfilNome,
   );
 
+  const ehCursista =
+    perfilSelecionado ===
+    TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
+
   const [form] = Form.useForm();
-  const [abaAtiva, setAbaAtiva] = useState<'andamento' | 'finalizadas'>(
-    'andamento',
-  );
-  const [filtros, setFiltros] = useState<any>({});
+  const [abaAtiva, setAbaAtiva] = useState<AbaType>('andamento');
+  const [filtros, setFiltros] = useState<Record<string, any>>({});
 
   const emptyState = (
-    <Empty style={{ padding: '48px 0' }} description='Você não está inscrito em nenhuma formação no momento. Explore as formações disponíveis clicando no botão abaixo.'>
+    <Empty
+      style={{ padding: '48px 0' }}
+      description="Você não está inscrito em nenhuma formação no momento. Explore as formações disponíveis clicando no botão abaixo."
+    >
       <Button
-        type='primary'
+        type="primary"
         onClick={() => navigate(ROUTES.AREA_PUBLICA)}
         style={{ backgroundColor: '#FF9A52', borderColor: '#FF9A52' }}
       >
@@ -80,14 +87,6 @@ export const MinhasInscricoesListaPaginada = () => {
       </Button>
     </Empty>
   );
-
-  const ehCursista =
-    perfilSelecionado ===
-    TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
-
-  // ================================
-  // CONFIRMAÇÃO CANCELAMENTO
-  // ================================
 
   const mensagemConfirmacao = (record: InscricaoProps) => {
     if (record.integrarNoSga && record.iniciado && ehCursista)
@@ -102,12 +101,29 @@ export const MinhasInscricoesListaPaginada = () => {
     return DESEJA_CANCELAR_INSCRICAO;
   };
 
-  // ================================
-  // FILTROS
-  // ================================
+  const handleCancelar = useCallback(
+    async (record: InscricaoProps) => {
+      confirmacao({
+        content: mensagemConfirmacao(record),
+        onOk: async () => {
+          const response = await cancelarInscricao(record.id);
+
+          if (response.sucesso) {
+            notification.success({
+              message: 'Sucesso',
+              description: 'Inscrição cancelada com sucesso!',
+            });
+
+            tableState.reloadData();
+          }
+        },
+      });
+    },
+    [tableState],
+  );
 
   const handleFiltroChange = (_: any, allValues: any) => {
-    const novosFiltros: any = { ...allValues };
+    const novosFiltros: Record<string, any> = { ...allValues };
 
     if (allValues.periodo) {
       novosFiltros.DataInicial = allValues.periodo[0]
@@ -117,12 +133,8 @@ export const MinhasInscricoesListaPaginada = () => {
       novosFiltros.DataFinal = allValues.periodo[1]
         ? dayjs(allValues.periodo[1]).format('YYYY-MM-DD')
         : undefined;
-    } else {
-      novosFiltros.DataInicial = undefined;
-      novosFiltros.DataFinal = undefined;
     }
 
-    // Data única
     if (allValues.DataInscricao) {
       novosFiltros.DataInscricao = dayjs(
         allValues.DataInscricao,
@@ -134,7 +146,12 @@ export const MinhasInscricoesListaPaginada = () => {
     setFiltros(novosFiltros);
   };
 
-  const buildQueryParams = () => {
+  const url = useMemo(() => {
+    const base =
+      abaAtiva === 'andamento'
+        ? `${URL_INSCRICAO}/proximas`
+        : `${URL_INSCRICAO}/finalizadas`;
+
     const params = new URLSearchParams();
 
     Object.entries(filtros).forEach(([key, value]) => {
@@ -143,17 +160,7 @@ export const MinhasInscricoesListaPaginada = () => {
       }
     });
 
-    return params.toString();
-  };
-
-  const url = useMemo(() => {
-    const base =
-      abaAtiva === 'andamento'
-        ? `${URL_INSCRICAO}/proximas`
-        : `${URL_INSCRICAO}/finalizadas`;
-
-    const query = buildQueryParams();
-
+    const query = params.toString();
     return query ? `${base}?${query}` : base;
   }, [filtros, abaAtiva]);
 
@@ -172,9 +179,6 @@ export const MinhasInscricoesListaPaginada = () => {
     { label: 'Não inscrito', value: 3 },
   ];
 
-  // ================================
-  // COLUNAS BASE (COMUNS ÀS DUAS ABAS)
-  // ================================
   const columnsBase: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao' },
     { title: 'Nome da formação', dataIndex: 'nomeFormacao' },
@@ -185,66 +189,33 @@ export const MinhasInscricoesListaPaginada = () => {
       title: 'Cargo/Função',
       dataIndex: 'cargoFuncao',
       render: (_, record) => (
-        <Row justify="space-between">
-          <>
-            {record.cargoFuncao}
-            {record.cargoFuncao && (
-              <ModalEditCargoFuncaoButton record={record} />
-            )}
-          </>
-        </Row>
+        <>
+          {record.cargoFuncao}
+          {record.cargoFuncao && (
+            <ModalEditCargoFuncaoButton record={record} />
+          )}
+        </>
       ),
     },
     { title: 'Situação', dataIndex: 'situacao' },
   ];
 
-
-  // ================================
-  // ABA EM ANDAMENTO (TEM AÇÕES)
-  // ================================
   const columnsAndamento: ColumnsType<InscricaoProps> = [
     ...columnsBase,
     {
       title: 'Ações',
-      dataIndex: 'podeCancelar',
-      render: (_, record) => {
-        const cancelar = async () => {
-          confirmacao({
-            content: mensagemConfirmacao(record),
-            onOk: async () => {
-              const response = await cancelarInscricao(record.id);
-
-              if (response.sucesso) {
-                notification.success({
-                  message: 'Sucesso',
-                  description: 'Inscrição cancelada com sucesso!',
-                });
-
-                tableState.reloadData();
-              }
-            },
-          });
-        };
-
-        return (
-          <Button
-            size="small"
-            disabled={!record.podeCancelar}
-            onClick={cancelar}
-          >
-            Cancelar inscrição
-          </Button>
-        );
-      },
+      render: (_, record) => (
+        <Button
+          size="small"
+          disabled={!record.podeCancelar}
+          onClick={() => handleCancelar(record)}
+        >
+          Cancelar inscrição
+        </Button>
+      ),
     },
   ];
 
-
-  // ================================
-  // ABA FINALIZADAS (SEM AÇÕES)
-  // + Origem
-  // + Situação da Aprovação (fixo)
-  // ================================
   const columnsFinalizadas: ColumnsType<InscricaoProps> = [
     ...columnsBase,
     {
@@ -265,162 +236,174 @@ export const MinhasInscricoesListaPaginada = () => {
       form={form}
       onValuesChange={handleFiltroChange}
     >
-      <Space wrap>
+      <Row gutter={[16, 16]}>
         {abaAtiva === 'andamento' && (
           <>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-              
-              {/* Primeira linha */}
-              <div style={{ flex: "0 0 calc(33.333% - 16px)" }}>
-                <Form.Item
-                  name="CodigoFormacao"
-                  label={<strong>Código da formação</strong>}
-                >
-                  <Input />
-                </Form.Item>
-              </div>
+            <Col xs={24} md={12} lg={8}>
+              <Form.Item name="CodigoFormacao" label="Código da formação" labelCol={{ style: { fontWeight: 600 } }}>
+                <Input />
+              </Form.Item>
+            </Col>
 
-              <div style={{ flex: "0 0 calc(33.333% - 16px)" }}>
-                <Form.Item
-                  name="NomeFormacao"
-                  label={<strong>Nome da formação</strong>}
-                >
-                  <Input />
-                </Form.Item>
-              </div>
+            <Col xs={24} md={12} lg={8}>
+              <Form.Item name="NomeFormacao" label="Nome da formação" labelCol={{ style: { fontWeight: 600 } }}>
+                <Input />
+              </Form.Item>
+            </Col>
 
-              <div style={{ flex: "0 0 calc(33.333% - 16px)" }}>
-                <Form.Item
-                  name="DataInscricao"
-                  label={<strong>Data da inscrição</strong>}
-                >
-                  <DatePicker
-                    style={{ width: "100%" }}
-                    format="DD/MM/YYYY"
-                    locale={ptBR}
-                  />
-                </Form.Item>
-              </div>
+            <Col xs={24} md={12} lg={8}>
+              <Form.Item name="DataInscricao" label="Data da inscrição" labelCol={{ style: { fontWeight: 600 } }}>
+                <DatePicker
+                  style={{ width: '100%' }}
+                  format="DD/MM/YYYY"
+                  locale={ptBR}
+                />
+              </Form.Item>
+            </Col>
 
-              {/* Segunda linha */}
-              <div style={{ flex: "0 0 calc(33.333% - 16px)" }}>
-                <Form.Item
-                  name="NomeTurma"
-                  label={<strong>Turma</strong>}
-                >
-                  <Input />
-                </Form.Item>
-              </div>
+            <Col xs={24} md={12} lg={8}>
+              <Form.Item name="NomeTurma" label="Turma" labelCol={{ style: { fontWeight: 600 } }}>
+                <Input />
+              </Form.Item>
+            </Col>
 
-              <div style={{ flex: "0 0 calc(33.333% - 16px)" }}>
-                <Form.Item
-                  name="periodo"
-                  label={<strong>Período de realização da formação</strong>}
-                >
-                  <RangePicker
-                    style={{ width: "100%" }}
-                    format="DD/MM/YYYY"
-                    locale={ptBR}
-                    allowEmpty={[true, true]}
-                  />
-                </Form.Item>
-              </div>
+            <Col xs={24} md={12} lg={8}>
+              <Form.Item
+                name="periodo"
+                label="Período de realização da formação"
+                labelCol={{ style: { fontWeight: 600 } }}>
+                <RangePicker
+                  style={{ width: '100%' }}
+                  format="DD/MM/YYYY"
+                  locale={ptBR}
+                  allowEmpty={[true, true]}
+                />
+              </Form.Item>
+            </Col>
 
-              <div style={{ flex: "0 0 calc(33.333% - 16px)" }}>
-                <Form.Item
-                  name="Situacao"
-                  label={<strong>Situação</strong>}
-                >
-                  <Select
-                    options={situacoesOptions}
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </div>
-
-            </div>
+            <Col xs={24} md={12} lg={8}>
+              <Form.Item name="Situacao" label="Situação" labelCol={{ style: { fontWeight: 600 } }}>
+                <Select options={situacoesOptions} />
+              </Form.Item>
+            </Col>
           </>
         )}
 
         {abaAtiva === 'finalizadas' && (
           <>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+            <Col xs={24} md={12}>
+              <Form.Item name="NomeFormacao" label="Nome da formação" labelCol={{ style: { fontWeight: 600 } }}>
+                <Input />
+              </Form.Item>
+            </Col>
 
-              <div style={{ flex: "0 0 calc(50% - 16px)" }}>
-                <Form.Item
-                  name="NomeFormacao"
-                  label={<strong>Nome da formação</strong>}
-                >
-                  <Input />
-                </Form.Item>
-              </div>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="SituacaoInscricao"
+                label="Situação da inscrição"
+                labelCol={{ style: { fontWeight: 600 } }}>
+                <Select options={situacoesOptions} />
+              </Form.Item>
+            </Col>
 
-              <div style={{ flex: "0 0 calc(50% - 16px)" }}>
-                <Form.Item
-                  name="SituacaoInscricao"
-                  label={<strong>Situação da inscrição</strong>}
-                >
-                  <Select
-                    options={situacoesOptions}
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </div>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="SituacaoAprovacao"
+                label="Situação de aprovação"
+                labelCol={{ style: { fontWeight: 600 } }}>
+                <Select options={situacaoAprovacaoOptions} />
+              </Form.Item>
+            </Col>
 
-              <div style={{ flex: "0 0 calc(50% - 16px)" }}>
-                <Form.Item
-                  name="SituacaoAprovacao"
-                  label={<strong>Situação de aprovação</strong>}
-                >
-                  <Select
-                    options={situacaoAprovacaoOptions}
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </div>
-
-              <div style={{ flex: "0 0 calc(50% - 16px)" }}>
-                <Form.Item
-                  name="periodo"
-                  label={<strong>Período da formação</strong>}
-                >
-                  <RangePicker
-                    style={{ width: "100%" }}
-                    format="DD/MM/YYYY"
-                    locale={ptBR}
-                    allowEmpty={[true, true]}
-                  />
-                </Form.Item>
-              </div>
-
-            </div>
+            <Col xs={24} md={12}>
+              <Form.Item name="periodo" label="Período da formação" labelCol={{ style: { fontWeight: 600 } }}>
+                <RangePicker
+                  style={{ width: '100%' }}
+                  format="DD/MM/YYYY"
+                  locale={ptBR}
+                  allowEmpty={[true, true]}
+                />
+              </Form.Item>
+            </Col>
           </>
         )}
-      </Space>
+      </Row>
     </Form>
   );
-<style>{`
-  .abas-inscricoes .ant-tabs-nav-list {
-    width: 100%;
-    gap: 3px;
-  }
-      `}</style>
+      
   return (
+  <>
+    <style>
+      {`
+        .abas-inscricoes .ant-tabs-nav {
+          width: 100%;
+        }
+
+        .abas-inscricoes .ant-tabs-nav-list {
+          width: 100%;
+          display: flex;
+        }
+
+        .abas-inscricoes .ant-tabs-tab {
+          flex: 1; 
+          display: flex;
+          justify-content: flex-start; 
+        }
+
+        .abas-inscricoes .ant-tabs-tab-btn {
+          width: 100%;
+          text-align: left;
+          padding-left: 16px; 
+          font-weight: 500;
+        }
+
+        .abas-inscricoes .ant-tabs-tab-active .ant-tabs-tab-btn {
+          font-weight: 600;
+        }
+
+        .abas-inscricoes .ant-tabs-nav-wrap {
+          width: 100%;
+        }
+
+        .tabs-mensagem {
+          margin-top: 16px;
+          margin-bottom: 8px;
+          font-size: 14px;
+          color: #555;
+        }
+
+        .tabs-linha {
+          width: 100%;
+          height: 1px;
+          background-color: #d9d9d9;
+          margin-bottom: 16px;
+        }
+      `}
+    </style>
+
     <Tabs
       className="abas-inscricoes"
+      type="card"
       activeKey={abaAtiva}
       onChange={(key) => {
-        setAbaAtiva(key as any);
+        setAbaAtiva(key as AbaType);
         form.resetFields();
         setFiltros({});
       }}
-        items={[
+      items={[
         {
           key: 'andamento',
-          label: 'Formações em andamento',
+          label: 'Próximas formações',
           children: (
             <>
+              <div className="tabs-mensagem">
+                Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar os cursos que ainda vão acontecer e aqueles que já foram concluídos.
+              </div>
+
+              <div className="tabs-linha" />
+
               {renderFiltros()}
+
               <DataTable
                 url={url}
                 columns={columnsAndamento}
@@ -435,7 +418,14 @@ export const MinhasInscricoesListaPaginada = () => {
           label: 'Formações finalizadas',
           children: (
             <>
+              <div className="tabs-mensagem">
+                Aqui você pode visualizar suas inscrições e aplicar filtros para gerenciar suas formações.
+              </div>
+
+              <div className="tabs-linha" />
+
               {renderFiltros()}
+
               <DataTable
                 url={url}
                 columns={columnsFinalizadas}
@@ -447,5 +437,6 @@ export const MinhasInscricoesListaPaginada = () => {
         },
       ]}
     />
+  </>
   );
 };
