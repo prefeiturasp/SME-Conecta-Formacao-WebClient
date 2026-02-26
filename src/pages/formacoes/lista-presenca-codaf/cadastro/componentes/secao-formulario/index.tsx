@@ -55,9 +55,10 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                 onSearch={onSearchFormacao}
                 onSelect={onSelectFormacao}
                 options={opcoesFormacao.map((opcao) => ({
-                  value: opcao.numeroHomologacao.toString(),
+                  value: `${opcao.numeroHomologacao}-${opcao.propostaId}`,
                   label: opcao.numeroHomologacao.toString(),
                   numeroHomologacao: opcao.numeroHomologacao,
+                  propostaId: opcao.propostaId,
                 }))}
                 filterOption={false}
                 notFoundContent={
