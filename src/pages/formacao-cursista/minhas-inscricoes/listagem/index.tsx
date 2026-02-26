@@ -383,10 +383,17 @@ export const MinhasInscricoesListaPaginada = () => {
       </Space>
     </Form>
   );
-
+<style>{`
+  .abas-inscricoes .ant-tabs-nav-list {
+    width: 100%;
+    gap: 3px;
+  }
+      `}</style>
   return (
     <Tabs
+      className="abas-inscricoes"
       activeKey={abaAtiva}
+      type="card"
       onChange={(key) => {
         setAbaAtiva(key as any);
         form.resetFields();
