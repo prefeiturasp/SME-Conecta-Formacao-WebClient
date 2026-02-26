@@ -10,6 +10,8 @@ import { PodeInscreverMensagemDTO } from '../dto/pode-inscrever-mensagem-dto';
 import { RetornoDTO } from '../dto/retorno-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
+import { InscricaoProximaFiltro } from '../dto/InscricaoProximaFiltro';
+import { InscricaoFinalizadaFiltro } from '../dto/InscricaoFinalizadaFiltro';
 
 export const URL_INSCRICAO = 'v1/Inscricao';
 
@@ -81,6 +83,18 @@ const cancelarInscricoes = (ids: number[], motivo: InscricaoMotivoCancelamentoDT
 const sortearInscricao = (propostaId: number) =>
   alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/sortear/${propostaId}`);
 
+const obterInscricoesProximas = (params?: InscricaoProximaFiltro) =>
+  obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(
+    `${URL_INSCRICAO}/proximas`,
+    { params },
+  );
+
+const obterInscricoesFinalizadas = (params?: InscricaoFinalizadaFiltro) =>
+  obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(
+    `${URL_INSCRICAO}/finalizadas`,
+    { params },
+  );
+
 export {
   alterarVinculo,
   cancelarInscricao,
@@ -99,4 +113,6 @@ export {
   obterTurmasInscricao,
   sortearInscricao,
   reativarInscricao,
+  obterInscricoesProximas,
+  obterInscricoesFinalizadas,
 };
