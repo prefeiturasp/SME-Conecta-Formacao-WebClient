@@ -1,6 +1,6 @@
-import { Col, Form, Row, Space, Typography } from 'antd';
+import { Button, Col, Form, Input, Row, Select, Space, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,7 +9,9 @@ import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputEmail from '~/components/main/input/email';
 import SenhaCadastro from '~/components/main/input/senha-cadastro';
-import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
+import { CF_BUTTON_SALVAR, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
+import { notification } from '~/components/lib/notification';
+import usuarioService from '~/core/services/usuario-service';
 import {
   CF_INPUT_EMAIL,
   CF_INPUT_EMAIL_EDUCACIONAL,
@@ -62,22 +64,108 @@ const MeusDados: React.FC = () => {
   const usuarioNome = auth?.usuarioNome;
   const perfilNome = perfil.perfilSelecionado?.perfilNome;
 
+  const [pessoaComDeficiencia, setPessoaComDeficiencia] = useState<string | undefined>(undefined);
+  const [precisaDeAdaptacao, setPrecisaDeAdaptacao] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
+
   const { meusDados } = useContext(MeusDadosContext);
   useEffect(() => {
     form.setFieldsValue({ ...meusDados });
+
+    const ua = meusDados?.usuarioAcessibilidade;
+    if (ua) {
+      const deficiencia =
+        ua.possuiDeficiencia === true
+          ? 'Sim'
+          : ua.possuiDeficiencia === false
+          ? 'Não'
+          : 'Prefiro não responder';
+      const adaptacao =
+        ua.necessitaAdaptacao === true
+          ? 'Sim'
+          : ua.necessitaAdaptacao === false
+          ? 'Não'
+          : undefined;
+
+      setPessoaComDeficiencia(deficiencia);
+      setPrecisaDeAdaptacao(adaptacao);
+      form.setFieldsValue({
+        pessoaComDeficiencia: deficiencia,
+        qualDeficiencia: ua.descricaoDeficiencia,
+        precisaDeAdaptacao: adaptacao,
+        qualTipoAdaptacao: ua.descricaoAdaptacao,
+      });
+    }
   }, [meusDados]);
+
+  const onClickSalvar = async () => {
+    const values = form.getFieldsValue(true);
+    const login = auth?.usuarioLogin;
+
+    const possuiDeficiencia =
+      pessoaComDeficiencia === 'Sim'
+        ? true
+        : pessoaComDeficiencia === 'Não'
+        ? false
+        : pessoaComDeficiencia === 'Prefiro não responder'
+        ? null
+        : undefined;
+
+    const payload = {
+      usuarioId: meusDados?.usuarioAcessibilidade?.usuarioId || null,
+      possuiDeficiencia: possuiDeficiencia ?? null,
+      descricaoDeficiencia: pessoaComDeficiencia === 'Sim' ? values.qualDeficiencia : undefined,
+      necessitaAdaptacao: pessoaComDeficiencia === 'Sim' ? precisaDeAdaptacao === 'Sim' : undefined,
+      descricaoAdaptacao:
+        pessoaComDeficiencia === 'Sim' && precisaDeAdaptacao === 'Sim'
+          ? values.qualTipoAdaptacao
+          : undefined,
+      salvar: true,
+    };
+
+    setLoading(true);
+    try {
+      const response = await usuarioService.salvarAcessibilidade(login, payload);
+      if (response.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Seus dados foram salvos com sucesso!',
+        });
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: response.mensagens?.[0] || 'Erro ao salvar acessibilidade',
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       <HeaderPage title='Meus dados'>
-        <Row>
-          <Col span={24}>
-            <ButtonVoltar
-              onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
-              id={CF_BUTTON_VOLTAR}
-            />
-          </Col>
-        </Row>
+        <Col span={24}>
+          <Row gutter={[8, 8]}>
+            <Col>
+              <ButtonVoltar
+                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
+                id={CF_BUTTON_VOLTAR}
+              />
+            </Col>
+            <Col>
+              <Button
+                type='primary'
+                onClick={onClickSalvar}
+                loading={loading}
+                id={CF_BUTTON_SALVAR}
+                style={{ fontWeight: 700 }}
+              >
+                Salvar
+              </Button>
+            </Col>
+          </Row>
+        </Col>
       </HeaderPage>
 
       <CardContent>
@@ -98,6 +186,29 @@ const MeusDados: React.FC = () => {
           <Col xs={24} md={12}>
             <Form form={form} layout='vertical' autoComplete='off'>
               <Row gutter={16}>
+                <Col span={24}>
+                  <p
+                    style={{
+                      fontWeight: 700,
+                      fontStyle: 'Bold',
+                      fontSize: '20px',
+                      lineHeight: '100%',
+                      letterSpacing: '0%',
+                      marginBottom: '16px',
+                      marginTop: '16px',
+                    }}
+                  >
+                    Dados pessoais
+                  </p>
+                </Col>
+
+                <Col span={24}>
+                  <p style={{ marginBottom: '16px' }}>
+                    Mantenha suas informações atualizadas para garantir acesso e comunicação
+                    adequada no sistema.
+                  </p>
+                </Col>
+
                 <Col span={24}>
                   <Row wrap={false} align='middle'>
                     <InputNome
@@ -124,16 +235,18 @@ const MeusDados: React.FC = () => {
                 </Col>
                 <Col span={24}>
                   <Row wrap={false} align='middle'>
-                    <SelectTipoEmail 
+                    <SelectTipoEmail
                       selectProps={{ id: CF_SELECT_TIPO_EMAIL, disabled: true }}
                       formItemProps={{
                         style: { width: '100%', marginRight: '8px' },
                         required: false,
                       }}
                     />
-                    {meusDados?.tipo == TipoUsuario.Externo 
-                      ? (<ModalEditTipoEmailEducacionalButton formPreview={form}/>) 
-                      : (<></>)}
+                    {meusDados?.tipo == TipoUsuario.Externo ? (
+                      <ModalEditTipoEmailEducacionalButton formPreview={form} />
+                    ) : (
+                      <></>
+                    )}
                   </Row>
                 </Col>
                 <Col span={24}>
@@ -180,6 +293,97 @@ const MeusDados: React.FC = () => {
                     />
                     <ModalEditNovaSenhaButton />
                   </Row>
+                </Col>
+
+                <Col span={24}>
+                  <p
+                    style={{
+                      fontWeight: 700,
+                      fontStyle: 'Bold',
+                      fontSize: '20px',
+                      lineHeight: '100%',
+                      letterSpacing: '0%',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    Acessibilidade
+                  </p>
+                </Col>
+
+                <Col span={24}>
+                  <p style={{ marginBottom: '16px' }}>
+                    Compartilhe suas necessidades de acessibilidade para que possamos oferecer as
+                    adaptações necessárias. Você pode atualizar essas informações a qualquer
+                    momento.
+                  </p>
+                </Col>
+
+                <Col xs={24} sm={12}>
+                  <Form.Item
+                    label={<strong>Pessoa com deficiência?</strong>}
+                    name='pessoaComDeficiencia'
+                  >
+                    <Select
+                      allowClear
+                      placeholder='Selecione'
+                      options={[
+                        { label: 'Sim', value: 'Sim' },
+                        { label: 'Não', value: 'Não' },
+                        { label: 'Prefiro não responder', value: 'Prefiro não responder' },
+                      ]}
+                      onChange={(value) => {
+                        setPessoaComDeficiencia(value);
+                        form.setFieldValue('qualDeficiencia', undefined);
+                        setPrecisaDeAdaptacao(undefined);
+                        form.setFieldValue('precisaDeAdaptacao', undefined);
+                        form.setFieldValue('qualTipoAdaptacao', undefined);
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} sm={12}>
+                  <Form.Item label={<strong>Qual deficiência?</strong>} name='qualDeficiencia'>
+                    <Input
+                      placeholder='Informe a deficiência'
+                      maxLength={200}
+                      disabled={pessoaComDeficiencia !== 'Sim'}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} sm={12}>
+                  <Form.Item
+                    label={<strong>Precisa de adaptação?</strong>}
+                    name='precisaDeAdaptacao'
+                  >
+                    <Select
+                      allowClear
+                      placeholder='Selecione'
+                      disabled={pessoaComDeficiencia !== 'Sim'}
+                      options={[
+                        { label: 'Sim', value: 'Sim' },
+                        { label: 'Não', value: 'Não' },
+                      ]}
+                      onChange={(value) => {
+                        setPrecisaDeAdaptacao(value);
+                        form.setFieldValue('qualTipoAdaptacao', undefined);
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} sm={12}>
+                  <Form.Item
+                    label={<strong>Qual tipo de adaptação?</strong>}
+                    name='qualTipoAdaptacao'
+                  >
+                    <Input
+                      placeholder='Informe o tipo de adaptação'
+                      maxLength={200}
+                      disabled={precisaDeAdaptacao !== 'Sim'}
+                    />
+                  </Form.Item>
                 </Col>
               </Row>
             </Form>
