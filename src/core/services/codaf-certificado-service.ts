@@ -6,6 +6,7 @@ const URL_DEFAULT = 'v1/CodafCertificado';
 export type CodafCertificadoFiltroDTO = {
   NumeroHomologacao?: number | null;
   NomeFormacao?: string | null;
+  CodigoFormacao?: number | null;
   CodigoCertificado?: number | null;
   TipoCertificado?: number | null;
   DocumentoCursista?: string | null;
@@ -45,6 +46,7 @@ export const obterCertificadosCodaf = (
 
   if (filtros.NumeroHomologacao) params.NumeroHomologacao = filtros.NumeroHomologacao;
   if (filtros.NomeFormacao) params.NomeFormacao = filtros.NomeFormacao;
+  if (filtros.CodigoFormacao) params.CodigoFormacao = filtros.CodigoFormacao;
   if (filtros.CodigoCertificado) params.CodigoCertificado = filtros.CodigoCertificado;
   if (filtros.TipoCertificado !== null && filtros.TipoCertificado !== undefined)
     params.TipoCertificado = filtros.TipoCertificado;
