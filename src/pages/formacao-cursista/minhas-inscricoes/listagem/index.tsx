@@ -76,7 +76,7 @@ export const MinhasInscricoesListaPaginada = () => {
   const emptyState = (
     <Empty
       style={{ padding: '48px 0' }}
-      description="Você não está inscrito em nenhuma formação no momento."
+      description="Você não está inscrito em nenhuma formação no momento. Explore as formações disponíveis clicando no botão abaixo."
     >
       <Button
         type="primary"
