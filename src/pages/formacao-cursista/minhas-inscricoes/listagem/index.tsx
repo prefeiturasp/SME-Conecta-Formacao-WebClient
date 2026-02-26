@@ -1,5 +1,6 @@
 import {
   Button,
+  Empty,
   Row,
   Tabs,
   Form,
@@ -10,6 +11,7 @@ import {
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useContext, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 import DataTable from '~/components/lib/card-table';
@@ -34,6 +36,7 @@ import {
 import ModalEditCargoFuncaoButton from '../components/modal-edit-cargo-funcao/modal-edit-cargo-funcao-button';
 import ptBR from "antd/es/date-picker/locale/pt_BR";
 import "dayjs/locale/pt-br";
+import { ROUTES } from '~/core/enum/routes-enum';
 
 
 const { RangePicker } = DatePicker;
@@ -55,6 +58,7 @@ export interface InscricaoProps {
 
 export const MinhasInscricoesListaPaginada = () => {
   const { tableState } = useContext(DataTableContext);
+  const navigate = useNavigate();
   const perfilSelecionado = useAppSelector(
     (store) => store.perfil.perfilSelecionado?.perfilNome,
   );
@@ -64,6 +68,18 @@ export const MinhasInscricoesListaPaginada = () => {
     'andamento',
   );
   const [filtros, setFiltros] = useState<any>({});
+
+  const emptyState = (
+    <Empty style={{ padding: '48px 0' }} description='Você não está inscrito em nenhuma formação no momento. Explore as formações disponíveis clicando no botão abaixo.'>
+      <Button
+        type='primary'
+        onClick={() => navigate(ROUTES.AREA_PUBLICA)}
+        style={{ backgroundColor: '#FF9A52', borderColor: '#FF9A52' }}
+      >
+        Explorar formações disponíveis
+      </Button>
+    </Empty>
+  );
 
   const ehCursista =
     perfilSelecionado ===
@@ -393,7 +409,6 @@ export const MinhasInscricoesListaPaginada = () => {
     <Tabs
       className="abas-inscricoes"
       activeKey={abaAtiva}
-      type="card"
       onChange={(key) => {
         setAbaAtiva(key as any);
         form.resetFields();
@@ -409,6 +424,8 @@ export const MinhasInscricoesListaPaginada = () => {
               <DataTable
                 url={url}
                 columns={columnsAndamento}
+                locale={{ emptyText: emptyState }}
+                hideHeaderOnEmpty
               />
             </>
           ),
@@ -422,6 +439,8 @@ export const MinhasInscricoesListaPaginada = () => {
               <DataTable
                 url={url}
                 columns={columnsFinalizadas}
+                locale={{ emptyText: emptyState }}
+                hideHeaderOnEmpty
               />
             </>
           ),
