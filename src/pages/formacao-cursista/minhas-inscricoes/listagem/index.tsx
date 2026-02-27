@@ -76,7 +76,13 @@ export const MinhasInscricoesListaPaginada = () => {
   const emptyState = (
     <Empty
       style={{ padding: '48px 0' }}
-      description="Você não está inscrito em nenhuma formação no momento. Explore as formações disponíveis clicando no botão abaixo."
+      description={
+        <span>
+          Você não está inscrito em nenhuma formação no momento.
+          <br />
+          Explore as formações disponíveis clicando no botão abaixo.
+        </span>
+      }
     >
       <Button
         type="primary"
@@ -173,11 +179,11 @@ export const MinhasInscricoesListaPaginada = () => {
     { label: 'Transferida', value: 6 },
   ];
 
-  const situacaoAprovacaoOptions = [
+  /* const situacaoAprovacaoOptions = [
     { label: 'Aprovado', value: 1 },
     { label: 'Reprovado', value: 2 },
     { label: 'Não inscrito', value: 3 },
-  ];
+  ]; */
 
   const columnsBase: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao' },
@@ -223,11 +229,11 @@ export const MinhasInscricoesListaPaginada = () => {
       dataIndex: 'origem',
       render: (value) => value || '-',
     },
-    {
-      title: 'Situação da Aprovação',
-      dataIndex: 'situacaoAprovacao',
-      render: () => 'Oculto',
-    },
+    // {
+    //   title: 'Situação da Aprovação',
+    //   dataIndex: 'situacaoAprovacao',
+    //   render: () => 'Oculto',
+    // },
   ];
 
   const renderFiltros = () => (
@@ -305,7 +311,7 @@ export const MinhasInscricoesListaPaginada = () => {
                 <Select options={situacoesOptions} />
               </Form.Item>
             </Col>
-
+{/* 
             <Col xs={24} md={12}>
               <Form.Item
                 name="SituacaoAprovacao"
@@ -313,7 +319,7 @@ export const MinhasInscricoesListaPaginada = () => {
                 labelCol={{ style: { fontWeight: 600 } }}>
                 <Select options={situacaoAprovacaoOptions} />
               </Form.Item>
-            </Col>
+            </Col> */}
 
             <Col xs={24} md={12}>
               <Form.Item name="periodo" label="Período da formação" labelCol={{ style: { fontWeight: 600 } }}>
@@ -400,7 +406,7 @@ export const MinhasInscricoesListaPaginada = () => {
                 Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar os cursos que ainda vão acontecer e aqueles que já foram concluídos.
               </div>
 
-              <div className="tabs-linha" />
+              <div className="tabs-linha" style={{ margin: '35px 0' }} />
 
               {renderFiltros()}
 
@@ -419,10 +425,10 @@ export const MinhasInscricoesListaPaginada = () => {
           children: (
             <>
               <div className="tabs-mensagem">
-                Aqui você pode visualizar suas inscrições e aplicar filtros para gerenciar suas formações.
+                Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar os cursos que ainda vão acontecer e aqueles que já foram concluídos.
               </div>
 
-              <div className="tabs-linha" />
+              <div className="tabs-linha" style={{ margin: '35px 0' }} />
 
               {renderFiltros()}
 
