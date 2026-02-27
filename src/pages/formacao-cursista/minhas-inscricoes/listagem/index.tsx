@@ -179,11 +179,11 @@ export const MinhasInscricoesListaPaginada = () => {
     { label: 'Transferida', value: 6 },
   ];
 
-  const situacaoAprovacaoOptions = [
+  /* const situacaoAprovacaoOptions = [
     { label: 'Aprovado', value: 1 },
     { label: 'Reprovado', value: 2 },
     { label: 'Não inscrito', value: 3 },
-  ];
+  ]; */
 
   const columnsBase: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao' },
