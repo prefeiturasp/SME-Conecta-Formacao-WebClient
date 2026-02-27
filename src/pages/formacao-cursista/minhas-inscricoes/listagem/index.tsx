@@ -419,10 +419,10 @@ export const MinhasInscricoesListaPaginada = () => {
           children: (
             <>
               <div className="tabs-mensagem">
-                Aqui você pode visualizar suas inscrições e aplicar filtros para gerenciar suas formações.
+                Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar os cursos que ainda vão acontecer e aqueles que já foram concluídos.
               </div>
 
-              <div className="tabs-linha" />
+              <div className="tabs-linha" style={{ margin: '35px 0' }} />
 
               {renderFiltros()}
 
