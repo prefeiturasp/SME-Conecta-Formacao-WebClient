@@ -186,6 +186,9 @@ const CertificadosPesquisa: React.FC = () => {
       const filtros = {
         NomeFormacao: form.getFieldValue('nomeFormacao') || undefined,
         TipoCertificado: form.getFieldValue('tipoCertificado') ?? undefined,
+        CodigoFormacao: form.getFieldValue('codigoFormacao')
+          ? Number(form.getFieldValue('codigoFormacao'))
+          : undefined,
         NumeroHomologacao: form.getFieldValue('numeroHomologacao')
           ? Number(form.getFieldValue('numeroHomologacao'))
           : undefined,
