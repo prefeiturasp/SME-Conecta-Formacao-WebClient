@@ -1,7 +1,6 @@
 import { Form } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType } from 'antd/es/select';
-import { dayjs } from '~/core/date/dayjs';
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
@@ -34,9 +33,8 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({
     typeof modalidade === 'number' || (Array.isArray(modalidade) && modalidade.length > 0);
 
   const obterDados = useCallback(async () => {
-    const anoLetivoAtual = dayjs().year();
     if (valormodalidadeValido || obterValorModalidadeValido) {
-      const resposta = await obterAnoEtapa(anoLetivoAtual, modalidadeWatch, exibirOpcaoTodos);
+      const resposta = await obterAnoEtapa(0, modalidadeWatch, exibirOpcaoTodos);
 
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({

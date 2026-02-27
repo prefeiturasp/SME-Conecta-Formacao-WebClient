@@ -20,6 +20,8 @@ import { UsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria';
 import { FormUsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria/form-usuario';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
+import ListaPresencaCodaf from '~/pages/formacoes/lista-presenca-codaf';
+import CadastroListaPresencaCodaf from '~/pages/formacoes/lista-presenca-codaf/cadastro';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
 import { FormCadastrosInscricoesManuais } from '~/pages/formacoes/turmas-inscricoes/form';
 import { InscricoesPorArquivoListagem } from '~/pages/formacoes/turmas-inscricoes/listagem-arquivos';
@@ -35,6 +37,7 @@ import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
+import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -59,6 +62,8 @@ const RoutesConfig = () => {
       scrollNoInicio();
     }, [pathname]);
 
+    console.log(ListaPresencaCodaf, CadastroListaPresencaCodaf)
+
     return null;
   };
 
@@ -82,6 +87,7 @@ const RoutesConfig = () => {
                 <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
                 <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
                 <Route path={ROUTES.MEUS_DADOS} element={<MeusDadosProvider />} />
+                <Route path={ROUTES.CERTIFICADOS} element={<MeusCertificados />} />
                 <Route path={ROUTES.INSCRICAO_CURSISTA} element={<Inscricao />} />
                 <Route path={ROUTES.NOTIFICACOES} element={<Notificacoes />} />
                 <Route path={ROUTES.NOTIFICACOES_DETALHES} element={<NotificacoesDetalhes />} />
@@ -171,6 +177,24 @@ const RoutesConfig = () => {
                     />
                   </Route>
                 </Route>
+
+                {/* <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                    <Route path='' element={<ListaPresencaCodaf />} />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                    <Route
+                      path={ROUTES.LISTA_PRESENCA_CODAF_NOVO}
+                      element={<CadastroListaPresencaCodaf />}
+                    />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                    <Route
+                      path={ROUTES.LISTA_PRESENCA_CODAF_EDITAR}
+                      element={<CadastroListaPresencaCodaf />}
+                    />
+                  </Route>
+                </Route> */}
               </Route>
             </Route>
           </>

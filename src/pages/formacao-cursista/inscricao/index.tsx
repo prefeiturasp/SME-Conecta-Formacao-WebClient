@@ -339,8 +339,8 @@ export const Inscricao = () => {
                     name: 'arquivoId',
                     label: 'Upload',
                   }}
-                  tipoArquivosPermitidos=',.pdf'
-                  subTitulo='Permite apenas arquivos e imagens com no máximo 5MB cada'
+                  tipoArquivosPermitidos='.pdf'
+                  subTitulo='Permite apenas arquivos PDF com no máximo 5MB cada'
                 />
               </Col>
 

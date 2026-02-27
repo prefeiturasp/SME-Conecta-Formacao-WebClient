@@ -204,7 +204,14 @@ export const alterarRegistro = async <T>(
 };
 
 const tratarMensagem = (error: AxiosError<RetornoBaseDTO>) => {
-  let mensagens = error?.response?.data?.mensagens?.length ? error?.response?.data?.mensagens : [];
+  const data = error?.response?.data as any;
+  let mensagens: string[] = [];
+
+  if (data?.mensagens?.length) {
+    mensagens = data.mensagens;
+  } else if (data?.erros?.length) {
+    mensagens = data.erros;
+  }
 
   if (error?.response?.status == 503) mensagens = [SERVICO_INDISPONIVEL];
 
