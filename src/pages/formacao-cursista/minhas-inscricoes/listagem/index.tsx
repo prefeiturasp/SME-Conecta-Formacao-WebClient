@@ -247,13 +247,13 @@ export const MinhasInscricoesListaPaginada = () => {
           <>
             <Col xs={24} md={12} lg={8}>
               <Form.Item name="CodigoFormacao" label="Código da formação" labelCol={{ style: { fontWeight: 600 } }}>
-                <Input />
+                <Input allowClear />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12} lg={8}>
               <Form.Item name="NomeFormacao" label="Nome da formação" labelCol={{ style: { fontWeight: 600 } }}>
-                <Input />
+                <Input allowClear />
               </Form.Item>
             </Col>
 
@@ -263,13 +263,14 @@ export const MinhasInscricoesListaPaginada = () => {
                   style={{ width: '100%' }}
                   format="DD/MM/YYYY"
                   locale={ptBR}
+                  allowClear
                 />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12} lg={8}>
               <Form.Item name="NomeTurma" label="Turma" labelCol={{ style: { fontWeight: 600 } }}>
-                <Input />
+                <Input allowClear />
               </Form.Item>
             </Col>
 
@@ -283,13 +284,15 @@ export const MinhasInscricoesListaPaginada = () => {
                   format="DD/MM/YYYY"
                   locale={ptBR}
                   allowEmpty={[true, true]}
+                  allowClear
                 />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12} lg={8}>
               <Form.Item name="Situacao" label="Situação" labelCol={{ style: { fontWeight: 600 } }}>
-                <Select options={situacoesOptions} />
+                <Select options={situacoesOptions}
+                  allowClear />
               </Form.Item>
             </Col>
           </>
@@ -299,7 +302,7 @@ export const MinhasInscricoesListaPaginada = () => {
           <>
             <Col xs={24} md={12}>
               <Form.Item name="NomeFormacao" label="Nome da formação" labelCol={{ style: { fontWeight: 600 } }}>
-                <Input />
+                <Input allowClear />
               </Form.Item>
             </Col>
 
@@ -308,7 +311,8 @@ export const MinhasInscricoesListaPaginada = () => {
                 name="SituacaoInscricao"
                 label="Situação da inscrição"
                 labelCol={{ style: { fontWeight: 600 } }}>
-                <Select options={situacoesOptions} />
+                <Select options={situacoesOptions} 
+                  allowClear />
               </Form.Item>
             </Col>
 {/* 
@@ -328,6 +332,7 @@ export const MinhasInscricoesListaPaginada = () => {
                   format="DD/MM/YYYY"
                   locale={ptBR}
                   allowEmpty={[true, true]}
+                  allowClear
                 />
               </Form.Item>
             </Col>
@@ -399,7 +404,7 @@ export const MinhasInscricoesListaPaginada = () => {
       items={[
         {
           key: 'andamento',
-          label: 'Próximas formações',
+          label: 'Formações em andamento',
           children: (
             <>
               <div className="tabs-mensagem">
