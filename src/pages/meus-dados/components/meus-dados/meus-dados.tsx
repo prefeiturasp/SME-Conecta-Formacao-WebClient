@@ -158,6 +158,7 @@ const MeusDados: React.FC = () => {
                 type='primary'
                 onClick={onClickSalvar}
                 loading={loading}
+                disabled={!pessoaComDeficiencia}
                 id={CF_BUTTON_SALVAR}
                 style={{ fontWeight: 700 }}
               >
@@ -322,9 +323,9 @@ const MeusDados: React.FC = () => {
                   <Form.Item
                     label={<strong>Pessoa com deficiência?</strong>}
                     name='pessoaComDeficiencia'
+                    rules={[{ required: true }]}
                   >
                     <Select
-                      allowClear
                       placeholder='Selecione'
                       options={[
                         { label: 'Sim', value: 'Sim' },
