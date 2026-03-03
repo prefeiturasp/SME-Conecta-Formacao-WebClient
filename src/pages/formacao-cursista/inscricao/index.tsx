@@ -391,7 +391,11 @@ export const Inscricao = () => {
                 <SelectTurma propostaId={propostaId} />
               </Col>
               <Col xs={24} sm={8}>
-                <Form.Item label='Pessoa com deficiência?' name='pessoaComDeficiencia'>
+                <Form.Item
+                  label='Pessoa com deficiência?'
+                  name='pessoaComDeficiencia'
+                  rules={[{ required: true }]}
+                >
                   <Select
                     allowClear
                     placeholder='Selecione'
