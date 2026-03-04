@@ -11,22 +11,51 @@ export const TagTipoFormacaoFormato = styled(Tag)`
   background-color: #ececee;
   color: #58616a;
   font-weight: bold;
+  margin-bottom: 15px;
 `;
 
-export const TextPeriodo = styled(Typography.Text)`
-  font-size: 16px;
-  color: #f86041;
+export const TextLabel = styled(Typography.Text)`
+  font-size: 15px;
   font-weight: bold;
 `;
 
-export const TextTitulo = styled(Typography.Text)`
-  font-size: 22px;
-  font-weight: bold;
-  color: #1c2833;
-`;
-
-export const TextAreaPromotora = styled(Typography.Text)`
+export const Titulo = styled(Typography.Text)`
   font-size: 18px;
-  color: #58616a;
-  font-weight: 500;
+  font-weight: bold;
+  margin-bottom: 15px;
+
+  line-height: 1.2em;
+  min-height: calc(1.2em * 2);
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export const Info = styled.div`
+  margin-bottom: 8px;
+`;
+
+export const Label = styled.span`
+  font-weight: 700;
+`;
+
+export const Value = styled.span`
+  font-weight: 400;
+  margin-left: 4px;
+`;
+
+export const ValueDuplo = styled.div`
+  font-weight: 400;
+  margin-top: 4px;
+
+  line-height: 1.4em;
+  min-height: calc(1.4em * 2);
+
+  overflow: hidden;
+
+  margin-bottom: 10px;
 `;
