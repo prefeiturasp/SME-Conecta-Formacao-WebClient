@@ -1,4 +1,4 @@
-import { Form, List } from 'antd';
+import { Form, List, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { PaginationConfig } from 'antd/es/pagination';
 import dayjs from 'dayjs';
@@ -10,7 +10,8 @@ import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { CardFiltroFormacao } from './components/card-filtro-formacao';
 import { CardFormacao } from './components/card-formacao';
-import { DivTitulo, TextTitulo } from './styles';
+
+const { Title, Text } = Typography;
 
 type ListParams = {
   pagination?: PaginationConfig;
@@ -108,9 +109,16 @@ export const ListFormacao: React.FC = () => {
         <CardFiltroFormacao />
       </Form>
 
-      <DivTitulo>
-        <TextTitulo>Próximas formações</TextTitulo>
-      </DivTitulo>
+      <div style={{ marginTop: 24, marginBottom: 24 }}>
+        <Title level={3} style={{ marginBottom: 12 }}>
+          Próximas formações
+        </Title>
+          <></>
+        <Text type="secondary" style={{ color: "#2e2d2d" }}>
+          Estas são as próximas formações planejadas. Antes de se inscrever, confira as retrições que podem haver para o seu perfil.
+        </Text>
+      </div>
+      
 
       <List
         grid={{ gutter: 16, xs: 1, sm: 2, md: 2, lg: 4, xl: 4, xxl: 4 }}

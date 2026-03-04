@@ -6,7 +6,7 @@ import { SAIBA_MAIS } from '~/core/constants/mensagens';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { ImgFormacao } from '../img-formacao';
-import { TagTipoFormacaoFormato, TextAreaPromotora, TextPeriodo, TextTitulo } from './styles';
+import { Info, Label, TagTipoFormacaoFormato, Titulo, Value, ValueDuplo } from './styles';
 
 type CardFormacaoProps = {
   formacao: FormacaoDTO;
@@ -22,52 +22,47 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
     });
   return (
     <Card
-      cover={
-        <ImgFormacao url={formacao.imagemUrl} inscricaoEncerrada={formacao.inscricaoEncerrada} />
-      }
-    >
-      <Col xs={24}>
-        <Row wrap={false} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <Row>
-            <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
-              <TextPeriodo>Período de realização: {formacao.periodo}</TextPeriodo>
-            </Col>
+      cover={<ImgFormacao url={formacao.imagemUrl} inscricaoEncerrada={formacao.inscricaoEncerrada} /> }>
 
-            <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
-              <TextPeriodo>Período de inscrição: {formacao.periodoInscricao}</TextPeriodo>
-            </Col>
+      <Titulo>{formacao.titulo}</Titulo>
 
-            <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
-              <TextTitulo>{formacao.titulo}</TextTitulo>
-            </Col>
-          </Row>
-          <Row gutter={[10, 10]}>
-            <Col xs={24} style={{ maxHeight: 104, overflow: 'auto' }}>
-              <TextAreaPromotora>Área promotora: {formacao.areaPromotora}</TextAreaPromotora>
-            </Col>
+      <Info>
+        <Label>Período de realização:</Label>
+        <Value>{formacao.periodo}</Value>
+      </Info>
 
-            <Col xs={24}>
-              <Row gutter={[10, 10]} wrap={false}>
-                <Col>
-                  <TagTipoFormacaoFormato icon={<FaGraduationCap size={16} />}>
-                    {formacao.tipoFormacaoDescricao}
-                  </TagTipoFormacaoFormato>
-                </Col>
-                <Col>
-                  <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={16} />}>
-                    {formacao.formatoDescricao}
-                  </TagTipoFormacaoFormato>
-                </Col>
-              </Row>
-            </Col>
-            <Col xs={24}>
-              <Button type='primary' shape='round' size='large' block onClick={abrirFormacao}>
-                {SAIBA_MAIS}
-              </Button>
-            </Col>
-          </Row>
+      <Info>
+        <Label>Período de inscrição:</Label>
+        <Value>{formacao.periodoInscricao}</Value>
+      </Info>
+      <Info>
+        <Label>Área promotora:</Label>
+        <ValueDuplo>
+          {formacao.areaPromotora}
+        </ValueDuplo>
+      </Info>
+
+      <Info>
+        <Row gutter={10} wrap={false}>
+          <Col>
+            <TagTipoFormacaoFormato icon={<FaGraduationCap size={16} />}>
+              {formacao.tipoFormacaoDescricao}
+            </TagTipoFormacaoFormato>
+          </Col>
+
+          <Col>
+            <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={16} />}>
+              {formacao.formatoDescricao}
+            </TagTipoFormacaoFormato>
+          </Col>
         </Row>
-      </Col>
+      </Info>
+
+
+      <Button type='primary' size='large' block onClick={abrirFormacao}>
+        {SAIBA_MAIS}
+      </Button>
+
     </Card>
   );
 };
