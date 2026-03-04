@@ -114,7 +114,7 @@ export const ListFormacao: React.FC = () => {
           Próximas formações
         </Title>
           <></>
-        <Text type="secondary">
+        <Text type="secondary" style={{ color: "#2e2d2d" }}>
           Estas são as próximas formações planejadas. Antes de se inscrever, confira as retrições que podem haver para o seu perfil.
         </Text>
       </div>

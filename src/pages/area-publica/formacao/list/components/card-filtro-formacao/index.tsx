@@ -17,6 +17,7 @@ export const CardFiltroFormacao: FC = () => {
         .ant-form-item-label > label {
           font-weight: 600;
         }
+          
       `}
     </style>
 
@@ -25,7 +26,7 @@ export const CardFiltroFormacao: FC = () => {
         Nova inscrição
       </Title>
         <></>
-      <Text type="secondary">
+      <Text type="secondary" style={{ color: "#2e2d2d" }}>
         Confira quais são as formações disponíveis e realize a inscrição.
       </Text>
     </div>
