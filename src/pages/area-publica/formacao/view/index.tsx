@@ -61,6 +61,7 @@ const VisualizarFormacao: FC = () => {
           </Row>
         </Col>
       </HeaderPage>
+      
       <DadosDestaque dadosFormacao={dadosFormacao} propostaId={id} />
 
       <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>

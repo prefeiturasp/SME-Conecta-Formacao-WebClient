@@ -1,5 +1,5 @@
 import { CalendarOutlined } from '@ant-design/icons';
-import { Button, Col, Flex, Row, Tag, Typography } from 'antd';
+import { Button, Card, Col, Flex, Row, Tag, Typography } from 'antd';
 import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -18,6 +18,8 @@ type DadosDestaqueProps = {
   dadosFormacao: RetornoDetalheFormacaoDTO | undefined;
   propostaId?: number;
 };
+
+const { Title } = Typography;
 
 const styleTypographyText = {
   fontSize: 22,
@@ -79,64 +81,72 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
     return false;
   };
   return (
-    <Flex justify='left'>
-      <Row gutter={24}>
-        <Col span={9.6}>
-          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '100%' }} />
+    <Card>
+      <Row>
+        <Col span={6}>
+          { }
         </Col>
-
-        <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
-          <Typography.Title level={2}>{dadosInscricao?.titulo}</Typography.Title>
-
-          <Typography.Text style={styleTypographyText}>
-            Área Promotora: {dadosInscricao?.areaPromotora}
-          </Typography.Text>
-          <Row>
-            <TagTipoFormacaoFormato
-              icon={<FaGraduationCap size={22} />}
-              style={styleTypographyText}
-            >
-              {dadosInscricao?.tipoFormacaoDescricao}
-            </TagTipoFormacaoFormato>
-            <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={22} />} style={styleTypographyText}>
-              {dadosInscricao?.formatoDescricao}
-            </TagTipoFormacaoFormato>
-          </Row>
-
-          <Typography.Text style={styleTypographyText}>
-            <CalendarOutlined /> Período de realização: {dadosInscricao?.periodo}
-          </Typography.Text>
-
-          <Typography.Text style={styleTypographyText}>
-            <CalendarOutlined /> Período de inscrição: {dadosInscricao?.periodoInscricao}
-          </Typography.Text>
-
-          <Col span={24}>
-            {linkInscricaoExterna ? (
-              <Button type='primary' shape='round' size='large'>
-                <Link
-                  to={linkInscricaoExterna}
-                  target='_blank'
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  {BOTAO_INSCRICAO_EXTERNA}
-                </Link>
-              </Button>
-            ) : (
-              <Button
-                type='primary'
-                shape='round'
-                size='large'
-                onClick={setarDadosInscricao}
-                disabled={desabilitarInscricao()}
-              >
-                {ENVIAR_INSCRICAO}
-              </Button>
-            )}
-          </Col>
-        </Flex>
+        <Col span={18}>
+          <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
+            <Title level={3}><Typography.Title level={2}>{dadosInscricao?.titulo}</Typography.Title></Title>
+          </Flex>
+        </Col>
       </Row>
-    </Flex>
+
+      <Row>
+        <Col span={6}>
+          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '50%' }} />
+        </Col>
+        <Col span={18}>
+          <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
+
+            <Row>
+              <TagTipoFormacaoFormato icon={<FaGraduationCap size={22} />} style={styleTypographyText}>
+                {dadosInscricao?.tipoFormacaoDescricao}
+              </TagTipoFormacaoFormato>
+              <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={22} />} style={styleTypographyText}>
+                {dadosInscricao?.formatoDescricao}
+              </TagTipoFormacaoFormato>
+            </Row>
+
+            <Typography.Text style={styleTypographyText}>
+              Área Promotora: {dadosInscricao?.areaPromotora}
+            </Typography.Text>
+            <Typography.Text style={styleTypographyText}>
+              <CalendarOutlined /> Período de realização: {dadosInscricao?.periodo}
+            </Typography.Text>
+
+            <Typography.Text style={styleTypographyText}>
+              <CalendarOutlined /> Período de inscrição: {dadosInscricao?.periodoInscricao}
+            </Typography.Text>
+
+            <Col span={24}>
+              {linkInscricaoExterna ? (
+                <Button type='primary' shape='round' size='large'>
+                  <Link
+                    to={linkInscricaoExterna}
+                    target='_blank'
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {BOTAO_INSCRICAO_EXTERNA}
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  type='primary'
+                  shape='round'
+                  size='large'
+                  onClick={setarDadosInscricao}
+                  disabled={desabilitarInscricao()}
+                >
+                  {ENVIAR_INSCRICAO}
+                </Button>
+              )}
+            </Col>
+          </Flex>
+        </Col>
+      </Row>
+    </Card>
   );
 };
 
