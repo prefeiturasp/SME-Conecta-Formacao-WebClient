@@ -35,4 +35,5 @@ export enum ROUTES {
   CERTIFICADOS_PESQUISA = '/certificados-pesquisa',
   LISTA_PRESENCA_CODAF_NOVO = '/formacoes/lista-presenca-codaf/novo',
   LISTA_PRESENCA_CODAF_EDITAR = '/formacoes/lista-presenca-codaf/editar/:id',
+  RELATORIO_INSCRITOS_POR_FORMACAO = '/relatorios/inscritos-por-formacao',
 }
