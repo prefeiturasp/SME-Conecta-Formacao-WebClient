@@ -22,7 +22,7 @@ type DadosDestaqueProps = {
 const { Title } = Typography;
 
 const styleTypographyText = {
-  fontSize: 22,
+  fontSize: 20,
 };
 
 const TagTipoFormacaoFormato = styled(Tag)`
@@ -30,7 +30,7 @@ const TagTipoFormacaoFormato = styled(Tag)`
   display: flex;
   align-items: center;
   border-radius: 50px;
-  padding: 5px 10px;
+  padding: 7px 10px;
   border: none;
   background-color: #ececee;
   color: #58616a;
@@ -88,19 +88,19 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
         </Col>
         <Col span={18}>
           <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
-            <Title level={3}><Typography.Title level={2}>{dadosInscricao?.titulo}</Typography.Title></Title>
+            <Typography.Title level={2}>{dadosInscricao?.titulo}</Typography.Title>
           </Flex>
         </Col>
       </Row>
 
       <Row>
-        <Col span={6}>
-          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '50%' }} />
+        <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '70%' }} />
         </Col>
         <Col span={18}>
-          <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
+          <Flex gap={5} vertical justify='space-between' style={{ padding: '0px 15px 15px 15px' }}>
 
-            <Row>
+            <Row style={{ marginTop: 0, marginBottom: 10 }}>
               <TagTipoFormacaoFormato icon={<FaGraduationCap size={22} />} style={styleTypographyText}>
                 {dadosInscricao?.tipoFormacaoDescricao}
               </TagTipoFormacaoFormato>
@@ -110,39 +110,43 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
             </Row>
 
             <Typography.Text style={styleTypographyText}>
-              Área Promotora: {dadosInscricao?.areaPromotora}
-            </Typography.Text>
-            <Typography.Text style={styleTypographyText}>
-              <CalendarOutlined /> Período de realização: {dadosInscricao?.periodo}
+              <strong>Período de realização:</strong> {dadosInscricao?.periodo}
             </Typography.Text>
 
             <Typography.Text style={styleTypographyText}>
-              <CalendarOutlined /> Período de inscrição: {dadosInscricao?.periodoInscricao}
+              <strong>Período de inscrição:</strong> {dadosInscricao?.periodoInscricao}
             </Typography.Text>
 
-            <Col span={24}>
-              {linkInscricaoExterna ? (
-                <Button type='primary' shape='round' size='large'>
-                  <Link
-                    to={linkInscricaoExterna}
-                    target='_blank'
-                    style={{ textDecoration: 'none', color: 'inherit' }}
+            <Typography.Text style={styleTypographyText}>
+              <strong>Área Promotora:</strong> {dadosInscricao?.areaPromotora}
+            </Typography.Text>
+
+
+            <Row style={{ marginTop: 20, marginBottom: 10 }}>
+              <Col span={24}>
+                {linkInscricaoExterna ? (
+                  <Button type='primary' size='large' style={{ width: 500 }}>
+                    <Link
+                      to={linkInscricaoExterna}
+                      target='_blank'
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <strong>{BOTAO_INSCRICAO_EXTERNA}</strong>
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    type='primary'
+                    size='large'
+                    onClick={setarDadosInscricao}
+                    disabled={desabilitarInscricao()}
+                    style={{ width: 500 }}
                   >
-                    {BOTAO_INSCRICAO_EXTERNA}
-                  </Link>
-                </Button>
-              ) : (
-                <Button
-                  type='primary'
-                  shape='round'
-                  size='large'
-                  onClick={setarDadosInscricao}
-                  disabled={desabilitarInscricao()}
-                >
-                  {ENVIAR_INSCRICAO}
-                </Button>
-              )}
-            </Col>
+                    <strong>{ENVIAR_INSCRICAO}</strong>
+                  </Button>
+                )}
+              </Col>
+            </Row>
           </Flex>
         </Col>
       </Row>
