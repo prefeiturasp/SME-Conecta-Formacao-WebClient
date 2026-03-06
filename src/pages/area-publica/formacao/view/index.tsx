@@ -1,32 +1,27 @@
-import { Col, Row, Tag, Typography } from 'antd';
+import { Col, Divider, Row, Tag, Typography } from 'antd';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { PALAVRAS_CHAVES, PUBLICO_ALVO, SOBRE_ESTE_EVENTO } from '~/core/constants/mensagens';
+import { PALAVRAS_CHAVES, PUBLICO_ALVO, SOBRE_ESTE_CURSO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
 import { Colors } from '~/core/styles/colors';
 import CardTurmasPublico from '../../components/card-turmas';
 import DadosDestaque from '../list/components/dados-destaque';
-import { DivTitulo, TextTitulo } from '../list/styles';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
-import ButtonVoltar from '~/components/main/button/voltar';
-import HeaderPage from '~/components/lib/header-page';
+import { HomeFilled } from '@ant-design/icons';
 
-const PalavraChave = styled(Tag)`
-  font-size: 14px;
+const PalavrasTag = styled(Tag)`
+  font-size: 12px;
   border-radius: 20px;
   padding: 5px 10px 5px 10px;
   margin-top: 10px;
   margin-bottom: 10px;
   border: none;
+  font-weight: bold;
   background-color: ${Colors.Neutral.DARK};
   color: ${Colors.Neutral.WHITE};
-`;
-
-const ListaPublicAlvo = styled.ul`
-  padding-left: 27px;
 `;
 
 const VisualizarFormacao: FC = () => {
@@ -52,83 +47,86 @@ const VisualizarFormacao: FC = () => {
 
   return (
     <>
-      <HeaderPage title=''>
-        <Col span={24}>
-          <Row gutter={[8, 8]}>
-            <Col>
-              <ButtonVoltar onClick={() => onClickVoltar()} id={CF_BUTTON_VOLTAR} />
-            </Col>
-          </Row>
+      <Row style={{ width: '100%', padding: '16px 0' }}>
+        <Col>
+          <Typography.Link
+            onClick={() => onClickVoltar()}
+            id={CF_BUTTON_VOLTAR}
+            style={{
+              fontSize: 16,
+              fontWeight: 500,
+              color: '#ff9a52',
+              display: 'flex',
+              alignItems: 'center',
+              paddingBottom: 20,
+            }}>
+            <HomeFilled style={{ marginRight: 6 }} />
+            Início
+          </Typography.Link>
         </Col>
-      </HeaderPage>
-      
-      <DadosDestaque dadosFormacao={dadosFormacao} propostaId={id} />
-
-      <Typography.Title level={3} style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}>
-        {SOBRE_ESTE_EVENTO}
-      </Typography.Title>
-      <Row>
-        <Typography
-          style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}
-          dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa || '' }}
-        />
       </Row>
-      <Row style={{ paddingTop: 20 }}>
-        {dadosFormacao?.publicosAlvo?.length ? (
-          <Typography.Title level={4} style={{ paddingRight: 80 }}>
-            <Typography.Title
-              level={3}
-              style={{ paddingTop: 25, color: '#58616A', fontWeight: 700 }}
-            >
-              {PUBLICO_ALVO}
+
+      <div style={{ background: '#fff', minHeight: '100vh', padding: 24 }}>
+
+        <DadosDestaque dadosFormacao={dadosFormacao} propostaId={id} />
+
+        <Divider style={{ borderTop: '2px solid #d9d9d9', paddingBottom: 20 }} />
+
+        <Row gutter={32}>
+
+          <Col span={12}>
+            <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
+              {SOBRE_ESTE_CURSO}
             </Typography.Title>
 
-            <Col>
-              <ListaPublicAlvo>
-                {dadosFormacao?.publicosAlvo?.map((publico, i) => {
-                  return (
-                    <li key={i}>
-                      <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
-                        {publico}
-                      </Typography.Text>
-                    </li>
-                  );
-                })}
-              </ListaPublicAlvo>
-            </Col>
-          </Typography.Title>
-        ) : (
-          <></>
-        )}
-
-        <Typography.Title level={4}>
-          <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
-            {PALAVRAS_CHAVES}
-          </Typography.Title>
-          <Row>
-            {dadosFormacao?.palavrasChaves?.map((palavra, i) => {
-              return <PalavraChave key={i}>{palavra}</PalavraChave>;
-            })}
-          </Row>
-        </Typography.Title>
-      </Row>
-
-      <DivTitulo>
-        <TextTitulo>Turmas</TextTitulo>
-      </DivTitulo>
-      <Col>
-        {dadosFormacao?.turmas?.map((turma, i) => {
-          return (
-            <CardTurmasPublico
-              key={i}
-              titulo={turma.nome}
-              datas={turma?.periodos}
-              local={turma.local}
-              turmaEncerrada={turma.inscricaoEncerrada}
+            <Typography
+              style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}
+              dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa || '' }}
             />
-          );
-        })}
-      </Col>
+          </Col>
+
+          {dadosFormacao?.publicosAlvo?.length ? (
+            <Col span={6}>
+              <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
+                {PUBLICO_ALVO}
+              </Typography.Title>
+
+              {dadosFormacao?.publicosAlvo?.map((publico, i) => (
+                <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
+                  <PalavrasTag key={i}>{publico}</PalavrasTag>
+                </Typography.Text>
+              ))}
+            </Col>
+          ) : null}
+
+          <Col span={6}>
+            <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
+              {PALAVRAS_CHAVES}
+            </Typography.Title>
+
+            <Row>
+              {dadosFormacao?.palavrasChaves?.map((palavra, i) => (
+                <PalavrasTag key={i}>{palavra}</PalavrasTag>
+              ))}
+            </Row>
+          </Col>
+        </Row>
+
+        <Divider style={{ borderTop: '2px solid #d9d9d9', paddingBottom: 20 }} />
+
+        <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700, paddingBottom: 20 }}>
+          Turmas
+        </Typography.Title>
+
+        <Row gutter={[16, 16]}>
+          {dadosFormacao?.turmas?.map((turma) => (
+            <Col key={turma.nome} xs={24} md={12} lg={8}>
+              <CardTurmasPublico turma={turma} />
+            </Col>
+          ))}
+        </Row>
+
+      </div>
     </>
   );
 };

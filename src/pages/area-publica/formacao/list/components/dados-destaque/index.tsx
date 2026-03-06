@@ -1,4 +1,3 @@
-import { CalendarOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Flex, Row, Tag, Typography } from 'antd';
 import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
@@ -18,8 +17,6 @@ type DadosDestaqueProps = {
   dadosFormacao: RetornoDetalheFormacaoDTO | undefined;
   propostaId?: number;
 };
-
-const { Title } = Typography;
 
 const styleTypographyText = {
   fontSize: 20,
@@ -81,7 +78,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
     return false;
   };
   return (
-    <Card>
+    <>
       <Row>
         <Col span={6}>
           { }
@@ -140,7 +137,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
                     size='large'
                     onClick={setarDadosInscricao}
                     disabled={desabilitarInscricao()}
-                    style={{ width: 500 }}
+                    style={{ width: 400 }}
                   >
                     <strong>{ENVIAR_INSCRICAO}</strong>
                   </Button>
@@ -150,7 +147,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
           </Flex>
         </Col>
       </Row>
-    </Card>
+    </>
   );
 };
 
