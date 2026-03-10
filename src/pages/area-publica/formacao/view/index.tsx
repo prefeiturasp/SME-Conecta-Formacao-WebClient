@@ -2,7 +2,7 @@ import { Col, Divider, Row, Tag, Typography } from 'antd';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { PALAVRAS_CHAVES, PUBLICO_ALVO, SOBRE_ESTE_CURSO } from '~/core/constants/mensagens';
+import { PUBLICO_ALVO_VAGAS_REMANESCENTES, PUBLICO_ALVO, SOBRE_ESTE_CURSO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
 import { Colors } from '~/core/styles/colors';
@@ -101,7 +101,7 @@ const VisualizarFormacao: FC = () => {
 
           <Col span={6}>
             <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
-              {PALAVRAS_CHAVES}
+              {PUBLICO_ALVO_VAGAS_REMANESCENTES}
             </Typography.Title>
 
             <Row>
