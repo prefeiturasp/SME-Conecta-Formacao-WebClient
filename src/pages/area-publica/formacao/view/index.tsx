@@ -107,8 +107,8 @@ const VisualizarFormacao: FC = () => {
             </Typography.Title>
 
             <Row>
-              {dadosFormacao?.palavrasChaves?.map((palavra, i) => (
-                <PalavrasTag key={i}>{palavra}</PalavrasTag>
+              {dadosFormacao?.palavrasChaves?.map((palavra) => (
+                <PalavrasTag key={palavra}>{palavra}</PalavrasTag>
               ))}
             </Row>
           </Col>
