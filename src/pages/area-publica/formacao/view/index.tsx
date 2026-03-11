@@ -91,11 +91,13 @@ const VisualizarFormacao: FC = () => {
                 {PUBLICO_ALVO}
               </Typography.Title>
 
-              {dadosFormacao?.publicosAlvo?.map((publico, i) => (
-                <Typography.Text style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
-                  <PalavrasTag key={i}>{publico}</PalavrasTag>
-                </Typography.Text>
-              ))}
+          {dadosFormacao?.publicosAlvo?.map((publico) => (
+            <Typography.Text
+              key={publico}
+              style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
+              <PalavrasTag>{publico}</PalavrasTag>
+            </Typography.Text>
+          ))}
             </Col>
           ) : null}
 

@@ -1,19 +1,28 @@
 import React from "react";
 import { Card, Row, Col } from "antd";
 
-const gerarDatas = (periodo: string, horario: any) => {
+const gerarDatas = (periodo: string, horario: string): string[] => {
   const regex = /De (\d{2}\/\d{2}) até (\d{2}\/\d{2})/;
-  const match = periodo.match(regex);
+  const match = regex.exec(periodo);
+
   if (!match) return [];
 
-  const [_, start, end] = match;
+  const start = match[1];
+  const end = match[2];
+
   const [startDia, startMes] = start.split("/").map(Number);
   const [endDia] = end.split("/").map(Number);
 
-  let datas = [];
+  const datas: string[] = [];
+
   for (let dia = startDia; dia <= endDia; dia++) {
-    datas.push(`${dia.toString().padStart(2, '0')}/${startMes.toString().padStart(2, '0')} ${horario}`);
+    datas.push(
+      `${dia.toString().padStart(2, "0")}/${startMes
+        .toString()
+        .padStart(2, "0")} ${horario}`
+    );
   }
+
   return datas;
 };
 
@@ -31,8 +40,8 @@ const CardTurmasPublico = ({ turma }: { turma: any }) => {
           <div>
             <strong>Datas dos encontros:</strong>
             {periodos.map((periodo: string) =>
-              gerarDatas(periodo, horario).map((data: string) => (
-                <div>{data}</div>
+              gerarDatas(periodo, horario).map((data: string, index: number) => (
+                <div key={`${data}-${index}`}>{data}</div>
               ))
             )}
           </div>

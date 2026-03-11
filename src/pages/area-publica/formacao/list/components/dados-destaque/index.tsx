@@ -92,7 +92,9 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
 
       <Row>
         <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
-          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '70%' }} />
+          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao}
+          alt="Imagem da formação"
+          style={{ width: '70%' }} />
         </Col>
         <Col span={18}>
           <Flex gap={5} vertical justify='space-between' style={{ padding: '0px 15px 15px 15px' }}>
