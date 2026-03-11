@@ -1,26 +1,29 @@
 import React from "react";
 import { Card, Row, Col } from "antd";
 
+
 const gerarDatas = (periodo: string, horario: string): string[] => {
-  const regex = /De (\d{2}\/\d{2}) até (\d{2}\/\d{2})/;
-  const match = regex.exec(periodo);
+  const regex = /De (\d{2})\/(\d{2})\/(\d{4}) até (\d{2})\/(\d{2})\/(\d{4})/;
+  const match = periodo.match(regex);
 
   if (!match) return [];
 
-  const start = match[1];
-  const end = match[2];
+  const [, d1, m1, a1, d2, m2, a2] = match.map(Number);
 
-  const [startDia, startMes] = start.split("/").map(Number);
-  const [endDia] = end.split("/").map(Number);
+  const dataInicio = new Date(a1, m1 - 1, d1);
+  const dataFim = new Date(a2, m2 - 1, d2);
 
   const datas: string[] = [];
+  const dataAtual = new Date(dataInicio);
 
-  for (let dia = startDia; dia <= endDia; dia++) {
-    datas.push(
-      `${dia.toString().padStart(2, "0")}/${startMes
-        .toString()
-        .padStart(2, "0")} ${horario}`
-    );
+  while (dataAtual <= dataFim) {
+    const dia = String(dataAtual.getDate()).padStart(2, "0");
+    const mes = String(dataAtual.getMonth() + 1).padStart(2, "0");
+    const ano = dataAtual.getFullYear();
+
+    datas.push(`${dia}/${mes}/${ano} ${horario}`);
+
+    dataAtual.setDate(dataAtual.getDate() + 1);
   }
 
   return datas;
