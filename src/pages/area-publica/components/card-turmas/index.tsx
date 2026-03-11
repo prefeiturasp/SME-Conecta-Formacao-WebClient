@@ -8,7 +8,7 @@ const gerarDatas = (periodo: string, horario: any) => {
 
   const [_, start, end] = match;
   const [startDia, startMes] = start.split("/").map(Number);
-  const [endDia, endMes] = end.split("/").map(Number);
+  const [endDia] = end.split("/").map(Number);
 
   let datas = [];
   for (let dia = startDia; dia <= endDia; dia++) {

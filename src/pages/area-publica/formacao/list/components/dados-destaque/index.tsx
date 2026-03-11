@@ -1,4 +1,4 @@
-import { Button, Card, Col, Flex, Row, Tag, Typography } from 'antd';
+import { Button, Col, Flex, Row, Tag, Typography } from 'antd';
 import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
