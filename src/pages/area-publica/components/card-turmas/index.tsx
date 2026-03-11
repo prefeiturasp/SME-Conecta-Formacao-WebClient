@@ -4,14 +4,14 @@ import { Card, Row, Col } from "antd";
 
 const gerarDatas = (periodo: string, horario: string): string[] => {
   const regex = /De (\d{2})\/(\d{2})\/(\d{4}) até (\d{2})\/(\d{2})\/(\d{4})/;
-  const match = periodo.match(regex);
+  const match = regex.exec(periodo);
 
   if (!match) return [];
 
-  const [, d1, m1, a1, d2, m2, a2] = match.map(Number);
+  const [ , d1, m1, a1, d2, m2, a2 ] = match;
 
-  const dataInicio = new Date(a1, m1 - 1, d1);
-  const dataFim = new Date(a2, m2 - 1, d2);
+  const dataInicio = new Date(Number(a1), Number(m1) - 1, Number(d1));
+  const dataFim = new Date(Number(a2), Number(m2) - 1, Number(d2));
 
   const datas: string[] = [];
   const dataAtual = new Date(dataInicio);
@@ -22,7 +22,6 @@ const gerarDatas = (periodo: string, horario: string): string[] => {
     const ano = dataAtual.getFullYear();
 
     datas.push(`${dia}/${mes}/${ano} ${horario}`);
-
     dataAtual.setDate(dataAtual.getDate() + 1);
   }
 
