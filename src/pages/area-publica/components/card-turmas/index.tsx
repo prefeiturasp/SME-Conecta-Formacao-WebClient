@@ -1,73 +1,62 @@
-import { CalendarOutlined } from '@ant-design/icons';
-import { Card } from 'antd';
-import Meta from 'antd/es/card/Meta';
-import React, { FC } from 'react';
-import { IoLocationOutline } from 'react-icons/io5';
-import styled from 'styled-components';
-import { INSCRICAO_ENCERRADA } from '~/core/constants/mensagens';
-import {
-  bodyStyle,
-  cardStyle,
-  descriptionStyle,
-  headStyle,
-  titleStyle,
-  tituloHeadStyleBorder,
-  turmaEncerradaStyle,
-  turmaEncerradaStyleBackground,
-} from './styles';
+import React from "react";
+import { Card, Row, Col } from "antd";
 
-const CardContainer = styled(Card)`
-  .ant-card-head-title {
-    white-space: wrap;
+
+const gerarDatas = (periodo: string, horario: string): string[] => {
+  const regex = /(\d{2})\/(\d{2})\/(\d{4}) - (\d{2})\/(\d{2})\/(\d{4})/;
+  const match = regex.exec(periodo);
+
+  if (!match) return [];
+
+  const [ , d1, m1, a1, d2, m2, a2 ] = match;
+
+  const dataInicio = new Date(Number(a1), Number(m1) - 1, Number(d1));
+  const dataFim = new Date(Number(a2), Number(m2) - 1, Number(d2));
+
+  const datas: string[] = [];
+  const dataAtual = new Date(dataInicio);
+
+  while (dataAtual <= dataFim) {
+    const dia = String(dataAtual.getDate()).padStart(2, "0");
+    const mes = String(dataAtual.getMonth() + 1).padStart(2, "0");
+    const ano = dataAtual.getFullYear();
+
+    datas.push(`${dia}/${mes}/${ano} ${horario}`);
+    dataAtual.setDate(dataAtual.getDate() + 1);
   }
-`;
 
-type CardTurmasPublicoProps = {
-  titulo: string;
-  datas: string[];
-  turmaEncerrada: boolean;
-  local: string;
+  return datas;
 };
-const CardTurmasPublico: FC<CardTurmasPublicoProps> = ({
-  titulo,
-  datas,
-  turmaEncerrada,
-  local,
-}) => {
+
+const CardTurmasPublico = ({ turma }: { turma: any }) => {
+  const { nome, periodos, horario, local } = turma;
+
   return (
-    <CardContainer
-      style={cardStyle}
-      headStyle={headStyle}
-      bodyStyle={bodyStyle}
-      title={<p style={tituloHeadStyleBorder}>{titulo}</p>}
+    <Card
+      title={<span style={{ fontWeight: "bold", color: "white" }}>{nome}</span>}
+      style={{ borderRadius: "12px" }}
+      headStyle={{ backgroundColor: "#ff9a52", borderBottom: "none" }}
     >
-      {turmaEncerrada ? (
-        <div style={turmaEncerradaStyle}>
-          <div style={turmaEncerradaStyleBackground}>{INSCRICAO_ENCERRADA}</div>
-        </div>
-      ) : (
-        <></>
-      )}
-      <Meta
-        title={datas.map((r, i) => (
-          <React.Fragment key={i}>
-            <p style={titleStyle}>
-              <CalendarOutlined /> {r}
-            </p>
-          </React.Fragment>
-        ))}
-        description={
-          local && (
-            <p style={descriptionStyle}>
-              <div>
-                <IoLocationOutline size={24} />
-              </div>
-              {local}
-            </p>
-          )
-        }
-      />
-    </CardContainer>
+      <Row gutter={16}>
+        <Col span={12}>
+          <div>
+            <strong>Datas dos encontros:</strong>
+            {periodos.map((periodo: string) =>
+              gerarDatas(periodo, horario).map((data: string, index: number) => (
+                <div key={`${data}-${index}`}>{data}</div>
+              ))
+            )}
+          </div>
+        </Col>
+
+        <Col span={12}>
+          <div>
+            <strong>Local:</strong> 
+            <div>{local}</div>
+          </div>
+        </Col>
+      </Row>
+    </Card>
   );
 };
 
