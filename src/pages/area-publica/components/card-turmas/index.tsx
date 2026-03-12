@@ -3,7 +3,7 @@ import { Card, Row, Col } from "antd";
 
 
 const gerarDatas = (periodo: string, horario: string): string[] => {
-  const regex = /De (\d{2})\/(\d{2})\/(\d{4}) até (\d{2})\/(\d{2})\/(\d{4})/;
+  const regex = /(\d{2})\/(\d{2})\/(\d{4}) - (\d{2})\/(\d{2})\/(\d{4})/;
   const match = regex.exec(periodo);
 
   if (!match) return [];
