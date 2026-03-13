@@ -20,13 +20,31 @@ export const CardFiltroFormacao: FC = () => {
           
       `}
     </style>
-
     <div style={{ marginBottom: 24 }}>
-      <Title level={3}  style={{ marginBottom: 12 }}>
+      <Title
+        level={3}
+        style={{
+          marginBottom: 12,
+          fontFamily: "Roboto",
+          fontWeight: 700,
+          fontSize: 20,
+          lineHeight: "100%",
+          letterSpacing: 0
+        }}
+      >
         Nova inscrição
       </Title>
         <></>
-      <Text type="secondary" style={{ color: "#2e2d2d" }}>
+      <Text
+        style={{
+          fontFamily: "Roboto",
+          fontWeight: 400,
+          fontSize: 14,
+          lineHeight: "100%",
+          letterSpacing: 0,
+          color: "#2E2D2D",
+        }}
+      >
         Confira quais são as formações disponíveis e realize a inscrição.
       </Text>
     </div>
@@ -45,6 +63,9 @@ export const CardFiltroFormacao: FC = () => {
             exibirTooltip={false}
             areaPublica
             formItemProps={{ name: 'publicosAlvosIds', rules: [] }}
+            selectProps={{
+              placeholder: 'Selecione'
+            }}
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -55,7 +76,7 @@ export const CardFiltroFormacao: FC = () => {
               rules: [{ required: false }],
             }}
             inputProps={{
-              placeholder: 'Título',
+              placeholder: 'Digite o título...',
               maxLength: 100,
             }}
           />
@@ -64,7 +85,7 @@ export const CardFiltroFormacao: FC = () => {
           <SelectAreaPromotora
             areaPublica
             formItemProps={{ name: 'areasPromotorasIds' }}
-            selectProps={{ mode: 'multiple' }}
+            selectProps={{ mode: 'multiple', placeholder: 'Selecione' }}
           />
         </Col>      
       </Row>
@@ -76,9 +97,9 @@ export const CardFiltroFormacao: FC = () => {
         <Col xs={24} sm={12} md={8}>
           <SelectFormato
             formItemProps={{ name: 'formatosIds', label: 'Formato', rules: [{ required: false }] }}
-            selectProps={{ placeholder: 'Formato' }}
             publico={true}
             exibirTooltip={false}
+            selectProps={{placeholder: 'Selecione', mode: 'multiple' }}
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -87,6 +108,7 @@ export const CardFiltroFormacao: FC = () => {
             required={false}
             exibirTooltip={false}
             formItemProps={{ name: 'palavrasChavesIds' }}
+            selectProps={{ placeholder: 'Selecione' }}
           />
         </Col>  
       </Row>
@@ -94,7 +116,17 @@ export const CardFiltroFormacao: FC = () => {
       <Row gutter={[16, 16]}>      
         <Col xs={24} sm={24} md={24}>
           <Row justify='end' style={{ marginTop: 15 }}>
-            <Button type='primary' htmlType='submit'>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                fontFamily: "Roboto",
+                fontWeight: 700,
+                fontSize: "14px",
+                lineHeight: "100%",
+                letterSpacing: "0%",
+              }}
+            >
               Buscar formações
             </Button>
           </Row>

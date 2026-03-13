@@ -59,7 +59,20 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
       </Info>
 
 
-      <Button type='primary' size='large' block onClick={abrirFormacao}>
+      <Button
+        type="primary"
+        size="large"
+        block
+        onClick={abrirFormacao}
+        style={{
+          fontFamily: 'Roboto, sans-serif',
+          fontWeight: 700,
+          fontStyle: 'normal',
+          fontSize: '14px',
+          lineHeight: '100%',
+          letterSpacing: '0%',
+        }}
+      >
         {SAIBA_MAIS}
       </Button>
 

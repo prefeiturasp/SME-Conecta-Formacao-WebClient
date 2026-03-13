@@ -12,14 +12,12 @@ import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import autenticacaoService from '~/core/services/autenticacao-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
+import { TagPersonalizada } from './styles';
+
 
 type DadosDestaqueProps = {
   dadosFormacao: RetornoDetalheFormacaoDTO | undefined;
   propostaId?: number;
-};
-
-const styleTypographyText = {
-  fontSize: 20,
 };
 
 const TagTipoFormacaoFormato = styled(Tag)`
@@ -78,14 +76,27 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
     return false;
   };
   return (
-    <>
+    <>      
       <Row>
         <Col span={6}>
           { }
         </Col>
         <Col span={18}>
           <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
-            <Typography.Title level={2}>{dadosInscricao?.titulo}</Typography.Title>
+            <Typography.Title
+              level={2}
+              style={{
+                fontFamily: 'Roboto, sans-serif',
+                fontWeight: 700,
+                fontStyle: 'normal',
+                fontSize: '20px',
+                lineHeight: '100%',
+                letterSpacing: '0%',
+              }}
+            >
+              {dadosInscricao?.titulo}
+            </Typography.Title>
+
           </Flex>
         </Col>
       </Row>
@@ -94,29 +105,33 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
         <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
           <img src={dadosInscricao?.imagemUrl ?? imagemFormacao}
           alt="Imagem da formação"
-          style={{ width: '70%' }} />
+          style={{ width: '154px', height: '126px' }} />
         </Col>
         <Col span={18}>
           <Flex gap={5} vertical justify='space-between' style={{ padding: '0px 15px 15px 15px' }}>
 
             <Row style={{ marginTop: 0, marginBottom: 10 }}>
-              <TagTipoFormacaoFormato icon={<FaGraduationCap size={22} />} style={styleTypographyText}>
-                {dadosInscricao?.tipoFormacaoDescricao}
+              <TagTipoFormacaoFormato>
+                <FaGraduationCap size={16} />
+                <TagPersonalizada>{dadosInscricao?.tipoFormacaoDescricao}</TagPersonalizada>
               </TagTipoFormacaoFormato>
-              <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={22} />} style={styleTypographyText}>
-                {dadosInscricao?.formatoDescricao}
+
+              <TagTipoFormacaoFormato>
+                <FaMapMarkerAlt size={16} />
+                <TagPersonalizada>{dadosInscricao?.formatoDescricao}</TagPersonalizada>
               </TagTipoFormacaoFormato>
             </Row>
 
-            <Typography.Text style={styleTypographyText}>
+
+            <Typography.Text className="texto-periodo">
               <strong>Período de realização:</strong> {dadosInscricao?.periodo}
             </Typography.Text>
 
-            <Typography.Text style={styleTypographyText}>
+            <Typography.Text className="texto-periodo">
               <strong>Período de inscrição:</strong> {dadosInscricao?.periodoInscricao}
             </Typography.Text>
 
-            <Typography.Text style={styleTypographyText}>
+            <Typography.Text className="texto-periodo">
               <strong>Área Promotora:</strong> {dadosInscricao?.areaPromotora}
             </Typography.Text>
 
@@ -124,22 +139,18 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
             <Row style={{ marginTop: 20, marginBottom: 10 }}>
               <Col span={24}>
                 {linkInscricaoExterna ? (
-                  <Button type='primary' size='large' style={{ width: 500 }}>
-                    <Link
-                      to={linkInscricaoExterna}
-                      target='_blank'
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
+                  <Button type="primary" size="large" className="botao-personalizado">
+                    <Link to={linkInscricaoExterna} target="_blank">
                       <strong>{BOTAO_INSCRICAO_EXTERNA}</strong>
                     </Link>
                   </Button>
                 ) : (
                   <Button
-                    type='primary'
-                    size='large'
+                    type="primary"
+                    size="large"
                     onClick={setarDadosInscricao}
                     disabled={desabilitarInscricao()}
-                    style={{ width: 400 }}
+                    className="botao-personalizado"
                   >
                     <strong>{ENVIAR_INSCRICAO}</strong>
                   </Button>
