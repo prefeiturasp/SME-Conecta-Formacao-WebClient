@@ -9,9 +9,7 @@ import DadosDestaque from '../list/components/dados-destaque';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { HomeFilled } from '@ant-design/icons';
-import { CustomDivider, TurmasTitulo, typographyStyles } from './styles';
-import { PalavrasTag } from './styles';
-
+import { CustomDivider, TurmasTitulo, typographyStyles, PalavrasTag } from './styles';
 
 
 const VisualizarFormacao: FC = () => {
@@ -70,7 +68,7 @@ const VisualizarFormacao: FC = () => {
 
             <Typography
               style={typographyStyles.textoJustificativa}
-              dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa || '' }}
+              dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa ?? '' }}
             />
           </Col>
 
@@ -106,8 +104,9 @@ const VisualizarFormacao: FC = () => {
 
         <Typography
           style={typographyStyles.textoJustificativa}
-          dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa || '' }}
+          dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa ?? '' }}
         />
+
         <br/>
 
         <Row gutter={[16, 16]}>
