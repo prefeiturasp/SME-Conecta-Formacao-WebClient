@@ -29,7 +29,7 @@ import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { gerarRelatorioInscritosPorFormacao } from '~/core/services/relatorio-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
-import { autocompletarUe, UeDTO } from '~/core/services/ue-service';
+import { carregarUesPorDre, UeDTO } from '~/core/services/ue-service';
 import { onClickVoltar } from '~/core/utils/form';
 
 const TOTAL_STEPS = 3;
@@ -45,6 +45,12 @@ const simNaoOptions: DefaultOptionType[] = [
   { label: 'Não', value: 'nao' },
 ];
 
+const simNaoParaBoolean = (value: string | undefined): boolean | undefined => {
+  if (value === 'sim') return true;
+  if (value === 'nao') return false;
+  return undefined;
+};
+
 const RelatorioInscritosPorFormacao: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
@@ -53,12 +59,13 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const [opcoesUe, setOpcoesUe] = useState<UeDTO[]>([]);
   const [loadingUe, setLoadingUe] = useState(false);
   const [turmasOptions, setTurmasOptions] = useState<RetornoListagemDTO[]>([]);
-  const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [opcoesHomologacao, setOpcoesHomologacao] = useState<PropostaAutocompletarDTO[]>([]);
   const pcd = Form.useWatch('pcd', form);
   const propostaId = Form.useWatch('propostaId', form);
   const nomeFormacao = Form.useWatch('nomeFormacao', form);
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
+  const dreId = Form.useWatch('dreId', form);
+  const turmaDisabled = !(propostaId && numeroHomologacao && nomeFormacao);
   const periodoEnabled = !(propostaId && numeroHomologacao);
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
 
@@ -74,19 +81,11 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (propostaId) {
+    if (!numeroHomologacao) {
       form.setFieldValue('propostaTurmaId', undefined);
-      obterTurmasInscricao(propostaId).then((res) => {
-        setTurmasOptions(res.sucesso && res.dados?.length ? res.dados : []);
-        setTurmaDisabled(false);
-      });
-    } else if (nomeFormacao) {
-      setTurmaDisabled(false);
-    } else {
       setTurmasOptions([]);
-      setTurmaDisabled(true);
     }
-  }, [propostaId, nomeFormacao, form]);
+  }, [numeroHomologacao, form]);
 
   const onSearchHomologacao = async (searchText: string) => {
     if (!searchText) {
@@ -114,50 +113,37 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     );
     form.setFieldValue('propostaTurmaId', undefined);
     setTurmasOptions([]);
-    setTurmaDisabled(true);
     if (proposta) {
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados?.length) {
           setTurmasOptions(response.dados);
-          setTurmaDisabled(false);
         }
       } catch {
         setTurmasOptions([]);
-        setTurmaDisabled(true);
       }
     }
   };
 
   const onDreChange = () => {
     form.setFieldValue('ueId', undefined);
-    setOpcoesUe([]);
-  };
-
-  const onSearchUe = async (searchText: string) => {
-    if (!searchText) {
-      setOpcoesUe([]);
-      return;
-    }
-    const dreId = form.getFieldValue('dreId');
-    setLoadingUe(true);
-    try {
-      const response = await autocompletarUe(searchText, dreId);
-      if (response.sucesso && response.dados) {
-        setOpcoesUe(response.dados);
-      } else {
-        setOpcoesUe([]);
-      }
-    } catch {
-      setOpcoesUe([]);
-    } finally {
-      setLoadingUe(false);
-    }
   };
 
   useEffect(() => {
     if (!periodoEnabled) form.setFieldValue('periodoRealizacao', undefined);
   }, [periodoEnabled, form]);
+
+  useEffect(() => {
+    const dreIdValue = dreId?.value ?? dreId;
+    if (dreIdValue) {
+      setLoadingUe(true);
+      carregarUesPorDre(dreIdValue)
+        .then((res) => setOpcoesUe(res.sucesso && res.dados?.items ? res.dados.items : []))
+        .finally(() => setLoadingUe(false));
+    } else {
+      setOpcoesUe([]);
+    }
+  }, [dreId]);
 
   const proximoPasso = () => {
     if (!isLastStep) setCurrentStep((s) => s + 1);
@@ -172,34 +158,29 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     const periodo: [Dayjs, Dayjs] | undefined = values.periodoRealizacao;
 
     const filtros = {
-      propostaId: values.propostaId || undefined,
+      propostaId: values.propostaId ?? undefined,
       numeroHomologacao: values.numeroHomologacao ? Number(values.numeroHomologacao) : undefined,
       nomeFormacao: values.nomeFormacao || undefined,
-      propostaTurmaId: values.propostaTurmaId || undefined,
-      formato: values.formato || undefined,
-      areaPromotoraId: values.areaPromotoraId || undefined,
-      periodoDeRealizacaoInicial: periodo?.[0]?.toISOString() || undefined,
-      periodoDeRealizacaoFinal: periodo?.[1]?.toISOString() || undefined,
-      situacaoProposta: values.situacaoProposta || undefined,
-      situacaoInscricao: values.situacaoInscricao || undefined,
+      propostaTurmaId: values.propostaTurmaId ?? undefined,
+      formato: values.formato ?? undefined,
+      areaPromotoraId: values.areaPromotoraId ?? undefined,
+      periodoDeRealizacaoInicial: periodo?.[0]?.toISOString() ?? undefined,
+      periodoDeRealizacaoFinal: periodo?.[1]?.toISOString() ?? undefined,
+      situacaoProposta: values.situacaoProposta ?? undefined,
+      situacaoInscricao: values.situacaoInscricao ?? undefined,
       cargoPublicoAlvoId: Array.isArray(values.publicosAlvo) ? values.publicosAlvo[0] : undefined,
-      funcaoId: values.funcaoId || undefined,
-      modalidade: values.modalidade || undefined,
+      funcaoId: values.funcaoId ?? undefined,
+      modalidade: values.modalidade ?? undefined,
       anoTurmaId: Array.isArray(values.anosTurmas) ? values.anosTurmas[0] : undefined,
       componenteCurricularId: Array.isArray(values.componentesCurriculares)
         ? values.componentesCurriculares[0]
         : undefined,
-      dreId: values.dreId || undefined,
+      dreId: values.dreId?.value ?? values.dreId ?? undefined,
       ueId: values.ueId || undefined,
       documentoCursista: values.documentoCursista || undefined,
       email: values.email || undefined,
-      pcd: values.pcd === 'sim' ? true : values.pcd === 'nao' ? false : undefined,
-      necessitaAdaptacao:
-        values.necessitaAdaptacao === 'sim'
-          ? true
-          : values.necessitaAdaptacao === 'nao'
-          ? false
-          : undefined,
+      pcd: simNaoParaBoolean(values.pcd),
+      necessitaAdaptacao: simNaoParaBoolean(values.necessitaAdaptacao),
     };
 
     const response = await gerarRelatorioInscritosPorFormacao(filtros);
@@ -382,13 +363,17 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item label='Unidade Educacional' name='ueId'>
-                <AutoComplete
-                  placeholder='Digite para buscar UE'
+                <Select
+                  placeholder='Selecione a Unidade Educacional'
                   allowClear
-                  onSearch={onSearchUe}
-                  options={opcoesUe.map((ue) => ({ value: ue.id, label: ue.descricao }))}
-                  filterOption={false}
-                  notFoundContent={loadingUe ? 'Buscando...' : 'Nenhuma UE encontrada'}
+                  showSearch
+                  disabled={!dreId}
+                  loading={loadingUe}
+                  options={opcoesUe.map((ue) => ({ value: ue.id, label: ue.nome }))}
+                  filterOption={(input, option) =>
+                    (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  notFoundContent={loadingUe ? 'Carregando...' : 'Nenhuma UE encontrada'}
                 />
               </Form.Item>
             </Col>

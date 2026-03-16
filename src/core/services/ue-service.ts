@@ -1,15 +1,24 @@
 import { obterRegistro } from './api';
 
-const URL_DEFAULT = 'v1/Ue';
-
 export type UeDTO = {
   id: string;
-  descricao: string;
+  nome: string;
+};
+
+export type UePaginadoDTO = {
+  items: UeDTO[];
+  totalPaginas: number;
+  totalRegistros: number;
 };
 
 const autocompletarUe = (termoBusca: string, dreId?: number) =>
-  obterRegistro<UeDTO[]>(`${URL_DEFAULT}/autocompletar-nome`, {
-    params: { TermoBusca: termoBusca, DreId: dreId, NumeroPagina: 1, NumeroRegistros: 99999999 },
+  obterRegistro<UeDTO[]>('ue/autocompletar-nome', {
+    params: { termoBusca, dreId, numeroPagina: 1, numeroRegistros: 99999999 },
   });
 
-export { autocompletarUe };
+const carregarUesPorDre = (dreId: number) =>
+  obterRegistro<UePaginadoDTO>('v1/Ue/autocompletar-nome', {
+    params: { DreId: dreId, NumeroPagina: 1, NumeroRegistros: 99999 },
+  });
+
+export { autocompletarUe, carregarUesPorDre };
