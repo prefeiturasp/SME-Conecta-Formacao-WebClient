@@ -316,7 +316,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
       return (
         <div>
           <h3 style={{ fontWeight: 700, marginBottom: 4 }}>Público e estrutura</h3>
-          <p style={{ marginBottom: 24, fontWeight: 700 }}>
+          <p style={{ marginBottom: 24 }}>
             Detalhe o público e a estrutura envolvidos para refinar o resultado do relatório.
           </p>
 
@@ -340,10 +340,10 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
           </Row>
 
           <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24}>
               <SelectAnoEtapa exibirOpcaoTodos={false} />
             </Col>
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24}>
               <SelectComponenteCurricular exibirOpcaoTodos={false} />
             </Col>
           </Row>
@@ -388,19 +388,19 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
         </p>
 
         <Row gutter={[16, 8]}>
-          <Col xs={24} sm={12} md={8}>
+          <Col xs={24}>
             <InputTexto
               formItemProps={{ label: 'RF/CPF', name: 'documentoCursista' }}
               inputProps={{ placeholder: 'RF ou CPF', maxLength: 14, allowClear: true }}
             />
           </Col>
-          <Col xs={24} sm={12} md={8}>
+          <Col xs={24}>
             <InputEmail formItemProps={{ required: false }} />
           </Col>
         </Row>
 
         <Row gutter={[16, 8]}>
-          <Col xs={24} sm={12} md={8}>
+          <Col xs={24}>
             <Form.Item label='Situação de conclusão do cursista' name='situacaoInscricao'>
               <Select
                 allowClear
@@ -409,7 +409,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
               />
             </Form.Item>
           </Col>
-          <Col xs={24} sm={12} md={8}>
+          <Col xs={24}>
             <Form.Item label='Pessoa com deficiência?' name='pcd'>
               <Select allowClear placeholder='Selecione' options={simNaoOptions} />
             </Form.Item>
