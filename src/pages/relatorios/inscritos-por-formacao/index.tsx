@@ -22,7 +22,7 @@ import InputTexto from '~/components/main/text/input-text';
 import { notification } from '~/components/lib/notification';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { Formato, FormatoDisplay } from '~/core/enum/formato';
-import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
+// import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
 import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situacao-inscricao';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -214,9 +214,9 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     .filter((v): v is Formato => typeof v === 'number')
     .map((v) => ({ label: FormatoDisplay[v], value: v }));
 
-  const situacaoFormacaoOptions = Object.values(SituacaoProposta)
-    .filter((v): v is SituacaoProposta => typeof v === 'number')
-    .map((v) => ({ label: SituacaoPropostaTagDisplay[v], value: v }));
+  // const situacaoFormacaoOptions = Object.values(SituacaoProposta)
+  //   .filter((v): v is SituacaoProposta => typeof v === 'number')
+  //   .map((v) => ({ label: SituacaoPropostaTagDisplay[v], value: v }));
 
   const situacaoInscricaoOptions = Object.values(SituacaoInscricao)
     .filter((v): v is SituacaoInscricao => typeof v === 'number')
@@ -287,7 +287,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
           </Row>
 
           <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24} sm={12}>
               <Form.Item label='Período de realização' name='periodoRealizacao'>
                 <DatePicker.RangePicker
                   format='DD/MM/YYYY'
@@ -298,7 +298,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
                 />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={12} md={8}>
+            {/* <Col xs={24} sm={12} md={8}>
               <Form.Item label='Situação da formação' name='situacaoProposta'>
                 <Select
                   placeholder='Selecione a situação'
@@ -306,8 +306,8 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
                   allowClear
                 />
               </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={8}>
+            </Col> */}
+            <Col xs={24} sm={12}>
               <Form.Item label='Situação das inscrições' name='situacaoInscricao'>
                 <Select
                   placeholder='Selecione a situação'
