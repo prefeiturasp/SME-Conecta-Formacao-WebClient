@@ -38,7 +38,7 @@ const VisualizarFormacao: FC = () => {
       <Row style={{ width: '100%', padding: '16px 0' }}>
         <Col>
           <Typography.Link
-            onClick={() => onClickVoltar()}
+            onClick={onClickVoltar}
             id={CF_BUTTON_VOLTAR}
             style={{
               fontSize: 16,
