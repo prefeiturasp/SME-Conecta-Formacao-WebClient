@@ -178,7 +178,9 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
       periodoDeRealizacaoFinal: periodo?.[1]?.toISOString() ?? undefined,
       situacaoProposta: values.situacaoProposta ?? undefined,
       situacaoInscricao: values.situacaoInscricao ?? undefined,
-      cargoPublicoAlvoId: Array.isArray(values.publicosAlvo) ? values.publicosAlvo[0] : undefined,
+      cargoPublicoAlvoId: Array.isArray(values.cargoPublicoAlvoId)
+        ? values.cargoPublicoAlvoId[0]
+        : values.cargoPublicoAlvoId ?? undefined,
       funcaoId: values.funcaoId ?? undefined,
       modalidade: values.modalidade ?? undefined,
       anoTurmaId: Array.isArray(values.anosTurmas) ? values.anosTurmas[0] : undefined,
