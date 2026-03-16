@@ -162,7 +162,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     const filtros = {
       propostaId: values.propostaId ?? undefined,
       numeroHomologacao: values.numeroHomologacao ? Number(values.numeroHomologacao) : undefined,
-      nomeFormacao: values.nomeFormacao || undefined,
+      nomeFormacao: values.nomeFormacao ?? undefined,
       propostaTurmaId: values.propostaTurmaId ?? undefined,
       formato: values.formato ?? undefined,
       areaPromotoraId: values.areaPromotoraId ?? undefined,
@@ -178,9 +178,9 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
         ? values.componentesCurriculares[0]
         : undefined,
       dreId: values.dreId?.value ?? values.dreId ?? undefined,
-      ueId: values.ueId || undefined,
-      documentoCursista: values.documentoCursista || undefined,
-      email: values.email || undefined,
+      ueId: values.ueId ?? undefined,
+      documentoCursista: values.documentoCursista ?? undefined,
+      email: values.email ?? undefined,
       pcd: simNaoParaBoolean(values.pcd),
       necessitaAdaptacao: simNaoParaBoolean(values.necessitaAdaptacao),
     };
