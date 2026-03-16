@@ -62,13 +62,13 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const [opcoesHomologacao, setOpcoesHomologacao] = useState<PropostaAutocompletarDTO[]>([]);
   const pcd = Form.useWatch('pcd', form);
   const propostaId = Form.useWatch('propostaId', form);
-  const nomeFormacao = Form.useWatch('nomeFormacao', form);
+  /* const nomeFormacao = Form.useWatch('nomeFormacao', form); */
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
   const dreId = Form.useWatch('dreId', form);
   const modalidade = Form.useWatch('modalidade', form);
   const anosTurmas = Form.useWatch('anosTurmas', form);
   const periodoRealizacao = Form.useWatch('periodoRealizacao', form);
-  const turmaDisabled = !(propostaId && numeroHomologacao && nomeFormacao);
+  const turmaDisabled = !numeroHomologacao;
   const periodoEnabled = !(propostaId && numeroHomologacao);
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
 
@@ -417,7 +417,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
         </Row>
 
         <Row gutter={[16, 8]}>
-          <Col xs={24} sm={12}>
+          {/* <Col xs={24} sm={12}>
             <Form.Item label='Situação de conclusão do cursista' name='situacaoInscricao'>
               <Select
                 allowClear
@@ -425,7 +425,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
                 options={situacaoInscricaoOptions}
               />
             </Form.Item>
-          </Col>
+          </Col> */}
           <Col xs={24} sm={12}>
             <Form.Item label='Pessoa com deficiência?' name='pcd'>
               <Select
@@ -438,17 +438,14 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
               />
             </Form.Item>
           </Col>
-        </Row>
-
-        {pcd === 'sim' && (
-          <Row gutter={[16, 8]}>
+          {pcd === 'sim' && (
             <Col xs={24} sm={12}>
               <Form.Item label='Precisa de adaptação?' name='necessitaAdaptacao'>
                 <Select allowClear placeholder='Selecione' options={simNaoOptions} />
               </Form.Item>
             </Col>
-          </Row>
-        )}
+          )}
+        </Row>
       </div>
     );
   };
