@@ -62,7 +62,6 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const [opcoesHomologacao, setOpcoesHomologacao] = useState<PropostaAutocompletarDTO[]>([]);
   const pcd = Form.useWatch('pcd', form);
   const propostaId = Form.useWatch('propostaId', form);
-  /* const nomeFormacao = Form.useWatch('nomeFormacao', form); */
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
   const dreId = Form.useWatch('dreId', form);
   const modalidade = Form.useWatch('modalidade', form);
