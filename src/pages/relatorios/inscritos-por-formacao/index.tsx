@@ -67,6 +67,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const dreId = Form.useWatch('dreId', form);
   const modalidade = Form.useWatch('modalidade', form);
   const anosTurmas = Form.useWatch('anosTurmas', form);
+  const periodoRealizacao = Form.useWatch('periodoRealizacao', form);
   const turmaDisabled = !(propostaId && numeroHomologacao && nomeFormacao);
   const periodoEnabled = !(propostaId && numeroHomologacao);
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
@@ -148,6 +149,13 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   }, [dreId]);
 
   const proximoPasso = () => {
+    if (isFirstStep && periodoEnabled && !periodoRealizacao) {
+      notification.warning({
+        message: 'Campo obrigatório',
+        description: 'Informe o Período de realização antes de avançar.',
+      });
+      return;
+    }
     if (!isLastStep) setCurrentStep((s) => s + 1);
   };
 
