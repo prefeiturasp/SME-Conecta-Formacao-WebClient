@@ -65,6 +65,8 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const nomeFormacao = Form.useWatch('nomeFormacao', form);
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
   const dreId = Form.useWatch('dreId', form);
+  const modalidade = Form.useWatch('modalidade', form);
+  const anosTurmas = Form.useWatch('anosTurmas', form);
   const turmaDisabled = !(propostaId && numeroHomologacao && nomeFormacao);
   const periodoEnabled = !(propostaId && numeroHomologacao);
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
@@ -339,10 +341,13 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
 
           <Row gutter={[16, 8]}>
             <Col xs={24} sm={12}>
-              <SelectAnoEtapa exibirOpcaoTodos={false} />
+              <SelectAnoEtapa exibirOpcaoTodos={true} desativarCampo={!modalidade} />
             </Col>
             <Col xs={24} sm={12}>
-              <SelectComponenteCurricular exibirOpcaoTodos={false} />
+              <SelectComponenteCurricular
+                exibirOpcaoTodos={true}
+                desativarCampo={!anosTurmas?.length}
+              />
             </Col>
           </Row>
 
