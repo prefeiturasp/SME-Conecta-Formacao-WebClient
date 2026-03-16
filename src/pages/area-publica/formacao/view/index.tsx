@@ -1,28 +1,16 @@
-import { Col, Divider, Row, Tag, Typography } from 'antd';
+import { Col, Row, Typography } from 'antd';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import styled from 'styled-components';
 import { PUBLICO_ALVO_VAGAS_REMANESCENTES, PUBLICO_ALVO, SOBRE_ESTE_CURSO } from '~/core/constants/mensagens';
 import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
-import { Colors } from '~/core/styles/colors';
 import CardTurmasPublico from '../../components/card-turmas';
 import DadosDestaque from '../list/components/dados-destaque';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { HomeFilled } from '@ant-design/icons';
+import { CustomDivider, TurmasTitulo, typographyStyles, PalavrasTag } from './styles';
 
-const PalavrasTag = styled(Tag)`
-  font-size: 12px;
-  border-radius: 20px;
-  padding: 5px 10px 5px 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  border: none;
-  font-weight: bold;
-  background-color: ${Colors.Neutral.DARK};
-  color: ${Colors.Neutral.WHITE};
-`;
 
 const VisualizarFormacao: FC = () => {
   const paramsRoute = useParams();
@@ -70,39 +58,35 @@ const VisualizarFormacao: FC = () => {
 
         <DadosDestaque dadosFormacao={dadosFormacao} propostaId={id} />
 
-        <Divider style={{ borderTop: '2px solid #d9d9d9', paddingBottom: 20 }} />
+        <CustomDivider />
 
         <Row gutter={32}>
-
           <Col span={12}>
-            <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
+            <Typography.Title level={3} style={typographyStyles.tituloNivel3}>
               {SOBRE_ESTE_CURSO}
             </Typography.Title>
 
             <Typography
-              style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}
-              dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa || '' }}
+              style={typographyStyles.textoJustificativa}
+              dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa ?? '' }}
             />
           </Col>
 
           {dadosFormacao?.publicosAlvo?.length ? (
             <Col span={6}>
-              <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
+              <Typography.Title level={3} style={typographyStyles.tituloPublicoAlvo}>
                 {PUBLICO_ALVO}
               </Typography.Title>
-
-          {dadosFormacao?.publicosAlvo?.map((publico) => (
-            <Typography.Text
-              key={publico}
-              style={{ color: '#58616A', fontSize: 16, fontWeight: 500 }}>
-              <PalavrasTag>{publico}</PalavrasTag>
-            </Typography.Text>
-          ))}
+              {dadosFormacao.publicosAlvo.map((publico) => (
+                <Typography.Text key={publico} style={typographyStyles.textoPublicoAlvo}>
+                  <PalavrasTag>{publico}</PalavrasTag>
+                </Typography.Text>
+              ))}
             </Col>
           ) : null}
 
           <Col span={6}>
-            <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700 }}>
+            <Typography.Title level={3} style={typographyStyles.tituloPublicoAlvo}>
               {PUBLICO_ALVO_VAGAS_REMANESCENTES}
             </Typography.Title>
 
@@ -114,11 +98,16 @@ const VisualizarFormacao: FC = () => {
           </Col>
         </Row>
 
-        <Divider style={{ borderTop: '2px solid #d9d9d9', paddingBottom: 20 }} />
+        <CustomDivider />
 
-        <Typography.Title level={3} style={{ color: '#58616A', fontWeight: 700, paddingBottom: 20 }}>
-          Turmas
-        </Typography.Title>
+        <TurmasTitulo level={4}>Turmas</TurmasTitulo>
+
+        <Typography
+          style={typographyStyles.textoJustificativa}
+          dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa ?? '' }}
+        />
+
+        <br/>
 
         <Row gutter={[16, 16]}>
           {dadosFormacao?.turmas?.map((turma) => (

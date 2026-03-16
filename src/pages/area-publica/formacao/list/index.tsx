@@ -110,12 +110,32 @@ export const ListFormacao: React.FC = () => {
       </Form>
 
       <div style={{ marginTop: 24, marginBottom: 24 }}>
-        <Title level={3} style={{ marginBottom: 12 }}>
+        <Title
+          level={3}
+          style={{
+            marginBottom: 12,
+            fontFamily: "Roboto",
+            fontWeight: 700,
+            fontSize: "20px",
+            lineHeight: "100%",
+            letterSpacing: "0%",
+          }}
+        >
           Próximas formações
         </Title>
           <></>
-        <Text type="secondary" style={{ color: "#2e2d2d" }}>
-          Estas são as próximas formações planejadas. Antes de se inscrever, confira as retrições que podem haver para o seu perfil.
+        <Text
+          type="secondary"
+          style={{
+            color: "#2e2d2d",
+            fontFamily: "Roboto",
+            fontWeight: 400,
+            fontSize: "14px",
+            lineHeight: "100%",
+            letterSpacing: "0%",
+          }}
+        >
+          Estas são as próximas formações planejadas. Antes de se inscrever, confira as restrições que podem haver para o seu perfil.
         </Text>
       </div>
       
