@@ -56,6 +56,10 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [opcoesHomologacao, setOpcoesHomologacao] = useState<PropostaAutocompletarDTO[]>([]);
   const pcd = Form.useWatch('pcd', form);
+  const propostaId = Form.useWatch('propostaId', form);
+  const nomeFormacao = Form.useWatch('nomeFormacao', form);
+  const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
+  const periodoEnabled = !(propostaId && numeroHomologacao);
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
 
   const isFirstStep = currentStep === 0;
@@ -68,6 +72,21 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (propostaId) {
+      form.setFieldValue('propostaTurmaId', undefined);
+      obterTurmasInscricao(propostaId).then((res) => {
+        setTurmasOptions(res.sucesso && res.dados?.length ? res.dados : []);
+        setTurmaDisabled(false);
+      });
+    } else if (nomeFormacao) {
+      setTurmaDisabled(false);
+    } else {
+      setTurmasOptions([]);
+      setTurmaDisabled(true);
+    }
+  }, [propostaId, nomeFormacao, form]);
 
   const onSearchHomologacao = async (searchText: string) => {
     if (!searchText) {
@@ -136,16 +155,12 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     }
   };
 
-  const proximoPasso = async () => {
-    if (isLastStep) return;
-    if (currentStep === 0) {
-      try {
-        await form.validateFields(['periodoRealizacao']);
-      } catch {
-        return;
-      }
-    }
-    setCurrentStep((s) => s + 1);
+  useEffect(() => {
+    if (!periodoEnabled) form.setFieldValue('periodoRealizacao', undefined);
+  }, [periodoEnabled, form]);
+
+  const proximoPasso = () => {
+    if (!isLastStep) setCurrentStep((s) => s + 1);
   };
 
   const passoAnterior = () => {
@@ -287,6 +302,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
                   locale={locale}
                   style={{ width: '100%' }}
                   placeholder={['Data início', 'Data fim']}
+                  disabled={!periodoEnabled}
                 />
               </Form.Item>
             </Col>
@@ -477,9 +493,9 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
         autoComplete='off'
         labelCol={{ style: { fontWeight: 600 } }}
       >
-        <CardContent>
+        <CardContent><br></br><br></br>
           <Steps current={currentStep} items={stepsRelatorio} style={{ marginBottom: 40 }} />
-          {renderStep()}
+          <br></br>{renderStep()}
         </CardContent>
       </Form>
     </Col>
