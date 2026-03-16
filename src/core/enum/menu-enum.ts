@@ -10,4 +10,6 @@ export enum MenuEnum {
   ListaPresencaCodaf,
   Certificados,
   CertificadosPesquisa,
+  Relatorios,
+  RelatorioInscritosPorFormacao,
 }
