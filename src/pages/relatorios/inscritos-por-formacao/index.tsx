@@ -55,6 +55,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const [turmasOptions, setTurmasOptions] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [opcoesHomologacao, setOpcoesHomologacao] = useState<PropostaAutocompletarDTO[]>([]);
+  const pcd = Form.useWatch('pcd', form);
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
 
   const isFirstStep = currentStep === 0;
@@ -218,7 +219,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     if (currentStep === 0) {
       return (
         <div>
-          <h3 style={{ fontWeight: 700, marginBottom: 6, fontSize: 20 }}>Formação</h3>
+          <h3 style={{ fontWeight: 700, marginBottom: 16, fontSize: 20 }}>Formação</h3>
           <p style={{ marginBottom: 24 }}>
             Informe os dados principais da formação para definir o escopo do relatório.
           </p>
@@ -315,7 +316,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     if (currentStep === 1) {
       return (
         <div>
-          <h3 style={{ fontWeight: 700, marginBottom: 4 }}>Público e estrutura</h3>
+          <h3 style={{ fontWeight: 700, marginBottom: 16, fontSize: 20 }}>Público e estrutura</h3>
           <p style={{ marginBottom: 24 }}>
             Detalhe o público e a estrutura envolvidos para refinar o resultado do relatório.
           </p>
@@ -340,16 +341,16 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
           </Row>
 
           <Row gutter={[16, 8]}>
-            <Col xs={24}>
+            <Col xs={24} sm={12}>
               <SelectAnoEtapa exibirOpcaoTodos={false} />
             </Col>
-            <Col xs={24}>
+            <Col xs={24} sm={12}>
               <SelectComponenteCurricular exibirOpcaoTodos={false} />
             </Col>
           </Row>
 
           <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24} sm={12}>
               <SelectDRE
                 formItemProps={{
                   label: 'Diretoria Regional de Educação (DRE)',
@@ -363,7 +364,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
                 }}
               />
             </Col>
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24} sm={12}>
               <Form.Item label='Unidade Educacional' name='ueId'>
                 <AutoComplete
                   placeholder='Digite para buscar UE'
@@ -382,25 +383,25 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
 
     return (
       <div>
-        <h3 style={{ fontWeight: 700, marginBottom: 4 }}>Dados do cursista</h3>
-        <p style={{ marginBottom: 24, fontWeight: 700 }}>
+        <h3 style={{ fontWeight: 700, marginBottom: 16, fontSize: 20 }}>Dados do cursista</h3>
+        <p style={{ marginBottom: 24 }}>
           Preencha esta etapa apenas se desejar gerar o relatório para um cursista específico.
         </p>
 
         <Row gutter={[16, 8]}>
-          <Col xs={24}>
+          <Col xs={24} sm={12}>
             <InputTexto
               formItemProps={{ label: 'RF/CPF', name: 'documentoCursista' }}
               inputProps={{ placeholder: 'RF ou CPF', maxLength: 14, allowClear: true }}
             />
           </Col>
-          <Col xs={24}>
+          <Col xs={24} sm={12}>
             <InputEmail formItemProps={{ required: false }} />
           </Col>
         </Row>
 
         <Row gutter={[16, 8]}>
-          <Col xs={24}>
+          <Col xs={24} sm={12}>
             <Form.Item label='Situação de conclusão do cursista' name='situacaoInscricao'>
               <Select
                 allowClear
@@ -409,20 +410,29 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
               />
             </Form.Item>
           </Col>
-          <Col xs={24}>
+          <Col xs={24} sm={12}>
             <Form.Item label='Pessoa com deficiência?' name='pcd'>
-              <Select allowClear placeholder='Selecione' options={simNaoOptions} />
+              <Select
+                allowClear
+                placeholder='Selecione'
+                options={simNaoOptions}
+                onChange={(value) => {
+                  if (value !== 'sim') form.setFieldValue('necessitaAdaptacao', undefined);
+                }}
+              />
             </Form.Item>
           </Col>
         </Row>
 
-        <Row gutter={[16, 8]}>
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item label='Precisa de adaptação?' name='necessitaAdaptacao'>
-              <Select allowClear placeholder='Selecione' options={simNaoOptions} />
-            </Form.Item>
-          </Col>
-        </Row>
+        {pcd === 'sim' && (
+          <Row gutter={[16, 8]}>
+            <Col xs={24} sm={12}>
+              <Form.Item label='Precisa de adaptação?' name='necessitaAdaptacao'>
+                <Select allowClear placeholder='Selecione' options={simNaoOptions} />
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
       </div>
     );
   };
