@@ -22,7 +22,6 @@ import InputTexto from '~/components/main/text/input-text';
 import { notification } from '~/components/lib/notification';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { Formato, FormatoDisplay } from '~/core/enum/formato';
-// import { SituacaoProposta, SituacaoPropostaTagDisplay } from '~/core/enum/situacao-proposta';
 import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situacao-inscricao';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -213,10 +212,6 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const formatoOptions = Object.values(Formato)
     .filter((v): v is Formato => typeof v === 'number')
     .map((v) => ({ label: FormatoDisplay[v], value: v }));
-
-  // const situacaoFormacaoOptions = Object.values(SituacaoProposta)
-  //   .filter((v): v is SituacaoProposta => typeof v === 'number')
-  //   .map((v) => ({ label: SituacaoPropostaTagDisplay[v], value: v }));
 
   const situacaoInscricaoOptions = Object.values(SituacaoInscricao)
     .filter((v): v is SituacaoInscricao => typeof v === 'number')
