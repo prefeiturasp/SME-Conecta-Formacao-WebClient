@@ -81,12 +81,6 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (!numeroHomologacao) {
-      form.setFieldValue('propostaTurmaId', undefined);
-      setTurmasOptions([]);
-    }
-  }, [numeroHomologacao, form]);
 
   const onSearchHomologacao = async (searchText: string) => {
     if (!searchText) {
@@ -240,6 +234,12 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
                   allowClear
                   onSearch={onSearchHomologacao}
                   onSelect={onSelectHomologacao}
+                  onChange={(value) => {
+                    if (!value) {
+                      form.setFieldValue('propostaTurmaId', undefined);
+                      setTurmasOptions([]);
+                    }
+                  }}
                   options={opcoesHomologacao.map((opcao) => ({
                     value: opcao.numeroHomologacao.toString(),
                     label: opcao.numeroHomologacao.toString(),
