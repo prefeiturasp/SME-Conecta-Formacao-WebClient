@@ -34,7 +34,7 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({
 
   const obterDados = useCallback(async () => {
     if (valormodalidadeValido || obterValorModalidadeValido) {
-      const resposta = await obterAnoEtapa(0, modalidadeWatch, exibirOpcaoTodos);
+      const resposta = await obterAnoEtapa(0, modalidadeWatch ?? modalidade, exibirOpcaoTodos);
 
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
