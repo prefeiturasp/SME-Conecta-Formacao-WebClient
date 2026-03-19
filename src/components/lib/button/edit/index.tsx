@@ -18,7 +18,7 @@ const ButtonEditContainer = styled.div<ButtonEditParams>`
   color: ${(props) => props?.podeEditar ? props.theme?.token?.colorPrimary : '#f0f0f0'};
 `;
 
-const styleIcon: React.CSSProperties = {
+export const styleIcon: React.CSSProperties = {
   margin: '6.5px',
   cursor: 'pointer',
   fontSize: '16px'
