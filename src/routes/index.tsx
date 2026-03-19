@@ -64,6 +64,8 @@ const RoutesConfig = () => {
       scrollNoInicio();
     }, [pathname]);
 
+    console.log(ListaPresencaCodaf, CadastroListaPresencaCodaf)
+
     return null;
   };
 
@@ -177,7 +179,7 @@ const RoutesConfig = () => {
                   </Route>
                 </Route>
 
-                <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
+                {/* <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
                   <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
                     <Route path='' element={<ListaPresencaCodaf />} />
                   </Route>
@@ -193,7 +195,7 @@ const RoutesConfig = () => {
                       element={<CadastroListaPresencaCodaf />}
                     />
                   </Route>
-                </Route>
+                </Route> 
 
                 <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
                   <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
@@ -203,7 +205,7 @@ const RoutesConfig = () => {
                   path={ROUTES.RELATORIO_INSCRITOS_POR_FORMACAO}
                   element={<RelatorioInscritosPorFormacao />}
                 />
-              </Route>
+              </Route>*/}
             </Route>
         ) : (
           <>
