@@ -36,7 +36,13 @@ const Title = styled.div`
   color: ${Colors.Neutral.DARK};
 `;
 
-const ChildrenContainer = styled.div``;
+const ChildrenContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  flex-wrap: nowrap;
+  align-items: center;
+`;
 
 type HeaderPage = {
   title: string;

@@ -1,3 +1,12 @@
+export type UsuarioAcessibilidadeResponseDTO = {
+  usuarioId?: number | null;
+  possuiDeficiencia?: boolean | null;
+  descricaoDeficiencia?: string;
+  necessitaAdaptacao?: boolean;
+  descricaoAdaptacao?: string;
+  salvar?: boolean;
+};
+
 export type DadosUsuarioDTO = {
   nome?: string;
   cpf?: string;
@@ -6,4 +15,5 @@ export type DadosUsuarioDTO = {
   nomeUnidade?: string;
   emailEducacional?: string;
   tipo?: number;
+  usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDTO | null;
 };

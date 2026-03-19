@@ -498,7 +498,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     try {
       const response = await autocompletarFormacao(searchText);
       if (response.sucesso && response.dados && response.dados.items) {
-        setOpcoesFormacao(response.dados.items);
+        //setOpcoesFormacao(response.dados.items.filter(x=>x.numeroHomologacao===Number(searchText) && x.codigoFormacao === 131));
+        setOpcoesFormacao(
+          response.dados.items.sort((a, b) => a.numeroHomologacao - b.numeroHomologacao),
+        );
       } else {
         setOpcoesFormacao([]);
       }
@@ -511,7 +514,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const onSelectFormacao = async (_value: string, option: any) => {
-    const proposta = opcoesFormacao.find((p) => p.numeroHomologacao === option.numeroHomologacao);
+    const proposta = opcoesFormacao.find((p) => p.propostaId === option.propostaId);
     if (proposta) {
       setPropostaSelecionada(proposta);
       form.setFieldsValue({

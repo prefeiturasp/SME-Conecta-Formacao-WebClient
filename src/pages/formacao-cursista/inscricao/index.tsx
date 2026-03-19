@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Modal, Row, Select, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { cloneDeep } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
@@ -21,10 +21,10 @@ import { ENVIAR_INSCRICAO, SUA_INSCRICAO_NAO_FOI_ENVIADA } from '~/core/constant
 import { validateMessages } from '~/core/constants/validate-messages';
 import {
   DadosInscricaoCargoEolDTO,
-  DadosInscricaoPropostaDto
+  DadosInscricaoPropostaDto,
 } from '~/core/dto/dados-usuario-inscricao-dto';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
-import { InscricaoDTO } from '~/core/dto/inscricao-dto';
+import { InscricaoDTO, UsuarioAcessibilidadeDTO } from '~/core/dto/inscricao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
@@ -33,6 +33,7 @@ import { obterDadosFormacao } from '~/core/services/area-publica-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import SelectFuncaoAtividade from './components/funcao-atividade';
 import { ModalInscricao } from './components/modal';
+import { ModalAcessibilidade } from './components/modal/modal-acessibilidade';
 import SelectTurma from './components/turmas';
 
 export const Inscricao = () => {
@@ -52,6 +53,11 @@ export const Inscricao = () => {
   const [abrirModalListaDeEspera, setAbrirModalListaDeEspera] = useState<boolean>(false);
   const [abrirModalInscricaoNaListaDeEspera, setAbrirModalInscricaoNaListaDeEspera] =
     useState<boolean>(false);
+  const [pessoaComDeficiencia, setPessoaComDeficiencia] = useState<string | undefined>(undefined);
+  const [precisaDeAdaptacao, setPrecisaDeAdaptacao] = useState<string | undefined>(undefined);
+  const [abrirModalAcessibilidade, setAbrirModalAcessibilidade] = useState<boolean>(false);
+  const acessibilidadeValuesRef = useRef<Record<string, unknown> | null>(null);
+  const salvarAcessibilidadeRef = useRef<boolean>(false);
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
 
@@ -133,6 +139,33 @@ export const Inscricao = () => {
           imagemUrl: formacao.dados.imagemUrl,
           linkParaInscricoesExterna: formacao.dados.linkParaInscricoesExterna,
         });
+
+        const ua = formacao.dados.usuarioAcessibilidade;
+        if (ua) {
+          const deficiencia =
+            ua.possuiDeficiencia === true
+              ? 'Sim'
+              : ua.possuiDeficiencia === false
+                ? 'Não'
+                : 'Prefiro não responder';
+          const adaptacao =
+            ua.necessitaAdaptacao === true
+              ? 'Sim'
+              : ua.necessitaAdaptacao === false
+              ? 'Não'
+              : undefined;
+
+          const acessibilidadeValues = {
+            pessoaComDeficiencia: deficiencia,
+            qualDeficiencia: ua.descricaoDeficiencia,
+            precisaDeAdaptacao: adaptacao,
+            qualTipoAdaptacao: ua.descricaoAdaptacao,
+          };
+          acessibilidadeValuesRef.current = acessibilidadeValues;
+          setPessoaComDeficiencia(deficiencia);
+          setPrecisaDeAdaptacao(adaptacao);
+          form.setFieldsValue(acessibilidadeValues);
+        }
       }
     }
   }, [propostaId, formacaoState?.titulo]);
@@ -153,14 +186,17 @@ export const Inscricao = () => {
 
   useEffect(() => {
     form.resetFields();
+    if (acessibilidadeValuesRef.current) {
+      form.setFieldsValue(acessibilidadeValuesRef.current);
+    }
   }, [form, initialValues]);
 
   const enviarInscricaoContinuar = async () => {
     setAbrirModalListaDeEspera(false);
-    await enviarInscricao(true);
-  }
+    await enviarInscricao(true, salvarAcessibilidadeRef.current);
+  };
 
-  const enviarInscricao = async (forcarContinuacao = false) => {debugger;
+  const enviarInscricao = async (forcarContinuacao = false, salvar = false) => {
     if (vagaRemanescente && !forcarContinuacao) {
       setAbrirModalListaDeEspera(true);
       return;
@@ -210,6 +246,23 @@ export const Inscricao = () => {
       }
     }
 
+    if (pessoaComDeficiencia !== undefined) {
+      const possuiDeficiencia =
+        pessoaComDeficiencia === 'Sim' ? true : pessoaComDeficiencia === 'Não' ? false : null;
+
+      const acessibilidade: UsuarioAcessibilidadeDTO = {
+        possuiDeficiencia,
+        ...(pessoaComDeficiencia === 'Sim' && {
+          descricaoDeficiencia: (clonedValues as any).qualDeficiencia,
+          necessitaAdaptacao: precisaDeAdaptacao === 'Sim',
+          descricaoAdaptacao:
+            precisaDeAdaptacao === 'Sim' ? (clonedValues as any).qualTipoAdaptacao : undefined,
+        }),
+        salvar,
+      };
+      valoresSalvar.usuarioAcessibilidade = acessibilidade;
+    }
+
     response = await inserirInscricao(valoresSalvar);
 
     if (response.sucesso) {
@@ -233,7 +286,13 @@ export const Inscricao = () => {
         form={form}
         layout='vertical'
         autoComplete='off'
-        onFinish={() => enviarInscricao(false)}
+        onFinish={() => {
+          if (pessoaComDeficiencia !== undefined) {
+            setAbrirModalAcessibilidade(true);
+          } else {
+            enviarInscricao(false);
+          }
+        }}
         initialValues={initialValues}
         validateMessages={validateMessages}
       >
@@ -331,7 +390,77 @@ export const Inscricao = () => {
               <Col xs={24} sm={8}>
                 <SelectTurma propostaId={propostaId} />
               </Col>
+              <Col xs={24} sm={8}>
+                <Form.Item
+                  label='Pessoa com deficiência?'
+                  name='pessoaComDeficiencia'
+                  rules={[{ required: true }]}
+                >
+                  <Select
+                    allowClear
+                    placeholder='Selecione'
+                    options={[
+                      { label: 'Sim', value: 'Sim' },
+                      { label: 'Não', value: 'Não' },
+                      { label: 'Prefiro não responder', value: 'Prefiro não responder' },
+                    ]}
+                    onChange={(value) => {
+                      setPessoaComDeficiencia(value);
+                      form.setFieldValue('qualDeficiencia', undefined);
+                      setPrecisaDeAdaptacao(undefined);
+                      form.setFieldValue('precisaDeAdaptacao', undefined);
+                      form.setFieldValue('qualTipoAdaptacao', undefined);
+                    }}
+                  />
+                </Form.Item>
+              </Col>
 
+              {pessoaComDeficiencia === 'Sim' && (
+                <>
+                  <Col xs={24} sm={8}>
+                    <Form.Item
+                      label='Qual deficiência?'
+                      name='qualDeficiencia'
+                      rules={[{ required: true }]}
+                    >
+                      <Input placeholder='Informe a deficiência' maxLength={200} />
+                    </Form.Item>
+                  </Col>
+
+                  <Col xs={24} sm={8}>
+                    <Form.Item
+                      label='Precisa de adaptação?'
+                      name='precisaDeAdaptacao'
+                      rules={[{ required: true }]}
+                    >
+                      <Select
+                        allowClear
+                        placeholder='Selecione'
+                        options={[
+                          { label: 'Sim', value: 'Sim' },
+                          { label: 'Não', value: 'Não' },
+                        ]}
+                        onChange={(value) => {
+                          setPrecisaDeAdaptacao(value);
+                          form.setFieldValue('qualTipoAdaptacao', undefined);
+                        }}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  {precisaDeAdaptacao === 'Sim' && (
+                    <Col xs={24} sm={8}>
+                      <Form.Item
+                        label='Qual tipo de adaptação?'
+                        name='qualTipoAdaptacao'
+                        rules={[{ required: true }]}
+                      >
+                        <Input placeholder='Informe o tipo de adaptação' maxLength={200} />
+                      </Form.Item>
+                    </Col>
+                  )}
+                </>
+              )}
               <Col xs={24}>
                 <UploadArquivosConectaFormacao
                   form={form}
@@ -468,6 +597,21 @@ export const Inscricao = () => {
             </Row>
           </Col>
         </CardContent>
+
+        <ModalAcessibilidade
+          open={abrirModalAcessibilidade}
+          onCancel={() => setAbrirModalAcessibilidade(false)}
+          onNaoSalvar={() => {
+            salvarAcessibilidadeRef.current = false;
+            setAbrirModalAcessibilidade(false);
+            enviarInscricao(false, false);
+          }}
+          onSalvar={() => {
+            salvarAcessibilidadeRef.current = true;
+            setAbrirModalAcessibilidade(false);
+            enviarInscricao(false, true);
+          }}
+        />
 
         {openModal && (
           <ModalInscricao
