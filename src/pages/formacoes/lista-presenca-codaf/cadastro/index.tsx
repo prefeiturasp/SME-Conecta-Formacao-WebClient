@@ -1181,7 +1181,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   disabled={!formValido}
                   style={{ fontWeight: 700 }}
                 >
-                  Devolver para DF
+                  Devolver
                 </Button>
               )}
             </Col>
