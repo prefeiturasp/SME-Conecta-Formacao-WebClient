@@ -199,13 +199,13 @@ const RoutesConfig = () => {
 
                 <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
                   <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
-                </Route>
+                </Route>*/
 
                 <Route
                   path={ROUTES.RELATORIO_INSCRITOS_POR_FORMACAO}
                   element={<RelatorioInscritosPorFormacao />}
                 />
-              */}
+              }
               </Route>
             </Route>
         ) : (
