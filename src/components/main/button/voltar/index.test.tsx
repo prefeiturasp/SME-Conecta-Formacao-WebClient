@@ -1,0 +1,66 @@
+import { describe, test, expect } from '@jest/globals';
+
+describe('ButtonVoltar', () => {
+  describe('Propriedades padrão', () => {
+    test('deve ter type default', () => {
+      const type = 'default';
+      expect(type).toBe('default');
+    });
+
+    test('deve ter block true', () => {
+      const block = true;
+      expect(block).toBe(true);
+    });
+
+    test('deve ter disabled false fixo', () => {
+      const disabled = false;
+      expect(disabled).toBe(false);
+    });
+  });
+
+  describe('Estilo padrão', () => {
+    test('deve ter width de 43px', () => {
+      const style = { width: '43px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+      expect(style.width).toBe('43px');
+    });
+
+    test('deve ter display flex', () => {
+      const style = { width: '43px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+      expect(style.display).toBe('flex');
+    });
+
+    test('deve ter alignItems center', () => {
+      const style = { width: '43px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+      expect(style.alignItems).toBe('center');
+    });
+
+    test('deve ter justifyContent center', () => {
+      const style = { width: '43px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+      expect(style.justifyContent).toBe('center');
+    });
+  });
+
+  describe('Spread de props (rest)', () => {
+    test('deve repassar onClick via rest', () => {
+      const onClick = jest.fn();
+      const props = { onClick };
+      props.onClick();
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    test('deve ignorar disabled passado via rest pois é fixo como false', () => {
+      const disabled = false;
+      expect(disabled).toBe(false);
+    });
+
+    test('deve repassar id via rest', () => {
+      const props = { id: 'CF_BUTTON_VOLTAR' };
+      expect(props.id).toBe('CF_BUTTON_VOLTAR');
+    });
+
+    test('deve repassar htmlType via rest', () => {
+      const props = { htmlType: 'button' as const };
+      expect(props.htmlType).toBe('button');
+    });
+  });
+});

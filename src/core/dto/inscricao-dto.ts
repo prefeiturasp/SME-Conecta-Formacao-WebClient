@@ -1,3 +1,11 @@
+export type UsuarioAcessibilidadeDTO = {
+  possuiDeficiencia: boolean | null;
+  descricaoDeficiencia?: string;
+  necessitaAdaptacao?: boolean;
+  descricaoAdaptacao?: string;
+  salvar: boolean;
+};
+
 export type InscricaoDTO = {
   propostaTurmaId: number | undefined;
   cargoCodigo: string | undefined;
@@ -9,4 +17,5 @@ export type InscricaoDTO = {
   arquivoId?: number;
   tipoVinculo: number | undefined;
   vagaRemanescente: boolean | undefined;
+  usuarioAcessibilidade?: UsuarioAcessibilidadeDTO;
 };

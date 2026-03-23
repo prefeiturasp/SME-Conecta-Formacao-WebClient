@@ -324,7 +324,7 @@ export const obterCertificadosUsuario = (
 
   if (filtros.DataEmissaoFim) params.DataEmissaoFim = filtros.DataEmissaoFim;
 
-  return obterRegistro(`${URL_API_CERTIFICADO}/certificados-usuario`, { params });
+  return obterRegistro(`${URL_API_CERTIFICADO}/meus`, { params });
 };
 
 export type CertificadoDownloadDTO = {

@@ -20,6 +20,7 @@ type DataTableProps<T> = {
   alterarRealizouFiltro?: (valor: boolean) => void;
   desativarBotaoContinuar?: any;
   url?: string;
+  hideHeaderOnEmpty?: boolean;
 } & TableProps<T>;
 
 const DataTable = <T extends object>({
@@ -29,6 +30,7 @@ const DataTable = <T extends object>({
   url,
   columns,
   desativarBotaoContinuar,
+  hideHeaderOnEmpty,
   rowKey = 'id',
   ...rest
 }: DataTableProps<T>) => {
@@ -144,6 +146,9 @@ const DataTable = <T extends object>({
     }
   }, [data]);
 
+  const currentData = url ? data : rest.dataSource;
+  const isEmpty = !loading && (!currentData || currentData.length === 0);
+
   return (
     <Table
       bordered
@@ -153,9 +158,10 @@ const DataTable = <T extends object>({
       loading={loading}
       pagination={tableParams.pagination}
       locale={{ emptyText: 'Sem dados' }}
+      showHeader={hideHeaderOnEmpty && isEmpty ? false : undefined}
       onChange={url ? handleTableChange : handleTableChangeDefaultTable}
       {...rest}
-      dataSource={url ? data : rest.dataSource}
+      dataSource={currentData}
     />
   );
 };

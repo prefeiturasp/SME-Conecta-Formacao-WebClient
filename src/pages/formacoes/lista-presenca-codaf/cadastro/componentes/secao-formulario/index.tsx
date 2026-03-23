@@ -55,9 +55,10 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                 onSearch={onSearchFormacao}
                 onSelect={onSelectFormacao}
                 options={opcoesFormacao.map((opcao) => ({
-                  value: opcao.numeroHomologacao.toString(),
+                  value: `${opcao.numeroHomologacao}-${opcao.propostaId}`,
                   label: opcao.numeroHomologacao.toString(),
                   numeroHomologacao: opcao.numeroHomologacao,
+                  propostaId: opcao.propostaId,
                 }))}
                 filterOption={false}
                 notFoundContent={
@@ -151,7 +152,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
         </Col>
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <b>
-            <Form.Item label='Data da publicação' name='dataPublicacao'>
+            <Form.Item label='Data do comunicado' name='dataPublicacao'>
               <DatePicker
                 placeholder='Selecione a data'
                 format='DD/MM/YYYY'

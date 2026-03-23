@@ -91,9 +91,9 @@ export const DESEJA_CANCELAR_PROCESSAMENTO_ARQUIVO =
 export const CANCELAR_INSCRICAO =
   'Ao cancelar a inscrição o cursista perderá acesso a formação. Deseja realmente cancelar?';
 export const SAIBA_MAIS = 'Saiba mais';
-export const SOBRE_ESTE_EVENTO = 'Sobre este evento';
+export const SOBRE_ESTE_CURSO = 'Sobre este curso';
 export const PUBLICO_ALVO = 'Público-alvo';
-export const PALAVRAS_CHAVES = 'Palavras-chave';
+export const PUBLICO_ALVO_VAGAS_REMANESCENTES = 'Público-alvo de vagas remanescentes';
 export const TIPO_INSCRICAO_NAO_INFORMADA = 'É necessário informar o tipo de inscrição';
 export const ENVIAR_EMAIL_PARA_VALIDACAO =
   'Ao continuar iremos enviar um e-mail com um link para validação do seu cadastro.';

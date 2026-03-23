@@ -38,6 +38,8 @@ import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
 import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario';
+import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
+import RelatorioInscritosPorFormacao from '~/pages/relatorios/inscritos-por-formacao';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -79,7 +81,6 @@ const RoutesConfig = () => {
           <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
         </Route>
         {autenticado ? (
-          <>
             <Route element={<GuardAutenticacao />}>
               <Route path={ROUTES.PRINCIPAL} element={principalPage}>
                 <Route path='*' element={notFoundPage} />
@@ -194,10 +195,19 @@ const RoutesConfig = () => {
                       element={<CadastroListaPresencaCodaf />}
                     />
                   </Route>
-                </Route> */}
+                </Route> 
+
+                <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
+                  <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
+                </Route>*/
+
+                <Route
+                  path={ROUTES.RELATORIO_INSCRITOS_POR_FORMACAO}
+                  element={<RelatorioInscritosPorFormacao />}
+                />
+              }
               </Route>
             </Route>
-          </>
         ) : (
           <>
             <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />

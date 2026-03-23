@@ -2,7 +2,6 @@ import { InfoCircleFilled } from '@ant-design/icons';
 import { Form, FormItemProps, Tooltip } from 'antd';
 import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType, SelectProps } from 'antd/es/select';
-
 import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_FORMATO } from '~/core/constants/ids/select';
@@ -77,7 +76,7 @@ const SelectFormato: React.FC<SelectFormatoProps> = ({
       }}
       {...formItemProps}
     >
-      <Select {...selectProps} options={options} placeholder='Modalidade formativa' id={CF_SELECT_FORMATO} />
+      <Select {...selectProps} options={options} placeholder='Selecione' id={CF_SELECT_FORMATO} />
     </Form.Item>
   );
 };

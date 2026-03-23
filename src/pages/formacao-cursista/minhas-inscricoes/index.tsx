@@ -1,3 +1,4 @@
+import { PlusOutlined } from '@ant-design/icons';
 import { Button, Col, Row } from 'antd';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -5,7 +6,6 @@ import CardContent from '~/components/lib/card-content';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import HeaderPage from '~/components/lib/header-page';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
-import { NOVA_INSCRICAO } from '~/core/constants/mensagens';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
@@ -40,9 +40,10 @@ export const MinhasInscricoes = () => {
                 type='primary'
                 id={CF_BUTTON_NOVO}
                 style={{ fontWeight: 700 }}
+                icon={<PlusOutlined />}
                 onClick={novaInscricao}
               >
-                {NOVA_INSCRICAO}
+                Explorar formações
               </Button>
             </Col>
           </Row>

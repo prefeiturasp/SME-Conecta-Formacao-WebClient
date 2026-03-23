@@ -1,4 +1,3 @@
-import { CalendarOutlined } from '@ant-design/icons';
 import { Button, Col, Flex, Row, Tag, Typography } from 'antd';
 import React from 'react';
 import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
@@ -13,14 +12,12 @@ import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import autenticacaoService from '~/core/services/autenticacao-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
+import { TagPersonalizada } from './styles';
+
 
 type DadosDestaqueProps = {
   dadosFormacao: RetornoDetalheFormacaoDTO | undefined;
   propostaId?: number;
-};
-
-const styleTypographyText = {
-  fontSize: 22,
 };
 
 const TagTipoFormacaoFormato = styled(Tag)`
@@ -28,7 +25,7 @@ const TagTipoFormacaoFormato = styled(Tag)`
   display: flex;
   align-items: center;
   border-radius: 50px;
-  padding: 5px 10px;
+  padding: 7px 10px;
   border: none;
   background-color: #ececee;
   color: #58616a;
@@ -79,64 +76,91 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
     return false;
   };
   return (
-    <Flex justify='left'>
-      <Row gutter={24}>
-        <Col span={9.6}>
-          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao} style={{ width: '100%' }} />
+    <>      
+      <Row>
+        <Col span={6}>
+          { }
         </Col>
-
-        <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
-          <Typography.Title level={2}>{dadosInscricao?.titulo}</Typography.Title>
-
-          <Typography.Text style={styleTypographyText}>
-            Área Promotora: {dadosInscricao?.areaPromotora}
-          </Typography.Text>
-          <Row>
-            <TagTipoFormacaoFormato
-              icon={<FaGraduationCap size={22} />}
-              style={styleTypographyText}
+        <Col span={18}>
+          <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
+            <Typography.Title
+              level={2}
+              style={{
+                fontFamily: 'Roboto, sans-serif',
+                fontWeight: 700,
+                fontStyle: 'normal',
+                fontSize: '20px',
+                lineHeight: '100%',
+                letterSpacing: '0%',
+              }}
             >
-              {dadosInscricao?.tipoFormacaoDescricao}
-            </TagTipoFormacaoFormato>
-            <TagTipoFormacaoFormato icon={<FaMapMarkerAlt size={22} />} style={styleTypographyText}>
-              {dadosInscricao?.formatoDescricao}
-            </TagTipoFormacaoFormato>
-          </Row>
+              {dadosInscricao?.titulo}
+            </Typography.Title>
 
-          <Typography.Text style={styleTypographyText}>
-            <CalendarOutlined /> Período de realização: {dadosInscricao?.periodo}
-          </Typography.Text>
-
-          <Typography.Text style={styleTypographyText}>
-            <CalendarOutlined /> Período de inscrição: {dadosInscricao?.periodoInscricao}
-          </Typography.Text>
-
-          <Col span={24}>
-            {linkInscricaoExterna ? (
-              <Button type='primary' shape='round' size='large'>
-                <Link
-                  to={linkInscricaoExterna}
-                  target='_blank'
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  {BOTAO_INSCRICAO_EXTERNA}
-                </Link>
-              </Button>
-            ) : (
-              <Button
-                type='primary'
-                shape='round'
-                size='large'
-                onClick={setarDadosInscricao}
-                disabled={desabilitarInscricao()}
-              >
-                {ENVIAR_INSCRICAO}
-              </Button>
-            )}
-          </Col>
-        </Flex>
+          </Flex>
+        </Col>
       </Row>
-    </Flex>
+
+      <Row>
+        <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao}
+          alt="Imagem da formação"
+          style={{ width: '154px', height: '126px' }} />
+        </Col>
+        <Col span={18}>
+          <Flex gap={5} vertical justify='space-between' style={{ padding: '0px 15px 15px 15px' }}>
+
+            <Row style={{ marginTop: 0, marginBottom: 10 }}>
+              <TagTipoFormacaoFormato>
+                <FaGraduationCap size={16} />
+                <TagPersonalizada>{dadosInscricao?.tipoFormacaoDescricao}</TagPersonalizada>
+              </TagTipoFormacaoFormato>
+
+              <TagTipoFormacaoFormato>
+                <FaMapMarkerAlt size={16} />
+                <TagPersonalizada>{dadosInscricao?.formatoDescricao}</TagPersonalizada>
+              </TagTipoFormacaoFormato>
+            </Row>
+
+
+            <Typography.Text className="texto-periodo">
+              <strong>Período de realização:</strong> {dadosInscricao?.periodo}
+            </Typography.Text>
+
+            <Typography.Text className="texto-periodo">
+              <strong>Período de inscrição:</strong> {dadosInscricao?.periodoInscricao}
+            </Typography.Text>
+
+            <Typography.Text className="texto-periodo">
+              <strong>Área Promotora:</strong> {dadosInscricao?.areaPromotora}
+            </Typography.Text>
+
+
+            <Row style={{ marginTop: 20, marginBottom: 10 }}>
+              <Col span={24}>
+                {linkInscricaoExterna ? (
+                  <Button type="primary" size="large" className="botao-personalizado">
+                    <Link to={linkInscricaoExterna} target="_blank">
+                      <strong>{BOTAO_INSCRICAO_EXTERNA}</strong>
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    type="primary"
+                    size="large"
+                    onClick={setarDadosInscricao}
+                    disabled={desabilitarInscricao()}
+                    className="botao-personalizado"
+                  >
+                    <strong>{ENVIAR_INSCRICAO}</strong>
+                  </Button>
+                )}
+              </Col>
+            </Row>
+          </Flex>
+        </Col>
+      </Row>
+    </>
   );
 };
 
