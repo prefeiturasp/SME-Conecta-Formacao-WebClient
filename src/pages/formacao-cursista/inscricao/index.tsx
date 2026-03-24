@@ -217,6 +217,7 @@ export const Inscricao = () => {
       funcaoUeCodigo: undefined,
       tipoVinculo: undefined,
       vagaRemanescente: clonedValues.vagaRemanescente,
+      usuarioLogin: perfil.usuarioLogin,
     };
 
     if (Array.isArray(clonedValues?.arquivoId)) {
