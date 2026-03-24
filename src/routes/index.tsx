@@ -38,7 +38,7 @@ import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
 import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario';
-import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
+// import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
 import RelatorioInscritosPorFormacao from '~/pages/relatorios/inscritos-por-formacao';
 
 const RoutesConfig = () => {
