@@ -3,13 +3,13 @@ import { TipoEncontro } from '../enum/tipo-encontro';
 
 export type DataEncontro = {
   dataInicio: Dayjs;
-  dataFim: Dayjs | any;
+  dataFim?: Dayjs | any;
+  horarios?: Dayjs[];
 };
 
 export type FormularioDrawerEncontro = {
   turmas: number[];
   datas: DataEncontro[];
-  horarios: Dayjs[];
   tipoEncontro: TipoEncontro;
   local: string;
 };
