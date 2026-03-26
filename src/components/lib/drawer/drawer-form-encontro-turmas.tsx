@@ -53,7 +53,10 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 
     const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroDataDTO) => ({
       dataInicio: dayjs.tz(item?.dataInicio),
-      horarios: horariosPadrao,
+      horarios:
+        item.horaInicio && item.horaFim
+          ? [dayjs(item.horaInicio, 'HH:mm'), dayjs(item.horaFim, 'HH:mm')]
+          : horariosPadrao,
     }));
 
     const valoresIniciais = {
@@ -87,7 +90,11 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     const primeiroHorario = values.datas[0]?.horarios;
     const horaInicio = primeiroHorario?.[0]?.format('HH:mm') ?? '';
     const horaFim = primeiroHorario?.[1]?.format('HH:mm') ?? '';
-    const datas = values.datas.map((d) => ({ dataInicio: d.dataInicio }));
+    const datas = values.datas.map((d) => ({
+      dataInicio: d.dataInicio?.toISOString(),
+      horaInicio: d.horarios?.[0]?.format('HH:mm') ?? '',
+      horaFim: d.horarios?.[1]?.format('HH:mm') ?? '',
+    }));
     const turmas = values.turmas.map((turmaId) => ({ turmaId }));
 
     const encontro: PropostaEncontroDTO = {

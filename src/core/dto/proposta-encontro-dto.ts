@@ -1,5 +1,4 @@
 import { TipoEncontro } from '../enum/tipo-encontro';
-import { DataEncontro } from './formulario-drawer-encontro-dto';
 
 export type PropostaEncontroDTO = {
   id?: number;
@@ -9,7 +8,7 @@ export type PropostaEncontroDTO = {
   tipo: TipoEncontro | null;
   local: string | null;
   turmas: PropostaEncontroTurmaDTO[];
-  datas: DataEncontro[];
+  datas: PropostaEncontroDataDTO[];
 };
 
 export type PropostaEncontroPaginadoDTO = {
@@ -22,6 +21,9 @@ export type PropostaEncontroTurmaDTO = {
 };
 
 export type PropostaEncontroDataDTO = {
+  id?: number;
   dataInicio: string;
   dataFim?: string;
+  horaInicio?: string;
+  horaFim?: string;
 };
