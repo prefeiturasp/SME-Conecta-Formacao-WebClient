@@ -71,11 +71,8 @@ const DataTableEncontros = forwardRef(
 
         const listaFilrada = lista.filter((x) => x.id == lista[index].id);
         listaFilrada.forEach((valores) => {
-          valores.datas.forEach((d) => {
-            const inicio = new Date(d.dataInicio).toLocaleDateString();
-            const final = d.dataFim ? new Date(d.dataFim).toLocaleDateString() : '';
-            const dataFormatada = final ? `${inicio} até ${final}` : inicio;
-            listaDatasFormatadas.push(dataFormatada);
+          valores.cronogramaDatas.forEach((d) => {
+            listaDatasFormatadas.push(new Date(d.data).toLocaleDateString());
           });
         });
 
@@ -88,17 +85,18 @@ const DataTableEncontros = forwardRef(
         });
         if (totalTurmasSemExibir > 0)
           listaTurmasFormatadas.push(` + ${totalTurmasSemExibir} turmas`);
-        const horaInicio = lista[index].horaInicio!.substring(0, 2);
-        const minutoInicio = lista[index].horaInicio!.substring(3, 5);
-        const horaDataInicial = new Date();
-        horaDataInicial.setHours(parseInt(horaInicio));
-        horaDataInicial.setMinutes(parseInt(minutoInicio));
 
-        const horaFim = lista[index].horaFim!.substring(0, 2);
-        const minutoFim = lista[index].horaFim!.substring(3, 5);
+        const primeiraData = lista[index].cronogramaDatas[0];
+        const horaInicioStr = primeiraData?.horaInicio ?? '';
+        const horaFimStr = primeiraData?.horaFim ?? '';
+
+        const horaDataInicial = new Date();
+        horaDataInicial.setHours(parseInt(horaInicioStr.substring(0, 2)));
+        horaDataInicial.setMinutes(parseInt(horaInicioStr.substring(3, 5)));
+
         const horaDataFinal = new Date();
-        horaDataFinal.setHours(parseInt(horaFim));
-        horaDataFinal.setMinutes(parseInt(minutoFim));
+        horaDataFinal.setHours(parseInt(horaFimStr.substring(0, 2)));
+        horaDataFinal.setMinutes(parseInt(horaFimStr.substring(3, 5)));
 
         const cronograma: CronogramaEncontrosPaginadoDto = {
           id: lista[index].id!,
@@ -106,10 +104,10 @@ const DataTableEncontros = forwardRef(
           horarios: [horaDataInicial, horaDataFinal],
           turmas: listaTurmasFormatadas.join(', '),
           datas: listaDatasFormatadas.join(', '),
-          datasPeriodos: lista[index].datas,
-          horaInicio: lista[index].horaInicio!,
-          horaFim: lista[index].horaFim!,
-          hora: `${lista[index].horaInicio!} até ${lista[index].horaFim!}`,
+          datasPeriodos: lista[index].cronogramaDatas,
+          horaInicio: horaInicioStr,
+          horaFim: horaFimStr,
+          hora: `${horaInicioStr} até ${horaFimStr}`,
           tipoEncontro: lista[index].tipo,
           tipoEncontroDescricao: obteTipoEncontroTexto(lista[index].tipo!),
           local: lista[index].local!,

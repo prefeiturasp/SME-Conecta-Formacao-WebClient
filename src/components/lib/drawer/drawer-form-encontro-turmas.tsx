@@ -14,7 +14,7 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { dayjs } from '~/core/date/dayjs';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { DataEncontro, FormularioDrawerEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
-import { PropostaEncontroDTO, PropostaEncontroDataDTO } from '~/core/dto/proposta-encontro-dto';
+import { PropostaEncontroDTO, PropostaEncontroCronogramaDataDTO } from '~/core/dto/proposta-encontro-dto';
 import { TipoEncontro } from '~/core/enum/tipo-encontro';
 import { confirmacao } from '~/core/services/alerta-service';
 import { removerPropostaEncontro, salvarPropostaEncontro } from '~/core/services/proposta-service';
@@ -51,8 +51,8 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
       dayjs(dadosEncontro?.horarios[1], 'HH:mm'),
     ];
 
-    const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroDataDTO) => ({
-      dataInicio: dayjs.tz(item?.dataInicio),
+    const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroCronogramaDataDTO) => ({
+      dataInicio: dayjs.tz(item?.data),
       horarios:
         item.horaInicio && item.horaFim
           ? [dayjs(item.horaInicio, 'HH:mm'), dayjs(item.horaFim, 'HH:mm')]

@@ -12,8 +12,13 @@ export type PropostaEncontroDTO = {
 };
 
 export type PropostaEncontroPaginadoDTO = {
-  datas: PropostaEncontroDataDTO[];
-} & PropostaEncontroDTO;
+  id?: number;
+  quantidadeDiasEncontro?: number;
+  tipo: TipoEncontro | null;
+  local: string | null;
+  turmas: PropostaEncontroTurmaDTO[];
+  cronogramaDatas: PropostaEncontroCronogramaDataDTO[];
+};
 
 export type PropostaEncontroTurmaDTO = {
   turmaId: number;
@@ -26,4 +31,11 @@ export type PropostaEncontroDataDTO = {
   dataFim?: string;
   horaInicio?: string;
   horaFim?: string;
+};
+
+export type PropostaEncontroCronogramaDataDTO = {
+  id?: number;
+  data: string;
+  horaInicio: string;
+  horaFim: string;
 };
