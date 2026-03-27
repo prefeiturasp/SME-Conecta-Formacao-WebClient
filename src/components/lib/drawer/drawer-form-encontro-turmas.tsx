@@ -47,8 +47,8 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
 
   const carregarDados = useCallback(() => {
     const horariosPadrao = [
-      dayjs(dadosEncontro?.horarios[0], 'HH:mm'),
-      dayjs(dadosEncontro?.horarios[1], 'HH:mm'),
+      dayjs(dadosEncontro?.horaInicio, 'HH:mm'),
+      dayjs(dadosEncontro?.horaFim, 'HH:mm'),
     ];
 
     const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroCronogramaDataDTO) => ({
