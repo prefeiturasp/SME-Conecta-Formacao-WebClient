@@ -18,10 +18,6 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate,
   const dateFormat = 'DD/MM/YYYY';
   const datasWatch = Form.useWatch('datas');
 
-  const popupContainer = (trigger: HTMLElement) => {
-    return trigger.parentNode as HTMLElement;
-  };
-
   useEffect(() => {
     if (form.isFieldTouched('datas')) {
       form.validateFields({ dirty: true });
@@ -49,8 +45,7 @@ const DatePickerMultiplos: React.FC<DatePickerMultiplosProps> = ({ disabledDate,
                         onChange={onchange}
                         format={dateFormat}
                         disabledDate={disabledDate}
-                        getPopupContainer={(trigger: HTMLElement) => popupContainer(trigger)}
-                        style={{ width: '100%' }}
+style={{ width: '100%' }}
                       />
                     </Form.Item>
                   </Col>
