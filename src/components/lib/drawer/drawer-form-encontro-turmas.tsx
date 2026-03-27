@@ -79,7 +79,10 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     const dataInicial = periodoRealizacao?.dataInicio;
     const dataFinal = periodoRealizacao?.dataFim;
 
-    return (current && current < dataInicial?.startOf('day')) || current > dataFinal?.endOf('day');
+    return (
+      (current && current < dataInicial?.startOf('day')) ||
+      (!!dataFinal && current > dataFinal.endOf('day'))
+    );
   };
   const obterTipoEncontro = () => {
     validarAlteracaoEmCampos();
