@@ -61,7 +61,8 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
   const id = paramsRoute?.id || 0;
   const refTable = useRef<any>(null);
 
-  const toggleExpand = (rowId: number) => {
+  const toggleExpand = (rowId: number | undefined) => {
+    if (rowId === undefined) return;
     setExpandedRowKeys((prev) =>
       prev.includes(rowId) ? prev.filter((k) => k !== rowId) : [...prev, rowId],
     );
@@ -101,7 +102,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
           type='text'
           size='small'
           style={{ padding: 0, lineHeight: 1 }}
-          onClick={() => toggleExpand(row.id!)}
+          onClick={() => toggleExpand(row.id)}
         >
           <svg
             width='16'
