@@ -66,21 +66,18 @@ const DataTableEncontros = forwardRef(
     };
     const montarDtoRetorno = (lista: PropostaEncontroPaginadoDTO[]) => {
       const encontros = Array<CronogramaEncontrosPaginadoDto>();
-      for (let index = 0; index < lista.length; index++) {
+      for (const item of lista) {
         const listaDatasFormatadas = Array<string>();
 
-        const listaFilrada = lista.filter((x) => x.id == lista[index].id);
+        const listaFilrada = lista.filter((x) => x.id == item.id);
         listaFilrada.forEach((valores) => {
-          valores.datas.forEach((d) => {
-            const inicio = new Date(d.dataInicio).toLocaleDateString();
-            const final = d.dataFim ? new Date(d.dataFim).toLocaleDateString() : '';
-            const dataFormatada = final ? `${inicio} até ${final}` : inicio;
-            listaDatasFormatadas.push(dataFormatada);
+          valores.cronogramaDatas.forEach((d) => {
+            listaDatasFormatadas.push(new Date(d.data).toLocaleDateString());
           });
         });
 
-        const turmaIds = lista[index].turmas.map((t) => t.turmaId);
-        const turmasLista = lista[index].turmas.map((t) => t.nome);
+        const turmaIds = item.turmas.map((t) => t.turmaId);
+        const turmasLista = item.turmas.map((t) => t.nome);
         const totalTurmasSemExibir = turmasLista.length - 12;
         const listaTurmasFormatadas = Array<string>();
         turmasLista.slice(0, 12).forEach((turma) => {
@@ -88,31 +85,32 @@ const DataTableEncontros = forwardRef(
         });
         if (totalTurmasSemExibir > 0)
           listaTurmasFormatadas.push(` + ${totalTurmasSemExibir} turmas`);
-        const horaInicio = lista[index].horaInicio!.substring(0, 2);
-        const minutoInicio = lista[index].horaInicio!.substring(3, 5);
-        const horaDataInicial = new Date();
-        horaDataInicial.setHours(parseInt(horaInicio));
-        horaDataInicial.setMinutes(parseInt(minutoInicio));
 
-        const horaFim = lista[index].horaFim!.substring(0, 2);
-        const minutoFim = lista[index].horaFim!.substring(3, 5);
+        const primeiraData = item.cronogramaDatas[0];
+        const horaInicioStr = primeiraData?.horaInicio ?? '';
+        const horaFimStr = primeiraData?.horaFim ?? '';
+
+        const horaDataInicial = new Date();
+        horaDataInicial.setHours(parseInt(horaInicioStr.substring(0, 2)));
+        horaDataInicial.setMinutes(parseInt(horaInicioStr.substring(3, 5)));
+
         const horaDataFinal = new Date();
-        horaDataFinal.setHours(parseInt(horaFim));
-        horaDataFinal.setMinutes(parseInt(minutoFim));
+        horaDataFinal.setHours(parseInt(horaFimStr.substring(0, 2)));
+        horaDataFinal.setMinutes(parseInt(horaFimStr.substring(3, 5)));
 
         const cronograma: CronogramaEncontrosPaginadoDto = {
-          id: lista[index].id!,
+          id: item.id!,
           turmasId: turmaIds,
           horarios: [horaDataInicial, horaDataFinal],
           turmas: listaTurmasFormatadas.join(', '),
           datas: listaDatasFormatadas.join(', '),
-          datasPeriodos: lista[index].datas,
-          horaInicio: lista[index].horaInicio!,
-          horaFim: lista[index].horaFim!,
-          hora: `${lista[index].horaInicio!} até ${lista[index].horaFim!}`,
-          tipoEncontro: lista[index].tipo,
-          tipoEncontroDescricao: obteTipoEncontroTexto(lista[index].tipo!),
-          local: lista[index].local!,
+          datasPeriodos: item.cronogramaDatas,
+          horaInicio: horaInicioStr,
+          horaFim: horaFimStr,
+          hora: `${horaInicioStr} até ${horaFimStr}`,
+          tipoEncontro: item.tipo,
+          tipoEncontroDescricao: obteTipoEncontroTexto(item.tipo!),
+          local: item.local!,
         };
         encontros.push(cronograma);
       }

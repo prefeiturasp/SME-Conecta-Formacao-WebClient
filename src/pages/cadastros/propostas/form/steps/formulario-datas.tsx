@@ -1,5 +1,6 @@
-import { Button, Col, Form, Row } from 'antd';
+import { Button, Col, Form, Row, Table } from 'antd';
 import { ColumnsType } from 'antd/es/table';
+import editIcon from '~/assets/material-symbols_edit-outline.svg';
 import { Dayjs } from 'dayjs';
 import React, { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -14,17 +15,35 @@ import {
   PERIODO_REALIZACAO_NAO_INFORMADO,
 } from '~/core/constants/mensagens';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
+import { PropostaEncontroCronogramaDataDTO } from '~/core/dto/proposta-encontro-dto';
 import { DataEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
 import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
 import { Colors } from '~/core/styles/colors';
 import { ButtonParecer } from '../components/modal-parecer/modal-parecer-button';
 
-const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
-  { key: 'turmas', title: 'Turma', dataIndex: 'turmas' },
-  { key: 'datas', title: 'Data', dataIndex: 'datas' },
-  { key: 'hora', title: 'Hora', dataIndex: 'hora' },
-  { key: 'tipoEncontroDescricao', title: 'Tipo de Encontro', dataIndex: 'tipoEncontroDescricao' },
+const subColumns: ColumnsType<PropostaEncontroCronogramaDataDTO> = [
+  {
+    key: 'data',
+    title: 'Data',
+    dataIndex: 'data',
+    render: (val: string) => new Date(val).toLocaleDateString('pt-BR'),
+  },
+  { key: 'horaInicio', title: 'Hora de início', dataIndex: 'horaInicio' },
+  { key: 'horaFim', title: 'Hora de fim', dataIndex: 'horaFim' },
 ];
+
+const renderExpandedRow = (record: CronogramaEncontrosPaginadoDto) => (
+  <div style={{ padding: '20px 20px 20px 0' }}>
+    <Table
+      size='small'
+      bordered
+      columns={subColumns}
+      dataSource={record.datasPeriodos}
+      pagination={false}
+      rowKey={(r) => String(r.id ?? r.data)}
+    />
+  </div>
+);
 const contentStyle: React.CSSProperties = {
   fontSize: 18,
   color: Colors.SystemSME.ConectaFormacao.PRIMARY,
@@ -49,10 +68,88 @@ type FormularioDatasProps = {
 const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
   const form = Form.useFormInstance();
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
   const paramsRoute = useParams();
   const [dadosEncontro, setDadosEncontro] = useState<CronogramaEncontrosPaginadoDto>();
   const id = paramsRoute?.id || 0;
   const refTable = useRef<any>(null);
+
+  const toggleExpand = (rowId: number | undefined) => {
+    if (rowId === undefined) return;
+    setExpandedRowKeys((prev) =>
+      prev.includes(rowId) ? prev.filter((k) => k !== rowId) : [...prev, rowId],
+    );
+  };
+
+  const columns: ColumnsType<CronogramaEncontrosPaginadoDto> = [
+    { key: 'turmas', title: 'Turma', dataIndex: 'turmas' },
+    {
+      key: 'diasEncontro',
+      title: 'Dias de encontro',
+      render: (_, row) => String(row.datasPeriodos?.length ?? 0).padStart(2, '0'),
+    },
+    { key: 'tipoEncontroDescricao', title: 'Tipo de Encontro', dataIndex: 'tipoEncontroDescricao' },
+    {
+      key: 'acao',
+      title: 'Ação',
+      width: 80,
+      align: 'center',
+      render: (_, row) => (
+        <Button
+          type='text'
+          size='small'
+          style={{ padding: 0, lineHeight: 1 }}
+          onClick={() => onClickEditar(row)}
+        >
+          <img src={editIcon} alt='Editar' style={{ width: 28, height: 28 }} />
+        </Button>
+      ),
+    },
+    {
+      key: 'expandir',
+      title: '',
+      width: 48,
+      align: 'center',
+      render: (_, row) => (
+        <Button
+          type='text'
+          size='small'
+          style={{ padding: 0, lineHeight: 1 }}
+          onClick={() => toggleExpand(row.id)}
+        >
+          <svg
+            width='16'
+            height='16'
+            viewBox='0 0 16 16'
+            style={{
+              transform:
+                row.id !== undefined && expandedRowKeys.includes(row.id)
+                  ? 'rotate(-90deg)'
+                  : 'rotate(90deg)',
+              transition: 'transform 0.2s',
+              display: 'block',
+            }}
+          >
+            <path
+              d='M6 3L11 8L6 13'
+              stroke='#BFBFC2'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              fill='none'
+            />
+          </svg>
+        </Button>
+      ),
+    },
+  ];
+
+  const expandable = {
+    expandedRowRender: renderExpandedRow,
+    expandedRowKeys,
+    onExpandedRowsChange: (keys: readonly React.Key[]) => setExpandedRowKeys(keys as number[]),
+    showExpandColumn: false,
+  };
 
   const datasPeriodoRealizacao = Form.useWatch('periodoRealizacao', form);
 
@@ -157,15 +254,28 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             Listagem de encontros
           </Col>
           <Col span={24}>
+            <style>{`
+              .encontros-listagem .ant-table-expanded-row > .ant-table-cell {
+                background: #ffffff !important;
+                padding: 0 !important;
+                border-top: 1px solid #f0f0f0 !important;
+              }
+              .encontros-listagem .ant-table-expanded-row .ant-table-thead > tr > th {
+                border-top: 1px solid #f0f0f0 !important;
+              }
+              .encontros-listagem .ant-table-row-expand-icon-cell,
+              .encontros-listagem col.ant-table-expand-icon-col {
+                width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+              }
+            `}</style>
             <DataTableEncontros
               ref={refTable}
               url={`v1/Proposta/${id}/encontro`}
               columns={columns}
-              onRow={(row) => ({
-                onClick: () => {
-                  onClickEditar(row);
-                },
-              })}
+              expandable={expandable}
+              className='encontros-listagem'
             />
           </Col>
           <Col xs={24} sm={14} md={24} style={contentStyle}>
