@@ -31,6 +31,19 @@ const subColumns: ColumnsType<PropostaEncontroCronogramaDataDTO> = [
   { key: 'horaInicio', title: 'Hora de início', dataIndex: 'horaInicio' },
   { key: 'horaFim', title: 'Hora de fim', dataIndex: 'horaFim' },
 ];
+
+const renderExpandedRow = (record: CronogramaEncontrosPaginadoDto) => (
+  <div style={{ padding: '20px 20px 20px 0' }}>
+    <Table
+      size='small'
+      bordered
+      columns={subColumns}
+      dataSource={record.datasPeriodos}
+      pagination={false}
+      rowKey={(r) => String(r.id ?? r.data)}
+    />
+  </div>
+);
 const contentStyle: React.CSSProperties = {
   fontSize: 18,
   color: Colors.SystemSME.ConectaFormacao.PRIMARY,
@@ -109,7 +122,10 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             height='16'
             viewBox='0 0 16 16'
             style={{
-              transform: expandedRowKeys.includes(row.id!) ? 'rotate(-90deg)' : 'rotate(90deg)',
+              transform:
+                row.id !== undefined && expandedRowKeys.includes(row.id)
+                  ? 'rotate(-90deg)'
+                  : 'rotate(90deg)',
               transition: 'transform 0.2s',
               display: 'block',
             }}
@@ -129,18 +145,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
   ];
 
   const expandable = {
-    expandedRowRender: (record: CronogramaEncontrosPaginadoDto) => (
-      <div style={{ padding: '20px 20px 20px 0' }}>
-        <Table
-          size='small'
-          bordered
-          columns={subColumns}
-          dataSource={record.datasPeriodos}
-          pagination={false}
-          rowKey={(r) => String(r.id ?? r.data)}
-        />
-      </div>
-    ),
+    expandedRowRender: renderExpandedRow,
     expandedRowKeys,
     onExpandedRowsChange: (keys: readonly React.Key[]) => setExpandedRowKeys(keys as number[]),
     showExpandColumn: false,
