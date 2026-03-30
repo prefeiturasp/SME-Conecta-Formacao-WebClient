@@ -42,8 +42,7 @@ import {
   obterCertificadosCodaf,
   downloadCertificadosLote,
 } from '~/core/services/codaf-certificado-service';
-import { imprimirCertificadoCodaf } from '~/core/services/codaf-lista-presenca-service';
-import { downloadBlob } from '~/core/utils/functions';
+import { downloadCertificado } from '~/core/services/codaf-lista-presenca-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
@@ -255,29 +254,24 @@ const CertificadosPesquisa: React.FC = () => {
   const onClickBaixarCertificado = async () => {
     if (selectedRowKeys.length === 1) {
       const id = selectedRowKeys[0] as number;
-      try {
-        const response = await imprimirCertificadoCodaf(id);
-        if (response.status === 200) {
-          const contentDisposition = response.headers['content-disposition'];
-          let fileName = 'certificado.pdf';
-          if (contentDisposition) {
-            const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-            if (fileNameMatch && fileNameMatch[1]) {
-              fileName = fileNameMatch[1].replace(/['"]/g, '');
-            }
-          }
-          downloadBlob(response.data, fileName);
-          notification.success({
-            message: 'Sucesso',
-            description: 'O certificado foi baixado com sucesso.',
-          });
-        } else {
-          notification.error({
-            message: 'Erro',
-            description: 'Não conseguimos baixar o certificado selecionado. Tente novamente.',
-          });
-        }
-      } catch {
+      const resultado = await downloadCertificado(id);
+
+      if (resultado.sucesso && resultado.dados?.urlDownload) {
+        const { nomeFormacao, nomeCompleto, urlDownload } = resultado.dados;
+        const sanitize = (s: string) => s.replace(/[/\\:*?"<>|]/g, '_').trim();
+        const nomePdf = `CERTIFICADO_${sanitize(nomeFormacao)}_${sanitize(nomeCompleto)}.PDF`;
+        const blob = await fetch(urlDownload).then((r) => r.blob());
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nomePdf;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        notification.success({
+          message: 'Sucesso',
+          description: 'O certificado foi baixado com sucesso.',
+        });
+      } else {
         notification.error({
           message: 'Erro',
           description: 'Não conseguimos baixar o certificado selecionado. Tente novamente.',
