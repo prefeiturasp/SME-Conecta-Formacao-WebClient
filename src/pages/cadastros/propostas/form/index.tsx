@@ -110,6 +110,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [exibirBotaoEnviar, setExibirBotaoEnviar] = useState(false);
 
   const token = useAppSelector((store) => store.auth.token);
+  const usuarioLogin = useAppSelector((store) => store.auth.usuarioLogin);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadaDoToken = decodeObject?.dres;
@@ -145,6 +146,14 @@ export const FormCadastroDePropostas: React.FC = () => {
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const ehAreaPromotora = perfilSelecionado?.perfil === formInitialValues?.areaPromotora?.grupoId;
+
+  const criadoLoginProposta = formInitialValues?.auditoria?.criadoLogin;
+  const mostrarBotaoExcluir =
+    permissao.podeExcluir &&
+    (ehPerfilAdminDf ||
+      (ehAreaPromotora &&
+        criadoLoginProposta === usuarioLogin &&
+        formInitialValues?.situacao !== SituacaoProposta.Rascunho));
 
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
@@ -983,7 +992,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     <ButtonExcluir
                       id={CF_BUTTON_EXCLUIR}
                       onClick={onClickExcluir}
-                      disabled={!permissao.podeExcluir}
+                      disabled={!mostrarBotaoExcluir}
                     />
                   </Col>
                 )}
