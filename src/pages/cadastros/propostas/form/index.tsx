@@ -301,6 +301,9 @@ export const FormCadastroDePropostas: React.FC = () => {
 
     const dados = resposta.dados;
     if (resposta.sucesso) {
+      if (typeof dados?.podeEditar === 'boolean') {
+        setDesabilitarCampos(!dados.podeEditar);
+      }
       const retornolistaDres = await obterDREs(true);
 
       const listaDres = retornolistaDres.dados.map((dre) => ({
