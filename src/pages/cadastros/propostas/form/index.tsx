@@ -47,6 +47,7 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { Dayjs, dayjs } from '~/core/date/dayjs';
 import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
+  PropostaCompletoDTO,
   PropostaDTO,
   PropostaFormDTO,
   PropostaPareceristaDTO,
@@ -303,6 +304,12 @@ export const FormCadastroDePropostas: React.FC = () => {
     setFormInitialValues(valoresIniciais);
     setLoading(false);
   };
+  
+  const aplicarPermissao = (dados?: PropostaCompletoDTO) => {
+    if (typeof dados?.podeEditar === 'boolean') {
+      setDesabilitarCampos(!dados.podeEditar);
+    }
+  };
 
   const carregarDados = useCallback(async () => {
     setLoading(true);
@@ -310,6 +317,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
     const dados = resposta.dados;
     if (resposta.sucesso) {
+      aplicarPermissao(dados);
       const retornolistaDres = await obterDREs(true);
 
       const listaDres = retornolistaDres.dados.map((dre) => ({
