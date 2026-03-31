@@ -227,6 +227,8 @@ const ListaPresencaCodaf: React.FC = () => {
           message: 'Sucesso',
           description: `${fileName}. Arquivo baixado com sucesso`,
         });
+
+        buscarDados();
       } else {
         notification.error({
           message: 'Erro',
