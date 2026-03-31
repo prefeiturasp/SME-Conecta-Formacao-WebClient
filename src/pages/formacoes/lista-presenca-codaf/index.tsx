@@ -44,7 +44,7 @@ import {
   CodafListaPresencaDTO,
   obterListaPresencaCodaf,
   emitirCertificadosCodaf,
-  imprimirRelatorioCodaf,
+  imprimirCertificadoCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -209,7 +209,7 @@ const ListaPresencaCodaf: React.FC = () => {
     try {
       setLoading(true);
       let fileName = `CODAF_${record.numeroHomologacao}_${record.nomeTurma.replace(' ', '_')}.xlsx`;
-      const response = await imprimirRelatorioCodaf(record.id);
+      const response = await imprimirCertificadoCodaf(record.id);
 
       if (response.status === 200) {
         const contentDisposition = response.headers['content-disposition'];

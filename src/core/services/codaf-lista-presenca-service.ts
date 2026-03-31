@@ -273,8 +273,18 @@ export const imprimirRelatorioCodaf = (codafId: number) => {
   });
 };
 
+export const imprimirCertificadoCodaf = (codafId: number) => {
+  return api.post(
+    `${URL_API_CODAF_LISTA_PRESENCA}/${codafId}/imprimir`,
+    {},
+    {
+      responseType: 'blob',
+    },
+  );
+};
+
 export const emitirCertificadosCodaf = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
-  return inserirRegistro(`v1/CodafCertificado/${codafListaPresencaId}/emitir-certificados`, {});
+  return inserirRegistro(`v1/CodafCertificado/${codafListaPresencaId}/emitir`, {});
 };
 
 export type CertificadoUsuarioFiltroDTO = {
