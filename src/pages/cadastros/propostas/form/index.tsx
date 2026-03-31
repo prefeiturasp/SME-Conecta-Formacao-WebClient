@@ -93,7 +93,7 @@ const stylesButtons = {
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
-  const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
+  const { desabilitarCampos, setDesabilitarCampos } = useContext(PermissaoContext);
   const rfResponsavelDfWatch = Form.useWatch('rfResponsavelDf', form);
 
   const [openModalErros, setOpenModalErros] = useState(false);
@@ -149,11 +149,10 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const criadoLoginProposta = formInitialValues?.auditoria?.criadoLogin;
   const mostrarBotaoExcluir =
-    permissao.podeExcluir &&
-    (ehPerfilAdminDf ||
-      (ehAreaPromotora &&
-        criadoLoginProposta === usuarioLogin &&
-        formInitialValues?.situacao !== SituacaoProposta.Rascunho));
+    ehPerfilAdminDf ||
+    (ehAreaPromotora &&
+      criadoLoginProposta === usuarioLogin &&
+      formInitialValues?.situacao === SituacaoProposta.Rascunho);
 
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
