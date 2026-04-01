@@ -87,10 +87,39 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import InputNumero from '~/components/main/numero';
-import { styles } from './styles';
+import { 
+  AlertaContainer, 
+  AlertaIcon, 
+  AlertaTexto 
+} from './styles';
 
 const stylesButtons = {
   fontWeight: 700,
+};
+type AlertaEdicaoProps = {
+  criadoPor?: string;
+  criadoLogin?: string;
+};
+
+const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({
+  criadoPor,
+  criadoLogin,
+}) => {
+  return (
+    <AlertaContainer>
+      <AlertaIcon>
+        <WarningFilled />
+      </AlertaIcon>
+
+      <AlertaTexto>
+        Os dados desta proposta podem ser alterados apenas pela Divisão de Formação (DF)
+        ou pelo usuário que realizou o cadastro:{' '}
+        <strong>
+          {criadoPor} - {criadoLogin}
+        </strong>.
+      </AlertaTexto>
+    </AlertaContainer>
+  );
 };
 
 export const FormCadastroDePropostas: React.FC = () => {
@@ -967,23 +996,6 @@ export const FormCadastroDePropostas: React.FC = () => {
       },
     });
   };
-
-  const AlertaEdicao = () => {
-    return (
-      <div style={styles.container}>
-        <WarningFilled style={styles.icon} />
-
-        <span style={styles.text}>
-          Os dados desta proposta podem ser alterados apenas pela Divisão de Formação (DF) 
-          ou pelo usuário que realizou o cadastro:&nbsp;
-            <strong>
-              {formInitialValues?.auditoria?.criadoPor} -{' '}
-              {formInitialValues?.auditoria?.criadoLogin}
-            </strong>.
-        </span>
-      </div>
-    );
-  };
   
   return (
     <Col>
@@ -1235,7 +1247,10 @@ export const FormCadastroDePropostas: React.FC = () => {
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
               {!podeEditar && (
-                AlertaEdicao()
+                <AlertaEdicao
+                  criadoPor={formInitialValues?.auditoria?.criadoPor}
+                  criadoLogin={formInitialValues?.auditoria?.criadoLogin}
+                />
               )}
               <Divider orientation='left' />
               <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />

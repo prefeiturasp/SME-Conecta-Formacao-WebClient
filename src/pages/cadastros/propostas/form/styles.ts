@@ -12,28 +12,28 @@ export const TituloListaPaginada = styled.div`
   color: ${Colors.Neutral.DARK};
   font-weight: bold;
 `;
-export const styles = {
-  container: {
-    marginTop: 10,
-    height: 64,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 16,
-    padding: 16,
-    background: '#FF9A52',
-    borderRadius: 4,
-    opacity: 1
-  },
-  icon: {
-    fontSize: 20,
-    color: '#fff'
-  },
-  text: {
-    fontFamily: 'Roboto',
-    fontWeight: 400,
-    fontSize: 14,
-    lineHeight: '14px', // 100%
-    letterSpacing: '0%',
-    color: '#fff'
-  }
-};
+
+export const AlertaContainer = styled.div`
+  margin-top: 10px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #ff9a52;
+  border-radius: 4px;
+`;
+
+export const AlertaIcon = styled.div`
+  font-size: 20px;
+  color: #fff;
+  display: flex;
+`;
+
+export const AlertaTexto = styled.span`
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 100%;
+  color: #fff;
+`;
