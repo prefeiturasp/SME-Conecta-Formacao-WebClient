@@ -114,6 +114,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
         <Button
           type='text'
           size='small'
+          disabled={false}
           style={{ padding: 0, lineHeight: 1 }}
           onClick={() => toggleExpand(row.id)}
         >
