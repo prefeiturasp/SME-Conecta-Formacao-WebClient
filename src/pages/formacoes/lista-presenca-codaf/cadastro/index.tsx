@@ -319,7 +319,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       if (response.sucesso && response.dados) {
         const inscritosFormatados = response.dados.items.map((inscrito) => ({
           id: inscrito.id,
-          rfOuCpf: inscrito.cpf,
+          rfOuCpf: inscrito.documento,
           nomeCursista: inscrito.nome,
           frequencia: inscrito.percentualFrequencia ?? null,
           atividade:

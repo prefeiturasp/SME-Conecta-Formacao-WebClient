@@ -177,7 +177,7 @@ export const deletarRetificacao = (id: string | number): Promise<ApiResult<boole
 
 export type InscritoTurmaDTO = {
   id: number;
-  cpf: string;
+  documento: string;
   nome: string;
   percentualFrequencia: number;
   conceitoFinal: string;
