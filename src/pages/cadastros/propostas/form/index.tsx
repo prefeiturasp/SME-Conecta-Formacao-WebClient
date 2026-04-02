@@ -1,4 +1,5 @@
 import { Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
+import { WarningFilled  } from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
@@ -86,9 +87,39 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import InputNumero from '~/components/main/numero';
+import { 
+  AlertaContainer, 
+  AlertaIcon, 
+  AlertaTexto 
+} from './styles';
 
 const stylesButtons = {
   fontWeight: 700,
+};
+type AlertaEdicaoProps = {
+  criadoPor?: string;
+  criadoLogin?: string;
+};
+
+const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({
+  criadoPor,
+  criadoLogin,
+}) => {
+  return (
+    <AlertaContainer>
+      <AlertaIcon>
+        <WarningFilled />
+      </AlertaIcon>
+
+      <AlertaTexto>
+        Os dados desta proposta podem ser alterados apenas pela Divisão de Formação (DF)
+        ou pelo usuário que realizou o cadastro:{' '}
+        <strong>
+          {criadoPor} - {criadoLogin}
+        </strong>.
+      </AlertaTexto>
+    </AlertaContainer>
+  );
 };
 
 export const FormCadastroDePropostas: React.FC = () => {
@@ -109,6 +140,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
   const [desabilitarBotaoDevolver, setDesabilitarBotaoDevolver] = useState(true);
   const [exibirBotaoEnviar, setExibirBotaoEnviar] = useState(false);
+  const [podeEditar, setPodeEditar] = useState<boolean>(true);
 
   const token = useAppSelector((store) => store.auth.token);
   const usuarioLogin = useAppSelector((store) => store.auth.usuarioLogin);
@@ -243,6 +275,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     if (formInitialValues?.situacao) {
       const desabilitarTodosFormularios =
+        !podeEditar ||
         desabilitarCampos ||
         (!ehPerfilAdminDf &&
           formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
@@ -261,7 +294,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
-  }, [formInitialValues, desabilitarCampos]);
+  }, [formInitialValues, desabilitarCampos, podeEditar]);
 
   useEffect(() => {
     const revalidacao = formInitialValues?.revalidacao;
@@ -306,6 +339,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   
   const aplicarPermissao = (dados?: PropostaCompletoDTO) => {
     if (typeof dados?.podeEditar === 'boolean') {
+      setPodeEditar(dados.podeEditar);
       setDesabilitarCampos(!dados.podeEditar);
     }
   };
@@ -961,10 +995,10 @@ export const FormCadastroDePropostas: React.FC = () => {
       },
     });
   };
-
+  
   return (
     <Col>
-      <Spin spinning={loading}>
+      <Spin spinning={loading}>        
         <Form
           form={form}
           layout='vertical'
@@ -1211,13 +1245,19 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
+              {!podeEditar && (
+                <AlertaEdicao
+                  criadoPor={formInitialValues?.auditoria?.criadoPor}
+                  criadoLogin={formInitialValues?.auditoria?.criadoLogin}
+                />
+              )}
               <Divider orientation='left' />
               <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
               {selecionarTelaStep(currentStep)}
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
-
+          
           {exibirJustificativaDevolucao && (
             <Col span={24} style={{ marginTop: 16 }}>
               <CardContent>
