@@ -89,7 +89,8 @@ import FormularioProfissionais from './steps/formulario-profissionais';
 import InputNumero from '~/components/main/numero';
 import { 
   AlertaContainer, 
-  AlertaIcon, 
+  AlertaIconInner, 
+  AlertaIconWrapper, 
   AlertaTexto 
 } from './styles';
 
@@ -107,9 +108,11 @@ const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({
 }) => {
   return (
     <AlertaContainer>
-      <AlertaIcon>
+      <AlertaIconWrapper>
+        <AlertaIconInner>
         <WarningFilled />
-      </AlertaIcon>
+        </AlertaIconInner>
+      </AlertaIconWrapper>
 
       <AlertaTexto>
         Os dados desta proposta podem ser alterados apenas pela Divisão de Formação (DF)

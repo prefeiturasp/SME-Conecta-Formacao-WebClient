@@ -24,10 +24,27 @@ export const AlertaContainer = styled.div`
   border-radius: 4px;
 `;
 
-export const AlertaIcon = styled.div`
-  font-size: 20px;
-  color: #fff;
+export const AlertaIconWrapper = styled.div`
+  background-color: #ff9a52;
+  padding: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const AlertaIconInner = styled.div`
+  background-color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    color: #ff9a52;
+    font-size: 16px;
+  }
 `;
 
 export const AlertaTexto = styled.span`
