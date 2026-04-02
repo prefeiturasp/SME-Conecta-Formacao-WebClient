@@ -611,7 +611,7 @@ describe('CodafListaPresencaService', () => {
           items: [
             {
               id: 1,
-              cpf: '12345678900',
+              documento: '123.456.789-00',
               nome: 'João Silva',
               percentualFrequencia: 85,
               conceitoFinal: 'S',
