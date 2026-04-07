@@ -78,11 +78,23 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
   return (
     <>      
       <Row>
-        <Col span={6}>
-          { }
+        <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {dadosInscricao?.imagemUrl ? (
+            <img
+              src={dadosInscricao.imagemUrl}
+              alt='Imagem da formação'
+              style={{ maxWidth: '100%', width: 'auto', height: 'auto', display: 'block' }}
+            />
+          ) : (
+            <img
+              src={imagemFormacao}
+              alt='Imagem da formação'
+              style={{ width: '154px', height: '126px' }}
+            />
+          )}
         </Col>
         <Col span={18}>
-          <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
+          <Flex gap={5} vertical justify='space-between' style={{ padding: '15px' }}>
             <Typography.Title
               level={2}
               style={{
@@ -92,23 +104,11 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
                 fontSize: '20px',
                 lineHeight: '100%',
                 letterSpacing: '0%',
+                marginBottom: 0,
               }}
             >
               {dadosInscricao?.titulo}
             </Typography.Title>
-
-          </Flex>
-        </Col>
-      </Row>
-
-      <Row>
-        <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
-          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao}
-          alt="Imagem da formação"
-          style={{ width: '154px', height: '126px' }} />
-        </Col>
-        <Col span={18}>
-          <Flex gap={5} vertical justify='space-between' style={{ padding: '0px 15px 15px 15px' }}>
 
             <Row style={{ marginTop: 0, marginBottom: 10 }}>
               <TagTipoFormacaoFormato>
