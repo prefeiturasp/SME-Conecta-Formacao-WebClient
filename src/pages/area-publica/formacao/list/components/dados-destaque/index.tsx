@@ -14,7 +14,6 @@ import autenticacaoService from '~/core/services/autenticacao-service';
 import { validarAutenticacao } from '~/core/utils/perfil';
 import { TagPersonalizada } from './styles';
 
-
 type DadosDestaqueProps = {
   dadosFormacao: RetornoDetalheFormacaoDTO | undefined;
   propostaId?: number;
@@ -76,91 +75,87 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
     return false;
   };
   return (
-    <>      
-      <Row>
-        <Col span={6}>
-          { }
-        </Col>
-        <Col span={18}>
-          <Flex gap={12} vertical justify='space-between' style={{ padding: 15 }}>
-            <Typography.Title
-              level={2}
-              style={{
-                fontFamily: 'Roboto, sans-serif',
-                fontWeight: 700,
-                fontStyle: 'normal',
-                fontSize: '20px',
-                lineHeight: '100%',
-                letterSpacing: '0%',
-              }}
-            >
-              {dadosInscricao?.titulo}
-            </Typography.Title>
+    <Row>
+      <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        {dadosInscricao?.imagemUrl ? (
+          <img
+            src={dadosInscricao.imagemUrl}
+            alt='Imagem da formação'
+            style={{ maxWidth: '100%', width: 'auto', height: 'auto', display: 'block' }}
+          />
+        ) : (
+          <img
+            src={imagemFormacao}
+            alt='Imagem da formação'
+            style={{ width: '154px', height: '126px' }}
+          />
+        )}
+      </Col>
+      <Col span={18}>
+        <Flex gap={5} vertical justify='space-between' style={{ padding: '15px' }}>
+          <Typography.Title
+            level={2}
+            style={{
+              fontFamily: 'Roboto, sans-serif',
+              fontWeight: 700,
+              fontStyle: 'normal',
+              fontSize: '20px',
+              lineHeight: '100%',
+              letterSpacing: '0%',
+              marginBottom: 0,
+            }}
+          >
+            {dadosInscricao?.titulo}
+          </Typography.Title>
 
-          </Flex>
-        </Col>
-      </Row>
+          <Row style={{ marginTop: 0, marginBottom: 10 }}>
+            <TagTipoFormacaoFormato>
+              <FaGraduationCap size={16} />
+              <TagPersonalizada>{dadosInscricao?.tipoFormacaoDescricao}</TagPersonalizada>
+            </TagTipoFormacaoFormato>
 
-      <Row>
-        <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
-          <img src={dadosInscricao?.imagemUrl ?? imagemFormacao}
-          alt="Imagem da formação"
-          style={{ width: '154px', height: '126px' }} />
-        </Col>
-        <Col span={18}>
-          <Flex gap={5} vertical justify='space-between' style={{ padding: '0px 15px 15px 15px' }}>
+            <TagTipoFormacaoFormato>
+              <FaMapMarkerAlt size={16} />
+              <TagPersonalizada>{dadosInscricao?.formatoDescricao}</TagPersonalizada>
+            </TagTipoFormacaoFormato>
+          </Row>
 
-            <Row style={{ marginTop: 0, marginBottom: 10 }}>
-              <TagTipoFormacaoFormato>
-                <FaGraduationCap size={16} />
-                <TagPersonalizada>{dadosInscricao?.tipoFormacaoDescricao}</TagPersonalizada>
-              </TagTipoFormacaoFormato>
+          <Typography.Text className='texto-periodo'>
+            <strong>Período de realização:</strong> {dadosInscricao?.periodo}
+          </Typography.Text>
 
-              <TagTipoFormacaoFormato>
-                <FaMapMarkerAlt size={16} />
-                <TagPersonalizada>{dadosInscricao?.formatoDescricao}</TagPersonalizada>
-              </TagTipoFormacaoFormato>
-            </Row>
+          <Typography.Text className='texto-periodo'>
+            <strong>Período de inscrição:</strong> {dadosInscricao?.periodoInscricao}
+          </Typography.Text>
 
+          <Typography.Text className='texto-periodo'>
+            <strong>Área Promotora:</strong> {dadosInscricao?.areaPromotora}
+          </Typography.Text>
 
-            <Typography.Text className="texto-periodo">
-              <strong>Período de realização:</strong> {dadosInscricao?.periodo}
-            </Typography.Text>
-
-            <Typography.Text className="texto-periodo">
-              <strong>Período de inscrição:</strong> {dadosInscricao?.periodoInscricao}
-            </Typography.Text>
-
-            <Typography.Text className="texto-periodo">
-              <strong>Área Promotora:</strong> {dadosInscricao?.areaPromotora}
-            </Typography.Text>
-
-
-            <Row style={{ marginTop: 20, marginBottom: 10 }}>
-              <Col span={24}>
-                {linkInscricaoExterna ? (
-                  <Button type="primary" size="large" className="botao-personalizado">
-                    <Link to={linkInscricaoExterna} target="_blank">
-                      <strong>{BOTAO_INSCRICAO_EXTERNA}</strong>
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button
-                    type="primary"
-                    size="large"
-                    onClick={setarDadosInscricao}
-                    disabled={desabilitarInscricao()}
-                    className="botao-personalizado"
-                  >
-                    <strong>{ENVIAR_INSCRICAO}</strong>
-                  </Button>
-                )}
-              </Col>
-            </Row>
-          </Flex>
-        </Col>
-      </Row>
-    </>
+          <Row style={{ marginTop: 20, marginBottom: 10 }}>
+            <Col span={24}>
+              {linkInscricaoExterna ? (
+                <Button type='primary' size='large' className='botao-personalizado'>
+                  <Link to={linkInscricaoExterna} target='_blank'>
+                    <strong>{BOTAO_INSCRICAO_EXTERNA}</strong>
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  type='primary'
+                  size='large'
+                  onClick={setarDadosInscricao}
+                  disabled={desabilitarInscricao()}
+                  className='botao-personalizado'
+                >
+                  <strong>{ENVIAR_INSCRICAO}</strong>
+                </Button>
+              )}
+            </Col>
+          </Row>
+        </Flex>
+      </Col>
+    </Row>
   );
 };
 

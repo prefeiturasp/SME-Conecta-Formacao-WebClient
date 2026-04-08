@@ -22,20 +22,42 @@ type ImgFormacaoProps = {
 
 const Container = styled.div`
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
 `;
 
-const Img = styled.img`
-  height: 50px;
-  margin-left: 25px;
-  margin-top: 25px;
+const ImgWrapper = styled.div`
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+`;
+
+const ImgCustom = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
+`;
+
+const ImgDefault = styled.img`
+  height: calc(100% - 20px);
+  width: auto;
+  display: block;
+  padding: 10px;
 `;
 
 export const ImgFormacao: React.FC<ImgFormacaoProps> = ({ url, inscricaoEncerrada }) => (
   <Container>
-    <Img alt="divulgacao" src={url ?? imagemFormacao} />
+    <ImgWrapper>
+      {url ? (
+        <ImgCustom alt='divulgacao' src={url} />
+      ) : (
+        <ImgDefault alt='divulgacao' src={imagemFormacao} />
+      )}
+    </ImgWrapper>
     {inscricaoEncerrada && <DivInscricaoEncerrada>Inscrições encerradas</DivInscricaoEncerrada>}
   </Container>
 );
