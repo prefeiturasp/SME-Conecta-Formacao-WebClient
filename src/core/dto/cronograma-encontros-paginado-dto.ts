@@ -1,5 +1,5 @@
 import { TipoEncontro } from '~/core/enum/tipo-encontro';
-import { PropostaEncontroDataDTO } from './proposta-encontro-dto';
+import { PropostaEncontroCronogramaDataDTO } from './proposta-encontro-dto';
 
 export type CronogramaEncontrosPaginadoDto = {
   id?: number | 0;
@@ -7,7 +7,7 @@ export type CronogramaEncontrosPaginadoDto = {
   turmas: string;
   datas: string;
   hora: string;
-  datasPeriodos: PropostaEncontroDataDTO[];
+  datasPeriodos: PropostaEncontroCronogramaDataDTO[];
   horarios: Array<Date>;
   horaInicio: string;
   horaFim: string;

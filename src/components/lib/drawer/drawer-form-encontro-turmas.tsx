@@ -1,6 +1,5 @@
-import { Button, Col, Drawer, Form, Input, Row, Space, TimePicker } from 'antd';
+import { Button, Col, Drawer, Form, Input, Row, Space } from 'antd';
 import { RangePickerProps } from 'antd/es/date-picker';
-import localeDatePicker from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -15,7 +14,7 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { dayjs } from '~/core/date/dayjs';
 import { CronogramaEncontrosPaginadoDto } from '~/core/dto/cronograma-encontros-paginado-dto';
 import { DataEncontro, FormularioDrawerEncontro } from '~/core/dto/formulario-drawer-encontro-dto';
-import { PropostaEncontroDTO, PropostaEncontroDataDTO } from '~/core/dto/proposta-encontro-dto';
+import { PropostaEncontroDTO, PropostaEncontroCronogramaDataDTO } from '~/core/dto/proposta-encontro-dto';
 import { TipoEncontro } from '~/core/enum/tipo-encontro';
 import { confirmacao } from '~/core/services/alerta-service';
 import { removerPropostaEncontro, salvarPropostaEncontro } from '~/core/services/proposta-service';
@@ -41,25 +40,29 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   const [tipoEncontroSelecionado, setTipoEncontroSelecionado] = useState(undefined);
   const [desativarBotaoCancelar, setDesativarBotaoCancelar] = useState(true);
   const [formInitialValues, setFormInitialValues] = useState<any>({
-    datas: [{ dataInicio: '', dataFim: '' }],
+    datas: [{ dataInicio: '' }],
   });
 
   const propostaId = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const carregarDados = useCallback(() => {
-    const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroDataDTO) => ({
-      dataInicio: dayjs.tz(item?.dataInicio),
-      dataFim: item?.dataFim ? dayjs.tz(item?.dataFim) : null,
+    const horariosPadrao = [
+      dayjs(dadosEncontro?.horaInicio, 'HH:mm'),
+      dayjs(dadosEncontro?.horaFim, 'HH:mm'),
+    ];
+
+    const datas = dadosEncontro?.datasPeriodos.map((item: PropostaEncontroCronogramaDataDTO) => ({
+      dataInicio: dayjs.tz(item?.data),
+      horarios:
+        item.horaInicio && item.horaFim
+          ? [dayjs(item.horaInicio, 'HH:mm'), dayjs(item.horaFim, 'HH:mm')]
+          : horariosPadrao,
     }));
 
     const valoresIniciais = {
       local: dadosEncontro!.local,
       turmas: dadosEncontro!.turmasId,
       tipoEncontro: dadosEncontro!.tipoEncontro,
-      horarios: [
-        dayjs(dadosEncontro?.horarios[0], 'HH:mm'),
-        dayjs(dadosEncontro?.horarios[1], 'HH:mm'),
-      ],
       datas,
     };
 
@@ -76,7 +79,10 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
     const dataInicial = periodoRealizacao?.dataInicio;
     const dataFinal = periodoRealizacao?.dataFim;
 
-    return (current && current < dataInicial?.startOf('day')) || current > dataFinal?.endOf('day');
+    return (
+      (current && current < dataInicial?.startOf('day')) ||
+      (!!dataFinal && current > dataFinal.endOf('day'))
+    );
   };
   const obterTipoEncontro = () => {
     validarAlteracaoEmCampos();
@@ -84,12 +90,13 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   };
 
   const salvarDadosForm = async (values: FormularioDrawerEncontro) => {
-    const horarios = values?.horarios;
-    const horaInicio = horarios[0].format('HH:mm');
-    const horaFim = horarios[1].format('HH:mm');
+    const primeiroHorario = values.datas[0]?.horarios;
+    const horaInicio = primeiroHorario?.[0]?.format('HH:mm') ?? '';
+    const horaFim = primeiroHorario?.[1]?.format('HH:mm') ?? '';
     const datas = values.datas.map((d) => ({
-      dataInicio: d.dataInicio,
-      dataFim: values?.datas[0]?.dataFim?.toString()?.length ? d.dataFim : null,
+      dataInicio: d.dataInicio?.toISOString(),
+      horaInicio: d.horarios?.[0]?.format('HH:mm') ?? '',
+      horaFim: d.horarios?.[1]?.format('HH:mm') ?? '',
     }));
     const turmas = values.turmas.map((turmaId) => ({ turmaId }));
 
@@ -159,7 +166,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
   const validarAlteracaoEmCampos = () => {
     const local = formDrawer.getFieldValue('local')?.length > 0;
     const turmas = formDrawer.getFieldValue('turmas')?.length > 0;
-    const horarios = formDrawer.getFieldValue('horarios')?.length > 0;
+    const horarios = !!formDrawer.getFieldValue(['datas', 0, 'horarios']);
     const datas = !!formDrawer.getFieldValue('datas')[0]['dataInicio'];
     const tipoEncontro = formDrawer.getFieldValue('tipoEncontro') >= 0;
 
@@ -222,23 +229,7 @@ const DrawerFormularioEncontroTurmas: React.FC<DrawerFormularioEncontroTurmasPro
                   onchange={validarAlteracaoEmCampos}
                 />
 
-                <Col xs={11}>
-                  <Form.Item
-                    name='horarios'
-                    label='Hora de início e Fim'
-                    rules={[{ required: true }]}
-                  >
-                    <TimePicker.RangePicker
-                      format='HH:mm'
-                      allowClear
-                      style={{ width: '100%' }}
-                      onChange={validarAlteracaoEmCampos}
-                      locale={localeDatePicker}
-                      needConfirm={false}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col xs={13}>
+                <Col xs={24}>
                   <SelectTipoEncontro
                     exibirTooltip={false}
                     selectProps={{ onChange: obterTipoEncontro }}

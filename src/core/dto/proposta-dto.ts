@@ -19,6 +19,7 @@ import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 import { DreDTO } from './retorno-listagem-dto';
 
 export type PropostaDTO = {
+  podeEditar?: boolean;
   ehProximoPasso?: boolean;
   formacaoHomologada?: FormacaoHomologada;
   tipoFormacao?: TipoFormacao;

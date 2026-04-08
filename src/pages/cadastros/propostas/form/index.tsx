@@ -1,4 +1,5 @@
 import { Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
+import { WarningFilled  } from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
@@ -47,6 +48,7 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { Dayjs, dayjs } from '~/core/date/dayjs';
 import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
+  PropostaCompletoDTO,
   PropostaDTO,
   PropostaFormDTO,
   PropostaPareceristaDTO,
@@ -85,15 +87,48 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import InputNumero from '~/components/main/numero';
+import { 
+  AlertaContainer, 
+  AlertaIconInner, 
+  AlertaIconWrapper, 
+  AlertaTexto 
+} from './styles';
 
 const stylesButtons = {
   fontWeight: 700,
+};
+type AlertaEdicaoProps = {
+  criadoPor?: string;
+  criadoLogin?: string;
+};
+
+const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({
+  criadoPor,
+  criadoLogin,
+}) => {
+  return (
+    <AlertaContainer>
+      <AlertaIconWrapper>
+        <AlertaIconInner>
+        <WarningFilled />
+        </AlertaIconInner>
+      </AlertaIconWrapper>
+
+      <AlertaTexto>
+        Os dados desta proposta podem ser alterados apenas pela Divisão de Formação (DF)
+        ou pelo usuário que realizou o cadastro:{' '}
+        <strong>
+          {criadoPor} - {criadoLogin}
+        </strong>.
+      </AlertaTexto>
+    </AlertaContainer>
+  );
 };
 
 export const FormCadastroDePropostas: React.FC = () => {
   const [form] = useForm();
 
-  const { desabilitarCampos, setDesabilitarCampos, permissao } = useContext(PermissaoContext);
+  const { desabilitarCampos, setDesabilitarCampos } = useContext(PermissaoContext);
   const rfResponsavelDfWatch = Form.useWatch('rfResponsavelDf', form);
 
   const [openModalErros, setOpenModalErros] = useState(false);
@@ -108,8 +143,10 @@ export const FormCadastroDePropostas: React.FC = () => {
   const [tipoInstituicao, setTipoInstituicao] = useState<AreaPromotoraTipoEnum>();
   const [desabilitarBotaoDevolver, setDesabilitarBotaoDevolver] = useState(true);
   const [exibirBotaoEnviar, setExibirBotaoEnviar] = useState(false);
+  const [podeEditar, setPodeEditar] = useState<boolean>(true);
 
   const token = useAppSelector((store) => store.auth.token);
+  const usuarioLogin = useAppSelector((store) => store.auth.usuarioLogin);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado);
   const decodeObject: JWTDecodeDTO = jwt_decode(token);
   const dresVinculadaDoToken = decodeObject?.dres;
@@ -145,6 +182,13 @@ export const FormCadastroDePropostas: React.FC = () => {
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
 
   const ehAreaPromotora = perfilSelecionado?.perfil === formInitialValues?.areaPromotora?.grupoId;
+
+  const criadoLoginProposta = formInitialValues?.auditoria?.criadoLogin;
+  const mostrarBotaoExcluir =
+    ehPerfilAdminDf ||
+    (ehAreaPromotora &&
+      criadoLoginProposta === usuarioLogin &&
+      formInitialValues?.situacao === SituacaoProposta.Rascunho);
 
   const exibirBotaoRascunho =
     !formInitialValues?.situacao || formInitialValues?.situacao === SituacaoProposta.Rascunho;
@@ -234,6 +278,7 @@ export const FormCadastroDePropostas: React.FC = () => {
   useEffect(() => {
     if (formInitialValues?.situacao) {
       const desabilitarTodosFormularios =
+        !podeEditar ||
         desabilitarCampos ||
         (!ehPerfilAdminDf &&
           formInitialValues?.situacao !== SituacaoProposta.Rascunho &&
@@ -252,7 +297,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
       setDesabilitarCampos(desabilitarTodosFormularios);
     }
-  }, [formInitialValues, desabilitarCampos]);
+  }, [formInitialValues, desabilitarCampos, podeEditar]);
 
   useEffect(() => {
     const revalidacao = formInitialValues?.revalidacao;
@@ -294,6 +339,13 @@ export const FormCadastroDePropostas: React.FC = () => {
     setFormInitialValues(valoresIniciais);
     setLoading(false);
   };
+  
+  const aplicarPermissao = (dados?: PropostaCompletoDTO) => {
+    if (typeof dados?.podeEditar === 'boolean') {
+      setPodeEditar(dados.podeEditar);
+      setDesabilitarCampos(!dados.podeEditar);
+    }
+  };
 
   const carregarDados = useCallback(async () => {
     setLoading(true);
@@ -301,6 +353,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
     const dados = resposta.dados;
     if (resposta.sucesso) {
+      aplicarPermissao(dados);
       const retornolistaDres = await obterDREs(true);
 
       const listaDres = retornolistaDres.dados.map((dre) => ({
@@ -945,10 +998,10 @@ export const FormCadastroDePropostas: React.FC = () => {
       },
     });
   };
-
+  
   return (
     <Col>
-      <Spin spinning={loading}>
+      <Spin spinning={loading}>        
         <Form
           form={form}
           layout='vertical'
@@ -983,7 +1036,7 @@ export const FormCadastroDePropostas: React.FC = () => {
                     <ButtonExcluir
                       id={CF_BUTTON_EXCLUIR}
                       onClick={onClickExcluir}
-                      disabled={!permissao.podeExcluir}
+                      disabled={!mostrarBotaoExcluir}
                     />
                   </Col>
                 )}
@@ -1195,13 +1248,19 @@ export const FormCadastroDePropostas: React.FC = () => {
 
           <Badge.Ribbon text={formInitialValues?.nomeSituacao}>
             <CardContent>
+              {!podeEditar && (
+                <AlertaEdicao
+                  criadoPor={formInitialValues?.auditoria?.criadoPor}
+                  criadoLogin={formInitialValues?.auditoria?.criadoLogin}
+                />
+              )}
               <Divider orientation='left' />
               <Steps current={currentStep} items={stepsProposta} style={{ marginBottom: 55 }} />
               {selecionarTelaStep(currentStep)}
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
-
+          
           {exibirJustificativaDevolucao && (
             <Col span={24} style={{ marginTop: 16 }}>
               <CardContent>

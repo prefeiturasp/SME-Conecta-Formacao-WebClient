@@ -177,7 +177,7 @@ export const deletarRetificacao = (id: string | number): Promise<ApiResult<boole
 
 export type InscritoTurmaDTO = {
   id: number;
-  cpf: string;
+  documento: string;
   nome: string;
   percentualFrequencia: number;
   conceitoFinal: string;
@@ -268,13 +268,17 @@ export const baixarRelatorioCodaf = (codafListaPresencaId: number): Promise<ApiR
 };
 
 export const imprimirRelatorioCodaf = (codafId: number) => {
-  return api.get(`${URL_API_CODAF_LISTA_PRESENCA}/${codafId}/imprimir`, {
-    responseType: 'arraybuffer',
-  });
+  return api.post(
+    `${URL_API_CODAF_LISTA_PRESENCA}/${codafId}/imprimir`,
+    {},
+    {
+      responseType: 'blob',
+    },
+  );
 };
 
 export const emitirCertificadosCodaf = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
-  return inserirRegistro(`v1/CodafCertificado/${codafListaPresencaId}/emitir-certificados`, {});
+  return inserirRegistro(`v1/CodafCertificado/${codafListaPresencaId}/emitir`, {});
 };
 
 export type CertificadoUsuarioFiltroDTO = {
