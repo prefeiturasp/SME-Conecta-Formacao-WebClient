@@ -14,8 +14,8 @@ const CardTurmasPublico = ({ turma }: { turma: any }) => {
         <Col span={12}>
           <div>
             <strong>Datas dos encontros:</strong>
-            {periodos.map((periodo: string, index: number) => (
-              <div key={index}>
+            {periodos.map((periodo: string) => (
+              <div key={periodo}>
                 {periodo} {horario}
               </div>
             ))}
