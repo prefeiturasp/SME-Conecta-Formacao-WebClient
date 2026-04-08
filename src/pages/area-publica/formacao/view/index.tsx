@@ -102,13 +102,6 @@ const VisualizarFormacao: FC = () => {
 
         <TurmasTitulo level={4}>Turmas</TurmasTitulo>
 
-        <Typography
-          style={typographyStyles.textoJustificativa}
-          dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa ?? '' }}
-        />
-
-        <br/>
-
         <Row gutter={[16, 16]}>
           {dadosFormacao?.turmas?.map((turma) => (
             <Col key={turma.nome} xs={24} md={12} lg={8}>
