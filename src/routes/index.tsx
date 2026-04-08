@@ -79,6 +79,7 @@ const RoutesConfig = () => {
           <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
         </Route>
         {autenticado ? (
+          <>
             <Route element={<GuardAutenticacao />}>
               <Route path={ROUTES.PRINCIPAL} element={principalPage}>
                 <Route path='*' element={notFoundPage} />
@@ -205,6 +206,7 @@ const RoutesConfig = () => {
                 />
               </Route>
             </Route>
+          </>
         ) : (
           <>
             <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />
