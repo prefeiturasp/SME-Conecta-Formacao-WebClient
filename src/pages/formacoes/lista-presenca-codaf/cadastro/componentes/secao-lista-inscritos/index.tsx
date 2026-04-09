@@ -23,7 +23,7 @@ const getBannerText = (
   nomeFormacao: string | undefined,
 ): string => {
   if (!delta) return '';
-  const nome = nomeFormacao || '[nome da formação]';
+  const nome = nomeFormacao ?? '[nome da formação]';
   const temNovos = delta.totalNovos > 0;
   const temRemovidos = delta.totalRemovidos > 0;
 
