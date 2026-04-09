@@ -1,6 +1,12 @@
 import { describe, test, expect } from '@jest/globals';
+import ExitButton from './index';
 
 describe('ExitButton', () => {
+  describe('Componente', () => {
+    test('deve ser uma função', () => {
+      expect(typeof ExitButton).toBe('function');
+    });
+  });
   describe('Propriedades padrão', () => {
     test('deve ter label padrão "Sair"', () => {
       const label = 'Sair';

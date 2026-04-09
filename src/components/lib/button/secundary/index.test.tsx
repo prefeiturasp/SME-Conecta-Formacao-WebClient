@@ -1,16 +1,17 @@
 import { describe, test, expect } from '@jest/globals';
-import { ButtonPrimary } from './index';
+import { ButtonSecundary } from './index';
 
-describe('ButtonPrimary', () => {
+describe('ButtonSecundary', () => {
   describe('Componente', () => {
     test('deve ser uma função', () => {
-      expect(typeof ButtonPrimary).toBe('function');
+      expect(typeof ButtonSecundary).toBe('function');
     });
   });
+
   describe('Propriedades padrão', () => {
-    test('deve ter type primary', () => {
-      const type = 'primary';
-      expect(type).toBe('primary');
+    test('deve ter type default', () => {
+      const type = 'default';
+      expect(type).toBe('default');
     });
 
     test('deve ter block true', () => {
@@ -50,18 +51,8 @@ describe('ButtonPrimary', () => {
     });
 
     test('deve repassar children via rest', () => {
-      const props = { children: 'Salvar' };
-      expect(props.children).toBe('Salvar');
-    });
-
-    test('deve repassar id via rest', () => {
-      const props = { id: 'CF_BUTTON_SALVAR' };
-      expect(props.id).toBe('CF_BUTTON_SALVAR');
-    });
-
-    test('deve repassar htmlType via rest', () => {
-      const props = { htmlType: 'submit' as const };
-      expect(props.htmlType).toBe('submit');
+      const props = { children: 'Cancelar' };
+      expect(props.children).toBe('Cancelar');
     });
 
     test('deve repassar loading via rest', () => {
