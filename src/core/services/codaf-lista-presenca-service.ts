@@ -188,8 +188,6 @@ export const obterCodafListaPresencaPorId = async (
   id: number,
 ): Promise<ApiResult<CodafListaPresencaDetalheDTO>> => {
   const response = await obterRegistro<any>(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`);
-  // New API wraps the DTO inside { dados, sucesso, tipoFalha, mensagensErro }.
-  // Fall back to the flat response if the new format is not yet active.
   const dados = response.dados?.dados !== undefined ? response.dados.dados : response.dados;
   return { ...response, dados };
 };

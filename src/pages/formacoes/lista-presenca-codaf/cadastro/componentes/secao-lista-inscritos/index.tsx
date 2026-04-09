@@ -28,14 +28,11 @@ const getBannerText = (
   const temRemovidos = delta.totalRemovidos > 0;
 
   if (temNovos && temRemovidos) {
-    // case 2
     return `Novas inscrições foram adicionadas e algumas canceladas na formação ${nome}. Para salvar as alterações no CODAF, preencha as informações obrigatórias dos novos cursistas clicando em "atualizar inscritos"`;
   }
   if (temRemovidos) {
-    // case 1
     return `Algumas inscrições foram canceladas na formação ${nome}. Clique no botão "atualizar inscritos" para reprocessar a lista.`;
   }
-  // case 3: temNovos only
   return `Há divergência entre a quantidade de inscritos na formação ${nome} e a lista de presença. Clique no botão "atualizar inscritos" para reprocessar a lista.`;
 };
 
