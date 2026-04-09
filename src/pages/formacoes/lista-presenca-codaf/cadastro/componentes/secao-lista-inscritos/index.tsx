@@ -21,19 +21,35 @@ interface SecaoListaInscritosProps {
 const getBannerText = (
   delta: DeltaInscritosDTO | null,
   nomeFormacao: string | undefined,
-): string => {
+): React.ReactNode => {
   if (!delta) return '';
   const nome = nomeFormacao ?? '[nome da formação]';
   const temNovos = delta.totalNovos > 0;
   const temRemovidos = delta.totalRemovidos > 0;
 
   if (temNovos && temRemovidos) {
-    return `Novas inscrições foram adicionadas e algumas canceladas na formação ${nome}. Para salvar as alterações no CODAF, preencha as informações obrigatórias dos novos cursistas clicando em "atualizar inscritos"`;
+    return (
+      <>
+        Novas inscrições foram adicionadas e algumas canceladas na formação <strong>{nome}</strong>.
+        Para salvar as alterações no CODAF, preencha as informações obrigatórias dos novos cursistas
+        clicando em &quot;atualizar inscritos&quot;
+      </>
+    );
   }
   if (temRemovidos) {
-    return `Algumas inscrições foram canceladas na formação ${nome}. Clique no botão "atualizar inscritos" para reprocessar a lista.`;
+    return (
+      <>
+        Algumas inscrições foram canceladas na formação <strong>{nome}</strong>. Clique no botão
+        &quot;atualizar inscritos&quot; para reprocessar a lista.
+      </>
+    );
   }
-  return `Há divergência entre a quantidade de inscritos na formação ${nome} e a lista de presença. Clique no botão "atualizar inscritos" para reprocessar a lista.`;
+  return (
+    <>
+      Há divergência entre a quantidade de inscritos na formação <strong>{nome}</strong> e a lista
+      de presença. Clique no botão &quot;atualizar inscritos&quot; para reprocessar a lista.
+    </>
+  );
 };
 
 export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
@@ -102,10 +118,6 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
                 >
                   <div
                     style={{
-                      backgroundColor: '#fff',
-                      borderRadius: '50%',
-                      width: '25px',
-                      height: '25px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -113,11 +125,11 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
                     }}
                   >
                     <img
-                      src='/Vector.png'
+                      src='/src/assets/alerta-modal.svg'
                       alt='Warning'
                       style={{
-                        width: '15px',
-                        height: '15px',
+                        width: '32px',
+                        height: '32px',
                       }}
                     />
                   </div>

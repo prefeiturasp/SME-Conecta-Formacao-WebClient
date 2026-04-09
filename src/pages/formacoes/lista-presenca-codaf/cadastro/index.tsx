@@ -326,7 +326,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       } catch (error) {
         console.error('Erro no polling de deltaInscritos:', error);
       }
-    }, 5000);
+    }, 7000);
 
     return () => clearInterval(intervalo);
   }, [id, mostrarDivergencia]);
