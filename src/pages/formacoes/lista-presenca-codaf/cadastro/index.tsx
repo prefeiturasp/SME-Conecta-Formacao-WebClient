@@ -31,8 +31,10 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import {
   atualizarCodafListaPresenca,
   baixarModeloTermoResponsabilidade,
+  CodafListaPresencaDetalheDTO,
   ComentarioCodafDTO,
   criarCodafListaPresenca,
+  DeltaInscritosDTO,
   devolverCodafParaCorrecao,
   enviarCodafParaDF,
   excluirCodafListaPresenca,
@@ -89,6 +91,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
   >(new Map());
   const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
+  const [deltaInscritos, setDeltaInscritos] = useState<DeltaInscritosDTO | null>(null);
   const [mostrarBanner, setMostrarBanner] = useState(false);
   const [comentario, setComentario] = useState<ComentarioCodafDTO | null>(null);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
@@ -160,136 +163,141 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   ]);
 
   React.useEffect(() => {
+    const aplicarCamposFormulario = (dados: CodafListaPresencaDetalheDTO) => {
+      form.setFieldsValue({
+        numeroHomologacao: dados.numeroHomologacao,
+        nomeFormacao: dados.nomeFormacao,
+        codigoFormacao: dados.codigoFormacao,
+        turmaId: dados.propostaTurmaId,
+        numeroComunicado: dados.numeroComunicado,
+        dataPublicacao: dados.dataPublicacao ? dayjs(dados.dataPublicacao) : null,
+        paginaComunicado: dados.paginaComunicadoDom,
+        dataPublicacaoDiarioOficial: dados.dataPublicacaoDom
+          ? dayjs(dados.dataPublicacaoDom)
+          : null,
+        codigoCursoEol: dados.codigoCursoEol,
+        codigoNivel: dados.codigoNivel,
+        observacao: dados.observacao || '',
+      });
+
+      if (dados.anexos && dados.anexos.length > 0) {
+        form.setFieldsValue({
+          anexos: dados.anexos.map((anexo) => ({
+            uid: anexo.arquivoCodigo,
+            name: anexo.nomeArquivo,
+            status: 'done',
+            xhr: anexo.arquivoCodigo,
+            arquivoCodigo: anexo.arquivoCodigo,
+            nomeArquivo: anexo.nomeArquivo,
+            tipoAnexoId: anexo.tipoAnexoId,
+            urlDownload: anexo.urlDownload,
+          })),
+        });
+      }
+    };
+
+    const aplicarRetificacoes = (dados: CodafListaPresencaDetalheDTO) => {
+      if (!dados.retificacoes) return;
+      setRetificacoes(dados.retificacoes.map((_, index) => index + 1));
+      setContadorRetificacoes(dados.retificacoes.length);
+
+      const mapaRetificacoes = new Map<
+        number,
+        { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }
+      >();
+      dados.retificacoes.forEach((retificacao, index) => {
+        mapaRetificacoes.set(index + 1, retificacao);
+      });
+      setRetificacoesOriginais(mapaRetificacoes);
+
+      dados.retificacoes.forEach((retificacao, index) => {
+        const numeroFormatado = (index + 1).toString().padStart(2, '0');
+        form.setFieldsValue({
+          [`dataRetificacao${numeroFormatado}`]: retificacao.dataRetificacao
+            ? dayjs(retificacao.dataRetificacao)
+            : null,
+          [`paginaRetificacao${numeroFormatado}`]: retificacao.paginaRetificacaoDom,
+        });
+      });
+    };
+
+    const carregarTurmas = async (dados: CodafListaPresencaDetalheDTO) => {
+      try {
+        const turmasResponse = await obterTurmasInscricao(dados.propostaId);
+        if (!turmasResponse.sucesso || !turmasResponse.dados) return;
+
+        setTurmas(turmasResponse.dados);
+        console.log(turmas);
+
+        const turmasDisponiveis: RetornoListagemDTO[] = [];
+        const turmaSelecionada = turmasResponse.dados.find((t) => t.id === dados.propostaTurmaId);
+        if (turmaSelecionada) turmasDisponiveis.push(turmaSelecionada);
+
+        for (const turma of turmasResponse.dados) {
+          if (turma.id === dados.propostaTurmaId) continue;
+          try {
+            const possuiLista = await verificarTurmaPossuiLista(turma.id, dados.id || 0);
+            if (possuiLista.sucesso && possuiLista.dados === false) turmasDisponiveis.push(turma);
+          } catch (error) {
+            console.error(`Erro ao verificar turma ${turma.id}:`, error);
+          }
+        }
+
+        setTurmasFiltradas(turmasDisponiveis);
+        setTurmaDisabled(false);
+        setTooltipAberto(false);
+        setTodasTurmasPossuemLista(false);
+      } catch (error) {
+        console.error('Erro ao buscar turmas:', error);
+      }
+    };
+
     const carregarDados = async () => {
       if (!id) return;
-
       setLoading(true);
 
       try {
         const response = await obterCodafListaPresencaPorId(Number(id));
 
-        if (response.sucesso && response.dados) {
-          const dados = response.dados;
-          setRegistroId(dados.id);
-          setStatus(dados.status);
-
-          if (dados.comentario) {
-            setComentario(dados.comentario);
-            setMostrarBanner(true);
-          }
-
-          form.setFieldsValue({
-            numeroHomologacao: dados.numeroHomologacao,
-            nomeFormacao: dados.nomeFormacao,
-            codigoFormacao: dados.codigoFormacao,
-            turmaId: dados.propostaTurmaId,
-            numeroComunicado: dados.numeroComunicado,
-            dataPublicacao: dados.dataPublicacao ? dayjs(dados.dataPublicacao) : null,
-            paginaComunicado: dados.paginaComunicadoDom,
-            dataPublicacaoDiarioOficial: dados.dataPublicacaoDom
-              ? dayjs(dados.dataPublicacaoDom)
-              : null,
-            codigoCursoEol: dados.codigoCursoEol,
-            codigoNivel: dados.codigoNivel,
-            observacao: dados.observacao || '',
-          });
-
-          if (dados.anexos && dados.anexos.length > 0) {
-            const anexosCarregados = dados.anexos.map((anexo) => ({
-              uid: anexo.arquivoCodigo,
-              name: anexo.nomeArquivo,
-              status: 'done',
-              xhr: anexo.arquivoCodigo,
-              arquivoCodigo: anexo.arquivoCodigo,
-              nomeArquivo: anexo.nomeArquivo,
-              tipoAnexoId: anexo.tipoAnexoId,
-              urlDownload: anexo.urlDownload,
-            }));
-            form.setFieldsValue({
-              anexos: anexosCarregados,
-            });
-          }
-
-          if (dados.retificacoes && dados.retificacoes.length > 0) {
-            const numerosRetificacoes = dados.retificacoes.map((_, index) => index + 1);
-            setRetificacoes(numerosRetificacoes);
-            setContadorRetificacoes(dados.retificacoes.length);
-
-            const mapaRetificacoes = new Map<
-              number,
-              { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }
-            >();
-            dados.retificacoes.forEach((retificacao, index) => {
-              mapaRetificacoes.set(index + 1, retificacao);
-            });
-            setRetificacoesOriginais(mapaRetificacoes);
-
-            dados.retificacoes.forEach((retificacao, index) => {
-              const numeroFormatado = (index + 1).toString().padStart(2, '0');
-              form.setFieldsValue({
-                [`dataRetificacao${numeroFormatado}`]: retificacao.dataRetificacao
-                  ? dayjs(retificacao.dataRetificacao)
-                  : null,
-                [`paginaRetificacao${numeroFormatado}`]: retificacao.paginaRetificacaoDom,
-              });
-            });
-          }
-
-          // Define a proposta selecionada
-          setPropostaSelecionada({
-            propostaId: dados.propostaId,
-            numeroHomologacao: dados.numeroHomologacao,
-            nomeFormacao: dados.nomeFormacao,
-            codigoFormacao: dados.codigoFormacao,
-          });
-
-          try {
-            const turmasResponse = await obterTurmasInscricao(dados.propostaId);
-            if (turmasResponse.sucesso && turmasResponse.dados) {
-              setTurmas(turmasResponse.dados);
-              console.log(turmas);
-
-              const turmaSelecionada = turmasResponse.dados.find(
-                (t) => t.id === dados.propostaTurmaId,
-              );
-              const turmasDisponiveis: RetornoListagemDTO[] = [];
-
-              if (turmaSelecionada) {
-                turmasDisponiveis.push(turmaSelecionada);
-              }
-
-              for (const turma of turmasResponse.dados) {
-                if (turma.id === dados.propostaTurmaId) continue;
-
-                try {
-                  const possuiLista = await verificarTurmaPossuiLista(turma.id, dados.id || 0);
-                  if (possuiLista.sucesso && possuiLista.dados === false) {
-                    turmasDisponiveis.push(turma);
-                  }
-                } catch (error) {
-                  console.error(`Erro ao verificar turma ${turma.id}:`, error);
-                }
-              }
-
-              setTurmasFiltradas(turmasDisponiveis);
-              setTurmaDisabled(false);
-              setTooltipAberto(false);
-              setTodasTurmasPossuemLista(false);
-            }
-          } catch (error) {
-            console.error('Erro ao buscar turmas:', error);
-          }
-
-          setTimeout(() => {
-            formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
-          }, 100);
-        } else {
+        if (!response.sucesso || !response.dados) {
           notification.error({
             message: 'Erro',
             description: response.mensagens?.[0] || 'Erro ao carregar dados do registro',
           });
           navigate(ROUTES.LISTA_PRESENCA_CODAF);
+          return;
         }
+
+        const dados = response.dados;
+        setRegistroId(dados.id);
+        setStatus(dados.status);
+
+        if (dados.comentario) {
+          setComentario(dados.comentario);
+          setMostrarBanner(true);
+        }
+
+        aplicarCamposFormulario(dados);
+
+        if ((dados.retificacoes?.length ?? 0) > 0) aplicarRetificacoes(dados);
+
+        if (dados.deltaInscritos?.houveAlteracao) {
+          setMostrarDivergencia(true);
+          setDeltaInscritos(dados.deltaInscritos);
+        }
+
+        setPropostaSelecionada({
+          propostaId: dados.propostaId,
+          numeroHomologacao: dados.numeroHomologacao,
+          nomeFormacao: dados.nomeFormacao,
+          codigoFormacao: dados.codigoFormacao,
+        });
+
+        await carregarTurmas(dados);
+
+        setTimeout(() => {
+          formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
+        }, 100);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
         notification.error({
@@ -304,6 +312,24 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     carregarDados();
   }, [id, form, navigate]);
+
+  React.useEffect(() => {
+    if (!id || mostrarDivergencia) return;
+
+    const intervalo = setInterval(async () => {
+      try {
+        const response = await obterCodafListaPresencaPorId(Number(id));
+        if (response.sucesso && response.dados?.deltaInscritos?.houveAlteracao) {
+          setDeltaInscritos(response.dados.deltaInscritos);
+          setMostrarDivergencia(true);
+        }
+      } catch (error) {
+        console.error('Erro no polling de deltaInscritos:', error);
+      }
+    }, 5000);
+
+    return () => clearInterval(intervalo);
+  }, [id, mostrarDivergencia]);
 
   const buscarInscritos = async () => {
     if (!turmaId) {
@@ -1245,6 +1271,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           />
           <SecaoListaInscritos
             mostrarDivergencia={mostrarDivergencia}
+            deltaInscritos={deltaInscritos}
             nomeFormacao={nomeFormacao}
             onClickAtualizarInscritos={onClickAtualizarInscritos}
             loading={loading}
