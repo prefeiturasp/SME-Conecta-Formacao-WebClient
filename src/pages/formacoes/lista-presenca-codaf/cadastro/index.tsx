@@ -33,6 +33,7 @@ import {
   baixarModeloTermoResponsabilidade,
   ComentarioCodafDTO,
   criarCodafListaPresenca,
+  DeltaInscritosDTO,
   devolverCodafParaCorrecao,
   enviarCodafParaDF,
   excluirCodafListaPresenca,
@@ -89,6 +90,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
   >(new Map());
   const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
+  const [deltaInscritos, setDeltaInscritos] = useState<DeltaInscritosDTO | null>(null);
   const [mostrarBanner, setMostrarBanner] = useState(false);
   const [comentario, setComentario] = useState<ComentarioCodafDTO | null>(null);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
@@ -235,6 +237,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             });
           }
 
+          if (dados.deltaInscritos?.houveAlteracao) {
+            setMostrarDivergencia(true);
+            setDeltaInscritos(dados.deltaInscritos);
+          }
+
           // Define a proposta selecionada
           setPropostaSelecionada({
             propostaId: dados.propostaId,
@@ -304,6 +311,24 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     carregarDados();
   }, [id, form, navigate]);
+
+  React.useEffect(() => {
+    if (!id || mostrarDivergencia) return;
+
+    const intervalo = setInterval(async () => {
+      try {
+        const response = await obterCodafListaPresencaPorId(Number(id));
+        if (response.sucesso && response.dados?.deltaInscritos?.houveAlteracao) {
+          setDeltaInscritos(response.dados.deltaInscritos);
+          setMostrarDivergencia(true);
+        }
+      } catch (error) {
+        console.error('Erro no polling de deltaInscritos:', error);
+      }
+    }, 5000);
+
+    return () => clearInterval(intervalo);
+  }, [id, mostrarDivergencia]);
 
   const buscarInscritos = async () => {
     if (!turmaId) {
@@ -1245,6 +1270,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           />
           <SecaoListaInscritos
             mostrarDivergencia={mostrarDivergencia}
+            deltaInscritos={deltaInscritos}
             nomeFormacao={nomeFormacao}
             onClickAtualizarInscritos={onClickAtualizarInscritos}
             loading={loading}
