@@ -1,6 +1,12 @@
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro, obterRegistroSilencioso } from './api';
-import api from './api';
+import api, {
+  ApiResult,
+  alterarRegistro,
+  deletarRegistro,
+  inserirRegistro,
+  obterRegistro,
+  obterRegistroSilencioso,
+} from './api';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
 export const URL_API_CERTIFICADO = 'v1/CodafCertificado';
