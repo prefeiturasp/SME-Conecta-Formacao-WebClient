@@ -67,6 +67,12 @@ const atividadeObrigatorioParaLetra = (valor: boolean | null | undefined): 'S' |
   return valor ? 'S' : 'N';
 };
 
+const letraParaAtividadeObrigatorio = (atividade: string | null): boolean | null => {
+  if (atividade === 'S') return true;
+  if (atividade === 'N') return false;
+  return null;
+};
+
 const formatarData = (data: any) => {
   if (!data) return null;
   return dayjs(data).format('YYYY-MM-DD');
@@ -632,7 +638,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         if (!dataRetificacao && !paginaRetificacao) return null;
         const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
         return {
-          id: retificacaoOriginal?.id || 0,
+          id: retificacaoOriginal?.id ?? 0,
           dataRetificacao: formatarData(dataRetificacao),
           paginaRetificacaoDom: Number(paginaRetificacao) || 0,
         };
@@ -641,6 +647,30 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         (r): r is { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number } =>
           r !== null,
       );
+
+  const tratarRespostaSalvar = (response: any) => {
+    if (response.sucesso) {
+      formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
+      cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
+      notification.success({
+        message: 'Sucesso',
+        description: modoEdicao ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
+      });
+      if (!id) {
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_EDITAR.replace(':id', response.dados.id));
+      }
+    } else {
+      const mensagensErro = response.mensagens || [];
+      const mensagemDetalhada =
+        mensagensErro.length > 0
+          ? mensagensErro.join(', ')
+          : modoEdicao
+          ? 'Erro ao atualizar o registro'
+          : 'Erro ao salvar o registro';
+      console.error('Erro da API:', mensagensErro);
+      notification.error({ message: 'Erro ao salvar', description: mensagemDetalhada });
+    }
+  };
 
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
@@ -669,8 +699,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             inscricaoId: cursista.id,
             percentualFrequencia: cursista.frequencia ?? null,
             conceitoFinal: cursista.conceitoFinal ?? null,
-            atividadeObrigatorio:
-              cursista.atividade === 'S' ? true : cursista.atividade === 'N' ? false : null,
+            atividadeObrigatorio: letraParaAtividadeObrigatorio(cursista.atividade),
             aprovado: cursista.aprovado ?? null,
           }),
         ),
@@ -686,29 +715,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       console.log('Resposta da API:', response);
 
-      if (response.sucesso) {
-        formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
-        cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
-        notification.success({
-          message: 'Sucesso',
-          description: modoEdicao
-            ? 'Registro atualizado com sucesso!'
-            : 'Registro salvo com sucesso!',
-        });
-        if (!id) {
-          navigate(ROUTES.LISTA_PRESENCA_CODAF_EDITAR.replace(':id', response.dados.id));
-        }
-      } else {
-        const mensagensErro = response.mensagens || [];
-        const mensagemDetalhada =
-          mensagensErro.length > 0
-            ? mensagensErro.join(', ')
-            : modoEdicao
-            ? 'Erro ao atualizar o registro'
-            : 'Erro ao salvar o registro';
-        console.error('Erro da API:', mensagensErro);
-        notification.error({ message: 'Erro ao salvar', description: mensagemDetalhada });
-      }
+      tratarRespostaSalvar(response);
     } catch (error: any) {
       const mensagemErro =
         error?.response?.data?.erros?.[0] ||
