@@ -2,7 +2,7 @@ import { Layout } from 'antd';
 import React from 'react';
 import styled from 'styled-components';
 
-import prefeituraLogoCinza from '~/assets/prefeitura-sp-logo-cinza.svg';
+import prefeituraLogoCinza from '~/assets/prefeitura-sp-logo-cinza.png';
 
 const FooterContainer = styled(Layout.Footer)`
   position: sticky;
@@ -23,6 +23,7 @@ const FooterContainerItems = styled.div`
 const LogoSP = styled.img`
   height: 45px;
   padding: 5px 0px;
+  opacity: 0.7;
 `;
 
 const FooterDescription = styled.div`
