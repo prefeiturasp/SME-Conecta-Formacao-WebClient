@@ -5,7 +5,6 @@ import api, {
   deletarRegistro,
   inserirRegistro,
   obterRegistro,
-  obterRegistroSilencioso,
 } from './api';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
@@ -201,7 +200,11 @@ export const obterCodafListaPresencaPorId = async (
 export const obterDeltaInscritosSilencioso = async (
   id: number,
 ): Promise<ApiResult<CodafListaPresencaDetalheDTO>> => {
-  const response = await obterRegistroSilencioso<any>(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`);
+  const response = await obterRegistro<any>(
+    `${URL_API_CODAF_LISTA_PRESENCA}/${id}`,
+    undefined,
+    true,
+  );
   const dados = response.dados?.dados !== undefined ? response.dados.dados : response.dados;
   return { ...response, dados };
 };
