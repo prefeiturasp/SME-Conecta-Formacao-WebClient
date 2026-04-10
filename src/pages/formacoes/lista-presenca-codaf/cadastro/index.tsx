@@ -1224,7 +1224,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               <Col>
                 <Button
                   type='primary'
-                  onClick={onClickSalvar}
+                  onClick={() => onClickSalvar()}
                   loading={loading}
                   disabled={!modoEdicao && todasTurmasPossuemLista}
                   id={CF_BUTTON_SALVAR}
