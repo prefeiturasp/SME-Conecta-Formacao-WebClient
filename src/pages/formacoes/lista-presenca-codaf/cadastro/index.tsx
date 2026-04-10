@@ -313,23 +313,29 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     carregarDados();
   }, [id, form, navigate]);
 
-  React.useEffect(() => {
-    if (!id || mostrarDivergencia) return;
-
-    const intervalo = setInterval(async () => {
-      try {
-        const response = await obterCodafListaPresencaPorId(Number(id));
-        if (response.sucesso && response.dados?.deltaInscritos?.houveAlteracao) {
-          setDeltaInscritos(response.dados.deltaInscritos);
-          setMostrarDivergencia(true);
-        }
-      } catch (error) {
-        console.error('Erro no polling de deltaInscritos:', error);
+  const verificarDeltaInscritos = React.useCallback(async () => {
+    try {
+      const response = await obterCodafListaPresencaPorId(Number(id));
+      if (response.sucesso && response.dados?.deltaInscritos?.houveAlteracao) {
+        setDeltaInscritos(response.dados.deltaInscritos);
+        setMostrarDivergencia(true);
       }
-    }, 7000);
+    } catch (error) {
+      console.error('Erro no polling de deltaInscritos:', error);
+    }
+  }, [id]);
+
+  React.useEffect(() => {
+    if (!id) return;
+
+    const intervalo = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        verificarDeltaInscritos();
+      }
+    }, 10000);
 
     return () => clearInterval(intervalo);
-  }, [id, mostrarDivergencia]);
+  }, [id, verificarDeltaInscritos]);
 
   const buscarInscritos = async () => {
     if (!turmaId) {
@@ -972,9 +978,45 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const onClickEnviarParaDF = async () => {
+    if (mostrarDivergencia) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Você precisa atualizar a listagem de inscritos antes.',
+      });
+      return;
+    }
     if (!validarParaEnvio()) {
       return;
     }
+
+    if (turmaId) {
+      setLoading(true);
+      try {
+        const response = await obterInscritosTurma(turmaId, 1, 99999);
+        if (response.sucesso && response.dados) {
+          const idsApi = new Set(response.dados.items.map((i) => i.id));
+          const idsLocais = new Set(cursistas.map((c) => c.id));
+          const sincronizado =
+            idsApi.size === idsLocais.size && [...idsApi].every((id) => idsLocais.has(id));
+
+          if (!sincronizado) {
+            notification.warning({
+              message: 'Atenção',
+              description:
+                'Houve alterações nas inscrições desta formação. Aguarde alguns instantes, estamos atualizando a lista para você.',
+            });
+            setLoading(false);
+            await verificarDeltaInscritos();
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar inscritos:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     setModalEnviarDFVisible(true);
   };
 
