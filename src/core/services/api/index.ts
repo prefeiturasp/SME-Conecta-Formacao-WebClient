@@ -262,6 +262,31 @@ export const inserirRegistro = async <T>(
     .finally(() => store.dispatch(setSpinning(false)));
 };
 
+export const obterRegistroSilencioso = async <T>(
+  url: string,
+  axiosRequestConfig?: AxiosRequestConfig,
+): Promise<ApiResult<T>> => {
+  return api
+    .get(url, {
+      paramsSerializer: {
+        serialize: (params) => {
+          return queryString.stringify(params, {
+            skipNull: true,
+            skipEmptyString: true,
+          });
+        },
+      },
+      ...axiosRequestConfig,
+    })
+    .then((response: AxiosResponse<T>): ApiResult<T> => {
+      return { sucesso: true, dados: response?.data, mensagens: [], status: response?.status };
+    })
+    .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
+      const mensagens = tratarMensagem(error);
+      return { sucesso: false, mensagens, dados: null, status: error?.status };
+    });
+};
+
 export const deletarRegistro = async <T>(url: string): Promise<ApiResult<T>> => {
   store.dispatch(setSpinning(true));
   return api
