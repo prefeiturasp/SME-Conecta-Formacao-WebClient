@@ -62,6 +62,16 @@ interface CursistaDTO {
   aprovado: boolean | null;
 }
 
+const atividadeObrigatorioParaLetra = (valor: boolean | null | undefined): 'S' | 'N' | null => {
+  if (valor === null || valor === undefined) return null;
+  return valor ? 'S' : 'N';
+};
+
+const formatarData = (data: any) => {
+  if (!data) return null;
+  return dayjs(data).format('YYYY-MM-DD');
+};
+
 const CadastroListaPresencaCodaf: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
@@ -354,12 +364,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           rfOuCpf: inscrito.documento,
           nomeCursista: inscrito.nome,
           frequencia: inscrito.percentualFrequencia ?? null,
-          atividade:
-            inscrito.atividadeObrigatorio !== undefined && inscrito.atividadeObrigatorio !== null
-              ? inscrito.atividadeObrigatorio
-                ? 'S'
-                : 'N'
-              : null,
+          atividade: atividadeObrigatorioParaLetra(inscrito.atividadeObrigatorio),
           conceitoFinal: inscrito.conceitoFinal ?? null,
           aprovado: inscrito.aprovado ?? null,
         }));
@@ -617,15 +622,30 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
+
+  const montarRetificacoes = (values: any) =>
+    retificacoes
+      .map((numero) => {
+        const numeroFormatado = numero.toString().padStart(2, '0');
+        const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
+        const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
+        if (!dataRetificacao && !paginaRetificacao) return null;
+        const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
+        return {
+          id: retificacaoOriginal?.id || 0,
+          dataRetificacao: formatarData(dataRetificacao),
+          paginaRetificacaoDom: Number(paginaRetificacao) || 0,
+        };
+      })
+      .filter(
+        (r): r is { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number } =>
+          r !== null,
+      );
+
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
       const values = await form.validateFields();
       setLoading(true);
-
-      const formatarData = (data: any) => {
-        if (!data) return null;
-        return dayjs(data).format('YYYY-MM-DD');
-      };
 
       const anexos =
         values.anexos?.map((arquivo: any) => ({
@@ -644,41 +664,18 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         codigoCursoEol: Number(values.codigoCursoEol) || null,
         codigoNivel: Number(values.codigoNivel) || null,
         observacao: values.observacao || '',
-        inscritos: (Array.isArray(inscritosOverride) ? inscritosOverride : cursistas).map((cursista) => ({
-          inscricaoId: cursista.id,
-          percentualFrequencia: cursista.frequencia ?? null,
-          conceitoFinal: cursista.conceitoFinal ?? null,
-          atividadeObrigatorio:
-            cursista.atividade === 'S' ? true : cursista.atividade === 'N' ? false : null,
-          aprovado: cursista.aprovado ?? null,
-        })),
+        inscritos: (Array.isArray(inscritosOverride) ? inscritosOverride : cursistas).map(
+          (cursista) => ({
+            inscricaoId: cursista.id,
+            percentualFrequencia: cursista.frequencia ?? null,
+            conceitoFinal: cursista.conceitoFinal ?? null,
+            atividadeObrigatorio:
+              cursista.atividade === 'S' ? true : cursista.atividade === 'N' ? false : null,
+            aprovado: cursista.aprovado ?? null,
+          }),
+        ),
         anexos,
-        retificacoes: retificacoes
-          .map((numero) => {
-            const numeroFormatado = numero.toString().padStart(2, '0');
-            const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
-            const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
-
-            if (dataRetificacao || paginaRetificacao) {
-              const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
-
-              return {
-                id: retificacaoOriginal?.id || 0,
-                dataRetificacao: formatarData(dataRetificacao),
-                paginaRetificacaoDom: Number(paginaRetificacao) || 0,
-              };
-            }
-            return null;
-          })
-          .filter(
-            (
-              retificacao,
-            ): retificacao is {
-              id: number;
-              dataRetificacao: string | null;
-              paginaRetificacaoDom: number;
-            } => retificacao !== null,
-          ),
+        retificacoes: montarRetificacoes(values),
       };
 
       console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
@@ -709,32 +706,16 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             : modoEdicao
             ? 'Erro ao atualizar o registro'
             : 'Erro ao salvar o registro';
-
         console.error('Erro da API:', mensagensErro);
-
-        notification.error({
-          message: 'Erro ao salvar',
-          description: mensagemDetalhada,
-        });
+        notification.error({ message: 'Erro ao salvar', description: mensagemDetalhada });
       }
     } catch (error: any) {
-      console.error('Erro ao salvar (catch):', error);
-      console.error('Detalhes do erro:', {
-        message: error?.message,
-        response: error?.response,
-        data: error?.response?.data,
-      });
-
       const mensagemErro =
         error?.response?.data?.erros?.[0] ||
         error?.response?.data?.mensagens?.[0] ||
         error?.message ||
         (modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro');
-
-      notification.error({
-        message: 'Erro',
-        description: mensagemErro,
-      });
+      notification.error({ message: 'Erro', description: mensagemErro });
     } finally {
       setLoading(false);
     }
