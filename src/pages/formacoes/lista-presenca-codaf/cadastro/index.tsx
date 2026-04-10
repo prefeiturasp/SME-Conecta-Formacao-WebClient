@@ -278,7 +278,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         if (!response.sucesso || !response.dados) {
           notification.error({
             message: 'Erro',
-            description: response.mensagens?.[0] || 'Erro ao carregar dados do registro',
+            description: response.mensagens?.[0] ?? 'Erro ao carregar dados do registro',
           });
           navigate(ROUTES.LISTA_PRESENCA_CODAF);
           return;
@@ -660,13 +660,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         navigate(ROUTES.LISTA_PRESENCA_CODAF_EDITAR.replace(':id', response.dados.id));
       }
     } else {
-      const mensagensErro = response.mensagens || [];
+      const mensagensErro = response.mensagens ?? [];
+      const mensagemPadrao = modoEdicao
+        ? 'Erro ao atualizar o registro'
+        : 'Erro ao salvar o registro';
       const mensagemDetalhada =
-        mensagensErro.length > 0
-          ? mensagensErro.join(', ')
-          : modoEdicao
-          ? 'Erro ao atualizar o registro'
-          : 'Erro ao salvar o registro';
+        mensagensErro.length > 0 ? mensagensErro.join(', ') : mensagemPadrao;
       console.error('Erro da API:', mensagensErro);
       notification.error({ message: 'Erro ao salvar', description: mensagemDetalhada });
     }
@@ -717,11 +716,14 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       tratarRespostaSalvar(response);
     } catch (error: any) {
+      const mensagemPadraoErro = modoEdicao
+        ? 'Erro ao atualizar o registro'
+        : 'Erro ao salvar o registro';
       const mensagemErro =
         error?.response?.data?.erros?.[0] ||
         error?.response?.data?.mensagens?.[0] ||
         error?.message ||
-        (modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro');
+        mensagemPadraoErro;
       notification.error({ message: 'Erro', description: mensagemErro });
     } finally {
       setLoading(false);
@@ -1137,12 +1139,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         rfOuCpf: inscrito.documento,
         nomeCursista: inscrito.nome,
         frequencia: inscrito.percentualFrequencia ?? null,
-        atividade:
-          inscrito.atividadeObrigatorio !== undefined && inscrito.atividadeObrigatorio !== null
-            ? inscrito.atividadeObrigatorio
-              ? 'S'
-              : 'N'
-            : null,
+        atividade: atividadeObrigatorioParaLetra(inscrito.atividadeObrigatorio),
         conceitoFinal: inscrito.conceitoFinal ?? null,
         aprovado: inscrito.aprovado ?? null,
       }));
