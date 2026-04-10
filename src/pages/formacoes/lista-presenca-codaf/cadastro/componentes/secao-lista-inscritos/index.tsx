@@ -3,6 +3,7 @@ import { ReloadOutlined } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import React from 'react';
 import { DeltaInscritosDTO } from '~/core/services/codaf-lista-presenca-service';
+import alertaModal from '~/assets/alerta-modal.svg';
 
 interface SecaoListaInscritosProps {
   mostrarDivergencia: boolean;
@@ -125,7 +126,7 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
                     }}
                   >
                     <img
-                      src='/src/assets/alerta-modal.svg'
+                      src={alertaModal}
                       alt='Warning'
                       style={{
                         width: '32px',

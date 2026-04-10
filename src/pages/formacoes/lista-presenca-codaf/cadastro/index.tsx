@@ -611,7 +611,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
-  const onClickSalvar = async () => {
+  const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
       const values = await form.validateFields();
       setLoading(true);
@@ -638,7 +638,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         codigoCursoEol: Number(values.codigoCursoEol) || null,
         codigoNivel: Number(values.codigoNivel) || null,
         observacao: values.observacao || '',
-        inscritos: cursistas.map((cursista) => ({
+        inscritos: (Array.isArray(inscritosOverride) ? inscritosOverride : cursistas).map((cursista) => ({
           inscricaoId: cursista.id,
           percentualFrequencia: cursista.frequencia ?? null,
           conceitoFinal: cursista.conceitoFinal ?? null,
@@ -1093,12 +1093,33 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     setLoading(true);
     try {
-      await buscarInscritos();
+      const response = await obterInscritosTurma(turmaId, 1, 99999);
+      if (!response.sucesso || !response.dados) {
+        notification.warning({
+          message: 'Atenção',
+          description: 'Nenhum inscrito encontrado para esta turma',
+        });
+        return;
+      }
+
+      const inscritosAtualizados: CursistaDTO[] = response.dados.items.map((inscrito) => ({
+        id: inscrito.id,
+        rfOuCpf: inscrito.documento,
+        nomeCursista: inscrito.nome,
+        frequencia: inscrito.percentualFrequencia ?? null,
+        atividade:
+          inscrito.atividadeObrigatorio !== undefined && inscrito.atividadeObrigatorio !== null
+            ? inscrito.atividadeObrigatorio
+              ? 'S'
+              : 'N'
+            : null,
+        conceitoFinal: inscrito.conceitoFinal ?? null,
+        aprovado: inscrito.aprovado ?? null,
+      }));
+
       setMostrarDivergencia(false);
-      notification.success({
-        message: 'Sucesso',
-        description: 'Lista de inscritos atualizada com sucesso!',
-      });
+      await onClickSalvar(inscritosAtualizados);
+      setCursistas(inscritosAtualizados);
     } catch (error) {
       console.error('Erro ao atualizar inscritos:', error);
       notification.error({
