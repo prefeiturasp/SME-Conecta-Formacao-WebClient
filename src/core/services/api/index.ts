@@ -141,8 +141,9 @@ export type ApiResult<T> = {
 export const obterRegistro = async <T>(
   url: string,
   axiosRequestConfig?: AxiosRequestConfig,
+  silencioso = false,
 ): Promise<ApiResult<T>> => {
-  store.dispatch(setSpinning(true));
+  if (!silencioso) store.dispatch(setSpinning(true));
   return api
     .get(url, {
       paramsSerializer: {
@@ -161,12 +162,16 @@ export const obterRegistro = async <T>(
     .catch((error: AxiosError<RetornoBaseDTO>): ApiResult<any> => {
       const mensagens = tratarMensagem(error);
 
-      // TODO modal error
-      openNotificationErrors(mensagens);
+      if (!silencioso) {
+        // TODO modal error
+        openNotificationErrors(mensagens);
+      }
 
       return { sucesso: false, mensagens, dados: null, status: error?.status };
     })
-    .finally(() => store.dispatch(setSpinning(false)));
+    .finally(() => {
+      if (!silencioso) store.dispatch(setSpinning(false));
+    });
 };
 
 export const alterarRegistro = async <T>(

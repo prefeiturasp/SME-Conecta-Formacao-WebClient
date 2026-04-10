@@ -41,6 +41,7 @@ import {
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
   obterCodafListaPresencaPorId,
+  obterDeltaInscritosSilencioso,
   obterInscritosTurma,
   verificarTurmaPossuiLista,
 } from '~/core/services/codaf-lista-presenca-service';
@@ -116,6 +117,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [modalComentarioVisible, setModalComentarioVisible] = useState(false);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
+  const contadorDelta = React.useRef(0);
 
   const situacoes = [
     { id: 1, descricao: 'Iniciado' },
@@ -331,7 +333,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const verificarDeltaInscritos = React.useCallback(async () => {
     try {
-      const response = await obterCodafListaPresencaPorId(Number(id));
+      const response = await obterDeltaInscritosSilencioso(Number(id));
       if (response.sucesso && response.dados?.deltaInscritos?.houveAlteracao) {
         setDeltaInscritos(response.dados.deltaInscritos);
         setMostrarDivergencia(true);
@@ -345,10 +347,15 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     if (!id) return;
 
     const intervalo = setInterval(() => {
+      if (contadorDelta.current >= 30) {
+        clearInterval(intervalo);
+        return;
+      }
+      contadorDelta.current++;
       if (document.visibilityState === 'visible') {
         verificarDeltaInscritos();
       }
-    }, 10000);
+    }, 30000);
 
     return () => clearInterval(intervalo);
   }, [id, verificarDeltaInscritos]);
@@ -650,6 +657,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const tratarRespostaSalvar = (response: any) => {
     if (response.sucesso) {
+      contadorDelta.current = 0;
       formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
       cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
       notification.success({

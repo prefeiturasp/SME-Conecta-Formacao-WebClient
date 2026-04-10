@@ -1,6 +1,11 @@
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
-import api from './api';
+import api, {
+  ApiResult,
+  alterarRegistro,
+  deletarRegistro,
+  inserirRegistro,
+  obterRegistro,
+} from './api';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
 export const URL_API_CERTIFICADO = 'v1/CodafCertificado';
@@ -188,6 +193,18 @@ export const obterCodafListaPresencaPorId = async (
   id: number,
 ): Promise<ApiResult<CodafListaPresencaDetalheDTO>> => {
   const response = await obterRegistro<any>(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`);
+  const dados = response.dados?.dados !== undefined ? response.dados.dados : response.dados;
+  return { ...response, dados };
+};
+
+export const obterDeltaInscritosSilencioso = async (
+  id: number,
+): Promise<ApiResult<CodafListaPresencaDetalheDTO>> => {
+  const response = await obterRegistro<any>(
+    `${URL_API_CODAF_LISTA_PRESENCA}/${id}`,
+    undefined,
+    true,
+  );
   const dados = response.dados?.dados !== undefined ? response.dados.dados : response.dados;
   return { ...response, dados };
 };
