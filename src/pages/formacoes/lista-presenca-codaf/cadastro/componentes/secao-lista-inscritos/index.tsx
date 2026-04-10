@@ -125,7 +125,7 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
                     }}
                   >
                     <img
-                      src='/src/assets/alerta-modal.svg'
+                      src='/alerta-modal.svg'
                       alt='Warning'
                       style={{
                         width: '32px',

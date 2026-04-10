@@ -62,6 +62,22 @@ interface CursistaDTO {
   aprovado: boolean | null;
 }
 
+const atividadeObrigatorioParaLetra = (valor: boolean | null | undefined): 'S' | 'N' | null => {
+  if (valor === null || valor === undefined) return null;
+  return valor ? 'S' : 'N';
+};
+
+const letraParaAtividadeObrigatorio = (atividade: string | null): boolean | null => {
+  if (atividade === 'S') return true;
+  if (atividade === 'N') return false;
+  return null;
+};
+
+const formatarData = (data: any) => {
+  if (!data) return null;
+  return dayjs(data).format('YYYY-MM-DD');
+};
+
 const CadastroListaPresencaCodaf: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
@@ -262,7 +278,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         if (!response.sucesso || !response.dados) {
           notification.error({
             message: 'Erro',
-            description: response.mensagens?.[0] || 'Erro ao carregar dados do registro',
+            description: response.mensagens?.[0] ?? 'Erro ao carregar dados do registro',
           });
           navigate(ROUTES.LISTA_PRESENCA_CODAF);
           return;
@@ -313,23 +329,29 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     carregarDados();
   }, [id, form, navigate]);
 
-  React.useEffect(() => {
-    if (!id || mostrarDivergencia) return;
-
-    const intervalo = setInterval(async () => {
-      try {
-        const response = await obterCodafListaPresencaPorId(Number(id));
-        if (response.sucesso && response.dados?.deltaInscritos?.houveAlteracao) {
-          setDeltaInscritos(response.dados.deltaInscritos);
-          setMostrarDivergencia(true);
-        }
-      } catch (error) {
-        console.error('Erro no polling de deltaInscritos:', error);
+  const verificarDeltaInscritos = React.useCallback(async () => {
+    try {
+      const response = await obterCodafListaPresencaPorId(Number(id));
+      if (response.sucesso && response.dados?.deltaInscritos?.houveAlteracao) {
+        setDeltaInscritos(response.dados.deltaInscritos);
+        setMostrarDivergencia(true);
       }
-    }, 7000);
+    } catch (error) {
+      console.error('Erro no polling de deltaInscritos:', error);
+    }
+  }, [id]);
+
+  React.useEffect(() => {
+    if (!id) return;
+
+    const intervalo = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        verificarDeltaInscritos();
+      }
+    }, 10000);
 
     return () => clearInterval(intervalo);
-  }, [id, mostrarDivergencia]);
+  }, [id, verificarDeltaInscritos]);
 
   const buscarInscritos = async () => {
     if (!turmaId) {
@@ -348,12 +370,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           rfOuCpf: inscrito.documento,
           nomeCursista: inscrito.nome,
           frequencia: inscrito.percentualFrequencia ?? null,
-          atividade:
-            inscrito.atividadeObrigatorio !== undefined && inscrito.atividadeObrigatorio !== null
-              ? inscrito.atividadeObrigatorio
-                ? 'S'
-                : 'N'
-              : null,
+          atividade: atividadeObrigatorioParaLetra(inscrito.atividadeObrigatorio),
           conceitoFinal: inscrito.conceitoFinal ?? null,
           aprovado: inscrito.aprovado ?? null,
         }));
@@ -611,15 +628,53 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
-  const onClickSalvar = async () => {
+
+  const montarRetificacoes = (values: any) =>
+    retificacoes
+      .map((numero) => {
+        const numeroFormatado = numero.toString().padStart(2, '0');
+        const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
+        const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
+        if (!dataRetificacao && !paginaRetificacao) return null;
+        const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
+        return {
+          id: retificacaoOriginal?.id ?? 0,
+          dataRetificacao: formatarData(dataRetificacao),
+          paginaRetificacaoDom: Number(paginaRetificacao) || 0,
+        };
+      })
+      .filter(
+        (r): r is { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number } =>
+          r !== null,
+      );
+
+  const tratarRespostaSalvar = (response: any) => {
+    if (response.sucesso) {
+      formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
+      cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
+      notification.success({
+        message: 'Sucesso',
+        description: modoEdicao ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
+      });
+      if (!id) {
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_EDITAR.replace(':id', response.dados.id));
+      }
+    } else {
+      const mensagensErro = response.mensagens ?? [];
+      const mensagemPadrao = modoEdicao
+        ? 'Erro ao atualizar o registro'
+        : 'Erro ao salvar o registro';
+      const mensagemDetalhada =
+        mensagensErro.length > 0 ? mensagensErro.join(', ') : mensagemPadrao;
+      console.error('Erro da API:', mensagensErro);
+      notification.error({ message: 'Erro ao salvar', description: mensagemDetalhada });
+    }
+  };
+
+  const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
       const values = await form.validateFields();
       setLoading(true);
-
-      const formatarData = (data: any) => {
-        if (!data) return null;
-        return dayjs(data).format('YYYY-MM-DD');
-      };
 
       const anexos =
         values.anexos?.map((arquivo: any) => ({
@@ -638,41 +693,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         codigoCursoEol: Number(values.codigoCursoEol) || null,
         codigoNivel: Number(values.codigoNivel) || null,
         observacao: values.observacao || '',
-        inscritos: cursistas.map((cursista) => ({
-          inscricaoId: cursista.id,
-          percentualFrequencia: cursista.frequencia ?? null,
-          conceitoFinal: cursista.conceitoFinal ?? null,
-          atividadeObrigatorio:
-            cursista.atividade === 'S' ? true : cursista.atividade === 'N' ? false : null,
-          aprovado: cursista.aprovado ?? null,
-        })),
+        inscritos: (Array.isArray(inscritosOverride) ? inscritosOverride : cursistas).map(
+          (cursista) => ({
+            inscricaoId: cursista.id,
+            percentualFrequencia: cursista.frequencia ?? null,
+            conceitoFinal: cursista.conceitoFinal ?? null,
+            atividadeObrigatorio: letraParaAtividadeObrigatorio(cursista.atividade),
+            aprovado: cursista.aprovado ?? null,
+          }),
+        ),
         anexos,
-        retificacoes: retificacoes
-          .map((numero) => {
-            const numeroFormatado = numero.toString().padStart(2, '0');
-            const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
-            const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
-
-            if (dataRetificacao || paginaRetificacao) {
-              const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
-
-              return {
-                id: retificacaoOriginal?.id || 0,
-                dataRetificacao: formatarData(dataRetificacao),
-                paginaRetificacaoDom: Number(paginaRetificacao) || 0,
-              };
-            }
-            return null;
-          })
-          .filter(
-            (
-              retificacao,
-            ): retificacao is {
-              id: number;
-              dataRetificacao: string | null;
-              paginaRetificacaoDom: number;
-            } => retificacao !== null,
-          ),
+        retificacoes: montarRetificacoes(values),
       };
 
       console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
@@ -683,52 +714,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       console.log('Resposta da API:', response);
 
-      if (response.sucesso) {
-        formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
-        cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
-        notification.success({
-          message: 'Sucesso',
-          description: modoEdicao
-            ? 'Registro atualizado com sucesso!'
-            : 'Registro salvo com sucesso!',
-        });
-        if (!id) {
-          navigate(ROUTES.LISTA_PRESENCA_CODAF_EDITAR.replace(':id', response.dados.id));
-        }
-      } else {
-        const mensagensErro = response.mensagens || [];
-        const mensagemDetalhada =
-          mensagensErro.length > 0
-            ? mensagensErro.join(', ')
-            : modoEdicao
-            ? 'Erro ao atualizar o registro'
-            : 'Erro ao salvar o registro';
-
-        console.error('Erro da API:', mensagensErro);
-
-        notification.error({
-          message: 'Erro ao salvar',
-          description: mensagemDetalhada,
-        });
-      }
+      tratarRespostaSalvar(response);
     } catch (error: any) {
-      console.error('Erro ao salvar (catch):', error);
-      console.error('Detalhes do erro:', {
-        message: error?.message,
-        response: error?.response,
-        data: error?.response?.data,
-      });
-
+      const mensagemPadraoErro = modoEdicao
+        ? 'Erro ao atualizar o registro'
+        : 'Erro ao salvar o registro';
       const mensagemErro =
         error?.response?.data?.erros?.[0] ||
         error?.response?.data?.mensagens?.[0] ||
         error?.message ||
-        (modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro');
-
-      notification.error({
-        message: 'Erro',
-        description: mensagemErro,
-      });
+        mensagemPadraoErro;
+      notification.error({ message: 'Erro', description: mensagemErro });
     } finally {
       setLoading(false);
     }
@@ -972,9 +968,45 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const onClickEnviarParaDF = async () => {
+    if (mostrarDivergencia) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'Você precisa atualizar a listagem de inscritos antes.',
+      });
+      return;
+    }
     if (!validarParaEnvio()) {
       return;
     }
+
+    if (turmaId) {
+      setLoading(true);
+      try {
+        const response = await obterInscritosTurma(turmaId, 1, 99999);
+        if (response.sucesso && response.dados) {
+          const idsApi = new Set(response.dados.items.map((i) => i.id));
+          const idsLocais = new Set(cursistas.map((c) => c.id));
+          const sincronizado =
+            idsApi.size === idsLocais.size && [...idsApi].every((id) => idsLocais.has(id));
+
+          if (!sincronizado) {
+            notification.warning({
+              message: 'Atenção',
+              description:
+                'Houve alterações nas inscrições desta formação. Aguarde alguns instantes, estamos atualizando a lista para você.',
+            });
+            setLoading(false);
+            await verificarDeltaInscritos();
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar inscritos:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     setModalEnviarDFVisible(true);
   };
 
@@ -1093,12 +1125,28 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     setLoading(true);
     try {
-      await buscarInscritos();
+      const response = await obterInscritosTurma(turmaId, 1, 99999);
+      if (!response.sucesso || !response.dados) {
+        notification.warning({
+          message: 'Atenção',
+          description: 'Nenhum inscrito encontrado para esta turma',
+        });
+        return;
+      }
+
+      const inscritosAtualizados: CursistaDTO[] = response.dados.items.map((inscrito) => ({
+        id: inscrito.id,
+        rfOuCpf: inscrito.documento,
+        nomeCursista: inscrito.nome,
+        frequencia: inscrito.percentualFrequencia ?? null,
+        atividade: atividadeObrigatorioParaLetra(inscrito.atividadeObrigatorio),
+        conceitoFinal: inscrito.conceitoFinal ?? null,
+        aprovado: inscrito.aprovado ?? null,
+      }));
+
       setMostrarDivergencia(false);
-      notification.success({
-        message: 'Sucesso',
-        description: 'Lista de inscritos atualizada com sucesso!',
-      });
+      await onClickSalvar(inscritosAtualizados);
+      setCursistas(inscritosAtualizados);
     } catch (error) {
       console.error('Erro ao atualizar inscritos:', error);
       notification.error({
@@ -1176,7 +1224,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               <Col>
                 <Button
                   type='primary'
-                  onClick={onClickSalvar}
+                  onClick={() => onClickSalvar()}
                   loading={loading}
                   disabled={!modoEdicao && todasTurmasPossuemLista}
                   id={CF_BUTTON_SALVAR}
