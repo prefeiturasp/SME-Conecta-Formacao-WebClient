@@ -1,4 +1,7 @@
-import { Button, Col, Form, Row, Table } from 'antd';
+import { Button, Col, Form, Row, Select, Table } from 'antd';
+import { InfoCircleFilled, PlusOutlined } from '@ant-design/icons';
+import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
+import ButtonExcluir from '~/components/lib/excluir-button';
 import { ColumnsType } from 'antd/es/table';
 import editIcon from '~/assets/material-symbols_edit-outline.svg';
 import { Dayjs } from 'dayjs';
@@ -8,7 +11,6 @@ import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer/drawer-form-encontro-turmas';
 import { notification } from '~/components/lib/notification';
 import { DatePickerPeriodo } from '~/components/main/input/date-range';
-import { getTooltipFormInfoCircleFilled } from '~/components/main/tooltip';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import {
   PERIODO_INSCRICAO_NAO_INFORMADO,
@@ -220,16 +222,52 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
           <Col xs={24} sm={14} md={24} style={contentStyle}>
             Cronograma geral
           </Col>
-          <Col sm={24} md={12} lg={8}>
+          <Col xs={24}>
+            <p
+              style={{
+                fontWeight: 400,
+                fontSize: 14,
+                color: '#42474A',
+                lineHeight: '100%',
+                margin: 0,
+              }}
+            >
+              Defina o período geral da formação e as datas em que cada turma será realizada.
+            </p>
+          </Col>
+          <Col xs={24} style={{ paddingTop: '24px' }}>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: 14,
+                color: '#42474A',
+                lineHeight: '100%',
+                width: '100%',
+              }}
+            >
+              <span style={{ color: '#b40c02' }}>*</span> Período geral da formação
+            </div>
+            <p
+              style={{
+                fontWeight: 400,
+                fontSize: 14,
+                color: '#42474A',
+                lineHeight: '100%',
+                width: '100%',
+                margin: '4px 0 8px 0',
+                paddingTop:'8px'
+              }}
+            >
+              Defina o intervalo do início da primeira turma até o término da última.
+            </p>
+          </Col>
+          <Col xs={24} sm={12}>
             <ButtonParecer campo={CampoConsideracaoEnum.periodoRealizacao}>
               <b>
                 <DatePickerPeriodo
                   formItemProps={{
-                    label: 'Período de realização',
+                    label: null,
                     name: 'periodoRealizacao',
-                    tooltip: getTooltipFormInfoCircleFilled(
-                      'Primeiro dia da primeira turma até o último dia da última turma.',
-                    ),
                     rules: [{ required: true, message: PERIODO_REALIZACAO_NAO_INFORMADO }],
                   }}
                 />
@@ -237,6 +275,144 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             </ButtonParecer>
           </Col>
           <Col xs={24}>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: 14,
+                color: '#42474A',
+                lineHeight: '100%',
+                marginBottom: 8,
+              }}
+            >
+              Período da realização por turma
+            </div>
+            <p
+              style={{
+                fontWeight: 400,
+                fontSize: 14,
+                color: '#42474A',
+                lineHeight: '100%',
+                marginBottom: 4,
+                paddingTop: '8px',
+                paddingBottom: '16px',
+              }}
+            >
+              Defina o período em que as turmas selecionadas realizarão a formação. Se não for
+              informado, será considerado o período definido em &quot;Período geral da
+              formação&quot;.
+            </p>
+            <Form.List name='gruposPeriodos' initialValue={[{}]}>
+              {(fields, { add, remove }) => {
+                const turmas: PropostaTurmaFormDTO[] = form.getFieldValue('turmas') ?? [];
+                const turmaOptions = turmas
+                  .filter((t) => t.id)
+                  .map((t) => ({ label: t.nome, value: t.id }));
+
+                return (
+                  <>
+                    {fields.map((field) => (
+                      <Row key={field.key} gutter={[8, 4]} style={{ marginBottom: 12 }}>
+                        <Col xs={24} sm={12}>
+                          <div
+                            style={{
+                              fontWeight: 700,
+                              fontSize: 14,
+                              color: '#42474A',
+                              lineHeight: '100%',
+                              marginBottom: 8,
+                            }}
+                          >
+                            Turmas
+                          </div>
+                          <Form.Item name={[field.name, 'propostaTurmasIds']} noStyle>
+                            <Select
+                              mode='multiple'
+                              placeholder='Selecione uma ou mais turmas'
+                              style={{ width: '100%' }}
+                              options={turmaOptions}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12}>
+                          <div
+                            style={{
+                              fontWeight: 700,
+                              fontSize: 14,
+                              color: '#42474A',
+                              lineHeight: '100%',
+                              marginBottom: 8,
+                            }}
+                          >
+                            Período de realização
+                          </div>
+                          <Row gutter={[8, 0]} wrap={false} align='middle'>
+                            <Col flex='1'>
+                              <DatePickerPeriodo
+                                formItemProps={{
+                                  name: [field.name, 'periodo'],
+                                  style: { marginBottom: 0 },
+                                }}
+                              />
+                            </Col>
+                            <Col>
+                              {field.name === 0 ? (
+                                <Button
+                                  type='default'
+                                  block
+                                  icon={<PlusOutlined />}
+                                  onClick={() => add({})}
+                                  style={{
+                                    fontSize: 18,
+                                    width: '43px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                />
+                              ) : (
+                                <ButtonExcluir onClick={() => remove(field.name)} />
+                              )}
+                            </Col>
+                          </Row>
+                        </Col>
+                      </Row>
+                    ))}
+                  </>
+                );
+              }}
+            </Form.List>
+            
+            <div
+              style={{
+                border: '1px solid #F1F1F1',
+                background: '#FAFAFA',
+                padding: '12px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginTop: 16,
+                marginBottom: 8,
+              }}
+            >
+              <InfoCircleFilled
+                style={{ color: '#086397', fontSize: 20, flexShrink: 0, marginRight: 5 }}
+              />
+              
+              <span style={{ fontSize: 14, color: '#42474A' }}>
+                Selecione uma ou mais turmas e atribua datas de início e fim da formação. Para
+                turmas com datas diferentes, adicione uma nova linha e defina um período específico.
+                É possível configurar várias turmas em lote ou ajustar cada turma individualmente.
+              </span>
+            </div>
+          </Col>
+          <Col xs={24} style={{ marginTop: 16 }}>
+            <div
+              style={{
+                height: 1,
+                backgroundColor: '#F0F0F0',
+                marginBottom: 32,
+              }}
+            />
             <Row wrap={false} justify='space-between'>
               <Col style={contentStyle}>Cronograma de encontros</Col>
               <Col>
