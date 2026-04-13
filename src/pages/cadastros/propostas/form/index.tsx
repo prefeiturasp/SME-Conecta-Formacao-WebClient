@@ -99,6 +99,119 @@ import {
 const stylesButtons = {
   fontWeight: 700,
 };
+
+// ── helpers de mapeamento para carregarDados ────────────────────────────────
+
+const mapearListaDres = (dres: any[]) =>
+  dres.map((dre: any) => ({ ...dre, value: dre.id, label: dre.descricao }));
+
+const mapearDresSelecionadas = (
+  dresDados: { dreId?: number }[] | undefined,
+  listaDres: any[],
+): DreDTO[] => {
+  if (!dresDados?.length) return [];
+  const ids = dresDados.map((item) => item.dreId);
+  return cloneDeep(listaDres).filter((item) => ids.includes(item.id));
+};
+
+const mapearTurmas = (turmas: any[], listaDres: any[]): PropostaTurmaFormDTO[] =>
+  (turmas ?? []).map(
+    (turma: any, index: number): PropostaTurmaFormDTO => ({
+      ...turma,
+      dres: mapearDresSelecionadas(turma?.dres ?? [], listaDres),
+      key: index,
+    }),
+  );
+
+const mapearPareceristas = (
+  pareceristas?: PropostaPareceristaDTO[],
+): PropostaPareceristaFormDTO[] =>
+  (pareceristas ?? []).map((p) => ({
+    id: p.id,
+    label: p.nomeParecerista,
+    value: p.registroFuncional,
+  }));
+
+const mapearPeriodo = (inicio?: string, fim?: string): Dayjs[] => {
+  if (!inicio || !fim) return [];
+  return [dayjs.tz(inicio), dayjs.tz(fim)];
+};
+
+const mapearGruposPeriodos = (grupos?: GrupoPeriodoDTO[]): GrupoPeriodoFormDTO[] =>
+  (grupos ?? []).map((g) => ({
+    id: g.id,
+    periodo:
+      g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
+    propostaTurmasIds: g.propostaTurmasIds,
+  }));
+
+const mapearArquivoImagem = (arquivo?: any): any[] => {
+  if (!arquivo?.arquivoId) return [];
+  return [{ xhr: arquivo.codigo, name: arquivo.nome, id: arquivo.arquivoId, status: 'done' }];
+};
+
+// ── helpers de mapeamento para salvar ──────────────────────────────────────
+
+const resolverSituacao = (
+  idProposta: number,
+  novaSituacao: SituacaoProposta | undefined,
+  situacaoAtual: SituacaoProposta | undefined,
+  ehProximoPasso: boolean,
+): SituacaoProposta => {
+  let situacao = SituacaoProposta.Rascunho;
+  if (idProposta && !novaSituacao && situacaoAtual) {
+    situacao = situacaoAtual;
+  } else if (novaSituacao) {
+    situacao = novaSituacao;
+  }
+  if (ehProximoPasso && situacao === SituacaoProposta.Publicada) {
+    situacao = SituacaoProposta.Alterando;
+  }
+  return situacao;
+};
+
+const extrairDatasFormatadas = (values: PropostaFormDTO) => ({
+  dataRealizacaoInicio: values?.periodoRealizacao?.[0]?.format('YYYY-MM-DD'),
+  dataRealizacaoFim: values?.periodoRealizacao?.[1]?.format('YYYY-MM-DD'),
+  dataInscricaoInicio: values?.periodoInscricao?.[0]?.format('YYYY-MM-DD'),
+  dataInscricaoFim: values?.periodoInscricao?.[1]?.format('YYYY-MM-DD'),
+});
+
+const mapearTurmasSalvar = (turmas?: PropostaTurmaFormDTO[]): PropostaTurmaDTO[] =>
+  (turmas ?? []).map((item) => {
+    const dresIds =
+      item.dres?.length && item.dres.length > 1
+        ? item.dres.filter((dre) => !dre.todos).map((d) => d.value)
+        : (item.dres ?? []).map((dre) => dre.value);
+    const turma: PropostaTurmaDTO = { nome: item.nome, dresIds };
+    if (item.id) turma.id = item.id;
+    return turma;
+  });
+
+const mapearPareceristasSalvar = (
+  pareceristas?: PropostaPareceristaFormDTO[],
+  salvos?: PropostaPareceristaFormDTO[],
+): PropostaPareceristaDTO[] =>
+  (pareceristas ?? []).map((item) => {
+    const existente = salvos?.find((p) => p.value === item.value);
+    return {
+      id: existente ? existente.id : 0,
+      nomeParecerista: existente ? existente.label : item.label,
+      registroFuncional: existente ? existente.value : item.value,
+    };
+  });
+
+const mapearGruposPeriodosSalvar = (grupos?: GrupoPeriodoFormDTO[]): GrupoPeriodoDTO[] =>
+  (grupos ?? [])
+    .filter((g) => g.periodo?.[0] && g.periodo?.[1])
+    .map(
+      (g): GrupoPeriodoDTO => ({
+        id: g.id ?? 0,
+        dataInicio: g.periodo![0]!.format('YYYY-MM-DD'),
+        dataFim: g.periodo![1]!.format('YYYY-MM-DD'),
+        propostaTurmasIds: g.propostaTurmasIds ?? [],
+      }),
+    );
 type AlertaEdicaoProps = {
   criadoPor?: string;
   criadoLogin?: string;
@@ -352,170 +465,50 @@ export const FormCadastroDePropostas: React.FC = () => {
   const carregarDados = useCallback(async () => {
     setLoading(true);
     const resposta = await obterPropostaPorId(id);
-
     const dados = resposta.dados;
+
     if (resposta.sucesso) {
       aplicarPermissao(dados);
       const retornolistaDres = await obterDREs(true);
+      const listaDres = mapearListaDres(retornolistaDres.dados);
 
-      const listaDres = retornolistaDres.dados.map((dre) => ({
-        ...dre,
-        value: dre.id,
-        label: dre.descricao,
-      }));
+      const publicosAlvo = (dados?.publicosAlvo ?? []).map((item) => item.cargoFuncaoId);
+      if (publicosAlvo.length) setExistePublicoAlvo(true);
 
-      let dres: PropostaFormDTO['dres'] = [];
-      if (dados?.dres?.length) {
-        const originData = dados.dres.map((item) => item.dreId);
-        const newData = cloneDeep(listaDres).filter((item) => originData.includes(item.id));
-        dres = newData;
-      }
+      const funcoesEspecificas = (dados?.funcoesEspecificas ?? []).map((item) => item.cargoFuncaoId);
+      if (funcoesEspecificas.length) setFuncaoEspecifica(true);
 
-      let modalidade: number | undefined = undefined;
-      if (dados?.modalidades?.length) {
-        modalidade = dados.modalidades[0]?.modalidade;
-      }
-
-      let anosTurmas: number[] = [];
-      if (dados?.anosTurmas?.length) {
-        anosTurmas = dados.anosTurmas.map((item) => item.anoTurmaId);
-      }
-
-      let tiposInscricao: number[] = [];
-
-      if (dados?.tiposInscricao?.length) {
-        tiposInscricao = dados?.tiposInscricao.map((item) => item.tipoInscricao);
-      }
-
-      let componentesCurriculares: number[] = [];
-      if (dados?.componentesCurriculares?.length) {
-        componentesCurriculares = dados.componentesCurriculares.map(
-          (item) => item.componenteCurricularId,
-        );
-      }
-
-      let turmas: PropostaTurmaFormDTO[] = [];
-      if (dados?.turmas?.length) {
-        turmas = dados.turmas.map((turma: any, index): PropostaTurmaFormDTO => {
-          let newDres: DreDTO[] = [];
-
-          if (turma?.dres?.length) {
-            const originData = turma.dres.map((dre: any) => dre?.dreId);
-            newDres = cloneDeep(listaDres).filter((item) => originData.includes(item.id));
-          }
-
-          return {
-            ...turma,
-            dres: newDres,
-            key: index,
-          };
-        });
-      }
-
-      let pareceristas: PropostaPareceristaFormDTO[] = [];
-      if (dados.pareceristas?.length) {
-        pareceristas = dados.pareceristas.map((parecerista) => ({
-          id: parecerista.id,
-          label: parecerista.nomeParecerista,
-          value: parecerista.registroFuncional,
-        }));
-      }
-
-      let publicosAlvo: number[] = [];
-      if (dados?.publicosAlvo?.length) {
-        setExistePublicoAlvo(true);
-        publicosAlvo = dados.publicosAlvo.map((item) => item.cargoFuncaoId);
-      }
-
-      let funcoesEspecificas: number[] = [];
-      if (dados?.funcoesEspecificas?.length) {
-        setFuncaoEspecifica(true);
-        funcoesEspecificas = dados.funcoesEspecificas.map((item) => item.cargoFuncaoId);
-      }
-
-      let vagasRemanecentes: number[] = [];
-      if (dados?.vagasRemanecentes?.length) {
-        vagasRemanecentes = dados.vagasRemanecentes.map((item) => item.cargoFuncaoId);
-      }
-
-      let palavrasChaves: number[] = [];
-      if (dados?.palavrasChaves?.length) {
-        palavrasChaves = dados.palavrasChaves.map((item) => item.palavraChaveId);
-      }
-
-      let criterioCertificacao: number[] = [];
-      if (dados?.criterioCertificacao?.length) {
-        criterioCertificacao = dados.criterioCertificacao.map(
-          (item) => item.criterioCertificacaoId,
-        );
-      }
-
-      let criteriosValidacaoInscricao: number[] = [];
-      if (dados?.criteriosValidacaoInscricao?.length) {
-        criteriosValidacaoInscricao = dados.criteriosValidacaoInscricao.map(
-          (item) => item.criterioValidacaoInscricaoId,
-        );
-      }
-
-      const arquivoImagemDivulgacao = dados?.arquivoImagemDivulgacao;
-      let arquivos: any[] = [];
-      if (arquivoImagemDivulgacao?.arquivoId) {
-        arquivos = [
-          {
-            xhr: arquivoImagemDivulgacao?.codigo,
-            name: arquivoImagemDivulgacao?.nome,
-            id: arquivoImagemDivulgacao?.arquivoId,
-            status: 'done',
-          },
-        ];
-      }
-
-      let periodoRealizacao: Dayjs[] = [];
-      const dataRealizacaoInicio = dados?.dataRealizacaoInicio;
-      const dataRealizacaoFim = dados?.dataRealizacaoFim;
-      if (dataRealizacaoInicio && dataRealizacaoFim) {
-        periodoRealizacao = [dayjs.tz(dataRealizacaoInicio), dayjs.tz(dataRealizacaoFim)];
-      }
-
-      let periodoInscricao: Dayjs[] = [];
-      const dataInscricaoInicio = dados?.dataInscricaoInicio;
-      const dataInscricaoFim = dados?.dataInscricaoFim;
-      if (dataInscricaoInicio && dataInscricaoFim) {
-        periodoInscricao = [dayjs.tz(dataInscricaoInicio), dayjs.tz(dataInscricaoFim)];
-      }
-
-      const quantidadeTurmasOriginal = dados?.quantidadeTurmas;
-      const desativarAnoEhComponente = dados?.desativarAnoEhComponente;
+      const gruposPeriodosRaw = mapearGruposPeriodos(dados?.gruposPeriodos);
       const revalidacaoString =
         dados?.revalidacao === true ? 'true' : dados?.revalidacao === false ? 'false' : undefined;
-      const gruposPeriodos: GrupoPeriodoFormDTO[] = (dados?.gruposPeriodos ?? []).map((g) => ({
-        id: g.id,
-        periodo:
-          g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
-        propostaTurmasIds: g.propostaTurmasIds,
-      }));
 
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
+        dres: mapearDresSelecionadas(dados?.dres, listaDres),
+        modalidade: dados?.modalidades?.[0]?.modalidade,
+        componentesCurriculares: (dados?.componentesCurriculares ?? []).map(
+          (item) => item.componenteCurricularId,
+        ),
+        anosTurmas: (dados?.anosTurmas ?? []).map((item) => item.anoTurmaId),
+        tiposInscricao: (dados?.tiposInscricao ?? []).map((item) => item.tipoInscricao),
+        turmas: mapearTurmas(dados?.turmas ?? [], listaDres),
+        gruposPeriodos: gruposPeriodosRaw.length ? gruposPeriodosRaw : [{}],
+        pareceristas: mapearPareceristas(dados?.pareceristas),
         publicosAlvo,
-        dres,
-        modalidade,
-        componentesCurriculares,
-        anosTurmas,
-        turmas,
-        gruposPeriodos: gruposPeriodos.length ? gruposPeriodos : [{}],
         funcoesEspecificas,
-        vagasRemanecentes,
-        criteriosValidacaoInscricao,
-        arquivos,
-        periodoRealizacao,
-        periodoInscricao,
-        palavrasChaves,
-        criterioCertificacao,
-        tiposInscricao,
-        quantidadeTurmasOriginal,
-        desativarAnoEhComponente,
-        pareceristas,
+        vagasRemanecentes: (dados?.vagasRemanecentes ?? []).map((item) => item.cargoFuncaoId),
+        palavrasChaves: (dados?.palavrasChaves ?? []).map((item) => item.palavraChaveId),
+        criterioCertificacao: (dados?.criterioCertificacao ?? []).map(
+          (item) => item.criterioCertificacaoId,
+        ),
+        criteriosValidacaoInscricao: (dados?.criteriosValidacaoInscricao ?? []).map(
+          (item) => item.criterioValidacaoInscricaoId,
+        ),
+        arquivos: mapearArquivoImagem(dados?.arquivoImagemDivulgacao),
+        periodoRealizacao: mapearPeriodo(dados?.dataRealizacaoInicio, dados?.dataRealizacaoFim),
+        periodoInscricao: mapearPeriodo(dados?.dataInscricaoInicio, dados?.dataInscricaoFim),
+        quantidadeTurmasOriginal: dados?.quantidadeTurmas,
+        desativarAnoEhComponente: dados?.desativarAnoEhComponente,
         revalidacao: revalidacaoString,
       };
 
@@ -551,61 +544,63 @@ export const FormCadastroDePropostas: React.FC = () => {
     setExibirBotaoEnviar(formInitialValues?.podeEnviar || (!(ehPerfilAdminDf && !pareceristaWatch) && form.isFieldsTouched()));
   }, [carregarDados, id, formInitialValues]);
 
+  const tratarRespostaSalvar = (response: any) => {
+    if (response.sucesso) {
+      const mensagemEmArray = response?.dados?.mensagem?.split('\n');
+      notification.success({
+        message: 'Sucesso',
+        description: (
+          <div>
+            {mensagemEmArray?.map((linha: string, index: number) => (
+              <p key={index}>{linha}</p>
+            ))}
+          </div>
+        ),
+      });
+
+      if (id) {
+        carregarDados();
+      } else {
+        navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${response.dados.entidadeId}`, {
+          replace: true,
+        });
+      }
+    }
+
+    if (response.mensagens.length) {
+      setListaErros(response.mensagens);
+      showModalErros();
+    }
+  };
+
   const salvar = async (ehProximoPasso: boolean, novaSituacao?: SituacaoProposta) => {
-    let response = null;
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
-
-    const dataRealizacaoInicio = values?.periodoRealizacao?.[0]
-      ? values?.periodoRealizacao?.[0].format('YYYY-MM-DD')
-      : undefined;
-
-    const dataRealizacaoFim = values?.periodoRealizacao?.[1]
-      ? values?.periodoRealizacao?.[1].format('YYYY-MM-DD')
-      : undefined;
-
-    const dataInscricaoInicio = values?.periodoInscricao?.[0]
-      ? values?.periodoInscricao?.[0].format('YYYY-MM-DD')
-      : undefined;
-
-    const dataInscricaoFim = values?.periodoInscricao?.[1]
-      ? values?.periodoInscricao?.[1].format('YYYY-MM-DD')
-      : undefined;
-
-    let situacao = SituacaoProposta.Rascunho;
-
-    if (id && !novaSituacao && formInitialValues?.situacao) {
-      situacao = formInitialValues?.situacao;
-    } else if (novaSituacao) {
-      situacao = novaSituacao;
-    }
-
-    if (ehProximoPasso && situacao === SituacaoProposta.Publicada) {
-      situacao = SituacaoProposta.Alterando;
-    }
+    const datas = extrairDatasFormatadas(values);
+    const situacao = resolverSituacao(
+      id,
+      novaSituacao,
+      formInitialValues?.situacao,
+      ehProximoPasso,
+    );
 
     const valoresSalvar: PropostaDTO = {
       ehProximoPasso,
+      situacao,
       formacaoHomologada: clonedValues?.formacaoHomologada,
       tipoFormacao: clonedValues?.tipoFormacao,
       formato: clonedValues?.formato,
-      tiposInscricao: [],
       dreIdPropostas: clonedValues?.dreIdPropostas || null,
       nomeFormacao: clonedValues?.nomeFormacao,
       quantidadeTurmas: clonedValues?.quantidadeTurmas || null,
       quantidadeVagasTurma: clonedValues?.quantidadeVagasTurma || null,
-      publicosAlvo: [],
-      funcoesEspecificas: [],
       funcaoEspecificaOutros: clonedValues?.funcaoEspecificaOutros || '',
       publicoAlvoOutros: clonedValues?.publicoAlvoOutros || '',
-      vagasRemanecentes: [],
-      criteriosValidacaoInscricao: [],
       criterioValidacaoInscricaoOutros: clonedValues?.criterioValidacaoInscricaoOutros || '',
-      situacao,
-      dataRealizacaoInicio,
-      dataRealizacaoFim,
-      dataInscricaoInicio,
-      dataInscricaoFim,
+      dataRealizacaoInicio: datas.dataRealizacaoInicio,
+      dataRealizacaoFim: datas.dataRealizacaoFim,
+      dataInscricaoInicio: datas.dataInscricaoInicio,
+      dataInscricaoFim: datas.dataInscricaoFim,
       cargaHorariaPresencial: clonedValues.cargaHorariaPresencial,
       cargaHorariaNaoPresencial: clonedValues.cargaHorariaNaoPresencial,
       cargaHorariaSincrona: clonedValues.cargaHorariaSincrona,
@@ -617,19 +612,12 @@ export const FormCadastroDePropostas: React.FC = () => {
       procedimentoMetadologico: clonedValues.procedimentoMetadologico,
       conteudoProgramatico: clonedValues.conteudoProgramatico,
       objetivos: clonedValues.objetivos,
-      palavrasChaves: [],
-      criterioCertificacao: [],
       outrosCriterios: clonedValues?.outrosCriterios || '',
       cursoComCertificado: !!clonedValues.cursoComCertificado,
       acaoInformativa: !!clonedValues.acaoInformativa,
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
-      dres: [],
-      turmas: [],
-      modalidades: [],
-      anosTurmas: [],
-      componentesCurriculares: [],
       integrarNoSGA: clonedValues?.integrarNoSGA,
       desativarAnoEhComponente: clonedValues?.desativarAnoEhComponente,
       rfResponsavelDf: clonedValues?.rfResponsavelDf,
@@ -639,163 +627,48 @@ export const FormCadastroDePropostas: React.FC = () => {
       linkParaInscricoesExterna: clonedValues?.linkParaInscricoesExterna,
       codigoEventoSigpec: clonedValues?.codigoEventoSigpec,
       revalidacao: clonedValues?.revalidacao === 'true',
-      justificativaRevalidacao: clonedValues?.revalidacao === 'true' ? clonedValues?.justificativaRevalidacao : undefined,
+      justificativaRevalidacao:
+        clonedValues?.revalidacao === 'true' ? clonedValues?.justificativaRevalidacao : undefined,
       numeroHomologacao: clonedValues?.numeroHomologacao || null,
-      pareceristas: [],
+      tiposInscricao: (clonedValues?.tiposInscricao ?? []).map((tipoInscricao) => ({
+        tipoInscricao,
+      })),
+      publicosAlvo: (clonedValues?.publicosAlvo ?? []).map((cargoFuncaoId) => ({ cargoFuncaoId })),
+      funcoesEspecificas: (clonedValues?.funcoesEspecificas ?? []).map((cargoFuncaoId) => ({
+        cargoFuncaoId,
+      })),
+      vagasRemanecentes: (clonedValues?.vagasRemanecentes ?? []).map((cargoFuncaoId) => ({
+        cargoFuncaoId,
+      })),
+      criteriosValidacaoInscricao: (clonedValues?.criteriosValidacaoInscricao ?? []).map(
+        (criterioValidacaoInscricaoId) => ({ criterioValidacaoInscricaoId }),
+      ),
+      palavrasChaves: (clonedValues?.palavrasChaves ?? []).map((palavraChaveId) => ({
+        palavraChaveId,
+      })),
+      criterioCertificacao: (clonedValues?.criterioCertificacao ?? []).map(
+        (criterioCertificacaoId) => ({ criterioCertificacaoId }),
+      ),
+      dres: (clonedValues?.dres ?? []).map((dre) => ({ dreId: dre?.value })),
+      modalidades: clonedValues?.modalidade ? [{ modalidade: clonedValues.modalidade }] : [],
+      anosTurmas: (clonedValues?.anosTurmas ?? []).map((anoTurmaId) => ({ anoTurmaId })),
+      componentesCurriculares: (clonedValues?.componentesCurriculares ?? []).map(
+        (componenteCurricularId) => ({ componenteCurricularId }),
+      ),
+      turmas: mapearTurmasSalvar(clonedValues?.turmas),
+      gruposPeriodos: mapearGruposPeriodosSalvar(clonedValues?.gruposPeriodos),
+      pareceristas: mapearPareceristasSalvar(
+        clonedValues?.pareceristas,
+        formInitialValues?.pareceristas,
+      ),
+      arquivoImagemDivulgacaoId: clonedValues?.arquivos?.[0]?.id,
     };
 
-    if (clonedValues?.dres?.length) {
-      valoresSalvar.dres = clonedValues.dres.map((dre) => ({ dreId: dre?.value }));
-    }
+    const response = id
+      ? await alterarProposta(id, valoresSalvar, false)
+      : await inserirProposta(valoresSalvar);
 
-    if (clonedValues?.modalidade) {
-      valoresSalvar.modalidades = [{ modalidade: clonedValues.modalidade }];
-    }
-
-    if (clonedValues?.anosTurmas?.length) {
-      valoresSalvar.anosTurmas = clonedValues.anosTurmas.map((anoTurmaId) => ({
-        anoTurmaId,
-      }));
-    }
-
-    if (clonedValues?.componentesCurriculares?.length) {
-      valoresSalvar.componentesCurriculares = clonedValues.componentesCurriculares.map(
-        (componenteCurricularId) => ({
-          componenteCurricularId,
-        }),
-      );
-    }
-
-    if (clonedValues?.turmas?.length) {
-      valoresSalvar.turmas = clonedValues.turmas.map((item) => {
-        const turma: PropostaTurmaDTO = {
-          nome: item.nome,
-        };
-        if (item.dres?.length) {
-          turma.dresIds =
-            item.dres?.length > 1
-              ? item.dres?.filter((dre) => !dre.todos).map((d) => d.value)
-              : item.dres.map((dre) => dre.value);
-        } else {
-          turma.dresIds = [];
-        }
-
-        if (item.id) {
-          turma.id = item.id;
-        }
-        return turma;
-      });
-    }
-
-    if (clonedValues?.gruposPeriodos?.length) {
-      valoresSalvar.gruposPeriodos = clonedValues.gruposPeriodos
-        .filter((g) => g.periodo?.[0] && g.periodo?.[1])
-        .map(
-          (g): GrupoPeriodoDTO => ({
-            id: g.id ?? 0,
-            dataInicio: g.periodo![0]!.format('YYYY-MM-DD'),
-            dataFim: g.periodo![1]!.format('YYYY-MM-DD'),
-            propostaTurmasIds: g.propostaTurmasIds ?? [],
-          }),
-        );
-    }
-
-    if (clonedValues?.pareceristas?.length) {
-      valoresSalvar.pareceristas = clonedValues.pareceristas.map((item) => {
-        const newPareceristas = formInitialValues.pareceristas?.find(
-          (newItem) => newItem.value === item.value,
-        );
-
-        const id = newPareceristas ? newPareceristas.id : 0;
-        const nomeParecerista = newPareceristas ? newPareceristas.label : item.label;
-        const registroFuncional = newPareceristas ? newPareceristas.value : item.value;
-
-        const parecerista: PropostaPareceristaDTO = {
-          id,
-          nomeParecerista,
-          registroFuncional,
-        };
-
-        return parecerista;
-      });
-    }
-
-    if (clonedValues?.publicosAlvo?.length) {
-      valoresSalvar.publicosAlvo = clonedValues.publicosAlvo.map((cargoFuncaoId) => ({
-        cargoFuncaoId,
-      }));
-    }
-    if (clonedValues?.tiposInscricao?.length) {
-      valoresSalvar.tiposInscricao = clonedValues.tiposInscricao.map((tipoInscricao) => ({
-        tipoInscricao,
-      }));
-    }
-    if (clonedValues?.palavrasChaves?.length) {
-      valoresSalvar.palavrasChaves = clonedValues.palavrasChaves.map((palavraChaveId) => ({
-        palavraChaveId,
-      }));
-    }
-    if (clonedValues?.criterioCertificacao?.length) {
-      valoresSalvar.criterioCertificacao = clonedValues.criterioCertificacao.map(
-        (criterioCertificacaoId) => ({
-          criterioCertificacaoId,
-        }),
-      );
-    }
-    if (clonedValues?.funcoesEspecificas?.length) {
-      valoresSalvar.funcoesEspecificas = clonedValues.funcoesEspecificas.map((cargoFuncaoId) => ({
-        cargoFuncaoId,
-      }));
-    }
-    if (clonedValues?.vagasRemanecentes?.length) {
-      valoresSalvar.vagasRemanecentes = clonedValues.vagasRemanecentes.map((cargoFuncaoId) => ({
-        cargoFuncaoId,
-      }));
-    }
-    if (clonedValues?.criteriosValidacaoInscricao?.length) {
-      valoresSalvar.criteriosValidacaoInscricao = clonedValues.criteriosValidacaoInscricao.map(
-        (criterioValidacaoInscricaoId) => ({
-          criterioValidacaoInscricaoId,
-        }),
-      );
-    }
-
-    if (clonedValues?.arquivos?.length) {
-      valoresSalvar.arquivoImagemDivulgacaoId = clonedValues.arquivos?.[0]?.id;
-    }
-
-    if (id) {
-      response = await alterarProposta(id, valoresSalvar, false);
-    } else {
-      response = await inserirProposta(valoresSalvar);
-    }
-
-    if (response.sucesso) {
-      const mensagemEmArray = response?.dados?.mensagem?.split('\n');
-
-      notification.success({
-        message: 'Sucesso',
-        description: (
-          <div>
-            {mensagemEmArray?.map((linha, index) => (
-              <p key={index}>{linha}</p>
-            ))}
-          </div>
-        ),
-      });
-
-      if (id) {
-        carregarDados();
-      } else {
-        const novoId = response.dados.entidadeId;
-        navigate(`${ROUTES.CADASTRO_DE_PROPOSTAS}/editar/${novoId}`, { replace: true });
-      }
-    }
-
-    if (response.mensagens.length) {
-      setListaErros(response.mensagens);
-      showModalErros();
-    }
+    tratarRespostaSalvar(response);
     return response;
   };
 
