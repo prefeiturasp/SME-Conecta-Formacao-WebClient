@@ -347,7 +347,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     if (!id) return;
 
     const intervalo = setInterval(() => {
-      if (contadorDelta.current >= 30) {
+      if (contadorDelta.current >= 45) {
         clearInterval(intervalo);
         return;
       }
@@ -355,7 +355,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       if (document.visibilityState === 'visible') {
         verificarDeltaInscritos();
       }
-    }, 30000);
+    }, 20000);
 
     return () => clearInterval(intervalo);
   }, [id, verificarDeltaInscritos]);

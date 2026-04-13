@@ -62,7 +62,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
       okText: 'Excluir',
       cancelText: 'Cancelar',
       okButtonProps: {
-        danger: true,
+        style: { backgroundColor: 'rgb(255, 154, 82)', borderColor: 'rgb(255, 154, 82)' },
       },
       centered: true,
       onOk: async () => {
@@ -189,16 +189,28 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                    <InputNumero
-                      formItemProps={{
-                        label: 'Página da retificação',
-                        name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
+                    <Form.Item noStyle shouldUpdate>
+                      {({ getFieldValue }) => {
+                        const dataRetificacao = getFieldValue(
+                          `dataRetificacao${numero.toString().padStart(2, '0')}`,
+                        );
+                        return (
+                          <InputNumero
+                            formItemProps={{
+                              label: (
+                                <span style={{ fontWeight: 700 }}>Página da retificação</span>
+                              ),
+                              name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
+                            }}
+                            inputProps={{
+                              placeholder: 'Número da página',
+                              maxLength: 10,
+                              disabled: !dataRetificacao,
+                            }}
+                          />
+                        );
                       }}
-                      inputProps={{
-                        placeholder: 'Número da página',
-                        maxLength: 10,
-                      }}
-                    />
+                    </Form.Item>
                   </Col>
                 </Row>
               </div>
