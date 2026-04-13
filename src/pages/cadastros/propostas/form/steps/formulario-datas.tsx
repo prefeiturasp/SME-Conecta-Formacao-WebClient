@@ -1,6 +1,7 @@
 import { Button, Col, Form, Row, Select, Table } from 'antd';
+import { createGlobalStyle } from 'styled-components';
 import { InfoCircleFilled, PlusOutlined } from '@ant-design/icons';
-import { PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
+import { GrupoPeriodoFormDTO, PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
 import ButtonExcluir from '~/components/lib/excluir-button';
 import { ColumnsType } from 'antd/es/table';
 import editIcon from '~/assets/material-symbols_edit-outline.svg';
@@ -64,6 +65,19 @@ const contentStyleTituloListagem: React.CSSProperties = {
   color: 'black',
   fontWeight: 'bold',
 };
+const PeriodoTurmaSelectStyle = createGlobalStyle`
+  .periodo-turma-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: #f0f0f0;
+    font-weight: normal;
+  }
+  .periodo-turma-select-dropdown .ant-select-item-option-state {
+    display: none;
+  }
+  .periodo-turma-select-dropdown .ant-select-item-option {
+    padding: 8px 12px;
+  }
+`;
+
 type FormularioDatasProps = {
   recarregarTurmas: boolean;
 };
@@ -155,6 +169,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
   };
 
   const datasPeriodoRealizacao = Form.useWatch('periodoRealizacao', form);
+  const gruposPeriodosWatch: GrupoPeriodoFormDTO[] = Form.useWatch('gruposPeriodos', form) ?? [];
 
   if (recarregarTurmas) {
     refTable.current?.reloadTable();
@@ -209,6 +224,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
 
   return (
     <>
+      <PeriodoTurmaSelectStyle />
       {openModal && (
         <DrawerFormularioEncontroTurmas
           openModal={openModal}
@@ -306,11 +322,25 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                 const turmas: PropostaTurmaFormDTO[] = form.getFieldValue('turmas') ?? [];
                 const turmaOptions = turmas
                   .filter((t) => t.id)
-                  .map((t) => ({ label: t.nome, value: t.id }));
+                  .map((t) => ({ label: t.nome, value: t.id }))
+                  .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { numeric: true }));
 
                 return (
                   <>
-                    {fields.map((field) => (
+                    {fields.map((field) => {
+                      const turmasSelecionadasEmOutrosGrupos = gruposPeriodosWatch
+                        .filter((_, index) => index !== field.name)
+                        .flatMap((g) => g.propostaTurmasIds ?? []);
+                      const turmasSelecionadasNesteGrupo: number[] =
+                        gruposPeriodosWatch[field.name]?.propostaTurmasIds ?? [];
+                      const opcoesDisponiveis = turmaOptions.map((opt) => ({
+                        ...opt,
+                        disabled:
+                          turmasSelecionadasEmOutrosGrupos.includes(opt.value as number) &&
+                          !turmasSelecionadasNesteGrupo.includes(opt.value as number),
+                      }));
+
+                      return (
                       <Row key={field.key} gutter={[8, 4]} style={{ marginBottom: 12 }}>
                         <Col xs={24} sm={12}>
                           <div
@@ -329,7 +359,17 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                               mode='multiple'
                               placeholder='Selecione uma ou mais turmas'
                               style={{ width: '100%' }}
-                              options={turmaOptions}
+                              popupClassName='periodo-turma-select-dropdown'
+                              options={opcoesDisponiveis}
+                              optionRender={(option) =>
+                                option.data.disabled ? (
+                                  <span style={{ color: '#8c8c8c', display: 'block', width: '100%' }}>
+                                    {option.label}
+                                  </span>
+                                ) : (
+                                  option.label
+                                )
+                              }
                             />
                           </Form.Item>
                         </Col>
@@ -376,7 +416,8 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                           </Row>
                         </Col>
                       </Row>
-                    ))}
+                      );
+                    })}
                   </>
                 );
               }}
