@@ -48,6 +48,8 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { Dayjs, dayjs } from '~/core/date/dayjs';
 import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import {
+  GrupoPeriodoDTO,
+  GrupoPeriodoFormDTO,
   PropostaCompletoDTO,
   PropostaDTO,
   PropostaFormDTO,
@@ -115,8 +117,8 @@ const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({
       </AlertaIconWrapper>
 
       <AlertaTexto>
-        Os dados desta proposta podem ser alterados apenas pela Divisão de Formação (DF)
-        ou pelo usuário que realizou o cadastro:{' '}
+        Os dados desta proposta podem ser alterados apenas pela Divisão de Formação (DF) ou pelo
+        usuário que realizou o cadastro:{' '}
         <strong>
           {criadoPor} - {criadoLogin}
         </strong>.
@@ -486,6 +488,13 @@ export const FormCadastroDePropostas: React.FC = () => {
       const desativarAnoEhComponente = dados?.desativarAnoEhComponente;
       const revalidacaoString =
         dados?.revalidacao === true ? 'true' : dados?.revalidacao === false ? 'false' : undefined;
+      const gruposPeriodos: GrupoPeriodoFormDTO[] = (dados?.gruposPeriodos ?? []).map((g) => ({
+        id: g.id,
+        periodo:
+          g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
+        propostaTurmasIds: g.propostaTurmasIds,
+      }));
+
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
         publicosAlvo,
@@ -494,6 +503,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         componentesCurriculares,
         anosTurmas,
         turmas,
+        gruposPeriodos: gruposPeriodos.length ? gruposPeriodos : [{}],
         funcoesEspecificas,
         vagasRemanecentes,
         criteriosValidacaoInscricao,
@@ -675,6 +685,19 @@ export const FormCadastroDePropostas: React.FC = () => {
         }
         return turma;
       });
+    }
+
+    if (clonedValues?.gruposPeriodos?.length) {
+      valoresSalvar.gruposPeriodos = clonedValues.gruposPeriodos
+        .filter((g) => g.periodo?.[0] && g.periodo?.[1])
+        .map(
+          (g): GrupoPeriodoDTO => ({
+            id: g.id ?? 0,
+            dataInicio: g.periodo![0]!.format('YYYY-MM-DD'),
+            dataFim: g.periodo![1]!.format('YYYY-MM-DD'),
+            propostaTurmasIds: g.propostaTurmasIds ?? [],
+          }),
+        );
     }
 
     if (clonedValues?.pareceristas?.length) {
