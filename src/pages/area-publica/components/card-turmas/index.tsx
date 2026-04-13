@@ -1,71 +1,73 @@
 import React from "react";
-import { Card, Row, Col } from "antd";
+import { Card, Tooltip } from "antd";
+import { titleStyle, contentStyle, iconStyle } from './styles';
+import { InfoCircleFilled } from "@ant-design/icons";
 
-
-export const gerarDatas = (periodo: string, horario: string): string[] => {
-  const regexRange = /(\d{2})\/(\d{2})\/(\d{4}) - (\d{2})\/(\d{2})\/(\d{4})/;
-  const regexSingle = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-
-  const matchRange = regexRange.exec(periodo);
-  const matchSingle = !matchRange ? regexSingle.exec(periodo) : null;
-
-  if (!matchRange && !matchSingle) return [];
-
-  let d1: string, m1: string, a1: string, d2: string, m2: string, a2: string;
-
-  if (matchRange) {
-    [, d1, m1, a1, d2, m2, a2] = matchRange;
-  } else {
-    [, d1, m1, a1] = matchSingle!;
-    [d2, m2, a2] = [d1, m1, a1];
-  }
-
-  const dataInicio = new Date(Number(a1), Number(m1) - 1, Number(d1));
-  const dataFim = new Date(Number(a2), Number(m2) - 1, Number(d2));
-
-  const datas: string[] = [];
-  const dataAtual = new Date(dataInicio);
-
-  while (dataAtual <= dataFim) {
-    const dia = String(dataAtual.getDate()).padStart(2, "0");
-    const mes = String(dataAtual.getMonth() + 1).padStart(2, "0");
-    const ano = dataAtual.getFullYear();
-
-    datas.push(`${dia}/${mes}/${ano} ${horario}`);
-    dataAtual.setDate(dataAtual.getDate() + 1);
-  }
-
-  return datas;
-};
 
 const CardTurmasPublico = ({ turma }: { turma: any }) => {
-  const { nome, periodos, horario, local } = turma;
+  const { nome, periodos, local, datasEncontros } = turma;
+
+  const encontros = datasEncontros ?? [];
+
+  const periodoTotal = periodos?.[0]
+    ? `De ${periodos[0].split(" - ")[0]} à ${periodos[0].split(" - ")[1]}`
+    : "";
 
   return (
     <Card
       title={<span style={{ fontWeight: "bold", color: "white" }}>{nome}</span>}
       style={{ borderRadius: "12px" }}
-      headStyle={{ backgroundColor: "#ff9a52", borderBottom: "none" }}
+      headStyle={{ backgroundColor: "#E48F47", borderBottom: "none" }}
     >
-      <Row gutter={16}>
-        <Col span={12}>
-          <div>
-            <strong>Datas dos encontros:</strong>
-            {periodos.map((periodo: string) =>
-              gerarDatas(periodo, horario).map((data: string, index: number) => (
-                <div key={`${data}-${index}`}>{data}</div>
-              ))
-            )}
-          </div>
-        </Col>
+      
+      <div style={{ marginBottom: 18 }}>
+        <div style={titleStyle}>
+          Datas de realização:
+          <Tooltip title="Período total da formação, do início ao fim, incluindo encontros presenciais e online."
+            placement="top"
+            arrow={{ pointAtCenter: true }}
+            overlayInnerStyle={{
+              fontFamily: "Roboto",
+              fontWeight: 400,
+              fontSize: "14px",
+              lineHeight: "100%",
+              letterSpacing: "0%",
+              textAlign: "center",
+            }}>
+            <InfoCircleFilled style={iconStyle} />
+          </Tooltip>
+        </div>
+        <div style={contentStyle}>{periodoTotal}</div>
+      </div>
 
-        <Col span={12}>
-          <div>
-            <strong>Local:</strong> 
-            <div>{local}</div>
-          </div>
-        </Col>
-      </Row>
+      <div style={{ marginBottom: 18 }}>
+        <div style={titleStyle}>Local:</div>
+        <div style={contentStyle}>{local}</div>
+      </div>
+
+      <div>
+        <div style={titleStyle}>
+          Datas dos encontros:
+          <Tooltip title="Datas dos encontros em grupo da formação, que podem ser presenciais ou online."
+            placement="top"
+            arrow={{ pointAtCenter: true }}
+            overlayInnerStyle={{
+              fontFamily: "Roboto",
+              fontWeight: 400,
+              fontSize: "14px",
+              lineHeight: "100%",
+              letterSpacing: "0%",
+              textAlign: "center",
+            }}>
+            <InfoCircleFilled style={iconStyle} />
+          </Tooltip>
+        </div>
+        <div style={contentStyle}>
+          {encontros.map((data: string, index: number) => (
+            <div style={{ marginBottom: 3 }} key={index}>{data}</div>
+          ))}
+        </div>
+      </div>
     </Card>
   );
 };

@@ -104,7 +104,7 @@ const VisualizarFormacao: FC = () => {
 
         <Row gutter={[16, 16]}>
           {dadosFormacao?.turmas?.map((turma) => (
-            <Col key={turma.nome} xs={24} md={12} lg={8}>
+            <Col key={turma.nome} xs={24} sm={12} md={8} lg={6}>
               <CardTurmasPublico turma={turma} />
             </Col>
           ))}
