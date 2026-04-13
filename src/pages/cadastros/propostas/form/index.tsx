@@ -551,8 +551,8 @@ export const FormCadastroDePropostas: React.FC = () => {
         message: 'Sucesso',
         description: (
           <div>
-            {mensagemEmArray?.map((linha: string, index: number) => (
-              <p key={index}>{linha}</p>
+            {mensagemEmArray?.map((linha: string) => (
+              <p key={linha}>{linha}</p>
             ))}
           </div>
         ),
