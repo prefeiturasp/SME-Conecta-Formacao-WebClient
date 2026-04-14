@@ -63,8 +63,10 @@ const CardTurmasPublico = ({ turma }: { turma: any }) => {
           </Tooltip>
         </div>
         <div style={contentStyle}>
-          {encontros.map((data: string, index: number) => (
-            <div style={{ marginBottom: 3 }} key={index}>{data}</div>
+          {encontros.map((data: string) => (
+            <div style={{ marginBottom: 3 }} key={data}>
+              {data}
+            </div>
           ))}
         </div>
       </div>
