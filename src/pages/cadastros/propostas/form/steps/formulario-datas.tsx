@@ -1,5 +1,7 @@
 import { Button, Col, Form, Row, Select, Table } from 'antd';
 import { FormListFieldData } from 'antd/es/form';
+import { FlattenOptionData } from 'rc-select/lib/interface';
+import { BaseOptionType } from 'antd/es/select';
 import { createGlobalStyle } from 'styled-components';
 import { InfoCircleFilled, PlusOutlined } from '@ant-design/icons';
 import { GrupoPeriodoFormDTO, PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
@@ -81,6 +83,13 @@ const PeriodoTurmaSelectStyle = createGlobalStyle`
 
 type TurmaOption = { label: string; value: number | undefined; disabled: boolean };
 
+const renderTurmaOption = (option: FlattenOptionData<BaseOptionType>) =>
+  option.data.disabled ? (
+    <span style={{ color: '#8c8c8c', display: 'block', width: '100%' }}>{option.label}</span>
+  ) : (
+    option.label
+  );
+
 type GrupoPeriodoRowProps = {
   field: FormListFieldData;
   opcoesDisponiveis: TurmaOption[];
@@ -114,15 +123,7 @@ const GrupoPeriodoRow: React.FC<GrupoPeriodoRowProps> = ({
           style={{ width: '100%' }}
           popupClassName='periodo-turma-select-dropdown'
           options={opcoesDisponiveis}
-          optionRender={(option) =>
-            option.data.disabled ? (
-              <span style={{ color: '#8c8c8c', display: 'block', width: '100%' }}>
-                {option.label}
-              </span>
-            ) : (
-              option.label
-            )
-          }
+          optionRender={renderTurmaOption}
         />
       </Form.Item>
     </Col>
