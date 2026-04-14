@@ -24,6 +24,107 @@ interface SecaoRetificacoesProps {
   form: any;
 }
 
+type RetificacaoCardProps = {
+  numero: number;
+  totalRetificacoes: number;
+  onExcluir: (numero: number) => void;
+};
+
+const RetificacaoCard: React.FC<RetificacaoCardProps> = ({
+  numero,
+  totalRetificacoes,
+  onExcluir,
+}) => (
+  <Col
+    xs={24}
+    sm={24}
+    md={totalRetificacoes === 1 ? 24 : 12}
+    lg={totalRetificacoes === 1 ? 24 : 12}
+    xl={totalRetificacoes === 1 ? 24 : 12}
+  >
+    <div
+      style={{
+        border: '1px solid #d9d9d9',
+        borderRadius: '2px',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: '#ff9a52',
+          color: '#fff',
+          padding: '8px',
+          fontWeight: 600,
+          fontSize: '14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span>Retificação {numero.toString().padStart(2, '0')}</span>
+        <Button
+          type='text'
+          icon={<DeleteOutlined />}
+          onClick={() => onExcluir(numero)}
+          style={{
+            color: '#fff',
+            border: '1px solid #fff',
+            backgroundColor: '#ff9a52',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '4px 12px',
+            height: 'auto',
+          }}
+        >
+          Excluir
+        </Button>
+      </div>
+      <div style={{ padding: '16px', backgroundColor: '#fff' }}>
+        <Row gutter={[16, 8]}>
+          <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+            <Form.Item
+              label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
+              name={`dataRetificacao${numero.toString().padStart(2, '0')}`}
+            >
+              <DatePicker
+                format='DD/MM/YYYY'
+                placeholder='Selecione a data'
+                locale={locale}
+                style={{ width: '100%' }}
+                disabledDate={(current) => current && current > dayjs().endOf('day')}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+            <Form.Item noStyle shouldUpdate>
+              {({ getFieldValue }) => {
+                const dataRetificacao = getFieldValue(
+                  `dataRetificacao${numero.toString().padStart(2, '0')}`,
+                );
+                return (
+                  <InputNumero
+                    formItemProps={{
+                      label: <span style={{ fontWeight: 700 }}>Página da retificação</span>,
+                      name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
+                    }}
+                    inputProps={{
+                      placeholder: 'Número da página',
+                      maxLength: 10,
+                      disabled: !dataRetificacao,
+                    }}
+                  />
+                );
+              }}
+            </Form.Item>
+          </Col>
+        </Row>
+      </div>
+    </div>
+  </Col>
+);
+
 const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
   retificacoes,
   setRetificacoes,
@@ -125,97 +226,12 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
 
       <Row gutter={[16, 16]}>
         {retificacoes.map((numero) => (
-          <Col
+          <RetificacaoCard
             key={numero}
-            xs={24}
-            sm={24}
-            md={retificacoes.length === 1 ? 24 : 12}
-            lg={retificacoes.length === 1 ? 24 : 12}
-            xl={retificacoes.length === 1 ? 24 : 12}
-          >
-            <div
-              style={{
-                border: '1px solid #d9d9d9',
-                borderRadius: '2px',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  backgroundColor: '#ff9a52',
-                  color: '#fff',
-                  padding: '8px',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <span>Retificação {numero.toString().padStart(2, '0')}</span>
-                <Button
-                  type='text'
-                  icon={<DeleteOutlined />}
-                  onClick={() => excluirRetificacao(numero)}
-                  style={{
-                    color: '#fff',
-                    border: '1px solid #fff',
-                    backgroundColor: '#ff9a52',
-                    fontWeight: 500,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '4px 12px',
-                    height: 'auto',
-                  }}
-                >
-                  Excluir
-                </Button>
-              </div>
-              <div style={{ padding: '16px', backgroundColor: '#fff' }}>
-                <Row gutter={[16, 8]}>
-                  <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                    <Form.Item
-                      label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
-                      name={`dataRetificacao${numero.toString().padStart(2, '0')}`}
-                    >
-                      <DatePicker
-                        format='DD/MM/YYYY'
-                        placeholder='Selecione a data'
-                        locale={locale}
-                        style={{ width: '100%' }}
-                        disabledDate={(current) => current && current > dayjs().endOf('day')}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-                    <Form.Item noStyle shouldUpdate>
-                      {({ getFieldValue }) => {
-                        const dataRetificacao = getFieldValue(
-                          `dataRetificacao${numero.toString().padStart(2, '0')}`,
-                        );
-                        return (
-                          <InputNumero
-                            formItemProps={{
-                              label: (
-                                <span style={{ fontWeight: 700 }}>Página da retificação</span>
-                              ),
-                              name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
-                            }}
-                            inputProps={{
-                              placeholder: 'Número da página',
-                              maxLength: 10,
-                              disabled: !dataRetificacao,
-                            }}
-                          />
-                        );
-                      }}
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </div>
-            </div>
-          </Col>
+            numero={numero}
+            totalRetificacoes={retificacoes.length}
+            onExcluir={excluirRetificacao}
+          />
         ))}
       </Row>
 
