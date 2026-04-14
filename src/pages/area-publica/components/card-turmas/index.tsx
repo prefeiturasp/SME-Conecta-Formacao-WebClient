@@ -3,12 +3,22 @@ import { Card, Row, Col } from "antd";
 
 
 export const gerarDatas = (periodo: string, horario: string): string[] => {
-  const regex = /(\d{2})\/(\d{2})\/(\d{4}) - (\d{2})\/(\d{2})\/(\d{4})/;
-  const match = regex.exec(periodo);
+  const regexRange = /(\d{2})\/(\d{2})\/(\d{4}) - (\d{2})\/(\d{2})\/(\d{4})/;
+  const regexSingle = /^(\d{2})\/(\d{2})\/(\d{4})$/;
 
-  if (!match) return [];
+  const matchRange = regexRange.exec(periodo);
+  const matchSingle = !matchRange ? regexSingle.exec(periodo) : null;
 
-  const [ , d1, m1, a1, d2, m2, a2 ] = match;
+  if (!matchRange && !matchSingle) return [];
+
+  let d1: string, m1: string, a1: string, d2: string, m2: string, a2: string;
+
+  if (matchRange) {
+    [, d1, m1, a1, d2, m2, a2] = matchRange;
+  } else {
+    [, d1, m1, a1] = matchSingle!;
+    [d2, m2, a2] = [d1, m1, a1];
+  }
 
   const dataInicio = new Date(Number(a1), Number(m1) - 1, Number(d1));
   const dataFim = new Date(Number(a2), Number(m2) - 1, Number(d2));
