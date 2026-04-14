@@ -1,4 +1,5 @@
 import { Button, Col, Form, Row, Select, Table } from 'antd';
+import { FormListFieldData } from 'antd/es/form';
 import { createGlobalStyle } from 'styled-components';
 import { InfoCircleFilled, PlusOutlined } from '@ant-design/icons';
 import { GrupoPeriodoFormDTO, PropostaTurmaFormDTO } from '~/core/dto/proposta-dto';
@@ -77,6 +78,98 @@ const PeriodoTurmaSelectStyle = createGlobalStyle`
     padding: 8px 12px;
   }
 `;
+
+type TurmaOption = { label: string; value: number | undefined; disabled: boolean };
+
+type GrupoPeriodoRowProps = {
+  field: FormListFieldData;
+  opcoesDisponiveis: TurmaOption[];
+  onAdd: () => void;
+  onRemove: (name: number) => void;
+};
+
+const GrupoPeriodoRow: React.FC<GrupoPeriodoRowProps> = ({
+  field,
+  opcoesDisponiveis,
+  onAdd,
+  onRemove,
+}) => (
+  <Row key={field.key} gutter={[8, 4]} style={{ marginBottom: 12 }}>
+    <Col xs={24} sm={12}>
+      <div
+        style={{
+          fontWeight: 700,
+          fontSize: 14,
+          color: '#42474A',
+          lineHeight: '100%',
+          marginBottom: 8,
+        }}
+      >
+        Turmas
+      </div>
+      <Form.Item name={[field.name, 'propostaTurmasIds']} noStyle>
+        <Select
+          mode='multiple'
+          placeholder='Selecione uma ou mais turmas'
+          style={{ width: '100%' }}
+          popupClassName='periodo-turma-select-dropdown'
+          options={opcoesDisponiveis}
+          optionRender={(option) =>
+            option.data.disabled ? (
+              <span style={{ color: '#8c8c8c', display: 'block', width: '100%' }}>
+                {option.label}
+              </span>
+            ) : (
+              option.label
+            )
+          }
+        />
+      </Form.Item>
+    </Col>
+    <Col xs={24} sm={12}>
+      <div
+        style={{
+          fontWeight: 700,
+          fontSize: 14,
+          color: '#42474A',
+          lineHeight: '100%',
+          marginBottom: 8,
+        }}
+      >
+        Período de realização
+      </div>
+      <Row gutter={[8, 0]} wrap={false} align='middle'>
+        <Col flex='1'>
+          <DatePickerPeriodo
+            formItemProps={{
+              name: [field.name, 'periodo'],
+              style: { marginBottom: 0 },
+            }}
+          />
+        </Col>
+        <Col>
+          {field.name === 0 ? (
+            <Button
+              type='default'
+              block
+              icon={<PlusOutlined />}
+              onClick={onAdd}
+              style={{
+                fontSize: 18,
+                width: '43px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+          ) : (
+            <ButtonExcluir onClick={() => onRemove(field.name)} />
+          )}
+        </Col>
+      </Row>
+    </Col>
+  </Row>
+);
 
 type FormularioDatasProps = {
   recarregarTurmas: boolean;
@@ -341,81 +434,13 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                       }));
 
                       return (
-                      <Row key={field.key} gutter={[8, 4]} style={{ marginBottom: 12 }}>
-                        <Col xs={24} sm={12}>
-                          <div
-                            style={{
-                              fontWeight: 700,
-                              fontSize: 14,
-                              color: '#42474A',
-                              lineHeight: '100%',
-                              marginBottom: 8,
-                            }}
-                          >
-                            Turmas
-                          </div>
-                          <Form.Item name={[field.name, 'propostaTurmasIds']} noStyle>
-                            <Select
-                              mode='multiple'
-                              placeholder='Selecione uma ou mais turmas'
-                              style={{ width: '100%' }}
-                              popupClassName='periodo-turma-select-dropdown'
-                              options={opcoesDisponiveis}
-                              optionRender={(option) =>
-                                option.data.disabled ? (
-                                  <span style={{ color: '#8c8c8c', display: 'block', width: '100%' }}>
-                                    {option.label}
-                                  </span>
-                                ) : (
-                                  option.label
-                                )
-                              }
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} sm={12}>
-                          <div
-                            style={{
-                              fontWeight: 700,
-                              fontSize: 14,
-                              color: '#42474A',
-                              lineHeight: '100%',
-                              marginBottom: 8,
-                            }}
-                          >
-                            Período de realização
-                          </div>
-                          <Row gutter={[8, 0]} wrap={false} align='middle'>
-                            <Col flex='1'>
-                              <DatePickerPeriodo
-                                formItemProps={{
-                                  name: [field.name, 'periodo'],
-                                  style: { marginBottom: 0 },
-                                }}
-                              />
-                            </Col>
-                            <Col>
-                              {field.name === 0 ? (
-                                <Button
-                                  type='default'
-                                  block
-                                  icon={<PlusOutlined />}
-                                  onClick={() => add({})}
-                                  style={{
-                                    fontSize: 18,
-                                    width: '43px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                  }}
-                                />
-                              ) : (
-                                <ButtonExcluir onClick={() => remove(field.name)} />
-                              )}
-                            </Col>
-                          </Row>
-                        </Col>
-                      </Row>
+                        <GrupoPeriodoRow
+                          key={field.key}
+                          field={field}
+                          opcoesDisponiveis={opcoesDisponiveis}
+                          onAdd={() => add({})}
+                          onRemove={remove}
+                        />
                       );
                     })}
                   </>
