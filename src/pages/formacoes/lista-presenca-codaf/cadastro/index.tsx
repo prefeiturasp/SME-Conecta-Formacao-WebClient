@@ -693,7 +693,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
-        const registroIdAtual = id || response.dados?.id;
+        const registroIdAtual = id ?? response.dados?.id;
         if (registroIdAtual) {
           try {
             const detalhes = await obterCodafListaPresencaPorId(Number(registroIdAtual));
