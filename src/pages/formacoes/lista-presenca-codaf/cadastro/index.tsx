@@ -700,10 +700,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             if (detalhes.sucesso && detalhes.dados?.deltaInscritos?.houveAlteracao) {
               setDeltaInscritos(detalhes.dados.deltaInscritos);
               setMostrarDivergencia(true);
-              /* notification.warning({
-                message: 'Atenção',
-                description: 'você recebeu novas atualizações na sua lista de inscritos',
-              }); */
             }
           } catch (error) {
             console.error('Erro ao verificar delta de inscritos após salvar:', error);
