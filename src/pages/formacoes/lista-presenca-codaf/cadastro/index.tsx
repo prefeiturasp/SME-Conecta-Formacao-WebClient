@@ -41,7 +41,6 @@ import {
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
   obterCodafListaPresencaPorId,
-  obterDeltaInscritosSilencioso,
   obterInscritosTurma,
   verificarTurmaPossuiLista,
 } from '~/core/services/codaf-lista-presenca-service';
@@ -117,8 +116,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [modalComentarioVisible, setModalComentarioVisible] = useState(false);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
-  const contadorDelta = React.useRef(0);
-
   const situacoes = [
     { id: 1, descricao: 'Iniciado' },
     { id: 2, descricao: 'Aguardando DF' },
@@ -262,7 +259,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         }
 
         setTurmasFiltradas(turmasDisponiveis);
-        setTurmaDisabled(false);
+        setTurmaDisabled(!!dados.propostaTurmaId);
         setTooltipAberto(false);
         setTodasTurmasPossuemLista(false);
       } catch (error) {
@@ -331,34 +328,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     carregarDados();
   }, [id, form, navigate]);
 
-  const verificarDeltaInscritos = React.useCallback(async () => {
-    try {
-      const response = await obterDeltaInscritosSilencioso(Number(id));
-      if (response.sucesso && response.dados?.deltaInscritos?.houveAlteracao) {
-        setDeltaInscritos(response.dados.deltaInscritos);
-        setMostrarDivergencia(true);
-      }
-    } catch (error) {
-      console.error('Erro no polling de deltaInscritos:', error);
-    }
-  }, [id]);
-
-  React.useEffect(() => {
-    if (!id) return;
-
-    const intervalo = setInterval(() => {
-      if (contadorDelta.current >= 45) {
-        clearInterval(intervalo);
-        return;
-      }
-      contadorDelta.current++;
-      if (document.visibilityState === 'visible') {
-        verificarDeltaInscritos();
-      }
-    }, 20000);
-
-    return () => clearInterval(intervalo);
-  }, [id, verificarDeltaInscritos]);
 
   const buscarInscritos = async () => {
     if (!turmaId) {
@@ -657,7 +626,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const tratarRespostaSalvar = (response: any) => {
     if (response.sucesso) {
-      contadorDelta.current = 0;
       formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
       cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
       notification.success({
@@ -723,6 +691,21 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       console.log('Resposta da API:', response);
 
       tratarRespostaSalvar(response);
+
+      if (response.sucesso) {
+        const registroIdAtual = id ?? response.dados?.id;
+        if (registroIdAtual) {
+          try {
+            const detalhes = await obterCodafListaPresencaPorId(Number(registroIdAtual));
+            if (detalhes.sucesso && detalhes.dados?.deltaInscritos?.houveAlteracao) {
+              setDeltaInscritos(detalhes.dados.deltaInscritos);
+              setMostrarDivergencia(true);
+            }
+          } catch (error) {
+            console.error('Erro ao verificar delta de inscritos após salvar:', error);
+          }
+        }
+      }
     } catch (error: any) {
       const mensagemPadraoErro = modoEdicao
         ? 'Erro ao atualizar o registro'
@@ -1004,7 +987,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 'Houve alterações nas inscrições desta formação. Aguarde alguns instantes, estamos atualizando a lista para você.',
             });
             setLoading(false);
-            await verificarDeltaInscritos();
             return;
           }
         }
