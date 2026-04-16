@@ -1,43 +1,98 @@
-import React from "react";
-import { Card, Tooltip } from "antd";
+import React from 'react';
+import { Card, Tooltip } from 'antd';
+import { InfoCircleFilled } from '@ant-design/icons';
 import { titleStyle, contentStyle, iconStyle } from './styles';
-import { InfoCircleFilled } from "@ant-design/icons";
+import {
+  DataEncontroNovoDto,
+  RetornoTurmaDetalheDto,
+} from '~/core/dto/dados-formacao-area-publica-dto';
 
+type EncontroExpandido = { data: string; horaInicial: string; horaFinal: string };
 
-const CardTurmasPublico = ({ turma }: { turma: any }) => {
-  const { nome, periodos, local, datasEncontros } = turma;
+const parseDateBR = (data: string): Date => {
+  const [dia, mes, ano] = data.split('/');
+  return new Date(Number(ano), Number(mes) - 1, Number(dia));
+};
 
-  const encontros = datasEncontros ?? [];
+const formatarData = (data: string): string => {
+  const d = new Date(data);
+  if (isNaN(d.getTime())) return data;
+  return d.toLocaleDateString('pt-BR');
+};
 
-  const periodoTotal = periodos?.[0]
-    ? `De ${periodos[0].split(" - ")[0]} à ${periodos[0].split(" - ")[1]}`
-    : "";
+const expandirEncontro = (encontro: DataEncontroNovoDto): EncontroExpandido[] => {
+  if (!encontro.dataFinal) {
+    return [
+      {
+        data: encontro.dataInicial,
+        horaInicial: encontro.horaInicial,
+        horaFinal: encontro.horaFinal,
+      },
+    ];
+  }
+  const linhas: EncontroExpandido[] = [];
+  const atual = parseDateBR(encontro.dataInicial);
+  const fim = parseDateBR(encontro.dataFinal);
+  while (atual <= fim) {
+    linhas.push({
+      data: atual.toLocaleDateString('pt-BR'),
+      horaInicial: encontro.horaInicial,
+      horaFinal: encontro.horaFinal,
+    });
+    atual.setDate(atual.getDate() + 1);
+  }
+  return linhas;
+};
+
+const tooltipStyle = {
+  fontFamily: 'Roboto',
+  fontWeight: 400,
+  fontSize: '14px',
+  lineHeight: '100%',
+  letterSpacing: '0%',
+  textAlign: 'center' as const,
+};
+
+const CardTurmasPublico = ({ turma }: { turma: RetornoTurmaDetalheDto }) => {
+  const { nome, local, dataInicio, dataFim, dataEncontrosNovo, modeloHorario } = turma;
+
+  const encontros =
+    modeloHorario === 'legado'
+      ? (dataEncontrosNovo ?? []).flatMap(expandirEncontro)
+      : (dataEncontrosNovo ?? []).map((e) => ({
+          data: e.dataInicial,
+          horaInicial: e.horaInicial,
+          horaFinal: e.horaFinal,
+        }));
+
+  const getPeriodoRealizacao = (): string | null => {
+    if (dataInicio && dataFim) return `De ${formatarData(dataInicio)} à ${formatarData(dataFim)}`;
+    if (dataInicio) return `De ${formatarData(dataInicio)}`;
+    if (dataFim) return `Até ${formatarData(dataFim)}`;
+    return null;
+  };
+
+  const periodoRealizacao = getPeriodoRealizacao();
 
   return (
     <Card
-      title={<span style={{ fontWeight: "bold", color: "white" }}>{nome}</span>}
-      style={{ borderRadius: "12px" }}
-      headStyle={{ backgroundColor: "#E48F47", borderBottom: "none" }}
+      title={<span style={{ fontWeight: 'bold', color: 'white' }}>{nome}</span>}
+      style={{ borderRadius: '12px' }}
+      headStyle={{ backgroundColor: '#E48F47', borderBottom: 'none' }}
     >
-      
       <div style={{ marginBottom: 18 }}>
         <div style={titleStyle}>
           Datas de realização:
-          <Tooltip title="Período total da formação, do início ao fim, incluindo encontros presenciais e online."
-            placement="top"
+          <Tooltip
+            title='Período total da formação, do início ao fim, incluindo encontros presenciais e online.'
+            placement='top'
             arrow={{ pointAtCenter: true }}
-            overlayInnerStyle={{
-              fontFamily: "Roboto",
-              fontWeight: 400,
-              fontSize: "14px",
-              lineHeight: "100%",
-              letterSpacing: "0%",
-              textAlign: "center",
-            }}>
+            overlayInnerStyle={tooltipStyle}
+          >
             <InfoCircleFilled style={iconStyle} />
           </Tooltip>
         </div>
-        <div style={contentStyle}>{periodoTotal}</div>
+        {periodoRealizacao && <div style={contentStyle}>{periodoRealizacao}</div>}
       </div>
 
       <div style={{ marginBottom: 18 }}>
@@ -47,25 +102,20 @@ const CardTurmasPublico = ({ turma }: { turma: any }) => {
 
       <div>
         <div style={titleStyle}>
-          Datas dos encontros:
-          <Tooltip title="Datas dos encontros em grupo da formação, que podem ser presenciais ou online."
-            placement="top"
+          Datas dos encontros*:
+          <Tooltip
+            title='Datas dos encontros em grupo da formação, que podem ser presenciais ou online.'
+            placement='top'
             arrow={{ pointAtCenter: true }}
-            overlayInnerStyle={{
-              fontFamily: "Roboto",
-              fontWeight: 400,
-              fontSize: "14px",
-              lineHeight: "100%",
-              letterSpacing: "0%",
-              textAlign: "center",
-            }}>
+            overlayInnerStyle={tooltipStyle}
+          >
             <InfoCircleFilled style={iconStyle} />
           </Tooltip>
         </div>
         <div style={contentStyle}>
-          {encontros.map((data: string) => (
-            <div style={{ marginBottom: 3 }} key={data}>
-              {data}
+          {encontros.map((encontro) => (
+            <div style={{ marginBottom: 3 }} key={`${encontro.data}-${encontro.horaInicial}`}>
+              {encontro.data} {encontro.horaInicial} - {encontro.horaFinal}
             </div>
           ))}
         </div>
