@@ -31,14 +31,14 @@ const TagTipoFormacaoFormato = styled(Tag)`
   font-weight: bold;
 `;
 
-const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
+const DadosDestaque: React.FC<DadosDestaqueProps> = ({ dadosFormacao, propostaId }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
   const dadosInscricao: RetornoDetalheFormacaoDto = location.state.location;
   const autenticado = useAppSelector((state) => state.auth.autenticado);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
-  const linkInscricaoExterna = dadosFormacao.dadosFormacao?.linkParaInscricoesExterna;
+  const linkInscricaoExterna = dadosFormacao?.linkParaInscricoesExterna;
 
   const setarDadosInscricao = () => {
     dispatch(setDadosFormacao(dadosInscricao));
@@ -54,7 +54,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
         validarAutenticacao(response.data);
       });
 
-      navigate(`${ROUTES.INSCRICAO}/${dadosFormacao?.propostaId}`, {
+      navigate(`${ROUTES.INSCRICAO}/${propostaId}`, {
         replace: true,
       });
     } else {
