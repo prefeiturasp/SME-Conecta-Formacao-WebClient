@@ -1,6 +1,12 @@
 import { describe, test, expect } from '@jest/globals';
+import { ButtonImprimir } from './index';
 
 describe('ButtonImprimir', () => {
+  describe('Componente', () => {
+    test('deve ser uma função', () => {
+      expect(typeof ButtonImprimir).toBe('function');
+    });
+  });
   describe('Propriedades padrão', () => {
     test('deve ter type default', () => {
       const type = 'default';

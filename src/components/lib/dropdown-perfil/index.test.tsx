@@ -1,8 +1,25 @@
-import { describe, test, expect } from '@jest/globals';
+import { describe, test, expect, jest } from '@jest/globals';
+
+jest.mock('~/core/services/api', () => ({
+  default: {},
+  obterRegistro: jest.fn(),
+  inserirRegistro: jest.fn(),
+}));
+
+jest.mock('~/core/utils/perfil', () => ({
+  obterMenusPorPerfil: jest.fn(() => []),
+}));
+
+import DropdownPerfil from './index';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { Colors } from '~/core/styles/colors';
 
 describe('DropdownPerfil', () => {
+  describe('Componente', () => {
+    test('deve ser uma função', () => {
+      expect(typeof DropdownPerfil).toBe('function');
+    });
+  });
   describe('Estados iniciais', () => {
     test('openDropdow deve iniciar como false', () => {
       const openDropdow = false;
