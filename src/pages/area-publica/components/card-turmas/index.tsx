@@ -65,14 +65,14 @@ const CardTurmasPublico = ({ turma }: { turma: RetornoTurmaDetalheDTO }) => {
           horaFinal: e.horaFinal,
         }));
 
-  const periodoRealizacao =
-    dataInicio && dataFim
-      ? `De ${formatarData(dataInicio)} à ${formatarData(dataFim)}`
-      : dataInicio
-      ? `De ${formatarData(dataInicio)}`
-      : dataFim
-      ? `Até ${formatarData(dataFim)}`
-      : null;
+  const getPeriodoRealizacao = (): string | null => {
+    if (dataInicio && dataFim) return `De ${formatarData(dataInicio)} à ${formatarData(dataFim)}`;
+    if (dataInicio) return `De ${formatarData(dataInicio)}`;
+    if (dataFim) return `Até ${formatarData(dataFim)}`;
+    return null;
+  };
+
+  const periodoRealizacao = getPeriodoRealizacao();
 
   return (
     <Card
