@@ -28,10 +28,23 @@ export type RetornoDetalheFormacaoDTO = {
   linkParaInscricoesExterna?: string;
   usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDTO | null;
 };
+export type DataEncontroNovoDTO = {
+  dataInicial: string;
+  dataFinal: string | null;
+  horaInicial: string;
+  horaFinal: string;
+};
+
+export type ModeloHorario = 'legado' | 'novo';
+
 export type RetornoTurmaDetalheDTO = {
   nome: string;
   periodos: string[];
   local: string;
   horario: string;
   inscricaoEncerrada: boolean;
+  dataInicio?: string;
+  dataFim?: string;
+  dataEncontrosNovo?: DataEncontroNovoDTO[];
+  modeloHorario?: ModeloHorario;
 };
