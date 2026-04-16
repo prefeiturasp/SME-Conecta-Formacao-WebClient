@@ -1,7 +1,7 @@
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ApiResult, obterRegistro } from '~/core/services/api';
 import { CargoFuncaoDTO } from '../dto/cargo-funcao-dto';
-import { RetornoDetalheFormacaoDTO } from '../dto/dados-formacao-area-publica-dto';
+import { RetornoDetalheFormacaoDto } from '../dto/dados-formacao-area-publica-dto';
 import { FiltroFormacaoDTO } from '../dto/filtro-formacao-dto';
 import { FormacaoDTO } from '../dto/formacao-dto';
 import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
@@ -34,7 +34,7 @@ const obterFormacaoPaginada = (
   });
 
 const obterDadosFormacao = (propostaId: number) =>
-  obterRegistro<RetornoDetalheFormacaoDTO>(`${URL_DEFAULT}/formacao-detalhada/${propostaId}`);
+  obterRegistro<RetornoDetalheFormacaoDto>(`${URL_DEFAULT}/formacao-detalhada/${propostaId}`);
 
 export {
   obterAreaPromotoraPublico,

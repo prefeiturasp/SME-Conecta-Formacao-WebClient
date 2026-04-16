@@ -1,7 +1,7 @@
 import { Modalidade } from '../enum/modalidade';
 import { TipoFormacao } from '../enum/tipo-formacao';
 
-export type UsuarioAcessibilidadeResponseDTO = {
+export type UsuarioAcessibilidadeResponseDto = {
   usuarioId: number;
   possuiDeficiencia: boolean | null;
   descricaoDeficiencia?: string;
@@ -10,7 +10,7 @@ export type UsuarioAcessibilidadeResponseDTO = {
   salvar: boolean;
 };
 
-export type RetornoDetalheFormacaoDTO = {
+export type RetornoDetalheFormacaoDto = {
   titulo?: string;
   areaPromotora?: string;
   tipoFormacao?: TipoFormacao;
@@ -24,11 +24,11 @@ export type RetornoDetalheFormacaoDTO = {
   palavrasChaves?: string[];
   inscricaoEncerrada: boolean;
   imagemUrl?: string;
-  turmas: RetornoTurmaDetalheDTO[];
+  turmas: RetornoTurmaDetalheDto[];
   linkParaInscricoesExterna?: string;
-  usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDTO | null;
+  usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDto | null;
 };
-export type DataEncontroNovoDTO = {
+export type DataEncontroNovoDto = {
   dataInicial: string;
   dataFinal: string | null;
   horaInicial: string;
@@ -37,7 +37,7 @@ export type DataEncontroNovoDTO = {
 
 export type ModeloHorario = 'legado' | 'novo';
 
-export type RetornoTurmaDetalheDTO = {
+export type RetornoTurmaDetalheDto = {
   nome: string;
   periodos: string[];
   local: string;
@@ -45,6 +45,6 @@ export type RetornoTurmaDetalheDTO = {
   inscricaoEncerrada: boolean;
   dataInicio?: string;
   dataFim?: string;
-  dataEncontrosNovo?: DataEncontroNovoDTO[];
+  dataEncontrosNovo?: DataEncontroNovoDto[];
   modeloHorario?: ModeloHorario;
 };

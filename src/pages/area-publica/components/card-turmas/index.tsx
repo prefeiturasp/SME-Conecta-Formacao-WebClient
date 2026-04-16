@@ -3,8 +3,8 @@ import { Card, Tooltip } from 'antd';
 import { InfoCircleFilled } from '@ant-design/icons';
 import { titleStyle, contentStyle, iconStyle } from './styles';
 import {
-  DataEncontroNovoDTO,
-  RetornoTurmaDetalheDTO,
+  DataEncontroNovoDto,
+  RetornoTurmaDetalheDto,
 } from '~/core/dto/dados-formacao-area-publica-dto';
 
 type EncontroExpandido = { data: string; horaInicial: string; horaFinal: string };
@@ -20,7 +20,7 @@ const formatarData = (data: string): string => {
   return d.toLocaleDateString('pt-BR');
 };
 
-const expandirEncontro = (encontro: DataEncontroNovoDTO): EncontroExpandido[] => {
+const expandirEncontro = (encontro: DataEncontroNovoDto): EncontroExpandido[] => {
   if (!encontro.dataFinal) {
     return [
       {
@@ -53,7 +53,7 @@ const tooltipStyle = {
   textAlign: 'center' as const,
 };
 
-const CardTurmasPublico = ({ turma }: { turma: RetornoTurmaDetalheDTO }) => {
+const CardTurmasPublico = ({ turma }: { turma: RetornoTurmaDetalheDto }) => {
   const { nome, local, dataInicio, dataFim, dataEncontrosNovo, modeloHorario } = turma;
 
   const encontros =

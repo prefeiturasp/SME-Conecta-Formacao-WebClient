@@ -2,7 +2,7 @@ import { Col, Row, Typography } from 'antd';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PUBLICO_ALVO_VAGAS_REMANESCENTES, PUBLICO_ALVO, SOBRE_ESTE_CURSO } from '~/core/constants/mensagens';
-import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
+import { RetornoDetalheFormacaoDto } from '~/core/dto/dados-formacao-area-publica-dto';
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
 import CardTurmasPublico from '../../components/card-turmas';
 import DadosDestaque from '../list/components/dados-destaque';
@@ -14,7 +14,7 @@ import { CustomDivider, TurmasTitulo, typographyStyles, PalavrasTag } from './st
 
 const VisualizarFormacao: FC = () => {
   const paramsRoute = useParams();
-  const [dadosFormacao, setDadosFormacao] = useState<RetornoDetalheFormacaoDTO>();
+  const [dadosFormacao, setDadosFormacao] = useState<RetornoDetalheFormacaoDto>();
 
   const id = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
   const navigate = useNavigate();
