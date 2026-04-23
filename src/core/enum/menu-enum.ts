@@ -12,4 +12,5 @@ export enum MenuEnum {
   CertificadosPesquisa,
   Relatorios,
   RelatorioInscritosPorFormacao,
+  Coordenadoria,
 }
