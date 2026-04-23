@@ -32,6 +32,17 @@ export const MENU_CADASTRO: MenuItemConectaProps = {
       },
     },
     {
+      key: MenuEnum.Coordenadoria,
+      title: 'Coordenadoria',
+      url: ROUTES.COORDENADORIA,
+      roles: {
+        podeConsultar: PermissaoEnum.AreaPromotora_C,
+        podeIncluir: PermissaoEnum.AreaPromotora_I,
+        podeExcluir: PermissaoEnum.AreaPromotora_E,
+        podeAlterar: PermissaoEnum.AreaPromotora_A,
+      },
+    },
+    {
       key: MenuEnum.RedeParceria,
       title: 'Rede de Parceria (Usuários)',
       url: ROUTES.USUARIO_REDE_PARCERIA,
