@@ -1,29 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button, Form, Input, Typography } from "antd";
 import Modal from "~/components/lib/modal";
-import { CadastroCoordenadoriaDTO } from "~/core/dto/cadastro-coordenadoria-dto";
+import { CadastroCoordenadoriaDTO } from "~/core/services/coordenadoria-service";
+import { DeleteFilled } from "@ant-design/icons";
+import { FaTrashAlt } from "react-icons/fa";
 
 interface ModalSalvarCoordenadoriaProps {
     visible: boolean;
+    modoEdicao: boolean;
     onConfirm: (coordenadoria: CadastroCoordenadoriaDTO) => void;
     onCancel: () => void;
+    onDelete?: () => void;
     loading?: boolean;
     coordenadoriaInicial?: CadastroCoordenadoriaDTO;
 }
 
 const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
     visible,
+    modoEdicao,
     onConfirm,
     onCancel,
+    onDelete,
     loading,
     coordenadoriaInicial,
 }) => {
     const [form] = Form.useForm();
 
-    const modoEdicao = !!coordenadoriaInicial;
     const titulo = modoEdicao ? 'Editar Coordenadoria' : 'Adicionar coordenadoria';
-    const descricao = modoEdicao 
-        ? 'Edite as informações da coordenadoria' 
+    const descricao = modoEdicao
+        ? 'Você pode editar o nome e a sigla da coordenadoria. Essa informação poderá ser usada no cadastro de áreas promotoras e na emissão de certificados.' 
         : 'Adicione uma nova coordenadoria. Essa informação poderá ser usada no cadastro de áreas promotoras e na emissão de certificados.';
 
     useEffect(() => {
@@ -48,43 +53,72 @@ const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
         onConfirm(coordenadoria);
     }
 
-    const customFooter = [
-        <Button
-            key="cancel"
-            onClick={onCancel}
-            style={{
-                height: "40px",
-                padding: "8px 16px",
-                borderRadius: "4px",
-                border: "1px solid #FF9A52",
-                background: "#FFF",
-                color: "#FF9A52",
-                fontFamily: "Roboto",
-                fontSize: "14px",
-                fontWeight: 700,
-            }}
-        >
-            Cancelar
-        </Button>,
-        <Button
-            key="submit"
-            onClick={() => form.submit()}
-            loading={loading}
-            style={{
-                height: "40px",
-                padding: "8px 16px",
-                borderRadius: "4px",
-                background: "#FF9A52",
-                border: "none",
-                color: "#FFF",
-                fontFamily: "Roboto",
-                fontSize: "14px",
-                fontWeight: 700,
-            }}
-        >
-            Salvar
-        </Button>,
-    ];
+    const customFooter = (
+        <div style={{ display: 'flex', justifyContent: modoEdicao ? 'space-between' : 'flex-end', alignItems: 'center', width: '100%' }}>
+            
+            <div>
+                {modoEdicao && (
+                    <Button
+                        onClick={onDelete}
+                        icon={<FaTrashAlt />}
+                        style={{
+                            display: "flex",
+                            height: "40px",
+                            padding: "0 16px",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "10px",
+                            borderRadius: "4px",
+                            border: "1px solid #B40C02",
+                            background: "#FFF",
+                            color: "#B40C02",
+                            fontFamily: "Roboto",
+                            fontSize: "14px",
+                            fontWeight: 700,
+                        }}
+                    >
+                        Excluir
+                    </Button>
+                )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+                <Button
+                    onClick={onCancel}
+                    style={{
+                        height: "40px",
+                        padding: "8px 16px",
+                        borderRadius: "4px",
+                        border: "1px solid #FF9A52",
+                        background: "#FFF",
+                        color: "#FF9A52",
+                        fontFamily: "Roboto",
+                        fontSize: "14px",
+                        fontWeight: 700,
+                    }}
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    onClick={() => form.submit()}
+                    loading={loading}
+                    style={{
+                        height: "40px",
+                        padding: "8px 16px",
+                        borderRadius: "4px",
+                        background: "#FF9A52",
+                        border: "none",
+                        color: "#FFF",
+                        fontFamily: "Roboto",
+                        fontSize: "14px",
+                        fontWeight: 700,
+                    }}
+                >
+                    Salvar
+                </Button>
+            </div>
+        </div>
+    );
 
     return (
         <>
@@ -165,7 +199,7 @@ const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
                             { required: true, message: "Campo obrigatório" },
                         ]}
                     >
-                        <Input placeholder="Digite o nome da coordenadoria" size="large" />
+                        <Input placeholder="Digite o nome da coordenadoria" size="large" onPressEnter={() => form.submit()} />
                     </Form.Item>
 
                     <Form.Item
@@ -176,7 +210,7 @@ const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
                             </span>
                         }
                     >
-                        <Input placeholder="Digite a sigla" size="large" />
+                        <Input placeholder="Digite a sigla" size="large" onPressEnter={() => form.submit()} />
                     </Form.Item>
                 </Form>
             </Modal>
