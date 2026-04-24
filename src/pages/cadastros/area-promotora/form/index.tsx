@@ -246,7 +246,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
                     type='text'
                     maxLength={50}
                     id={CF_INPUT_NOME}
-                    placeholder='Nome da área promotra'
+                    placeholder='Nome da área promotora'
                   />
                 </Form.Item>
               </Col>
@@ -265,7 +265,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={12}>
+              <Col xs={24} sm={8}>
                 <SelectPerfil />
               </Col>
 
