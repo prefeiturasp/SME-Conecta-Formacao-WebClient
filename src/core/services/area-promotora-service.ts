@@ -1,4 +1,4 @@
-import { AreaPromotoraDTO } from '../dto/area-promotora-dto';
+import { AreaPromotoraDTO, CadastroAreaPromotoraRequestDTO } from '../dto/area-promotora-dto';
 import { AreaPromotoraTipoDTO } from '../dto/area-promotora-tipo-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
@@ -16,11 +16,11 @@ const obterAreaPromotoraPorId = (id: string | number): Promise<ApiResult<AreaPro
 
 const alterarAreaPromotora = (
   id: string | number,
-  params: AreaPromotoraDTO,
+  params: CadastroAreaPromotoraRequestDTO,
 ): Promise<ApiResult<AreaPromotoraDTO>> =>
   alterarRegistro<AreaPromotoraDTO>(`${URL_DEFAULT}/${id}`, params);
 
-const inserirAreaPromotora = (params: AreaPromotoraDTO): Promise<ApiResult<AreaPromotoraDTO>> =>
+const inserirAreaPromotora = (params: CadastroAreaPromotoraRequestDTO): Promise<ApiResult<AreaPromotoraDTO>> =>
   inserirRegistro<AreaPromotoraDTO>(URL_DEFAULT, params);
 
 const deletarAreaPromotora = (id: string | number): Promise<ApiResult<boolean>> =>

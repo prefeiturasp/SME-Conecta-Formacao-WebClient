@@ -20,7 +20,7 @@ import {
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import { DESEJA_EXCLUIR_REGISTRO } from '~/core/constants/mensagens';
 import {
-  AreaPromotoraDTO,
+  CadastroAreaPromotoraRequestDTO,
   EmailAreaPromotora,
   TelefoneAreaPromotora,
 } from '~/core/dto/area-promotora-dto';
@@ -37,6 +37,7 @@ import {
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { SelectDREAreaPromotora } from './components/select-dre-area-promotora';
+import { SelectCoordenadoria } from '../../coordenadoria/components/select-coordenadoria/select-coordenadoria';
 
 const { Option } = Select;
 
@@ -49,7 +50,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   const { desabilitarCampos, permissao } = useContext(PermissaoContext);
 
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
-  const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
+  const [dadosAuditoria, setDadosAuditoria] = useState<any>();
 
   const id = paramsRoute?.id || 0;
 
@@ -71,32 +72,31 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   const carregarDados = useCallback(async () => {
     const resposta = await obterAreaPromotoraPorId(id);
 
-    if (resposta.sucesso) {
-      if (!resposta.dados?.telefones?.length) {
-        resposta.dados.telefones = [{ telefone: '' }];
-      }
+    if (resposta.sucesso && resposta.dados) {
+      const dados = resposta.dados;
+      
+      form.setFieldsValue({
+        ...dados,
+        telefones: dados.telefones?.length ? dados.telefones : [{ telefone: '' }],
+        emails: dados.emails?.length ? dados.emails : [{ email: '' }],
+        perfil: dados.grupoId ? { value: dados.grupoId, visaoId: dados.visaoId } : undefined,
+        coordenadoriaId: dados.coordenadoria?.id,
+      });
 
-      if (!resposta.dados?.emails?.length) {
-        resposta.dados.emails = [{ email: '' }];
-      }
-
-      if (resposta?.dados?.grupoId) {
-        resposta.dados.perfil = { value: resposta.dados.grupoId, visaoId: resposta.dados?.visaoId };
-      }
-
-      setFormInitialValues(resposta.dados);
+      setDadosAuditoria(dados.auditoria);
     }
-  }, [id]);
+  }, [id, form]);
 
   useEffect(() => {
     if (id) {
       carregarDados();
+    } else {
+      form.setFieldsValue({
+        telefones: [{ telefone: '' }],
+        emails: [{ email: '' }]
+      });
     }
-  }, [carregarDados, id]);
-
-  useEffect(() => {
-    form.resetFields();
-  }, [form, formInitialValues]);
+  }, [carregarDados, id, form]);
 
   const obterTipos = useCallback(async () => {
     const resposta = await obterTiposAreaPromotora();
@@ -105,33 +105,20 @@ const FormCadastrosAreaPromotora: React.FC = () => {
     }
   }, []);
 
-  const salvar = async (values: AreaPromotoraDTO) => {
-    let response = null;
-    const valoresSalvar = { ...values };
+  const salvar = async (values: any) => {
+    const payload: CadastroAreaPromotoraRequestDTO = {
+      nome: values.nome,
+      tipo: values.tipo,
+      coordenadoriaId: values.coordenadoriaId,
+      grupoId: values.perfil?.value,
+      dreId: typeof values.dreId === 'object' ? values.dreId?.id : values.dreId,
+      telefones: values.telefones?.filter((item: TelefoneAreaPromotora) => !!item?.telefone) ?? [],
+      emails: values.emails?.filter((item: EmailAreaPromotora) => !!item?.email) ?? [],
+    };
 
-    if (valoresSalvar?.telefones?.length) {
-      valoresSalvar.telefones = valoresSalvar.telefones.filter(
-        (item: TelefoneAreaPromotora) => !!item?.telefone,
-      );
-    }
-
-    if (valoresSalvar?.emails?.length) {
-      valoresSalvar.emails = valoresSalvar.emails.filter(
-        (item: EmailAreaPromotora) => !!item?.email,
-      );
-    }
-
-    if (valoresSalvar?.perfil?.value) {
-      valoresSalvar.grupoId = valoresSalvar.perfil.value;
-    }
-
-    valoresSalvar.dreId = Object(values.dreId)['id'];
-
-    if (id) {
-      response = await alterarAreaPromotora(id, valoresSalvar);
-    } else {
-      response = await inserirAreaPromotora(valoresSalvar);
-    }
+    const response = id
+      ? await alterarAreaPromotora(id, payload)
+      : await inserirAreaPromotora(payload);
 
     if (response.sucesso) {
       notification.success({
@@ -167,13 +154,27 @@ const FormCadastrosAreaPromotora: React.FC = () => {
 
   return (
     <Col>
+      <style>{`
+        .form-area-promotora .ant-form-item-label > label {
+            color: #42474A !important;
+            font-family: 'Roboto', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+        }
+        /* Força a cor do asterisco obrigatório (*) a ser a mesma do texto */
+        .form-area-promotora .ant-form-item-label > label.ant-form-item-required::before {
+            color: #42474A !important;
+            font-family: 'Roboto', sans-serif !important;
+            font-weight: 700 !important;
+        }
+      `}</style>
       <Form
+        className='form-area-promotora'
         form={form}
         layout='vertical'
         autoComplete='off'
         onFinish={salvar}
         validateMessages={validateMessages}
-        initialValues={formInitialValues}
         disabled={desabilitarCampos}
       >
         <HeaderPage title={tituloPagina}>
@@ -246,7 +247,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
                     type='text'
                     maxLength={50}
                     id={CF_INPUT_NOME}
-                    placeholder='Nome da área promotra'
+                    placeholder='Nome da área promotora'
                   />
                 </Form.Item>
               </Col>
@@ -271,11 +272,21 @@ const FormCadastrosAreaPromotora: React.FC = () => {
 
               <SelectDREAreaPromotora />
 
+              <Col xs={24} sm={12}>
+                <SelectCoordenadoria 
+                  formItemProps={{
+                    label: 'Coordenadoria',
+                    name: 'coordenadoriaId',
+                    rules: [{ required: false }]
+                  }}
+                />
+              </Col>
+
               <TelefoneLista disabled={desabilitarCampos} />
               <EmailLista disabled={desabilitarCampos} />
             </Row>
           </Col>
-          <Auditoria dados={formInitialValues?.auditoria} />
+          <Auditoria dados={dadosAuditoria} />
         </CardContent>
       </Form>
     </Col>
