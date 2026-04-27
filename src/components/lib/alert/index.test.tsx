@@ -1,98 +1,52 @@
-import { describe, test, expect } from '@jest/globals';
-import { TypeAlertEnum } from './index';
+/**
+ * @jest-environment jsdom
+ */
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import Alert, { TypeAlertEnum } from './index';
+
+jest.mock('~/core/styles/colors', () => ({
+  Colors: {
+    Neutral: { DARK: '#42474A' },
+    SystemSME: { ConectaFormacao: { PRIMARY: '#003d92' } },
+  },
+}));
 
 describe('Alert', () => {
+  it('renders message', () => {
+    render(<Alert message='Atenção ao formulário' />);
+    expect(screen.getByText('Atenção ao formulário')).toBeInTheDocument();
+  });
+
+  it('renders description', () => {
+    render(<Alert message='Erro' description='Detalhes do erro' />);
+    expect(screen.getByText('Detalhes do erro')).toBeInTheDocument();
+  });
+
+  it('renders warning type', () => {
+    render(<Alert message='Aviso' type='warning' />);
+    expect(screen.getByText('Aviso')).toBeInTheDocument();
+  });
+
+  it('renders error type', () => {
+    render(<Alert message='Erro' type='error' />);
+    expect(screen.getByText('Erro')).toBeInTheDocument();
+  });
+
+  it('renders success type', () => {
+    render(<Alert message='Sucesso' type='success' />);
+    expect(screen.getByText('Sucesso')).toBeInTheDocument();
+  });
+
+  it('renders info type', () => {
+    render(<Alert message='Informação' type='info' />);
+    expect(screen.getByText('Informação')).toBeInTheDocument();
+  });
+
   describe('TypeAlertEnum', () => {
-    test('deve ter valor info', () => {
-      expect(TypeAlertEnum.Info).toBe('info');
-    });
-
-    test('deve ter valor success', () => {
-      expect(TypeAlertEnum.Success).toBe('success');
-    });
-
-    test('deve ter valor error', () => {
-      expect(TypeAlertEnum.Error).toBe('error');
-    });
-
-    test('deve ter valor warning', () => {
-      expect(TypeAlertEnum.Warning).toBe('warning');
-    });
-  });
-
-  describe('getColor', () => {
-    const makeTheme = (overrides: Record<string, string>) => ({
-      components: {
-        Alert: overrides,
-      },
-    });
-
-    test('deve retornar colorSuccess para tipo success', () => {
-      const theme = makeTheme({ colorSuccess: '#52c41a' });
-      const color = theme.components.Alert.colorSuccess || '';
-      expect(color).toBe('#52c41a');
-    });
-
-    test('deve retornar colorWarning para tipo warning', () => {
-      const theme = makeTheme({ colorWarning: '#faad14' });
-      const color = theme.components.Alert.colorWarning || '';
-      expect(color).toBe('#faad14');
-    });
-
-    test('deve retornar colorError para tipo error', () => {
-      const theme = makeTheme({ colorError: '#ff4d4f' });
-      const color = theme.components.Alert.colorError || '';
-      expect(color).toBe('#ff4d4f');
-    });
-
-    test('deve retornar colorInfo para tipo info', () => {
-      const theme = makeTheme({ colorInfo: '#1890ff' });
-      const color = theme.components.Alert.colorInfo || '';
-      expect(color).toBe('#1890ff');
-    });
-
-    test('deve retornar string vazia para tipo desconhecido', () => {
-      const color = '';
-      expect(color).toBe('');
-    });
-  });
-
-  describe('Propriedades padrão', () => {
-    test('deve ter showIcon true', () => {
-      const showIcon = true;
-      expect(showIcon).toBe(true);
-    });
-
-    test('deve repassar type via props', () => {
-      const props = { type: 'error' as const };
-      expect(props.type).toBe('error');
-    });
-
-    test('deve repassar message via props', () => {
-      const props = { message: 'Ocorreu um erro' };
-      expect(props.message).toBe('Ocorreu um erro');
-    });
-
-    test('deve repassar description via props', () => {
-      const props = { description: 'Detalhes do erro' };
-      expect(props.description).toBe('Detalhes do erro');
-    });
-  });
-
-  describe('Estilo do divider-bottom', () => {
-    test('deve ter top de -4px', () => {
-      const style = { top: '-4px', position: 'relative', height: '4px' };
-      expect(style.top).toBe('-4px');
-    });
-
-    test('deve ter position relative', () => {
-      const style = { top: '-4px', position: 'relative', height: '4px' };
-      expect(style.position).toBe('relative');
-    });
-
-    test('deve ter height de 4px', () => {
-      const style = { top: '-4px', position: 'relative', height: '4px' };
-      expect(style.height).toBe('4px');
-    });
+    it('Info = "info"', () => expect(TypeAlertEnum.Info).toBe('info'));
+    it('Success = "success"', () => expect(TypeAlertEnum.Success).toBe('success'));
+    it('Error = "error"', () => expect(TypeAlertEnum.Error).toBe('error'));
+    it('Warning = "warning"', () => expect(TypeAlertEnum.Warning).toBe('warning'));
   });
 });
