@@ -1,4 +1,3 @@
-import exp from "constants";
 import { alterarRegistro, ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from "./api";
 
 export const URL_API_COORDENADORIA = 'v1/Coordenadoria';

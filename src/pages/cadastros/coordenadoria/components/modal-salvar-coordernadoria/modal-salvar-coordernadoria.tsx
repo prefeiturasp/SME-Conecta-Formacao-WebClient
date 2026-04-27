@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Button, Form, Input, Typography } from "antd";
 import Modal from "~/components/lib/modal";
 import { CadastroCoordenadoriaDTO } from "~/core/services/coordenadoria-service";
-import { DeleteFilled } from "@ant-design/icons";
 import { FaTrashAlt } from "react-icons/fa";
 
 interface ModalSalvarCoordenadoriaProps {

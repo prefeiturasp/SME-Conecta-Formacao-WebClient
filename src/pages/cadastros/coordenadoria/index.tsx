@@ -1,7 +1,7 @@
 import { Button, Col, Form, Row, Typography } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { useCallback, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "antd/es/form/Form";
 
 import HeaderPage from "~/components/lib/header-page";
@@ -21,7 +21,6 @@ import { onClickVoltar } from "~/core/utils/form";
 import { obterPermissaoPorMenu } from "~/core/utils/perfil";
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from "~/core/constants/ids/button/intex";
 import { CF_INPUT_NOME_COORDENADORIA, CF_INPUT_SIGLA_COORDENADORIA } from "~/core/constants/ids/input";
-import { ApiResult } from "~/core/services/api";
 import { 
     atualizarCoordenadoria, 
     CadastroCoordenadoriaDTO, 
@@ -30,14 +29,8 @@ import {
     obterCoordenadoriaPorId 
 } from "~/core/services/coordenadoria-service";
 
-type FilterStateProps = {
-    nome: string;
-    sigla: string;
-};
-
 const ListCoordenadoria: React.FC = () => {
     const navigate = useNavigate();    
-    const location = useLocation();    
     const [form] = useForm();
 
     const [filter, setFilter] = useState({ nome: '', sigla: '' });
@@ -73,7 +66,7 @@ const ListCoordenadoria: React.FC = () => {
     }
 
     const onConfirmModal = async (coordenadoria: CadastroCoordenadoriaDTO) => {
-        var response = modoEdicao
+        const response = modoEdicao
             ? await atualizarCoordenadoria(coordenadoria.id, coordenadoria)
             : await criarCoordenadoria(coordenadoria);
         console.log('Resposta da API:', response);
@@ -143,8 +136,8 @@ const ListCoordenadoria: React.FC = () => {
 
     const obterDadosFiltrados = useCallback(() => {
         setRealizouBusca(true);
-        const nome = form.getFieldValue('nomeCoordenadoria') || '';
-        const sigla = form.getFieldValue('siglaCoordenadoria') || '';
+        const nome = form.getFieldValue('nomeCoordenadoria') ?? '';
+        const sigla = form.getFieldValue('siglaCoordenadoria') ?? '';
 
         if (!nome && !sigla) {
             setRealizouBusca(false);
@@ -171,7 +164,7 @@ const ListCoordenadoria: React.FC = () => {
                         id={CF_BUTTON_NOVO}
                         style={{ fontWeight: 700 }}
                         onClick={() => onClickNovo()}
-                        // disabled={!permissao?.podeIncluir}
+                        disabled={!permissao?.podeIncluir}
                     >
                         Adicionar coordenadoria
                     </Button>

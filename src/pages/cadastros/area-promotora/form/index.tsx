@@ -20,7 +20,6 @@ import {
 import { CF_INPUT_NOME } from '~/core/constants/ids/input';
 import { DESEJA_EXCLUIR_REGISTRO } from '~/core/constants/mensagens';
 import {
-  AreaPromotoraDTO,
   CadastroAreaPromotoraRequestDTO,
   EmailAreaPromotora,
   TelefoneAreaPromotora,
@@ -51,7 +50,6 @@ const FormCadastrosAreaPromotora: React.FC = () => {
   const { desabilitarCampos, permissao } = useContext(PermissaoContext);
 
   const [listaTipos, setListaTipos] = useState<AreaPromotoraTipoDTO[]>();
-  const [formInitialValues, setFormInitialValues] = useState<AreaPromotoraDTO>();
   const [dadosAuditoria, setDadosAuditoria] = useState<any>();
 
   const id = paramsRoute?.id || 0;
@@ -100,10 +98,6 @@ const FormCadastrosAreaPromotora: React.FC = () => {
     }
   }, [carregarDados, id, form]);
 
-  useEffect(() => {
-    form.resetFields();
-  }, [form, formInitialValues]);
-
   const obterTipos = useCallback(async () => {
     const resposta = await obterTiposAreaPromotora();
     if (resposta.sucesso) {
@@ -118,8 +112,8 @@ const FormCadastrosAreaPromotora: React.FC = () => {
       coordenadoriaId: values.coordenadoriaId,
       grupoId: values.perfil?.value,
       dreId: typeof values.dreId === 'object' ? values.dreId?.id : values.dreId,
-      telefones: values.telefones?.filter((item: TelefoneAreaPromotora) => !!item?.telefone) || [],
-      emails: values.emails?.filter((item: EmailAreaPromotora) => !!item?.email) || [],
+      telefones: values.telefones?.filter((item: TelefoneAreaPromotora) => !!item?.telefone) ?? [],
+      emails: values.emails?.filter((item: EmailAreaPromotora) => !!item?.email) ?? [],
     };
 
     const response = id
@@ -292,7 +286,7 @@ const FormCadastrosAreaPromotora: React.FC = () => {
               <EmailLista disabled={desabilitarCampos} />
             </Row>
           </Col>
-          <Auditoria dados={formInitialValues?.auditoria} />
+          <Auditoria dados={dadosAuditoria} />
         </CardContent>
       </Form>
     </Col>
