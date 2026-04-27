@@ -1,5 +1,5 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { Button, Col, Input, Row, Select, Spin } from 'antd';
+import { Button, Col, Form, Input, Row, Select, Spin, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,9 @@ import DataTable from '~/components/lib/card-table';
 import HeaderPage from '~/components/lib/header-page';
 import ButtonVoltar from '~/components/main/button/voltar';
 import Empty from '~/components/main/empty';
+import InputTexto from '~/components/main/text/input-text';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
+import { CF_INPUT_NOME_AREA_PROMOTORA } from '~/core/constants/ids/input';
 import { AreaPromotoraTipoDTO } from '~/core/dto/area-promotora-tipo-dto';
 import { CadastroAreaPromotoraDTO } from '~/core/dto/cadastro-area-promotora-dto';
 import { MenuEnum } from '~/core/enum/menu-enum';
@@ -143,85 +145,102 @@ const ListAreaPromotora: React.FC = () => {
           </Row>
         </Col>
       </HeaderPage>
-      <CardContent>
-        <Row gutter={[8, 16]}>
-          <Col span={8}>
-            <Input
-              type='text'
-              maxLength={100}
-              placeholder='Nome'
-              prefix={<SearchOutlined />}
-              onChange={(e: any) =>
-                setFilters((oldState) => {
-                  return { ...oldState, nome: e.target.value };
-                })
-              }
-            />
-          </Col>
-          <Col span={8}>
-            <Select
-              allowClear
-              style={{ width: '100%' }}
-              placeholder='Selecione o Tipo'
-              notFoundContent={<Empty />}
-              onChange={(e: any) =>
-                setFilters((oldState) => {
-                  return { ...oldState, tipo: e };
-                })
-              }
-            >
-              {listaTipos?.map((item) => {
-                return (
-                  <Option key={item.id} value={item.id}>
-                    {item.nome}
-                  </Option>
-                );
-              })}
-            </Select>
-          </Col>
-          <Col span={8}>
-            <Select
-              allowClear
-              style={{ width: '100%' }}
-              placeholder='Selecione a Coordenadoria'
-              filterOption={false}
-              notFoundContent={loadingCoordenadorias ? <Spin size="small" /> : <Empty />}
-              onSearch={handleSearchCoordenadoria}
-              onPopupScroll={handleScrollCoordenadoria}
-              loading={loadingCoordenadorias}
-              onChange={(e: any) => setFilters(prev => ({ ...prev, coordenadoria: e }))}
-            >
-              {listaCoordenadorias?.map((item) => (
-                <Option key={item.id} value={item.id}>
-                  {item.nome}
-                </Option>
-              ))}
-              {loadingCoordenadorias && paginaCoordenadoria > 1 && (
-                <Option disabled key="loading-more" className="text-center">
-                  <Spin size="small" /> Carregando...
-                </Option>
-              )}
-            </Select>
-          </Col>
-          <Col span={24}>
-            <DataTable
-              filters={filters}
-              columns={columns}
-              url='v1/AreaPromotora'
-              alterarRealizouFiltro={() => {
-                () => {
-                  ('');
-                };
-              }}
-              onRow={(row) => ({
-                onClick: () => {
-                  onClickEditar(row.id);
-                },
-              })}
-            />
-          </Col>
-        </Row>
-      </CardContent>
+      <Form layout="vertical" autoComplete="off">
+        <CardContent>
+          <Row gutter={[8, 16]}>
+            <Col span={24}>
+                <Typography.Title level={4} style={{ marginBottom: 0 }}>
+                    Refine sua busca
+                </Typography.Title>
+            </Col>
+            <Col span={24}>
+                <Typography.Paragraph style={{ marginBottom: 0, color: "#42474A" }}>
+                    Utilize o filtro para localizar as areas promotoras
+                </Typography.Paragraph>
+            </Col>    
+            <Col span={8}>
+            <Form.Item label={<b>Nome</b>} style={{ marginBottom: 0 }}>
+              <Input
+                type='text'
+                maxLength={100}
+                placeholder='Digite o nome'
+                onChange={(e: any) =>
+                  setFilters((oldState) => {
+                    return { ...oldState, nome: e.target.value };
+                  })
+                }
+              />
+            </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label={<b>Tipo</b>} style={{ marginBottom: 0 }}>
+                <Select
+                  allowClear
+                  style={{ width: '100%' }}
+                  placeholder='Selecione o Tipo'
+                  notFoundContent={<Empty />}
+                  onChange={(e: any) =>
+                    setFilters((oldState) => {
+                      return { ...oldState, tipo: e };
+                    })
+                  }
+                >
+                  {listaTipos?.map((item) => {
+                    return (
+                      <Option key={item.id} value={item.id}>
+                        {item.nome}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label={<b>Coordenadoria</b>} style={{ marginBottom: 0 }}>
+                <Select
+                  allowClear
+                  style={{ width: '100%' }}
+                  placeholder='Selecione a Coordenadoria'
+                  filterOption={false}
+                  notFoundContent={loadingCoordenadorias ? <Spin size="small" /> : <Empty />}
+                  onSearch={handleSearchCoordenadoria}
+                  onPopupScroll={handleScrollCoordenadoria}
+                  loading={loadingCoordenadorias}
+                  onChange={(e: any) => setFilters(prev => ({ ...prev, coordenadoriaId: e }))}
+                >
+                  {listaCoordenadorias?.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.nome}
+                    </Option>
+                  ))}
+                  {loadingCoordenadorias && paginaCoordenadoria > 1 && (
+                    <Option disabled key="loading-more" className="text-center">
+                      <Spin size="small" /> Carregando...
+                    </Option>
+                  )}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <DataTable
+                filters={filters}
+                columns={columns}
+                url='v1/AreaPromotora'
+                alterarRealizouFiltro={() => {
+                  () => {
+                    ('');
+                  };
+                }}
+                onRow={(row) => ({
+                  onClick: () => {
+                    onClickEditar(row.id);
+                  },
+                })}
+              />
+            </Col>
+          </Row>
+        </CardContent>
+      </Form>
     </Col>
   );
 };
