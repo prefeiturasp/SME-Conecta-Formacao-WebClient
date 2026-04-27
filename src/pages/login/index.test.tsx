@@ -1,149 +1,296 @@
-import { describe, test, expect } from '@jest/globals';
+/**
+ * @jest-environment jsdom
+ */
+import React from 'react';
+import '@testing-library/jest-dom';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import Login from './';
+
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '~/core/hooks/use-redux';
+
+import autenticacaoService from '~/core/services/autenticacao-service';
+import usuarioService from '~/core/services/usuario-service';
+
+import { notification } from '~/components/lib/notification';
+import { ERRO_EMAIL_NAO_VALIDADO } from '~/core/constants/mensagens';
+
+(window as any).React = React;
+
+jest.mock('antd/es/form/Form', () => {
+  const antd = jest.requireActual('antd');
+  return {
+    __esModule: true,
+    default: antd.Form,
+    useForm: antd.Form.useForm,
+    useWatch: antd.Form.useWatch,
+  };
+});
+
+jest.mock('antd/es/input/Search', () => {
+  const antd = jest.requireActual('antd');
+  return {
+    __esModule: true,
+    default: antd.Input.Search,
+  };
+});
+
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+jest.mock('react-router-dom', () => ({
+  useNavigate: jest.fn(),
+}));
+
+jest.mock('~/core/hooks/use-redux', () => ({
+  useAppDispatch: jest.fn(),
+}));
+
+jest.mock('~/components/lib/notification', () => ({
+  notification: {
+    success: jest.fn(),
+    warning: jest.fn(),
+  },
+}));
+
+jest.mock('~/core/services/autenticacao-service', () => ({
+  autenticar: jest.fn(),
+}));
+
+jest.mock('~/core/services/usuario-service', () => ({
+  alterarEmailDeValidacao: jest.fn(),
+  reenviarEmail: jest.fn(),
+}));
+
+jest.mock('~/components/main/erro-geral-login', () => (props: any) => (
+  <div>Erro: {props.erros?.join(',')}</div>
+));
+
+jest.mock('~/core/styles/colors', () => ({
+  Colors: {
+    Neutral: { DARK: '#000' },
+    SystemSME: { ConectaFormacao: { PRIMARY: '#003d92' } },
+  },
+}));
+
+const renderComponent = () => render(<Login />);
 
 describe('Login', () => {
-  describe('Validação de mensagens', () => {
-    const validateMessages = {
-      required: 'Campo obrigatório',
-      string: {
-        min: 'Deve conter no mínimo ${min} caracteres',
-      },
-    };
+  const navigateMock = jest.fn();
+  const dispatchMock = jest.fn();
 
-    test('deve ter mensagem de campo obrigatório', () => {
-      expect(validateMessages.required).toBe('Campo obrigatório');
-    });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useNavigate as jest.Mock).mockReturnValue(navigateMock);
+    (useAppDispatch as jest.Mock).mockReturnValue(dispatchMock);
+  });
 
-    test('deve ter mensagem de mínimo de caracteres', () => {
-      expect(validateMessages.string.min).toContain('mínimo');
+  it('renders form fields and buttons', () => {
+    renderComponent();
+
+    expect(screen.getByPlaceholderText('Informe o usuário')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Informe a senha')).toBeInTheDocument();
+    expect(screen.getByText('Acessar')).toBeInTheDocument();
+    expect(screen.getByText('Cadastre-se')).toBeInTheDocument();
+  });
+
+  it('shows validation error when submitting empty form', async () => {
+    renderComponent();
+
+    fireEvent.click(screen.getByText('Acessar'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Erro:/)).toBeInTheDocument();
     });
   });
 
-  describe('Validação de email', () => {
-    const validarEmail = (email: string) => {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const reEspacos = /\s/;
-      const reAcentos = /[áàãâéèêíïóôõöúçñÁÀÃÂÉÈÊÍÏÓÔÕÖÚÇÑ]/;
-
-      return !reEspacos.test(email) && !reAcentos.test(email) && re.test(email);
-    };
-
-    test('deve aceitar email válido', () => {
-      expect(validarEmail('teste@email.com')).toBe(true);
-      expect(validarEmail('usuario.teste@dominio.com.br')).toBe(true);
+  it('calls autenticar on valid submit', async () => {
+    (autenticacaoService.autenticar as jest.Mock).mockResolvedValue({
+      dados: { autenticado: true },
     });
 
-    test('deve rejeitar email com espaços', () => {
-      expect(validarEmail('teste @email.com')).toBe(false);
-      expect(validarEmail('teste@ email.com')).toBe(false);
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('Informe o usuário'), {
+      target: { value: 'usuario123' },
     });
 
-    test('deve rejeitar email com acentos', () => {
-      expect(validarEmail('usuário@email.com')).toBe(false);
-      expect(validarEmail('teste@domínio.com')).toBe(false);
+    fireEvent.change(screen.getByPlaceholderText('Informe a senha'), {
+      target: { value: '1234' },
     });
 
-    test('deve rejeitar email inválido', () => {
-      expect(validarEmail('emailsemarroba.com')).toBe(false);
-      expect(validarEmail('@semlocal.com')).toBe(false);
-      expect(validarEmail('teste@')).toBe(false);
+    fireEvent.click(screen.getByText('Acessar'));
+
+    await waitFor(() => {
+      expect(autenticacaoService.autenticar).toHaveBeenCalled();
     });
   });
 
-  describe('Campos do formulário', () => {
-    test('deve ter campo de login com regras corretas', () => {
-      const loginRules = [{ required: true }, { min: 5 }];
-      expect(loginRules).toHaveLength(2);
-      expect(loginRules[0].required).toBe(true);
-      expect(loginRules[1].min).toBe(5);
+  it('handles authentication error and shows message', async () => {
+    (autenticacaoService.autenticar as jest.Mock).mockResolvedValue({
+      dados: { autenticado: false },
+      mensagens: ['Erro de login'],
+      status: 401,
+      sucesso: false,
     });
 
-    test('deve ter campo de senha com regras corretas', () => {
-      const senhaRules = [{ required: true }, { min: 4 }];
-      expect(senhaRules).toHaveLength(2);
-      expect(senhaRules[0].required).toBe(true);
-      expect(senhaRules[1].min).toBe(4);
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('Informe o usuário'), {
+      target: { value: 'usuario123' },
     });
 
-    test('campos devem ter maxLength de 100', () => {
-      const maxLength = 100;
-      expect(maxLength).toBe(100);
+    fireEvent.change(screen.getByPlaceholderText('Informe a senha'), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByText('Acessar'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Erro:/)).toBeInTheDocument();
     });
   });
 
-  describe('Botões', () => {
-    test('deve ter botão Acessar', () => {
-      const buttonAcessar = { text: 'Acessar', type: 'primary', htmlType: 'submit' };
-      expect(buttonAcessar.text).toBe('Acessar');
-      expect(buttonAcessar.type).toBe('primary');
-      expect(buttonAcessar.htmlType).toBe('submit');
+  it('opens modal when email is not validated', async () => {
+    (autenticacaoService.autenticar as jest.Mock).mockResolvedValue({
+      dados: { autenticado: false },
+      mensagens: [ERRO_EMAIL_NAO_VALIDADO],
+      status: 401,
     });
 
-    test('deve ter botão Esqueci minha senha', () => {
-      const buttonEsqueciSenha = { text: 'Esqueci minha senha', type: 'text' };
-      expect(buttonEsqueciSenha.text).toBe('Esqueci minha senha');
-      expect(buttonEsqueciSenha.type).toBe('text');
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('Informe o usuário'), {
+      target: { value: 'usuario123' },
     });
 
-    test('deve ter botão Cadastre-se', () => {
-      const buttonCadastrar = { text: 'Cadastre-se' };
-      expect(buttonCadastrar.text).toBe('Cadastre-se');
+    fireEvent.change(screen.getByPlaceholderText('Informe a senha'), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByText('Acessar'));
+
+    expect(await screen.findByText('Atenção')).toBeInTheDocument();
+  });
+
+  it('calls reenviarEmail from modal', async () => {
+    (autenticacaoService.autenticar as jest.Mock).mockResolvedValue({
+      dados: { autenticado: false },
+      mensagens: [ERRO_EMAIL_NAO_VALIDADO],
+      status: 401,
+    });
+
+    (usuarioService.reenviarEmail as jest.Mock).mockResolvedValue({
+      sucesso: true,
+    });
+
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('Informe o usuário'), {
+      target: { value: 'usuario123' },
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Informe a senha'), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByText('Acessar'));
+
+    const btn = await screen.findByText('Reenviar');
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(usuarioService.reenviarEmail).toHaveBeenCalled();
+      expect(notification.success).toHaveBeenCalled();
     });
   });
 
-  describe('Modal de validação de email', () => {
-    test('deve ter largura de 540px', () => {
-      const modalWidth = 540;
-      expect(modalWidth).toBe(540);
+  it('validates email before calling alterarEmail', async () => {
+    (autenticacaoService.autenticar as jest.Mock).mockResolvedValue({
+      dados: { autenticado: false },
+      mensagens: [ERRO_EMAIL_NAO_VALIDADO],
+      status: 401,
     });
 
-    test('deve ter botões do modal', () => {
-      const modalButtons = ['Cancelar', 'Reenviar', 'Editar e-mail'];
-      expect(modalButtons).toHaveLength(3);
-      expect(modalButtons).toContain('Cancelar');
-      expect(modalButtons).toContain('Reenviar');
-      expect(modalButtons).toContain('Editar e-mail');
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('Informe o usuário'), {
+      target: { value: 'usuario123' },
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Informe a senha'), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByText('Acessar'));
+
+    const editBtn = await screen.findByText('Editar e-mail');
+    fireEvent.click(editBtn);
+
+    const input = await screen.findByPlaceholderText('Informe o e-mail');
+
+    fireEvent.change(input, { target: { value: 'invalid-email' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(notification.warning).toHaveBeenCalled();
     });
   });
 
-  describe('Estados iniciais', () => {
-    test('deve ter erroGeral inicial como undefined', () => {
-      const erroGeral = undefined;
-      expect(erroGeral).toBeUndefined();
+  it('calls alterarEmail successfully', async () => {
+    (autenticacaoService.autenticar as jest.Mock).mockResolvedValue({
+      dados: { autenticado: false },
+      mensagens: [ERRO_EMAIL_NAO_VALIDADO],
+      status: 401,
     });
 
-    test('deve ter informarEmail inicial como false', () => {
-      const informarEmail = false;
-      expect(informarEmail).toBe(false);
+    (usuarioService.alterarEmailDeValidacao as jest.Mock).mockResolvedValue({
+      status: 200,
     });
 
-    test('deve ter openModal inicial como false', () => {
-      const openModal = false;
-      expect(openModal).toBe(false);
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('Informe o usuário'), {
+      target: { value: 'usuario123' },
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Informe a senha'), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByText('Acessar'));
+
+    const editBtn = await screen.findByText('Editar e-mail');
+    fireEvent.click(editBtn);
+
+    const input = await screen.findByPlaceholderText('Informe o e-mail');
+
+    fireEvent.change(input, { target: { value: 'teste@email.com' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(usuarioService.alterarEmailDeValidacao).toHaveBeenCalled();
+      expect(notification.success).toHaveBeenCalled();
     });
   });
 
-  describe('Tooltip de login', () => {
-    test('deve conter informações sobre rede direta', () => {
-      const tooltipText = 'Rede direta: Informe o RF';
-      expect(tooltipText).toContain('RF');
-    });
+  it('navigates correctly', () => {
+    renderComponent();
 
-    test('deve conter informações sobre rede parceira', () => {
-      const tooltipText = 'Rede parceira: Informe o CPF';
-      expect(tooltipText).toContain('CPF');
-    });
-  });
+    fireEvent.click(screen.getByText('Esqueci minha senha'));
+    fireEvent.click(screen.getByText('Cadastre-se'));
 
-  describe('Tratamento de erros', () => {
-    test('deve identificar erro de email não validado', () => {
-      const ERRO_EMAIL_NAO_VALIDADO = 'E-mail não validado';
-      const mensagens = ['E-mail não validado'];
-      expect(mensagens.includes(ERRO_EMAIL_NAO_VALIDADO)).toBe(true);
-    });
-
-    test('deve ter erro padrão para login', () => {
-      const ERRO_LOGIN = 'Erro ao realizar login';
-      expect(ERRO_LOGIN).toBeTruthy();
-    });
+    expect(navigateMock).toHaveBeenCalledTimes(2);
   });
 });
