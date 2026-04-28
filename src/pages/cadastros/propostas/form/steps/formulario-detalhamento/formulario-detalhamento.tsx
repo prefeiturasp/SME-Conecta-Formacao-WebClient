@@ -17,6 +17,7 @@ import {
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../../components/modal-parecer/modal-parecer-button';
 import CamposCargaHorariaProvider from './components/campos-carga-horaria/cargas-horaria-provider';
+import InputAnexo from '~/components/main/input/anexo';
 
 type FormularioDetalhamentoProps = {
   revalidacao: boolean;
@@ -102,6 +103,24 @@ const FormularioDetalhamento: React.FC<FormularioDetalhamentoProps> = ({ revalid
       >
         <SelectPalavrasChaves />
         <ButtonParecer campo={CampoConsideracaoEnum.palavrasChaves} />
+      </CollapsePanelSME>
+
+      <CollapsePanelSME
+        obrigatorio={false}
+        panelProps={{
+          header: 'Anexos',
+          key: 'anexos',
+        }}
+        collapseProps={{
+          defaultActiveKey: 'anexos',
+        }}
+      >
+        <InputAnexo
+          nome="anexoUrl"
+          label="Link externo compartilhado"
+          mensagemTooltip='Insira o link completo da pasta de documentos. O endereço deve começar com "http://" ou "https://".'
+          exibirTooltip
+        />
       </CollapsePanelSME>
 
       {revalidacao && (

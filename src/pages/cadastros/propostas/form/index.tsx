@@ -484,6 +484,7 @@ export const FormCadastroDePropostas: React.FC = () => {
 
       const valoresIniciais: PropostaFormDTO = {
         ...dados,
+        anexoUrl: dados?.anexoUrl ?? '',
         dres: mapearDresSelecionadas(dados?.dres, listaDres),
         modalidade: dados?.modalidades?.[0]?.modalidade,
         componentesCurriculares: (dados?.componentesCurriculares ?? []).map(
@@ -515,6 +516,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       setListaDres(listaDres);
       setExibirJustificativaRevalidacao(dados?.revalidacao === true);
       setFormInitialValues({ ...valoresIniciais });
+      form.setFieldsValue(valoresIniciais);
     }
     setLoading(false);
   }, [id]);
@@ -585,6 +587,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     );
 
     const valoresSalvar: PropostaDTO = {
+      anexoUrl: clonedValues.anexoUrl,
       ehProximoPasso,
       situacao,
       formacaoHomologada: clonedValues?.formacaoHomologada,
