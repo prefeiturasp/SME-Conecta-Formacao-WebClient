@@ -259,8 +259,7 @@ const ListCadastroDePropostas: React.FC = () => {
       <Form form={form} layout='vertical' autoComplete='off' initialValues={formInitialValues}>
         <CardContent>
           <Form.Item shouldUpdate>
-            {() => (
-              <>
+            {() => (              
                 <Row gutter={[16, 8]}>
                   <Col xs={24} sm={12} md={8}>
                     <b>
@@ -383,8 +382,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       })}
                     />
                   </Col>
-                </Row>
-              </>
+                </Row>              
             )}
           </Form.Item>
         </CardContent>
