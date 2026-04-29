@@ -171,7 +171,7 @@ const ListCadastroDePropostas: React.FC = () => {
       periodoRealizacaoFim: periodoRealizacaoFim,
       situacao: situacao,
       revalidacao: revalidacao ?? null,
-      possuiAnexo: possuiAnexo,
+      possuiAnexo: possuiAnexo ?? null,
     });
   }, [filters]);
 
@@ -362,7 +362,7 @@ const ListCadastroDePropostas: React.FC = () => {
                   </Col>
                   <Col xs={18} sm={8} md={6}>                    
                     <b>
-                      <SelectFormacaoComAnexo selectProps={{ onChange: obterFiltros }} />
+                      <SelectFormacaoComAnexo onChange={obterFiltros} />
                     </b>
                   </Col>
                   <Col span={24}>

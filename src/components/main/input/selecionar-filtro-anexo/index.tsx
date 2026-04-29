@@ -17,7 +17,7 @@ const SelectFormacaoComAnexo: React.FC<SelectFormacaoComAnexoProps> = ({
   onChange,
 }) => {
   const options: DefaultOptionType[] = [
-    { label: 'Todas', value: undefined },
+    { label: 'Todas', value: null },
     { label: 'Com anexos', value: 'true' },
     { label: 'Sem anexos', value: 'false' },
   ];
@@ -30,13 +30,12 @@ const SelectFormacaoComAnexo: React.FC<SelectFormacaoComAnexoProps> = ({
     else parsed = undefined;
 
     onChange?.(parsed);
-    selectProps?.onChange?.(value, options);
   };
 
   return (
     <Form.Item
       label="Formação com anexos?"
-      name="formacaoComAnexo"
+      name="possuiAnexo"
       rules={[{ required: false }]}
       {...formItemProps}
     >
