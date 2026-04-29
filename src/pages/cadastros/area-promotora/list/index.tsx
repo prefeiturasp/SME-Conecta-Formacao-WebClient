@@ -207,7 +207,7 @@ const ListAreaPromotora: React.FC = () => {
                 >
                   {listaCoordenadorias?.map((item) => (
                     <Option key={item.id} value={item.id}>
-                      {item.nome}
+                      {item.sigla ? `${item.sigla} - ${item.nome}` : item.nome}
                     </Option>
                   ))}
                   {loadingCoordenadorias && paginaCoordenadoria > 1 && (

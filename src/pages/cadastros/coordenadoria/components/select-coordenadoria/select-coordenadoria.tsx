@@ -75,7 +75,7 @@ export const SelectCoordenadoria: React.FC<SelectCoordenadoriaProps> = ({ formIt
       >
         {items.map((item) => (
           <Option key={item.id} value={item.id}>
-            {item.nome}
+            {item.sigla ? `${item.sigla} - ${item.nome}` : item.nome}
           </Option>
         ))}
         {loading && page > 1 && (
