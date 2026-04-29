@@ -35,12 +35,13 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const dadosInscricao: RetornoDetalheFormacaoDTO = location.state.location;
+  const dadosInscricao: RetornoDetalheFormacaoDTO | undefined = location.state?.location || dadosFormacao.dadosFormacao;
   const autenticado = useAppSelector((state) => state.auth.autenticado);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
   const linkInscricaoExterna = dadosFormacao.dadosFormacao?.linkParaInscricoesExterna;
 
   const setarDadosInscricao = () => {
+    if (!dadosInscricao) return;
     dispatch(setDadosFormacao(dadosInscricao));
 
     const temPerfilCursista = perfilUsuario.filter((item) =>
@@ -74,6 +75,9 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
 
     return false;
   };
+  if (!dadosInscricao) {
+    return null;
+  }
   return (
     <Row>
       <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
