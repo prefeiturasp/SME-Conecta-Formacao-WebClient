@@ -37,6 +37,7 @@ export const FiltroPaginaInicial: React.FC = () => {
     periodoRealizacaoFim: null,
     situacao: null,
     revalidacao: null,
+    possuiAnexo: null,
   });
 
   const obterFiltros = useCallback(async () => {
@@ -61,6 +62,7 @@ export const FiltroPaginaInicial: React.FC = () => {
       periodoRealizacaoFim,
       situacao: form.getFieldValue('situacao'),
       revalidacao: form.getFieldValue('revalidacao'),
+      possuiAnexo: form.getFieldValue('possuiAnexo'),
     });
   }, [form]);
 

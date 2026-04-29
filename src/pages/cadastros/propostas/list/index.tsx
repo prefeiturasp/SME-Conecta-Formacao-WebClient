@@ -13,6 +13,7 @@ import { DatePickerPeriodo } from '~/components/main/input/date-range';
 import SelectFormato from '~/components/main/input/formato';
 import SelectPublicoAlvo from '~/components/main/input/publico-alvo';
 import SelectRevalidacao from '~/components/main/input/revalidacao';
+import SelectFormacaoComAnexo from '~/components/main/input/selecionar-filtro-anexo';
 import SelectSituacaoProposta from '~/components/main/input/situacao-proposta';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
@@ -62,6 +63,7 @@ const ListCadastroDePropostas: React.FC = () => {
       periodoRealizacaoFim: null,
       situacao: null,
       revalidacao: null,
+      possuiAnexo: undefined,
     },
   );
   const columns: ColumnsType<PropostaPaginadaDTO> = [
@@ -141,6 +143,7 @@ const ListCadastroDePropostas: React.FC = () => {
     const periodoRealizacaoFim = dataFim;
     const situacao = form.getFieldValue('situacao');
     const revalidacao = form.getFieldValue('revalidacao');
+    const possuiAnexo = form.getFieldValue('possuiAnexo');
 
     if (
       !numeroHomologacao &&
@@ -168,6 +171,7 @@ const ListCadastroDePropostas: React.FC = () => {
       periodoRealizacaoFim: periodoRealizacaoFim,
       situacao: situacao,
       revalidacao: revalidacao ?? null,
+      possuiAnexo: possuiAnexo ?? null,
     });
   }, [filters]);
 
@@ -255,8 +259,7 @@ const ListCadastroDePropostas: React.FC = () => {
       <Form form={form} layout='vertical' autoComplete='off' initialValues={formInitialValues}>
         <CardContent>
           <Form.Item shouldUpdate>
-            {() => (
-              <>
+            {() => (              
                 <Row gutter={[16, 8]}>
                   <Col xs={24} sm={12} md={8}>
                     <b>
@@ -329,7 +332,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={18} sm={8} md={6}>
                     <b>
                       <InputNumero
                         formItemProps={{
@@ -346,14 +349,19 @@ const ListCadastroDePropostas: React.FC = () => {
                       />
                     </b>
                   </Col>
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={18} sm={8} md={6}>
                     <b>
                       <SelectSituacaoProposta selectProps={{ onChange: obterFiltros }} />
                     </b>
                   </Col>
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={18} sm={8} md={6}>
                     <b>
                       <SelectRevalidacao selectProps={{ onChange: obterFiltros }} />
+                    </b>
+                  </Col>
+                  <Col xs={18} sm={8} md={6}>                    
+                    <b>
+                      <SelectFormacaoComAnexo onChange={obterFiltros} />
                     </b>
                   </Col>
                   <Col span={24}>
@@ -374,8 +382,7 @@ const ListCadastroDePropostas: React.FC = () => {
                       })}
                     />
                   </Col>
-                </Row>
-              </>
+                </Row>              
             )}
           </Form.Item>
         </CardContent>

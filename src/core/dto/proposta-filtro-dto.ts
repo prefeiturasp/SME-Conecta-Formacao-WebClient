@@ -11,4 +11,5 @@ export type PropostaFiltrosDTO = {
   periodoRealizacaoFim: string | null;
   situacao: SituacaoProposta | null;
   revalidacao: string | null;
+  possuiAnexo: boolean | null;
 };
