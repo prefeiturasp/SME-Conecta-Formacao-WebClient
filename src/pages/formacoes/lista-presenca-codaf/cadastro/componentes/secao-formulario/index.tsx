@@ -133,7 +133,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                   label: turma.descricao,
                   value: turma.id,
                 }))}
-                disabled={camposBloqueados.turma || turmaDisabled}
+                disabled={camposBloqueados.turma ?? turmaDisabled}
                 allowClear
               />
             </Form.Item>
