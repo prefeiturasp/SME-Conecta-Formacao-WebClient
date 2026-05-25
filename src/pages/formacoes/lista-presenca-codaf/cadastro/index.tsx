@@ -165,7 +165,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       listaInscritos: situacao.finalizado,
       
       retificacoes:
-        situacao.finalizado && (ehAreaPromotora || perfil.admin),
+        situacao.finalizado && ehAreaPromotora,
 
       informacoesAdicionais:
         situacao.finalizado && ehAreaPromotora,
