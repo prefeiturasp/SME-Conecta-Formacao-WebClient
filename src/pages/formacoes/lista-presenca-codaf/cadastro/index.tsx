@@ -141,6 +141,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const ehAreaPromotora =
     perfil.df || perfil.emforpef;
 
+  const ehAreaPromotoraEAdmin =
+    perfil.df || perfil.emforpef || perfil.admin;
+
   const situacao = {
     iniciado: status === 1,
 
@@ -162,7 +165,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       listaInscritos: situacao.finalizado,
       
       retificacoes:
-        situacao.finalizado && ehAreaPromotora,
+        situacao.finalizado && (ehAreaPromotora || perfil.admin),
 
       informacoesAdicionais:
         situacao.finalizado && ehAreaPromotora,
@@ -1407,7 +1410,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             totalRegistrosInscritos={totalRegistrosInscritos}
             handleTableChangeInscritos={handleTableChangeInscritos}
           />
-          <div style={{ display: ehAreaPromotora ? 'block' : 'none' }}>
+          <div style={{ display: ehAreaPromotoraEAdmin ? 'block' : 'none' }}>
             <SecaoRetificacoes
               retificacoes={retificacoes}
               setRetificacoes={setRetificacoes}
