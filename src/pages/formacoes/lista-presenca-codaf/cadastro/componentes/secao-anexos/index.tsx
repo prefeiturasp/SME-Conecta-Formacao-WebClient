@@ -8,6 +8,7 @@ interface SecaoAnexosProps {
   onDownloadAnexo: (arquivo: any) => void;
   fazerUploadAnexoCodaf: (formData: FormData, configuracaoHeader: any) => Promise<any>;
   obterAnexoCodafParaDownload: (arquivo: any) => Promise<any>;
+  bloqueado: boolean;
 }
 
 export const SecaoAnexos: React.FC<SecaoAnexosProps> = ({
@@ -16,6 +17,7 @@ export const SecaoAnexos: React.FC<SecaoAnexosProps> = ({
   onDownloadAnexo,
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
+  bloqueado,
 }) => {
   return (
     <Row gutter={[16, 8]} style={{ marginTop: 16 }}>
@@ -41,7 +43,7 @@ export const SecaoAnexos: React.FC<SecaoAnexosProps> = ({
           draggerProps={{
             multiple: true,
             onDownload: onDownloadAnexo,
-            disabled: !podeGerenciarAnexos,
+            disabled: !podeGerenciarAnexos || bloqueado,
           }}
           subTitulo='Deve permitir apenas arquivos PDF com no máximo 20MB cada.'
           tipoArquivosPermitidos='.pdf'
