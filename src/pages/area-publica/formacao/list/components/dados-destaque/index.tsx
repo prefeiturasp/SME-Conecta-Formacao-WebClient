@@ -35,7 +35,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({ dadosFormacao, propostaId
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const dadosInscricao: RetornoDetalheFormacaoDto = location.state.location;
+  const dadosInscricao: RetornoDetalheFormacaoDto = location && location.state && location.state.location || dadosFormacao;
   const autenticado = useAppSelector((state) => state.auth.autenticado);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
   const linkInscricaoExterna = dadosFormacao?.linkParaInscricoesExterna;
