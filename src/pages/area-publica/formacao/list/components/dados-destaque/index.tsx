@@ -41,6 +41,8 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({ dadosFormacao, propostaId
   const linkInscricaoExterna = dadosFormacao?.linkParaInscricoesExterna;
 
   const setarDadosInscricao = () => {
+    if (!dadosInscricao) return;
+
     dispatch(setDadosFormacao(dadosInscricao));
 
     const temPerfilCursista = perfilUsuario.filter((item) =>
