@@ -13,7 +13,13 @@ const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps
 
   const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = removerTudoQueNaoEhDigito(e?.target?.value);
-    return value ? maskTelefone(value) : value;
+    return value ? maskTelefone(value) : '';
+  };
+
+  const normalize = (value: any) => {
+    if (!value) return '';
+    const onlyDigits = removerTudoQueNaoEhDigito(value);
+    return onlyDigits ? maskTelefone(onlyDigits) : '';
   };
 
   return (
@@ -21,6 +27,7 @@ const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps
       label='Telefone'
       name='telefone'
       getValueFromEvent={getValueFromEvent}
+      normalize={normalize}
       rules={[
         { required: !!formItemProps?.required, message: TELEFONE_NAO_INFORMADO },
         {
@@ -43,7 +50,7 @@ const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps
       ]}
       {...formItemProps}
     >
-      <Input placeholder='(XX) XXXXX-XXXX' maxLength={15} {...inputProps} />
+      <Input placeholder='(00) 0000-0000' maxLength={15} {...inputProps} />
     </Form.Item>
   );
 };
