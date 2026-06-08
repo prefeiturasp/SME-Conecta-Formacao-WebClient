@@ -12,6 +12,7 @@ export type DadosUsuarioDTO = {
   cpf?: string;
   login?: string;
   email?: string;
+  telefone?: string;
   nomeUnidade?: string;
   emailEducacional?: string;
   tipo?: number;

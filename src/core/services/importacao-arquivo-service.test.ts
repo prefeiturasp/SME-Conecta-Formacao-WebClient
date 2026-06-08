@@ -1,3 +1,33 @@
+// Polyfill para File e FormData em ambiente de teste (Node.js)
+if (typeof File === 'undefined') {
+  (global as any).File = class File {
+    name: string;
+    constructor(
+      bits: (string | ArrayBuffer | ArrayBufferView)[],
+      filename: string,
+      options?: { type?: string },
+    ) {
+      this.name = filename;
+      Object.assign(this, { type: options?.type || '', size: 0 });
+    }
+  };
+}
+
+if (typeof FormData === 'undefined') {
+  (global as any).FormData = class FormData {
+    private data: Map<string, any> = new Map();
+    append(key: string, value: any) {
+      this.data.set(key, value);
+    }
+    get(key: string) {
+      return this.data.get(key);
+    }
+    has(key: string) {
+      return this.data.has(key);
+    }
+  };
+}
+
 import importacaoArquivoService from './importacao-arquivo-service';
 
 jest.mock('./api', () => ({
