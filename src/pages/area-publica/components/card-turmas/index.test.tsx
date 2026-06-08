@@ -4,6 +4,7 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
 
 import CardTurmasPublico from './index';
 import { RetornoTurmaDetalheDto } from '~/core/dto/dados-formacao-area-publica-dto';
@@ -44,48 +45,48 @@ const turmaBase: RetornoTurmaDetalheDto = {
 };
 
 describe('CardTurmasPublico', () => {
-  it('renderiza o nome da turma', () => {
+  test('renderiza o nome da turma', () => {
     render(<CardTurmasPublico turma={turmaBase} />);
     expect(screen.getByText('Turma Teste')).toBeInTheDocument();
   });
 
-  it('renderiza o local', () => {
+  test('renderiza o local', () => {
     render(<CardTurmasPublico turma={turmaBase} />);
     expect(screen.getByText('Escola Municipal X')).toBeInTheDocument();
   });
 
-  it('renderiza label "Datas de realização:"', () => {
+  test('renderiza label "Datas de realização:"', () => {
     render(<CardTurmasPublico turma={turmaBase} />);
     expect(screen.getByText(/Datas de realização/i)).toBeInTheDocument();
   });
 
-  it('renderiza label "Local:"', () => {
+  test('renderiza label "Local:"', () => {
     render(<CardTurmasPublico turma={turmaBase} />);
     expect(screen.getByText('Local:')).toBeInTheDocument();
   });
 
-  it('renderiza label "Datas dos encontros*:"', () => {
+  test('renderiza label "Datas dos encontros*:"', () => {
     render(<CardTurmasPublico turma={turmaBase} />);
     expect(screen.getByText('Datas dos encontros*:')).toBeInTheDocument();
   });
 
-  it('exibe período de realização quando dataInicio e dataFim estão presentes', () => {
+  test('exibe período de realização quando dataInicio e dataFim estão presentes', () => {
     render(<CardTurmasPublico turma={turmaBase} />);
     expect(screen.getByText(/De .+ à .+/)).toBeInTheDocument();
   });
 
-  it('exibe período com apenas dataInicio', () => {
+  test('exibe período com apenas dataInicio', () => {
     render(<CardTurmasPublico turma={{ ...turmaBase, dataFim: undefined }} />);
     expect(screen.getByText(/De .+/)).toBeInTheDocument();
     expect(screen.queryByText(/Até .+/)).not.toBeInTheDocument();
   });
 
-  it('exibe período com apenas dataFim', () => {
+  test('exibe período com apenas dataFim', () => {
     render(<CardTurmasPublico turma={{ ...turmaBase, dataInicio: undefined }} />);
     expect(screen.getByText(/Até .+/)).toBeInTheDocument();
   });
 
-  it('não exibe período quando dataInicio e dataFim estão ausentes', () => {
+  test('não exibe período quando dataInicio e dataFim estão ausentes', () => {
     render(
       <CardTurmasPublico turma={{ ...turmaBase, dataInicio: undefined, dataFim: undefined }} />,
     );
@@ -93,7 +94,7 @@ describe('CardTurmasPublico', () => {
     expect(screen.queryByText(/Até .+/)).not.toBeInTheDocument();
   });
 
-  it('renderiza encontros no modelo "novo"', () => {
+  test('renderiza encontros no modelo "novo"', () => {
     const turma: RetornoTurmaDetalheDto = {
       ...turmaBase,
       modeloHorario: 'novo',
@@ -106,7 +107,7 @@ describe('CardTurmasPublico', () => {
     expect(screen.getByText(/10\/03\/2026 08:00 - 10:00/)).toBeInTheDocument();
   });
 
-  it('expande intervalo de datas no modelo "legado"', () => {
+  test('expande intervalo de datas no modelo "legado"', () => {
     const turma: RetornoTurmaDetalheDto = {
       ...turmaBase,
       modeloHorario: 'legado',
@@ -124,7 +125,7 @@ describe('CardTurmasPublico', () => {
     expect(screen.getAllByText(/14:30 - 16:00/)).toHaveLength(3);
   });
 
-  it('renderiza dois ícones de informação', () => {
+  test('renderiza dois ícones de informação', () => {
     render(<CardTurmasPublico turma={turmaBase} />);
     expect(screen.getAllByTestId('info-icon')).toHaveLength(2);
   });
