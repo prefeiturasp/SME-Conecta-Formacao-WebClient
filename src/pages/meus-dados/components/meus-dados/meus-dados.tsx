@@ -25,6 +25,7 @@ import InputUnidade from '~/components/main/input/unidade';
 import { TipoUsuario } from '~/core/enum/tipo-usuario';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { onClickVoltar } from '~/core/utils/form';
+import { maskTelefone } from '~/core/utils/functions';
 import { MeusDadosContext } from '../../provider';
 import ModalEditEmailButton from '../modal-edit-email/modal-edit-email-button';
 import { ModalEditNomeButton } from '../modal-edit-nome/modal-edit-nome-button';
@@ -33,6 +34,8 @@ import ModalEditUnidadeButton from '../modal-edit-unidade/modal-edit-unidade-but
 import SelectTipoEmail from '~/components/main/input/tipo-email';
 import ModalEditTipoEmailEducacionalButton from '../modal-edit-tipo-email-educacional/modal-edit-tipo-email-educacional-button';
 import { CF_SELECT_TIPO_EMAIL } from '~/core/constants/ids/select';
+import InputTelefone from '~/components/main/input/telefone';
+import { ModalEditTelefoneButton } from '../modal-edit-telefone/modal-edit-telefone-button';
 
 export const DadosPerfil = styled.div`
   color: #a4a4a4;
@@ -70,7 +73,11 @@ const MeusDados: React.FC = () => {
 
   const { meusDados } = useContext(MeusDadosContext);
   useEffect(() => {
-    form.setFieldsValue({ ...meusDados });
+    const dadosFormatados = { 
+      ...meusDados,
+      telefone: meusDados?.telefone ? maskTelefone(meusDados.telefone) : '',
+    };
+    form.setFieldsValue(dadosFormatados);
 
     const ua = meusDados?.usuarioAcessibilidade;
     if (ua) {
@@ -232,6 +239,18 @@ const MeusDados: React.FC = () => {
                       }}
                     />
                     <ModalEditEmailButton formPreview={form} />
+                  </Row>
+                </Col>
+                <Col span={24}>
+                  <Row wrap={false} align='middle'>
+                    <InputTelefone
+                      inputProps={{ disabled: true }}
+                      formItemProps={{
+                        style: { width: '100%', marginRight: '8px' },
+                        required: false,
+                      }}
+                    />
+                    <ModalEditTelefoneButton formPreview={form} />
                   </Row>
                 </Col>
                 <Col span={24}>
