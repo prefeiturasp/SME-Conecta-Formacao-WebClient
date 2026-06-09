@@ -73,6 +73,7 @@ jest.mock('antd/es/form/Form', () => ({
     {
       getFieldValue: jest.fn(),
       getFieldsValue: jest.fn(() => ({})),
+      setFieldsValue: jest.fn(),
       isFieldsTouched: jest.fn(() => true),
       resetFields: jest.fn(),
       validateFields: jest.fn().mockResolvedValue({}),
