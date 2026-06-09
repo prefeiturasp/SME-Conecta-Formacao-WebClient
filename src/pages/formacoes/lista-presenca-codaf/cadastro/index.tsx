@@ -124,17 +124,104 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   ];
 
   const modoEdicao = !!id;
-  const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
-  const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
-  const ehAreaPromotora = ehPerfilDF || ehPerfilEMFORPEF;
-  const ehPerfilAdmin = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
 
-  const podeGerenciarAnexos = ehPerfilDF || ehPerfilEMFORPEF;
-  const mostrarBotaoExcluir = modoEdicao && status === 1;
-  const mostrarBotaoEnviarDF =
-    (status === 1 || status === null || status === 3) && ehAreaPromotora == true;
-  const mostrarBotaoDevolverDF = status === 2 && ehPerfilAdmin == true;
-  const mostrarBotaoSalvar = status !== 2 || (status === 2 && ehPerfilAdmin == true);
+  const perfil = {
+    df:
+      perfilSelecionado ===
+      TipoPerfilTagDisplay[TipoPerfilEnum.DF],
+
+    emforpef:
+      perfilSelecionado === 'EMFORPEF',
+
+    admin:
+      perfilSelecionado ===
+      TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF],
+  };
+
+  const ehAreaPromotora =
+    perfil.df || perfil.emforpef;
+
+  const ehAreaPromotoraEAdmin =
+    perfil.df || perfil.emforpef || perfil.admin;
+
+  const situacao = {
+    iniciado: status === 1,
+
+    aguardandoDF: status === 2,
+
+    devolvidoDF: status === 3,
+
+    finalizado: status === 4,
+  };
+
+  const bloqueios = {
+
+    campos: {
+      secaoFormulario: {
+        numeroHomologacao: situacao.finalizado,
+        turma: situacao.finalizado,
+      },
+
+      listaInscritos: situacao.finalizado,
+      
+      retificacoes:
+        situacao.finalizado && ehAreaPromotora,
+
+      informacoesAdicionais:
+        situacao.finalizado && ehAreaPromotora,
+    },
+
+    anexos: {
+      areaPromotora: situacao.finalizado && ehAreaPromotora,
+    },
+
+    botoes: {
+      excluir: {
+        visivel:
+          modoEdicao &&
+          situacao.iniciado,
+
+        bloqueado:
+          situacao.finalizado,
+      },
+
+      enviarDF: {
+        visivel:
+          (
+            situacao.iniciado ||
+            status === null ||
+            situacao.devolvidoDF
+          ) &&
+          ehAreaPromotora,
+
+        bloqueado:
+          situacao.finalizado,
+      },
+
+      devolver: {
+        visivel:
+          situacao.aguardandoDF &&
+          perfil.admin,
+
+        bloqueado:
+          !formValido ||
+          situacao.finalizado,
+      },
+
+      salvar: {
+        visivel:
+          (
+            !situacao.aguardandoDF ||
+            situacao.aguardandoDF &&
+            perfil.admin
+          ) && !situacao.finalizado,
+
+        bloqueado:
+          situacao.finalizado,
+      },
+    },
+  };
+
 
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
   const nomeFormacao = Form.useWatch('nomeFormacao', form);
@@ -437,6 +524,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       width: 150,
       render: (freq: number | null, record: CursistaDTO) => (
         <Input
+          disabled={bloqueios.campos.listaInscritos}
           value={freq !== null ? `${freq}%` : ''}
           placeholder='%'
           onChange={(e) => handleFrequenciaChange(record.id, e.target.value)}
@@ -452,6 +540,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       width: 150,
       render: (atividade: string | null, record: CursistaDTO) => (
         <Select
+          disabled={bloqueios.campos.listaInscritos}
           value={atividade}
           placeholder='Selecione'
           onChange={(value) => handleCursistaChange(record.id, 'atividade', value)}
@@ -471,6 +560,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       width: 250,
       render: (conceitoFinal: string | null, record: CursistaDTO) => (
         <Select
+          disabled={bloqueios.campos.listaInscritos}
           value={conceitoFinal}
           placeholder='Selecione'
           onChange={(value) => handleCursistaChange(record.id, 'conceitoFinal', value || null)}
@@ -491,6 +581,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       width: 120,
       render: (aprovado: boolean | null, record: CursistaDTO) => (
         <Select
+          disabled={bloqueios.campos.listaInscritos}
           value={aprovado !== null ? (aprovado ? 'S' : 'N') : null}
           placeholder='Selecione'
           onChange={(value) =>
@@ -1178,45 +1269,43 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                 id={CF_BUTTON_VOLTAR}
               />
             </Col>
-            {mostrarBotaoExcluir && (
+            {bloqueios.botoes.excluir.visivel && (
               <Col>
                 <Button
                   type='default'
+                  disabled={bloqueios.botoes.excluir.bloqueado}
                   onClick={onClickExcluir}
                   id={CF_BUTTON_EXCLUIR}
                   style={{
                     fontWeight: 700,
-                    borderColor: '#ff6b35',
-                    color: '#ff6b35',
                   }}
                 >
                   Excluir
                 </Button>
               </Col>
             )}
-            {mostrarBotaoSalvar && (
+            {bloqueios.botoes.salvar.visivel && (
               <Col>
                 <Button
+                  disabled={bloqueios.botoes.salvar.bloqueado}
                   type='default'
                   onClick={onClickCancelar}
                   id={CF_BUTTON_CANCELAR}
                   style={{
                     fontWeight: 700,
-                    borderColor: '#ff6b35',
-                    color: '#ff6b35',
                   }}
                 >
                   Cancelar
                 </Button>
               </Col>
             )}
-            {mostrarBotaoSalvar && (
+            {bloqueios.botoes.salvar.visivel && (
               <Col>
                 <Button
+                  disabled={(!modoEdicao && todasTurmasPossuemLista) || bloqueios.botoes.salvar.bloqueado}
                   type='primary'
                   onClick={() => onClickSalvar()}
                   loading={loading}
-                  disabled={!modoEdicao && todasTurmasPossuemLista}
                   id={CF_BUTTON_SALVAR}
                   style={{ fontWeight: 700 }}
                 >
@@ -1225,24 +1314,24 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               </Col>
             )}
             <Col>
-              {mostrarBotaoEnviarDF && (
+              {bloqueios.botoes.enviarDF.visivel && (
                 <Button
                   type='primary'
                   onClick={onClickEnviarParaDF}
                   loading={loading}
-                  disabled={!formValido}
+                  disabled={!formValido || bloqueios.botoes.enviarDF.bloqueado}
                   style={{ fontWeight: 700 }}
                 >
                   Enviar para DF
                 </Button>
               )}
 
-              {mostrarBotaoDevolverDF && (
+              {bloqueios.botoes.devolver.visivel && (
                 <Button
                   type='primary'
                   onClick={onClickDevolverParaDF}
                   loading={loading}
-                  disabled={!formValido}
+                  disabled={!formValido || bloqueios.botoes.devolver.bloqueado}
                   style={{ fontWeight: 700 }}
                 >
                   Devolver
@@ -1304,8 +1393,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             turmasFiltradas={turmasFiltradas}
             turmaDisabled={turmaDisabled}
             tooltipAberto={tooltipAberto}
-            ehPerfilDF={ehPerfilDF}
-            ehPerfilEMFORPEF={ehPerfilEMFORPEF}
+            ehPerfilDF={perfil.df}
+            ehPerfilEMFORPEF={perfil.emforpef}
+            camposBloqueados={bloqueios.campos.secaoFormulario}
           />
           <SecaoListaInscritos
             mostrarDivergencia={mostrarDivergencia}
@@ -1320,7 +1410,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             totalRegistrosInscritos={totalRegistrosInscritos}
             handleTableChangeInscritos={handleTableChangeInscritos}
           />
-          <div style={{ display: ehPerfilDF || ehPerfilEMFORPEF ? 'block' : 'none' }}>
+          <div style={{ display: ehAreaPromotoraEAdmin ? 'block' : 'none' }}>
             <SecaoRetificacoes
               retificacoes={retificacoes}
               setRetificacoes={setRetificacoes}
@@ -1329,14 +1419,16 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               retificacoesOriginais={retificacoesOriginais}
               setRetificacoesOriginais={setRetificacoesOriginais}
               form={form}
+              camposBaseadosBloqueados={bloqueios.campos.retificacoes}
             />
           </div>
           <SecaoAnexos
             form={form}
-            podeGerenciarAnexos={podeGerenciarAnexos}
+            podeGerenciarAnexos={ehAreaPromotora}
             onDownloadAnexo={onDownloadAnexo}
             fazerUploadAnexoCodaf={fazerUploadAnexoCodaf}
             obterAnexoCodafParaDownload={obterAnexoCodafParaDownload}
+            bloqueado={bloqueios.anexos.areaPromotora}
           />
 
           <BannerDownloadTermo onBaixarModelo={onBaixarModelo} />
@@ -1366,6 +1458,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
                   rows={4}
                   placeholder='Digite as informações adicionais...'
                   maxLength={500}
+                  disabled={bloqueios.campos.informacoesAdicionais}
                 />
               </Form.Item>
             </Col>

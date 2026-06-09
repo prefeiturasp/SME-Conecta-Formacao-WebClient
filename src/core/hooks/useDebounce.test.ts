@@ -1,167 +1,86 @@
+/**
+ * @jest-environment jsdom
+ */
+import { renderHook, act } from '@testing-library/react';
 import { useDebounce } from './useDebounce';
 
 describe('useDebounce', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('returns initial value immediately', () => {
+    const { result } = renderHook(() => useDebounce('initial', 500));
+    expect(result.current).toBe('initial');
   });
 
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+  it('does not update value before delay elapses', () => {
+    const { result, rerender } = renderHook(({ value }) => useDebounce(value, 500), {
+      initialProps: { value: 'first' },
+    });
+
+    rerender({ value: 'second' });
+    act(() => jest.advanceTimersByTime(499));
+
+    expect(result.current).toBe('first');
   });
 
-  test('deve ser uma função', () => {
-    expect(typeof useDebounce).toBe('function');
+  it('updates value after delay elapses', () => {
+    const { result, rerender } = renderHook(({ value }) => useDebounce(value, 500), {
+      initialProps: { value: 'first' },
+    });
+
+    rerender({ value: 'second' });
+    act(() => jest.advanceTimersByTime(500));
+
+    expect(result.current).toBe('second');
   });
 
-  test('deve exportar corretamente o hook', () => {
-    expect(useDebounce).toBeDefined();
+  it('cancels previous timer on rapid value changes', () => {
+    const { result, rerender } = renderHook(({ value }) => useDebounce(value, 300), {
+      initialProps: { value: 'a' },
+    });
+
+    rerender({ value: 'b' });
+    act(() => jest.advanceTimersByTime(100));
+    rerender({ value: 'c' });
+    act(() => jest.advanceTimersByTime(300));
+
+    expect(result.current).toBe('c');
   });
 
-  test('deve aceitar dois parâmetros (value e delay)', () => {
-    expect(useDebounce.length).toBe(2);
+  it('works with number values', () => {
+    const { result, rerender } = renderHook(({ value }) => useDebounce(value, 200), {
+      initialProps: { value: 0 },
+    });
+
+    rerender({ value: 42 });
+    act(() => jest.advanceTimersByTime(200));
+
+    expect(result.current).toBe(42);
   });
 
-  test('deve usar setTimeout internamente', () => {
-    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+  it('works with object values', () => {
+    const obj = { id: 1 };
+    const { result, rerender } = renderHook(({ value }) => useDebounce(value, 100), {
+      initialProps: { value: {} as any },
+    });
 
-    try {
-      const delay = 500;
-      let executado = false;
+    rerender({ value: obj });
+    act(() => jest.advanceTimersByTime(100));
 
-      const handler = setTimeout(() => {
-        executado = true;
-      }, delay);
-
-      expect(setTimeoutSpy).toHaveBeenCalled();
-
-      clearTimeout(handler);
-      expect(executado).toBe(false);
-    } finally {
-      setTimeoutSpy.mockRestore();
-    }
+    expect(result.current).toBe(obj);
   });
 
-  test('deve usar clearTimeout para limpar timeouts anteriores', () => {
-    const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+  it('cleans up timeout on unmount', () => {
+    const clearSpy = jest.spyOn(global, 'clearTimeout');
+    const { rerender, unmount } = renderHook(({ value }) => useDebounce(value, 500), {
+      initialProps: { value: 'a' },
+    });
 
-    try {
-      const handler = setTimeout(() => {
-        return true;
-      }, 500);
-      clearTimeout(handler);
+    rerender({ value: 'b' });
+    unmount();
 
-      expect(clearTimeoutSpy).toHaveBeenCalled();
-    } finally {
-      clearTimeoutSpy.mockRestore();
-    }
-  });
-
-  test('deve verificar importações do React', () => {
-    const hookSource = useDebounce.toString();
-    expect(hookSource).toBeDefined();
-  });
-
-  test('deve ter implementação de debounce com useEffect', () => {
-    // Verifica que o hook existe e pode ser importado
-    expect(useDebounce).toBeDefined();
-    expect(typeof useDebounce).toBe('function');
-  });
-
-  test('deve implementar lógica de cleanup no useEffect', () => {
-    // Testa que clearTimeout é chamado corretamente
-    const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
-
-    const timeout = setTimeout(() => {
-      return true;
-    }, 1000);
-    const cleanup = () => clearTimeout(timeout);
-    cleanup();
-
-    expect(clearTimeoutSpy).toHaveBeenCalledWith(timeout);
-
-    clearTimeoutSpy.mockRestore();
-  });
-
-  test('deve atrasar execução com setTimeout', () => {
-    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
-
-    const callback = jest.fn();
-    const delay = 300;
-
-    setTimeout(callback, delay);
-
-    expect(setTimeoutSpy).toHaveBeenCalledWith(callback, delay);
-
-    jest.advanceTimersByTime(delay);
-
-    expect(callback).toHaveBeenCalled();
-
-    setTimeoutSpy.mockRestore();
-  });
-
-  test('deve cancelar timeout quando valor muda', () => {
-    const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
-
-    const timeout1 = setTimeout(() => {
-      return 'primeiro';
-    }, 500);
-    clearTimeout(timeout1);
-
-    const timeout2 = setTimeout(() => {
-      return 'segundo';
-    }, 500);
-
-    expect(clearTimeoutSpy).toHaveBeenCalledWith(timeout1);
-
-    clearTimeout(timeout2);
-    clearTimeoutSpy.mockRestore();
-  });
-
-  test('deve processar valores após delay especificado', () => {
-    const callback = jest.fn();
-
-    setTimeout(callback, 500);
-
-    expect(callback).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(499);
-    expect(callback).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(1);
-    expect(callback).toHaveBeenCalled();
-  });
-
-  test('deve funcionar com diferentes delays', () => {
-    const callback1 = jest.fn();
-    const callback2 = jest.fn();
-    const callback3 = jest.fn();
-
-    setTimeout(callback1, 100);
-    setTimeout(callback2, 300);
-    setTimeout(callback3, 500);
-
-    jest.advanceTimersByTime(100);
-    expect(callback1).toHaveBeenCalled();
-    expect(callback2).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(200);
-    expect(callback2).toHaveBeenCalled();
-    expect(callback3).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(200);
-    expect(callback3).toHaveBeenCalled();
-  });
-
-  test('deve limpar todos os timers pendentes', () => {
-    const callback = jest.fn();
-
-    setTimeout(callback, 1000);
-
-    jest.clearAllTimers();
-
-    jest.advanceTimersByTime(1000);
-
-    expect(callback).not.toHaveBeenCalled();
+    expect(clearSpy).toHaveBeenCalled();
+    clearSpy.mockRestore();
   });
 });

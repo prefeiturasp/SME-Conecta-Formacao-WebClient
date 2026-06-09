@@ -40,6 +40,7 @@ import GuardPermissao from './config/guard/permissao';
 import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario';
 import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
 import RelatorioInscritosPorFormacao from '~/pages/relatorios/inscritos-por-formacao';
+import ListCoordenadoria from '~/pages/cadastros/coordenadoria';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -63,6 +64,8 @@ const RoutesConfig = () => {
     useEffect(() => {
       scrollNoInicio();
     }, [pathname]);
+
+    console.log(ListaPresencaCodaf, CadastroListaPresencaCodaf)
 
     return null;
   };
@@ -106,6 +109,12 @@ const RoutesConfig = () => {
                       path={ROUTES.AREA_PROMOTORA_EDITAR}
                       element={<FormCadastrosAreaPromotora />}
                     />
+                  </Route>
+                </Route>
+
+                <Route path={ROUTES.COORDENADORIA}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.Coordenadoria} />}>
+                    <Route path='' element={<ListCoordenadoria />} />
                   </Route>
                 </Route>
 
@@ -193,7 +202,7 @@ const RoutesConfig = () => {
                       element={<CadastroListaPresencaCodaf />}
                     />
                   </Route>
-                </Route>
+                </Route> 
 
                 <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
                   <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
@@ -202,7 +211,7 @@ const RoutesConfig = () => {
                 <Route
                   path={ROUTES.RELATORIO_INSCRITOS_POR_FORMACAO}
                   element={<RelatorioInscritosPorFormacao />}
-                />
+                />              
               </Route>
             </Route>
         ) : (

@@ -22,18 +22,21 @@ interface SecaoRetificacoesProps {
     >
   >;
   form: any;
+  camposBaseadosBloqueados: boolean;
 }
 
 type RetificacaoCardProps = {
   numero: number;
   totalRetificacoes: number;
   onExcluir: (numero: number) => void;
+  bloqueado: boolean;
 };
 
 const RetificacaoCard: React.FC<RetificacaoCardProps> = ({
   numero,
   totalRetificacoes,
   onExcluir,
+  bloqueado: camposBaseadosBloqueados,
 }) => (
   <Col
     xs={24}
@@ -63,6 +66,7 @@ const RetificacaoCard: React.FC<RetificacaoCardProps> = ({
       >
         <span>Retificação {numero.toString().padStart(2, '0')}</span>
         <Button
+          disabled={camposBaseadosBloqueados}
           type='text'
           icon={<DeleteOutlined />}
           onClick={() => onExcluir(numero)}
@@ -89,6 +93,7 @@ const RetificacaoCard: React.FC<RetificacaoCardProps> = ({
               name={`dataRetificacao${numero.toString().padStart(2, '0')}`}
             >
               <DatePicker
+                disabled={camposBaseadosBloqueados}
                 format='DD/MM/YYYY'
                 placeholder='Selecione a data'
                 locale={locale}
@@ -133,6 +138,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
   retificacoesOriginais,
   setRetificacoesOriginais,
   form,
+  camposBaseadosBloqueados,
 }) => {
   const adicionarNovaRetificacao = () => {
     const novoContador = contadorRetificacoes + 1;
@@ -231,6 +237,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
             numero={numero}
             totalRetificacoes={retificacoes.length}
             onExcluir={excluirRetificacao}
+            bloqueado={camposBaseadosBloqueados}
           />
         ))}
       </Row>
@@ -238,6 +245,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
       <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
         <Col>
           <Button
+            disabled={camposBaseadosBloqueados}
             type='default'
             icon={<PlusOutlined />}
             onClick={adicionarNovaRetificacao}
