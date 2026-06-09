@@ -176,12 +176,9 @@ jest.mock('./provider', () => {
 });
 
 // ─── IMPORTS ──────────────────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { FormCadastroDePropostas } from './index';
-import { describe, it, expect } from '@jest/globals';
 import cloneDeep from 'lodash/cloneDeep';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';

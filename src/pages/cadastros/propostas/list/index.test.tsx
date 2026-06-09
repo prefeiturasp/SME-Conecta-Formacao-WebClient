@@ -11,7 +11,6 @@ describe('ListCadastroDePropostas Component', () => {
     it('should have the component file', () => {
       expect(fs.existsSync(filePath)).toBe(true);
     });
-
     it('should export as default', () => {
       expect(fileContent).toContain('export default ListCadastroDePropostas');
     });
@@ -335,7 +334,7 @@ describe('ListCadastroDePropostas Component', () => {
     it('should define default form values', () => {
       expect(fileContent).toContain('areaPromotora: 0');
       expect(fileContent).toContain('codigoFormacao: 0');
-      expect(fileContent).toContain('nomeFormacao: ');
+      expect(fileContent).toContain("nomeFormacao: ''");
       expect(fileContent).toContain('pubicoAlvo: []');
     });
   });
@@ -427,4 +426,3 @@ describe('ListCadastroDePropostas Component', () => {
     });
   });
 });
-
