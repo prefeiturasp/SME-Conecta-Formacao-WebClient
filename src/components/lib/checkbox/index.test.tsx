@@ -1,7 +1,20 @@
-import { describe, test, expect } from '@jest/globals';
+import { describe, test, expect, jest } from '@jest/globals';
+
+jest.mock('~/core/services/api', () => ({
+  default: {},
+  obterRegistro: jest.fn(),
+  inserirRegistro: jest.fn(),
+}));
+
+import CheckboxAcaoInformatica from './index';
 import { ACAO_INFORMATIVA_NAO_ACEITA } from '~/core/constants/mensagens';
 
 describe('CheckboxAcaoInformatica', () => {
+  describe('Componente', () => {
+    test('deve ser uma função', () => {
+      expect(typeof CheckboxAcaoInformatica).toBe('function');
+    });
+  });
   describe('Configuração do campo do formulário', () => {
     test('deve usar name "acaoInformativa"', () => {
       const fieldName = 'acaoInformativa';

@@ -1,6 +1,15 @@
-import { describe, test, expect } from '@jest/globals';
+import { describe, test, expect, jest } from '@jest/globals';
+
+jest.mock('~/pages/notificacoes/provider', () => ({ NotificacoesContext: {} }));
+
+import NotificationButton from './index';
 
 describe('NotificationButton', () => {
+  describe('Componente', () => {
+    test('deve ser uma função', () => {
+      expect(typeof NotificationButton).toBe('function');
+    });
+  });
   describe('Propriedades padrão', () => {
     test('deve ter label padrão "Notificações"', () => {
       const label = 'Notificações';

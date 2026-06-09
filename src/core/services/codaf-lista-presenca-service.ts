@@ -1,6 +1,11 @@
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
-import { ApiResult, alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
-import api from './api';
+import api, {
+  ApiResult,
+  alterarRegistro,
+  deletarRegistro,
+  inserirRegistro,
+  obterRegistro,
+} from './api';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
 export const URL_API_CERTIFICADO = 'v1/CodafCertificado';
@@ -127,6 +132,30 @@ export type ComentarioCodafDTO = {
   criadoEm: string;
 };
 
+export type InscritoRemovidoDTO = {
+  id: number;
+  nome: string;
+  documento: string;
+};
+
+export type InscritoNovoDeltaDTO = {
+  id: number;
+  documento: string;
+  nome: string;
+  percentualFrequencia: number;
+  conceitoFinal: string;
+  atividadeObrigatorio: boolean;
+  aprovado: boolean;
+};
+
+export type DeltaInscritosDTO = {
+  totalNovos: number;
+  totalRemovidos: number;
+  houveAlteracao: boolean;
+  inscritosRemovidos: InscritoRemovidoDTO[];
+  inscritosNovos: InscritoNovoDeltaDTO[];
+};
+
 export type CodafListaPresencaDetalheDTO = {
   id: number;
   propostaId: number;
@@ -151,6 +180,7 @@ export type CodafListaPresencaDetalheDTO = {
   retificacoes?: RetificacaoDTO[];
   anexos?: AnexoCodafDetalheDTO[];
   comentario?: ComentarioCodafDTO;
+  deltaInscritos?: DeltaInscritosDTO;
 };
 
 export const criarCodafListaPresenca = (
@@ -159,10 +189,24 @@ export const criarCodafListaPresenca = (
   return inserirRegistro(URL_API_CODAF_LISTA_PRESENCA, dados);
 };
 
-export const obterCodafListaPresencaPorId = (
+export const obterCodafListaPresencaPorId = async (
   id: number,
 ): Promise<ApiResult<CodafListaPresencaDetalheDTO>> => {
-  return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`);
+  const response = await obterRegistro<any>(`${URL_API_CODAF_LISTA_PRESENCA}/${id}`);
+  const dados = response.dados?.dados !== undefined ? response.dados.dados : response.dados;
+  return { ...response, dados };
+};
+
+export const obterDeltaInscritosSilencioso = async (
+  id: number,
+): Promise<ApiResult<CodafListaPresencaDetalheDTO>> => {
+  const response = await obterRegistro<any>(
+    `${URL_API_CODAF_LISTA_PRESENCA}/${id}`,
+    undefined,
+    true,
+  );
+  const dados = response.dados?.dados !== undefined ? response.dados.dados : response.dados;
+  return { ...response, dados };
 };
 
 export const atualizarCodafListaPresenca = (

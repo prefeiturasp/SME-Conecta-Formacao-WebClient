@@ -17,6 +17,7 @@ type CollapsePanelSMEProps = {
   collapseProps?: CollapseProps;
   exibirTooltip?: boolean;
   titleToolTip?: string;
+  obrigatorio?: boolean;
 };
 const styleTituloPanel: React.CSSProperties = {
   fontSize: 14,
@@ -32,6 +33,7 @@ const CollapsePanelSME: React.FC<CollapsePanelSMEProps> = ({
   collapseProps,
   exibirTooltip = false,
   titleToolTip,
+  obrigatorio = true,
 }) => {
   const tituloPanel = <span style={styleTituloPanel}>{panelProps.header}</span>;
   const iconTooltip = exibirTooltip ? (
@@ -50,7 +52,7 @@ const CollapsePanelSME: React.FC<CollapsePanelSMEProps> = ({
             </Tooltip>
           }
           key={panelProps.key}
-          extra={genExtra()}
+          extra={obrigatorio ? genExtra() : undefined}
         >
           {children}
         </Panel>

@@ -1,6 +1,12 @@
 import { describe, test, expect } from '@jest/globals';
+import ButtonExcluir from './index';
 
 describe('ButtonExcluir', () => {
+  describe('Componente', () => {
+    test('deve ser uma função', () => {
+      expect(typeof ButtonExcluir).toBe('function');
+    });
+  });
   describe('Propriedades padrão', () => {
     test('deve ter type default', () => {
       const type = 'default';

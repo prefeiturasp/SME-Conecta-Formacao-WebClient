@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
 import { BOTAO_INSCRICAO_EXTERNA, ENVIAR_INSCRICAO } from '~/core/constants/mensagens';
-import { RetornoDetalheFormacaoDTO } from '~/core/dto/dados-formacao-area-publica-dto';
+import { RetornoDetalheFormacaoDto } from '~/core/dto/dados-formacao-area-publica-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppDispatch, useAppSelector } from '~/core/hooks/use-redux';
@@ -15,7 +15,7 @@ import { validarAutenticacao } from '~/core/utils/perfil';
 import { TagPersonalizada } from './styles';
 
 type DadosDestaqueProps = {
-  dadosFormacao: RetornoDetalheFormacaoDTO | undefined;
+  dadosFormacao: RetornoDetalheFormacaoDto | undefined;
   propostaId?: number;
 };
 
@@ -31,16 +31,18 @@ const TagTipoFormacaoFormato = styled(Tag)`
   font-weight: bold;
 `;
 
-const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
+const DadosDestaque: React.FC<DadosDestaqueProps> = ({ dadosFormacao, propostaId }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const dadosInscricao: RetornoDetalheFormacaoDTO = location.state.location;
+  const dadosInscricao: RetornoDetalheFormacaoDto | undefined = dadosFormacao ?? location?.state?.location;
   const autenticado = useAppSelector((state) => state.auth.autenticado);
   const perfilUsuario = useAppSelector((store) => store.perfil).perfilUsuario;
-  const linkInscricaoExterna = dadosFormacao.dadosFormacao?.linkParaInscricoesExterna;
+  const linkInscricaoExterna = dadosFormacao?.linkParaInscricoesExterna;
 
   const setarDadosInscricao = () => {
+    if (!dadosInscricao) return;
+
     dispatch(setDadosFormacao(dadosInscricao));
 
     const temPerfilCursista = perfilUsuario.filter((item) =>
@@ -54,7 +56,7 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = (dadosFormacao) => {
         validarAutenticacao(response.data);
       });
 
-      navigate(`${ROUTES.INSCRICAO}/${dadosFormacao?.propostaId}`, {
+      navigate(`${ROUTES.INSCRICAO}/${propostaId}`, {
         replace: true,
       });
     } else {

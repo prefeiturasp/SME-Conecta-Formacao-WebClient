@@ -1,7 +1,13 @@
 import { describe, test, expect } from '@jest/globals';
+import HeaderPage from './index';
 import { BoxShadow, Colors } from '~/core/styles/colors';
 
 describe('HeaderPage', () => {
+  describe('Componente', () => {
+    test('deve ser uma função', () => {
+      expect(typeof HeaderPage).toBe('function');
+    });
+  });
   describe('Propriedades padrão', () => {
     test('deve aceitar título como string', () => {
       const title = 'Cadastro de Propostas';

@@ -1,7 +1,13 @@
 import { describe, test, expect } from '@jest/globals';
+import CollapsePanelSME from './index';
 import { Colors } from '~/core/styles/colors';
 
 describe('CollapsePanelSME', () => {
+  describe('Componente', () => {
+    test('deve ser uma função', () => {
+      expect(typeof CollapsePanelSME).toBe('function');
+    });
+  });
   describe('Propriedades padrão', () => {
     test('deve ter exibirTooltip false por padrão', () => {
       const exibirTooltip = false;

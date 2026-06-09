@@ -1,193 +1,202 @@
-import { describe, test, expect } from '@jest/globals';
+/**
+ * @jest-environment jsdom
+ */
+import React from 'react';
+import { describe, test, expect, jest, beforeEach } from '@jest/globals';
+import { render, fireEvent, screen, waitFor, act } from '@testing-library/react';
+
+(global as any).React = React;
+
+// --------------------
+// Mocks
+// --------------------
+
+jest.mock('react-router-dom', () => ({
+  useNavigate: () => jest.fn(),
+  useLocation: () => ({ state: 'usuario_teste' }),
+}));
+
+jest.mock('~/core/hooks/use-redux', () => ({
+  useAppDispatch: () => jest.fn(),
+}));
+
+jest.mock('~/core/redux/modules/spin/actions', () => ({
+  setSpinning: () => ({ type: 'SPIN' }),
+}));
+
+jest.mock('~/core/utils/form', () => ({
+  onClickVoltar: jest.fn(),
+}));
+
+jest.mock('react-icons/io5', () => ({
+  IoInformationCircleSharp: () => React.createElement('span', null, 'icon'),
+}));
+
+jest.mock('~/components/lib/modal', () => ({
+  __esModule: true,
+  default: ({ open, children }: any) =>
+    open ? React.createElement('div', { 'data-testid': 'modal' }, children) : null,
+}));
+
+jest.mock('~/components/main/erro-geral-login', () => ({
+  __esModule: true,
+  default: ({ erros }: any) =>
+    React.createElement('div', { 'data-testid': 'erro' }, erros?.join(',')),
+}));
+
+jest.mock('~/core/services/usuario-service', () => ({
+  __esModule: true,
+  default: {
+    solicitarRecuperacaoSenha: jest.fn(),
+  },
+}));
+
+jest.mock('antd', () => {
+  const React = require('react');
+
+  const Form = ({ children, onFinish }: any) =>
+    React.createElement(
+      'form',
+      {
+        onSubmit: (e: any) => {
+          e.preventDefault();
+          onFinish && onFinish({ login: 'teste123' });
+        },
+      },
+      children,
+    );
+
+  Form.Item = ({ children }: any) => React.createElement('div', null, children);
+
+  const Button = ({ children, htmlType, block, ...rest }: any) =>
+    React.createElement(
+      'button',
+      {
+        type: htmlType === 'submit' ? 'submit' : 'button',
+        ...rest,
+      },
+      children,
+    );
+
+  const Input = (props: any) => React.createElement('input', props);
+
+  const Row = ({ children }: any) => React.createElement('div', null, children);
+  const Col = ({ children }: any) => React.createElement('div', null, children);
+
+  const Typography = {
+    Text: ({ children }: any) => React.createElement('span', null, children),
+  };
+
+  return { Form, Button, Input, Row, Col, Typography };
+});
+
+jest.mock('antd/es/form/Form', () => ({
+  useForm: () => [{}],
+  useWatch: () => 'teste123',
+}));
+
+// --------------------
+// Imports
+// --------------------
+import RedefinirSenha from './';
+import usuarioService from '~/core/services/usuario-service';
+import { onClickVoltar } from '~/core/utils/form';
+
+// --------------------
+// Utils
+// --------------------
+const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+// --------------------
+// Tests
+// --------------------
 
 describe('RedefinirSenha', () => {
-  describe('Validação de mensagens', () => {
-    const validateMessages = {
-      required: 'Campo obrigatório',
-      string: {
-        min: 'Deve conter no mínimo ${min} caracteres',
-      },
-    };
-
-    test('deve ter mensagem de campo obrigatório', () => {
-      expect(validateMessages.required).toBe('Campo obrigatório');
-    });
-
-    test('deve ter mensagem de mínimo de caracteres', () => {
-      expect(validateMessages.string.min).toContain('mínimo');
-    });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(jest.fn());
   });
 
-  describe('Campo de login', () => {
-    test('deve ter regras de validação corretas', () => {
-      const rules = [{ required: true }, { min: 5 }];
-      expect(rules).toHaveLength(2);
-      expect(rules[0].required).toBe(true);
-      expect(rules[1].min).toBe(5);
-    });
-
-    test('deve ter maxLength de 100', () => {
-      const maxLength = 100;
-      expect(maxLength).toBe(100);
-    });
-
-    test('deve ter placeholder correto', () => {
-      const placeholder = 'Informe o Usuário';
-      expect(placeholder).toBe('Informe o Usuário');
-    });
+  test('renderiza sem quebrar', () => {
+    render(<RedefinirSenha />);
+    expect(screen.getByText(/Esqueci minha senha/i)).toBeTruthy();
   });
 
-  describe('Título da página', () => {
-    test('deve exibir "Esqueci minha senha"', () => {
-      const title = 'Esqueci minha senha';
-      expect(title).toBe('Esqueci minha senha');
+  test('sucesso abre modal', async () => {
+    (usuarioService.solicitarRecuperacaoSenha as jest.Mock).mockResolvedValue({
+      data: 'Email enviado',
     });
+
+    await act(async () => {
+      render(<RedefinirSenha />);
+    });
+
+    await act(async () => {
+      fireEvent.submit(screen.getByRole('button', { name: /continuar/i }).closest('form')!);
+      await flushPromises();
+    });
+
+    expect(usuarioService.solicitarRecuperacaoSenha).toHaveBeenCalled();
+    expect(await screen.findByTestId('modal')).toBeTruthy();
   });
 
-  describe('Texto informativo', () => {
-    test('deve conter informação sobre recuperação de senha', () => {
-      const texto =
-        'Ao continuar será acionada a opção de recuperação de senha e você receberá um e-mail com as orientações.';
-      expect(texto).toContain('recuperação de senha');
-      expect(texto).toContain('e-mail');
+  test('erro string', async () => {
+    (usuarioService.solicitarRecuperacaoSenha as jest.Mock).mockRejectedValue({
+      response: { data: 'Erro simples' },
     });
+
+    await act(async () => {
+      render(<RedefinirSenha />);
+    });
+
+    await act(async () => {
+      fireEvent.submit(screen.getByRole('button', { name: /continuar/i }).closest('form')!);
+      await flushPromises();
+    });
+
+    const erro = await screen.findByTestId('erro');
+    expect(erro.textContent).toContain('Erro simples');
   });
 
-  describe('Botões', () => {
-    test('deve ter botão Continuar', () => {
-      const buttonContinuar = { text: 'Continuar', type: 'primary', htmlType: 'submit' };
-      expect(buttonContinuar.text).toBe('Continuar');
-      expect(buttonContinuar.type).toBe('primary');
-      expect(buttonContinuar.htmlType).toBe('submit');
+  test('erro lista', async () => {
+    (usuarioService.solicitarRecuperacaoSenha as jest.Mock).mockRejectedValue({
+      response: { data: { mensagens: ['Erro 1', 'Erro 2'] } },
     });
 
-    test('deve ter botão Voltar', () => {
-      const buttonVoltar = { text: 'Voltar', type: 'default' };
-      expect(buttonVoltar.text).toBe('Voltar');
-      expect(buttonVoltar.type).toBe('default');
+    await act(async () => {
+      render(<RedefinirSenha />);
     });
 
-    test('botões devem ter fontWeight 700', () => {
-      const style = { fontWeight: 700 };
-      expect(style.fontWeight).toBe(700);
+    await act(async () => {
+      fireEvent.submit(screen.getByRole('button', { name: /continuar/i }).closest('form')!);
+      await flushPromises();
     });
+
+    const erro = await screen.findByTestId('erro');
+    expect(erro.textContent).toContain('Erro 1');
+    expect(erro.textContent).toContain('Erro 2');
   });
 
-  describe('Modal de recuperação', () => {
-    test('deve ter título "Esqueci minha senha"', () => {
-      const modalTitle = 'Esqueci minha senha';
-      expect(modalTitle).toBe('Esqueci minha senha');
+  test('erro fallback', async () => {
+    (usuarioService.solicitarRecuperacaoSenha as jest.Mock).mockRejectedValue({
+      response: { data: {} },
     });
 
-    test('deve ser centralizado', () => {
-      const centered = true;
-      expect(centered).toBe(true);
+    await act(async () => {
+      render(<RedefinirSenha />);
     });
 
-    test('deve ter destroyOnClose true', () => {
-      const destroyOnClose = true;
-      expect(destroyOnClose).toBe(true);
+    await act(async () => {
+      fireEvent.submit(screen.getByRole('button', { name: /continuar/i }).closest('form')!);
+      await flushPromises();
     });
 
-    test('deve ter footer null', () => {
-      const footer = null;
-      expect(footer).toBeNull();
-    });
+    expect(await screen.findByTestId('erro')).toBeTruthy();
   });
 
-  describe('Estados iniciais', () => {
-    test('deve ter erroGeral inicial como undefined', () => {
-      const erroGeral = undefined;
-      expect(erroGeral).toBeUndefined();
-    });
-
-    test('deve ter mensagemRecuperacaoSenha inicial como undefined', () => {
-      const mensagemRecuperacaoSenha = undefined;
-      expect(mensagemRecuperacaoSenha).toBeUndefined();
-    });
-
-    test('deve ter openModal inicial como false', () => {
-      const openModal = false;
-      expect(openModal).toBe(false);
-    });
-  });
-
-  describe('Tratamento de erros', () => {
-    test('deve ter mensagem de erro padrão', () => {
-      const ERRO_RECUPERACAO_SENHA = 'Erro ao recuperar senha';
-      expect(ERRO_RECUPERACAO_SENHA).toBeTruthy();
-    });
-
-    test('deve tratar erro como string', () => {
-      const erro = 'Erro de teste';
-      const erroArray = [erro];
-      expect(erroArray).toHaveLength(1);
-      expect(erroArray[0]).toBe('Erro de teste');
-    });
-
-    test('deve tratar erro com mensagens', () => {
-      const dataErro = { mensagens: ['Erro 1', 'Erro 2'] };
-      expect(dataErro.mensagens).toHaveLength(2);
-    });
-  });
-
-  describe('Navegação', () => {
-    test('deve voltar para rota principal', () => {
-      const route = 'ROUTES.PRINCIPAL';
-      expect(route).toBeTruthy();
-    });
-  });
-
-  describe('Location state', () => {
-    test('deve receber usuário do location state', () => {
-      const locationState = 'usuario123';
-      expect(locationState).toBeTruthy();
-    });
-
-    test('deve usar como valor inicial do campo login', () => {
-      const initialValue = 'usuario123';
-      expect(initialValue).toBe('usuario123');
-    });
-  });
-
-  describe('Layout do formulário', () => {
-    test('deve ter layout vertical', () => {
-      const layout = 'vertical';
-      expect(layout).toBe('vertical');
-    });
-
-    test('deve ter autoComplete off', () => {
-      const autoComplete = 'off';
-      expect(autoComplete).toBe('off');
-    });
-
-    test('deve ter gutter correto para espaçamento', () => {
-      const gutter = [0, 30];
-      expect(gutter).toEqual([0, 30]);
-    });
-  });
-
-  describe('Serviço de recuperação', () => {
-    test('deve chamar solicitarRecuperacaoSenha com login', () => {
-      const login = 'usuario123';
-      expect(login).toBeTruthy();
-    });
-
-    test('deve abrir modal ao receber resposta com dados', () => {
-      const resposta = { data: 'Email enviado com sucesso' };
-      expect(resposta.data).toBeTruthy();
-    });
-  });
-
-  describe('Ícone informativo', () => {
-    test('deve usar IoInformationCircleSharp', () => {
-      const iconName = 'IoInformationCircleSharp';
-      expect(iconName).toBe('IoInformationCircleSharp');
-    });
-
-    test('deve ter fontSize 17', () => {
-      const fontSize = 17;
-      expect(fontSize).toBe(17);
-    });
+  test('voltar chama função', () => {
+    render(<RedefinirSenha />);
+    fireEvent.click(screen.getByText('Voltar'));
+    expect(onClickVoltar).toHaveBeenCalled();
   });
 });

@@ -19,6 +19,7 @@ import { PropostaVagaRemanecenteDTO } from './proposta-vaga-remanecente-dto';
 import { DreDTO } from './retorno-listagem-dto';
 
 export type PropostaDTO = {
+  anexoUrl?: string;
   podeEditar?: boolean;
   ehProximoPasso?: boolean;
   formacaoHomologada?: FormacaoHomologada;
@@ -62,6 +63,7 @@ export type PropostaDTO = {
   acaoFormativaLink?: string;
   descricaoDaAtividade?: string;
   turmas?: PropostaTurmaDTO[];
+  gruposPeriodos?: GrupoPeriodoDTO[];
   dres?: PropostaDresDTO[];
   modalidades?: PropostaModalidadeDTO[];
   anosTurmas?: PropostaAnoTurmaDTO[];
@@ -101,6 +103,7 @@ export type PropostaCompletoDTO = {
 } & PropostaDTO;
 
 export type PropostaFormDTO = {
+  anexoUrl?: string;
   ehProximoPasso?: boolean;
   formacaoHomologada?: FormacaoHomologada;
   tipoFormacao?: TipoFormacao;
@@ -144,6 +147,7 @@ export type PropostaFormDTO = {
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
   turmas?: PropostaTurmaFormDTO[];
+  gruposPeriodos?: GrupoPeriodoFormDTO[];
   dres?: DreDTO[];
   modalidade?: number;
   anosTurmas?: number[];
@@ -207,4 +211,17 @@ export type PropostaPareceristaDTO = {
   id?: number;
   nomeParecerista?: string;
   registroFuncional?: string;
+};
+
+export type GrupoPeriodoDTO = {
+  id: number;
+  dataInicio: string;
+  dataFim: string;
+  propostaTurmasIds: number[];
+};
+
+export type GrupoPeriodoFormDTO = {
+  id?: number;
+  periodo?: Dayjs[];
+  propostaTurmasIds?: number[];
 };
