@@ -38,7 +38,7 @@ import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
 import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario';
-// import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
+import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
 import RelatorioInscritosPorFormacao from '~/pages/relatorios/inscritos-por-formacao';
 import ListCoordenadoria from '~/pages/cadastros/coordenadoria';
 
@@ -186,7 +186,7 @@ const RoutesConfig = () => {
                   </Route>
                 </Route>
 
-                {/* <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
+                <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
                   <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
                     <Route path='' element={<ListaPresencaCodaf />} />
                   </Route>
@@ -206,13 +206,12 @@ const RoutesConfig = () => {
 
                 <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
                   <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
-                </Route>*/
+                </Route>
 
                 <Route
                   path={ROUTES.RELATORIO_INSCRITOS_POR_FORMACAO}
                   element={<RelatorioInscritosPorFormacao />}
-                />
-              }
+                />              
               </Route>
             </Route>
         ) : (
