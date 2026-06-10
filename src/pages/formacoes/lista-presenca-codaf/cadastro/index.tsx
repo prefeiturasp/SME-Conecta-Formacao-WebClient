@@ -9,12 +9,15 @@ import ModalEnviarDF from './componentes/modal-enviar-df/modal-enviar-df';
 import ModalDevolverDF from './componentes/modal-devolver-df/modal-devolver-df';
 import ModalExcluir from './componentes/modal-excluir/modal-excluir';
 import ModalComentario from './componentes/modal-comentario/modal-comentario';
+import ModalAvisoDeltaInscritos from './componentes/modal-aviso-delta-inscritos/modal-aviso-delta-inscritos';
 import SecaoRetificacoes from './componentes/secao-retificacoes/secao-retificacoes';
 import { BannerDownloadTermo } from './componentes/banner-download-termo';
 import { SecaoAnexos } from './componentes/secao-anexos';
 import { SecaoListaInscritos } from './componentes/secao-lista-inscritos';
 import { SecaoFormulario } from './componentes/secao-formulario';
 import { BannerComentarios } from './componentes/banner-comentarios';
+import DrawerAtualizacaoInscritos from '~/components/lib/drawer/atualizacao-inscritos/drawer-atualizacao-inscritos';
+import { InscritoAtualizacaoDTO } from '~/core/dto/atualizacao-inscritos-dto';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -43,6 +46,7 @@ import {
   obterCodafListaPresencaPorId,
   obterInscritosTurma,
   verificarTurmaPossuiLista,
+  obterDeltaInscritosSilencioso
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -108,12 +112,16 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   >(new Map());
   const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
   const [deltaInscritos, setDeltaInscritos] = useState<DeltaInscritosDTO | null>(null);
+  const [modalAvisoDeltaVisible, setModalAvisoDeltaVisible] = useState(false);
   const [mostrarBanner, setMostrarBanner] = useState(false);
   const [comentario, setComentario] = useState<ComentarioCodafDTO | null>(null);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
   const [modalDevolverDFVisible, setModalDevolverDFVisible] = useState(false);
   const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
   const [modalComentarioVisible, setModalComentarioVisible] = useState(false);
+  const [modalDrawerInscritosVisible, setModalDrawerInscritosVisible] = useState(false);
+  const [novosInscritosDrawer, setNovosInscritosDrawer] = useState<InscritoAtualizacaoDTO[]>([]);
+  const [divergenciaResolvidaLocal, setDivergenciaResolvidaLocal] = useState(false);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
   const situacoes = [
@@ -153,6 +161,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     finalizado: status === 4,
   };
+
+  const bloqueioDivergenciaSalvar =
+    modoEdicao &&
+    // ehAreaPromotora &&
+    (situacao.iniciado || situacao.aguardandoDF) &&
+    mostrarDivergencia;
+  
+    const bloqueioDivergenciaEnviarDF =
+    modoEdicao &&
+    // ehAreaPromotora &&
+    mostrarDivergencia;
 
   const bloqueios = {
 
@@ -195,7 +214,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           ehAreaPromotora,
 
         bloqueado:
-          situacao.finalizado,
+          situacao.finalizado || bloqueioDivergenciaEnviarDF,
       },
 
       devolver: {
@@ -217,7 +236,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           ) && !situacao.finalizado,
 
         bloqueado:
-          situacao.finalizado,
+          situacao.finalizado || bloqueioDivergenciaSalvar,
       },
     },
   };
@@ -738,8 +757,25 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
+  const houveAlteracaoInscritosAoSalvar = async () => {
+    const response = await obterDeltaInscritosSilencioso(registroId!);
+    if (response.sucesso && response.dados) {
+      const dados = response.dados;
+      if (dados.deltaInscritos?.houveAlteracao) {
+        setDeltaInscritos(dados.deltaInscritos);
+        setMostrarDivergencia(true);
+        setModalAvisoDeltaVisible(true);
+        return true;
+      }
+    }
+    return false;
+  };
+
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
+      if (!divergenciaResolvidaLocal && registroId && await houveAlteracaoInscritosAoSalvar()) {
+        return;
+      }
       const values = await form.validateFields();
       setLoading(true);
 
@@ -784,6 +820,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
+        setDivergenciaResolvidaLocal(false);
         const registroIdAtual = id ?? response.dados?.id;
         if (registroIdAtual) {
           try {
@@ -1057,6 +1094,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       });
       return;
     }
+
+    if (registroId) {
+      setLoading(true);
+      const houveDivergencia = await houveAlteracaoInscritosAoSalvar();
+      setLoading(false);
+      
+      if (houveDivergencia) {
+        return;
+      }
+    }
+
     if (!validarParaEnvio()) {
       return;
     }
@@ -1195,7 +1243,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     setModalDevolverDFVisible(false);
   };
 
-  const onClickAtualizarInscritos = async () => {
+  const onClickAtualizarInscritos = () => {
     if (!turmaId) {
       notification.warning({
         message: 'Atenção',
@@ -1204,35 +1252,63 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await obterInscritosTurma(turmaId, 1, 99999);
-      if (!response.sucesso || !response.dados) {
-        notification.warning({
-          message: 'Atenção',
-          description: 'Nenhum inscrito encontrado para esta turma',
-        });
-        return;
-      }
+    const novos = deltaInscritos?.inscritosNovos || [];
+    const removidos = deltaInscritos?.inscritosRemovidos || [];
 
-      const inscritosAtualizados: CursistaDTO[] = response.dados.items.map((inscrito) => ({
+    if (novos.length === 0) {
+      const idsRemovidos = removidos.map((r) => r.id);
+      const listaSemRemovidos = cursistas.filter((c) => !idsRemovidos.includes(c.id));
+      
+      setMostrarDivergencia(false);
+      setCursistas(listaSemRemovidos);
+      setDivergenciaResolvidaLocal(true);
+
+      return;
+    }
+
+    const inscritosMapeadosParaDrawer: InscritoAtualizacaoDTO[] = novos.map((novo) => ({
+      id: novo.id,
+      nome: novo.nome,
+      documento: novo.documento,
+      frequencia: novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined,
+      atividadeObrigatoria: atividadeObrigatorioParaLetra(novo.atividadeObrigatorio) === 'S' ? 'Sim' : 
+                            (atividadeObrigatorioParaLetra(novo.atividadeObrigatorio) === 'N' ? 'Não' : undefined),
+      conceitoFinal: novo.conceitoFinal || undefined,
+      aprovado: novo.aprovado === true ? 'Sim' : (novo.aprovado === false ? 'Não' : undefined),
+    }));
+
+    setNovosInscritosDrawer(inscritosMapeadosParaDrawer);
+    setModalDrawerInscritosVisible(true);
+  };
+
+  const onSaveDrawerInscritos = async (novosInscritosPreenchidos: InscritoAtualizacaoDTO[]) => {
+    try {      
+      const idsRemovidos = deltaInscritos?.inscritosRemovidos.map((r) => r.id) || [];
+      const idsNovos = novosInscritosPreenchidos.map((i) => i.id);
+
+      const cursistasAtuaisFiltrados = cursistas.filter((c) => !idsRemovidos.includes(c.id) && !idsNovos.includes(c.id));
+
+      const novosCursistas: CursistaDTO[] = novosInscritosPreenchidos.map((inscrito) => ({
         id: inscrito.id,
         rfOuCpf: inscrito.documento,
         nomeCursista: inscrito.nome,
-        frequencia: inscrito.percentualFrequencia ?? null,
-        atividade: atividadeObrigatorioParaLetra(inscrito.atividadeObrigatorio),
-        conceitoFinal: inscrito.conceitoFinal ?? null,
-        aprovado: inscrito.aprovado ?? null,
+        frequencia: inscrito.frequencia ? parseInt(inscrito.frequencia.replace(/[^0-9]/g, ''), 10) : null,
+        atividade: inscrito.atividadeObrigatoria || null,
+        conceitoFinal: inscrito.conceitoFinal || null,
+        aprovado: inscrito.aprovado === 'Sim',
       }));
 
+      const listaFinal = [...cursistasAtuaisFiltrados, ...novosCursistas];
+
+      setCursistas(listaFinal);
       setMostrarDivergencia(false);
-      await onClickSalvar(inscritosAtualizados);
-      setCursistas(inscritosAtualizados);
+      setModalDrawerInscritosVisible(false);
+      setDivergenciaResolvidaLocal(true);
     } catch (error) {
-      console.error('Erro ao atualizar inscritos:', error);
+      console.error('Erro ao salvar inscritos do drawer:', error);
       notification.error({
         message: 'Erro',
-        description: 'Erro ao atualizar lista de inscritos',
+        description: 'Falha ao processar os novos inscritos',
       });
     } finally {
       setLoading(false);
@@ -1255,6 +1331,15 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     setModalComentarioVisible(false);
     //setMostrarBanner(false);
   };
+
+  const cursistasParaTabela = cursistas.filter((cursista) => {
+    if (!mostrarDivergencia || !deltaInscritos) return true;
+
+    const isNovo = deltaInscritos.inscritosNovos?.some((novo) => novo.id === cursista.id);
+    const isRemovido = deltaInscritos.inscritosRemovidos?.some((removido) => removido.id === cursista.id);
+
+    return !isNovo && !isRemovido;
+  });
 
   return (
     <Col>
@@ -1404,7 +1489,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             onClickAtualizarInscritos={onClickAtualizarInscritos}
             loading={loading}
             colunasCursistas={colunasCursistas}
-            cursistas={cursistas}
+            cursistas={cursistasParaTabela}
             paginaAtualInscritos={paginaAtualInscritos}
             registrosPorPaginaInscritos={registrosPorPaginaInscritos}
             totalRegistrosInscritos={totalRegistrosInscritos}
@@ -1491,6 +1576,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         visible={modalComentarioVisible}
         onClose={onCloseModalComentario}
         comentario={comentario}
+      />
+
+      <DrawerAtualizacaoInscritos
+        openModal={modalDrawerInscritosVisible}
+        onCloseModal={() => setModalDrawerInscritosVisible(false)}
+        onSave={onSaveDrawerInscritos}
+        inscritos={novosInscritosDrawer}
       />
     </Col>
   );
