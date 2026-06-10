@@ -18,5 +18,5 @@ export type InscricaoDTO = {
   tipoVinculo: number | undefined;
   vagaRemanescente: boolean | undefined;
   usuarioAcessibilidade?: UsuarioAcessibilidadeDTO;
-  usuarioTelefone?: string | undefined;
+  usuarioTelefone?: string;
 };
