@@ -144,10 +144,14 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     admin:
       perfilSelecionado ===
       TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF],
+
+    cursista:
+      perfilSelecionado ===
+      TipoPerfilTagDisplay[TipoPerfilEnum.Cursista],
   };
 
   const ehAreaPromotora =
-    perfil.df || perfil.emforpef;
+    !perfil.cursista && !perfil.admin;
 
   const ehAreaPromotoraEAdmin =
     perfil.df || perfil.emforpef || perfil.admin;
