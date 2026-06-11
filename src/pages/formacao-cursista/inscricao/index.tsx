@@ -65,6 +65,20 @@ export const Inscricao = () => {
 
   const [confirmacaoInscricao, setConfirmacaoInscricao] = useState<string>('');
 
+  const formatarTelefone = (valor: string) => {
+    const numeros = valor.replace(/\D/g, '').slice(0, 11);
+
+    if (numeros.length <= 10) {
+      return numeros
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{4})(\d)/, '$1-$2');
+    }
+
+    return numeros
+      .replace(/(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2');
+  };
+
   const carregarPerfil = useCallback(async () => {
     const obterDados = await obterDadosInscricaoProposta(propostaId);
     const dados = obterDados.dados;
@@ -115,7 +129,7 @@ export const Inscricao = () => {
         usuarioCpf: dados.usuarioCpf,
         usuarioCargos,
         usuarioCargoSelecionado,
-        usuarioTelefone: dados.usuarioTelefone,
+        usuarioTelefone: formatarTelefone(dados.usuarioTelefone ?? ''),
         vagaRemanescente: dados.vagaRemanescente,
       };
       setFormInitialValues(valoresIniciais);
@@ -153,8 +167,8 @@ export const Inscricao = () => {
             ua.necessitaAdaptacao === true
               ? 'Sim'
               : ua.necessitaAdaptacao === false
-              ? 'Não'
-              : undefined;
+                ? 'Não'
+                : undefined;
 
           const acessibilidadeValues = {
             pessoaComDeficiencia: deficiencia,
@@ -218,7 +232,7 @@ export const Inscricao = () => {
       funcaoUeCodigo: undefined,
       tipoVinculo: undefined,
       vagaRemanescente: clonedValues.vagaRemanescente,
-      usuarioTelefone: clonedValues.usuarioTelefone,
+      usuarioTelefone: clonedValues.usuarioTelefone?.replace(/\D/g, '') ?? undefined,
     };
 
     if (Array.isArray(clonedValues?.arquivoId)) {
@@ -392,17 +406,21 @@ export const Inscricao = () => {
               <Col xs={24} sm={8}>
                 <SelectTurma propostaId={propostaId} />
               </Col>
-              
+
               <Col xs={24} sm={8}>
                 <Form.Item label='Telefone' key='usuarioTelefone' name='usuarioTelefone'>
                   <Input
                     type='text'
-                    maxLength={50}
+                    maxLength={15}
                     placeholder='(00) 00000-0000'
+                    onChange={(e) => {
+                      const formatado = formatarTelefone(e.target.value);
+                      form.setFieldValue('usuarioTelefone', formatado);
+                    }}
                   />
                 </Form.Item>
               </Col>
-              
+
               <Col xs={24} sm={8}>
                 <Form.Item
                   label='Pessoa com deficiência?'
