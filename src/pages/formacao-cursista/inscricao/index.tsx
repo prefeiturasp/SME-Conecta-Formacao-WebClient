@@ -115,6 +115,7 @@ export const Inscricao = () => {
         usuarioCpf: dados.usuarioCpf,
         usuarioCargos,
         usuarioCargoSelecionado,
+        usuarioTelefone: dados.usuarioTelefone,
         vagaRemanescente: dados.vagaRemanescente,
       };
       setFormInitialValues(valoresIniciais);
@@ -217,6 +218,7 @@ export const Inscricao = () => {
       funcaoUeCodigo: undefined,
       tipoVinculo: undefined,
       vagaRemanescente: clonedValues.vagaRemanescente,
+      usuarioTelefone: clonedValues.usuarioTelefone,
     };
 
     if (Array.isArray(clonedValues?.arquivoId)) {
@@ -390,6 +392,17 @@ export const Inscricao = () => {
               <Col xs={24} sm={8}>
                 <SelectTurma propostaId={propostaId} />
               </Col>
+              
+              <Col xs={24} sm={8}>
+                <Form.Item label='Telefone' key='usuarioTelefone' name='usuarioTelefone'>
+                  <Input
+                    type='text'
+                    maxLength={50}
+                    placeholder='(00) 00000-0000'
+                  />
+                </Form.Item>
+              </Col>
+              
               <Col xs={24} sm={8}>
                 <Form.Item
                   label='Pessoa com deficiência?'

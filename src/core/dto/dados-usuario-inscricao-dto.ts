@@ -14,6 +14,7 @@ export type DadosInscricaoDTO = {
   usuarioNome: string;
   usuarioRf: string;
   usuarioCpf: string;
+  usuarioTelefone?: string;
   usuarioCargos: DadosInscricaoCargoEolDTO[];
   usuarioCargoSelecionado?: string;
   usuarioFuncaoSelecionado?: string;
