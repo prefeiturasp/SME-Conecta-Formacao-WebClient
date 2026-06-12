@@ -795,43 +795,70 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     return false;
   };
 
+  const montarPayloadSalvar = (values: any, inscritosOverride?: CursistaDTO[]) => {
+    const anexosMapeados = values.anexos?.map((arquivo: any) => ({
+      arquivoCodigo: arquivo.xhr || arquivo.arquivoCodigo,
+      nomeArquivo: arquivo.name || arquivo.nomeArquivo,
+      tipoAnexoId: 3,
+    })) ?? [];
+
+    const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
+
+    return {
+      propostaId: propostaSelecionada?.propostaId || 0,
+      propostaTurmaId: values.turmaId || 0,
+      dataPublicacao: formatarData(values.dataPublicacao),
+      dataPublicacaoDom: formatarData(values.dataPublicacaoDiarioOficial),
+      numeroComunicado: Number(values.numeroComunicado) || 0,
+      paginaComunicadoDom: Number(values.paginaComunicado) || 0,
+      codigoCursoEol: Number(values.codigoCursoEol) || null,
+      codigoNivel: Number(values.codigoNivel) || null,
+      observacao: values.observacao || '',
+      inscritos: inscritosBase.map((cursista) => ({
+        inscricaoId: cursista.id,
+        percentualFrequencia: cursista.frequencia ?? null,
+        conceitoFinal: cursista.conceitoFinal ?? null,
+        atividadeObrigatorio: letraParaAtividadeObrigatorio(cursista.atividade),
+        aprovado: cursista.aprovado ?? null,
+      })),
+      anexos: anexosMapeados,
+      retificacoes: montarRetificacoes(values),
+    };
+  };
+
+  const atualizarDivergenciaPosSalvar = async (registroIdAtual: number | string) => {
+    try {
+      const detalhes = await obterCodafListaPresencaPorId(Number(registroIdAtual));
+      if (detalhes.sucesso && detalhes.dados?.deltaInscritos?.houveAlteracao) {
+        setDeltaInscritos(detalhes.dados.deltaInscritos);
+        setMostrarDivergencia(true);
+      }
+    } catch (error) {
+      console.error('Erro ao verificar delta de inscritos após salvar:', error);
+    }
+  };
+
+  const exibirErroSalvar = (error: any) => {
+    const mensagemPadraoErro = modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro';
+    const mensagemErro =
+      error?.response?.data?.erros?.[0] ??
+      error?.response?.data?.mensagens?.[0] ??
+      error?.message ??
+      mensagemPadraoErro;
+      
+    notification.error({ message: 'Erro', description: mensagemErro });
+  };
+
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
       if (registroId && await houveAlteracaoInscritosAoSalvar(registroId)) {
         return;
       }
+
       const values = await form.validateFields();
       setLoading(true);
 
-      const anexos =
-        values.anexos?.map((arquivo: any) => ({
-          arquivoCodigo: arquivo.xhr || arquivo.arquivoCodigo,
-          nomeArquivo: arquivo.name || arquivo.nomeArquivo,
-          tipoAnexoId: 3,
-        })) || [];
-
-      const dados = {
-        propostaId: propostaSelecionada?.propostaId || 0,
-        propostaTurmaId: values.turmaId || 0,
-        dataPublicacao: formatarData(values.dataPublicacao),
-        dataPublicacaoDom: formatarData(values.dataPublicacaoDiarioOficial),
-        numeroComunicado: Number(values.numeroComunicado) || 0,
-        paginaComunicadoDom: Number(values.paginaComunicado) || 0,
-        codigoCursoEol: Number(values.codigoCursoEol) || null,
-        codigoNivel: Number(values.codigoNivel) || null,
-        observacao: values.observacao || '',
-        inscritos: (Array.isArray(inscritosOverride) ? inscritosOverride : cursistas).map(
-          (cursista) => ({
-            inscricaoId: cursista.id,
-            percentualFrequencia: cursista.frequencia ?? null,
-            conceitoFinal: cursista.conceitoFinal ?? null,
-            atividadeObrigatorio: letraParaAtividadeObrigatorio(cursista.atividade),
-            aprovado: cursista.aprovado ?? null,
-          }),
-        ),
-        anexos,
-        retificacoes: montarRetificacoes(values),
-      };
+      const dados = montarPayloadSalvar(values, inscritosOverride);
 
       console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
 
@@ -840,34 +867,18 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         : await criarCodafListaPresenca(dados);
 
       console.log('Resposta da API:', response);
-
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
         setDeltaResolvidoLocalmente(null); 
         const registroIdAtual = id ?? response.dados?.id;
+        
         if (registroIdAtual) {
-          try {
-            const detalhes = await obterCodafListaPresencaPorId(Number(registroIdAtual));
-            if (detalhes.sucesso && detalhes.dados?.deltaInscritos?.houveAlteracao) {
-              setDeltaInscritos(detalhes.dados.deltaInscritos);
-              setMostrarDivergencia(true);
-            }
-          } catch (error) {
-            console.error('Erro ao verificar delta de inscritos após salvar:', error);
-          }
+          await atualizarDivergenciaPosSalvar(registroIdAtual);
         }
       }
     } catch (error: any) {
-      const mensagemPadraoErro = modoEdicao
-        ? 'Erro ao atualizar o registro'
-        : 'Erro ao salvar o registro';
-      const mensagemErro =
-        error?.response?.data?.erros?.[0] ||
-        error?.response?.data?.mensagens?.[0] ||
-        error?.message ||
-        mensagemPadraoErro;
-      notification.error({ message: 'Erro', description: mensagemErro });
+      exibirErroSalvar(error);
     } finally {
       setLoading(false);
     }
