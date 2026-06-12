@@ -1,4 +1,5 @@
-import { Form } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
+import { Form, Tooltip } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import React from 'react';
 import InputTelefone from '~/components/main/input/telefone';
@@ -27,11 +28,26 @@ export const ModalEditTelefone: React.FC<ModalEditTelefoneProps> = ({
   };
 
   const alterarTelefone = (values: { telefone: string }) =>
-    usuarioService.alterarTelefone(usuarioLogin, values?.telefone);
+    usuarioService.alterarTelefone(usuarioLogin, values?.telefone ?? '');
 
   const initialValuesFormatted = {
     telefone: initialValues?.telefone ? maskTelefone(initialValues.telefone) : '',
   };
+
+  const handleExcluirTelefone = () => {
+    form.setFields([{ name: 'telefone', value: '', touched: true, errors: [] }]);
+  };
+
+  const telefoneAtual = Form.useWatch('telefone', form);
+
+  const suffixIcon = telefoneAtual ? (
+    <Tooltip title='Excluir telefone'>
+      <DeleteOutlined
+        onClick={handleExcluirTelefone}
+        style={{ cursor: 'pointer', color: '#8c8c8c' }}
+      />
+    </Tooltip>
+  ) : null;
 
   return (
     <ModalEditDefault
@@ -49,7 +65,7 @@ export const ModalEditTelefone: React.FC<ModalEditTelefoneProps> = ({
         initialValues={initialValuesFormatted}
         validateMessages={validateMessages}
       >
-        <InputTelefone />
+        <InputTelefone suffix={suffixIcon} />
       </Form>
     </ModalEditDefault>
   );
