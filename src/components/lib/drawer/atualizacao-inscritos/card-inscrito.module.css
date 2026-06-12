@@ -1,0 +1,32 @@
+.cardContainer {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.cardHeader {
+  background-color: #f4803b;
+  color: #ffffff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subscriberName {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.subscriberDocument {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.cardBody {
+  padding: 16px 16px 0 16px;
+}

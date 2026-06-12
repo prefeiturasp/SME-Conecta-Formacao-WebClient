@@ -78,6 +78,7 @@ const ListaPresencaCodaf: React.FC = () => {
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [, forceUpdate] = useState(0);
 
+  const ehPerfilAdminDf = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
   const ocultarColunas = ehPerfilDF || ehPerfilEMFORPEF;
@@ -246,19 +247,23 @@ const ListaPresencaCodaf: React.FC = () => {
   };
 
   const getMenuAcoes = (record: CodafListaPresencaDTO): MenuProps => {
-    const hasCodigoCursoEol = record.codigoCursoEol !== null && record.codigoCursoEol !== undefined;
-    const isStatusAguardandoDF = record.status === 2;
-    const isDisabledByEol = !hasCodigoCursoEol;
-    const isDisabled = isDisabledByEol || !isStatusAguardandoDF;
+    const hasCodigoCursoEol = record.codigoCursoEol != null;
+    const isAguardandoDF = record.status === 2;
+    const isFinalizado = record.status === 4;
+    const isCertificacaoConcluida = record.statusCertificacaoTurma === 4;
+    const podeGerarComoComum = isAguardandoDF && hasCodigoCursoEol;
+    const podeGerarComoAdmin = isFinalizado && ehPerfilAdminDf;
+    const podeGerarTxtEol = podeGerarComoComum || podeGerarComoAdmin;
 
     const getTooltipMessage = () => {
-      if (!isStatusAguardandoDF) {
-        return 'Função ativa apenas para a situação Aguardando DF com valor de Cod. Curso EOL informado';
+      if (podeGerarTxtEol) {
+        return 'Clique para gerar TXT EOL';
       }
-      if (isDisabledByEol) {
+      if (isAguardandoDF && !hasCodigoCursoEol) {
         return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
       }
-      return 'Clique para gerar TXT EOL';
+      return 'Função ativa apenas para a situação Aguardando DF com valor de Cod. Curso EOL informado';
+       
     };
 
     const items = [];
@@ -266,8 +271,8 @@ const ListaPresencaCodaf: React.FC = () => {
     if (!ocultarColunas) {
       items.push({
         key: 'exportar-lista-inscritos',
-        disabled: isDisabled,
-        label: isDisabled ? (
+        disabled: !podeGerarTxtEol,
+        label: !podeGerarTxtEol ? (
           <span style={{ display: 'block' }}>
             Gerar TXT EOL &nbsp;
             <Tooltip title={getTooltipMessage()}>
@@ -283,7 +288,7 @@ const ListaPresencaCodaf: React.FC = () => {
         ),
         onClick: (e: any) => {
           e.domEvent.stopPropagation();
-          if (!isDisabled) {
+          if (podeGerarTxtEol) {
             onClickExportarListaInscritos(record);
           }
         },
@@ -292,9 +297,9 @@ const ListaPresencaCodaf: React.FC = () => {
 
     items.push({
       key: 'baixar-relatorio-codaf',
-      disabled: record.statusCertificacaoTurma !== 4,
+      disabled: !isCertificacaoConcluida,
       label:
-        record.statusCertificacaoTurma !== 4 ? (
+        !isCertificacaoConcluida ? (
           <span style={{ display: 'block' }}>
             Baixar Relatório CODAF &nbsp;
             <Tooltip title='Gere os certificados para baixar o relatório CODAF.'>
@@ -310,7 +315,7 @@ const ListaPresencaCodaf: React.FC = () => {
         ),
       onClick: (e: any) => {
         e.domEvent.stopPropagation();
-        if (record.statusCertificacaoTurma === 4) {
+        if (isCertificacaoConcluida) {
           onClickBaixarRelatorioCodaf(record);
         }
       },
