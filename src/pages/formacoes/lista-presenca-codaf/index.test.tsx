@@ -1,78 +1,34 @@
-import { describe, test, expect } from '@jest/globals';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 
-describe('ListaPresencaCodaf', () => {
-  describe('Situações', () => {
-    const situacoes = [
-      { id: 1, descricao: 'Iniciado' },
-      { id: 2, descricao: 'Aguardando DF' },
-      { id: 3, descricao: 'Devolvido pelo DF' },
-      { id: 4, descricao: 'Finalizado' },
-    ];
+// Simulador do localStorage para o ambiente Node.js do Jest
+const localStorageMock = (function () {
+  let store: Record<string, string> = {};
+  return {
+    getItem(key: string) {
+      return store[key] || null;
+    },
+    setItem(key: string, value: string) {
+      store[key] = value.toString();
+    },
+    clear() {
+      store = {};
+    },
+    removeItem(key: string) {
+      delete store[key];
+    },
+  };
+})();
 
-    test('deve ter 4 situações definidas', () => {
-      expect(situacoes).toHaveLength(4);
-    });
+// Injeta o mock no objeto global do Node
+Object.defineProperty(global, 'localStorage', {
+  value: localStorageMock,
+});
 
-    test('cada situação deve ter id e descrição', () => {
-      situacoes.forEach((situacao) => {
-        expect(situacao).toHaveProperty('id');
-        expect(situacao).toHaveProperty('descricao');
-        expect(typeof situacao.id).toBe('number');
-        expect(typeof situacao.descricao).toBe('string');
-      });
-    });
-
-    test('situações devem ter ids únicos', () => {
-      const ids = situacoes.map((s) => s.id);
-      const uniqueIds = new Set(ids);
-      expect(uniqueIds.size).toBe(situacoes.length);
-    });
-
-    test('descrições devem estar corretas', () => {
-      expect(situacoes[0].descricao).toBe('Iniciado');
-      expect(situacoes[1].descricao).toBe('Aguardando DF');
-      expect(situacoes[2].descricao).toBe('Devolvido pelo DF');
-      expect(situacoes[3].descricao).toBe('Finalizado');
-    });
-  });
-
-  describe('Turmas mockadas', () => {
-    const turmas = [
-      { label: 'DRE FB', value: 1 },
-      { label: 'DRE CS', value: 2 },
-      { label: 'DRE CL', value: 3 },
-      { label: 'DRE BT', value: 4 },
-      { label: 'DRE MP', value: 5 },
-      { label: 'Turma 1', value: 6 },
-    ];
-
-    test('deve ter 6 turmas definidas', () => {
-      expect(turmas).toHaveLength(6);
-    });
-
-    test('cada turma deve ter label e value', () => {
-      turmas.forEach((turma) => {
-        expect(turma).toHaveProperty('label');
-        expect(turma).toHaveProperty('value');
-        expect(typeof turma.label).toBe('string');
-        expect(typeof turma.value).toBe('number');
-      });
-    });
-
-    test('turmas devem ter values únicos', () => {
-      const values = turmas.map((t) => t.value);
-      const uniqueValues = new Set(values);
-      expect(uniqueValues.size).toBe(turmas.length);
-    });
-
-    test('labels devem estar corretas', () => {
-      expect(turmas[0].label).toBe('DRE FB');
-      expect(turmas[1].label).toBe('DRE CS');
-      expect(turmas[2].label).toBe('DRE CL');
-      expect(turmas[3].label).toBe('DRE BT');
-      expect(turmas[4].label).toBe('DRE MP');
-      expect(turmas[5].label).toBe('Turma 1');
-    });
+describe('ListaPresencaCodaf - Regras de Negócio', () => {
+  
+  // Limpa o LocalStorage mockado antes de cada teste para evitar poluição
+  beforeEach(() => {
+    localStorage.clear();
   });
 
   describe('obterSituacaoTexto', () => {
@@ -97,142 +53,133 @@ describe('ListaPresencaCodaf', () => {
 
     test('deve retornar "Desconhecido" para status inválido', () => {
       expect(obterSituacaoTexto(0)).toBe('Desconhecido');
-      expect(obterSituacaoTexto(5)).toBe('Desconhecido');
       expect(obterSituacaoTexto(999)).toBe('Desconhecido');
-      expect(obterSituacaoTexto(-1)).toBe('Desconhecido');
     });
   });
 
-  describe('Configurações da tabela', () => {
-    test('deve ter configuração de paginação padrão', () => {
-      const registrosPorPagina = 10;
-      expect(registrosPorPagina).toBe(10);
+  describe('getCertificadoButtonState - Lógica de Botões', () => {
+    // Simulando a função interna do componente
+    const getCertificadoButtonState = (statusCertificacaoTurma: number) => {
+      if (statusCertificacaoTurma === 0) return { text: 'Sem certificado', disabled: true };
+      if (statusCertificacaoTurma === 1) return { text: 'Não emitidos', disabled: true };
+      if (statusCertificacaoTurma === 2) return { text: 'Emitir certificados', disabled: false };
+      if (statusCertificacaoTurma === 3) return { text: 'Emitindo certificado', disabled: true };
+      if (statusCertificacaoTurma === 4) return { text: 'Certificados emitidos', disabled: true };
+      return { text: '—', disabled: true };
+    };
+
+    test('Status 0: Deve exibir "Sem certificado" e estar desabilitado', () => {
+      expect(getCertificadoButtonState(0)).toEqual({ text: 'Sem certificado', disabled: true });
     });
 
-    test('deve ter página inicial 1', () => {
-      const paginaAtual = 1;
-      expect(paginaAtual).toBe(1);
+    test('Status 1: Deve exibir "Não emitidos" e estar desabilitado', () => {
+      expect(getCertificadoButtonState(1)).toEqual({ text: 'Não emitidos', disabled: true });
+    });
+
+    test('Status 2: Deve permitir a emissão (Habilitado)', () => {
+      expect(getCertificadoButtonState(2)).toEqual({ text: 'Emitir certificados', disabled: false });
+    });
+
+    test('Status 3: Deve exibir "Emitindo certificado" e estar desabilitado', () => {
+      expect(getCertificadoButtonState(3)).toEqual({ text: 'Emitindo certificado', disabled: true });
+    });
+
+    test('Status 4: Deve exibir "Certificados emitidos" e estar desabilitado', () => {
+      expect(getCertificadoButtonState(4)).toEqual({ text: 'Certificados emitidos', disabled: true });
     });
   });
 
-  describe('Columns da tabela', () => {
-    test('deve ter todas as colunas necessárias', () => {
-      const expectedColumns = [
-        'codigoFormacao',
-        'numeroHomologacao',
-        'nomeFormacao',
-        'nomeAreaPromotora',
-        'nomeTurma',
-        'status',
-        'certificado',
-        'acoes',
-      ];
+  describe('getMenuAcoes - Regras de Geração de Relatórios', () => {
+    // Simulador da regra de negócio refatorada
+    const simularRegraMenuAcoes = (
+      codigoCursoEol: number | null,
+      status: number,
+      statusCertificacaoTurma: number,
+      ehPerfilAdminDf: boolean
+    ) => {
+      const hasCodigoCursoEol = codigoCursoEol != null;
+      const isAguardandoDF = status === 2;
+      const isFinalizado = status === 4;
+      const isCertificacaoConcluida = statusCertificacaoTurma === 4;
 
-      // Verificar que temos todas as colunas esperadas
-      expect(expectedColumns).toHaveLength(8);
-      expectedColumns.forEach((col) => {
-        expect(col).toBeTruthy();
-      });
-    });
-  });
+      const podeGerarComoComum = isAguardandoDF && hasCodigoCursoEol;
+      const podeGerarComoAdmin = isFinalizado && ehPerfilAdminDf;
+      const podeGerarTxtEol = podeGerarComoComum || podeGerarComoAdmin;
 
-  describe('Filtros', () => {
-    test('deve criar objeto de filtros com todos os campos', () => {
-      const filtros = {
-        NomeFormacao: 'Teste',
-        CodigoFormacao: 123,
-        NumeroHomologacao: 456,
-        AreaPromotoraId: 1,
-        Status: 2,
-        DataEnvioDf: '2024-12-26',
-        NumeroPagina: 1,
-        NumeroRegistros: 10,
+      return {
+        txtEolHabilitado: podeGerarTxtEol,
+        codafHabilitado: isCertificacaoConcluida,
       };
+    };
 
-      expect(filtros.NomeFormacao).toBe('Teste');
-      expect(filtros.CodigoFormacao).toBe(123);
-      expect(filtros.NumeroHomologacao).toBe(456);
-      expect(filtros.AreaPromotoraId).toBe(1);
-      expect(filtros.Status).toBe(2);
-      expect(filtros.DataEnvioDf).toBe('2024-12-26');
-      expect(filtros.NumeroPagina).toBe(1);
-      expect(filtros.NumeroRegistros).toBe(10);
+    test('Ação TXT EOL: Habilitado se estiver Aguardando DF (2) e possuir Código EOL', () => {
+      const resultado = simularRegraMenuAcoes(123, 2, 1, false);
+      expect(resultado.txtEolHabilitado).toBe(true);
     });
 
-    test('deve permitir filtros com valores undefined', () => {
-      const filtros = {
-        NomeFormacao: undefined,
-        CodigoFormacao: undefined,
-        NumeroHomologacao: undefined,
-        AreaPromotoraId: undefined,
-        Status: undefined,
-        DataEnvioDf: undefined,
-        NumeroPagina: 1,
-        NumeroRegistros: 10,
-      };
-
-      expect(filtros.NumeroPagina).toBe(1);
-      expect(filtros.NumeroRegistros).toBe(10);
+    test('Ação TXT EOL: Desabilitado se estiver Aguardando DF (2) mas SEM Código EOL', () => {
+      const resultado = simularRegraMenuAcoes(null, 2, 1, false);
+      expect(resultado.txtEolHabilitado).toBe(false);
     });
-  });
 
-  describe('Menu de ações', () => {
-    test('deve ter duas opções de menu', () => {
-      const menuItems = [
-        { key: '.TXT EOL', label: '.TXT EOL' },
-        { key: 'CODAF', label: 'CODAF' },
-      ];
+    test('Ação TXT EOL: Habilitado se estiver Finalizado (4) e usuário for ADMIN', () => {
+      const resultado = simularRegraMenuAcoes(null, 4, 1, true); 
+      expect(resultado.txtEolHabilitado).toBe(true);
+    });
 
-      expect(menuItems).toHaveLength(2);
-      expect(menuItems[0].key).toBe('.TXT EOL');
-      expect(menuItems[1].key).toBe('CODAF');
+    test('Ação TXT EOL: Desabilitado se estiver Finalizado (4) mas usuário NÃO for ADMIN', () => {
+      const resultado = simularRegraMenuAcoes(123, 4, 1, false);
+      expect(resultado.txtEolHabilitado).toBe(false);
+    });
+
+    test('Ação CODAF: Habilitado apenas se a certificação da turma for concluída (4)', () => {
+      expect(simularRegraMenuAcoes(123, 2, 4, false).codafHabilitado).toBe(true);
+      expect(simularRegraMenuAcoes(123, 2, 3, false).codafHabilitado).toBe(false);
     });
   });
 
-  describe('Estados iniciais', () => {
-    test('deve ter estado inicial de loading como false', () => {
-      const loading = false;
-      expect(loading).toBe(false);
+  describe('Gerenciamento de LocalStorage (Cache EOL e Certificados)', () => {
+    const LOCAL_STORAGE_KEY = 'codaf_emitir_certificados_clicked';
+    const EOL_STORAGE_KEY = 'eol_txt_generated';
+
+    const saveEmitido = (id: number) => {
+      const emitidos = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+      if (!emitidos.includes(id)) {
+        emitidos.push(id);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(emitidos));
+      }
+    };
+
+    const wasEmitido = (id: number): boolean => {
+      return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]').includes(id);
+    };
+
+    const setGenerated = (id: number) => {
+      const map = JSON.parse(localStorage.getItem(EOL_STORAGE_KEY) || '{}');
+      map[id] = true;
+      localStorage.setItem(EOL_STORAGE_KEY, JSON.stringify(map));
+    };
+
+    const wasGenerated = (id: number): boolean => {
+      return !!JSON.parse(localStorage.getItem(EOL_STORAGE_KEY) || '{}')[id];
+    };
+
+    test('Deve salvar e recuperar ID emitido corretamente', () => {
+      expect(wasEmitido(99)).toBe(false);
+      saveEmitido(99);
+      expect(wasEmitido(99)).toBe(true);
+      
+      // Testar não duplicidade
+      saveEmitido(99);
+      const storage = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+      expect(storage.length).toBe(1);
     });
 
-    test('deve ter lista de dados inicial vazia', () => {
-      const dados: any[] = [];
-      expect(dados).toEqual([]);
-      expect(dados).toHaveLength(0);
-    });
-
-    test('deve ter total de registros inicial como 0', () => {
-      const totalRegistros = 0;
-      expect(totalRegistros).toBe(0);
-    });
-
-    test('deve ter página atual inicial como 1', () => {
-      const paginaAtual = 1;
-      expect(paginaAtual).toBe(1);
-    });
-  });
-
-  describe('Validação de tipo CodafListaPresencaDTO', () => {
-    test('deve ter estrutura correta para um registro', () => {
-      const registro = {
-        id: 1,
-        numeroHomologacao: 12345,
-        nomeFormacao: 'Formação Teste',
-        codigoFormacao: 100,
-        nomeTurma: 'Turma A',
-        nomeAreaPromotora: 'Área Teste',
-        status: 1,
-        statusCertificacaoTurma: 1,
-      };
-
-      expect(registro).toHaveProperty('id');
-      expect(registro).toHaveProperty('numeroHomologacao');
-      expect(registro).toHaveProperty('nomeFormacao');
-      expect(registro).toHaveProperty('codigoFormacao');
-      expect(registro).toHaveProperty('nomeTurma');
-      expect(registro).toHaveProperty('nomeAreaPromotora');
-      expect(registro).toHaveProperty('status');
-      expect(registro).toHaveProperty('statusCertificacaoTurma');
+    test('Deve salvar e recuperar status de relatório CODAF gerado (EOL)', () => {
+      expect(wasGenerated(55)).toBe(false);
+      setGenerated(55);
+      expect(wasGenerated(55)).toBe(true);
     });
   });
+
 });

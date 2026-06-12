@@ -1,6 +1,5 @@
 // src/components/lib/drawer/atualizacao-inscritos/drawer-atualizacao-inscritos.tsx
 import { Button, Drawer, Form, Space, Typography } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import React, { useEffect, useState } from 'react';
 import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
 import { validateMessages } from '~/core/constants/validate-messages';
@@ -23,7 +22,7 @@ const DrawerAtualizacaoInscritos: React.FC<DrawerAtualizacaoInscritosProps> = ({
   onSave,
   inscritos,
 }) => {
-  const [formDrawer] = useForm<FormularioAtualizacaoInscritos>();
+  const [formDrawer] = Form.useForm<FormularioAtualizacaoInscritos>();
   const [desativarBotaoCancelar, setDesativarBotaoCancelar] = useState(true);
 
   useEffect(() => {

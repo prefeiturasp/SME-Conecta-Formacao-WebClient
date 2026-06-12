@@ -122,6 +122,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [modalDrawerInscritosVisible, setModalDrawerInscritosVisible] = useState(false);
   const [novosInscritosDrawer, setNovosInscritosDrawer] = useState<InscritoAtualizacaoDTO[]>([]);
   const [divergenciaResolvidaLocal, setDivergenciaResolvidaLocal] = useState(false);
+  const [deltaResolvidoLocalmente, setDeltaResolvidoLocalmente] = useState<DeltaInscritosDTO | null>(null);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
   const situacoes = [
@@ -130,6 +131,20 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     { id: 3, descricao: 'Devolvido pelo DF' },
     { id: 4, descricao: 'Finalizado' },
   ];
+  const deltasSaoIguais = (d1: DeltaInscritosDTO | null, d2: DeltaInscritosDTO | null) => {
+    if (!d1 && !d2) return true;
+    if (!d1 || !d2) return false;
+
+    const idsNovos1 = [...d1.inscritosNovos.map((i) => i.id)].sort();
+    const idsNovos2 = [...d2.inscritosNovos.map((i) => i.id)].sort();
+    if (JSON.stringify(idsNovos1) !== JSON.stringify(idsNovos2)) return false;
+
+    const idsRemovidos1 = [...d1.inscritosRemovidos.map((i) => i.id)].sort();
+    const idsRemovidos2 = [...d2.inscritosRemovidos.map((i) => i.id)].sort();
+    if (JSON.stringify(idsRemovidos1) !== JSON.stringify(idsRemovidos2)) return false;
+
+    return true;
+  };
 
   const modoEdicao = !!id;
 
@@ -765,10 +780,16 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     const response = await obterDeltaInscritosSilencioso(registroId!);
     if (response.sucesso && response.dados) {
       const dados = response.dados;
+
       if (dados.deltaInscritos?.houveAlteracao) {
+        if (deltasSaoIguais(dados.deltaInscritos, deltaResolvidoLocalmente)) {
+          return false; 
+        }
+
         setDeltaInscritos(dados.deltaInscritos);
         setMostrarDivergencia(true);
         setModalAvisoDeltaVisible(true);
+        setDeltaResolvidoLocalmente(null);
         return true;
       }
     }
@@ -777,7 +798,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
-      if (!divergenciaResolvidaLocal && registroId && await houveAlteracaoInscritosAoSalvar()) {
+      if (registroId && await houveAlteracaoInscritosAoSalvar()) {
         return;
       }
       const values = await form.validateFields();
@@ -824,7 +845,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
-        setDivergenciaResolvidaLocal(false);
+        setDeltaResolvidoLocalmente(null); 
         const registroIdAtual = id ?? response.dados?.id;
         if (registroIdAtual) {
           try {
@@ -1265,21 +1286,41 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       
       setMostrarDivergencia(false);
       setCursistas(listaSemRemovidos);
-      setDivergenciaResolvidaLocal(true);
+      setDeltaResolvidoLocalmente(deltaInscritos);
 
       return;
     }
 
-    const inscritosMapeadosParaDrawer: InscritoAtualizacaoDTO[] = novos.map((novo) => ({
-      id: novo.id,
-      nome: novo.nome,
-      documento: novo.documento,
-      frequencia: novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined,
-      atividadeObrigatoria: atividadeObrigatorioParaLetra(novo.atividadeObrigatorio) === 'S' ? 'Sim' : 
-                            (atividadeObrigatorioParaLetra(novo.atividadeObrigatorio) === 'N' ? 'Não' : undefined),
-      conceitoFinal: novo.conceitoFinal || undefined,
-      aprovado: novo.aprovado === true ? 'Sim' : (novo.aprovado === false ? 'Não' : undefined),
-    }));
+    const inscritosMapeadosParaDrawer: InscritoAtualizacaoDTO[] = novos.map((novo) => {
+      // PRESERVA OS DADOS SE O CARA JÁ TIVER SIDO PREENCHIDO ANTES DA COND. DE CORRIDA
+      const salvoLocal = cursistas.find((c) => c.id === novo.id);
+
+      let freq = salvoLocal?.frequencia?.toString() || (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
+      
+      let ativ: 'Sim' | 'Não' | undefined = undefined;
+      if (salvoLocal?.atividade === 'S') ativ = 'Sim';
+      else if (salvoLocal?.atividade === 'N') ativ = 'Não';
+      else if (novo.atividadeObrigatorio === true) ativ = 'Sim';
+      else if (novo.atividadeObrigatorio === false) ativ = 'Não';
+
+      let conceito = salvoLocal?.conceitoFinal || novo.conceitoFinal || undefined;
+      
+      let aprov: 'Sim' | 'Não' | undefined = undefined;
+      if (salvoLocal?.aprovado === true) aprov = 'Sim';
+      else if (salvoLocal?.aprovado === false) aprov = 'Não';
+      else if (novo.aprovado === true) aprov = 'Sim';
+      else if (novo.aprovado === false) aprov = 'Não';
+
+      return {
+        id: novo.id,
+        nome: novo.nome,
+        documento: novo.documento,
+        frequencia: freq,
+        atividadeObrigatoria: ativ,
+        conceitoFinal: conceito,
+        aprovado: aprov,
+      };
+    });
 
     setNovosInscritosDrawer(inscritosMapeadosParaDrawer);
     setModalDrawerInscritosVisible(true);
@@ -1307,7 +1348,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       setCursistas(listaFinal);
       setMostrarDivergencia(false);
       setModalDrawerInscritosVisible(false);
-      setDivergenciaResolvidaLocal(true);
+      setDeltaResolvidoLocalmente(deltaInscritos);
     } catch (error) {
       console.error('Erro ao salvar inscritos do drawer:', error);
       notification.error({
@@ -1317,6 +1358,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onAtualizarInscritosModal = () => {
+    setModalAvisoDeltaVisible(false);
+    onClickAtualizarInscritos();
   };
 
   const onConferirComentarios = () => {
@@ -1554,6 +1600,14 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           </Row>
         </CardContent>
       </Form>
+
+      <ModalAvisoDeltaInscritos
+        visible={modalAvisoDeltaVisible}
+        nomeFormacao={nomeFormacao}
+        deltaInscritos={deltaInscritos}
+        onCancel={() => setModalAvisoDeltaVisible(false)}
+        onAtualizar={onAtualizarInscritosModal}
+      />
 
       <ModalEnviarDF
         visible={modalEnviarDFVisible}
