@@ -863,7 +863,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
 
       const response = modoEdicao
-        ? await atualizarCodafListaPresenca(registroId, dados)
+        ? await atualizarCodafListaPresenca(registroId ?? 0, dados)
         : await criarCodafListaPresenca(dados);
 
       console.log('Resposta da API:', response);
