@@ -121,7 +121,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [modalComentarioVisible, setModalComentarioVisible] = useState(false);
   const [modalDrawerInscritosVisible, setModalDrawerInscritosVisible] = useState(false);
   const [novosInscritosDrawer, setNovosInscritosDrawer] = useState<InscritoAtualizacaoDTO[]>([]);
-  const [divergenciaResolvidaLocal, setDivergenciaResolvidaLocal] = useState(false);
   const [deltaResolvidoLocalmente, setDeltaResolvidoLocalmente] = useState<DeltaInscritosDTO | null>(null);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
@@ -135,12 +134,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     if (!d1 && !d2) return true;
     if (!d1 || !d2) return false;
 
-    const idsNovos1 = [...d1.inscritosNovos.map((i) => i.id)].sort();
-    const idsNovos2 = [...d2.inscritosNovos.map((i) => i.id)].sort();
+    const idsNovos1 = [...d1.inscritosNovos.map((i) => i.id)].sort((a, b) => a - b);
+    const idsNovos2 = [...d2.inscritosNovos.map((i) => i.id)].sort((a, b) => a - b);
     if (JSON.stringify(idsNovos1) !== JSON.stringify(idsNovos2)) return false;
 
-    const idsRemovidos1 = [...d1.inscritosRemovidos.map((i) => i.id)].sort();
-    const idsRemovidos2 = [...d2.inscritosRemovidos.map((i) => i.id)].sort();
+    const idsRemovidos1 = [...d1.inscritosRemovidos.map((i) => i.id)].sort((a, b) => a - b);
+    const idsRemovidos2 = [...d2.inscritosRemovidos.map((i) => i.id)].sort((a, b) => a - b);
     if (JSON.stringify(idsRemovidos1) !== JSON.stringify(idsRemovidos2)) return false;
 
     return true;
@@ -519,7 +518,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const handleFrequenciaChange = (id: number, value: string) => {
-    const numericValue = value.replace(/[^0-9]/g, '');
+    const numericValue = value.replace(/\D/g, '');
 
     const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : null;
 
@@ -776,8 +775,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
-  const houveAlteracaoInscritosAoSalvar = async () => {
-    const response = await obterDeltaInscritosSilencioso(registroId!);
+  const houveAlteracaoInscritosAoSalvar = async (idRegistroSelecionado: number) => {
+    const response = await obterDeltaInscritosSilencioso(idRegistroSelecionado);
     if (response.sucesso && response.dados) {
       const dados = response.dados;
 
@@ -798,7 +797,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
-      if (registroId && await houveAlteracaoInscritosAoSalvar()) {
+      if (registroId && await houveAlteracaoInscritosAoSalvar(registroId)) {
         return;
       }
       const values = await form.validateFields();
@@ -1037,73 +1036,55 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const validarParaEnvio = (): boolean => {
     if (!registroId) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'É necessário salvar o registro antes de enviar para DF',
-      });
+      notification.warning({ message: 'Atenção', description: 'É necessário salvar o registro antes de enviar para DF' });
       return false;
     }
 
     if (verificarAlteracoes()) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.',
-      });
+      notification.warning({ message: 'Atenção', description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.' });
       return false;
     }
 
-    const anexos = form.getFieldValue('anexos');
-
-    if (!anexos || anexos.length === 0) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF',
-      });
+    if (!form.getFieldValue('anexos')?.length) {
+      notification.warning({ message: 'Atenção', description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF' });
       return false;
     }
 
-    if (!formValido) {
-      const camposVazios: string[] = [];
+    const camposObrigatorios = [
+      { valor: numeroHomologacao, nome: 'Número de homologação' },
+      { valor: nomeFormacao, nome: 'Nome da formação' },
+      { valor: codigoFormacao, nome: 'Código da formação' },
+      { valor: turmaId, nome: 'Turma' },
+      { valor: numeroComunicado, nome: 'Número do comunicado' },
+      { valor: paginaComunicado, nome: 'Página do comunicado' },
+      { valor: dataPublicacao, nome: 'Data de publicação' },
+      { valor: dataPublicacaoDiarioOficial, nome: 'Data de publicação no Diário Oficial' },
+      ...(!ehAreaPromotora ? [{ valor: codigoCursoEol, nome: 'Código do curso no EOL' }] : []),
+    ];
 
-      if (!numeroHomologacao) camposVazios.push('Número de homologação');
-      if (!nomeFormacao) camposVazios.push('Nome da formação');
-      if (!codigoFormacao) camposVazios.push('Código da formação');
-      if (!turmaId) camposVazios.push('Turma');
-      if (!numeroComunicado) camposVazios.push('Número do comunicado');
-      if (!paginaComunicado) camposVazios.push('Página do comunicado');
-      if (!dataPublicacao) camposVazios.push('Data de publicação');
-      if (!dataPublicacaoDiarioOficial) camposVazios.push('Data de publicação no Diário Oficial');
-      if (!ehAreaPromotora && !codigoCursoEol) camposVazios.push('Código do curso no EOL');
+    const camposVazios = camposObrigatorios.filter((c) => !c.valor).map((c) => c.nome);
 
+    if (camposVazios.length > 0) {
       notification.warning({
         message: 'Atenção',
-        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(
-          ', ',
-        )})`,
+        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(', ')})`,
       });
       return false;
     }
 
     if (cursistas.length === 0) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'Não é possível enviar para DF sem inscritos na lista de presença',
-      });
+      notification.warning({ message: 'Atenção', description: 'Não é possível enviar para DF sem inscritos na lista de presença' });
       return false;
     }
 
-    const cursistasIncompletos = cursistas.filter(
-      (cursista) =>
-        cursista.frequencia === null ||
-        cursista.conceitoFinal === null ||
-        cursista.aprovado === null,
+    const possuiCursistaIncompleto = cursistas.some(
+      (c) => c.frequencia === null || c.conceitoFinal === null || c.aprovado === null
     );
 
-    if (cursistasIncompletos.length > 0) {
+    if (possuiCursistaIncompleto) {
       notification.warning({
         message: 'Atenção',
-        description:
-          'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
+        description: 'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
       });
       return false;
     }
@@ -1122,7 +1103,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     if (registroId) {
       setLoading(true);
-      const houveDivergencia = await houveAlteracaoInscritosAoSalvar();
+      const houveDivergencia = await houveAlteracaoInscritosAoSalvar(registroId);
       setLoading(false);
       
       if (houveDivergencia) {
@@ -1277,8 +1258,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       return;
     }
 
-    const novos = deltaInscritos?.inscritosNovos || [];
-    const removidos = deltaInscritos?.inscritosRemovidos || [];
+    const novos = deltaInscritos?.inscritosNovos ?? [];
+    const removidos = deltaInscritos?.inscritosRemovidos ?? [];
 
     if (novos.length === 0) {
       const idsRemovidos = removidos.map((r) => r.id);
@@ -1295,7 +1276,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       // PRESERVA OS DADOS SE O CARA JÁ TIVER SIDO PREENCHIDO ANTES DA COND. DE CORRIDA
       const salvoLocal = cursistas.find((c) => c.id === novo.id);
 
-      let freq = salvoLocal?.frequencia?.toString() || (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
+      let freq = salvoLocal?.frequencia?.toString() ?? (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
       
       let ativ: 'Sim' | 'Não' | undefined = undefined;
       if (salvoLocal?.atividade === 'S') ativ = 'Sim';
@@ -1303,7 +1284,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       else if (novo.atividadeObrigatorio === true) ativ = 'Sim';
       else if (novo.atividadeObrigatorio === false) ativ = 'Não';
 
-      let conceito = salvoLocal?.conceitoFinal || novo.conceitoFinal || undefined;
+      let conceito = salvoLocal?.conceitoFinal ?? novo.conceitoFinal ?? undefined;
       
       let aprov: 'Sim' | 'Não' | undefined = undefined;
       if (salvoLocal?.aprovado === true) aprov = 'Sim';
@@ -1328,7 +1309,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const onSaveDrawerInscritos = async (novosInscritosPreenchidos: InscritoAtualizacaoDTO[]) => {
     try {      
-      const idsRemovidos = deltaInscritos?.inscritosRemovidos.map((r) => r.id) || [];
+      const idsRemovidos = deltaInscritos?.inscritosRemovidos?.map((r) => r.id) ?? [];
       const idsNovos = novosInscritosPreenchidos.map((i) => i.id);
 
       const cursistasAtuaisFiltrados = cursistas.filter((c) => !idsRemovidos.includes(c.id) && !idsNovos.includes(c.id));
@@ -1337,9 +1318,9 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         id: inscrito.id,
         rfOuCpf: inscrito.documento,
         nomeCursista: inscrito.nome,
-        frequencia: inscrito.frequencia ? parseInt(inscrito.frequencia.replace(/[^0-9]/g, ''), 10) : null,
-        atividade: inscrito.atividadeObrigatoria || null,
-        conceitoFinal: inscrito.conceitoFinal || null,
+        frequencia: inscrito.frequencia ? parseInt(inscrito.frequencia.replace(/\D/g, ''), 10) : null,
+        atividade: inscrito.atividadeObrigatoria ?? null,
+        conceitoFinal: inscrito.conceitoFinal ?? null,
         aprovado: inscrito.aprovado === 'Sim',
       }));
 

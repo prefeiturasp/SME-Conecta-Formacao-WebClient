@@ -107,8 +107,8 @@ const DrawerAtualizacaoInscritos: React.FC<DrawerAtualizacaoInscritosProps> = ({
                       <CardInscrito
                         key={key}
                         name={name}
-                        nome={inscritoData?.nome || ''}
-                        documento={inscritoData?.documento || ''}
+                        nome={inscritoData?.nome ?? ''}
+                        documento={inscritoData?.documento ?? ''}
                         onChangeForm={validarAlteracaoEmCampos}
                       />
                     );
