@@ -797,10 +797,12 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const montarPayloadSalvar = (values: any, inscritosOverride?: CursistaDTO[]) => {
     const anexosMapeados = values.anexos?.map((arquivo: any) => ({
-      arquivoCodigo: arquivo.response?.codigo || arquivo.arquivoCodigo,
+      arquivoCodigo: arquivo.response?.codigo ?? arquivo.arquivoCodigo,
       nomeArquivo: arquivo.name || arquivo.nomeArquivo,
       tipoAnexoId: 3,
     })) ?? [];
+
+console.log('Anexos mapeados para envio:', anexosMapeados);
 
     const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
 
