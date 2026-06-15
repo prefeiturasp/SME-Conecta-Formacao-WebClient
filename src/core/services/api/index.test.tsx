@@ -67,9 +67,9 @@ import {
   deletarRegistro,
 } from './index';
 
-import { store } from '~/core/redux';
-import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { openNotificationErrors } from '~/components/lib/notification';
+import { store } from '../../../core/redux';
+import { setSpinning } from '../../../core/redux/modules/spin/actions';
+import { openNotificationErrors } from '../../../components/lib/notification';
 
 describe('api service', () => {
   beforeEach(() => {

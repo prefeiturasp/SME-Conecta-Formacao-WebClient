@@ -1,13 +1,16 @@
+/**
+ * @jest-environment jsdom
+ */
 import { describe, test, expect, jest } from '@jest/globals';
 
-jest.mock('~/core/services/api', () => ({
+jest.mock('../../../core/services/api', () => ({
   default: {},
   obterRegistro: jest.fn(),
   inserirRegistro: jest.fn(),
 }));
 
 import CheckboxAcaoInformatica from './index';
-import { ACAO_INFORMATIVA_NAO_ACEITA } from '~/core/constants/mensagens';
+import { ACAO_INFORMATIVA_NAO_ACEITA } from '../../../core/constants/mensagens';
 
 describe('CheckboxAcaoInformatica', () => {
   describe('Componente', () => {
