@@ -34,7 +34,7 @@ const ModalAvisoDeltaInscritos: React.FC<ModalAvisoDeltaInscritosProps> = ({
         <ul style={{ paddingLeft: '20px', margin: 0, color: '#42474A' }}>
           {deltaInscritos.inscritosRemovidos.map((inscrito) => (
             <li key={inscrito.id}>
-              [{inscrito.nome} - {inscrito.documento}]
+              {inscrito.nome} - {inscrito.documento}
             </li>
           ))}
         </ul>
