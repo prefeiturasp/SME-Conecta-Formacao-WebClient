@@ -7,6 +7,35 @@ import { render, screen, waitFor } from '@testing-library/react';
 import DataTableProfissionalRegente from './index';
 import * as cpfUtils from '../../../core/utils/functions';
 
+jest.mock('antd', () => {
+  const actual = jest.requireActual('antd');
+  return {
+    ...actual,
+    Table: jest.fn(({ dataSource = [], bordered, size, onChange, locale }) => (
+      <div className='ant-table-wrapper' onClick={() => onChange?.({ current: 2, pageSize: 10 })}>
+        <div
+          className={`ant-table ${bordered ? 'ant-table-bordered' : ''} ${
+            size === 'small' ? 'ant-table-small' : ''
+          }`.trim()}
+        >
+          <table role='table'>
+            <tbody>
+              {dataSource.map((row: any, idx: number) => (
+                <tr key={row?.id ?? idx}>
+                  <td>{row?.id ?? idx}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {dataSource.length === 0 && <div>{locale?.emptyText ?? 'Sem dados'}</div>}
+        </div>
+        <div className='ant-pagination-item'>1</div>
+        <button className='ant-pagination-next' type='button' />
+      </div>
+    )),
+  };
+});
+
 // Mock window.matchMedia for Ant Design components
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
