@@ -1,5 +1,4 @@
 import { Form } from 'antd';
-import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType } from 'antd/es/select';
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -19,7 +18,7 @@ const SelectAnoEtapa: React.FC<SelectAnoEtapaProps> = ({
   desativarCampo = false,
   exibirOpcaoTodos = true,
 }) => {
-  const form = useFormInstance();
+const form = Form.useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
   const modalidadeWatch = Form.useWatch('modalidade', form);
