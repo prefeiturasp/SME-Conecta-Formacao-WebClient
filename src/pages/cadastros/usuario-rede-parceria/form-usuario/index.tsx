@@ -1,5 +1,4 @@
 import { Col, Form, Row } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -43,7 +42,7 @@ import { formatterCPFMask, maskTelefone, validateNameAndSurname } from '~/core/u
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 
 export const FormUsuarioRedeParceria = () => {
-  const [form] = useForm();
+const [form] = Form.useForm();
   const navigate = useNavigate();
   const paramsRoute = useParams();
   const { permissao } = useContext(PermissaoContext);
