@@ -81,7 +81,7 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyUp(input, { target: { value: '123456' } });
 
@@ -93,7 +93,7 @@ describe('InputCodigoEolUE', () => {
   it('não deve chamar service no onSearch com valor vazio', async () => {
     const { getByRole } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.keyUp(input, { target: { value: '' } });
 
     expect(obterMock).not.toHaveBeenCalled();
@@ -121,7 +121,7 @@ it('deve chamar service ao clicar no botão de search', async () => {
   it('deve limpar nomeUnidade ao digitar no input', () => {
     const { getByRole } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.change(input, { target: { value: 'abc' } });
 
     expect(mockForm.setFieldValue).toHaveBeenCalledWith('nomeUnidade', '');
@@ -136,7 +136,7 @@ it('deve chamar service ao clicar no botão de search', async () => {
 
     const { getByRole } = setup({ desativarBotaoAlterar: desativarMock });
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.keyUp(input, { target: { value: '123456' } });
 
     await waitFor(() => {
@@ -159,7 +159,7 @@ it('deve chamar service ao clicar no botão de search', async () => {
 
     const { getByRole } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.keyUp(input, { target: { value: '123456' } });
 
     resolveFn({ dados: { nomeUnidade: 'Teste' } });

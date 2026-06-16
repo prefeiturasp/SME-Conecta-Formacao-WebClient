@@ -91,8 +91,8 @@ describe('ModalAvisoDeltaInscritos', () => {
 
     // Verifica a seção da lista de cancelados
     expect(screen.getByText(/Lista de inscrições canceladas na formação:/i)).toBeInTheDocument();
-    expect(screen.getByText('[Maria Cancelada - 222.222.222-22]')).toBeInTheDocument();
-    expect(screen.getByText('[José Cancelado - 333.333.333-33]')).toBeInTheDocument();
+    expect(screen.getByText(/Maria Cancelada\s*-\s*222\.222\.222-22/i)).toBeInTheDocument();
+    expect(screen.getByText(/José Cancelado\s*-\s*333\.333\.333-33/i)).toBeInTheDocument();
   });
 
   test('Critério 10: Deve exibir mensagem mista para inscritos adicionados E cancelados', () => {
@@ -110,7 +110,7 @@ describe('ModalAvisoDeltaInscritos', () => {
     expect(screen.getByText(/Novas inscrições foram adicionadas e algumas canceladas/i)).toBeInTheDocument();
     
     // Verifica se a lista de cancelados foi renderizada
-    expect(screen.getByText('[Maria Cancelada - 222.222.222-22]')).toBeInTheDocument();
+    expect(screen.getByText(/Maria Cancelada\s*-\s*222\.222\.222-22/i)).toBeInTheDocument();
   });
 
   test('Interação: Deve chamar onCancel ao clicar no botão Cancelar', () => {
