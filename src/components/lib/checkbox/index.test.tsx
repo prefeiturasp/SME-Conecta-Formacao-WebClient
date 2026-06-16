@@ -1,7 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-import { describe, test, expect, jest } from '@jest/globals';
 
 jest.mock('../../../core/services/api', () => ({
   default: {},
