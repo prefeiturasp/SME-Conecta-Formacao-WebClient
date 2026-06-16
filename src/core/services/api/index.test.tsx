@@ -48,13 +48,26 @@ jest.mock('~/components/lib/notification', () => ({
 }));
 
 jest.mock('~/core/date/dayjs', () => ({
-  dayjs: () => ({
-    diff: () => -9999, // evita refresh token
-  }),
+  dayjs: jest.fn(() => ({
+    diff: () => -9999,
+  })),
 }));
 
 jest.mock('~/core/constants/mensagens', () => ({
   SERVICO_INDISPONIVEL: 'Serviço indisponível',
+}));
+
+jest.mock('~/core/redux/modules/auth/actions', () => ({
+  setDadosLogin: jest.fn((payload) => ({ type: 'AUTH/SET_DADOS_LOGIN', payload })),
+  setDeslogar: jest.fn(() => ({ type: 'AUTH/SET_DESLOGAR' })),
+}));
+
+jest.mock('~/core/services/autenticacao-service', () => ({
+  __esModule: true,
+  default: {
+    autenticarRevalidar: jest.fn(),
+  },
+  URL_AUTENTICACAO_REVALIDAR: '/autenticacao/revalidar',
 }));
 
 
@@ -66,6 +79,10 @@ import {
   inserirRegistro,
   deletarRegistro,
 } from './index';
+import axios from 'axios';
+import { dayjs } from '../../../core/date/dayjs';
+import autenticacaoService, { URL_AUTENTICACAO_REVALIDAR } from '../../../core/services/autenticacao-service';
+import { setDadosLogin, setDeslogar } from '../../../core/redux/modules/auth/actions';
 
 import { store } from '../../../core/redux';
 import { setSpinning } from '../../../core/redux/modules/spin/actions';
@@ -73,7 +90,24 @@ import { openNotificationErrors } from '../../../components/lib/notification';
 
 describe('api service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockAxiosInstance.get.mockReset();
+    mockAxiosInstance.post.mockReset();
+    mockAxiosInstance.put.mockReset();
+    mockAxiosInstance.patch.mockReset();
+    mockAxiosInstance.delete.mockReset();
+    (store.dispatch as jest.Mock).mockClear();
+    (store.getState as jest.Mock).mockReturnValue({
+      auth: { token: 'token', dataHoraExpiracao: '2099-01-01' },
+    });
+    (openNotificationErrors as jest.Mock).mockClear();
+    (setSpinning as jest.Mock).mockClear();
+    (axios.isCancel as jest.Mock).mockReturnValue(false);
+    (autenticacaoService.autenticarRevalidar as jest.Mock).mockReset();
+    (dayjs as jest.Mock).mockImplementation(() => ({
+      diff: () => -9999,
+    }));
+    (setDadosLogin as jest.Mock).mockClear();
+    (setDeslogar as jest.Mock).mockClear();
   });
 
   describe('obterRegistro', () => {
@@ -272,6 +306,143 @@ describe('api service', () => {
 
       const del = await deletarRegistro('/teste');
       expect(del.dados).toBe(true);
+    });
+  });
+
+  describe('interceptors', () => {
+    test('deve registrar interceptors de request e response', () => {
+      expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
+      expect(mockAxiosInstance.interceptors.response.use).toHaveBeenCalled();
+    });
+
+    test('request interceptor deve adicionar Authorization quando token existe', async () => {
+      (store.getState as jest.Mock).mockReturnValue({
+        auth: { token: 'token-request', dataHoraExpiracao: '2099-01-01' },
+      });
+
+      const onRequest = (mockAxiosInstance.interceptors.request.use as jest.Mock).mock.calls[0][0];
+      const requestConfig = {
+        url: '/v1/propostas',
+        headers: {},
+      } as any;
+
+      const result = await onRequest(requestConfig);
+
+      expect(result.headers.Authorization).toBe('Bearer token-request');
+    });
+
+    test('request interceptor deve usar configRevalidarAutenticacao quando for URL de revalidação', async () => {
+      (store.getState as jest.Mock).mockReturnValue({
+        auth: { token: 'token-revalidar', dataHoraExpiracao: '2099-01-01' },
+      });
+
+      const onRequest = (mockAxiosInstance.interceptors.request.use as jest.Mock).mock.calls[0][0];
+      const requestConfig = {
+        url: URL_AUTENTICACAO_REVALIDAR,
+        headers: {
+          set: jest.fn(),
+        },
+      } as any;
+
+      const result = await onRequest(requestConfig);
+
+      expect(requestConfig.headers.set).toHaveBeenCalledWith('Authorization', 'Bearer token-revalidar');
+      expect(result.headers.Authorization).toBe('Bearer token-revalidar');
+    });
+
+    test('request interceptor deve revalidar token expirado e atualizar Authorization', async () => {
+      (store.getState as jest.Mock).mockReturnValue({
+        auth: { token: 'token-expirado', dataHoraExpiracao: '2000-01-01' },
+      });
+      (dayjs as jest.Mock).mockImplementation(() => ({
+        diff: () => 999,
+      }));
+      (autenticacaoService.autenticarRevalidar as jest.Mock).mockResolvedValue({
+        data: { token: 'token-novo' },
+      });
+
+      const onRequest = (mockAxiosInstance.interceptors.request.use as jest.Mock).mock.calls[0][0];
+      const requestConfig = {
+        url: '/v1/propostas',
+        headers: {},
+      } as any;
+
+      const result = await onRequest(requestConfig);
+
+      expect(autenticacaoService.autenticarRevalidar).toHaveBeenCalledWith('token-expirado');
+      expect(store.dispatch).toHaveBeenCalledWith(setDadosLogin({ token: 'token-novo' }));
+      expect(result.headers.Authorization).toBe('Bearer token-novo');
+    });
+
+    test('request interceptor deve rejeitar quando refresh não retorna token', async () => {
+      (store.getState as jest.Mock).mockReturnValue({
+        auth: { token: 'token-expirado', dataHoraExpiracao: '2000-01-01' },
+      });
+      (dayjs as jest.Mock).mockImplementation(() => ({
+        diff: () => 999,
+      }));
+      (autenticacaoService.autenticarRevalidar as jest.Mock).mockResolvedValue({
+        data: { token: null },
+      });
+
+      const onRequest = (mockAxiosInstance.interceptors.request.use as jest.Mock).mock.calls[0][0];
+      const requestConfig = {
+        url: '/v1/propostas',
+        headers: {},
+      } as any;
+
+      await expect(onRequest(requestConfig)).rejects.toBeUndefined();
+      expect(store.dispatch).toHaveBeenCalledWith(setDeslogar());
+    });
+
+    test('response interceptor deve deslogar quando receber 401', async () => {
+      const onResponseError = (mockAxiosInstance.interceptors.response.use as jest.Mock).mock.calls[0][1];
+      const error = {
+        response: { status: 401 },
+      };
+
+      await expect(onResponseError(error)).rejects.toEqual(error);
+      expect(store.dispatch).toHaveBeenCalledWith(setDeslogar());
+    });
+
+    test('response interceptor deve rejeitar normalmente para cancelamento', async () => {
+      const onResponseError = (mockAxiosInstance.interceptors.response.use as jest.Mock).mock.calls[0][1];
+      (axios.isCancel as jest.Mock).mockReturnValue(true);
+      const error = {
+        response: { status: 400 },
+      };
+
+      await expect(onResponseError(error)).rejects.toEqual(error);
+    });
+  });
+
+  describe('tratamento adicional de mensagens', () => {
+    test('deve usar mensagem de serviço indisponível no status 503', async () => {
+      mockAxiosInstance.get.mockRejectedValueOnce({
+        response: {
+          data: { mensagens: ['mensagem original'] },
+          status: 503,
+        },
+      });
+
+      const result = await obterRegistro('/teste');
+
+      expect(result.sucesso).toBe(false);
+      expect(result.mensagens).toEqual(['Serviço indisponível']);
+      expect(openNotificationErrors).toHaveBeenCalledWith(['Serviço indisponível']);
+    });
+
+    test('deve não exibir notificação no alterarRegistro quando mostrarNotificacao=false', async () => {
+      mockAxiosInstance.put.mockRejectedValueOnce({
+        response: {
+          data: { mensagens: ['erro put'] },
+          status: 400,
+        },
+      });
+
+      await alterarRegistro('/teste', {}, undefined, false);
+
+      expect(openNotificationErrors).not.toHaveBeenCalled();
     });
   });
 });
