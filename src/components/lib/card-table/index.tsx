@@ -138,7 +138,7 @@ const DataTable = <T extends object>({
 
   useEffect(() => {
     scrollNoInicio();
-  }, [tableParams.pagination?.current, !tableParams.pagination?.pageSize]);
+  }, [tableParams.pagination?.current, tableParams.pagination?.pageSize]);
 
   useEffect(() => {
     if (rest.rowSelection?.onChange) {

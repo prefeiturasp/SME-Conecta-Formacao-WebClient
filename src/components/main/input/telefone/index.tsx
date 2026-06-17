@@ -6,9 +6,10 @@ import { maskTelefone } from '~/core/utils/functions';
 type InputTelefoneProps = {
   inputProps?: InputProps;
   formItemProps?: FormItemProps;
+  suffix?: React.ReactNode;
 };
 
-const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps }) => {
+const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps, suffix }) => {
   const removerTudoQueNaoEhDigito = (value: any) => `${value}`.replace(/\D/g, '');
 
   const getValueFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +51,12 @@ const InputTelefone: React.FC<InputTelefoneProps> = ({ inputProps, formItemProps
       ]}
       {...formItemProps}
     >
-      <Input placeholder='(00) 0000-0000' maxLength={15} {...inputProps} />
+      <Input
+        placeholder='(00) 0000-0000'
+        maxLength={15}
+        suffix={suffix ?? <span />}
+        {...inputProps}
+      />
     </Form.Item>
   );
 };

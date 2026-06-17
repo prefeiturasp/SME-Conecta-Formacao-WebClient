@@ -1,5 +1,4 @@
 import { Form } from 'antd';
-import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import { DefaultOptionType } from 'antd/es/select';
 
 import React, { useEffect, useState } from 'react';
@@ -19,7 +18,7 @@ const SelectComponenteCurricular: React.FC<SelectComponenteCurricularProps> = ({
   desativarCampo = false,
   campoRequerido = false,
 }) => {
-  const form = useFormInstance();
+  const form = Form.useFormInstance();
   const anosTurmas = Form.useWatch('anosTurmas', form);
 
   const [options, setOptions] = useState<DefaultOptionType[]>([]);

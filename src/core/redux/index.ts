@@ -6,8 +6,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import { enableMapSet, setAutoFreeze } from 'immer';
 import rootReducer from './modules/reducers';
 
-// Fixes "Cannot assign to read only property" error message
-// when modifying objects from Redux state directly.
 setAutoFreeze(false);
 
 const persistConfig = {

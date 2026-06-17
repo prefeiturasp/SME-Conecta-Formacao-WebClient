@@ -1,7 +1,6 @@
-import { describe, test, expect } from '@jest/globals';
-import { TipoEncontro } from '~/core/enum/tipo-encontro';
-import { DESEJA_CANCELAR_ALTERACOES } from '~/core/constants/mensagens';
-import { CF_BUTTON_EXCLUIR } from '~/core/constants/ids/button/intex';
+import { TipoEncontro } from '../../../core/enum/tipo-encontro';
+import { DESEJA_CANCELAR_ALTERACOES } from '../../../core/constants/mensagens';
+import { CF_BUTTON_EXCLUIR } from '../../../core/constants/ids/button/intex';
 
 describe('DrawerFormularioEncontroTurmas', () => {
   describe('Estados iniciais', () => {
@@ -304,14 +303,13 @@ describe('DrawerFormularioEncontroTurmas', () => {
 
     test('não deve ser obrigatório quando tipoEncontro é Síncrono (1)', () => {
       const tipoEncontroSelecionado = TipoEncontro.Sincrono;
-      const required = tipoEncontroSelecionado === TipoEncontro.Presencial;
-      expect(required).toBe(false);
+       expect(tipoEncontroSelecionado).not.toBe(TipoEncontro.Presencial);
     });
 
-    test('não deve ser obrigatório quando tipoEncontro é Assíncrono (2)', () => {
-      const tipoEncontroSelecionado = TipoEncontro.Assincrono;
-      const required = tipoEncontroSelecionado === TipoEncontro.Presencial;
-      expect(required).toBe(false);
+   test('não deve ser obrigatório quando tipoEncontro é Assíncrono (2)', () => {
+    const tipoEncontroSelecionado = TipoEncontro.Assincrono;
+
+     expect(tipoEncontroSelecionado).not.toBe(TipoEncontro.Presencial);
     });
 
     test('não deve ser obrigatório quando tipoEncontro é undefined', () => {

@@ -9,12 +9,15 @@ import ModalEnviarDF from './componentes/modal-enviar-df/modal-enviar-df';
 import ModalDevolverDF from './componentes/modal-devolver-df/modal-devolver-df';
 import ModalExcluir from './componentes/modal-excluir/modal-excluir';
 import ModalComentario from './componentes/modal-comentario/modal-comentario';
+import ModalAvisoDeltaInscritos from './componentes/modal-aviso-delta-inscritos/modal-aviso-delta-inscritos';
 import SecaoRetificacoes from './componentes/secao-retificacoes/secao-retificacoes';
 import { BannerDownloadTermo } from './componentes/banner-download-termo';
 import { SecaoAnexos } from './componentes/secao-anexos';
 import { SecaoListaInscritos } from './componentes/secao-lista-inscritos';
 import { SecaoFormulario } from './componentes/secao-formulario';
 import { BannerComentarios } from './componentes/banner-comentarios';
+import DrawerAtualizacaoInscritos from '~/components/lib/drawer/atualizacao-inscritos/drawer-atualizacao-inscritos';
+import { InscritoAtualizacaoDTO } from '~/core/dto/atualizacao-inscritos-dto';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -43,6 +46,7 @@ import {
   obterCodafListaPresencaPorId,
   obterInscritosTurma,
   verificarTurmaPossuiLista,
+  obterDeltaInscritosSilencioso
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -108,12 +112,16 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   >(new Map());
   const [mostrarDivergencia, setMostrarDivergencia] = useState(false);
   const [deltaInscritos, setDeltaInscritos] = useState<DeltaInscritosDTO | null>(null);
+  const [modalAvisoDeltaVisible, setModalAvisoDeltaVisible] = useState(false);
   const [mostrarBanner, setMostrarBanner] = useState(false);
   const [comentario, setComentario] = useState<ComentarioCodafDTO | null>(null);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
   const [modalDevolverDFVisible, setModalDevolverDFVisible] = useState(false);
   const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
   const [modalComentarioVisible, setModalComentarioVisible] = useState(false);
+  const [modalDrawerInscritosVisible, setModalDrawerInscritosVisible] = useState(false);
+  const [novosInscritosDrawer, setNovosInscritosDrawer] = useState<InscritoAtualizacaoDTO[]>([]);
+  const [deltaResolvidoLocalmente, setDeltaResolvidoLocalmente] = useState<DeltaInscritosDTO | null>(null);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
   const situacoes = [
@@ -122,6 +130,20 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     { id: 3, descricao: 'Devolvido pelo DF' },
     { id: 4, descricao: 'Finalizado' },
   ];
+  const deltasSaoIguais = (d1: DeltaInscritosDTO | null, d2: DeltaInscritosDTO | null) => {
+    if (!d1 && !d2) return true;
+    if (!d1 || !d2) return false;
+
+    const idsNovos1 = [...d1.inscritosNovos.map((i) => i.id)].sort((a, b) => a - b);
+    const idsNovos2 = [...d2.inscritosNovos.map((i) => i.id)].sort((a, b) => a - b);
+    if (JSON.stringify(idsNovos1) !== JSON.stringify(idsNovos2)) return false;
+
+    const idsRemovidos1 = [...d1.inscritosRemovidos.map((i) => i.id)].sort((a, b) => a - b);
+    const idsRemovidos2 = [...d2.inscritosRemovidos.map((i) => i.id)].sort((a, b) => a - b);
+    if (JSON.stringify(idsRemovidos1) !== JSON.stringify(idsRemovidos2)) return false;
+
+    return true;
+  };
 
   const modoEdicao = !!id;
 
@@ -157,6 +179,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     finalizado: status === 4,
   };
+
+  const bloqueioDivergenciaSalvar =
+    modoEdicao &&
+    // ehAreaPromotora &&
+    (situacao.iniciado || situacao.aguardandoDF) &&
+    mostrarDivergencia;
+  
+    const bloqueioDivergenciaEnviarDF =
+    modoEdicao &&
+    // ehAreaPromotora &&
+    mostrarDivergencia;
 
   const bloqueios = {
 
@@ -199,7 +232,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           ehAreaPromotora,
 
         bloqueado:
-          situacao.finalizado,
+          situacao.finalizado || bloqueioDivergenciaEnviarDF,
       },
 
       devolver: {
@@ -221,7 +254,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           ) && !situacao.finalizado,
 
         bloqueado:
-          situacao.finalizado,
+          situacao.finalizado || bloqueioDivergenciaSalvar,
       },
     },
   };
@@ -485,7 +518,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   };
 
   const handleFrequenciaChange = (id: number, value: string) => {
-    const numericValue = value.replace(/[^0-9]/g, '');
+    const numericValue = value.replace(/\D/g, '');
 
     const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : null;
 
@@ -742,75 +775,112 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
+  const houveAlteracaoInscritosAoSalvar = async (idRegistroSelecionado: number) => {
+    const response = await obterDeltaInscritosSilencioso(idRegistroSelecionado);
+    if (response.sucesso && response.dados) {
+      const dados = response.dados;
+
+      if (dados.deltaInscritos?.houveAlteracao) {
+        if (deltasSaoIguais(dados.deltaInscritos, deltaResolvidoLocalmente)) {
+          return false; 
+        }
+
+        setDeltaInscritos(dados.deltaInscritos);
+        setMostrarDivergencia(true);
+        setModalAvisoDeltaVisible(true);
+        setDeltaResolvidoLocalmente(null);
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const montarPayloadSalvar = (values: any, inscritosOverride?: CursistaDTO[]) => {
+    const anexosMapeados = values.anexos?.map((arquivo: any) => ({
+      arquivoCodigo: arquivo.response?.codigo ?? arquivo.arquivoCodigo,
+      nomeArquivo: arquivo.name || arquivo.nomeArquivo,
+      tipoAnexoId: 3,
+    })) ?? [];
+
+console.log('Anexos mapeados para envio:', anexosMapeados);
+
+    const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
+
+    return {
+      propostaId: propostaSelecionada?.propostaId || 0,
+      propostaTurmaId: values.turmaId || 0,
+      dataPublicacao: formatarData(values.dataPublicacao),
+      dataPublicacaoDom: formatarData(values.dataPublicacaoDiarioOficial),
+      numeroComunicado: Number(values.numeroComunicado) || 0,
+      paginaComunicadoDom: Number(values.paginaComunicado) || 0,
+      codigoCursoEol: Number(values.codigoCursoEol) || null,
+      codigoNivel: Number(values.codigoNivel) || null,
+      observacao: values.observacao || '',
+      inscritos: inscritosBase.map((cursista) => ({
+        inscricaoId: cursista.id,
+        percentualFrequencia: cursista.frequencia ?? null,
+        conceitoFinal: cursista.conceitoFinal ?? null,
+        atividadeObrigatorio: letraParaAtividadeObrigatorio(cursista.atividade),
+        aprovado: cursista.aprovado ?? null,
+      })),
+      anexos: anexosMapeados,
+      retificacoes: montarRetificacoes(values),
+    };
+  };
+
+  const atualizarDivergenciaPosSalvar = async (registroIdAtual: number | string) => {
+    try {
+      const detalhes = await obterCodafListaPresencaPorId(Number(registroIdAtual));
+      if (detalhes.sucesso && detalhes.dados?.deltaInscritos?.houveAlteracao) {
+        setDeltaInscritos(detalhes.dados.deltaInscritos);
+        setMostrarDivergencia(true);
+      }
+    } catch (error) {
+      console.error('Erro ao verificar delta de inscritos após salvar:', error);
+    }
+  };
+
+  const exibirErroSalvar = (error: any) => {
+    const mensagemPadraoErro = modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro';
+    const mensagemErro =
+      error?.response?.data?.erros?.[0] ??
+      error?.response?.data?.mensagens?.[0] ??
+      error?.message ??
+      mensagemPadraoErro;
+      
+    notification.error({ message: 'Erro', description: mensagemErro });
+  };
+
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
+      if (registroId && await houveAlteracaoInscritosAoSalvar(registroId)) {
+        return;
+      }
+
       const values = await form.validateFields();
       setLoading(true);
 
-      const anexos =
-        values.anexos?.map((arquivo: any) => ({
-          arquivoCodigo: arquivo.xhr || arquivo.arquivoCodigo,
-          nomeArquivo: arquivo.name || arquivo.nomeArquivo,
-          tipoAnexoId: 3,
-        })) || [];
-
-      const dados = {
-        propostaId: propostaSelecionada?.propostaId || 0,
-        propostaTurmaId: values.turmaId || 0,
-        dataPublicacao: formatarData(values.dataPublicacao),
-        dataPublicacaoDom: formatarData(values.dataPublicacaoDiarioOficial),
-        numeroComunicado: Number(values.numeroComunicado) || 0,
-        paginaComunicadoDom: Number(values.paginaComunicado) || 0,
-        codigoCursoEol: Number(values.codigoCursoEol) || null,
-        codigoNivel: Number(values.codigoNivel) || null,
-        observacao: values.observacao || '',
-        inscritos: (Array.isArray(inscritosOverride) ? inscritosOverride : cursistas).map(
-          (cursista) => ({
-            inscricaoId: cursista.id,
-            percentualFrequencia: cursista.frequencia ?? null,
-            conceitoFinal: cursista.conceitoFinal ?? null,
-            atividadeObrigatorio: letraParaAtividadeObrigatorio(cursista.atividade),
-            aprovado: cursista.aprovado ?? null,
-          }),
-        ),
-        anexos,
-        retificacoes: montarRetificacoes(values),
-      };
+      const dados = montarPayloadSalvar(values, inscritosOverride);
 
       console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
 
       const response = modoEdicao
-        ? await atualizarCodafListaPresenca(registroId!, dados)
+        ? await atualizarCodafListaPresenca(registroId ?? 0, dados)
         : await criarCodafListaPresenca(dados);
 
       console.log('Resposta da API:', response);
-
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
+        setDeltaResolvidoLocalmente(null); 
         const registroIdAtual = id ?? response.dados?.id;
+        
         if (registroIdAtual) {
-          try {
-            const detalhes = await obterCodafListaPresencaPorId(Number(registroIdAtual));
-            if (detalhes.sucesso && detalhes.dados?.deltaInscritos?.houveAlteracao) {
-              setDeltaInscritos(detalhes.dados.deltaInscritos);
-              setMostrarDivergencia(true);
-            }
-          } catch (error) {
-            console.error('Erro ao verificar delta de inscritos após salvar:', error);
-          }
+          await atualizarDivergenciaPosSalvar(registroIdAtual);
         }
       }
     } catch (error: any) {
-      const mensagemPadraoErro = modoEdicao
-        ? 'Erro ao atualizar o registro'
-        : 'Erro ao salvar o registro';
-      const mensagemErro =
-        error?.response?.data?.erros?.[0] ||
-        error?.response?.data?.mensagens?.[0] ||
-        error?.message ||
-        mensagemPadraoErro;
-      notification.error({ message: 'Erro', description: mensagemErro });
+      exibirErroSalvar(error);
     } finally {
       setLoading(false);
     }
@@ -979,73 +1049,55 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const validarParaEnvio = (): boolean => {
     if (!registroId) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'É necessário salvar o registro antes de enviar para DF',
-      });
+      notification.warning({ message: 'Atenção', description: 'É necessário salvar o registro antes de enviar para DF' });
       return false;
     }
 
     if (verificarAlteracoes()) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.',
-      });
+      notification.warning({ message: 'Atenção', description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.' });
       return false;
     }
 
-    const anexos = form.getFieldValue('anexos');
-
-    if (!anexos || anexos.length === 0) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF',
-      });
+    if (!form.getFieldValue('anexos')?.length) {
+      notification.warning({ message: 'Atenção', description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF' });
       return false;
     }
 
-    if (!formValido) {
-      const camposVazios: string[] = [];
+    const camposObrigatorios = [
+      { valor: numeroHomologacao, nome: 'Número de homologação' },
+      { valor: nomeFormacao, nome: 'Nome da formação' },
+      { valor: codigoFormacao, nome: 'Código da formação' },
+      { valor: turmaId, nome: 'Turma' },
+      { valor: numeroComunicado, nome: 'Número do comunicado' },
+      { valor: paginaComunicado, nome: 'Página do comunicado' },
+      { valor: dataPublicacao, nome: 'Data de publicação' },
+      { valor: dataPublicacaoDiarioOficial, nome: 'Data de publicação no Diário Oficial' },
+      ...(!ehAreaPromotora ? [{ valor: codigoCursoEol, nome: 'Código do curso no EOL' }] : []),
+    ];
 
-      if (!numeroHomologacao) camposVazios.push('Número de homologação');
-      if (!nomeFormacao) camposVazios.push('Nome da formação');
-      if (!codigoFormacao) camposVazios.push('Código da formação');
-      if (!turmaId) camposVazios.push('Turma');
-      if (!numeroComunicado) camposVazios.push('Número do comunicado');
-      if (!paginaComunicado) camposVazios.push('Página do comunicado');
-      if (!dataPublicacao) camposVazios.push('Data de publicação');
-      if (!dataPublicacaoDiarioOficial) camposVazios.push('Data de publicação no Diário Oficial');
-      if (!ehAreaPromotora && !codigoCursoEol) camposVazios.push('Código do curso no EOL');
+    const camposVazios = camposObrigatorios.filter((c) => !c.valor).map((c) => c.nome);
 
+    if (camposVazios.length > 0) {
       notification.warning({
         message: 'Atenção',
-        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(
-          ', ',
-        )})`,
+        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(', ')})`,
       });
       return false;
     }
 
     if (cursistas.length === 0) {
-      notification.warning({
-        message: 'Atenção',
-        description: 'Não é possível enviar para DF sem inscritos na lista de presença',
-      });
+      notification.warning({ message: 'Atenção', description: 'Não é possível enviar para DF sem inscritos na lista de presença' });
       return false;
     }
 
-    const cursistasIncompletos = cursistas.filter(
-      (cursista) =>
-        cursista.frequencia === null ||
-        cursista.conceitoFinal === null ||
-        cursista.aprovado === null,
+    const possuiCursistaIncompleto = cursistas.some(
+      (c) => c.frequencia === null || c.conceitoFinal === null || c.aprovado === null
     );
 
-    if (cursistasIncompletos.length > 0) {
+    if (possuiCursistaIncompleto) {
       notification.warning({
         message: 'Atenção',
-        description:
-          'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
+        description: 'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
       });
       return false;
     }
@@ -1061,6 +1113,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       });
       return;
     }
+
+    if (registroId) {
+      setLoading(true);
+      const houveDivergencia = await houveAlteracaoInscritosAoSalvar(registroId);
+      setLoading(false);
+      
+      if (houveDivergencia) {
+        return;
+      }
+    }
+
     if (!validarParaEnvio()) {
       return;
     }
@@ -1199,7 +1262,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     setModalDevolverDFVisible(false);
   };
 
-  const onClickAtualizarInscritos = async () => {
+  const onClickAtualizarInscritos = () => {
     if (!turmaId) {
       notification.warning({
         message: 'Atenção',
@@ -1208,39 +1271,92 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await obterInscritosTurma(turmaId, 1, 99999);
-      if (!response.sucesso || !response.dados) {
-        notification.warning({
-          message: 'Atenção',
-          description: 'Nenhum inscrito encontrado para esta turma',
-        });
-        return;
-      }
+    const novos = deltaInscritos?.inscritosNovos ?? [];
+    const removidos = deltaInscritos?.inscritosRemovidos ?? [];
 
-      const inscritosAtualizados: CursistaDTO[] = response.dados.items.map((inscrito) => ({
+    if (novos.length === 0) {
+      const idsRemovidos = removidos.map((r) => r.id);
+      const listaSemRemovidos = cursistas.filter((c) => !idsRemovidos.includes(c.id));
+      
+      setMostrarDivergencia(false);
+      setCursistas(listaSemRemovidos);
+      setDeltaResolvidoLocalmente(deltaInscritos);
+
+      return;
+    }
+
+    const inscritosMapeadosParaDrawer: InscritoAtualizacaoDTO[] = novos.map((novo) => {
+      // PRESERVA OS DADOS SE O CARA JÁ TIVER SIDO PREENCHIDO ANTES DA COND. DE CORRIDA
+      const salvoLocal = cursistas.find((c) => c.id === novo.id);
+
+      let freq = salvoLocal?.frequencia?.toString() ?? (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
+      
+      let ativ: 'Sim' | 'Não' | undefined = undefined;
+      if (salvoLocal?.atividade === 'S') ativ = 'Sim';
+      else if (salvoLocal?.atividade === 'N') ativ = 'Não';
+      else if (novo.atividadeObrigatorio === true) ativ = 'Sim';
+      else if (novo.atividadeObrigatorio === false) ativ = 'Não';
+
+      let conceito = salvoLocal?.conceitoFinal ?? novo.conceitoFinal ?? undefined;
+      
+      let aprov: 'Sim' | 'Não' | undefined = undefined;
+      if (salvoLocal?.aprovado === true) aprov = 'Sim';
+      else if (salvoLocal?.aprovado === false) aprov = 'Não';
+      else if (novo.aprovado === true) aprov = 'Sim';
+      else if (novo.aprovado === false) aprov = 'Não';
+
+      return {
+        id: novo.id,
+        nome: novo.nome,
+        documento: novo.documento,
+        frequencia: freq,
+        atividadeObrigatoria: ativ,
+        conceitoFinal: conceito,
+        aprovado: aprov,
+      };
+    });
+
+    setNovosInscritosDrawer(inscritosMapeadosParaDrawer);
+    setModalDrawerInscritosVisible(true);
+  };
+
+  const onSaveDrawerInscritos = async (novosInscritosPreenchidos: InscritoAtualizacaoDTO[]) => {
+    try {      
+      const idsRemovidos = deltaInscritos?.inscritosRemovidos?.map((r) => r.id) ?? [];
+      const idsNovos = novosInscritosPreenchidos.map((i) => i.id);
+
+      const cursistasAtuaisFiltrados = cursistas.filter((c) => !idsRemovidos.includes(c.id) && !idsNovos.includes(c.id));
+
+      const novosCursistas: CursistaDTO[] = novosInscritosPreenchidos.map((inscrito) => ({
         id: inscrito.id,
         rfOuCpf: inscrito.documento,
         nomeCursista: inscrito.nome,
-        frequencia: inscrito.percentualFrequencia ?? null,
-        atividade: atividadeObrigatorioParaLetra(inscrito.atividadeObrigatorio),
+        frequencia: inscrito.frequencia ? parseInt(inscrito.frequencia.replace(/\D/g, ''), 10) : null,
+        atividade: inscrito.atividadeObrigatoria ?? null,
         conceitoFinal: inscrito.conceitoFinal ?? null,
-        aprovado: inscrito.aprovado ?? null,
+        aprovado: inscrito.aprovado === 'Sim',
       }));
 
+      const listaFinal = [...cursistasAtuaisFiltrados, ...novosCursistas];
+
+      setCursistas(listaFinal);
       setMostrarDivergencia(false);
-      await onClickSalvar(inscritosAtualizados);
-      setCursistas(inscritosAtualizados);
+      setModalDrawerInscritosVisible(false);
+      setDeltaResolvidoLocalmente(deltaInscritos);
     } catch (error) {
-      console.error('Erro ao atualizar inscritos:', error);
+      console.error('Erro ao salvar inscritos do drawer:', error);
       notification.error({
         message: 'Erro',
-        description: 'Erro ao atualizar lista de inscritos',
+        description: 'Falha ao processar os novos inscritos',
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const onAtualizarInscritosModal = () => {
+    setModalAvisoDeltaVisible(false);
+    onClickAtualizarInscritos();
   };
 
   const onConferirComentarios = () => {
@@ -1259,6 +1375,15 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     setModalComentarioVisible(false);
     //setMostrarBanner(false);
   };
+
+  const cursistasParaTabela = cursistas.filter((cursista) => {
+    if (!mostrarDivergencia || !deltaInscritos) return true;
+
+    const isNovo = deltaInscritos.inscritosNovos?.some((novo) => novo.id === cursista.id);
+    const isRemovido = deltaInscritos.inscritosRemovidos?.some((removido) => removido.id === cursista.id);
+
+    return !isNovo && !isRemovido;
+  });
 
   return (
     <Col>
@@ -1408,7 +1533,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             onClickAtualizarInscritos={onClickAtualizarInscritos}
             loading={loading}
             colunasCursistas={colunasCursistas}
-            cursistas={cursistas}
+            cursistas={cursistasParaTabela}
             paginaAtualInscritos={paginaAtualInscritos}
             registrosPorPaginaInscritos={registrosPorPaginaInscritos}
             totalRegistrosInscritos={totalRegistrosInscritos}
@@ -1470,6 +1595,14 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         </CardContent>
       </Form>
 
+      <ModalAvisoDeltaInscritos
+        visible={modalAvisoDeltaVisible}
+        nomeFormacao={nomeFormacao}
+        deltaInscritos={deltaInscritos}
+        onCancel={() => setModalAvisoDeltaVisible(false)}
+        onAtualizar={onAtualizarInscritosModal}
+      />
+
       <ModalEnviarDF
         visible={modalEnviarDFVisible}
         onConfirm={confirmarEnvioParaDF}
@@ -1495,6 +1628,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         visible={modalComentarioVisible}
         onClose={onCloseModalComentario}
         comentario={comentario}
+      />
+
+      <DrawerAtualizacaoInscritos
+        openModal={modalDrawerInscritosVisible}
+        onCloseModal={() => setModalDrawerInscritosVisible(false)}
+        onSave={onSaveDrawerInscritos}
+        inscritos={novosInscritosDrawer}
       />
     </Col>
   );
