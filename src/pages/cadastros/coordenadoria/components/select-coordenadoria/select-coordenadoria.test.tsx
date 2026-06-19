@@ -22,7 +22,7 @@ jest.useFakeTimers();
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -32,6 +32,45 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
+});
+
+// Mock para evitar que o Select do Ant Design quebre o parser do JSDOM 
+// Injetando uma estrutura limpa de DOM
+jest.mock('antd', () => {
+  const antd = jest.requireActual('antd');
+  return {
+    ...antd,
+    Select: Object.assign(
+      ({ children, onChange, onSearch, onPopupScroll, placeholder, ...props }: any) => (
+        <div data-testid="mock-select-wrapper">
+          <input
+            role="combobox"
+            placeholder={placeholder}
+            disabled={props.disabled}
+            onChange={(e) => {
+              if (onChange) onChange(e.target.value);
+              if (onSearch) onSearch(e.target.value);
+            }}
+          />
+          <div
+            className="ant-select-dropdown"
+            onScroll={(e) => {
+              if (onPopupScroll) onPopupScroll(e);
+            }}
+          >
+            {children}
+          </div>
+        </div>
+      ),
+      {
+        Option: ({ children, value }: any) => (
+          <div data-testid="select-option" data-value={value}>
+            {children}
+          </div>
+        ),
+      }
+    ),
+  };
 });
 
 jest.mock(
@@ -93,6 +132,10 @@ describe('SelectCoordenadoria', () => {
     });
   });
 
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
   it('deve carregar dados ao montar', async () => {
     renderComponent();
 
@@ -105,21 +148,29 @@ describe('SelectCoordenadoria', () => {
       numeroPagina: 1,
       numeroRegistros: 15,
     });
+
+    // Flush promises finais
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
-  it('deve renderizar o select', () => {
+  it('deve renderizar o select', async () => {
     renderComponent();
 
     expect(
       screen.getByRole('combobox'),
     ).toBeInTheDocument();
+
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
   it('deve pesquisar após debounce', async () => {
     renderComponent();
 
-    const input =
-      screen.getByRole('combobox');
+    const input = screen.getByRole('combobox');
 
     fireEvent.change(input, {
       target: {
@@ -140,6 +191,10 @@ describe('SelectCoordenadoria', () => {
       numeroPagina: 1,
       numeroRegistros: 15,
     });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
   it('deve cancelar timeout anterior', async () => {
@@ -150,53 +205,44 @@ describe('SelectCoordenadoria', () => {
       'clearTimeout',
     );
 
-    const input =
-      screen.getByRole('combobox');
+    const input = screen.getByRole('combobox');
 
-    fireEvent.change(input, {
-      target: {
-        value: 'a',
-      },
-    });
-
-    fireEvent.change(input, {
-      target: {
-        value: 'ab',
-      },
-    });
+    fireEvent.change(input, { target: { value: 'a' } });
+    fireEvent.change(input, { target: { value: 'ab' } });
 
     act(() => {
       jest.advanceTimersByTime(600);
     });
 
     expect(clearSpy).toHaveBeenCalled();
+
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
   it('deve carregar próxima página ao chegar no final', async () => {
     renderComponent();
 
-    await waitFor(() =>
-      expect(listarMock).toHaveBeenCalled(),
-    );
-
-    const selector = document.querySelector(
-      '.ant-select-dropdown',
-    );
-
-    if (!selector) return;
-
-    fireEvent.scroll(selector, {
-      target: {
-        scrollTop: 500,
-        offsetHeight: 500,
-        scrollHeight: 900,
-      },
+    // GARANTIA DE ESTADO: Espera os itens renderizarem na tela
+    // Isso garante que loading = false e hasMore = true
+    await waitFor(() => {
+      expect(screen.getByText('PED - Pedagógica')).toBeInTheDocument();
     });
 
+    const selector = document.querySelector('.ant-select-dropdown') as HTMLElement;
+    if (!selector) return;
+
+    // Forçamos o DOM a simular as dimensões do final do scroll
+    Object.defineProperty(selector, 'scrollTop', { value: 500, configurable: true });
+    Object.defineProperty(selector, 'clientHeight', { value: 500, configurable: true });
+    Object.defineProperty(selector, 'offsetHeight', { value: 500, configurable: true });
+    Object.defineProperty(selector, 'scrollHeight', { value: 1000, configurable: true });
+
+    fireEvent.scroll(selector);
+
     await waitFor(() => {
-      expect(listarMock).toHaveBeenCalledTimes(
-        2,
-      );
+      expect(listarMock).toHaveBeenCalledTimes(2);
     });
 
     expect(listarMock).toHaveBeenLastCalledWith({
@@ -204,40 +250,46 @@ describe('SelectCoordenadoria', () => {
       numeroPagina: 2,
       numeroRegistros: 15,
     });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
   it('não deve carregar próxima página quando não existir mais páginas', async () => {
     listarMock.mockResolvedValue({
       sucesso: true,
       dados: {
-        items: [],
+        items: [{ id: 99, nome: 'Único', sigla: 'UNI' }],
         totalPaginas: 1,
       },
     });
 
     renderComponent();
 
-    await waitFor(() =>
-      expect(listarMock).toHaveBeenCalled(),
-    );
-
-    const selector = document.querySelector(
-      '.ant-select-dropdown',
-    );
-
-    if (!selector) return;
-
-    fireEvent.scroll(selector, {
-      target: {
-        scrollTop: 400,
-        offsetHeight: 400,
-        scrollHeight: 700,
-      },
+    // GARANTIA DE ESTADO: Espera o item único para garantir que
+    // o processamento da promise acabou (loading = false, hasMore = false)
+    await waitFor(() => {
+      expect(screen.getByText('UNI - Único')).toBeInTheDocument();
     });
 
-    expect(listarMock).toHaveBeenCalledTimes(
-      1,
-    );
+    const selector = document.querySelector('.ant-select-dropdown') as HTMLElement;
+    if (!selector) return;
+
+    // Simula scroll até o fim
+    Object.defineProperty(selector, 'scrollTop', { value: 500, configurable: true });
+    Object.defineProperty(selector, 'clientHeight', { value: 500, configurable: true });
+    Object.defineProperty(selector, 'offsetHeight', { value: 500, configurable: true });
+    Object.defineProperty(selector, 'scrollHeight', { value: 1000, configurable: true });
+
+    fireEvent.scroll(selector);
+
+    // O serviço ainda deve ter sido chamado apenas 1 vez (da montagem)
+    expect(listarMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
   it('não deve atualizar lista quando serviço retornar sucesso=false', async () => {
@@ -251,24 +303,28 @@ describe('SelectCoordenadoria', () => {
       expect(listarMock).toHaveBeenCalled();
     });
 
-    expect(
-      screen.getByRole('combobox'),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
-  it('deve aceitar selectProps', () => {
+  it('deve aceitar selectProps', async () => {
     renderComponent({
       selectProps: {
         disabled: true,
       },
     });
 
-    expect(
-      screen.getByRole('combobox'),
-    ).toBeDisabled();
+    expect(screen.getByRole('combobox')).toBeDisabled();
+
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
-  it('deve aceitar formItemProps', () => {
+  it('deve aceitar formItemProps', async () => {
     renderComponent({
       formItemProps: {
         label: 'Coordenadoria',
@@ -276,8 +332,10 @@ describe('SelectCoordenadoria', () => {
       },
     });
 
-    expect(
-      screen.getByText('Coordenadoria'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Coordenadoria')).toBeInTheDocument();
+
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 });

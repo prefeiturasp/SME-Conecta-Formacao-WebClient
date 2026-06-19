@@ -46,6 +46,11 @@ describe('InputCodigoEolUE', () => {
     (Form.useWatch as jest.Mock).mockReturnValue(false);
   });
 
+  /**
+   * @function setup
+   * @description Renders the component with base properties for testing.
+   * @param {object} props - Additional props for the component.
+   */
   const setup = (props = {}) => {
     return render(
       <InputCodigoEolUE
@@ -81,7 +86,7 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
@@ -93,8 +98,8 @@ describe('InputCodigoEolUE', () => {
   it('não deve chamar service no onSearch com valor vazio', async () => {
     const { getByRole } = setup();
 
-    const input = getByRole('searchbox');
-    fireEvent.keyDown(input, { target: { value: '' } });
+    const input = getByRole('textbox');
+    fireEvent.keyDown(input, { target: { value: '' }, key: 'Enter', code: 'Enter' });
 
     await waitFor(() => {
       expect(obterMock).not.toHaveBeenCalled();
@@ -123,7 +128,7 @@ describe('InputCodigoEolUE', () => {
   it('deve limpar nomeUnidade ao digitar no input', async () => {
     const { getByRole } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.change(input, { target: { value: 'abc' } });
 
     await waitFor(() => {
@@ -140,7 +145,7 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup({ desativarBotaoAlterar: desativarMock });
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
@@ -171,7 +176,7 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByRole('textbox');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
