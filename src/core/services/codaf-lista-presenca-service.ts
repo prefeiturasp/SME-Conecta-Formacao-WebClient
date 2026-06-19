@@ -388,3 +388,13 @@ export const downloadCertificado = (
 ): Promise<ApiResult<CertificadoDownloadDTO>> => {
   return obterRegistro(`${URL_API_CERTIFICADO}/${certificadoCodafId}/download`);
 };
+
+export type PropostaTurmaComCodafDTO = {
+  id: number;
+  codafId: number;
+  descricao: string;
+};
+
+export const obterPropostasTurmasComCodaf = (propostaId: number): Promise<ApiResult<PropostaTurmaComCodafDTO[]>> => {
+  return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/propostas/${propostaId}/turmas`);
+}
