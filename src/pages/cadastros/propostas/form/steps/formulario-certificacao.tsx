@@ -1,12 +1,17 @@
 import { Col, Form, Radio, RadioChangeEvent, Row } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
+import { SelectDRE } from '~/components/main/input/dre';
 import CheckboxAcaoInformatica from '~/components/lib/checkbox';
+import Select from '~/components/lib/inputs/select';
 import SelectCriterioCertificacao from '~/components/main/input/criterio-certificacao';
 import EditorTexto from '~/components/main/input/editor-texto';
 import { DESCRICAO_DA_CERTIFICACAO_NAO_INFORMADA } from '~/core/constants/mensagens';
 import { CampoConsideracaoEnum } from '~/core/enum/campos-proposta-enum';
+import { TipoEmissorEnum } from '../../../../../core/enum/tipo-emissor';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ButtonParecer } from '../components/modal-parecer/modal-parecer-button';
+import SelectTipoEmissor from '../components/select-tipo-emissor';
+import { SelectCoordenadoria } from '~/pages/cadastros/coordenadoria/components/select-coordenadoria/select-coordenadoria';
 
 const FormularioCertificacao: React.FC = () => {
   const form = Form.useFormInstance();
@@ -19,6 +24,8 @@ const FormularioCertificacao: React.FC = () => {
     setValuePossuiCertificado(e.target.value);
     form.setFieldValue('cursoComCertificado', e.target.value);
   };
+
+  const tipoEmissorWatch = Form.useWatch('tipoEmissor', form);
 
   const obterDados = async () => {
     setTimeout(() => {
@@ -73,6 +80,49 @@ const FormularioCertificacao: React.FC = () => {
               </Form.Item>
             </ButtonParecer>
           </Col>
+          <Col flex='auto' />
+          {valuePossuiCertificado === true && (
+            <>
+              <Col span={8}>
+                <SelectTipoEmissor campoRequerido={valuePossuiCertificado === true} />
+              </Col>
+              {tipoEmissorWatch === TipoEmissorEnum.DRE ? (
+                <Col span={8} key='dre-select'>
+                  <SelectDRE
+                    exibirOpcaoTodos={false}
+                    formItemProps={{
+                      label: 'Emissor',
+                      name: 'idEmissor',
+                      rules: [{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }],
+                    }}
+                  />
+                </Col>
+              ) : tipoEmissorWatch === TipoEmissorEnum.Coordenadoria ? (
+                <Col span={8} key='coordenadoria-select'>
+                  <SelectCoordenadoria
+                    formItemProps={{
+                      label: 'Emissor',
+                      name: 'idEmissor',
+                      rules: [{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }],
+                    }}
+                  />
+                </Col>
+              ) : (
+                <Col span={8} key='emissor-vazio'>
+                  <Form.Item
+                    label='Emissor'
+                    name='idEmissor'
+                    style={{ marginBottom: 0 }}
+                    rules={[
+                      { required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' },
+                    ]}
+                  >
+                    <Select placeholder='Selecione' disabled />
+                  </Form.Item>
+                </Col>
+              )}
+            </>
+          )}
           <Col span={24}>
             <ButtonParecer campo={CampoConsideracaoEnum.criterioCertificacao}>
               <SelectCriterioCertificacao onchange={verificarCriteriosSelecionados} />

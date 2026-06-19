@@ -617,6 +617,14 @@ export const FormCadastroDePropostas: React.FC = () => {
       objetivos: clonedValues.objetivos,
       outrosCriterios: clonedValues?.outrosCriterios || '',
       cursoComCertificado: !!clonedValues.cursoComCertificado,
+      tipoEmissor:
+        clonedValues?.cursoComCertificado && clonedValues?.tipoEmissor != null
+          ? Number(clonedValues.tipoEmissor)
+          : null,
+      idEmissor:
+        clonedValues?.cursoComCertificado && clonedValues?.idEmissor != null
+          ? Number(clonedValues.idEmissor)
+          : null,
       acaoInformativa: !!clonedValues.acaoInformativa,
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
