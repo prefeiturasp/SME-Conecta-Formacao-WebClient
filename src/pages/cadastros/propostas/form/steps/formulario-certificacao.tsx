@@ -57,10 +57,49 @@ const FormularioCertificacao: React.FC = () => {
     verificarCriteriosSelecionados();
   }, [verificarCriteriosSelecionados]);
 
+  let campoEmissor = (
+    <Col span={8} key='emissor-vazio'>
+      <Form.Item
+        label='Emissor'
+        name='idEmissor'
+        style={{ marginBottom: 0 }}
+        rules={[{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }]}
+      >
+        <Select placeholder='Selecione' disabled />
+      </Form.Item>
+    </Col>
+  );
+
+  if (tipoEmissorWatch === TipoEmissorEnum.DRE) {
+    campoEmissor = (
+      <Col span={8} key='dre-select'>
+        <SelectDRE
+          exibirOpcaoTodos={false}
+          formItemProps={{
+            label: 'Emissor',
+            name: 'idEmissor',
+            rules: [{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }],
+          }}
+        />
+      </Col>
+    );
+  } else if (tipoEmissorWatch === TipoEmissorEnum.Coordenadoria) {
+    campoEmissor = (
+      <Col span={8} key='coordenadoria-select'>
+        <SelectCoordenadoria
+          formItemProps={{
+            label: 'Emissor',
+            name: 'idEmissor',
+            rules: [{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }],
+          }}
+        />
+      </Col>
+    );
+  }
+
   return (
-    <>
-      <Col>
-        <Row gutter={[16, 16]}>
+    <Col>
+      <Row gutter={[16, 16]}>
           <Col>
             <ButtonParecer campo={CampoConsideracaoEnum.cursoComCertificado}>
               <Form.Item
@@ -86,41 +125,7 @@ const FormularioCertificacao: React.FC = () => {
               <Col span={8}>
                 <SelectTipoEmissor campoRequerido={valuePossuiCertificado === true} />
               </Col>
-              {tipoEmissorWatch === TipoEmissorEnum.DRE ? (
-                <Col span={8} key='dre-select'>
-                  <SelectDRE
-                    exibirOpcaoTodos={false}
-                    formItemProps={{
-                      label: 'Emissor',
-                      name: 'idEmissor',
-                      rules: [{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }],
-                    }}
-                  />
-                </Col>
-              ) : tipoEmissorWatch === TipoEmissorEnum.Coordenadoria ? (
-                <Col span={8} key='coordenadoria-select'>
-                  <SelectCoordenadoria
-                    formItemProps={{
-                      label: 'Emissor',
-                      name: 'idEmissor',
-                      rules: [{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }],
-                    }}
-                  />
-                </Col>
-              ) : (
-                <Col span={8} key='emissor-vazio'>
-                  <Form.Item
-                    label='Emissor'
-                    name='idEmissor'
-                    style={{ marginBottom: 0 }}
-                    rules={[
-                      { required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' },
-                    ]}
-                  >
-                    <Select placeholder='Selecione' disabled />
-                  </Form.Item>
-                </Col>
-              )}
+              {campoEmissor}
             </>
           )}
           <Col span={24}>
@@ -144,9 +149,8 @@ const FormularioCertificacao: React.FC = () => {
           <Col span={24}>
             <CheckboxAcaoInformatica />
           </Col>
-        </Row>
-      </Col>
-    </>
+      </Row>
+    </Col>
   );
 };
 
