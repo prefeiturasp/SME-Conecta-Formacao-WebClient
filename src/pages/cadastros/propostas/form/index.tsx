@@ -579,6 +579,19 @@ export const FormCadastroDePropostas: React.FC = () => {
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
     const datas = extrairDatasFormatadas(values);
+    const toNumeroOuNull = (valor: unknown): number | null => {
+      const valorFinal = (valor as { value?: unknown })?.value ?? valor;
+
+      if (valorFinal === null || valorFinal === undefined || valorFinal === '') {
+        return null;
+      }
+
+      const numero = Number(valorFinal);
+      return Number.isNaN(numero) ? null : numero;
+    };
+
+    const tipoEmissorNumero = toNumeroOuNull(clonedValues?.tipoEmissor);
+    const idEmissorNumero = toNumeroOuNull(clonedValues?.idEmissor);
     const situacao = resolverSituacao(
       id,
       novaSituacao,
@@ -618,12 +631,12 @@ export const FormCadastroDePropostas: React.FC = () => {
       outrosCriterios: clonedValues?.outrosCriterios || '',
       cursoComCertificado: !!clonedValues.cursoComCertificado,
       tipoEmissor:
-        clonedValues?.cursoComCertificado && clonedValues?.tipoEmissor != null
-          ? Number(clonedValues.tipoEmissor)
+        clonedValues?.cursoComCertificado && tipoEmissorNumero !== null && !Number.isNaN(tipoEmissorNumero)
+          ? tipoEmissorNumero
           : null,
       idEmissor:
-        clonedValues?.cursoComCertificado && clonedValues?.idEmissor != null
-          ? Number(clonedValues.idEmissor)
+        clonedValues?.cursoComCertificado && idEmissorNumero !== null && !Number.isNaN(idEmissorNumero)
+          ? idEmissorNumero
           : null,
       acaoInformativa: !!clonedValues.acaoInformativa,
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',

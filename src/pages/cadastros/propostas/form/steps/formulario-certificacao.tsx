@@ -1,5 +1,5 @@
 import { Col, Form, Radio, RadioChangeEvent, Row } from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SelectDRE } from '~/components/main/input/dre';
 import CheckboxAcaoInformatica from '~/components/lib/checkbox';
 import Select from '~/components/lib/inputs/select';
@@ -26,6 +26,7 @@ const FormularioCertificacao: React.FC = () => {
   };
 
   const tipoEmissorWatch = Form.useWatch('tipoEmissor', form);
+  const tipoEmissorAnteriorRef = useRef<TipoEmissorEnum | undefined>(undefined);
 
   const obterDados = async () => {
     setTimeout(() => {
@@ -56,6 +57,24 @@ const FormularioCertificacao: React.FC = () => {
     obterDados();
     verificarCriteriosSelecionados();
   }, [verificarCriteriosSelecionados]);
+
+  useEffect(() => {
+    const tipoEmissorAtual = tipoEmissorWatch as TipoEmissorEnum | undefined;
+    const tipoEmissorAnterior = tipoEmissorAnteriorRef.current;
+
+    const tipoEmissorValido =
+      tipoEmissorAtual === TipoEmissorEnum.DRE ||
+      tipoEmissorAtual === TipoEmissorEnum.Coordenadoria;
+
+    const tipoFoiAlterado =
+      tipoEmissorAnterior !== undefined && tipoEmissorAnterior !== tipoEmissorAtual;
+
+    if ((!tipoEmissorValido || tipoFoiAlterado) && form.getFieldValue('idEmissor') != null) {
+      form.setFieldValue('idEmissor', undefined);
+    }
+
+    tipoEmissorAnteriorRef.current = tipoEmissorAtual;
+  }, [form, tipoEmissorWatch]);
 
   let campoEmissor = (
     <Col span={8} key='emissor-vazio'>
