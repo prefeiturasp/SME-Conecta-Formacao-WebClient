@@ -392,7 +392,7 @@ const CadastroCodafSuplementar: React.FC = () => {
       })),
       anexos: anexosMapeados,
       retificacoes: montarRetificacoes(values),
-      codafId: codafId,
+      codafId: codafId ?? 0,
     };
   };
 
