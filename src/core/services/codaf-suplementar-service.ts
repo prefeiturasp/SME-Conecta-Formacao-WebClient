@@ -1,32 +1,11 @@
+import { CodafBaseDetalheDTO } from "../dto/codaf-base-detalhe-dto";
 import { ApiResult, inserirRegistro, obterRegistro } from "./api";
 
 export const URL_API_CODAF_SUPLEMENTAR = 'v1/CodafSuplementar';
 
-export type CodafSuplementarDetalheDTO = {
-  id: number;
+export interface CodafSuplementarDetalheDTO extends CodafBaseDetalheDTO {
   codafId: number;
-  propostaId: number;
-  propostaTurmaId: number;
-  numeroHomologacao: number;
-  nomeFormacao: string;
-  codigoFormacao: number;
-  numeroComunicado: number;
-  dataPublicacao: string | null;
-  paginaComunicadoDom: number;
-  dataPublicacaoDom: string | null;
-  codigoCursoEol: number | null;
-  codigoNivel: number;
-  observacao: string | null;
-  status: number;
-  alteradoEm: string | null;
-  alteradoPor: string | null;
-  alteradoLogin: string | null;
-  criadoEm: string;
-  criadoPor: string;
-  criadoLogin: string;
-  retificacoes?: RetificacaoDTO[];
-  anexos?: AnexoCodafDetalheDTO[];
-};
+}
 
 export type AnexoCodafDetalheDTO = {
   id: number;
