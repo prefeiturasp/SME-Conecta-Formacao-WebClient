@@ -41,6 +41,8 @@ import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado
 import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
 import RelatorioInscritosPorFormacao from '~/pages/relatorios/inscritos-por-formacao';
 import ListCoordenadoria from '~/pages/cadastros/coordenadoria';
+import CodafSuplementar from '~/pages/formacoes/codaf-suplementar';
+import CadastroCodafSuplementar from '~/pages/formacoes/codaf-suplementar/cadastro';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -203,6 +205,18 @@ const RoutesConfig = () => {
                     />
                   </Route>
                 </Route> 
+
+                <Route path={ROUTES.CODAF_SUPLEMENTAR}>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.CodafSuplementar} />}>
+                    <Route path='' element={<CodafSuplementar />} />
+                  </Route>
+                  <Route element={<GuardPermissao menuKey={MenuEnum.CodafSuplementar} />}>
+                    <Route
+                      path={ROUTES.CODAF_SUPLEMENTAR_NOVO}
+                      element={<CadastroCodafSuplementar />}
+                    />
+                  </Route>
+                </Route>
 
                 <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
                   <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />

@@ -39,4 +39,7 @@ export enum ROUTES {
   LISTA_PRESENCA_CODAF_NOVO = '/formacoes/lista-presenca-codaf/novo',
   LISTA_PRESENCA_CODAF_EDITAR = '/formacoes/lista-presenca-codaf/editar/:id',
   RELATORIO_INSCRITOS_POR_FORMACAO = '/relatorios/inscritos-por-formacao',
+  CODAF_SUPLEMENTAR = '/formacoes/codaf-suplementar',
+  CODAF_SUPLEMENTAR_NOVO = '/formacoes/codaf-suplementar/novo',
+  CODAF_SUPLEMENTAR_EDITAR = '/formacoes/codaf-suplementar/editar/:id',
 }
