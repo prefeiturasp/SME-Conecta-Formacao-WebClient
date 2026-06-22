@@ -12,8 +12,8 @@ import {
   CF_INPUT_NUMERO_HOMOLOGACAO,
   CF_INPUT_PAGINA_COMUNICADO,
 } from '~/core/constants/ids/input';
-import { PropostaTurmaComCodafDTO } from "~/core/services/codaf-lista-presenca-service";
-import { PropostaAutocompletarDTO } from "~/core/services/proposta-service";
+import { PropostaTurmaComCodafDTO } from '~/core/services/codaf-lista-presenca-service';
+import { PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 
 interface SecaoFormularioProps {
   opcoesFormacao: PropostaAutocompletarDTO[];
@@ -28,20 +28,25 @@ interface SecaoFormularioProps {
   onChangeTurma: (value: number, option: any) => void;
 }
 
-export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
-  opcoesFormacao,
-  onSearchFormacao,
-  onSelectFormacao,
-  loadingAutocomplete,
-  turmas,
-  camposBloqueados,
-  onChangeTurma,
-}) => {
+const gridMetade = { xs: 24, sm: 12, md: 12, lg: 12, xl: 12 };
+const gridTerco = { xs: 24, sm: 12, md: 8, lg: 8, xl: 8 };
+const estiloNegrito = { fontWeight: 'bold' };
+
+export const SecaoFormulario: React.FC<SecaoFormularioProps> = (props) => {
+  const {
+    opcoesFormacao,
+    onSearchFormacao,
+    onSelectFormacao,
+    loadingAutocomplete,
+    turmas,
+    camposBloqueados,
+    onChangeTurma,
+  } = props;
   return (
     <div>
       <Row gutter={[16, 8]}>
-        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-          <b>
+        <Col {...gridMetade}>
+          <div style={estiloNegrito}>
             <Form.Item
               label='Número de homologação'
               name='numeroHomologacao'
@@ -65,10 +70,10 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 }
               />
             </Form.Item>
-          </b>
+          </div>
         </Col>
-        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-          <b>
+        <Col {...gridMetade}>
+          <div style={estiloNegrito}>
             <InputTexto
               formItemProps={{
                 label: 'Nome da formação',
@@ -82,12 +87,12 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 disabled: true,
               }}
             />
-          </b>
+          </div>
         </Col>
       </Row>
       <Row gutter={[16, 8]}>
-        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-          <b>
+        <Col {...gridMetade}>
+          <div style={estiloNegrito}>
             <InputNumero
               formItemProps={{
                 label: 'Código da formação',
@@ -101,10 +106,10 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 disabled: true,
               }}
             />
-          </b>
+          </div>
         </Col>
-        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-          <b>
+        <Col {...gridMetade}>
+          <div style={estiloNegrito}>
             <Form.Item
               label='Turma'
               name='turmaId'
@@ -121,12 +126,12 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 allowClear
               />
             </Form.Item>
-          </b>
+          </div>
         </Col>
       </Row>
       <Row gutter={[16, 8]}>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
+        <Col {...gridTerco}>
+          <div style={estiloNegrito}>
             <InputNumero
               formItemProps={{
                 label: 'Número do comunicado',
@@ -138,10 +143,10 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 maxLength: 4,
               }}
             />
-          </b>
+          </div>
         </Col>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
+        <Col {...gridTerco}>
+          <div style={estiloNegrito}>
             <Form.Item label='Data do comunicado' name='dataPublicacao'>
               <DatePicker
                 placeholder='Selecione a data'
@@ -150,10 +155,10 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 locale={locale}
               />
             </Form.Item>
-          </b>
+          </div>
         </Col>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
+        <Col {...gridTerco}>
+          <div style={estiloNegrito}>
             <InputNumero
               formItemProps={{
                 label: 'Página do comunicado no Diário Oficial',
@@ -165,12 +170,12 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 maxLength: 4,
               }}
             />
-          </b>
+          </div>
         </Col>
       </Row>
       <Row gutter={[16, 8]}>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
+        <Col {...gridTerco}>
+          <div style={estiloNegrito}>
             <Form.Item
               label='Data de publicação do Diário Oficial'
               name='dataPublicacaoDiarioOficial'
@@ -182,10 +187,10 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 locale={locale}
               />
             </Form.Item>
-          </b>
+          </div>
         </Col>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
+        <Col {...gridTerco}>
+          <div style={estiloNegrito}>
             <InputTexto
               formItemProps={{
                 label: 'Código do curso no EOL',
@@ -197,10 +202,10 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 maxLength: 9,
               }}
             />
-          </b>
+          </div>
         </Col>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
+        <Col {...gridTerco}>
+          <div style={estiloNegrito}>
             <InputTexto
               formItemProps={{
                 label: 'Código do nível',
@@ -212,7 +217,7 @@ export const SecaoFormulario : React.FC<SecaoFormularioProps> = ({
                 maxLength: 9,
               }}
             />
-          </b>
+          </div>
         </Col>
       </Row>
     </div>

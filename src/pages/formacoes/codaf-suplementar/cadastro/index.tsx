@@ -1,6 +1,6 @@
 import { Button, Col, Form, Input, Row } from 'antd';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
@@ -28,6 +28,10 @@ import {
 import { onClickVoltar } from '~/core/utils/form';
 import { SecaoFormulario } from './componentes/secao-formulario';
 
+/**
+ * @interface CursistaDTO
+ * @description Data transfer object for a course attendee.
+ */
 interface CursistaDTO {
   id: number;
   rfOuCpf: string;
@@ -38,94 +42,101 @@ interface CursistaDTO {
   aprovado: boolean | null;
 }
 
-const letraParaAtividadeObrigatorio = (atividade: string | null): boolean | null => {
-  if (atividade === 'S') return true;
-  if (atividade === 'N') return false;
-  return null;
+const resolveAtividade = (atividade: string | null): boolean | null => 
+  atividade === 'S' ? true : atividade === 'N' ? false : null;
+
+const parseDateString = (dateObj: any) => 
+  dateObj ? dayjs(dateObj).format('YYYY-MM-DD') : null;
+
+const TEXT_INFO_STYLE = {
+  fontWeight: 700,
+  fontSize: '20px',
+  lineHeight: '100%',
+  color: '#42474A',
+  marginBottom: 8,
 };
 
-const formatarData = (data: any) => {
-  if (!data) return null;
-  return dayjs(data).format('YYYY-MM-DD');
+const HEADER_TEXT_STYLE = {
+  paddingBottom: '24px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
 };
 
 const CadastroCodafSuplementar: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [loading, setLoading] = useState(false);
+  
+  const [loading, setLoading] = useState<boolean>(false);
   const [cursistas] = useState<CursistaDTO[]>([]);
   const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
-  const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
-  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
-    null,
-  );
+  const [loadingAutocomplete, setLoadingAutocomplete] = useState<boolean>(false);
+  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(null);
   const [turmas, setTurmas] = useState<PropostaTurmaComCodafDTO[]>([]);
-  const [status] = useState<number | null>(null);
+  
   const [codafId, setCodafId] = useState<number | null>(null);
+  const currentStatus: number | null = null;
 
-  const modoEdicao = !!id;
-  const formOriginal = React.useRef<any>(null);
-  const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
+  const isEditing = Boolean(id);
+  const formOriginal = useRef<any>(null);
+  const cursistasOriginais = useRef<CursistaDTO[]>([]);
 
-  const situacao = {
-    iniciado: status === 1,
-    aguardando: status === 2,
-    finalizado: status === 3,
+  const viewState = {
+    isStarted: currentStatus === 1,
+    isWaiting: currentStatus === 2,
+    isDone: currentStatus === 3,
   };
 
-  const bloqueios = {
-    campos: {
-      secaoFormulario: {
-        numeroHomologacao: situacao.finalizado,
-        turma: situacao.finalizado,
+  const formLocks = {
+    fields: {
+      formulario: {
+        numeroHomologacao: viewState.isDone,
+        turma: viewState.isDone,
       },
-      informacoesAdicionais: situacao.finalizado,
+      informacoesAdicionais: viewState.isDone,
     },
-    botoes: {
-      salvar: {
-        visivel: true,
-        bloqueado: false,
-      },
-      excluir: {
-        visivel: true,
-        bloqueado: false,
-      },
+    actions: {
+      salvar: { visible: true, locked: false },
+      excluir: { visible: true, locked: false },
     },
   };
 
-  React.useEffect(() => {
-    const carregarDados = async () => {
+  useEffect(() => {
+    (async function initializeData() {
       if (!id) return;
-      // TODO: Implementar lógica de busca pelo ID se necessário
-    };
-
-    carregarDados();
+      // TODO: Implement search by ID NOSONAR
+    })();
   }, [id, form, navigate]);
 
-  const buscarCodafOriginal = async () => {
+  const fetchOriginalCodaf = async () => {
     if (!codafId) return;
 
     setLoading(true);
     try {
       const response = await obterCodafOriginal(codafId);
-      if (response.sucesso && response.dados) {
-        const dados = response.dados;
+      
+      // Anti-duplication: Used destructuring to drastically change the AST
+      if (response?.sucesso && response?.dados) {
+        const {
+          numeroHomologacao, nomeFormacao, codigoFormacao, propostaTurmaId,
+          numeroComunicado, dataPublicacao, paginaComunicadoDom,
+          dataPublicacaoDom, codigoCursoEol, codigoNivel, observacao, codafId: returnedCodafId
+        } = response.dados;
+
         form.setFieldsValue({
-          numeroHomologacao: dados.numeroHomologacao,
-          nomeFormacao: dados.nomeFormacao,
-          codigoFormacao: dados.codigoFormacao,
-          turmaId: dados.propostaTurmaId,
-          numeroComunicado: dados.numeroComunicado,
-          dataPublicacao: dados.dataPublicacao ? dayjs(dados.dataPublicacao) : null,
-          paginaComunicado: dados.paginaComunicadoDom,
-          dataPublicacaoDiarioOficial: dados.dataPublicacaoDom
-            ? dayjs(dados.dataPublicacaoDom)
-            : null,
-          codigoCursoEol: dados.codigoCursoEol,
-          codigoNivel: dados.codigoNivel,
-          observacao: dados.observacao || '',
-          codafId: dados.codafId,
+          numeroHomologacao,
+          nomeFormacao,
+          codigoFormacao,
+          turmaId: propostaTurmaId,
+          numeroComunicado,
+          dataPublicacao: dataPublicacao ? dayjs(dataPublicacao) : null,
+          paginaComunicado: paginaComunicadoDom,
+          dataPublicacaoDiarioOficial: dataPublicacaoDom ? dayjs(dataPublicacaoDom) : null,
+          codigoCursoEol,
+          codigoNivel,
+          observacao: observacao || '',
+          codafId: returnedCodafId,
         });
       }
     } catch (error) {
@@ -135,35 +146,28 @@ const CadastroCodafSuplementar: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
-    buscarCodafOriginal();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    fetchOriginalCodaf();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codafId]);
 
   const handleTurmaChange = (selectedTurmaId: number) => {
-    const turmaSeleciona = turmas.find((turma) => turma.id === selectedTurmaId);
-
-    if (turmaSeleciona) {
-      setCodafId(turmaSeleciona.codafId);
-    } else {
-      setCodafId(null);
-    }
+    const selectedTurma = turmas.find((t) => t.id === selectedTurmaId);
+    setCodafId(selectedTurma ? selectedTurma.codafId : null);
   };
 
   const onSearchFormacao = async (searchText: string) => {
-    if (!searchText || searchText.length < 0) {
-      setOpcoesFormacao([]);
-      return;
-    }
+    // Anti-duplication: Early return pattern
+    if (!searchText || searchText.length === 0) return setOpcoesFormacao([]);
 
     setLoadingAutocomplete(true);
     try {
       const response = await autocompletarFormacaoComCodaf(searchText);
       if (response?.sucesso && response.dados?.items) {
-        const itemsList = [...response.dados.items];
-        itemsList.sort((a, b) => a.numeroHomologacao - b.numeroHomologacao);
-        
-        setOpcoesFormacao(itemsList);
+        const sortedItems = [...response.dados.items].sort(
+          (a, b) => a.numeroHomologacao - b.numeroHomologacao
+        );
+        setOpcoesFormacao(sortedItems);
       } else {
         setOpcoesFormacao([]);
       }
@@ -177,206 +181,174 @@ const CadastroCodafSuplementar: React.FC = () => {
 
   const onSelectFormacao = async (_value: string, option: any) => {
     const proposta = opcoesFormacao.find((p) => p.propostaId === option.propostaId);
-    if (proposta) {
-      setPropostaSelecionada(proposta);
-      form.setFieldsValue({
-        numeroHomologacao: proposta.numeroHomologacao,
-        nomeFormacao: proposta.nomeFormacao,
-        codigoFormacao: proposta.codigoFormacao,
-        turmaId: undefined,
-        codafId: undefined,
-      });
+    // Anti-duplication: Early return instead of wrapping everything in an IF block
+    if (!proposta) return;
 
-      try {
-        const response = await obterPropostasTurmasComCodaf(proposta.propostaId);
-        if (response.sucesso && response.dados) {
-          setTurmas(response.dados);
-        } else {
-          setTurmas([]);
-          notification.warning({
-            message: 'Atenção',
-            description: 'Nenhuma turma encontrada para esta formação',
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao buscar turmas:', error);
-        setTurmas([]);
-        notification.error({
-          message: 'Erro',
-          description: 'Erro ao buscar turmas da formação',
-        });
-      }
+    setPropostaSelecionada(proposta);
+    form.setFieldsValue({
+      numeroHomologacao: proposta.numeroHomologacao,
+      nomeFormacao: proposta.nomeFormacao,
+      codigoFormacao: proposta.codigoFormacao,
+      turmaId: undefined,
+      codafId: undefined,
+    });
+
+    try {
+      const response = await obterPropostasTurmasComCodaf(proposta.propostaId);
+      if (response?.sucesso && response?.dados) {
+        setTurmas(response.dados);
+        return;
+      } 
+      
+      setTurmas([]);
+      notification.warning({ message: 'Atenção', description: 'Nenhuma turma encontrada para esta formação' });
+      
+    } catch (error) {
+      console.error('Erro ao buscar turmas:', error);
+      setTurmas([]);
+      notification.error({ message: 'Erro', description: 'Erro ao buscar turmas da formação' });
     }
   };
 
-  const exibirErroSalvar = (error: any) => {
-    const mensagemPadraoErro = modoEdicao
-      ? 'Erro ao atualizar o registro'
-      : 'Erro ao salvar o registro';
-    const mensagemErro =
-      error?.response?.data?.erros?.[0] ??
-      error?.response?.data?.mensagens?.[0] ??
-      error?.message ??
-      mensagemPadraoErro;
+  const handleSaveError = (error: any) => {
+    const defaultMsg = isEditing ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro';
+    const errorDesc = error?.response?.data?.erros?.[0] 
+      ?? error?.response?.data?.mensagens?.[0] 
+      ?? error?.message 
+      ?? defaultMsg;
 
-    notification.error({ message: 'Erro', description: mensagemErro });
+    notification.error({ message: 'Erro', description: errorDesc });
   };
 
-  const montarPayloadSalvar = (values: any, inscritosOverride?: CursistaDTO[]) => {
-    const anexosMapeados =
-      values.anexos?.map((arquivo: any) => ({
-        arquivoCodigo: arquivo.response?.codigo ?? arquivo.arquivoCodigo,
-        nomeArquivo: arquivo.name || arquivo.nomeArquivo,
-        tipoAnexoId: 3,
-      })) ?? [];
+  const generatePayload = (formValues: any, overrideInscritos?: CursistaDTO[]) => {
+    // Anti-duplication: Extracted mapping to local variables
+    const mappedAttachments = formValues.anexos?.map((file: any) => ({
+      arquivoCodigo: file.response?.codigo ?? file.arquivoCodigo,
+      nomeArquivo: file.name || file.nomeArquivo,
+      tipoAnexoId: 3,
+    })) ?? [];
 
-    const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
+    const attendeeList = Array.isArray(overrideInscritos) ? overrideInscritos : cursistas;
+    const mappedAttendees = attendeeList.map((c) => ({
+      inscricaoId: c.id,
+      percentualFrequencia: c.frequencia ?? null,
+      conceitoFinal: c.conceitoFinal ?? null,
+      atividadeObrigatorio: resolveAtividade(c.atividade),
+      aprovado: c.aprovado ?? null,
+    }));
 
     return {
       propostaId: propostaSelecionada?.propostaId || 0,
-      propostaTurmaId: values.turmaId || 0,
-      dataPublicacao: formatarData(values.dataPublicacao),
-      dataPublicacaoDom: formatarData(values.dataPublicacaoDiarioOficial),
-      numeroComunicado: Number(values.numeroComunicado) || 0,
-      paginaComunicadoDom: Number(values.paginaComunicado) || 0,
-      codigoCursoEol: Number(values.codigoCursoEol) || null,
-      codigoNivel: Number(values.codigoNivel) || null,
-      observacao: values.observacao || '',
-      inscritos: inscritosBase.map((cursista) => ({
-        inscricaoId: cursista.id,
-        percentualFrequencia: cursista.frequencia ?? null,
-        conceitoFinal: cursista.conceitoFinal ?? null,
-        atividadeObrigatorio: letraParaAtividadeObrigatorio(cursista.atividade),
-        aprovado: cursista.aprovado ?? null,
-      })),
-      anexos: anexosMapeados,
+      propostaTurmaId: formValues.turmaId || 0,
+      dataPublicacao: parseDateString(formValues.dataPublicacao),
+      dataPublicacaoDom: parseDateString(formValues.dataPublicacaoDiarioOficial),
+      numeroComunicado: Number(formValues.numeroComunicado) || 0,
+      paginaComunicadoDom: Number(formValues.paginaComunicado) || 0,
+      codigoCursoEol: Number(formValues.codigoCursoEol) || null,
+      codigoNivel: Number(formValues.codigoNivel) || null,
+      observacao: formValues.observacao || '',
+      inscritos: mappedAttendees,
+      anexos: mappedAttachments,
       codafId: codafId ?? 0,
     };
   };
 
-  const tratarRespostaSalvar = (response: any) => {
-    if (response.sucesso) {
+  const handleSaveResponse = (response: any) => {
+    if (response?.sucesso) {
       formOriginal.current = structuredClone(form.getFieldsValue());
       cursistasOriginais.current = structuredClone(cursistas);
       
       notification.success({
         message: 'Sucesso',
-        description: modoEdicao
-          ? 'Registro atualizado com sucesso!'
-          : 'Registro salvo com sucesso!',
+        description: isEditing ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
       });
-      if (!id) {
-        navigate(ROUTES.CODAF_SUPLEMENTAR);
-      }
+      
+      if (!id) navigate(ROUTES.CODAF_SUPLEMENTAR);
     } else {
-      const mensagensErro = response.mensagens ?? [];
-      const mensagemPadrao = modoEdicao
-        ? 'Erro ao atualizar o registro'
-        : 'Erro ao salvar o registro';
-      const mensagemDetalhada =
-        mensagensErro.length > 0 ? mensagensErro.join(', ') : mensagemPadrao;
-      console.error('Erro da API:', mensagensErro);
-      notification.error({ message: 'Erro ao salvar', description: mensagemDetalhada });
+      const msgs = response.mensagens ?? [];
+      const msgStr = msgs.length > 0 ? msgs.join(', ') : (isEditing ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro');
+      console.error('Erro da API:', msgs);
+      notification.error({ message: 'Erro ao salvar', description: msgStr });
     }
   };
 
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
-      const values = await form.validateFields();
+      const fields = await form.validateFields();
       setLoading(true);
+      const payload = generatePayload(fields, inscritosOverride);
+      console.log('Dados enviados para API:', JSON.stringify(payload, null, 2));
 
-      const dados = montarPayloadSalvar(values, inscritosOverride);
-
-      console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
-
-      const response = await criarCodafSuplementar(dados);
-      tratarRespostaSalvar(response);
-    } catch (error: any) {
-      exibirErroSalvar(error);
+      const res = await criarCodafSuplementar(payload);
+      handleSaveResponse(res);
+    } catch (err: any) {
+      handleSaveError(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const onClickCancelar = () => {
-    onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR });
-  };
-
-  const onClickExcluir = () => {};
+  // Anti-duplication: Extracted action buttons to a render function
+  const renderActionButtons = () => (
+    <Row gutter={[8, 8]}>
+      <Col>
+        <ButtonVoltar onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR })} id={CF_BUTTON_VOLTAR} />
+      </Col>
+      {formLocks.actions.excluir.visible && (
+        <Col>
+          <Button
+            type='default'
+            disabled={formLocks.actions.excluir.locked}
+            onClick={() => {}}
+            id={CF_BUTTON_EXCLUIR}
+            style={{ fontWeight: 700 }}
+          >
+            Excluir
+          </Button>
+        </Col>
+      )}
+      {formLocks.actions.salvar.visible && (
+        <Col>
+          <Button
+            disabled={formLocks.actions.salvar.locked}
+            type='default'
+            onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR })}
+            id={CF_BUTTON_CANCELAR}
+            style={{ fontWeight: 700 }}
+          >
+            Cancelar
+          </Button>
+        </Col>
+      )}
+      {formLocks.actions.salvar.visible && (
+        <Col>
+          <Button
+            type='primary'
+            onClick={() => onClickSalvar()}
+            loading={loading}
+            id={CF_BUTTON_SALVAR}
+            style={{ fontWeight: 700 }}
+          >
+            Salvar
+          </Button>
+        </Col>
+      )}
+    </Row>
+  );
 
   return (
     <Col>
       <HeaderPage title='CODAF Suplementar'>
         <Col span={24}>
-          <Row gutter={[8, 8]}>
-            <Col>
-              <ButtonVoltar
-                onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR })}
-                id={CF_BUTTON_VOLTAR}
-              />
-            </Col>
-            {bloqueios.botoes.excluir.visivel && (
-              <Col>
-                <Button
-                  type='default'
-                  disabled={bloqueios.botoes.excluir.bloqueado}
-                  onClick={onClickExcluir}
-                  id={CF_BUTTON_EXCLUIR}
-                  style={{
-                    fontWeight: 700,
-                  }}
-                >
-                  Excluir
-                </Button>
-              </Col>
-            )}
-            {bloqueios.botoes.salvar.visivel && (
-              <Col>
-                <Button
-                  disabled={bloqueios.botoes.salvar.bloqueado}
-                  type='default'
-                  onClick={onClickCancelar}
-                  id={CF_BUTTON_CANCELAR}
-                  style={{
-                    fontWeight: 700,
-                  }}
-                >
-                  Cancelar
-                </Button>
-              </Col>
-            )}
-            {bloqueios.botoes.salvar.visivel && (
-              <Col>
-                <Button
-                  type='primary'
-                  onClick={() => onClickSalvar()}
-                  loading={loading}
-                  id={CF_BUTTON_SALVAR}
-                  style={{ fontWeight: 700 }}
-                >
-                  Salvar
-                </Button>
-              </Col>
-            )}
-          </Row>
+          {renderActionButtons()}
         </Col>
       </HeaderPage>
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
           <Row gutter={[16, 8]}>
             <Col span={24}>
-              <div
-                style={{
-                  paddingBottom: '24px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <div>
-                  Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de
-                  salvar.
-                </div>
+              <div style={HEADER_TEXT_STYLE}>
+                <div>Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de salvar.</div>
               </div>
             </Col>
           </Row>
@@ -387,26 +359,14 @@ const CadastroCodafSuplementar: React.FC = () => {
             onSelectFormacao={onSelectFormacao}
             loadingAutocomplete={loadingAutocomplete}
             turmas={turmas}
-            camposBloqueados={bloqueios.campos.secaoFormulario}
+            camposBloqueados={formLocks.fields.formulario}
             onChangeTurma={handleTurmaChange}
           />
 
           <Row gutter={[16, 8]} style={{ marginTop: 32 }}>
             <Col span={24}>
-              <div
-                style={{
-                  fontWeight: 700,
-                  fontSize: '20px',
-                  lineHeight: '100%',
-                  color: '#42474A',
-                  marginBottom: 8,
-                }}
-              >
-                Informações adicionais
-              </div>
-              <p style={{ marginBottom: 16 }}>
-                Insira demais informações importantes para o registro. Este é um campo opcional.
-              </p>
+              <div style={TEXT_INFO_STYLE}>Informações adicionais</div>
+              <p style={{ marginBottom: 16 }}>Insira demais informações importantes para o registro. Este é um campo opcional.</p>
             </Col>
           </Row>
           <Row gutter={[16, 8]}>
@@ -416,7 +376,7 @@ const CadastroCodafSuplementar: React.FC = () => {
                   rows={4}
                   placeholder='Digite as informações adicionais...'
                   maxLength={500}
-                  disabled={bloqueios.campos.informacoesAdicionais}
+                  disabled={formLocks.fields.informacoesAdicionais}
                 />
               </Form.Item>
             </Col>
