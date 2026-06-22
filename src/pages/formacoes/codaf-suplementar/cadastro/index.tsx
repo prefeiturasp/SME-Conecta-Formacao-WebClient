@@ -1,7 +1,6 @@
 import { Button, Col, Form, Input, Row } from 'antd';
 import dayjs from 'dayjs';
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
@@ -98,6 +97,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   React.useEffect(() => {
     const carregarDados = async () => {
       if (!id) return;
+      // TODO: Implementar lógica de busca pelo ID se necessário
     };
 
     carregarDados();
@@ -137,6 +137,7 @@ const CadastroCodafSuplementar: React.FC = () => {
 
   React.useEffect(() => {
     buscarCodafOriginal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codafId]);
 
   const handleTurmaChange = (selectedTurmaId: number) => {
@@ -158,10 +159,11 @@ const CadastroCodafSuplementar: React.FC = () => {
     setLoadingAutocomplete(true);
     try {
       const response = await autocompletarFormacaoComCodaf(searchText);
-      if (response.sucesso && response.dados && response.dados.items) {
-        setOpcoesFormacao(
-          response.dados.items.sort((a, b) => a.numeroHomologacao - b.numeroHomologacao),
-        );
+      if (response?.sucesso && response.dados?.items) {
+        const itemsList = [...response.dados.items];
+        itemsList.sort((a, b) => a.numeroHomologacao - b.numeroHomologacao);
+        
+        setOpcoesFormacao(itemsList);
       } else {
         setOpcoesFormacao([]);
       }
@@ -254,8 +256,9 @@ const CadastroCodafSuplementar: React.FC = () => {
 
   const tratarRespostaSalvar = (response: any) => {
     if (response.sucesso) {
-      formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
-      cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
+      formOriginal.current = structuredClone(form.getFieldsValue());
+      cursistasOriginais.current = structuredClone(cursistas);
+      
       notification.success({
         message: 'Sucesso',
         description: modoEdicao
