@@ -407,7 +407,7 @@ const CadastroCodafSuplementar: React.FC = () => {
           : 'Registro salvo com sucesso!',
       });
       if (!id) {
-        navigate(ROUTES.CODAF_SUPLEMENTAR_EDITAR.replace(':id', response.dados.id));
+        navigate(ROUTES.CODAF_SUPLEMENTAR);
       }
     } else {
       const mensagensErro = response.mensagens ?? [];

@@ -36,10 +36,10 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
       title: 'CODAF Suplementar',
       url: ROUTES.CODAF_SUPLEMENTAR,
       roles: {
-        podeConsultar: PermissaoEnum.Inscricao_C,
-        podeIncluir: PermissaoEnum.Inscricao_I,
-        podeExcluir: PermissaoEnum.Inscricao_E,
-        podeAlterar: PermissaoEnum.Inscricao_A,
+        podeConsultar: PermissaoEnum.AreaPromotora_C,
+        podeIncluir: PermissaoEnum.AreaPromotora_I,
+        podeExcluir: PermissaoEnum.AreaPromotora_E,
+        podeAlterar: PermissaoEnum.AreaPromotora_A,
       },
     },
     {
