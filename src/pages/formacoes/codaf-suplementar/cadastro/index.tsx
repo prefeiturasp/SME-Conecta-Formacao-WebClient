@@ -19,7 +19,6 @@ import {
   PropostaTurmaComCodafDTO,
 } from '~/core/services/codaf-lista-presenca-service';
 import {
-  CodafSuplementarDetalheDTO,
   criarCodafSuplementar,
   obterCodafOriginal,
 } from '~/core/services/codaf-suplementar-service';
@@ -56,37 +55,19 @@ const CadastroCodafSuplementar: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
-  const [cursistas, setCursistas] = useState<CursistaDTO[]>([]);
+  const [cursistas] = useState<CursistaDTO[]>([]);
   const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
   const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
   const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
     null,
   );
   const [turmas, setTurmas] = useState<PropostaTurmaComCodafDTO[]>([]);
-  const [formValido, setFormValido] = useState(false);
-  const [registroId, setRegistroId] = useState<number | null>(null);
-  const [status, setStatus] = useState<number | null>(null);
+  const [status] = useState<number | null>(null);
   const [codafId, setCodafId] = useState<number | null>(null);
-  const [retificacoes, setRetificacoes] = useState<number[]>([1]);
-  const [contadorRetificacoes, setContadorRetificacoes] = useState(1);
-  const [retificacoesOriginais, setRetificacoesOriginais] = useState<
-    Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
-  >(new Map());
 
   const modoEdicao = !!id;
-  const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
-  const nomeFormacao = Form.useWatch('nomeFormacao', form);
-  const codigoFormacao = Form.useWatch('codigoFormacao', form);
-  const turmaId = Form.useWatch('turmaId', form);
-  const numeroComunicado = Form.useWatch('numeroComunicado', form);
-  const paginaComunicado = Form.useWatch('paginaComunicado', form);
-  const codigoCursoEol = Form.useWatch('codigoCursoEol', form);
-  const codigoNivel = Form.useWatch('codigoNivel', form);
-  const dataPublicacao = Form.useWatch('dataPublicacao', form);
-  const dataPublicacaoDiarioOficial = Form.useWatch('dataPublicacaoDiarioOficial', form);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
-  const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
 
   const situacao = {
     iniciado: status === 1,
@@ -99,8 +80,8 @@ const CadastroCodafSuplementar: React.FC = () => {
       secaoFormulario: {
         numeroHomologacao: situacao.finalizado,
         turma: situacao.finalizado,
-        informacoesAdicionais: situacao.finalizado,
       },
+      informacoesAdicionais: situacao.finalizado,
     },
     botoes: {
       salvar: {
@@ -115,103 +96,6 @@ const CadastroCodafSuplementar: React.FC = () => {
   };
 
   React.useEffect(() => {
-    const todosPreenchidos =
-      numeroHomologacao &&
-      nomeFormacao &&
-      codigoFormacao &&
-      turmaId &&
-      numeroComunicado &&
-      paginaComunicado &&
-      dataPublicacao &&
-      dataPublicacaoDiarioOficial &&
-      codigoCursoEol;
-
-    setFormValido(!!todosPreenchidos);
-  }, [
-    numeroHomologacao,
-    nomeFormacao,
-    codigoFormacao,
-    turmaId,
-    numeroComunicado,
-    paginaComunicado,
-    codigoCursoEol,
-    codigoNivel,
-    dataPublicacao,
-    dataPublicacaoDiarioOficial,
-  ]);
-
-  React.useEffect(() => {
-    const aplicarCamposFormulario = (dados: CodafSuplementarDetalheDTO) => {
-      setCodafId(dados.codafId);
-      form.setFieldsValue({
-        numeroHomologacao: dados.numeroHomologacao,
-        nomeFormacao: dados.nomeFormacao,
-        codigoFormacao: dados.codigoFormacao,
-        turmaId: dados.propostaTurmaId,
-        numeroComunicado: dados.numeroComunicado,
-        dataPublicacao: dados.dataPublicacao ? dayjs(dados.dataPublicacao) : null,
-        paginaComunicado: dados.paginaComunicadoDom,
-        dataPublicacaoDiarioOficial: dados.dataPublicacaoDom
-          ? dayjs(dados.dataPublicacaoDom)
-          : null,
-        codigoCursoEol: dados.codigoCursoEol,
-        codigoNivel: dados.codigoNivel,
-        observacao: dados.observacao || '',
-      });
-
-      if (dados.anexos && dados.anexos.length > 0) {
-        form.setFieldsValue({
-          anexos: dados.anexos.map((anexo) => ({
-            uid: anexo.arquivoCodigo,
-            name: anexo.nomeArquivo,
-            status: 'done',
-            xhr: anexo.arquivoCodigo,
-            arquivoCodigo: anexo.arquivoCodigo,
-            nomeArquivo: anexo.nomeArquivo,
-            tipoAnexoId: anexo.tipoAnexoId,
-            urlDownload: anexo.urlDownload,
-          })),
-        });
-      }
-    };
-
-    const aplicarRetificacoes = (dados: CodafSuplementarDetalheDTO) => {
-      if (!dados.retificacoes) return;
-      setRetificacoes(dados.retificacoes.map((_, index) => index + 1));
-      setContadorRetificacoes(dados.retificacoes.length);
-
-      const mapaRetificacoes = new Map<
-        number,
-        { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }
-      >();
-      dados.retificacoes.forEach((retificacao, index) => {
-        mapaRetificacoes.set(index + 1, retificacao);
-      });
-      setRetificacoesOriginais(mapaRetificacoes);
-
-      dados.retificacoes.forEach((retificacao, index) => {
-        const numeroFormatado = (index + 1).toString().padStart(2, '0');
-        form.setFieldsValue({
-          [`dataRetificacao${numeroFormatado}`]: retificacao.dataRetificacao
-            ? dayjs(retificacao.dataRetificacao)
-            : null,
-          [`paginaRetificacao${numeroFormatado}`]: retificacao.paginaRetificacaoDom,
-        });
-      });
-    };
-
-    const carregarTurmas = async (dados: CodafSuplementarDetalheDTO) => {
-      try {
-        const turmasResponse = await obterPropostasTurmasComCodaf(dados.propostaId);
-        if (!turmasResponse.sucesso || !turmasResponse.dados) return;
-
-        setTurmas(turmasResponse.dados);
-        console.log(turmas);
-      } catch (error) {
-        console.error('Erro ao buscar turmas:', error);
-      }
-    };
-
     const carregarDados = async () => {
       if (!id) return;
     };
@@ -323,25 +207,6 @@ const CadastroCodafSuplementar: React.FC = () => {
     }
   };
 
-  const montarRetificacoes = (values: any) =>
-    retificacoes
-      .map((numero) => {
-        const numeroFormatado = numero.toString().padStart(2, '0');
-        const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
-        const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
-        if (!dataRetificacao && !paginaRetificacao) return null;
-        const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
-        return {
-          id: retificacaoOriginal?.id ?? 0,
-          dataRetificacao: formatarData(dataRetificacao),
-          paginaRetificacaoDom: Number(paginaRetificacao) || 0,
-        };
-      })
-      .filter(
-        (r): r is { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number } =>
-          r !== null,
-      );
-
   const exibirErroSalvar = (error: any) => {
     const mensagemPadraoErro = modoEdicao
       ? 'Erro ao atualizar o registro'
@@ -383,7 +248,6 @@ const CadastroCodafSuplementar: React.FC = () => {
         aprovado: cursista.aprovado ?? null,
       })),
       anexos: anexosMapeados,
-      retificacoes: montarRetificacoes(values),
       codafId: codafId ?? 0,
     };
   };
@@ -435,9 +299,7 @@ const CadastroCodafSuplementar: React.FC = () => {
     onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR });
   };
 
-  const onClickExcluir = () => {
-    setModalExcluirVisible(true);
-  };
+  const onClickExcluir = () => {};
 
   return (
     <Col>
@@ -483,7 +345,6 @@ const CadastroCodafSuplementar: React.FC = () => {
             {bloqueios.botoes.salvar.visivel && (
               <Col>
                 <Button
-                  //disabled={!modoEdicao || bloqueios.botoes.salvar.bloqueado}
                   type='primary'
                   onClick={() => onClickSalvar()}
                   loading={loading}
