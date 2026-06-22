@@ -1,5 +1,4 @@
-import { Button, Col, Form, Input, Row, Select } from 'antd';
-import { useForm } from 'antd/es/form/Form';
+import { Button, Col, Form, Input, Row } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useState } from 'react';
@@ -14,7 +13,6 @@ import {
   CF_BUTTON_SALVAR,
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
-import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
   obterPropostasTurmasComCodaf,
@@ -26,7 +24,6 @@ import {
   obterCodafOriginal,
 } from '~/core/services/codaf-suplementar-service';
 import {
-  autocompletarFormacao,
   autocompletarFormacaoComCodaf,
   PropostaAutocompletarDTO,
 } from '~/core/services/proposta-service';
@@ -43,11 +40,6 @@ interface CursistaDTO {
   aprovado: boolean | null;
 }
 
-const atividadeObrigatorioParaLetra = (valor: boolean | null | undefined): 'S' | 'N' | null => {
-  if (valor === null || valor === undefined) return null;
-  return valor ? 'S' : 'N';
-};
-
 const letraParaAtividadeObrigatorio = (atividade: string | null): boolean | null => {
   if (atividade === 'S') return true;
   if (atividade === 'N') return false;
@@ -60,7 +52,7 @@ const formatarData = (data: any) => {
 };
 
 const CadastroCodafSuplementar: React.FC = () => {
-  const [form] = useForm();
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
