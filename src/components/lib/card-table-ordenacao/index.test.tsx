@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { act, render, waitFor, fireEvent } from '@testing-library/react';
 import DataTableOrdenacao from './index';
 import { TipoOrdenacaoEnum } from '../../../core/enum/tipo-ordenacao';
 
@@ -73,21 +73,28 @@ describe('DataTableOrdenacao', () => {
     });
   });
 
-  const renderComponent = () =>
-    render(
-      <DataTableOrdenacao
-        url="/api/teste"
-        columns={[
-          {
-            title: 'Nome',
-            dataIndex: 'nome',
-          },
-        ]}
-      />,
-    );
+  const renderComponent = async () => {
+    let renderResult: ReturnType<typeof render> | undefined;
+
+    await act(async () => {
+      renderResult = render(
+        <DataTableOrdenacao
+          url="/api/teste"
+          columns={[
+            {
+              title: 'Nome',
+              dataIndex: 'nome',
+            },
+          ]}
+        />,
+      );
+    });
+
+    return renderResult as ReturnType<typeof render>;
+  };
 
   it('deve carregar dados ao montar componente', async () => {
-    renderComponent();
+    await renderComponent();
 
     await waitFor(() => {
       expect(apiGetMock).toHaveBeenCalled();
@@ -100,7 +107,7 @@ describe('DataTableOrdenacao', () => {
   });
 
   it('deve renderizar tabela', async () => {
-    const { getByTestId } = renderComponent();
+    const { getByTestId } = await renderComponent();
 
     await waitFor(() => {
       expect(getByTestId('table')).toBeTruthy();
@@ -108,7 +115,7 @@ describe('DataTableOrdenacao', () => {
   });
 
   it('deve atualizar dados após retorno da api', async () => {
-    const { getByText } = renderComponent();
+    const { getByText } = await renderComponent();
 
     await waitFor(() => {
       expect(getByText(/Registro 1/i)).toBeTruthy();
@@ -116,7 +123,7 @@ describe('DataTableOrdenacao', () => {
   });
 
   it('deve ordenar ao clicar no botão', async () => {
-    const { getByTestId } = renderComponent();
+    const { getByTestId } = await renderComponent();
 
     await waitFor(() => {
       expect(apiGetMock).toHaveBeenCalledTimes(1);
@@ -130,7 +137,7 @@ describe('DataTableOrdenacao', () => {
   });
 
   it('deve alterar página', async () => {
-    const { getByTestId } = renderComponent();
+    const { getByTestId } = await renderComponent();
 
     await waitFor(() => {
       expect(apiGetMock).toHaveBeenCalledTimes(1);
@@ -144,7 +151,7 @@ describe('DataTableOrdenacao', () => {
   });
 
   it('deve passar loading para a tabela', async () => {
-    renderComponent();
+    await renderComponent();
 
     expect(tablePropsCapture).toHaveBeenCalled();
 
@@ -157,25 +164,33 @@ describe('DataTableOrdenacao', () => {
   });
 
   it('deve recarregar quando filters mudar', async () => {
-    const { rerender } = render(
-      <DataTableOrdenacao
-        url="/api/teste"
-        filters={{ nome: 'A' }}
-        columns={[]}
-      />,
-    );
+    let renderResult: ReturnType<typeof render> | undefined;
+
+    await act(async () => {
+      renderResult = render(
+        <DataTableOrdenacao
+          url="/api/teste"
+          filters={{ nome: 'A' }}
+          columns={[]}
+        />,
+      );
+    });
+
+    const { rerender } = renderResult as ReturnType<typeof render>;
 
     await waitFor(() => {
       expect(apiGetMock).toHaveBeenCalledTimes(1);
     });
 
-    rerender(
-      <DataTableOrdenacao
-        url="/api/teste"
-        filters={{ nome: 'B' }}
-        columns={[]}
-      />,
-    );
+    await act(async () => {
+      rerender(
+        <DataTableOrdenacao
+          url="/api/teste"
+          filters={{ nome: 'B' }}
+          columns={[]}
+        />,
+      );
+    });
 
     await waitFor(() => {
       expect(apiGetMock.mock.calls.length).toBeGreaterThan(1);

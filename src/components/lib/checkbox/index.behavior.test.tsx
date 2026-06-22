@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom';
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import CheckboxAcaoInformatica from './index';
 import { ACAO_INFORMATIVA_NAO_ACEITA } from '~/core/constants/mensagens';
 import { obterComunicadoAcaoInformatica } from '~/core/services/proposta-service';
@@ -104,8 +104,14 @@ describe('CheckboxAcaoInformatica behavior', () => {
 
     render(<CheckboxAcaoInformatica />);
 
-    await expect(ultimoPropsFormItem.rules[0].validator({}, false)).rejects.toBe(
-      ACAO_INFORMATIVA_NAO_ACEITA,
-    );
+    let validationError: unknown;
+
+    await act(async () => {
+      await ultimoPropsFormItem.rules[0].validator({}, false).catch((error: unknown) => {
+        validationError = error;
+      });
+    });
+
+    expect(validationError).toBe(ACAO_INFORMATIVA_NAO_ACEITA);
   });
 });
