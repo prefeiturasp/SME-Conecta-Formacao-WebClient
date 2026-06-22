@@ -1,5 +1,5 @@
 import { AutoComplete, Col, DatePicker, Form, Row, Select } from 'antd';
-import locale from 'antd/es/date-picker/locale/pt_BR';
+import locale from 'antd/lib/date-picker/locale/pt_BR';
 import React from 'react';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
