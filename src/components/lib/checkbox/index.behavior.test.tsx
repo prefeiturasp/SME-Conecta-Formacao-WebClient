@@ -5,8 +5,8 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
 import CheckboxAcaoInformatica from './index';
-import { ACAO_INFORMATIVA_NAO_ACEITA } from '~/core/constants/mensagens';
-import { obterComunicadoAcaoInformatica } from '~/core/services/proposta-service';
+import { ACAO_INFORMATIVA_NAO_ACEITA } from '../../../core/constants/mensagens';
+import { obterComunicadoAcaoInformatica } from '../../../core/services/proposta-service';
 
 const mockGetFieldValue = jest.fn();
 const mockSetFieldValue = jest.fn();
