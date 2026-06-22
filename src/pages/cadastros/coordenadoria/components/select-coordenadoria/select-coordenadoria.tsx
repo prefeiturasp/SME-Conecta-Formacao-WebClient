@@ -1,4 +1,4 @@
-import { Form, FormItemProps, Select, Spin } from 'antd';
+import { Form, FormItemProps, Select, SelectProps, Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import Empty from '~/components/main/empty';
 import {
@@ -11,9 +11,13 @@ const { Option } = Select;
 
 interface SelectCoordenadoriaProps {
   formItemProps?: FormItemProps;
+  selectProps?: SelectProps;
 }
 
-export const SelectCoordenadoria: React.FC<SelectCoordenadoriaProps> = ({ formItemProps }) => {
+export const SelectCoordenadoria: React.FC<SelectCoordenadoriaProps> = ({
+  formItemProps,
+  selectProps,
+}) => {
   const [items, setItems] = useState<CadastroCoordenadoriaDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -72,6 +76,7 @@ export const SelectCoordenadoria: React.FC<SelectCoordenadoriaProps> = ({ formIt
         onSearch={handleSearch}
         onPopupScroll={handleScroll}
         loading={loading}
+        {...selectProps}
       >
         {items.map((item) => (
           <Option key={item.id} value={item.id}>
