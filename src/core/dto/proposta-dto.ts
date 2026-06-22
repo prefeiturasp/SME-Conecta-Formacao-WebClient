@@ -58,6 +58,8 @@ export type PropostaDTO = {
   criterioCertificacao: CriterioCertificacaoDTO[];
   outrosCriterios?: string;
   cursoComCertificado: boolean;
+  tipoEmissor?: number | null;
+  idEmissor?: number | null;
   acaoInformativa: boolean;
   acaoFormativaTexto?: string;
   acaoFormativaLink?: string;
@@ -142,6 +144,8 @@ export type PropostaFormDTO = {
   criterioCertificacao?: number[];
   outrosCriterios?: string;
   cursoComCertificado?: boolean;
+  tipoEmissor?: number | null;
+  idEmissor?: number | null;
   acaoInformativa?: boolean;
   descricaoDaAtividade?: string;
   acaoFormativaTexto?: string;
