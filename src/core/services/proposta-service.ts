@@ -52,6 +52,18 @@ const autocompletarFormacao = (
   return obterRegistro(`${URL_API_PROPOSTA}/autocompletar-formacao`, { params });
 };
 
+const autocompletarFormacaoComCodaf = (
+  termoBusca: string,
+): Promise<ApiResult<PropostaAutocompletarRetornoDTO>> => {
+  const params = {
+    TermoBusca: termoBusca,
+    ComCodaf: true,
+    NumeroPagina: 1,
+    NumeroRegistros: 99999,
+  };
+  return obterRegistro(`${URL_API_PROPOSTA}/autocompletar-formacao`, { params });
+};
+
 const obterCriterioValidacaoInscricao = (
   exibirOpcaoOutros: boolean,
 ): Promise<ApiResult<CriterioValidacaoInscricaoDTO[]>> =>
@@ -222,6 +234,7 @@ export {
   obterDadosCadastrante,
   obterFormacaoHomologada,
   autocompletarFormacao,
+  autocompletarFormacaoComCodaf,
   obterFormato,
   obterNomeProfissional,
   obterParecer,

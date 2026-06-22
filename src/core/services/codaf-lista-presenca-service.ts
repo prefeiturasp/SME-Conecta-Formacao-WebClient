@@ -1,3 +1,4 @@
+import { CodafBaseDetalheDTO } from '../dto/codaf-base-detalhe-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import api, {
   ApiResult,
@@ -6,6 +7,7 @@ import api, {
   inserirRegistro,
   obterRegistro,
 } from './api';
+import { RetificacaoDTO } from './codaf-suplementar-service';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
 export const URL_API_CERTIFICADO = 'v1/CodafCertificado';
@@ -71,12 +73,6 @@ export type InscritoDTO = {
   aprovado: boolean | null;
 };
 
-export type RetificacaoDTO = {
-  id: number;
-  dataRetificacao: string | null;
-  paginaRetificacaoDom: number;
-};
-
 export type AnexoTemporarioDTO = {
   arquivoCodigo: string;
   nomeArquivo: string;
@@ -90,22 +86,6 @@ export type AnexoCodafDTO = {
   arquivoCodigo: string;
   nomeArquivo: string;
   tipoAnexoId: number;
-};
-
-export type AnexoCodafDetalheDTO = {
-  id: number;
-  codafListaPresencaId: number;
-  arquivoCodigo: string;
-  nomeArquivo: string;
-  extensao: string;
-  tipoAnexoId: number;
-  urlDownload: string;
-  alteradoEm: string | null;
-  alteradoPor: string | null;
-  alteradoLogin: string | null;
-  criadoEm: string;
-  criadoPor: string;
-  criadoLogin: string;
 };
 
 export type CriarCodafListaPresencaDTO = {
@@ -156,32 +136,10 @@ export type DeltaInscritosDTO = {
   inscritosNovos: InscritoNovoDeltaDTO[];
 };
 
-export type CodafListaPresencaDetalheDTO = {
-  id: number;
-  propostaId: number;
-  propostaTurmaId: number;
-  numeroHomologacao: number;
-  nomeFormacao: string;
-  codigoFormacao: number;
-  numeroComunicado: number;
-  dataPublicacao: string | null;
-  paginaComunicadoDom: number;
-  dataPublicacaoDom: string | null;
-  codigoCursoEol: number | null;
-  codigoNivel: number;
-  observacao: string | null;
-  status: number;
-  alteradoEm: string | null;
-  alteradoPor: string | null;
-  alteradoLogin: string | null;
-  criadoEm: string;
-  criadoPor: string;
-  criadoLogin: string;
-  retificacoes?: RetificacaoDTO[];
-  anexos?: AnexoCodafDetalheDTO[];
+export interface CodafListaPresencaDetalheDTO extends CodafBaseDetalheDTO {
   comentario?: ComentarioCodafDTO;
   deltaInscritos?: DeltaInscritosDTO;
-};
+}
 
 export const criarCodafListaPresenca = (
   dados: CriarCodafListaPresencaDTO,
@@ -388,3 +346,13 @@ export const downloadCertificado = (
 ): Promise<ApiResult<CertificadoDownloadDTO>> => {
   return obterRegistro(`${URL_API_CERTIFICADO}/${certificadoCodafId}/download`);
 };
+
+export type PropostaTurmaComCodafDTO = {
+  id: number;
+  codafId: number;
+  descricao: string;
+};
+
+export const obterPropostasTurmasComCodaf = (propostaId: number): Promise<ApiResult<PropostaTurmaComCodafDTO[]>> => {
+  return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/propostas/${propostaId}/turmas`);
+}
