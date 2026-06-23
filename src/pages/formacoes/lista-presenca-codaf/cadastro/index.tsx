@@ -182,13 +182,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const bloqueioDivergenciaSalvar =
     modoEdicao &&
-    // ehAreaPromotora &&
     (situacao.iniciado || situacao.aguardandoDF) &&
     mostrarDivergencia;
-  
-    const bloqueioDivergenciaEnviarDF =
+
+  const bloqueioDivergenciaEnviarDF =
     modoEdicao &&
-    // ehAreaPromotora &&
     mostrarDivergencia;
 
   const bloqueios = {
@@ -200,7 +198,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       },
 
       listaInscritos: situacao.finalizado,
-      
+
       retificacoes:
         situacao.finalizado && ehAreaPromotora,
 
@@ -209,7 +207,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     },
 
     anexos: {
-      areaPromotora: situacao.finalizado && ehAreaPromotora,
+      areaPromotora: situacao.finalizado && !perfil.cursista && !perfil.admin,
     },
 
     botoes: {
@@ -253,7 +251,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             perfil.admin
           ) && !situacao.finalizado,
 
-        bloqueado:
+        bloqueado: (!modoEdicao && todasTurmasPossuemLista) ||
           situacao.finalizado || bloqueioDivergenciaSalvar,
       },
     },
@@ -782,7 +780,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       if (dados.deltaInscritos?.houveAlteracao) {
         if (deltasSaoIguais(dados.deltaInscritos, deltaResolvidoLocalmente)) {
-          return false; 
+          return false;
         }
 
         setDeltaInscritos(dados.deltaInscritos);
@@ -802,7 +800,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
       tipoAnexoId: 3,
     })) ?? [];
 
-console.log('Anexos mapeados para envio:', anexosMapeados);
+    console.log('Anexos mapeados para envio:', anexosMapeados);
 
     const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
 
@@ -847,7 +845,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
       error?.response?.data?.mensagens?.[0] ??
       error?.message ??
       mensagemPadraoErro;
-      
+
     notification.error({ message: 'Erro', description: mensagemErro });
   };
 
@@ -872,9 +870,9 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
-        setDeltaResolvidoLocalmente(null); 
+        setDeltaResolvidoLocalmente(null);
         const registroIdAtual = id ?? response.dados?.id;
-        
+
         if (registroIdAtual) {
           await atualizarDivergenciaPosSalvar(registroIdAtual);
         }
@@ -1118,7 +1116,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
       setLoading(true);
       const houveDivergencia = await houveAlteracaoInscritosAoSalvar(registroId);
       setLoading(false);
-      
+
       if (houveDivergencia) {
         return;
       }
@@ -1277,7 +1275,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
     if (novos.length === 0) {
       const idsRemovidos = removidos.map((r) => r.id);
       const listaSemRemovidos = cursistas.filter((c) => !idsRemovidos.includes(c.id));
-      
+
       setMostrarDivergencia(false);
       setCursistas(listaSemRemovidos);
       setDeltaResolvidoLocalmente(deltaInscritos);
@@ -1290,7 +1288,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
       const salvoLocal = cursistas.find((c) => c.id === novo.id);
 
       let freq = salvoLocal?.frequencia?.toString() ?? (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
-      
+
       let ativ: 'Sim' | 'Não' | undefined = undefined;
       if (salvoLocal?.atividade === 'S') ativ = 'Sim';
       else if (salvoLocal?.atividade === 'N') ativ = 'Não';
@@ -1298,7 +1296,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
       else if (novo.atividadeObrigatorio === false) ativ = 'Não';
 
       let conceito = salvoLocal?.conceitoFinal ?? novo.conceitoFinal ?? undefined;
-      
+
       let aprov: 'Sim' | 'Não' | undefined = undefined;
       if (salvoLocal?.aprovado === true) aprov = 'Sim';
       else if (salvoLocal?.aprovado === false) aprov = 'Não';
@@ -1321,7 +1319,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
   };
 
   const onSaveDrawerInscritos = async (novosInscritosPreenchidos: InscritoAtualizacaoDTO[]) => {
-    try {      
+    try {
       const idsRemovidos = deltaInscritos?.inscritosRemovidos?.map((r) => r.id) ?? [];
       const idsNovos = novosInscritosPreenchidos.map((i) => i.id);
 
@@ -1431,7 +1429,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
             {bloqueios.botoes.salvar.visivel && (
               <Col>
                 <Button
-                  disabled={(!modoEdicao && todasTurmasPossuemLista) || bloqueios.botoes.salvar.bloqueado}
+                  disabled={bloqueios.botoes.salvar.bloqueado}
                   type='primary'
                   onClick={() => onClickSalvar()}
                   loading={loading}
@@ -1553,7 +1551,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
           </div>
           <SecaoAnexos
             form={form}
-            podeGerenciarAnexos={ehAreaPromotora}
+            podeGerenciarAnexos={!perfil.cursista}
             onDownloadAnexo={onDownloadAnexo}
             fazerUploadAnexoCodaf={fazerUploadAnexoCodaf}
             obterAnexoCodafParaDownload={obterAnexoCodafParaDownload}
