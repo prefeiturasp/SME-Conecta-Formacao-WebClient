@@ -216,6 +216,33 @@ const recusarConsideracoesAdminDf = (propostaId: number, justificativa: string) 
 const obterCargaHorariaTotal = () =>
   obterRegistro<RetornoListagemDTO[]>(`${URL_API_PROPOSTA}/horas-totais-proposta`);
 
+export interface RespostaPaginadaCursistasDTO{
+  items: DadosInscricaoCursistaDTO[];
+  totalPaginas: number;
+  totalRegistros: number;
+}
+
+export type DadosInscricaoCursistaDTO = {
+  id: number;
+  inscricaoId: number;
+  nome: string;
+  documento: string;
+}
+
+export const pesquisarCursistasDaTurma = (
+  termo: string,
+  propostaTurmaId: number,
+  numeroPagina: number = 1,
+  numeroRegistros: number = 20
+): Promise<ApiResult<RespostaPaginadaCursistasDTO>> => {
+  const params = {
+    termo: termo,
+    NumeroPagina: numeroPagina,
+    NumeroRegistros: numeroRegistros,
+  };
+  return obterRegistro(`${URL_API_PROPOSTA}/proposta-turmas/${propostaTurmaId}/inscritos/buscar`, { params });
+}
+
 export {
   alterarParecer,
   alterarProposta,

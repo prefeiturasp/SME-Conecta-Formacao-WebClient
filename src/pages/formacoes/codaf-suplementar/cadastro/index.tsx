@@ -14,26 +14,36 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
+  obterAnexoCodafParaDownload,
   obterPropostasTurmasComCodaf,
   PropostaTurmaComCodafDTO,
 } from '~/core/services/codaf-lista-presenca-service';
 import {
+  alterarCodafSuplementar,
+  CodafSuplementarDetalheDTO,
   criarCodafSuplementar,
+  deletarRetificacao,
+  excluirCodafSuplementar,
+  fazerUploadAnexoCodaf,
   obterCodafOriginal,
+  obterCodafSuplementarPorId,
 } from '~/core/services/codaf-suplementar-service';
 import {
   autocompletarFormacaoComCodaf,
+  DadosInscricaoCursistaDTO,
   PropostaAutocompletarDTO,
 } from '~/core/services/proposta-service';
 import { onClickVoltar } from '~/core/utils/form';
 import { SecaoFormulario } from './componentes/secao-formulario';
+import {
+  SecaoBuscaEListaInscritos,
+} from './componentes/secao-busca-lista-inscritos';
+import SecaoRetificacoes from '../../lista-presenca-codaf/cadastro/componentes/secao-retificacoes/secao-retificacoes';
+import { SecaoAnexos } from '../../lista-presenca-codaf/cadastro/componentes/secao-anexos';
+import ModalExcluir from '../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir';
 
-/**
- * @interface CursistaDTO
- * @description Data transfer object for a course attendee.
- */
-interface CursistaDTO {
-  id: number;
+export interface CursistaDTO {
+  inscricaoId: number;
   rfOuCpf: string;
   nomeCursista: string;
   frequencia: number | null;
@@ -42,11 +52,10 @@ interface CursistaDTO {
   aprovado: boolean | null;
 }
 
-const resolveAtividade = (atividade: string | null): boolean | null => 
+const resolveAtividade = (atividade: string | null): boolean | null =>
   atividade === 'S' ? true : atividade === 'N' ? false : null;
 
-const parseDateString = (dateObj: any) => 
-  dateObj ? dayjs(dateObj).format('YYYY-MM-DD') : null;
+const parseDateString = (dateObj: any) => (dateObj ? dayjs(dateObj).format('YYYY-MM-DD') : null);
 
 const TEXT_INFO_STYLE = {
   fontWeight: 700,
@@ -63,24 +72,41 @@ const HEADER_TEXT_STYLE = {
   alignItems: 'center',
 };
 
+const formatarData = (data: any) => {
+  if (!data) return null;
+  return dayjs(data).format('YYYY-MM-DD');
+};
+
 const CadastroCodafSuplementar: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  
+
   const [loading, setLoading] = useState<boolean>(false);
-  const [cursistas] = useState<CursistaDTO[]>([]);
+  const [cursistas, setCursistas] = useState<CursistaDTO[]>([]);
   const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
   const [loadingAutocomplete, setLoadingAutocomplete] = useState<boolean>(false);
-  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(null);
+  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
+    null,
+  );
   const [turmas, setTurmas] = useState<PropostaTurmaComCodafDTO[]>([]);
-  
+
   const [codafId, setCodafId] = useState<number | null>(null);
+  const [registroId, setRegistroId] = useState<number | null>(null);
   const currentStatus: number | null = null;
+  const turmaIdWatch = Form.useWatch('turmaId', form);
 
   const isEditing = Boolean(id);
   const formOriginal = useRef<any>(null);
   const cursistasOriginais = useRef<CursistaDTO[]>([]);
+
+  const [modalExcluirVisivel, setModalExcluirVisivel] = useState(false);
+  const [retificacoes, setRetificacoes] = useState<number[]>([1]);
+  const [contadorRetificacoes, setContadorRetificacoes] = useState(1);
+  const [retificacoesOriginais, setRetificacoesOriginais] = useState<
+    Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
+  >(new Map());
+  const [podeAdicionarNovaRetificacao, setPodeAdicionarNovaRetificacao] = useState(true);
 
   const viewState = {
     isStarted: currentStatus === 1,
@@ -91,8 +117,8 @@ const CadastroCodafSuplementar: React.FC = () => {
   const formLocks = {
     fields: {
       formulario: {
-        numeroHomologacao: viewState.isDone,
-        turma: viewState.isDone,
+        numeroHomologacao: viewState.isDone || isEditing,
+        turma: viewState.isDone || isEditing,
       },
       informacoesAdicionais: viewState.isDone,
     },
@@ -103,10 +129,114 @@ const CadastroCodafSuplementar: React.FC = () => {
   };
 
   useEffect(() => {
-    (async function initializeData() {
+    const carregarCamposFormulario = (dados: CodafSuplementarDetalheDTO) => {
+      form.setFieldsValue({
+        numeroHomologacao: dados.numeroHomologacao,
+        nomeFormacao: dados.nomeFormacao,
+        codigoFormacao: dados.codigoFormacao,
+        turmaId: dados.propostaTurmaId,
+        numeroComunicado: dados.numeroComunicado,
+        dataPublicacao: dados.dataPublicacao ? dayjs(dados.dataPublicacao) : null,
+        paginaComunicado: dados.paginaComunicadoDom,
+        dataPublicacaoDiarioOficial: dados.dataPublicacaoDom
+          ? dayjs(dados.dataPublicacaoDom)
+          : null,
+        codigoCursoEol: dados.codigoCursoEol,
+        codigoNivel: dados.codigoNivel,
+        observacao: dados.observacao || '',
+      });
+
+      if (dados.anexos && dados.anexos.length > 0) {
+        form.setFieldsValue({
+          anexos: dados.anexos.map((anexo) => ({
+            uid: anexo.arquivoCodigo,
+            name: anexo.nomeArquivo,
+            status: 'done',
+            xhr: anexo.arquivoCodigo,
+            arquivoCodigo: anexo.arquivoCodigo,
+            nomeArquivo: anexo.nomeArquivo,
+            tipoAnexoId: anexo.tipoAnexoId,
+            urlDownload: anexo.urlDownload,
+          })),
+        });
+      }
+    };
+
+    const carregarRetificacoes = (dados: CodafSuplementarDetalheDTO) => {
+      if (dados.retificacoes && dados.retificacoes.length > 0) {
+        const retificacoesMap = new Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>();
+        dados.retificacoes.forEach((retificacao, index) => {
+          retificacoesMap.set(index + 1, {
+            id: retificacao.id,
+            dataRetificacao: retificacao.dataRetificacao,
+            paginaRetificacaoDom: retificacao.paginaRetificacaoDom,
+          });
+
+          const retificacaoFieldName = `retificacao_${index + 1}`;
+          form.setFieldsValue({
+            [retificacaoFieldName]: {
+              dataRetificacao: retificacao.dataRetificacao ? dayjs(retificacao.dataRetificacao) : null,
+              paginaRetificacaoDom: retificacao.paginaRetificacaoDom,
+            },
+          });
+        });
+        setRetificacoesOriginais(retificacoesMap);
+        setRetificacoes(Array.from(retificacoesMap.keys()));
+        setContadorRetificacoes(retificacoesMap.size);
+      }
+    };
+
+    const initializeData = async () => {
       if (!id) return;
-      // TODO: Implement search by ID NOSONAR
-    })();
+      setLoading(true);
+
+      try {
+        const response = await obterCodafSuplementarPorId(Number(id));
+
+        if (!response.sucesso || !response.dados) {
+          notification.error({
+            message: 'Erro',
+            description: response.mensagens?.[0] ?? 'Erro ao carregar dados do registro',
+          });
+          navigate(ROUTES.CODAF_SUPLEMENTAR);
+          return;
+        }
+
+        const dados = response.dados;
+        setRegistroId(dados.id);
+        setCodafId(dados.codafId);
+        carregarCamposFormulario(dados);
+        carregarRetificacoes(dados);
+
+        if (dados.inscritos && dados.inscritos.length > 0) {
+          const inscritosCarregados: CursistaDTO[] = dados.inscritos.map((inscrito) => ({
+            inscricaoId: inscrito.inscricaoId, 
+            rfOuCpf: inscrito.documento,
+            nomeCursista: inscrito.nome,
+            frequencia: inscrito.percentualFrequencia,
+            atividade:
+              inscrito.atividadeObrigatorio === true
+                ? 'S'
+                : inscrito.atividadeObrigatorio === false
+                ? 'N'
+                : null,
+            conceitoFinal: inscrito.conceitoFinal,
+            aprovado: inscrito.aprovado,
+          }));
+          setCursistas(inscritosCarregados);
+
+          if (cursistasOriginais) {
+            cursistasOriginais.current = structuredClone(inscritosCarregados);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar CODAF suplementar:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeData();
   }, [id, form, navigate]);
 
   const fetchOriginalCodaf = async () => {
@@ -115,13 +245,22 @@ const CadastroCodafSuplementar: React.FC = () => {
     setLoading(true);
     try {
       const response = await obterCodafOriginal(codafId);
-      
+
       // Anti-duplication: Used destructuring to drastically change the AST
       if (response?.sucesso && response?.dados) {
         const {
-          numeroHomologacao, nomeFormacao, codigoFormacao, propostaTurmaId,
-          numeroComunicado, dataPublicacao, paginaComunicadoDom,
-          dataPublicacaoDom, codigoCursoEol, codigoNivel, observacao, codafId: returnedCodafId
+          numeroHomologacao,
+          nomeFormacao,
+          codigoFormacao,
+          propostaTurmaId,
+          numeroComunicado,
+          dataPublicacao,
+          paginaComunicadoDom,
+          dataPublicacaoDom,
+          codigoCursoEol,
+          codigoNivel,
+          observacao,
+          codafId: returnedCodafId,
         } = response.dados;
 
         form.setFieldsValue({
@@ -148,16 +287,16 @@ const CadastroCodafSuplementar: React.FC = () => {
 
   useEffect(() => {
     fetchOriginalCodaf();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codafId]);
 
   const handleTurmaChange = (selectedTurmaId: number) => {
     const selectedTurma = turmas.find((t) => t.id === selectedTurmaId);
     setCodafId(selectedTurma ? selectedTurma.codafId : null);
+    setCursistas([]);
   };
 
   const onSearchFormacao = async (searchText: string) => {
-    // Anti-duplication: Early return pattern
     if (!searchText || searchText.length === 0) return setOpcoesFormacao([]);
 
     setLoadingAutocomplete(true);
@@ -165,7 +304,7 @@ const CadastroCodafSuplementar: React.FC = () => {
       const response = await autocompletarFormacaoComCodaf(searchText);
       if (response?.sucesso && response.dados?.items) {
         const sortedItems = [...response.dados.items].sort(
-          (a, b) => a.numeroHomologacao - b.numeroHomologacao
+          (a, b) => a.numeroHomologacao - b.numeroHomologacao,
         );
         setOpcoesFormacao(sortedItems);
       } else {
@@ -181,7 +320,6 @@ const CadastroCodafSuplementar: React.FC = () => {
 
   const onSelectFormacao = async (_value: string, option: any) => {
     const proposta = opcoesFormacao.find((p) => p.propostaId === option.propostaId);
-    // Anti-duplication: Early return instead of wrapping everything in an IF block
     if (!proposta) return;
 
     setPropostaSelecionada(proposta);
@@ -193,16 +331,20 @@ const CadastroCodafSuplementar: React.FC = () => {
       codafId: undefined,
     });
 
+    setCursistas([]);
+
     try {
       const response = await obterPropostasTurmasComCodaf(proposta.propostaId);
       if (response?.sucesso && response?.dados) {
         setTurmas(response.dados);
         return;
-      } 
-      
+      }
+
       setTurmas([]);
-      notification.warning({ message: 'Atenção', description: 'Nenhuma turma encontrada para esta formação' });
-      
+      notification.warning({
+        message: 'Atenção',
+        description: 'Nenhuma turma encontrada para esta formação',
+      });
     } catch (error) {
       console.error('Erro ao buscar turmas:', error);
       setTurmas([]);
@@ -210,27 +352,105 @@ const CadastroCodafSuplementar: React.FC = () => {
     }
   };
 
+  const construirRetificacoes = (values: any) =>
+    retificacoes
+      .map((numero) => {
+        const numeroFormatado = numero.toString().padStart(2, '0');
+        const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
+        const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
+        if (!dataRetificacao && !paginaRetificacao) return null;
+        const retificacaoOriginal = isEditing ? retificacoesOriginais.get(numero) : null;
+        return {
+          id: retificacaoOriginal?.id ?? 0,
+          dataRetificacao: formatarData(dataRetificacao),
+          paginaRetificacaoDom: Number(paginaRetificacao) || 0,
+        };
+      })
+      .filter(
+        (r): r is { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number } =>
+          r !== null,
+      );
+
+  const onAdicionarCursista = (novosCursistas: DadosInscricaoCursistaDTO[]) => {
+    const cursistasParaAdicionar = novosCursistas.filter(
+      (novoCursista) => !cursistas.some((c) => {
+        const docExistente = String(c.rfOuCpf).replace(/\D/g, '');
+        const docNovo = String(novoCursista.documento).replace(/\D/g, '');
+        
+        return docExistente === docNovo;
+      }),
+    );
+
+    if (cursistasParaAdicionar.length === 0) return;
+
+    const novosCursistasDTO: CursistaDTO[] = cursistasParaAdicionar.map((c) => ({
+      inscricaoId: c.inscricaoId,
+      rfOuCpf: c.documento,
+      nomeCursista: c.nome,
+      frequencia: null,
+      atividade: null,
+      conceitoFinal: null,
+      aprovado: null,
+    }));
+    setCursistas((prevCursistas) => [...prevCursistas, ...novosCursistasDTO]);
+  };
+
+  const onRemoverCursista = (inscricaoId: number) => {
+    setCursistas((prevCursistas) => prevCursistas.filter((c) => c.inscricaoId !== inscricaoId));
+  };
+
+  const onChangeCursista = (inscricaoId: number, field: keyof CursistaDTO, value: any) => {
+    setCursistas((prevCursistas) =>
+      prevCursistas.map((c) => (c.inscricaoId === inscricaoId ? { ...c, [field]: value } : c)),
+    );
+  };
+
+  const validarInscritos = (listaInscritos: CursistaDTO[]): boolean => {
+    const possuiInscritosIncompletos = listaInscritos.some(
+      (inscrito) =>
+        inscrito.frequencia === null ||
+        inscrito.frequencia === undefined ||
+        inscrito.atividade === null ||
+        inscrito.atividade === undefined ||
+        inscrito.conceitoFinal === null ||
+        inscrito.conceitoFinal === undefined ||
+        inscrito.aprovado === null ||
+        inscrito.aprovado === undefined,
+    );
+
+    if (possuiInscritosIncompletos) {
+      notification.warning({
+        message: 'Atenção',
+        description:
+          'Você precisa preencher a Frequência, Atividade obrigatória, Conceito final e Aprovado para todos os inscritos adicionados antes de salvar.',
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleSaveError = (error: any) => {
     const defaultMsg = isEditing ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro';
-    const errorDesc = error?.response?.data?.erros?.[0] 
-      ?? error?.response?.data?.mensagens?.[0] 
-      ?? error?.message 
-      ?? defaultMsg;
+    const errorDesc =
+      error?.response?.data?.erros?.[0] ??
+      error?.response?.data?.mensagens?.[0] ??
+      error?.message ??
+      defaultMsg;
 
     notification.error({ message: 'Erro', description: errorDesc });
   };
 
   const generatePayload = (formValues: any, overrideInscritos?: CursistaDTO[]) => {
-    // Anti-duplication: Extracted mapping to local variables
-    const mappedAttachments = formValues.anexos?.map((file: any) => ({
-      arquivoCodigo: file.response?.codigo ?? file.arquivoCodigo,
-      nomeArquivo: file.name || file.nomeArquivo,
-      tipoAnexoId: 3,
-    })) ?? [];
+    const mappedAttachments =
+      formValues.anexos?.map((file: any) => ({
+        arquivoCodigo: file.response?.codigo ?? file.arquivoCodigo,
+        nomeArquivo: file.name || file.nomeArquivo,
+        tipoAnexoId: 3,
+      })) ?? [];
 
     const attendeeList = Array.isArray(overrideInscritos) ? overrideInscritos : cursistas;
     const mappedAttendees = attendeeList.map((c) => ({
-      inscricaoId: c.id,
+      inscricaoId: c.inscricaoId,
       percentualFrequencia: c.frequencia ?? null,
       conceitoFinal: c.conceitoFinal ?? null,
       atividadeObrigatorio: resolveAtividade(c.atividade),
@@ -250,6 +470,7 @@ const CadastroCodafSuplementar: React.FC = () => {
       inscritos: mappedAttendees,
       anexos: mappedAttachments,
       codafId: codafId ?? 0,
+      retificacoes: construirRetificacoes(formValues),
     };
   };
 
@@ -257,16 +478,21 @@ const CadastroCodafSuplementar: React.FC = () => {
     if (response?.sucesso) {
       formOriginal.current = structuredClone(form.getFieldsValue());
       cursistasOriginais.current = structuredClone(cursistas);
-      
+
       notification.success({
         message: 'Sucesso',
         description: isEditing ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
       });
-      
-      if (!id) navigate(ROUTES.CODAF_SUPLEMENTAR);
+
+      navigate(ROUTES.CODAF_SUPLEMENTAR);
     } else {
       const msgs = response.mensagens ?? [];
-      const msgStr = msgs.length > 0 ? msgs.join(', ') : (isEditing ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro');
+      const msgStr =
+        msgs.length > 0
+          ? msgs.join(', ')
+          : isEditing
+          ? 'Erro ao atualizar o registro'
+          : 'Erro ao salvar o registro';
       console.error('Erro da API:', msgs);
       notification.error({ message: 'Erro ao salvar', description: msgStr });
     }
@@ -275,11 +501,38 @@ const CadastroCodafSuplementar: React.FC = () => {
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
     try {
       const fields = await form.validateFields();
-      setLoading(true);
-      const payload = generatePayload(fields, inscritosOverride);
-      console.log('Dados enviados para API:', JSON.stringify(payload, null, 2));
+      const inscritosAtuais = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
 
-      const res = await criarCodafSuplementar(payload);
+      if (!validarInscritos(inscritosAtuais)) {
+        return;
+      }
+
+      setLoading(true);
+      const payloadBase = generatePayload(fields, inscritosAtuais);
+      
+      let res;
+
+      if (isEditing && id) {
+        const payloadEdicao = {
+          codafId: payloadBase.codafId,
+          dataPublicacao: payloadBase.dataPublicacao,
+          dataPublicacaoDom: payloadBase.dataPublicacaoDom,
+          numeroComunicado: payloadBase.numeroComunicado,
+          paginaComunicadoDom: payloadBase.paginaComunicadoDom,
+          codigoCursoEol: payloadBase.codigoCursoEol,
+          codigoNivel: payloadBase.codigoNivel,
+          observacao: payloadBase.observacao,
+          inscritos: payloadBase.inscritos,
+          anexos: payloadBase.anexos,
+          retificacoes: payloadBase.retificacoes,
+        };
+
+        console.log('Dados enviados para API (PUT):', JSON.stringify(payloadEdicao, null, 2));
+        res = await alterarCodafSuplementar(Number(id), payloadEdicao);
+      } else {
+        console.log('Dados enviados para API (POST):', JSON.stringify(payloadBase, null, 2));
+        res = await criarCodafSuplementar(payloadBase);
+      }
       handleSaveResponse(res);
     } catch (err: any) {
       handleSaveError(err);
@@ -288,18 +541,109 @@ const CadastroCodafSuplementar: React.FC = () => {
     }
   };
 
-  // Anti-duplication: Extracted action buttons to a render function
+  const onClickCancelar = () => {
+    onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR });
+  };
+
+  const onClickExcluir = () => {
+    setModalExcluirVisivel(true);
+  };
+
+  const confirmarExclusao = async () => {
+    try {
+      if (!registroId) {
+        notification.warning({
+          message: 'Atenção',
+          description: 'Registro não encontrado',
+        });
+        setModalExcluirVisivel(false);
+        return;
+      }
+
+      setLoading(true);
+      setModalExcluirVisivel(false);
+
+      const response = await excluirCodafSuplementar(registroId);
+
+      if (response.status === 204) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Registro excluído com sucesso!',
+        });
+        navigate(ROUTES.CODAF_SUPLEMENTAR);
+      } else {
+        const mensagemErro =
+          response.mensagens && response.mensagens.length > 0
+            ? response.mensagens.join(', ')
+            : 'Erro ao excluir o registro';
+
+        notification.error({
+          message: 'Erro',
+          description: mensagemErro,
+        });
+      }
+    } catch (error: any) {
+      console.error('Erro ao excluir:', error);
+      const mensagemErro =
+        error?.response?.data?.erros?.[0] ||
+        error?.response?.data?.mensagens?.[0] ||
+        error?.message ||
+        'Erro ao excluir o registro';
+
+      notification.error({
+        message: 'Erro',
+        description: mensagemErro,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelarExclusao = () => {
+    setModalExcluirVisivel(false);
+  };
+
+  const onBaixarAnexo = (arquivo: any) => {
+    try {
+      if (!arquivo.urlDownload) {
+          notification.error({
+            message: 'Erro',
+            description: 'Não foi possível baixar o arquivo. URL de download não encontrada.',
+          });
+      } else {
+        window.open(arquivo.urlDownload, '_blank');
+      }
+    } catch (error) {
+      console.error('Erro ao fazer download:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao fazer download do arquivo',
+      });
+    }
+  };
+
+  const aoDeletarRetificacao = async (retificacaoKey: number) => {
+    await deletarRetificacao(retificacaoKey);
+  }
+
+  useEffect(() => {
+    setPodeAdicionarNovaRetificacao(contadorRetificacoes < 2);
+  }, [contadorRetificacoes]);
+
   const renderActionButtons = () => (
     <Row gutter={[8, 8]}>
       <Col>
-        <ButtonVoltar onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR })} id={CF_BUTTON_VOLTAR} />
+        <ButtonVoltar
+          onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR })}
+          id={CF_BUTTON_VOLTAR}
+        />
       </Col>
       {formLocks.actions.excluir.visible && (
         <Col>
           <Button
             type='default'
             disabled={formLocks.actions.excluir.locked}
-            onClick={() => {}}
+            onClick={() => onClickExcluir()}
             id={CF_BUTTON_EXCLUIR}
             style={{ fontWeight: 700 }}
           >
@@ -339,16 +683,17 @@ const CadastroCodafSuplementar: React.FC = () => {
   return (
     <Col>
       <HeaderPage title='CODAF Suplementar'>
-        <Col span={24}>
-          {renderActionButtons()}
-        </Col>
+        <Col span={24}>{renderActionButtons()}</Col>
       </HeaderPage>
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
           <Row gutter={[16, 8]}>
             <Col span={24}>
               <div style={HEADER_TEXT_STYLE}>
-                <div>Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de salvar.</div>
+                <div>
+                  Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de
+                  salvar.
+                </div>
               </div>
             </Col>
           </Row>
@@ -363,10 +708,43 @@ const CadastroCodafSuplementar: React.FC = () => {
             onChangeTurma={handleTurmaChange}
           />
 
+          <SecaoBuscaEListaInscritos
+            cursistas={cursistas}
+            onAdicionarCursista={onAdicionarCursista}
+            onRemoverCursista={onRemoverCursista}
+            onChangeCursista={onChangeCursista}
+            propostaTurmaId={turmaIdWatch}
+          />
+          <div style={{ display: 'block'}}>
+            <SecaoRetificacoes
+              retificacoes={retificacoes}
+              setRetificacoes={setRetificacoes}
+              contadorRetificacoes={contadorRetificacoes}
+              setContadorRetificacoes={setContadorRetificacoes}
+              retificacoesOriginais={retificacoesOriginais}
+              setRetificacoesOriginais={setRetificacoesOriginais}
+              form={form}
+              camposBaseadosBloqueados={false}
+              aoDeletarRetificacao={aoDeletarRetificacao}
+              podeAdicionarNovaRetificacao={podeAdicionarNovaRetificacao}
+            />
+          </div>
+          
+          <SecaoAnexos
+            form={form}
+            podeGerenciarAnexos={true}
+            onDownloadAnexo={onBaixarAnexo}
+            fazerUploadAnexoCodaf={fazerUploadAnexoCodaf}
+            obterAnexoCodafParaDownload={obterAnexoCodafParaDownload}
+            bloqueado={false}
+          />
+
           <Row gutter={[16, 8]} style={{ marginTop: 32 }}>
             <Col span={24}>
               <div style={TEXT_INFO_STYLE}>Informações adicionais</div>
-              <p style={{ marginBottom: 16 }}>Insira demais informações importantes para o registro. Este é um campo opcional.</p>
+              <p style={{ marginBottom: 16 }}>
+                Insira demais informações importantes para o registro. Este é um campo opcional.
+              </p>
             </Col>
           </Row>
           <Row gutter={[16, 8]}>
@@ -383,6 +761,13 @@ const CadastroCodafSuplementar: React.FC = () => {
           </Row>
         </CardContent>
       </Form>
+
+      <ModalExcluir
+        visible={modalExcluirVisivel}
+        onConfirm={confirmarExclusao}
+        onCancel={cancelarExclusao}
+        loading={loading}
+      />
     </Col>
   );
 };

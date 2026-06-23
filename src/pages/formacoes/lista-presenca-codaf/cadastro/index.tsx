@@ -46,7 +46,8 @@ import {
   obterCodafListaPresencaPorId,
   obterInscritosTurma,
   verificarTurmaPossuiLista,
-  obterDeltaInscritosSilencioso
+  obterDeltaInscritosSilencioso,
+  deletarRetificacao
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -1383,6 +1384,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     return !isNovo && !isRemovido;
   });
 
+  const aoDeletarRetificacao = async (retificacaoKey: number) => {
+    await deletarRetificacao(retificacaoKey);
+  }
+
   return (
     <Col>
       <HeaderPage
@@ -1547,6 +1552,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
               setRetificacoesOriginais={setRetificacoesOriginais}
               form={form}
               camposBaseadosBloqueados={bloqueios.campos.retificacoes}
+              aoDeletarRetificacao={aoDeletarRetificacao}
+              podeAdicionarNovaRetificacao={true}
             />
           </div>
           <SecaoAnexos
