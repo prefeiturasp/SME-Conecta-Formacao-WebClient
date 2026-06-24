@@ -182,13 +182,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const bloqueioDivergenciaSalvar =
     modoEdicao &&
-    // ehAreaPromotora &&
     (situacao.iniciado || situacao.aguardandoDF) &&
     mostrarDivergencia;
   
     const bloqueioDivergenciaEnviarDF =
     modoEdicao &&
-    // ehAreaPromotora &&
     mostrarDivergencia;
 
   const bloqueios = {
@@ -209,7 +207,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     },
 
     anexos: {
-      areaPromotora: situacao.finalizado && ehAreaPromotora,
+      areaPromotora: situacao.finalizado && !perfil.cursista && !perfil.admin,
     },
 
     botoes: {
@@ -253,7 +251,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             perfil.admin
           ) && !situacao.finalizado,
 
-        bloqueado:
+        bloqueado: (!modoEdicao && todasTurmasPossuemLista) ||
           situacao.finalizado || bloqueioDivergenciaSalvar,
       },
     },
@@ -1431,7 +1429,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
             {bloqueios.botoes.salvar.visivel && (
               <Col>
                 <Button
-                  disabled={(!modoEdicao && todasTurmasPossuemLista) || bloqueios.botoes.salvar.bloqueado}
+                  disabled={bloqueios.botoes.salvar.bloqueado}
                   type='primary'
                   onClick={() => onClickSalvar()}
                   loading={loading}
@@ -1553,7 +1551,7 @@ console.log('Anexos mapeados para envio:', anexosMapeados);
           </div>
           <SecaoAnexos
             form={form}
-            podeGerenciarAnexos={ehAreaPromotora}
+            podeGerenciarAnexos={!perfil.cursista}
             onDownloadAnexo={onDownloadAnexo}
             fazerUploadAnexoCodaf={fazerUploadAnexoCodaf}
             obterAnexoCodafParaDownload={obterAnexoCodafParaDownload}
