@@ -1,6 +1,6 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Col, Divider, Input, Row, Select, Spin } from "antd";
-import Table, { ColumnsType } from "antd/es/table";
+import { Button, Col, Divider, Input, Row, Select, Spin, Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import { debounce } from "lodash";
 import { useMemo, useRef, useState } from "react";
 import { CursistaDTO } from "../..";

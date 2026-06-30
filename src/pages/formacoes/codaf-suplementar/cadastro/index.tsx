@@ -246,7 +246,6 @@ const CadastroCodafSuplementar: React.FC = () => {
     try {
       const response = await obterCodafOriginal(codafId);
 
-      // Anti-duplication: Used destructuring to drastically change the AST
       if (response?.sucesso && response?.dados) {
         const {
           numeroHomologacao,
@@ -539,10 +538,6 @@ const CadastroCodafSuplementar: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const onClickCancelar = () => {
-    onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR });
   };
 
   const onClickExcluir = () => {

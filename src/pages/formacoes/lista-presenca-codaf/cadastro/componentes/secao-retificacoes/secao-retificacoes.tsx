@@ -1,5 +1,5 @@
 import { Button, Col, DatePicker, Form, Modal, Row } from 'antd';
-import locale from 'antd/es/date-picker/locale/pt_BR';
+import locale from 'antd/lib/date-picker/locale/pt_BR';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import React from 'react';

@@ -13,8 +13,7 @@ import {
   Tooltip,
 } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { useForm } from 'antd/es/form/Form';
-import { ColumnsType } from 'antd/es/table';
+import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import React, { useState } from 'react';
@@ -60,7 +59,7 @@ import {
 } from '~/core/services/codaf-lista-presenca-service';
 
 const CodafSuplementar: React.FC = () => {
-  const [form] = useForm();
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const permissao = obterPermissaoPorMenu(MenuEnum.CodafSuplementar);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
