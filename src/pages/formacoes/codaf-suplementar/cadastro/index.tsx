@@ -42,7 +42,6 @@ import {
   DadosInscricaoCursistaDTO,
   PropostaAutocompletarDTO,
 } from '~/core/services/proposta-service';
-import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
 import { SecaoFormulario } from '../../lista-presenca-codaf/cadastro/componentes/secao-formulario';
 import {
@@ -97,6 +96,7 @@ type CodafFormValues = {
   nomeFormacao?: string;
   codigoFormacao?: number;
   turmaId?: number;
+  codafId?: number;
   numeroComunicado?: number;
   dataPublicacao?: Dayjs | null;
   paginaComunicado?: number;
@@ -105,9 +105,14 @@ type CodafFormValues = {
   codigoNivel?: number | null;
   observacao?: string;
   anexos?: FormAnexoDTO[];
-  [key: `retificacao_${number}`]: RetificacaoFormItem | undefined;
-  [key: `dataRetificacao${string}`]: Dayjs | null | undefined;
-  [key: `paginaRetificacao${string}`]: number | undefined;
+  [key: string]:
+    | number
+    | string
+    | Dayjs
+    | RetificacaoFormItem
+    | FormAnexoDTO[]
+    | null
+    | undefined;
 };
 
 const resolveAtividade = (atividade: string | null): boolean | null => {
@@ -155,11 +160,22 @@ const mapearAnexosParaForm = (anexos?: CodafSuplementarDetalheDTO['anexos']): Fo
   })) ?? [];
 
 const mapearAnexosParaPayload = (anexos?: FormAnexoDTO[]): AnexoCodafDTO[] =>
-  anexos?.map((file) => ({
-    arquivoCodigo: file.response?.codigo ?? file.arquivoCodigo,
-    nomeArquivo: file.name || file.nomeArquivo,
-    tipoAnexoId: 3,
-  })) ?? [];
+  anexos
+    ?.map((file) => {
+      const arquivoCodigo = file.response?.codigo ?? file.arquivoCodigo;
+      const nomeArquivo = file.name ?? file.nomeArquivo;
+
+      if (!arquivoCodigo || !nomeArquivo) {
+        return null;
+      }
+
+      return {
+        arquivoCodigo,
+        nomeArquivo,
+        tipoAnexoId: 3,
+      };
+    })
+    .filter((item): item is AnexoCodafDTO => item !== null) ?? [];
 
 const mapearInscritosEdicaoParaTabela = (inscritos: InscritoDetalheDTO[]): CursistaDTO[] =>
   inscritos.map((inscrito) => ({
@@ -555,10 +571,20 @@ const CadastroCodafSuplementar: React.FC = () => {
     retificacoes
       .map((numero) => {
         const numeroFormatado = numero.toString().padStart(2, '0');
-        const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
-        const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
+        const rawDataRetificacao = values[`dataRetificacao${numeroFormatado}`];
+        const rawPaginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
+        const dataRetificacao =
+          rawDataRetificacao instanceof Date || dayjs.isDayjs(rawDataRetificacao)
+            ? rawDataRetificacao
+            : null;
+        const paginaRetificacao =
+          typeof rawPaginaRetificacao === 'number' || typeof rawPaginaRetificacao === 'string'
+            ? rawPaginaRetificacao
+            : null;
+
         if (!dataRetificacao && !paginaRetificacao) return null;
         const retificacaoOriginal = isEditing ? retificacoesOriginais.get(numero) : null;
+
         return {
           id: retificacaoOriginal?.id ?? 0,
           dataRetificacao: formatarData(dataRetificacao),
@@ -853,7 +879,7 @@ const CadastroCodafSuplementar: React.FC = () => {
             onAdicionarCursista={onAdicionarCursista}
             onRemoverCursista={onRemoverCursista}
             onChangeCursista={onChangeCursista}
-            propostaTurmaId={turmaIdWatch}
+            propostaTurmaId={turmaIdWatch ?? 0}
           />
           <div style={{ display: 'block'}}>
             <SecaoRetificacoes
