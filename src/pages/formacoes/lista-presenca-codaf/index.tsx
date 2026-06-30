@@ -250,6 +250,7 @@ const ListaPresencaCodaf: React.FC = () => {
     const hasCodigoCursoEol = record.codigoCursoEol != null;
     const isAguardandoDF = record.status === 2;
     const isFinalizado = record.status === 4;
+    const isIniciado = record.status === 1;
     const isCertificacaoConcluida = record.statusCertificacaoTurma === 4;
     const podeGerarComoComum = isAguardandoDF && hasCodigoCursoEol;
     const podeGerarComoAdmin = isFinalizado && ehPerfilAdminDf;
@@ -262,6 +263,11 @@ const ListaPresencaCodaf: React.FC = () => {
       if (isAguardandoDF && !hasCodigoCursoEol) {
         return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
       }
+
+      if (isIniciado && !hasCodigoCursoEol) {
+        return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
+      }
+      
       return 'Função ativa apenas para a situação Aguardando DF com valor de Cod. Curso EOL informado';
        
     };
