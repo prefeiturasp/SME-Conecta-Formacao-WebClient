@@ -136,3 +136,8 @@ export const fazerUploadAnexoCodaf = (
 
 export const deletarRetificacao = (id: string | number): Promise<ApiResult<boolean>> =>
   deletarRegistro(`${URL_API_CODAF_SUPLEMENTAR}/retificacoes/${id}`);
+
+export const baixarArquivoRemessaEol = (codafSuplementarId: number): Promise<ApiResult<string>> =>
+  inserirRegistro(`${URL_API_CODAF_SUPLEMENTAR}/${codafSuplementarId}/gerar-remessa-conclusao`,
+    {},
+  );

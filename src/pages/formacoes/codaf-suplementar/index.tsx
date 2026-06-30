@@ -44,6 +44,7 @@ import {
   imprimirRelatorioCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
 import {
+  baixarArquivoRemessaEol,
   CodafSuplementarDTO,
   obterCodafSuplementar,
 } from '~/core/services/codaf-suplementar-service';
@@ -406,7 +407,7 @@ const CodafSuplementar: React.FC = () => {
   const exportEnrolledList = useCallback(
     async (record: CodafSuplementarDTO) => {
       try {
-        const response = await baixarRelatorioCodaf(record.id);
+        const response = await baixarArquivoRemessaEol(record.id);
 
         if (response.sucesso && response.dados) {
           const filename = `HOM${record.numeroHomologacao}${record.id}.txt`;
@@ -420,7 +421,7 @@ const CodafSuplementar: React.FC = () => {
       } catch {
         notification.error({
           message: 'Erro',
-          description: 'Erro ao exportar lista de inscritos',
+          description: 'Erro ao gerar arquivo TXT EOL. Tente novamente mais tarde.',
         });
       }
     },

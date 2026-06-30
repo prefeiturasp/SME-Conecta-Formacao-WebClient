@@ -500,6 +500,9 @@ const CadastroCodafSuplementar: React.FC = () => {
   }, [codafId]);
 
   useEffect(() => {
+    if (isEditing) {
+      return;
+    }
     if (!turmaIdWatch) {
       setCodafId(null);
       setCursistas([]);
