@@ -39,7 +39,6 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import {
-  baixarRelatorioCodaf,
   emitirCertificadosCodaf,
   imprimirRelatorioCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
@@ -576,11 +575,11 @@ const CodafSuplementar: React.FC = () => {
     ],
     [mustHideRestrictedColumns],
   );
-
+  
   const certificateColumn = useMemo<ColumnsType<CodafSuplementarDTO>>(
     () => [
       {
-        key: 'certificado',
+        key: 'certificate',
         title: (
           <span>
             Certificado{' '}
@@ -593,26 +592,35 @@ const CodafSuplementar: React.FC = () => {
         render: (_value, record) => {
           const certificate = buildCertificateState(record.statusCertificacaoTurma);
 
+          const isFeatureAvailable = false; 
+          
+          const isButtonDisabled = certificate.disabled;
+
           return (
-            <Button
-              type='default'
-              icon={<FiPrinter />}
-              loading={busy && certificate.label === 'Emitir certificados'}
-              disabled={certificate.disabled}
-              onClick={(event) => {
-                event.stopPropagation();
-                requestCertificateIssue(record);
-              }}
-              style={{
-                width: '100%',
-                borderColor: certificate.disabled ? '#ccc' : SUPPORT_COLOR,
-                color: certificate.disabled ? '#999' : SUPPORT_COLOR,
-                fontWeight: 500,
-                cursor: certificate.disabled ? 'not-allowed' : 'pointer',
-              }}
+            <Tooltip 
+              title={!isFeatureAvailable ? 'Funcionalidade ainda não disponível' : null}
             >
-              {certificate.label}
-            </Button>
+              <span style={{ display: 'block', width: '100%' }}>
+                <Button
+                  type='default'
+                  icon={<FiPrinter />}
+                  loading={busy && certificate.label === 'Emitir certificados'}
+                  disabled={isButtonDisabled}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
+                  style={{
+                    width: '100%',
+                    borderColor: isButtonDisabled ? '#ccc' : SUPPORT_COLOR,
+                    color: isButtonDisabled ? '#999' : SUPPORT_COLOR,
+                    fontWeight: 500,
+                    cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {certificate.label}
+                </Button>
+              </span>
+            </Tooltip>
           );
         },
       },
