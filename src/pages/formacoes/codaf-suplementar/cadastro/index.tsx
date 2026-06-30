@@ -240,7 +240,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   }, [id, form, navigate]);
 
   const fetchOriginalCodaf = async () => {
-    if (!codafId) return;
+    if (!codafId || isEditing) return;
 
     setLoading(true);
     try {
@@ -286,7 +286,6 @@ const CadastroCodafSuplementar: React.FC = () => {
 
   useEffect(() => {
     fetchOriginalCodaf();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codafId]);
 
   const handleTurmaChange = (selectedTurmaId: number) => {
