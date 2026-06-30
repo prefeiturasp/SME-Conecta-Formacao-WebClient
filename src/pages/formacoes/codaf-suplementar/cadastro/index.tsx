@@ -16,7 +16,6 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import {
   obterAnexoCodafParaDownload,
   obterPropostasTurmasComCodaf,
-  PropostaTurmaComCodafDTO,
 } from '~/core/services/codaf-lista-presenca-service';
 import {
   alterarCodafSuplementar,
@@ -33,8 +32,9 @@ import {
   DadosInscricaoCursistaDTO,
   PropostaAutocompletarDTO,
 } from '~/core/services/proposta-service';
+import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
-import { SecaoFormulario } from './componentes/secao-formulario';
+import { SecaoFormulario } from '../../lista-presenca-codaf/cadastro/componentes/secao-formulario';
 import {
   SecaoBuscaEListaInscritos,
 } from './componentes/secao-busca-lista-inscritos';
@@ -54,8 +54,6 @@ export interface CursistaDTO {
 
 const resolveAtividade = (atividade: string | null): boolean | null =>
   atividade === 'S' ? true : atividade === 'N' ? false : null;
-
-const parseDateString = (dateObj: any) => (dateObj ? dayjs(dateObj).format('YYYY-MM-DD') : null);
 
 const TEXT_INFO_STYLE = {
   fontWeight: 700,
@@ -77,6 +75,41 @@ const formatarData = (data: any) => {
   return dayjs(data).format('YYYY-MM-DD');
 };
 
+const mapearAnexosParaForm = (anexos?: any[]) =>
+  anexos?.map((anexo) => ({
+    uid: anexo.arquivoCodigo,
+    name: anexo.nomeArquivo,
+    status: 'done',
+    xhr: anexo.arquivoCodigo,
+    arquivoCodigo: anexo.arquivoCodigo,
+    nomeArquivo: anexo.nomeArquivo,
+    tipoAnexoId: anexo.tipoAnexoId,
+    urlDownload: anexo.urlDownload,
+  })) ?? [];
+
+const mapearAnexosParaPayload = (anexos?: any[]) =>
+  anexos?.map((file: any) => ({
+    arquivoCodigo: file.response?.codigo ?? file.arquivoCodigo,
+    nomeArquivo: file.name || file.nomeArquivo,
+    tipoAnexoId: 3,
+  })) ?? [];
+
+const mapearInscritosEdicaoParaTabela = (inscritos: any[]) =>
+  inscritos.map((inscrito) => ({
+    inscricaoId: inscrito.inscricaoId,
+    rfOuCpf: inscrito.documento,
+    nomeCursista: inscrito.nome,
+    frequencia: inscrito.percentualFrequencia,
+    atividade:
+      inscrito.atividadeObrigatorio === true
+        ? 'S'
+        : inscrito.atividadeObrigatorio === false
+        ? 'N'
+        : null,
+    conceitoFinal: inscrito.conceitoFinal,
+    aprovado: inscrito.aprovado,
+  }));
+
 const CadastroCodafSuplementar: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -89,7 +122,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
     null,
   );
-  const [turmas, setTurmas] = useState<PropostaTurmaComCodafDTO[]>([]);
+  const [turmas, setTurmas] = useState<RetornoListagemDTO[]>([]);
 
   const [codafId, setCodafId] = useState<number | null>(null);
   const [registroId, setRegistroId] = useState<number | null>(null);
@@ -146,18 +179,10 @@ const CadastroCodafSuplementar: React.FC = () => {
         observacao: dados.observacao || '',
       });
 
-      if (dados.anexos && dados.anexos.length > 0) {
+      const anexos = mapearAnexosParaForm(dados.anexos);
+      if (anexos.length > 0) {
         form.setFieldsValue({
-          anexos: dados.anexos.map((anexo) => ({
-            uid: anexo.arquivoCodigo,
-            name: anexo.nomeArquivo,
-            status: 'done',
-            xhr: anexo.arquivoCodigo,
-            arquivoCodigo: anexo.arquivoCodigo,
-            nomeArquivo: anexo.nomeArquivo,
-            tipoAnexoId: anexo.tipoAnexoId,
-            urlDownload: anexo.urlDownload,
-          })),
+          anexos,
         });
       }
     };
@@ -209,20 +234,7 @@ const CadastroCodafSuplementar: React.FC = () => {
         carregarRetificacoes(dados);
 
         if (dados.inscritos && dados.inscritos.length > 0) {
-          const inscritosCarregados: CursistaDTO[] = dados.inscritos.map((inscrito) => ({
-            inscricaoId: inscrito.inscricaoId, 
-            rfOuCpf: inscrito.documento,
-            nomeCursista: inscrito.nome,
-            frequencia: inscrito.percentualFrequencia,
-            atividade:
-              inscrito.atividadeObrigatorio === true
-                ? 'S'
-                : inscrito.atividadeObrigatorio === false
-                ? 'N'
-                : null,
-            conceitoFinal: inscrito.conceitoFinal,
-            aprovado: inscrito.aprovado,
-          }));
+          const inscritosCarregados = mapearInscritosEdicaoParaTabela(dados.inscritos);
           setCursistas(inscritosCarregados);
 
           if (cursistasOriginais) {
@@ -288,11 +300,17 @@ const CadastroCodafSuplementar: React.FC = () => {
     fetchOriginalCodaf();
   }, [codafId]);
 
-  const handleTurmaChange = (selectedTurmaId: number) => {
-    const selectedTurma = turmas.find((t) => t.id === selectedTurmaId);
-    setCodafId(selectedTurma ? selectedTurma.codafId : null);
+  useEffect(() => {
+    if (!turmaIdWatch) {
+      setCodafId(null);
+      setCursistas([]);
+      return;
+    }
+
+    const selectedTurma = turmas.find((t) => t.id === turmaIdWatch) as any;
+    setCodafId(selectedTurma?.codafId ?? null);
     setCursistas([]);
-  };
+  }, [turmaIdWatch, turmas]);
 
   const onSearchFormacao = async (searchText: string) => {
     if (!searchText || searchText.length === 0) return setOpcoesFormacao([]);
@@ -439,12 +457,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   };
 
   const generatePayload = (formValues: any, overrideInscritos?: CursistaDTO[]) => {
-    const mappedAttachments =
-      formValues.anexos?.map((file: any) => ({
-        arquivoCodigo: file.response?.codigo ?? file.arquivoCodigo,
-        nomeArquivo: file.name || file.nomeArquivo,
-        tipoAnexoId: 3,
-      })) ?? [];
+    const mappedAttachments = mapearAnexosParaPayload(formValues.anexos);
 
     const attendeeList = Array.isArray(overrideInscritos) ? overrideInscritos : cursistas;
     const mappedAttendees = attendeeList.map((c) => ({
@@ -458,8 +471,8 @@ const CadastroCodafSuplementar: React.FC = () => {
     return {
       propostaId: propostaSelecionada?.propostaId || 0,
       propostaTurmaId: formValues.turmaId || 0,
-      dataPublicacao: parseDateString(formValues.dataPublicacao),
-      dataPublicacaoDom: parseDateString(formValues.dataPublicacaoDiarioOficial),
+      dataPublicacao: formatarData(formValues.dataPublicacao),
+      dataPublicacaoDom: formatarData(formValues.dataPublicacaoDiarioOficial),
       numeroComunicado: Number(formValues.numeroComunicado) || 0,
       paginaComunicadoDom: Number(formValues.paginaComunicado) || 0,
       codigoCursoEol: Number(formValues.codigoCursoEol) || null,
@@ -697,9 +710,13 @@ const CadastroCodafSuplementar: React.FC = () => {
             onSearchFormacao={onSearchFormacao}
             onSelectFormacao={onSelectFormacao}
             loadingAutocomplete={loadingAutocomplete}
-            turmas={turmas}
+            turmasFiltradas={turmas}
+            turmaDisabled={false}
+            tooltipAberto={false}
+            exibirTooltipTurma={false}
+            ehPerfilDF={false}
+            ehPerfilEMFORPEF={false}
             camposBloqueados={formLocks.fields.formulario}
-            onChangeTurma={handleTurmaChange}
           />
 
           <SecaoBuscaEListaInscritos

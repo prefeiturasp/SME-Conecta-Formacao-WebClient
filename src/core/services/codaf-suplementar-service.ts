@@ -1,6 +1,15 @@
 import { CodafBaseDetalheDTO } from "../dto/codaf-base-detalhe-dto";
 import { alterarRegistro, ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from "./api";
-import { AnexoTemporarioDTO } from "./codaf-lista-presenca-service";
+import {
+  CodafAnexoDTO,
+  CodafAnexoTemporarioDTO,
+  CodafInscritoDTO,
+  CodafListagemBaseDTO,
+  CodafListagemFiltroBaseDTO,
+  CodafListagemRetornoBaseDTO,
+  CodafRetificacaoDTO,
+  montarParametrosFiltroCodaf,
+} from './codaf-service-shared';
 
 export const URL_API_CODAF_SUPLEMENTAR = 'v1/CodafSuplementar';
 
@@ -37,25 +46,11 @@ export type AnexoCodafDetalheDTO = {
   criadoLogin: string;
 };
 
-export type RetificacaoDTO = {
-  id: number;
-  dataRetificacao: string | null;
-  paginaRetificacaoDom: number;
-};
+export type RetificacaoDTO = CodafRetificacaoDTO;
 
-export type InscritoDTO = {
-  inscricaoId: number;
-  percentualFrequencia: number | null;
-  conceitoFinal: string | null;
-  atividadeObrigatorio: boolean | null;
-  aprovado: boolean | null;
-};
+export type InscritoDTO = CodafInscritoDTO;
 
-export type AnexoCodafDTO = {
-  arquivoCodigo: string;
-  nomeArquivo: string;
-  tipoAnexoId: number;
-};
+export type AnexoCodafDTO = CodafAnexoDTO;
 
 export type CriarCodafSuplementarDTO = {
   propostaId: number;
@@ -88,51 +83,16 @@ export const obterCodafSuplementarPorId = (codafSuplementarId: number): Promise<
 }
 
 
-export type CodafSuplementarFiltroDTO = {
-  NomeFormacao?: string | null;
-  CodigoFormacao?: number | null;
-  NumeroHomologacao?: number | null;
-  PropostaTurmaId?: number | null;
-  AreaPromotoraId?: number | null;
-  Status?: number | null;
-  DataEnvioDf?: string | null;
-  NumeroPagina?: number;
-  NumeroRegistros?: number;
-};
+export type CodafSuplementarFiltroDTO = CodafListagemFiltroBaseDTO;
 
-export type CodafSuplementarDTO = {
-  id: number;
-  numeroHomologacao: number;
-  nomeFormacao: string;
-  codigoFormacao: number;
-  nomeTurma: string;
-  nomeAreaPromotora: string;
-  status: number;
-  statusCertificacaoTurma: number;
-  codigoCursoEol: number | null;
-  codigoNivel: number | null;
-};
+export type CodafSuplementarDTO = CodafListagemBaseDTO;
 
-export type CodafSuplementarRetornoDTO = {
-  items: CodafSuplementarDTO[];
-  totalRegistros: number;
-  totalPaginas: number;
-};
+export type CodafSuplementarRetornoDTO = CodafListagemRetornoBaseDTO<CodafSuplementarDTO>;
 
 export const obterCodafSuplementar = (
   filtros: CodafSuplementarFiltroDTO,
 ): Promise<ApiResult<CodafSuplementarRetornoDTO>> => {
-  const params: any = {
-    NumeroPagina: filtros.NumeroPagina || 1,
-    NumeroRegistros: filtros.NumeroRegistros || 10,
-  };
-
-  if (filtros.NomeFormacao) params.NomeFormacao = filtros.NomeFormacao;
-  if (filtros.CodigoFormacao) params.CodigoFormacao = filtros.CodigoFormacao;
-  if (filtros.NumeroHomologacao) params.NumeroHomologacao = filtros.NumeroHomologacao;
-  if (filtros.PropostaTurmaId) params.PropostaTurmaId = filtros.PropostaTurmaId;
-  if (filtros.AreaPromotoraId) params.AreaPromotoraId = filtros.AreaPromotoraId;
-  if (filtros.Status !== null && filtros.Status !== undefined) params.Status = filtros.Status;
+  const params = montarParametrosFiltroCodaf(filtros);
 
   return obterRegistro(URL_API_CODAF_SUPLEMENTAR, { params });
 };
@@ -167,7 +127,7 @@ export const excluirCodafSuplementar = (
 export const fazerUploadAnexoCodaf = (
   formData: FormData,
   configuracaoHeader: any,
-): Promise<ApiResult<AnexoTemporarioDTO>> =>
+): Promise<ApiResult<CodafAnexoTemporarioDTO>> =>
   inserirRegistro(
     `${URL_API_CODAF_SUPLEMENTAR}/anexos/temporarios`,
     formData,
