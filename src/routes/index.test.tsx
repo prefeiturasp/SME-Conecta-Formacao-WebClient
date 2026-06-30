@@ -80,6 +80,8 @@ jest.mock('~/pages/redefinir-senha', () => ({ __esModule: true, default: () => <
 jest.mock('~/pages/redefinir-senha-token', () => ({ __esModule: true, default: () => <div>page-redefinir-token</div> }));
 jest.mock('~/pages/formacoes/lista-presenca-codaf', () => ({ __esModule: true, default: () => <div>page-lista-presenca</div> }));
 jest.mock('~/pages/formacoes/lista-presenca-codaf/cadastro', () => ({ __esModule: true, default: () => <div>page-cadastro-lista</div> }));
+jest.mock('~/pages/formacoes/codaf-suplementar', () => ({ __esModule: true, default: () => <div>page-codaf-suplementar</div> }));
+jest.mock('~/pages/formacoes/codaf-suplementar/cadastro', () => ({ __esModule: true, default: () => <div>page-cadastro-codaf-suplementar</div> }));
 jest.mock('~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario', () => ({ __esModule: true, default: () => <div>page-meus-certificados</div> }));
 jest.mock('~/pages/formacoes/certificados-pesquisa', () => ({ __esModule: true, default: () => <div>page-certificados-pesquisa</div> }));
 jest.mock('~/pages/relatorios/inscritos-por-formacao', () => ({ __esModule: true, default: () => <div>page-relatorio</div> }));
