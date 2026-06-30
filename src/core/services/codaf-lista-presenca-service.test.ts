@@ -11,6 +11,10 @@ import {
   baixarModeloTermoResponsabilidade,
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
+  obterPropostasTurmasComCodaf,
+  baixarRelatorioCodaf,
+  imprimirRelatorioCodaf,
+  emitirCertificadosCodaf,
   URL_API_CODAF_LISTA_PRESENCA,
   CodafListaPresencaFiltroDTO,
   CriarCodafListaPresencaDTO,
@@ -28,6 +32,7 @@ jest.mock('./api', () => ({
   ApiResult: jest.fn(),
   default: {
     get: jest.fn(),
+    post: jest.fn(),
   },
 }));
 
@@ -38,6 +43,7 @@ const mockInserirRegistro = inserirRegistro as jest.MockedFunction<typeof inseri
 const mockAlterarRegistro = alterarRegistro as jest.MockedFunction<typeof alterarRegistro>;
 const mockDeletarRegistro = deletarRegistro as jest.MockedFunction<typeof deletarRegistro>;
 const mockApiGet = api.get as jest.MockedFunction<typeof api.get>;
+const mockApiPost = api.post as jest.MockedFunction<typeof api.post>;
 
 describe('CodafListaPresencaService', () => {
   beforeEach(() => {
@@ -1169,6 +1175,100 @@ describe('CodafListaPresencaService', () => {
         `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}`,
       );
       expect(typeof codafListaPresencaId).toBe('number');
+    });
+  });
+
+  describe('obterPropostasTurmasComCodaf', () => {
+    test('deve obter turmas por proposta com rota correta', async () => {
+      const propostaId = 123;
+      const mockResponse = {
+        sucesso: true,
+        dados: [
+          { id: 1, codafId: 10, descricao: 'Turma A' },
+          { id: 2, codafId: 20, descricao: 'Turma B' },
+        ],
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterPropostasTurmasComCodaf(propostaId);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/propostas/${propostaId}/turmas`,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('baixarRelatorioCodaf', () => {
+    test('deve chamar endpoint de remessa de conclusão com body vazio', async () => {
+      const codafListaPresencaId = 88;
+      const mockResponse = {
+        sucesso: true,
+        dados: 'arquivo-txt',
+        mensagens: [],
+        status: 200,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await baixarRelatorioCodaf(codafListaPresencaId);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/gerar-remessa-conclusao`,
+        {},
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('imprimirRelatorioCodaf', () => {
+    test('deve chamar endpoint de impressão com responseType blob', async () => {
+      const codafId = 99;
+      const mockResponse = {
+        status: 200,
+        data: new Blob(['conteudo'], { type: 'application/octet-stream' }),
+        headers: {
+          'content-disposition': 'attachment; filename="CODAF_arquivo.xlsx"',
+        },
+      };
+
+      mockApiPost.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await imprimirRelatorioCodaf(codafId);
+
+      expect(mockApiPost).toHaveBeenCalledWith(
+        `${URL_API_CODAF_LISTA_PRESENCA}/${codafId}/imprimir`,
+        {},
+        {
+          responseType: 'blob',
+        },
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('emitirCertificadosCodaf', () => {
+    test('deve chamar endpoint de emissão de certificados', async () => {
+      const codafListaPresencaId = 77;
+      const mockResponse = {
+        sucesso: true,
+        dados: true,
+        mensagens: [],
+        status: 200,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await emitirCertificadosCodaf(codafListaPresencaId);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(
+        `v1/CodafCertificado/${codafListaPresencaId}/emitir`,
+        {},
+      );
+      expect(result).toEqual(mockResponse);
     });
   });
 });
