@@ -17,11 +17,55 @@ interface SecaoBuscaEListaInscritosProps {
     cursistas: CursistaDTO[];
     onAdicionarCursista: (novoCursista: DadosInscricaoCursistaDTO[]) => void;
     onRemoverCursista: (id: number) => void;
-    onChangeCursista: (id: number, field: keyof CursistaDTO, value: any) => void;
+    onChangeCursista: (
+      id: number,
+      field: keyof CursistaDTO,
+      value: CursistaDTO[keyof CursistaDTO],
+    ) => void;
     propostaTurmaId: number;
 }
 
 const TAMANHO_PAGINA = 20;
+
+const removeNonDigits = (value: string) => value.replace(/\D/g, '');
+
+const getAprovadoValue = (aprovado: boolean | null) => {
+  if (aprovado === null) {
+    return null;
+  }
+
+  return aprovado ? 'S' : 'N';
+};
+
+const escapeForRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+
+const buildHighlightNodes = (text: string, highlighted: string) => {
+  if (!highlighted.trim()) {
+    return text;
+  }
+
+  const escaped = escapeForRegex(highlighted);
+  const splitRegex = new RegExp(`(${escaped})`, 'gi');
+  const exactMatchRegex = new RegExp(`^${escaped}$`, 'i');
+  const parts = text.split(splitRegex);
+  const keyCounter = new Map<string, number>();
+
+  return (
+    <span>
+      {parts.map((part) => {
+        const currentCount = keyCounter.get(part) ?? 0;
+        keyCounter.set(part, currentCount + 1);
+        const key = `${part}-${currentCount}`;
+
+        if (exactMatchRegex.test(part)) {
+          return <strong key={key}>{part}</strong>;
+        }
+
+        return <span key={key}>{part}</span>;
+      })}
+    </span>
+  );
+};
 
 export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps> = ({
     cursistas,
@@ -102,32 +146,21 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
     debounceBusca(valor);
   };
 
-  const handlePopupScroll = async (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
-    const target = e.target as HTMLDivElement;
+  const handlePopupScroll = async (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
 
-    if (target.scrollTop + target.clientHeight >= target.scrollHeight - 5 && temMaisResultados && !buscando && !carregandoMais) {
+    const shouldLoadMore =
+      target.scrollTop + target.clientHeight >= target.scrollHeight - 5 &&
+      temMaisResultados &&
+      !buscando &&
+      !carregandoMais;
+
+    if (shouldLoadMore) {
       setCarregandoMais(true);
       await buscarInscritos(valorPesquisado, paginaAtual + 1, true);
       setCarregandoMais(false);
     }
   };
-
-  const destacarTexto = (texto: string, destacado: string): React.ReactNode => {
-    if (!destacado.trim()) return texto;
-    
-    // Escaping special regex characters to prevent errors if user types symbols
-    const escapedHighlight = destacado.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedHighlight})`, 'gi');
-    const parts = texto.split(regex);
-    
-    return (
-      <span>
-        {parts.map((part, i) =>
-          regex.test(part) ? <strong key={i}>{part}</strong> : <span key={i}>{part}</span>
-        )}
-      </span>
-    );
-  }
 
   const handlerAdicionarInscritos = () => {
     const inscritosParaAdicionar = opcoesEmCache.filter((opt) => itensSelecionados.includes(opt.inscricaoId));
@@ -137,7 +170,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
   };
 
   const handleFrequenciaChange = (inscricaoId: number, valor: string) => {
-    const valorNumerico = valor.replace(/\D/g, '');
+    const valorNumerico = removeNonDigits(valor);
     const valorFinal = valorNumerico ? Math.min(parseInt(valorNumerico, 10), 100) : null;
     onChangeCursista(inscricaoId, 'frequencia', valorFinal);
   };
@@ -148,7 +181,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
       title: 'Sequência',
       width: 80,
       align: 'center',
-      render: (_texto: any, _registro: CursistaDTO, indice: number) => {
+      render: (_texto: unknown, _registro: CursistaDTO, indice: number) => {
         return (indice + 1).toString().padStart(2, '0');
       },
     },
@@ -225,7 +258,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
       width: 120,
       render: (aprovado: boolean | null, registro: CursistaDTO) => (
         <Select
-          value={aprovado !== null ? (aprovado ? 'S' : 'N') : null}
+          value={getAprovadoValue(aprovado)}
           placeholder='Selecione'
           onChange={(valor) => onChangeCursista(registro.inscricaoId, 'aprovado', valor ? valor === 'S' : null)}
           style={{ width: '100%' }}
@@ -242,7 +275,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
       title: 'Ação',
       width: 60,
       align: 'center',
-      render: (_texto: any, registro: CursistaDTO) => (
+      render: (_texto: unknown, registro: CursistaDTO) => (
         <Button
           type="text"
           danger
@@ -312,7 +345,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
               const fullText = `${opt.nome} (${opt.documento})`;
               return (
                 <Select.Option key={opt.inscricaoId} value={opt.inscricaoId} label={fullText}>
-                  {destacarTexto(fullText, valorPesquisado)}
+                  {buildHighlightNodes(fullText, valorPesquisado)}
                 </Select.Option>
               );
             })}

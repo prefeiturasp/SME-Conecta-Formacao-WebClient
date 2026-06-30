@@ -154,6 +154,56 @@ describe('CodafSuplementarService', () => {
       expect(mockInserirRegistro).toHaveBeenCalledWith(URL_API_CODAF_SUPLEMENTAR, dados);
       expect(result).toEqual(mockResponse);
     });
+
+    test('deve enviar retificações e anexos quando informados', async () => {
+      const dados: CriarCodafSuplementarDTO = {
+        propostaId: 2,
+        propostaTurmaId: 20,
+        dataPublicacao: '2024-01-11',
+        dataPublicacaoDom: '2024-01-12',
+        numeroComunicado: 200,
+        paginaComunicadoDom: 8,
+        codigoCursoEol: 333,
+        codigoNivel: 2,
+        observacao: 'Com retificações e anexos',
+        inscritos: [
+          {
+            inscricaoId: 99,
+            percentualFrequencia: 75,
+            conceitoFinal: 'S',
+            atividadeObrigatorio: true,
+            aprovado: true,
+          },
+        ],
+        retificacoes: [
+          {
+            id: 0,
+            codafListaPresencaId: 0,
+            dataRetificacao: '2024-02-01',
+            paginaRetificacaoDom: 4,
+          },
+        ],
+        anexos: [
+          {
+            arquivoCodigo: 'arquivo-1',
+            nomeArquivo: 'arquivo.pdf',
+            tipoAnexoId: 3,
+          },
+        ],
+        codafId: 199,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce({
+        sucesso: true,
+        dados: { id: 2 },
+        mensagens: [],
+        status: 201,
+      } as any);
+
+      await criarCodafSuplementar(dados);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(URL_API_CODAF_SUPLEMENTAR, dados);
+    });
   });
 
   describe('obterCodafOriginal', () => {

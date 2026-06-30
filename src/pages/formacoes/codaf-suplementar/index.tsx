@@ -83,6 +83,10 @@ type MenuTextProps = {
   blocked?: boolean;
 };
 
+type FormationAutoCompleteOption = {
+  numeroHomologacao: number;
+};
+
 const SUPPORT_COLOR = '#ff6b35';
 
 const CODAF_SUPLEMENTAR_STATUS = {
@@ -122,7 +126,7 @@ const strongButtonStyle: React.CSSProperties = {
   fontWeight: 700,
 };
 
-const tableWrapperStyle = `
+const tableWrapperStyle = String.raw`
 .codaf-supplementary-result .ant-pagination {
   display: flex;
   justify-content: center;
@@ -234,7 +238,7 @@ function buildCertificateState(status?: number): CertificatePresentation {
 }
 
 function buildReportFileName(record: CodafSuplementarDTO): string {
-  return `CODAF_${record.numeroHomologacao}_${record.nomeTurma.replace(' ', '_')}.xlsx`;
+  return `CODAF_${record.numeroHomologacao}_${record.nomeTurma.replaceAll(' ', '_')}.xlsx`;
 }
 
 function resolveHeaderFileName(contentDisposition: string | undefined, fallback: string): string {
@@ -243,11 +247,11 @@ function resolveHeaderFileName(contentDisposition: string | undefined, fallback:
   }
 
   const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-  return fileNameMatch?.[1]?.replace(/['"]/g, '') || fallback;
+  return fileNameMatch?.[1]?.replaceAll("'", '').replaceAll('"', '') || fallback;
 }
 
 function downloadPlainText(content: string, filename: string) {
-  const normalizedContent = content.replace(/\|00\|HOM/g, '||HOM');
+  const normalizedContent = content.replaceAll('|00|HOM', '||HOM');
   const file = new Blob([normalizedContent], { type: 'text/plain;charset=utf-8' });
   const objectUrl = window.URL.createObjectURL(file);
   const anchor = document.createElement('a');
@@ -266,6 +270,27 @@ function renderTrainingName(text: string) {
       <div style={nameCellStyle}>{text}</div>
     </Tooltip>
   );
+}
+
+function buildDisplayedColumns(
+  mustHideRestrictedColumns: boolean,
+  baseColumns: ColumnsType<CodafSuplementarDTO>,
+  certificateColumn: ColumnsType<CodafSuplementarDTO>,
+  actionColumn: ColumnsType<CodafSuplementarDTO>,
+) {
+  if (mustHideRestrictedColumns) {
+    return [...baseColumns, ...actionColumn];
+  }
+
+  return [...baseColumns, ...certificateColumn, ...actionColumn];
+}
+
+function getFormationOptions(response: Awaited<ReturnType<typeof autocompletarFormacaoComCodaf>>) {
+  if (response.sucesso && response.dados?.items) {
+    return response.dados.items;
+  }
+
+  return [];
 }
 
 const CodafSuplementar: React.FC = () => {
@@ -606,17 +631,7 @@ const CodafSuplementar: React.FC = () => {
             menu={buildActionsMenu(record)}
             trigger={['click']}
             placement='bottomRight'
-            dropdownRender={(menu) => {
-              const dropdownMenu = menu as React.ReactElement<{ style?: React.CSSProperties }>;
-
-              return (
-                <div style={dropdownSurfaceStyle}>
-                  {React.cloneElement(dropdownMenu, {
-                    style: { ...dropdownMenu.props.style, boxShadow: 'none' },
-                  })}
-                </div>
-              );
-            }}
+            dropdownRender={(menu) => <div style={dropdownSurfaceStyle}>{menu}</div>}
           >
             <Button
               type='default'
@@ -633,9 +648,12 @@ const CodafSuplementar: React.FC = () => {
 
   const columns = useMemo(
     () =>
-      mustHideRestrictedColumns
-        ? [...baseColumns, ...actionColumn]
-        : [...baseColumns, ...certificateColumn, ...actionColumn],
+      buildDisplayedColumns(
+        mustHideRestrictedColumns,
+        baseColumns,
+        certificateColumn,
+        actionColumn,
+      ),
     [actionColumn, baseColumns, certificateColumn, mustHideRestrictedColumns],
   );
 
@@ -651,7 +669,7 @@ const CodafSuplementar: React.FC = () => {
 
     try {
       const response = await autocompletarFormacaoComCodaf(term);
-      setFormationOptions(response.sucesso && response.dados?.items ? response.dados.items : []);
+      setFormationOptions(getFormationOptions(response));
     } catch {
       setFormationOptions([]);
     } finally {
@@ -660,7 +678,7 @@ const CodafSuplementar: React.FC = () => {
   }, []);
 
   const selectFormation = useCallback(
-    async (_value: string, option: any) => {
+    async (_value: string, option: FormationAutoCompleteOption) => {
       const proposal = formationOptions.find(
         (item) => item.numeroHomologacao === option.numeroHomologacao,
       );
