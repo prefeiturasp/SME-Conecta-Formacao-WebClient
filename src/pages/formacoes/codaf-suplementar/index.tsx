@@ -39,11 +39,11 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import {
-  baixarRelatorioCodaf,
   emitirCertificadosCodaf,
   imprimirRelatorioCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
 import {
+  baixarArquivoRemessaEol,
   CodafSuplementarDTO,
   obterCodafSuplementar,
 } from '~/core/services/codaf-suplementar-service';
@@ -406,7 +406,7 @@ const CodafSuplementar: React.FC = () => {
   const exportEnrolledList = useCallback(
     async (record: CodafSuplementarDTO) => {
       try {
-        const response = await baixarRelatorioCodaf(record.id);
+        const response = await baixarArquivoRemessaEol(record.id);
 
         if (response.sucesso && response.dados) {
           const filename = `HOM${record.numeroHomologacao}${record.id}.txt`;
@@ -420,7 +420,7 @@ const CodafSuplementar: React.FC = () => {
       } catch {
         notification.error({
           message: 'Erro',
-          description: 'Erro ao exportar lista de inscritos',
+          description: 'Erro ao gerar arquivo TXT EOL. Tente novamente mais tarde.',
         });
       }
     },
@@ -575,11 +575,11 @@ const CodafSuplementar: React.FC = () => {
     ],
     [mustHideRestrictedColumns],
   );
-
+  
   const certificateColumn = useMemo<ColumnsType<CodafSuplementarDTO>>(
     () => [
       {
-        key: 'certificado',
+        key: 'certificate',
         title: (
           <span>
             Certificado{' '}
@@ -592,26 +592,35 @@ const CodafSuplementar: React.FC = () => {
         render: (_value, record) => {
           const certificate = buildCertificateState(record.statusCertificacaoTurma);
 
+          const isFeatureAvailable = false; 
+          
+          const isButtonDisabled = certificate.disabled;
+
           return (
-            <Button
-              type='default'
-              icon={<FiPrinter />}
-              loading={busy && certificate.label === 'Emitir certificados'}
-              disabled={certificate.disabled}
-              onClick={(event) => {
-                event.stopPropagation();
-                requestCertificateIssue(record);
-              }}
-              style={{
-                width: '100%',
-                borderColor: certificate.disabled ? '#ccc' : SUPPORT_COLOR,
-                color: certificate.disabled ? '#999' : SUPPORT_COLOR,
-                fontWeight: 500,
-                cursor: certificate.disabled ? 'not-allowed' : 'pointer',
-              }}
+            <Tooltip 
+              title={!isFeatureAvailable ? 'Funcionalidade ainda não disponível' : null}
             >
-              {certificate.label}
-            </Button>
+              <span style={{ display: 'block', width: '100%' }}>
+                <Button
+                  type='default'
+                  icon={<FiPrinter />}
+                  loading={busy && certificate.label === 'Emitir certificados'}
+                  disabled={isButtonDisabled}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
+                  style={{
+                    width: '100%',
+                    borderColor: isButtonDisabled ? '#ccc' : SUPPORT_COLOR,
+                    color: isButtonDisabled ? '#999' : SUPPORT_COLOR,
+                    fontWeight: 500,
+                    cursor: isButtonDisabled ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {certificate.label}
+                </Button>
+              </span>
+            </Tooltip>
           );
         },
       },
