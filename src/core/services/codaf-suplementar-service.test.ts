@@ -12,6 +12,7 @@ import {
   CriarCodafSuplementarDTO,
   AlterarCodafSuplementarDTO,
   InscritoDTO,
+  baixarArquivoRemessaEol,
 } from './codaf-suplementar-service';
 
 jest.mock('./api', () => ({
@@ -220,7 +221,9 @@ describe('CodafSuplementarService', () => {
 
       const result = await obterCodafOriginal(codafId);
 
-      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_API_CODAF_SUPLEMENTAR}/codaf/${codafId}`);
+      expect(mockObterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/codaf/${codafId}`,
+      );
       expect(result).toEqual(mockResponse);
     });
   });
@@ -354,7 +357,9 @@ describe('CodafSuplementarService', () => {
 
       const result = await deletarRetificacao(id);
 
-      expect(mockDeletarRegistro).toHaveBeenCalledWith(`${URL_API_CODAF_SUPLEMENTAR}/retificacoes/${id}`);
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/retificacoes/${id}`,
+      );
       expect(result).toEqual(mockResponse);
     });
 
@@ -371,8 +376,55 @@ describe('CodafSuplementarService', () => {
 
       const result = await deletarRetificacao(id);
 
-      expect(mockDeletarRegistro).toHaveBeenCalledWith(`${URL_API_CODAF_SUPLEMENTAR}/retificacoes/${id}`);
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/retificacoes/${id}`,
+      );
       expect(result).toEqual(mockResponse);
+    });
+  });
+  describe('baixarArquivoRemessaEol', () => {
+    /**
+     * @description Ensures the function calls the API with the correct endpoint and an empty object payload
+     */
+    test('should call inserirRegistro with correct URL and empty payload', async () => {
+      // Arrange: Setup the input parameter and the expected mock response
+      const mockCodafSuplementarId: number = 999;
+      const expectedMockResponse = {
+        sucesso: true,
+        dados: 'url_or_base64_string_data',
+        mensagens: [],
+        status: 200,
+      };
+
+      // Mock the API behavior to resolve with our expected response
+      mockInserirRegistro.mockResolvedValueOnce(expectedMockResponse as any);
+
+      // Act: Call the service function
+      const result = await baixarArquivoRemessaEol(mockCodafSuplementarId);
+
+      // Assert: Verify if the internal API function was called correctly
+      expect(mockInserirRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/${mockCodafSuplementarId}/gerar-remessa-conclusao`,
+        {}
+      );
+      
+      // Assert: Verify if the final result matches what the API returned
+      expect(result).toEqual(expectedMockResponse);
+    });
+
+    /**
+     * @description Ensures the function handles API rejections/errors properly
+     */
+    test('should throw an error if inserirRegistro fails', async () => {
+      // Arrange
+      const mockCodafSuplementarId: number = 123;
+      const mockError = new Error('Network error');
+
+      // Mock the API behavior to reject the promise
+      mockInserirRegistro.mockRejectedValueOnce(mockError);
+
+      // Act & Assert: Call the function and expect it to reject with the given error
+      await expect(baixarArquivoRemessaEol(mockCodafSuplementarId)).rejects.toThrow('Network error');
     });
   });
 });
