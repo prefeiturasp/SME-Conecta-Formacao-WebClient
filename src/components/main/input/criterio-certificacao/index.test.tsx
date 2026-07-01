@@ -61,19 +61,27 @@ describe('SelectCriterioCertificacao - FIXED', () => {
     jest.clearAllMocks();
   });
 
+  const renderAndFlush = async (ui: React.ReactElement) => {
+    let renderResult: ReturnType<typeof render> | undefined;
+
+    await act(async () => {
+      renderResult = render(ui);
+    });
+
+    await waitFor(() => {
+      expect(serviceMock).toHaveBeenCalled();
+    });
+
+    return renderResult as ReturnType<typeof render>;
+  };
+
   it('deve carregar opções no mount', async () => {
     serviceMock.mockResolvedValue({
       sucesso: true,
       dados: [{ id: 1, descricao: 'A' }],
     });
 
-    await act(async () => {
-      render(<SelectCriterioCertificacao onchange={jest.fn()} />);
-    });
-
-    await waitFor(() => {
-      expect(serviceMock).toHaveBeenCalled();
-    });
+    await renderAndFlush(<SelectCriterioCertificacao onchange={jest.fn()} />);
   });
 
   it('deve limpar options quando API falhar', async () => {
@@ -82,11 +90,7 @@ describe('SelectCriterioCertificacao - FIXED', () => {
       dados: [],
     });
 
-    await act(async () => {
-      render(<SelectCriterioCertificacao onchange={jest.fn()} />);
-    });
-
-    expect(serviceMock).toHaveBeenCalled();
+    await renderAndFlush(<SelectCriterioCertificacao onchange={jest.fn()} />);
   });
 
   it('deve chamar setFields quando não requerido e erro existir', () => {
@@ -139,20 +143,20 @@ describe('SelectCriterioCertificacao - FIXED', () => {
     expect(container.textContent).toBeDefined();
   });
 
-it('deve renderizar campo Outros quando incluir 6', async () => {
-  mockState.cursoComCertificado = true;
-  mockState.criterioCertificacao = [6, 1, 2, 3];
+  it('deve renderizar campo Outros quando incluir 6', async () => {
+    mockState.cursoComCertificado = true;
+    mockState.criterioCertificacao = [6, 1, 2, 3];
 
-  const { rerender } = render(
-    <SelectCriterioCertificacao onchange={jest.fn()} />
-  );
+    const { rerender } = await renderAndFlush(
+      <SelectCriterioCertificacao onchange={jest.fn()} />
+    );
 
-  rerender(<SelectCriterioCertificacao onchange={jest.fn()} />);
+    await act(async () => {
+      rerender(<SelectCriterioCertificacao onchange={jest.fn()} />);
+    });
 
-  await waitFor(() => {
-expect(mockForm.getFieldValue).toHaveBeenCalledWith('criterioCertificacao');
+    expect(mockForm.getFieldValue).toHaveBeenCalledWith('criterioCertificacao');
   });
-});
 
   it('deve chamar onchange e limpar campo', () => {
     mockForm.getFieldValue.mockImplementation((field: string) => {

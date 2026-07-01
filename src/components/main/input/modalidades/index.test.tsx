@@ -3,7 +3,7 @@
  */
 
 import '@testing-library/jest-dom';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import SelectModalidade from './index';
 import { obterModalidades } from '../../../../core/services/modalidade-service';
 
@@ -48,7 +48,25 @@ jest.mock('~/components/lib/inputs/select', () => (props: any) => {
 describe('SelectModalidade', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (obterModalidades as jest.Mock).mockResolvedValue({
+      sucesso: true,
+      dados: [],
+    });
   });
+
+  const renderAndWaitForEffect = async (ui: React.ReactElement) => {
+    let result: ReturnType<typeof render> | undefined;
+
+    await act(async () => {
+      result = render(ui);
+    });
+
+    await waitFor(() => {
+      expect(selectMock).toHaveBeenCalled();
+    });
+
+    return result as ReturnType<typeof render>;
+  };
 
   it('deve carregar modalidades com sucesso', async () => {
     (obterModalidades as jest.Mock).mockResolvedValue({
@@ -65,7 +83,7 @@ describe('SelectModalidade', () => {
       ],
     });
 
-    render(<SelectModalidade />);
+    await renderAndWaitForEffect(<SelectModalidade />);
 
     await waitFor(() =>
       expect(obterModalidades).toHaveBeenCalled()
@@ -93,7 +111,7 @@ describe('SelectModalidade', () => {
       dados: [],
     });
 
-    render(<SelectModalidade />);
+    await renderAndWaitForEffect(<SelectModalidade />);
 
     await waitFor(() =>
       expect(selectMock).toHaveBeenLastCalledWith(
@@ -104,8 +122,8 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve configurar Form.Item corretamente', () => {
-    render(
+  it('deve configurar Form.Item corretamente', async () => {
+    await renderAndWaitForEffect(
       <SelectModalidade
         campoRequerido
         formItemProps={{
@@ -129,8 +147,8 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve repassar selectProps', () => {
-    render(
+  it('deve repassar selectProps', async () => {
+    await renderAndWaitForEffect(
       <SelectModalidade
         selectProps={{
           disabled: true,
@@ -147,8 +165,8 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve configurar propriedades padrão do Select', () => {
-    render(<SelectModalidade />);
+  it('deve configurar propriedades padrão do Select', async () => {
+    await renderAndWaitForEffect(<SelectModalidade />);
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -159,8 +177,8 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve limpar anosTurmas e componentesCurriculares ao alterar modalidade', () => {
-    render(<SelectModalidade />);
+  it('deve limpar anosTurmas e componentesCurriculares ao alterar modalidade', async () => {
+    await renderAndWaitForEffect(<SelectModalidade />);
 
     const props = selectMock.mock.calls[0][0];
 
@@ -179,8 +197,8 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve configurar campo não obrigatório por padrão', () => {
-    render(<SelectModalidade />);
+  it('deve configurar campo não obrigatório por padrão', async () => {
+    await renderAndWaitForEffect(<SelectModalidade />);
 
     expect(formItemMock).toHaveBeenCalledWith(
       expect.objectContaining({

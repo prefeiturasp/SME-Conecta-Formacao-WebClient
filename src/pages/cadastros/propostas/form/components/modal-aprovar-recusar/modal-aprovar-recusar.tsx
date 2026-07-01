@@ -1,6 +1,4 @@
 import { Form } from 'antd';
-import { useForm } from 'antd/es/form/Form';
-import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 import React from 'react';
 import Modal from '~/components/lib/modal';
 import { notification } from '~/components/lib/notification';
@@ -15,6 +13,7 @@ import {
   recusarConsideracoesPareceristas,
 } from '~/core/services/proposta-service';
 import { ModalAprovarRecusarConteudoInicial } from './modal-aprovar-recusar-conteudo-inicial';
+import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 
 type ModalAprovarRecusarProps = {
   propostaId: number;
@@ -35,7 +34,7 @@ export const ModalAprovarRecusar: React.FC<ModalAprovarRecusarProps> = ({
   tipoJustificativa,
   carregarDados,
 }) => {
-  const [form] = useForm();
+  const [form] = Form.useForm();
   const formInstance = useFormInstance();
   const situacao = formInstance.getFieldsValue(true).situacao;
 

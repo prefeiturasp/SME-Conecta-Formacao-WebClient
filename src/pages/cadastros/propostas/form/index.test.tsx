@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-
+import '@testing-library/jest-dom';
 // ─── ALL jest.mock() calls MUST appear before any import ──────────────────────
 
 // ─── API (prevents import.meta crash) ────────────────────────────────────────
@@ -38,6 +38,8 @@ jest.mock('./components/modal-devolver/modal-devolver-button', () => () => null)
 jest.mock('./components/modal-imprimir/modal-imprimir-button', () => () => null);
 
 // ─── ANT DESIGN ───────────────────────────────────────────────────────────────
+window.scrollTo = jest.fn();
+
 jest.mock('antd', () => {
   const Mock = ({ children }: any) => <div>{children}</div>;
 
@@ -57,7 +59,11 @@ jest.mock('antd', () => {
   return {
     __esModule: true,
     Badge: { Ribbon: Mock },
-    Button: (props: any) => <button {...props}>{props.children}</button>,
+    Button: (props: any) => {
+      const { block, ...buttonProps } = props;
+
+      return <button {...buttonProps}>{props.children}</button>;
+    },
     Col: Mock,
     Row: Mock,
     Divider: Mock,
@@ -156,7 +162,7 @@ jest.mock('~/components/main/text/auditoria', () => () => <div>auditoria</div>);
 
 // ─── CONTEXTS ─────────────────────────────────────────────────────────────────
 jest.mock('~/routes/config/guard/permissao/provider', () => {
-  const React = require('react');
+  const React = jest.requireActual('react');
   return {
     PermissaoContext: React.createContext({
       desabilitarCampos: false,
@@ -166,7 +172,7 @@ jest.mock('~/routes/config/guard/permissao/provider', () => {
 });
 
 jest.mock('./provider', () => {
-  const React = require('react');
+  const React = jest.requireActual('react');
   return {
     PropostaContext: React.createContext({
       formInitialValues: { podeEnviar: true },
@@ -176,6 +182,7 @@ jest.mock('./provider', () => {
 });
 
 // ─── IMPORTS ──────────────────────────────────────────────────────────────────
+import * as router from 'react-router-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { FormCadastroDePropostas } from './index';
@@ -185,6 +192,7 @@ import type { Dayjs } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { SituacaoProposta } from '../../../../core/enum/situacao-proposta';
+import * as propostaService from '../../../../core/services/proposta-service';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -209,39 +217,32 @@ describe('FormCadastroDePropostas (coverage)', () => {
   });
 
   it('should call salvar rascunho', async () => {
-    const { inserirProposta } = require('~/core/services/proposta-service');
-
     render(<FormCadastroDePropostas />);
     const btn = await screen.findByText('Salvar rascunho');
     fireEvent.click(btn);
 
     await waitFor(() => {
-      expect(inserirProposta).toHaveBeenCalled();
+      expect(propostaService.inserirProposta).toHaveBeenCalled();
     });
   });
 
   it('should load data when id exists', async () => {
-    const router = require('react-router-dom');
-    router.useParams.mockReturnValue({ id: '1' });
-
-    const { obterPropostaPorId } = require('~/core/services/proposta-service');
+    (router.useParams as jest.Mock).mockReturnValue({ id: '1' });
 
     render(<FormCadastroDePropostas />);
 
     await waitFor(() => {
-      expect(obterPropostaPorId).toHaveBeenCalledWith(1);
+      expect(propostaService.obterPropostaPorId).toHaveBeenCalledWith(1);
     });
   });
 
   it('should handle enviar proposta', async () => {
-    const { enviarPropostaAnalise } = require('~/core/services/proposta-service');
-
     render(<FormCadastroDePropostas />);
     const btn = await screen.findByText('Enviar');
     fireEvent.click(btn);
 
     await waitFor(() => {
-      expect(enviarPropostaAnalise).toHaveBeenCalled();
+      expect(propostaService.enviarPropostaAnalise).toHaveBeenCalled();
     });
   });
 });

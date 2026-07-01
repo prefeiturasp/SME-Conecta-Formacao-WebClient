@@ -86,9 +86,10 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup();
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.change(input, { target: { value: '123456' } });
-    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+    fireEvent.click(getByRole('button', { name: 'search' }));
 
     await waitFor(() => {
       expect(obterMock).toHaveBeenCalledWith('123456');
@@ -98,8 +99,9 @@ describe('InputCodigoEolUE', () => {
   it('não deve chamar service no onSearch com valor vazio', async () => {
     const { getByRole } = setup();
 
-    const input = getByRole('textbox');
-    fireEvent.keyDown(input, { target: { value: '' }, key: 'Enter', code: 'Enter' });
+    const input = getByRole('searchbox');
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.click(getByRole('button', { name: 'search' }));
 
     await waitFor(() => {
       expect(obterMock).not.toHaveBeenCalled();
@@ -128,7 +130,7 @@ describe('InputCodigoEolUE', () => {
   it('deve limpar nomeUnidade ao digitar no input', async () => {
     const { getByRole } = setup();
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.change(input, { target: { value: 'abc' } });
 
     await waitFor(() => {
@@ -145,9 +147,9 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup({ desativarBotaoAlterar: desativarMock });
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.change(input, { target: { value: '123456' } });
-    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+    fireEvent.click(getByRole('button', { name: 'search' }));
 
     await waitFor(() => {
       if (mockForm.setFieldsValue.mock.calls.length) {
@@ -176,9 +178,9 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup();
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.change(input, { target: { value: '123456' } });
-    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+    fireEvent.click(getByRole('button', { name: 'search' }));
 
     resolveFn({ dados: { nomeUnidade: 'Teste' } });
 

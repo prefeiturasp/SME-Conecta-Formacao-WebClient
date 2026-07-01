@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
-import { createRef } from 'react';
+import React, { createRef } from 'react';
 import DataTableArquivosImportados from './index';
 import api from '../../../core/services/api';
 import { ArquivoInscricaoImportadoDTO } from '../../../core/dto/arquivo-inscricao-importado-dto';
@@ -15,7 +15,7 @@ jest.mock('antd', () => {
   const actual = jest.requireActual('antd');
   return {
     ...actual,
-    Table: jest.fn((props) => (
+    Table: React.forwardRef((props: any, _ref) => (
       <div data-testid="ant-table" data-loading={props.loading}>
         <div data-testid="table-content">
           {props.dataSource?.length === 0 ? (

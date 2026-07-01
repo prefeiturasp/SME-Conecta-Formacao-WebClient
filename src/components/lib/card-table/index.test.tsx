@@ -5,6 +5,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Table } from 'antd';
 import { AxiosError } from 'axios';
+import type { ReactElement } from 'react';
 import { PaginacaoResultadoDTO } from '../../../core/dto/paginacao-resultado-dto';
 import api from '../../../core/services/api';
 import * as functions from '../../../core/utils/functions';
@@ -16,7 +17,7 @@ jest.mock('antd', () => {
   const actual = jest.requireActual<any>('antd');
   return {
     ...actual,
-    Table: jest.fn(({ dataSource, loading, pagination, onChange, ...props }) => (
+    Table: jest.fn(({ dataSource, loading, pagination, onChange }: any) => (
       <div
         data-testid="table-mock"
         data-loading={String(loading)}
@@ -83,6 +84,16 @@ describe('DataTable Component', () => {
     sucesso: true,
   };
 
+  const renderDataTable = async (ui: ReactElement) => {
+    let renderResult: ReturnType<typeof render> | undefined;
+
+    await act(async () => {
+      renderResult = render(ui);
+    });
+
+    return renderResult as ReturnType<typeof render>;
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -91,7 +102,7 @@ describe('DataTable Component', () => {
     it('should render table component', async () => {
       mockApi.mockResolvedValueOnce({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -116,7 +127,7 @@ describe('DataTable Component', () => {
     it('should set default rowKey to id', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -131,7 +142,7 @@ describe('DataTable Component', () => {
     it('should accept custom rowKey', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" rowKey="customId" />
         </DataTableContext.Provider>,
@@ -146,7 +157,7 @@ describe('DataTable Component', () => {
     it('should apply hideHeaderOnEmpty when empty', async () => {
       mockApi.mockResolvedValue({ data: { items: [], totalRegistros: 0, sucesso: true } as any });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" hideHeaderOnEmpty={true} />
         </DataTableContext.Provider>,
@@ -161,7 +172,7 @@ describe('DataTable Component', () => {
     it('should not apply hideHeaderOnEmpty when data exists', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" hideHeaderOnEmpty={true} />
         </DataTableContext.Provider>,
@@ -176,7 +187,7 @@ describe('DataTable Component', () => {
     it('should set table defaults', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -195,7 +206,7 @@ describe('DataTable Component', () => {
     it('should fetch data on mount', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -220,7 +231,7 @@ describe('DataTable Component', () => {
 
       const filters = { name: 'test', status: 'active' };
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" filters={filters} />
         </DataTableContext.Provider>,
@@ -240,7 +251,7 @@ describe('DataTable Component', () => {
           }),
       );
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -256,7 +267,7 @@ describe('DataTable Component', () => {
     it('should populate dataSource with response items', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -270,7 +281,7 @@ describe('DataTable Component', () => {
     it('should handle response without items', async () => {
       mockApi.mockResolvedValue({ data: { totalRegistros: 0 } });
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -294,7 +305,7 @@ describe('DataTable Component', () => {
     it('should refetch when filters change', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      const { rerender } = render(
+      const { rerender } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" filters={{ name: 'test1' }} />
         </DataTableContext.Provider>,
@@ -304,11 +315,13 @@ describe('DataTable Component', () => {
         expect(mockApi).toHaveBeenCalledTimes(1);
       });
 
-      rerender(
-        <DataTableContext.Provider value={mockContextValue}>
-          <DataTable columns={mockColumns} url="/api/test" filters={{ name: 'test2' }} />
-        </DataTableContext.Provider>,
-      );
+      await act(async () => {
+        rerender(
+          <DataTableContext.Provider value={mockContextValue}>
+            <DataTable columns={mockColumns} url="/api/test" filters={{ name: 'test2' }} />
+          </DataTableContext.Provider>,
+        );
+      });
 
       await waitFor(() => {
         expect(mockApi).toHaveBeenCalledTimes(2);
@@ -330,7 +343,7 @@ describe('DataTable Component', () => {
     it('should set default pagination config', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -348,11 +361,9 @@ describe('DataTable Component', () => {
     });
 
     it('should set pagination total from response', async () => {
-      mockApi.mockResolvedValue({
-        data: { ...mockPaginatedResponse, totalRegistros: 100 },
-      });
+      mockApi.mockResolvedValue({ data: { ...mockPaginatedResponse, totalRegistros: 100 } });
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -366,7 +377,7 @@ describe('DataTable Component', () => {
     it('should handle pagination change with URL', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -388,7 +399,7 @@ describe('DataTable Component', () => {
     });
 
     it('should handle pagination change without URL', async () => {
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} dataSource={mockData} />
         </DataTableContext.Provider>,
@@ -403,7 +414,7 @@ describe('DataTable Component', () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
       const alterarRealizouFiltro = jest.fn();
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable
             columns={mockColumns}
@@ -428,7 +439,7 @@ describe('DataTable Component', () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
       const desativarBotaoContinuar = jest.fn();
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable
             columns={mockColumns}
@@ -446,7 +457,7 @@ describe('DataTable Component', () => {
     it('should reset to page 1 when realizouFiltro is true', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" realizouFiltro={true} />
         </DataTableContext.Provider>,
@@ -469,7 +480,7 @@ describe('DataTable Component', () => {
 
       mockApi.mockRejectedValue(error);
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -484,7 +495,7 @@ describe('DataTable Component', () => {
       const error = new AxiosError('Network error');
       mockApi.mockRejectedValue(error);
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -503,7 +514,7 @@ describe('DataTable Component', () => {
 
       mockApi.mockRejectedValue(error);
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -518,7 +529,7 @@ describe('DataTable Component', () => {
       const error = new AxiosError('Request failed');
       mockApi.mockRejectedValue(error);
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -534,7 +545,7 @@ describe('DataTable Component', () => {
     it('should scroll to top on current page change', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -558,7 +569,7 @@ describe('DataTable Component', () => {
     it('should scroll to top on pageSize change', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -592,7 +603,7 @@ describe('DataTable Component', () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
       const rowSelectionOnChange = jest.fn();
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable
             columns={mockColumns}
@@ -610,7 +621,7 @@ describe('DataTable Component', () => {
     it('should not call rowSelection if not provided', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -625,7 +636,7 @@ describe('DataTable Component', () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
       const setTableState = jest.fn();
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={{ ...mockContextValue, setTableState }}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -644,7 +655,7 @@ describe('DataTable Component', () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
       const setTableState = jest.fn();
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={{ ...mockContextValue, setTableState }}>
           <DataTable columns={mockColumns} url="/api/test" id="EXPANDED_DATA_TABLE" />
         </DataTableContext.Provider>,
@@ -661,7 +672,7 @@ describe('DataTable Component', () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
       const dataSource = [{ id: '999', name: 'DataSource Item' }];
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" dataSource={dataSource} />
         </DataTableContext.Provider>,
@@ -689,7 +700,7 @@ describe('DataTable Component', () => {
     it('should pass through custom props to Table', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable
             columns={mockColumns}
@@ -711,7 +722,7 @@ describe('DataTable Component', () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
       const expandable = { expandedRowRender: jest.fn(() => <div>Expanded</div>) };
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" expandable={expandable} />
         </DataTableContext.Provider>,
@@ -727,7 +738,7 @@ describe('DataTable Component', () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
       const rowSelection = { type: 'checkbox' as const };
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" rowSelection={rowSelection} />
         </DataTableContext.Provider>,
@@ -752,7 +763,7 @@ describe('DataTable Component', () => {
         validNumber: 123,
       };
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" filters={filters} />
         </DataTableContext.Provider>,
@@ -776,7 +787,7 @@ describe('DataTable Component', () => {
     it('should handle undefined filters', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" filters={undefined} />
         </DataTableContext.Provider>,
@@ -792,7 +803,7 @@ describe('DataTable Component', () => {
     it('should handle null items in response', async () => {
       mockApi.mockResolvedValue({ data: { totalRegistros: 0 } });
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -806,7 +817,7 @@ describe('DataTable Component', () => {
     it('should handle undefined columns', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={undefined as any} url="/api/test" />
         </DataTableContext.Provider>,
@@ -820,7 +831,7 @@ describe('DataTable Component', () => {
     it('should handle consecutive filter updates', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      const { rerender } = render(
+      const { rerender } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" filters={{ name: 'test1' }} />
         </DataTableContext.Provider>,
@@ -830,21 +841,25 @@ describe('DataTable Component', () => {
         expect(mockApi).toHaveBeenCalledTimes(1);
       });
 
-      rerender(
-        <DataTableContext.Provider value={mockContextValue}>
-          <DataTable columns={mockColumns} url="/api/test" filters={{ name: 'test2' }} />
-        </DataTableContext.Provider>,
-      );
+      await act(async () => {
+        rerender(
+          <DataTableContext.Provider value={mockContextValue}>
+            <DataTable columns={mockColumns} url="/api/test" filters={{ name: 'test2' }} />
+          </DataTableContext.Provider>,
+        );
+      });
 
       await waitFor(() => {
         expect(mockApi).toHaveBeenCalledTimes(2);
       });
 
-      rerender(
-        <DataTableContext.Provider value={mockContextValue}>
-          <DataTable columns={mockColumns} url="/api/test" filters={{ name: 'test3' }} />
-        </DataTableContext.Provider>,
-      );
+      await act(async () => {
+        rerender(
+          <DataTableContext.Provider value={mockContextValue}>
+            <DataTable columns={mockColumns} url="/api/test" filters={{ name: 'test3' }} />
+          </DataTableContext.Provider>,
+        );
+      });
 
       await waitFor(() => {
         expect(mockApi).toHaveBeenCalledTimes(3);
@@ -854,7 +869,7 @@ describe('DataTable Component', () => {
     it('should pass all required props to Table', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -876,7 +891,7 @@ describe('DataTable Component', () => {
     it('should handle pageSize change correctly', async () => {
       mockApi.mockResolvedValue({ data: mockPaginatedResponse });
 
-      render(
+      await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
@@ -902,7 +917,7 @@ describe('DataTable Component', () => {
     it('should handle response with only totalRegistros', async () => {
       mockApi.mockResolvedValue({ data: { totalRegistros: 50 } });
 
-      const { getByTestId } = render(
+      const { getByTestId } = await renderDataTable(
         <DataTableContext.Provider value={mockContextValue}>
           <DataTable columns={mockColumns} url="/api/test" />
         </DataTableContext.Provider>,
