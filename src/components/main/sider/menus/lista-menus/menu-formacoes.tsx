@@ -32,6 +32,17 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
       },
     },
     {
+      key: MenuEnum.CodafSuplementar,
+      title: 'CODAF Suplementar',
+      url: ROUTES.CODAF_SUPLEMENTAR,
+      roles: {
+        podeConsultar: PermissaoEnum.AreaPromotora_C,
+        podeIncluir: PermissaoEnum.AreaPromotora_I,
+        podeExcluir: PermissaoEnum.AreaPromotora_E,
+        podeAlterar: PermissaoEnum.AreaPromotora_A,
+      },
+    },
+    {
       key: MenuEnum.CertificadosPesquisa,
       title: 'Pesquisar certificados',
       url: ROUTES.CERTIFICADOS_PESQUISA,

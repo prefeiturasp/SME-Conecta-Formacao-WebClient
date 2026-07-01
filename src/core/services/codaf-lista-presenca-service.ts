@@ -1,3 +1,4 @@
+import { CodafBaseDetalheDTO } from '../dto/codaf-base-detalhe-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
 import api, {
   ApiResult,
@@ -6,56 +7,30 @@ import api, {
   inserirRegistro,
   obterRegistro,
 } from './api';
+import {
+  CodafAnexoDTO,
+  CodafAnexoTemporarioDTO,
+  CodafInscritoDTO,
+  CodafListagemBaseDTO,
+  CodafListagemFiltroBaseDTO,
+  CodafListagemRetornoBaseDTO,
+  CodafRetificacaoDTO,
+  montarParametrosFiltroCodaf,
+} from './codaf-service-shared';
 
 export const URL_API_CODAF_LISTA_PRESENCA = 'v1/CodafListaPresenca';
 export const URL_API_CERTIFICADO = 'v1/CodafCertificado';
 
-export type CodafListaPresencaFiltroDTO = {
-  NomeFormacao?: string | null;
-  CodigoFormacao?: number | null;
-  NumeroHomologacao?: number | null;
-  PropostaTurmaId?: number | null;
-  AreaPromotoraId?: number | null;
-  Status?: number | null;
-  DataEnvioDf?: string | null;
-  NumeroPagina?: number;
-  NumeroRegistros?: number;
-};
+export type CodafListaPresencaFiltroDTO = CodafListagemFiltroBaseDTO;
 
-export type CodafListaPresencaDTO = {
-  id: number;
-  numeroHomologacao: number;
-  nomeFormacao: string;
-  codigoFormacao: number;
-  nomeTurma: string;
-  nomeAreaPromotora: string;
-  status: number;
-  statusCertificacaoTurma: number;
-  codigoCursoEol: number | null;
-  codigoNivel: number | null;
-};
+export type CodafListaPresencaDTO = CodafListagemBaseDTO;
 
-export type CodafListaPresencaRetornoDTO = {
-  items: CodafListaPresencaDTO[];
-  totalRegistros: number;
-  totalPaginas: number;
-};
+export type CodafListaPresencaRetornoDTO = CodafListagemRetornoBaseDTO<CodafListaPresencaDTO>;
 
 export const obterListaPresencaCodaf = (
   filtros: CodafListaPresencaFiltroDTO,
 ): Promise<ApiResult<CodafListaPresencaRetornoDTO>> => {
-  const params: any = {
-    NumeroPagina: filtros.NumeroPagina || 1,
-    NumeroRegistros: filtros.NumeroRegistros || 10,
-  };
-
-  if (filtros.NomeFormacao) params.NomeFormacao = filtros.NomeFormacao;
-  if (filtros.CodigoFormacao) params.CodigoFormacao = filtros.CodigoFormacao;
-  if (filtros.NumeroHomologacao) params.NumeroHomologacao = filtros.NumeroHomologacao;
-  if (filtros.PropostaTurmaId) params.PropostaTurmaId = filtros.PropostaTurmaId;
-  if (filtros.AreaPromotoraId) params.AreaPromotoraId = filtros.AreaPromotoraId;
-  if (filtros.Status !== null && filtros.Status !== undefined) params.Status = filtros.Status;
-  if (filtros.DataEnvioDf) params.DataEnvioDf = filtros.DataEnvioDf;
+  const params = montarParametrosFiltroCodaf(filtros, true);
 
   return obterRegistro(URL_API_CODAF_LISTA_PRESENCA, { params });
 };
@@ -63,50 +38,13 @@ export const obterListaPresencaCodaf = (
 export const obterSituacoesCodaf = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/situacao`);
 
-export type InscritoDTO = {
-  inscricaoId: number;
-  percentualFrequencia: number | null;
-  conceitoFinal: string | null;
-  atividadeObrigatorio: boolean | null;
-  aprovado: boolean | null;
-};
+export type InscritoDTO = CodafInscritoDTO;
 
-export type RetificacaoDTO = {
-  id: number;
-  dataRetificacao: string | null;
-  paginaRetificacaoDom: number;
-};
+export type AnexoTemporarioDTO = CodafAnexoTemporarioDTO;
 
-export type AnexoTemporarioDTO = {
-  arquivoCodigo: string;
-  nomeArquivo: string;
-  extensao: string;
-  urlDownload: string;
-  contentType: string;
-  tamanhoBytes: number;
-};
+export type AnexoCodafDTO = CodafAnexoDTO;
 
-export type AnexoCodafDTO = {
-  arquivoCodigo: string;
-  nomeArquivo: string;
-  tipoAnexoId: number;
-};
-
-export type AnexoCodafDetalheDTO = {
-  id: number;
-  codafListaPresencaId: number;
-  arquivoCodigo: string;
-  nomeArquivo: string;
-  extensao: string;
-  tipoAnexoId: number;
-  urlDownload: string;
-  alteradoEm: string | null;
-  alteradoPor: string | null;
-  alteradoLogin: string | null;
-  criadoEm: string;
-  criadoPor: string;
-  criadoLogin: string;
-};
+export type RetificacaoDTO = CodafRetificacaoDTO;
 
 export type CriarCodafListaPresencaDTO = {
   propostaId: number;
@@ -156,32 +94,10 @@ export type DeltaInscritosDTO = {
   inscritosNovos: InscritoNovoDeltaDTO[];
 };
 
-export type CodafListaPresencaDetalheDTO = {
-  id: number;
-  propostaId: number;
-  propostaTurmaId: number;
-  numeroHomologacao: number;
-  nomeFormacao: string;
-  codigoFormacao: number;
-  numeroComunicado: number;
-  dataPublicacao: string | null;
-  paginaComunicadoDom: number;
-  dataPublicacaoDom: string | null;
-  codigoCursoEol: number | null;
-  codigoNivel: number;
-  observacao: string | null;
-  status: number;
-  alteradoEm: string | null;
-  alteradoPor: string | null;
-  alteradoLogin: string | null;
-  criadoEm: string;
-  criadoPor: string;
-  criadoLogin: string;
-  retificacoes?: RetificacaoDTO[];
-  anexos?: AnexoCodafDetalheDTO[];
+export interface CodafListaPresencaDetalheDTO extends CodafBaseDetalheDTO {
   comentario?: ComentarioCodafDTO;
   deltaInscritos?: DeltaInscritosDTO;
-};
+}
 
 export const criarCodafListaPresenca = (
   dados: CriarCodafListaPresencaDTO,
@@ -388,3 +304,13 @@ export const downloadCertificado = (
 ): Promise<ApiResult<CertificadoDownloadDTO>> => {
   return obterRegistro(`${URL_API_CERTIFICADO}/${certificadoCodafId}/download`);
 };
+
+export type PropostaTurmaComCodafDTO = {
+  id: number;
+  codafId: number;
+  descricao: string;
+};
+
+export const obterPropostasTurmasComCodaf = (propostaId: number): Promise<ApiResult<PropostaTurmaComCodafDTO[]>> => {
+  return obterRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/propostas/${propostaId}/turmas`);
+}

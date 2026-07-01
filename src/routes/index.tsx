@@ -41,6 +41,8 @@ import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado
 import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
 import RelatorioInscritosPorFormacao from '~/pages/relatorios/inscritos-por-formacao';
 import ListCoordenadoria from '~/pages/cadastros/coordenadoria';
+import CodafSuplementar from '~/pages/formacoes/codaf-suplementar';
+import CadastroCodafSuplementar from '~/pages/formacoes/codaf-suplementar/cadastro';
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
@@ -65,7 +67,7 @@ const RoutesConfig = () => {
       scrollNoInicio();
     }, [pathname]);
 
-    console.log(ListaPresencaCodaf, CadastroListaPresencaCodaf)
+    console.log(ListaPresencaCodaf, CadastroListaPresencaCodaf);
 
     return null;
   };
@@ -82,138 +84,156 @@ const RoutesConfig = () => {
           <Route path={ROUTES.REDEFINIR_SENHA_TOKEN} element={redefinirSenhaTokenPage} />
         </Route>
         {autenticado ? (
-            <Route element={<GuardAutenticacao />}>
-              <Route path={ROUTES.PRINCIPAL} element={principalPage}>
-                <Route path='*' element={notFoundPage} />
-                <Route path={ROUTES.SEM_PERMISSAO} element={forbiddenPage} />
-                <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
-                <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
-                <Route path={ROUTES.MEUS_DADOS} element={<MeusDadosProvider />} />
-                <Route path={ROUTES.CERTIFICADOS} element={<MeusCertificados />} />
-                <Route path={ROUTES.INSCRICAO_CURSISTA} element={<Inscricao />} />
-                <Route path={ROUTES.NOTIFICACOES} element={<Notificacoes />} />
-                <Route path={ROUTES.NOTIFICACOES_DETALHES} element={<NotificacoesDetalhes />} />
+          <Route element={<GuardAutenticacao />}>
+            <Route path={ROUTES.PRINCIPAL} element={principalPage}>
+              <Route path='*' element={notFoundPage} />
+              <Route path={ROUTES.SEM_PERMISSAO} element={forbiddenPage} />
+              <Route path={ROUTES.PRINCIPAL} element={iniciallPage} />
+              <Route path={ROUTES.LOGIN} element={<Navigate to={ROUTES.PRINCIPAL} />} />
+              <Route path={ROUTES.MEUS_DADOS} element={<MeusDadosProvider />} />
+              <Route path={ROUTES.CERTIFICADOS} element={<MeusCertificados />} />
+              <Route path={ROUTES.INSCRICAO_CURSISTA} element={<Inscricao />} />
+              <Route path={ROUTES.NOTIFICACOES} element={<Notificacoes />} />
+              <Route path={ROUTES.NOTIFICACOES_DETALHES} element={<NotificacoesDetalhes />} />
 
-                <Route path={ROUTES.AREA_PROMOTORA}>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
-                    <Route path='' element={<ListAreaPromotora />} />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
-                    <Route
-                      path={ROUTES.AREA_PROMOTORA_NOVO}
-                      element={<FormCadastrosAreaPromotora />}
-                    />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
-                    <Route
-                      path={ROUTES.AREA_PROMOTORA_EDITAR}
-                      element={<FormCadastrosAreaPromotora />}
-                    />
-                  </Route>
+              <Route path={ROUTES.AREA_PROMOTORA}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
+                  <Route path='' element={<ListAreaPromotora />} />
                 </Route>
-
-                <Route path={ROUTES.COORDENADORIA}>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.Coordenadoria} />}>
-                    <Route path='' element={<ListCoordenadoria />} />
-                  </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
+                  <Route
+                    path={ROUTES.AREA_PROMOTORA_NOVO}
+                    element={<FormCadastrosAreaPromotora />}
+                  />
                 </Route>
-
-                <Route path={ROUTES.USUARIO_REDE_PARCERIA}>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
-                    <Route path='' element={<UsuarioRedeParceria />} />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
-                    <Route
-                      path={ROUTES.USUARIO_REDE_PARCERIA_NOVO}
-                      element={<FormUsuarioRedeParceria />}
-                    />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
-                    <Route
-                      path={ROUTES.USUARIO_REDE_PARCERIA_EDITAR}
-                      element={<FormUsuarioRedeParceria />}
-                    />
-                  </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.AreaPromotora} />}>
+                  <Route
+                    path={ROUTES.AREA_PROMOTORA_EDITAR}
+                    element={<FormCadastrosAreaPromotora />}
+                  />
                 </Route>
-
-                <Route path={ROUTES.CADASTRO_DE_PROPOSTAS}>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
-                    <Route path='' element={<ListCadastroDePropostas />} />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
-                    <Route
-                      path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
-                      element={
-                        <PropostaContextProvider>
-                          <FormCadastroDePropostas />
-                        </PropostaContextProvider>
-                      }
-                    />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
-                    <Route
-                      path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
-                      element={
-                        <PropostaContextProvider>
-                          <FormCadastroDePropostas />
-                        </PropostaContextProvider>
-                      }
-                    />
-                  </Route>
-                </Route>
-
-                <Route path={ROUTES.FORMACAOES_INSCRICOES}>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
-                    <Route path='' element={<Inscricoes />} />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
-                    <Route
-                      path={ROUTES.FORMACAOES_INSCRICOES_EDITAR_ID}
-                      element={<TurmasInscricoes />}
-                    />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
-                    <Route
-                      path={ROUTES.FORMACAOES_INSCRICOES_NOVO_ID}
-                      element={<FormCadastrosInscricoesManuais />}
-                    />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
-                    <Route
-                      path={ROUTES.FORMACAOES_INSCRICOES_POR_ARQUIVO_ID}
-                      element={<InscricoesPorArquivoListagem />}
-                    />
-                  </Route>
-                </Route>
-
-                <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
-                    <Route path='' element={<ListaPresencaCodaf />} />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
-                    <Route
-                      path={ROUTES.LISTA_PRESENCA_CODAF_NOVO}
-                      element={<CadastroListaPresencaCodaf />}
-                    />
-                  </Route>
-                  <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
-                    <Route
-                      path={ROUTES.LISTA_PRESENCA_CODAF_EDITAR}
-                      element={<CadastroListaPresencaCodaf />}
-                    />
-                  </Route>
-                </Route> 
-
-                <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
-                  <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
-                </Route>
-
-                <Route
-                  path={ROUTES.RELATORIO_INSCRITOS_POR_FORMACAO}
-                  element={<RelatorioInscritosPorFormacao />}
-                />              
               </Route>
+
+              <Route path={ROUTES.COORDENADORIA}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.Coordenadoria} />}>
+                  <Route path='' element={<ListCoordenadoria />} />
+                </Route>
+              </Route>
+
+              <Route path={ROUTES.USUARIO_REDE_PARCERIA}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                  <Route path='' element={<UsuarioRedeParceria />} />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                  <Route
+                    path={ROUTES.USUARIO_REDE_PARCERIA_NOVO}
+                    element={<FormUsuarioRedeParceria />}
+                  />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.RedeParceria} />}>
+                  <Route
+                    path={ROUTES.USUARIO_REDE_PARCERIA_EDITAR}
+                    element={<FormUsuarioRedeParceria />}
+                  />
+                </Route>
+              </Route>
+
+              <Route path={ROUTES.CADASTRO_DE_PROPOSTAS}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
+                  <Route path='' element={<ListCadastroDePropostas />} />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
+                  <Route
+                    path={ROUTES.CADASTRO_DE_PROPOSTAS_NOVO}
+                    element={
+                      <PropostaContextProvider>
+                        <FormCadastroDePropostas />
+                      </PropostaContextProvider>
+                    }
+                  />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CadastroProposta} />}>
+                  <Route
+                    path={ROUTES.CADASTRO_DE_PROPOSTAS_EDITAR}
+                    element={
+                      <PropostaContextProvider>
+                        <FormCadastroDePropostas />
+                      </PropostaContextProvider>
+                    }
+                  />
+                </Route>
+              </Route>
+
+              <Route path={ROUTES.FORMACAOES_INSCRICOES}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                  <Route path='' element={<Inscricoes />} />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                  <Route
+                    path={ROUTES.FORMACAOES_INSCRICOES_EDITAR_ID}
+                    element={<TurmasInscricoes />}
+                  />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                  <Route
+                    path={ROUTES.FORMACAOES_INSCRICOES_NOVO_ID}
+                    element={<FormCadastrosInscricoesManuais />}
+                  />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.Inscricoes} />}>
+                  <Route
+                    path={ROUTES.FORMACAOES_INSCRICOES_POR_ARQUIVO_ID}
+                    element={<InscricoesPorArquivoListagem />}
+                  />
+                </Route>
+              </Route>
+
+              <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                  <Route path='' element={<ListaPresencaCodaf />} />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                  <Route
+                    path={ROUTES.LISTA_PRESENCA_CODAF_NOVO}
+                    element={<CadastroListaPresencaCodaf />}
+                  />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                  <Route
+                    path={ROUTES.LISTA_PRESENCA_CODAF_EDITAR}
+                    element={<CadastroListaPresencaCodaf />}
+                  />
+                </Route>
+              </Route>
+
+              <Route path={ROUTES.CODAF_SUPLEMENTAR}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafSuplementar} />}>
+                  <Route path='' element={<CodafSuplementar />} />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafSuplementar} />}>
+                  <Route
+                    path={ROUTES.CODAF_SUPLEMENTAR_NOVO}
+                    element={<CadastroCodafSuplementar />}
+                  />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafSuplementar} />}>
+                  <Route
+                    path={ROUTES.CODAF_SUPLEMENTAR_EDITAR}
+                    element={<CadastroCodafSuplementar />}
+                  />
+                </Route>
+              </Route>
+
+              <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
+                <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
+              </Route>
+
+              <Route
+                path={ROUTES.RELATORIO_INSCRITOS_POR_FORMACAO}
+                element={<RelatorioInscritosPorFormacao />}
+              />
             </Route>
+          </Route>
         ) : (
           <>
             <Route path='*' element={<Navigate to={ROUTES.LOGIN} />} />

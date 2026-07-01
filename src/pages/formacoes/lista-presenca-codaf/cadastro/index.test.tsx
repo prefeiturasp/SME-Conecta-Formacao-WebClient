@@ -186,7 +186,7 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
       });
 
       test('Deve ficar BLOQUEADO se formulário estiver inválido', () => {
-        const ui = simularEstadoUI('Admin DF', 2, true, false, false); // formValido = false
+        const ui = simularEstadoUI('Admin DF', 2, true, false, false);
         expect(ui.devolver.visivel).toBe(true);
         expect(ui.devolver.bloqueado).toBe(true);
       });

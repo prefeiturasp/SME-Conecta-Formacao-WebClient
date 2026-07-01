@@ -1,11 +1,10 @@
 import { Button, Col, DatePicker, Form, Modal, Row } from 'antd';
-import locale from 'antd/es/date-picker/locale/pt_BR';
+import locale from 'antd/lib/date-picker/locale/pt_BR';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import React from 'react';
 import InputNumero from '~/components/main/numero';
 import { notification } from '~/components/lib/notification';
-import { deletarRetificacao } from '~/core/services/codaf-lista-presenca-service';
 
 interface SecaoRetificacoesProps {
   retificacoes: number[];
@@ -23,6 +22,8 @@ interface SecaoRetificacoesProps {
   >;
   form: any;
   camposBaseadosBloqueados: boolean;
+  aoDeletarRetificacao: any;
+  podeAdicionarNovaRetificacao?: boolean;
 }
 
 type RetificacaoCardProps = {
@@ -139,8 +140,11 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
   setRetificacoesOriginais,
   form,
   camposBaseadosBloqueados,
+  aoDeletarRetificacao,
+  podeAdicionarNovaRetificacao
 }) => {
   const adicionarNovaRetificacao = () => {
+    if (!podeAdicionarNovaRetificacao) return;
     const novoContador = contadorRetificacoes + 1;
     setContadorRetificacoes(novoContador);
     setRetificacoes([...retificacoes, novoContador]);
@@ -177,7 +181,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
           const retificacaoOriginal = retificacoesOriginais.get(numero);
 
           if (retificacaoOriginal && retificacaoOriginal.id > 0) {
-            const response = await deletarRetificacao(retificacaoOriginal.id);
+            const response = await aoDeletarRetificacao(retificacaoOriginal.id);
             if (response.sucesso) {
               notification.success({
                 message: 'Sucesso',
@@ -245,7 +249,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
       <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
         <Col>
           <Button
-            disabled={camposBaseadosBloqueados}
+            disabled={camposBaseadosBloqueados || !podeAdicionarNovaRetificacao}
             type='default'
             icon={<PlusOutlined />}
             onClick={adicionarNovaRetificacao}
