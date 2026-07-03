@@ -1262,10 +1262,10 @@ describe('CodafListaPresencaService', () => {
 
       mockInserirRegistro.mockResolvedValueOnce(mockResponse as any);
 
-      const result = await emitirCertificadosCodaf(codafListaPresencaId);
+      const result = await emitirCertificadosCodaf(codafListaPresencaId, 1);
 
       expect(mockInserirRegistro).toHaveBeenCalledWith(
-        `v1/CodafCertificado/${codafListaPresencaId}/emitir`,
+        `v1/CodafCertificado/${codafListaPresencaId}/emitir?tipoCodaf=1`,
         {},
       );
       expect(result).toEqual(mockResponse);
