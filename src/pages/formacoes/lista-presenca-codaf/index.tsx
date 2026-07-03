@@ -54,6 +54,7 @@ import { downloadBlob } from '~/core/utils/functions';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
+import { TipoCodaf } from '~/core/enum/tipo-codaf';
 
 const ListaPresencaCodaf: React.FC = () => {
   const [form] = useForm();
@@ -146,7 +147,7 @@ const ListaPresencaCodaf: React.FC = () => {
       // 👇 SAVE immediately so refresh keeps state
       saveEmitido(record.id);
 
-      const response = await emitirCertificadosCodaf(record.id);
+      const response = await emitirCertificadosCodaf(record.id, TipoCodaf.ListaPresenca);
       forceUpdate((x) => x + 1);
       if (response.sucesso) {
         notification.success({
