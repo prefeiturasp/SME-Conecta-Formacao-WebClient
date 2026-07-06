@@ -106,7 +106,7 @@ const CertificadosPesquisa: React.FC = () => {
       key: 'documento',
       title: 'RF ou CPF',
       dataIndex: 'documento',
-      width: 1,
+      width: 160,
     },
     {
       key: 'dataEmissao',
