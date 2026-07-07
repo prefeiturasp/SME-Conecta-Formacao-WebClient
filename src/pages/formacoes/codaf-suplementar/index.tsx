@@ -39,12 +39,12 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import {
-  emitirCertificadosCodaf,
-  imprimirRelatorioCodaf,
+  emitirCertificadosCodaf
 } from '~/core/services/codaf-lista-presenca-service';
 import {
   baixarArquivoRemessaEol,
   CodafSuplementarDTO,
+  imprimirRelatorioCodafSuplementar,
   obterCodafSuplementar,
 } from '~/core/services/codaf-suplementar-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -434,7 +434,7 @@ const CodafSuplementar: React.FC = () => {
 
       try {
         setBusy(true);
-        const response = await imprimirRelatorioCodaf(record.id);
+        const response = await imprimirRelatorioCodafSuplementar(record.id);
 
         if (response.status !== 200) {
           throw new Error('Report download request failed');
