@@ -18,6 +18,8 @@ import { SecaoFormulario } from './componentes/secao-formulario';
 import { BannerComentarios } from './componentes/banner-comentarios';
 import DrawerAtualizacaoInscritos from '~/components/lib/drawer/atualizacao-inscritos/drawer-atualizacao-inscritos';
 import { InscritoAtualizacaoDTO } from '~/core/dto/atualizacao-inscritos-dto';
+import { TableRowSelection } from 'antd/es/table/interface';
+import { DrawerEdicaoLoteCursistas, DadosLoteCursistas } from './componentes/drawer-edicao-lote-cursistas';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -95,6 +97,56 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
     null,
   );
+  const [cursistasSelecionadosIds, setCursistasSelecionadosIds] = useState<number[]>([]);
+
+  const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
+  const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
+
+  const cursistasSelecionados = cursistas.filter((c) => cursistasSelecionadosIds.includes(c.id));
+
+  const algumSelecionadoComDados = cursistasSelecionados.some(
+    (c) => c.frequencia !== null || c.atividade !== null || c.conceitoFinal !== null || c.aprovado !== null,
+  );
+  const algumSelecionadoSemDados = cursistasSelecionados.some(
+    (c) => c.frequencia === null && c.atividade === null && c.conceitoFinal === null && c.aprovado === null,
+  );
+
+  const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 2;
+
+  const registrarDadosDesabilitado = !quantidadeMinimaSelecionada || algumSelecionadoComDados;
+  const editarDadosDesabilitado = !quantidadeMinimaSelecionada || !algumSelecionadoComDados || algumSelecionadoSemDados;
+
+  const onClickRegistrarDados = () => {
+    setDrawerLoteModo('registrar');
+    setDrawerLoteAberto(true);
+  };
+
+  const onClickEditarDados = () => {
+    setDrawerLoteModo('editar');
+    setDrawerLoteAberto(true);
+  };
+
+const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
+    const novaListaCursistas = cursistas.map((cursista) =>
+      cursistasSelecionadosIds.includes(cursista.id)
+        ? {
+            ...cursista,
+            frequencia: dados.frequencia,
+            atividade: dados.atividade,
+            conceitoFinal: dados.conceitoFinal,
+            aprovado: dados.aprovado,
+          }
+        : cursista,
+    );
+
+    const sucesso = await onClickSalvar(novaListaCursistas);
+
+    if (sucesso) {
+      setDrawerLoteAberto(false);
+      setCursistasSelecionadosIds([]);
+    }
+  };
+
   const [turmas, setTurmas] = useState<RetornoListagemDTO[]>([]);
   const [turmasFiltradas, setTurmasFiltradas] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
@@ -634,6 +686,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     },
   ];
 
+  const rowSelection: TableRowSelection<CursistaDTO> = {
+    selectedRowKeys: cursistasSelecionadosIds,
+    onChange: (selectedRowKeys) => {
+      setCursistasSelecionadosIds(selectedRowKeys as number[]);
+    },
+    preserveSelectedRowKeys: true,
+    getCheckboxProps: () => ({
+      disabled: bloqueios.campos.listaInscritos,
+    }),
+  };
+
   const onSearchFormacao = async (searchText: string) => {
     if (!searchText || searchText.length < 0) {
       setOpcoesFormacao([]);
@@ -850,10 +913,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     notification.error({ message: 'Erro', description: mensagemErro });
   };
 
-  const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
+  const onClickSalvar = async (inscritosOverride?: CursistaDTO[]): Promise<boolean> => {
     try {
       if (registroId && await houveAlteracaoInscritosAoSalvar(registroId)) {
-        return;
+        return false;
       }
 
       const values = await form.validateFields();
@@ -877,9 +940,18 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         if (registroIdAtual) {
           await atualizarDivergenciaPosSalvar(registroIdAtual);
         }
+
+        if (inscritosOverride) {
+          setCursistas(inscritosOverride);
+        }
+
+        return true;
       }
+
+      return false;
     } catch (error: any) {
       exibirErroSalvar(error);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -1541,7 +1613,22 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             registrosPorPaginaInscritos={registrosPorPaginaInscritos}
             totalRegistrosInscritos={totalRegistrosInscritos}
             handleTableChangeInscritos={handleTableChangeInscritos}
+            rowSelection={rowSelection}
+            quantidadeSelecionados={cursistasSelecionadosIds.length}
+            onClickRegistrarDados={onClickRegistrarDados}
+            onClickEditarDados={onClickEditarDados}
+            registrarDadosDesabilitado={registrarDadosDesabilitado}
+            editarDadosDesabilitado={editarDadosDesabilitado}
           />
+          <DrawerEdicaoLoteCursistas
+            open={drawerLoteAberto}
+            modo={drawerLoteModo}
+            quantidadeSelecionados={cursistasSelecionadosIds.length}
+            loading={false}
+            onClose={() => setDrawerLoteAberto(false)}
+            onConfirmar={onConfirmarDadosLote}
+          />
+
           <div style={{ display: ehAreaPromotoraEAdmin ? 'block' : 'none' }}>
             <SecaoRetificacoes
               retificacoes={retificacoes}
