@@ -1,0 +1,430 @@
+import {
+  alterarCodafSuplementar,
+  criarCodafSuplementar,
+  deletarRetificacao,
+  excluirCodafSuplementar,
+  fazerUploadAnexoCodaf,
+  obterCodafOriginal,
+  obterCodafSuplementar,
+  obterCodafSuplementarPorId,
+  URL_API_CODAF_SUPLEMENTAR,
+  CodafSuplementarFiltroDTO,
+  CriarCodafSuplementarDTO,
+  AlterarCodafSuplementarDTO,
+  InscritoDTO,
+  baixarArquivoRemessaEol,
+} from './codaf-suplementar-service';
+
+jest.mock('./api', () => ({
+  __esModule: true,
+  obterRegistro: jest.fn(),
+  inserirRegistro: jest.fn(),
+  alterarRegistro: jest.fn(),
+  deletarRegistro: jest.fn(),
+  ApiResult: jest.fn(),
+}));
+
+import { alterarRegistro, deletarRegistro, inserirRegistro, obterRegistro } from './api';
+
+const mockObterRegistro = obterRegistro as jest.MockedFunction<typeof obterRegistro>;
+const mockInserirRegistro = inserirRegistro as jest.MockedFunction<typeof inserirRegistro>;
+const mockAlterarRegistro = alterarRegistro as jest.MockedFunction<typeof alterarRegistro>;
+const mockDeletarRegistro = deletarRegistro as jest.MockedFunction<typeof deletarRegistro>;
+
+describe('CodafSuplementarService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('URL_API_CODAF_SUPLEMENTAR', () => {
+    test('deve ter a URL correta', () => {
+      expect(URL_API_CODAF_SUPLEMENTAR).toBe('v1/CodafSuplementar');
+    });
+  });
+
+  describe('obterCodafSuplementar', () => {
+    test('deve chamar obterRegistro com paginação padrão', async () => {
+      const filtros: CodafSuplementarFiltroDTO = {};
+
+      await obterCodafSuplementar(filtros);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(URL_API_CODAF_SUPLEMENTAR, {
+        params: {
+          NumeroPagina: 1,
+          NumeroRegistros: 10,
+        },
+      });
+    });
+
+    test('deve incluir filtros válidos', async () => {
+      const filtros: CodafSuplementarFiltroDTO = {
+        NomeFormacao: 'Formação Teste',
+        CodigoFormacao: 123,
+        NumeroHomologacao: 456,
+        PropostaTurmaId: 789,
+        AreaPromotoraId: 10,
+        Status: 0,
+        NumeroPagina: 2,
+        NumeroRegistros: 20,
+      };
+
+      await obterCodafSuplementar(filtros);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(URL_API_CODAF_SUPLEMENTAR, {
+        params: {
+          NomeFormacao: 'Formação Teste',
+          CodigoFormacao: 123,
+          NumeroHomologacao: 456,
+          PropostaTurmaId: 789,
+          AreaPromotoraId: 10,
+          Status: 0,
+          NumeroPagina: 2,
+          NumeroRegistros: 20,
+        },
+      });
+    });
+
+    test('não deve incluir DataEnvioDf para suplemento', async () => {
+      const filtros: CodafSuplementarFiltroDTO = {
+        DataEnvioDf: '2024-12-26',
+      };
+
+      await obterCodafSuplementar(filtros);
+
+      const params = mockObterRegistro.mock.calls[0][1]?.params;
+      expect(params).not.toHaveProperty('DataEnvioDf');
+    });
+
+    test('deve retornar o resultado da API', async () => {
+      const mockResponse = {
+        sucesso: true,
+        dados: {
+          items: [],
+          totalRegistros: 0,
+          totalPaginas: 0,
+        },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterCodafSuplementar({});
+
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('criarCodafSuplementar', () => {
+    test('deve chamar inserirRegistro com URL e payload', async () => {
+      const inscritos: InscritoDTO[] = [
+        {
+          inscricaoId: 1,
+          percentualFrequencia: 90,
+          conceitoFinal: 'S',
+          atividadeObrigatorio: true,
+          aprovado: true,
+        },
+      ];
+
+      const dados: CriarCodafSuplementarDTO = {
+        propostaId: 1,
+        propostaTurmaId: 10,
+        dataPublicacao: '2024-01-01',
+        dataPublicacaoDom: '2024-01-02',
+        numeroComunicado: 100,
+        paginaComunicadoDom: 5,
+        codigoCursoEol: 123,
+        codigoNivel: 1,
+        observacao: 'Observação',
+        inscritos,
+        codafId: 99,
+      };
+
+      const mockResponse = {
+        sucesso: true,
+        dados: { id: 1 },
+        mensagens: [],
+        status: 201,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await criarCodafSuplementar(dados);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(URL_API_CODAF_SUPLEMENTAR, dados);
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve enviar retificações e anexos quando informados', async () => {
+      const dados: CriarCodafSuplementarDTO = {
+        propostaId: 2,
+        propostaTurmaId: 20,
+        dataPublicacao: '2024-01-11',
+        dataPublicacaoDom: '2024-01-12',
+        numeroComunicado: 200,
+        paginaComunicadoDom: 8,
+        codigoCursoEol: 333,
+        codigoNivel: 2,
+        observacao: 'Com retificações e anexos',
+        inscritos: [
+          {
+            inscricaoId: 99,
+            percentualFrequencia: 75,
+            conceitoFinal: 'S',
+            atividadeObrigatorio: true,
+            aprovado: true,
+          },
+        ],
+        retificacoes: [
+          {
+            id: 0,
+            codafListaPresencaId: 0,
+            dataRetificacao: '2024-02-01',
+            paginaRetificacaoDom: 4,
+          },
+        ],
+        anexos: [
+          {
+            arquivoCodigo: 'arquivo-1',
+            nomeArquivo: 'arquivo.pdf',
+            tipoAnexoId: 3,
+          },
+        ],
+        codafId: 199,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce({
+        sucesso: true,
+        dados: { id: 2 },
+        mensagens: [],
+        status: 201,
+      } as any);
+
+      await criarCodafSuplementar(dados);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(URL_API_CODAF_SUPLEMENTAR, dados);
+    });
+  });
+
+  describe('obterCodafOriginal', () => {
+    test('deve chamar obterRegistro com rota de codaf original', async () => {
+      const codafId = 55;
+      const mockResponse = {
+        sucesso: true,
+        dados: {},
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterCodafOriginal(codafId);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/codaf/${codafId}`,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('obterCodafSuplementarPorId', () => {
+    test('deve chamar obterRegistro com rota por id', async () => {
+      const id = 77;
+      const mockResponse = {
+        sucesso: true,
+        dados: {},
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterCodafSuplementarPorId(id);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_API_CODAF_SUPLEMENTAR}/${id}`);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('alterarCodafSuplementar', () => {
+    test('deve chamar alterarRegistro com id e payload', async () => {
+      const id = 8;
+      const dados: AlterarCodafSuplementarDTO = {
+        codafId: 99,
+        dataPublicacao: '2024-01-01',
+        dataPublicacaoDom: '2024-01-02',
+        numeroComunicado: 100,
+        paginaComunicadoDom: 5,
+        codigoCursoEol: 123,
+        codigoNivel: 1,
+        observacao: 'Atualização',
+        inscritos: [
+          {
+            inscricaoId: 1,
+            percentualFrequencia: 100,
+            conceitoFinal: 'S',
+            atividadeObrigatorio: true,
+            aprovado: true,
+          },
+        ],
+      };
+
+      const mockResponse = {
+        sucesso: true,
+        dados: { id },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockAlterarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await alterarCodafSuplementar(id, dados);
+
+      expect(mockAlterarRegistro).toHaveBeenCalledWith(`${URL_API_CODAF_SUPLEMENTAR}/${id}`, dados);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('excluirCodafSuplementar', () => {
+    test('deve chamar deletarRegistro com id', async () => {
+      const id = 42;
+      const mockResponse = {
+        sucesso: true,
+        dados: true,
+        mensagens: [],
+        status: 200,
+      };
+
+      mockDeletarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await excluirCodafSuplementar(id);
+
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(`${URL_API_CODAF_SUPLEMENTAR}/${id}`);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('fazerUploadAnexoCodaf', () => {
+    test('deve chamar inserirRegistro com formData e configuração de header', async () => {
+      const formData = new FormData();
+      formData.append('arquivo', new Blob(['conteudo'], { type: 'text/plain' }), 'arquivo.txt');
+
+      const configuracaoHeader = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      const mockResponse = {
+        sucesso: true,
+        dados: {
+          arquivoCodigo: 'abc123',
+          nomeArquivo: 'arquivo.txt',
+          extensao: '.txt',
+          urlDownload: 'https://teste/arquivo.txt',
+          contentType: 'text/plain',
+          tamanhoBytes: 10,
+        },
+        mensagens: [],
+        status: 201,
+      };
+
+      mockInserirRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await fazerUploadAnexoCodaf(formData, configuracaoHeader);
+
+      expect(mockInserirRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/anexos/temporarios`,
+        formData,
+        configuracaoHeader,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('deletarRetificacao', () => {
+    test('deve deletar retificação por id number', async () => {
+      const id = 12;
+      const mockResponse = {
+        sucesso: true,
+        dados: true,
+        mensagens: [],
+        status: 200,
+      };
+
+      mockDeletarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await deletarRetificacao(id);
+
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/retificacoes/${id}`,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve deletar retificação por id string', async () => {
+      const id = '13';
+      const mockResponse = {
+        sucesso: true,
+        dados: true,
+        mensagens: [],
+        status: 200,
+      };
+
+      mockDeletarRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await deletarRetificacao(id);
+
+      expect(mockDeletarRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/retificacoes/${id}`,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+  describe('baixarArquivoRemessaEol', () => {
+    /**
+     * @description Ensures the function calls the API with the correct endpoint and an empty object payload
+     */
+    test('should call inserirRegistro with correct URL and empty payload', async () => {
+      // Arrange: Setup the input parameter and the expected mock response
+      const mockCodafSuplementarId: number = 999;
+      const expectedMockResponse = {
+        sucesso: true,
+        dados: 'url_or_base64_string_data',
+        mensagens: [],
+        status: 200,
+      };
+
+      // Mock the API behavior to resolve with our expected response
+      mockInserirRegistro.mockResolvedValueOnce(expectedMockResponse as any);
+
+      // Act: Call the service function
+      const result = await baixarArquivoRemessaEol(mockCodafSuplementarId);
+
+      // Assert: Verify if the internal API function was called correctly
+      expect(mockInserirRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_SUPLEMENTAR}/${mockCodafSuplementarId}/gerar-remessa-conclusao`,
+        {}
+      );
+      
+      // Assert: Verify if the final result matches what the API returned
+      expect(result).toEqual(expectedMockResponse);
+    });
+
+    /**
+     * @description Ensures the function handles API rejections/errors properly
+     */
+    test('should throw an error if inserirRegistro fails', async () => {
+      // Arrange
+      const mockCodafSuplementarId: number = 123;
+      const mockError = new Error('Network error');
+
+      // Mock the API behavior to reject the promise
+      mockInserirRegistro.mockRejectedValueOnce(mockError);
+
+      // Act & Assert: Call the function and expect it to reject with the given error
+      await expect(baixarArquivoRemessaEol(mockCodafSuplementarId)).rejects.toThrow('Network error');
+    });
+  });
+});

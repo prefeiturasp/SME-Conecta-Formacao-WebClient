@@ -13,4 +13,5 @@ export enum MenuEnum {
   Relatorios,
   RelatorioInscritosPorFormacao,
   Coordenadoria,
+  CodafSuplementar,
 }

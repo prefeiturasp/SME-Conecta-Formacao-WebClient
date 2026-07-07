@@ -4,6 +4,8 @@ import { PermissaoEnum } from '~/core/enum/permissao-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { MenuItemConectaProps } from '..';
 
+const isCodafSuplementarEnabled: boolean = !import.meta.env.PROD;
+
 export const MENU_FORMACOES: MenuItemConectaProps = {
   key: MenuEnum.Formacoes,
   title: 'Formações',
@@ -31,6 +33,21 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
         podeAlterar: PermissaoEnum.Inscricao_A,
       },
     },
+    ...(isCodafSuplementarEnabled
+      ? [
+          {
+            key: MenuEnum.CodafSuplementar,
+            title: 'CODAF Suplementar',
+            url: ROUTES.CODAF_SUPLEMENTAR,
+            roles: {
+              podeConsultar: PermissaoEnum.AreaPromotora_C,
+              podeIncluir: PermissaoEnum.AreaPromotora_I,
+              podeExcluir: PermissaoEnum.AreaPromotora_E,
+              podeAlterar: PermissaoEnum.AreaPromotora_A,
+            },
+          },
+        ]
+      : []),
     {
       key: MenuEnum.CertificadosPesquisa,
       title: 'Pesquisar certificados',

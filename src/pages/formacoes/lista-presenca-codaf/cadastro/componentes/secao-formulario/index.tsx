@@ -24,6 +24,7 @@ interface SecaoFormularioProps {
   turmasFiltradas: RetornoListagemDTO[];
   turmaDisabled: boolean;
   tooltipAberto: boolean;
+  exibirTooltipTurma?: boolean;
   ehPerfilDF: boolean;
   ehPerfilEMFORPEF: boolean;
   camposBloqueados: {
@@ -40,6 +41,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
   turmasFiltradas,
   turmaDisabled,
   tooltipAberto,
+  exibirTooltipTurma = true,
   ehPerfilDF,
   ehPerfilEMFORPEF,
   camposBloqueados
@@ -116,12 +118,14 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
               label={
                 <span>
                   Turma{' '}
-                  <Tooltip
-                    title='Não é possível selecionar uma turma já inserida em um CODAF'
-                    open={tooltipAberto || undefined}
-                  >
-                    <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
-                  </Tooltip>
+                  {exibirTooltipTurma && (
+                    <Tooltip
+                      title='Não é possível selecionar uma turma já inserida em um CODAF'
+                      open={tooltipAberto || undefined}
+                    >
+                      <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
+                    </Tooltip>
+                  )}
                 </span>
               }
               name='turmaId'
