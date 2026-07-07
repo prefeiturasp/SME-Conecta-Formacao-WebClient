@@ -39,8 +39,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import {
-  emitirCertificadosCodaf,
-  imprimirRelatorioCodaf,
+  emitirCertificadosCodaf
 } from '~/core/services/codaf-lista-presenca-service';
 import {
   baixarArquivoRemessaEol,
