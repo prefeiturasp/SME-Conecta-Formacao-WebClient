@@ -107,14 +107,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const algumSelecionadoComDados = cursistasSelecionados.some(
     (c) => c.frequencia !== null || c.atividade !== null || c.conceitoFinal !== null || c.aprovado !== null,
   );
-  const algumSelecionadoSemDados = cursistasSelecionados.some(
-    (c) => c.frequencia === null && c.atividade === null && c.conceitoFinal === null && c.aprovado === null,
-  );
 
   const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 2;
 
   const registrarDadosDesabilitado = !quantidadeMinimaSelecionada || algumSelecionadoComDados;
-  const editarDadosDesabilitado = !quantidadeMinimaSelecionada || !algumSelecionadoComDados || algumSelecionadoSemDados;
+  const editarDadosDesabilitado = !quantidadeMinimaSelecionada || !algumSelecionadoComDados;
 
   const onClickRegistrarDados = () => {
     setDrawerLoteModo('registrar');
