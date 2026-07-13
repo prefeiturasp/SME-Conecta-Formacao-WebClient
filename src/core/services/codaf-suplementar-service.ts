@@ -1,5 +1,5 @@
 import { CodafBaseDetalheDTO } from "../dto/codaf-base-detalhe-dto";
-import { alterarRegistro, ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from "./api";
+import api, { alterarRegistro, ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from "./api";
 import {
   CodafAnexoDTO,
   CodafAnexoTemporarioDTO,
@@ -141,3 +141,13 @@ export const baixarArquivoRemessaEol = (codafSuplementarId: number): Promise<Api
   inserirRegistro(`${URL_API_CODAF_SUPLEMENTAR}/${codafSuplementarId}/gerar-remessa-conclusao`,
     {},
   );
+
+export const imprimirRelatorioCodafSuplementar = (codafListaPresencaId: number) => {
+  return api.post(
+    `${URL_API_CODAF_SUPLEMENTAR}/${codafListaPresencaId}/imprimir`,
+    {},
+    {
+      responseType: 'blob',
+    },
+  );
+};
