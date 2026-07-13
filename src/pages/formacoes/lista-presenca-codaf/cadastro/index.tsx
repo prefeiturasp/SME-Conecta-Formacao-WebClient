@@ -56,6 +56,7 @@ import { onClickVoltar } from '~/core/utils/form';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { downloadBlob } from '~/core/utils/functions';
+import { extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
 
 interface CursistaDTO {
   id: number;
@@ -336,27 +337,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
     const aplicarRetificacoes = (dados: CodafListaPresencaDetalheDTO) => {
       if (!dados.retificacoes) return;
-      setRetificacoes(dados.retificacoes.map((_, index) => index + 1));
-      setContadorRetificacoes(dados.retificacoes.length);
+      const hydrationData = hydrateRetificacoesForm(form, dados.retificacoes);
 
-      const mapaRetificacoes = new Map<
-        number,
-        { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }
-      >();
-      dados.retificacoes.forEach((retificacao, index) => {
-        mapaRetificacoes.set(index + 1, retificacao);
-      });
-      setRetificacoesOriginais(mapaRetificacoes);
-
-      dados.retificacoes.forEach((retificacao, index) => {
-        const numeroFormatado = (index + 1).toString().padStart(2, '0');
-        form.setFieldsValue({
-          [`dataRetificacao${numeroFormatado}`]: retificacao.dataRetificacao
-            ? dayjs(retificacao.dataRetificacao)
-            : null,
-          [`paginaRetificacao${numeroFormatado}`]: retificacao.paginaRetificacaoDom,
-        });
-      });
+      if (hydrationData) {
+        setRetificacoesOriginais(hydrationData.retificacoesMap);
+        setRetificacoes(hydrationData.retificacaoKeys);
+        setContadorRetificacoes(hydrationData.contadorRetificacoes);
+      }
     };
 
     const carregarTurmas = async (dados: CodafListaPresencaDetalheDTO) => {
@@ -644,7 +631,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     try {
       const response = await autocompletarFormacao(searchText);
       if (response.sucesso && response.dados && response.dados.items) {
-        //setOpcoesFormacao(response.dados.items.filter(x=>x.numeroHomologacao===Number(searchText) && x.codigoFormacao === 131));
         setOpcoesFormacao(
           response.dados.items.sort((a, b) => a.numeroHomologacao - b.numeroHomologacao),
         );
@@ -731,26 +717,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
-
-  const montarRetificacoes = (values: any) =>
-    retificacoes
-      .map((numero) => {
-        const numeroFormatado = numero.toString().padStart(2, '0');
-        const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
-        const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
-        if (!dataRetificacao && !paginaRetificacao) return null;
-        const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
-        return {
-          id: retificacaoOriginal?.id ?? 0,
-          dataRetificacao: formatarData(dataRetificacao),
-          paginaRetificacaoDom: Number(paginaRetificacao) || 0,
-        };
-      })
-      .filter(
-        (r): r is { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number } =>
-          r !== null,
-      );
-
   const tratarRespostaSalvar = (response: any) => {
     if (response.sucesso) {
       formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
@@ -804,6 +770,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     console.log('Anexos mapeados para envio:', anexosMapeados);
 
     const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
+    const retificacoesPayload = extractRetificacoesPayload(
+      values, 
+      retificacoes, 
+      modoEdicao ? retificacoesOriginais : undefined
+    );
 
     return {
       propostaId: propostaSelecionada?.propostaId || 0,
@@ -823,7 +794,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         aprovado: cursista.aprovado ?? null,
       })),
       anexos: anexosMapeados,
-      retificacoes: montarRetificacoes(values),
+      retificacoes: retificacoesPayload,
     };
   };
 
@@ -1285,7 +1256,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
 
     const inscritosMapeadosParaDrawer: InscritoAtualizacaoDTO[] = novos.map((novo) => {
-      // PRESERVA OS DADOS SE O CARA JÁ TIVER SIDO PREENCHIDO ANTES DA COND. DE CORRIDA
       const salvoLocal = cursistas.find((c) => c.id === novo.id);
 
       let freq = salvoLocal?.frequencia?.toString() ?? (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
@@ -1372,7 +1342,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const onCloseModalComentario = () => {
     setModalComentarioVisible(false);
-    //setMostrarBanner(false);
   };
 
   const cursistasParaTabela = cursistas.filter((cursista) => {
@@ -1385,7 +1354,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   });
 
   const aoDeletarRetificacao = async (retificacaoKey: number) => {
-    await deletarRetificacao(retificacaoKey);
+    return await deletarRetificacao(retificacaoKey);
   }
 
   return (
