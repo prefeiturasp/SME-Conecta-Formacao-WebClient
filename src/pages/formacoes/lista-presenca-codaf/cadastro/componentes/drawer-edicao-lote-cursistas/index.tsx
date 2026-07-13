@@ -56,7 +56,7 @@ export const DrawerEdicaoLoteCursistas: React.FC<DrawerEdicaoLoteCursistasProps>
 
   const handleFinish = async (values: any) => {
     const frequenciaNumerica = Math.min(
-      parseInt(String(values.frequencia).replace(/\D/g, ''), 10),
+      Number.parseInt(String(values.frequencia).replaceAll(/\D/g, ''), 10),
       100,
     );
 
