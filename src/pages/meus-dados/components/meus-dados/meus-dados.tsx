@@ -23,6 +23,7 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { InputNome } from '~/components/main/input/nome';
 import InputUnidade from '~/components/main/input/unidade';
 import { TipoUsuario } from '~/core/enum/tipo-usuario';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { onClickVoltar } from '~/core/utils/form';
 import { maskTelefone } from '~/core/utils/functions';
@@ -71,9 +72,12 @@ const MeusDados: React.FC = () => {
   const [precisaDeAdaptacao, setPrecisaDeAdaptacao] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
+  const ehAreaPromotora = perfilNome !== TipoPerfilTagDisplay[TipoPerfilEnum.Cursista] && perfilNome !== TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
+  const ehCursista = perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
+
   const { meusDados } = useContext(MeusDadosContext);
   useEffect(() => {
-    const dadosFormatados = { 
+    const dadosFormatados = {
       ...meusDados,
       telefone: meusDados?.telefone ? maskTelefone(meusDados.telefone) : '',
     };
@@ -255,13 +259,17 @@ const MeusDados: React.FC = () => {
                 </Col>
                 <Col span={24}>
                   <Row wrap={false} align='middle'>
-                    <SelectTipoEmail
-                      selectProps={{ id: CF_SELECT_TIPO_EMAIL, disabled: true }}
-                      formItemProps={{
-                        style: { width: '100%', marginRight: '8px' },
-                        required: false,
-                      }}
-                    />
+                    {!ehAreaPromotora && !ehCursista ? (
+                      <SelectTipoEmail
+                        selectProps={{ id: CF_SELECT_TIPO_EMAIL, disabled: true }}
+                        formItemProps={{
+                          style: { width: '100%', marginRight: '8px' },
+                          required: false,
+                        }}
+                      />
+                    ) : (
+                      <></>
+                    )}
                     {meusDados?.tipo == TipoUsuario.Externo ? (
                       <ModalEditTipoEmailEducacionalButton formPreview={form} />
                     ) : (
