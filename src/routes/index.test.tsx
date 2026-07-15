@@ -2,11 +2,10 @@
  * @jest-environment jsdom
  */
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RoutesConfig from './index';
-import { useAppSelector } from '~/core/hooks/use-redux';
-import { scrollNoInicio } from '~/core/utils/functions';
+import { useAppSelector } from '../core/hooks/use-redux';
+import { scrollNoInicio } from '../core/utils/functions';
 
 jest.mock('~/core/hooks/use-redux', () => ({
   useAppSelector: jest.fn(),

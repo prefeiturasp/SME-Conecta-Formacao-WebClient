@@ -76,7 +76,7 @@ jest.mock('antd', () => {
       const childElement = React.createElement('input', {
         ...childProps,
         name,
-        defaultValue: fieldValue,
+        value: fieldValue,
         onChange: (event: any) => {
           const nextValue = event?.target?.value ?? event;
           setValues((current: any) => ({ ...current, [name]: nextValue }));

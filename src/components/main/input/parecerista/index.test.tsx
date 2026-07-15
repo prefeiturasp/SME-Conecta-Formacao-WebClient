@@ -71,12 +71,20 @@ describe('SelectPareceristas', () => {
     });
   });
 
-  it('deve carregar os pareceristas', async () => {
-    render(<SelectPareceristas />);
+  const renderComponent = async (props: Partial<React.ComponentProps<typeof SelectPareceristas>> = {}) => {
+    render(<SelectPareceristas {...props} />);
 
-    await waitFor(() =>
-      expect(obterPareceristas).toHaveBeenCalled()
-    );
+    await waitFor(() => {
+      expect(obterPareceristas).toHaveBeenCalled();
+    });
+  
+    await waitFor(() => {
+      expect(selectMock.mock.calls.length).toBeGreaterThan(1);
+    });
+  };
+
+  it('deve carregar os pareceristas', async () => {
+    await renderComponent();
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -103,7 +111,7 @@ describe('SelectPareceristas', () => {
       sucesso: false,
     });
 
-    render(<SelectPareceristas />);
+    await renderComponent();
 
     await waitFor(() =>
       expect(selectMock).toHaveBeenCalledWith(
@@ -114,8 +122,8 @@ describe('SelectPareceristas', () => {
     );
   });
 
-  it('deve configurar o Form.Item corretamente', () => {
-    render(<SelectPareceristas />);
+  it('deve configurar o Form.Item corretamente', async () => {
+    await renderComponent();
 
     expect(formItemMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -125,8 +133,8 @@ describe('SelectPareceristas', () => {
     );
   });
 
-  it('deve possuir regra obrigatória', () => {
-    render(<SelectPareceristas />);
+  it('deve possuir regra obrigatória', async () => {
+    await renderComponent();
 
     const props = formItemMock.mock.calls[0][0];
 
@@ -138,8 +146,8 @@ describe('SelectPareceristas', () => {
     ]);
   });
 
-  it('deve possuir id correto', () => {
-    render(<SelectPareceristas />);
+  it('deve possuir id correto', async () => {
+    await renderComponent();
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -148,8 +156,8 @@ describe('SelectPareceristas', () => {
     );
   });
 
-  it('deve configurar placeholder', () => {
-    render(<SelectPareceristas />);
+  it('deve configurar placeholder', async () => {
+    await renderComponent();
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -158,8 +166,8 @@ describe('SelectPareceristas', () => {
     );
   });
 
-  it('deve configurar modo multiple', () => {
-    render(<SelectPareceristas />);
+  it('deve configurar modo multiple', async () => {
+    await renderComponent();
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -168,8 +176,8 @@ describe('SelectPareceristas', () => {
     );
   });
 
-  it('deve configurar allowClear', () => {
-    render(<SelectPareceristas />);
+  it('deve configurar allowClear', async () => {
+    await renderComponent();
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -178,8 +186,8 @@ describe('SelectPareceristas', () => {
     );
   });
 
-  it('deve executar normalize retornando o novo valor', () => {
-    render(<SelectPareceristas />);
+  it('deve executar normalize retornando o novo valor', async () => {
+    await renderComponent();
 
     const props = formItemMock.mock.calls[0][0];
 
@@ -191,8 +199,8 @@ describe('SelectPareceristas', () => {
     expect(retorno).toEqual(['joao']);
   });
 
-  it('deve retornar o valor no getValueFromEvent', () => {
-    render(<SelectPareceristas />);
+  it('deve retornar o valor no getValueFromEvent', async () => {
+    await renderComponent();
 
     const props = formItemMock.mock.calls[0][0];
 
@@ -202,7 +210,7 @@ describe('SelectPareceristas', () => {
   });
 
   it('deve abrir confirmação ao desselecionar', async () => {
-    render(<SelectPareceristas />);
+    await renderComponent();
 
     const props = formItemMock.mock.calls[0][0];
 
@@ -210,7 +218,9 @@ describe('SelectPareceristas', () => {
       props.normalize(['joao'], ['maria']);
     });
 
-    fireEvent.click(document.querySelector('[data-testid="btn-deselect"]')!);
+    await act(async () => {
+      fireEvent.click(document.querySelector('[data-testid="btn-deselect"]')!);
+    });
 
     await waitFor(() =>
       expect(confirmacao).toHaveBeenCalledWith(
@@ -223,8 +233,8 @@ describe('SelectPareceristas', () => {
     );
   });
 
-it('deve restaurar valor ao cancelar confirmação', async () => {
-  render(<SelectPareceristas />);
+  it('deve restaurar valor ao cancelar confirmação', async () => {
+    await renderComponent();
 
   const props = formItemMock.mock.calls[0][0];
 
@@ -232,7 +242,9 @@ it('deve restaurar valor ao cancelar confirmação', async () => {
     props.normalize(['joao'], ['maria']);
   });
 
-  fireEvent.click(document.querySelector('[data-testid="btn-deselect"]')!);
+    await act(async () => {
+      fireEvent.click(document.querySelector('[data-testid="btn-deselect"]')!);
+    });
 
   await waitFor(() => {
     expect(confirmacao).toHaveBeenCalled();
@@ -240,7 +252,9 @@ it('deve restaurar valor ao cancelar confirmação', async () => {
 
   const { onCancel } = (confirmacao as jest.Mock).mock.calls[0][0];
 
-  onCancel();
+    act(() => {
+      onCancel();
+    });
 
   expect(formMock.setFieldValue).toHaveBeenCalledWith(
     'pareceristas',
@@ -248,17 +262,15 @@ it('deve restaurar valor ao cancelar confirmação', async () => {
   );
 });
 
-  it('deve repassar selectProps', () => {
+  it('deve repassar selectProps', async () => {
     const onChange = jest.fn();
 
-    render(
-      <SelectPareceristas
-        selectProps={{
-          disabled: true,
-          onChange,
-        }}
-      />
-    );
+    await renderComponent({
+      selectProps: {
+        disabled: true,
+        onChange,
+      },
+    });
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -268,14 +280,12 @@ it('deve restaurar valor ao cancelar confirmação', async () => {
     );
   });
 
-  it('deve repassar formItemProps', () => {
-    render(
-      <SelectPareceristas
-        formItemProps={{
-          required: false,
-        }}
-      />
-    );
+  it('deve repassar formItemProps', async () => {
+    await renderComponent({
+      formItemProps: {
+        required: false,
+      },
+    });
 
     expect(formItemMock).toHaveBeenCalledWith(
       expect.objectContaining({

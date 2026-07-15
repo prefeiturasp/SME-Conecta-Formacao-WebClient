@@ -92,7 +92,6 @@ const DataTableArquivosImportados = forwardRef(
 
     return (
       <Table
-        ref={ref as any}
         bordered
         rowKey='id'
         size='small'

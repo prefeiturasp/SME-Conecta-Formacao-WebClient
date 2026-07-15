@@ -41,7 +41,7 @@ const mockFormInstance = {
 };
 
 jest.mock('antd', () => {
-  const MockForm = ({ children }: any) => <form>{children}</form>;
+  const MockForm = ({ children }: any) => <div>{children}</div>;
   MockForm.Item = ({ children }: any) => <div>{children}</div>;
 
   return {
@@ -88,7 +88,7 @@ jest.mock('~/components/lib/modal', () => ({
   __esModule: true,
   default: ({ children, onCancel }: any) => (
     <div>
-      <button data-testid='fechar' onClick={onCancel}>
+      <button type='button' data-testid='fechar' onClick={onCancel}>
         Fechar
       </button>
       {children}
@@ -98,7 +98,7 @@ jest.mock('~/components/lib/modal', () => ({
 
 jest.mock('./modal-aprovar-recusar-conteudo-inicial', () => ({
   ModalAprovarRecusarConteudoInicial: ({ onClickSalvar }: any) => (
-    <button data-testid='salvar' onClick={onClickSalvar}>
+    <button type='button' data-testid='salvar' onClick={onClickSalvar}>
       Salvar
     </button>
   ),

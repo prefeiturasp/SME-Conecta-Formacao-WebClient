@@ -91,7 +91,7 @@ jest.mock('antd', () => {
   }: SelectMockProps) => (
     <select
       aria-label={placeholder}
-      defaultValue=''
+      value=''
       onChange={(event) => onChange?.(event.target.value)}
     >
       <option value='' disabled>
