@@ -84,9 +84,9 @@ describe('InputCodigoEolUE', () => {
       dados: { nomeUnidade: 'Unidade Teste' },
     });
 
-    const { getByRole } = setup();
+    const { getByPlaceholderText } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByPlaceholderText('Informe o código EOL da unidade');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
@@ -96,9 +96,9 @@ describe('InputCodigoEolUE', () => {
   });
 
   it('não deve chamar service no onSearch com valor vazio', async () => {
-    const { getByRole } = setup();
+    const { getByPlaceholderText } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByPlaceholderText('Informe o código EOL da unidade');
     fireEvent.keyDown(input, { target: { value: '' }, key: 'Enter', code: 'Enter' });
 
     await waitFor(() => {
@@ -126,9 +126,9 @@ describe('InputCodigoEolUE', () => {
   });
 
   it('deve limpar nomeUnidade ao digitar no input', async () => {
-    const { getByRole } = setup();
+    const { getByPlaceholderText } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByPlaceholderText('Informe o código EOL da unidade');
     fireEvent.change(input, { target: { value: 'abc' } });
 
     await waitFor(() => {
@@ -143,9 +143,9 @@ describe('InputCodigoEolUE', () => {
       dados: { nomeUnidade: 'Unidade XYZ' },
     });
 
-    const { getByRole } = setup({ desativarBotaoAlterar: desativarMock });
+    const { getByPlaceholderText } = setup({ desativarBotaoAlterar: desativarMock });
 
-    const input = getByRole('searchbox');
+    const input = getByPlaceholderText('Informe o código EOL da unidade');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
@@ -174,9 +174,9 @@ describe('InputCodigoEolUE', () => {
       })
     );
 
-    const { getByRole } = setup();
+    const { getByPlaceholderText } = setup();
 
-    const input = getByRole('searchbox');
+    const input = getByPlaceholderText('Informe o código EOL da unidade');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
