@@ -32,7 +32,6 @@ import {
   excluirCodafSuplementar,
   InscritoDetalheDTO,
   InscritoDTO,
-  RetificacaoDTO,
   fazerUploadAnexoCodaf,
   obterCodafOriginal,
   obterCodafSuplementarPorId,
@@ -50,6 +49,7 @@ import {
 import SecaoRetificacoes from '../../lista-presenca-codaf/cadastro/componentes/secao-retificacoes/secao-retificacoes';
 import { SecaoAnexos } from '../../lista-presenca-codaf/cadastro/componentes/secao-anexos';
 import ModalExcluir from '../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir';
+import { extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
 
 export interface CursistaDTO {
   inscricaoId: number;
@@ -225,44 +225,6 @@ function preencherFormularioComDetalhes(
   }
 }
 
-function montarDadosRetificacoes(
-  form: FormInstance<CodafFormValues>,
-  dados: CodafSuplementarDetalheDTO,
-) {
-  if (!dados.retificacoes || dados.retificacoes.length === 0) {
-    return null;
-  }
-
-  const retificacoesMap = new Map<
-    number,
-    { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }
-  >();
-
-  dados.retificacoes.forEach((retificacao, index) => {
-    const key = index + 1;
-
-    retificacoesMap.set(key, {
-      id: retificacao.id,
-      dataRetificacao: retificacao.dataRetificacao,
-      paginaRetificacaoDom: retificacao.paginaRetificacaoDom,
-    });
-
-    const retificacaoFieldName = `retificacao_${key}`;
-    form.setFieldsValue({
-      [retificacaoFieldName]: {
-        dataRetificacao: retificacao.dataRetificacao ? dayjs(retificacao.dataRetificacao) : null,
-        paginaRetificacaoDom: retificacao.paginaRetificacaoDom,
-      },
-    });
-  });
-
-  return {
-    retificacoesMap,
-    retificacaoKeys: Array.from(retificacoesMap.keys()),
-    contadorRetificacoes: retificacoesMap.size,
-  };
-}
-
 function normalizeDocument(value: string | number) {
   return String(value).replace(/\D/g, '');
 }
@@ -385,7 +347,6 @@ const CadastroCodafSuplementar: React.FC = () => {
   const [retificacoesOriginais, setRetificacoesOriginais] = useState<
     Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
   >(new Map());
-  const [podeAdicionarNovaRetificacao, setPodeAdicionarNovaRetificacao] = useState(true);
 
   const viewState = {
     isStarted: currentStatus === 1,
@@ -429,11 +390,12 @@ const CadastroCodafSuplementar: React.FC = () => {
         setCodafId(dados.codafId);
         preencherFormularioComDetalhes(form, dados);
 
-        const retificacoesData = montarDadosRetificacoes(form, dados);
-        if (retificacoesData) {
-          setRetificacoesOriginais(retificacoesData.retificacoesMap);
-          setRetificacoes(retificacoesData.retificacaoKeys);
-          setContadorRetificacoes(retificacoesData.contadorRetificacoes);
+        const hydrationData = hydrateRetificacoesForm(form, dados.retificacoes);
+
+        if (hydrationData) {
+          setRetificacoesOriginais(hydrationData.retificacoesMap);
+          setRetificacoes(hydrationData.retificacaoKeys);
+          setContadorRetificacoes(hydrationData.contadorRetificacoes);
         }
 
         if (dados.inscritos && dados.inscritos.length > 0) {
@@ -570,35 +532,6 @@ const CadastroCodafSuplementar: React.FC = () => {
     }
   };
 
-  const construirRetificacoes = (values: CodafFormValues): RetificacaoDTO[] =>
-    retificacoes
-      .map((numero) => {
-        const numeroFormatado = numero.toString().padStart(2, '0');
-        const rawDataRetificacao = values[`dataRetificacao${numeroFormatado}`];
-        const rawPaginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
-        const dataRetificacao =
-          rawDataRetificacao instanceof Date || dayjs.isDayjs(rawDataRetificacao)
-            ? rawDataRetificacao
-            : null;
-        const paginaRetificacao =
-          typeof rawPaginaRetificacao === 'number' || typeof rawPaginaRetificacao === 'string'
-            ? rawPaginaRetificacao
-            : null;
-
-        if (!dataRetificacao && !paginaRetificacao) return null;
-        const retificacaoOriginal = isEditing ? retificacoesOriginais.get(numero) : null;
-
-        return {
-          id: retificacaoOriginal?.id ?? 0,
-          dataRetificacao: formatarData(dataRetificacao),
-          paginaRetificacaoDom: Number(paginaRetificacao) || 0,
-        };
-      })
-      .filter(
-        (r): r is { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number } =>
-          r !== null,
-      );
-
   const onAdicionarCursista = (novosCursistas: DadosInscricaoCursistaDTO[]) => {
     const cursistasParaAdicionar = novosCursistas.filter((novoCursista) => {
       const documentoNovo = normalizeDocument(novoCursista.documento);
@@ -679,6 +612,12 @@ const CadastroCodafSuplementar: React.FC = () => {
       atividadeObrigatorio: resolveAtividade(c.atividade),
       aprovado: c.aprovado ?? null,
     }));
+    
+    const retificacoesPayload = extractRetificacoesPayload(
+      formValues, 
+      retificacoes, 
+      isEditing ? retificacoesOriginais : undefined
+    );
 
     return {
       propostaId: propostaSelecionada?.propostaId || 0,
@@ -693,7 +632,7 @@ const CadastroCodafSuplementar: React.FC = () => {
       inscritos: mappedAttendees,
       anexos: mappedAttachments,
       codafId: codafId ?? 0,
-      retificacoes: construirRetificacoes(formValues),
+      retificacoes: retificacoesPayload,
     };
   };
 
@@ -830,12 +769,8 @@ const CadastroCodafSuplementar: React.FC = () => {
   };
 
   const aoDeletarRetificacao = async (retificacaoKey: number) => {
-    await deletarRetificacao(retificacaoKey);
+    return await deletarRetificacao(retificacaoKey);
   };
-
-  useEffect(() => {
-    setPodeAdicionarNovaRetificacao(contadorRetificacoes < 2);
-  }, [contadorRetificacoes]);
 
   return (
     <Col>
@@ -895,7 +830,7 @@ const CadastroCodafSuplementar: React.FC = () => {
               form={form}
               camposBaseadosBloqueados={false}
               aoDeletarRetificacao={aoDeletarRetificacao}
-              podeAdicionarNovaRetificacao={podeAdicionarNovaRetificacao}
+              podeAdicionarNovaRetificacao={retificacoes.length < 2}
             />
           </div>
           

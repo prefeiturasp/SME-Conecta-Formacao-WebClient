@@ -205,7 +205,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
       render: (freq: number | null, registro: CursistaDTO) => (
         <Input
           value={freq !== null ? `${freq}%` : ''}
-          placeholder='85%'
+          placeholder='%'
           onChange={(e) => handleFrequenciaChange(registro.inscricaoId, e.target.value)}
           style={{ width: '100%' }}
           maxLength={4}
