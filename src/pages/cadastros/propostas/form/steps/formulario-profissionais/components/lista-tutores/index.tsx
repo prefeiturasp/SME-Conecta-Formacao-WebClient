@@ -1,6 +1,6 @@
 import { Button, Col, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import { CF_BUTTON_ADD_TUTOR } from '~/core/constants/ids/button/intex';
@@ -30,9 +30,12 @@ const ListaTutores: React.FC<ListaTutoresProps> = ({ recarregarTurmas }) => {
   const [dadosTutorSelecionado, setDadosTutorSelecionado] = useState<PropostaTutorDTO>();
 
   const id = paramsRoute?.id || 0;
-  if (recarregarTurmas) {
-    refTable.current?.reloadTable();
-  }
+
+  useEffect(() => {
+    if (recarregarTurmas) {
+      refTable.current?.reloadTable();
+    }
+  }, [recarregarTurmas]);
 
   const abrirModal = () => {
     setDadosTutorSelecionado(undefined);

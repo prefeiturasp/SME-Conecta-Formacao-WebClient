@@ -52,6 +52,15 @@ const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
         onConfirm(coordenadoria);
     }
 
+    const salvar = async () => {
+        try {
+            const values = await form.validateFields();
+            handleConfirm(values);
+        } catch {
+            // Mantém a validação do formulário sem acionar submit nativo.
+        }
+    };
+
     const customFooter = (
         <div style={{ display: 'flex', justifyContent: modoEdicao ? 'space-between' : 'flex-end', alignItems: 'center', width: '100%' }}>
             
@@ -99,7 +108,7 @@ const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
                     Cancelar
                 </Button>
                 <Button
-                    onClick={() => form.submit()}
+                    onClick={salvar}
                     loading={loading}
                     style={{
                         height: "40px",
@@ -166,7 +175,7 @@ const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
                 onCancel={onCancel}
                 centered
                 width={600}
-                onOk={() => form.submit()}
+                onOk={salvar}
                 okText="Salvar"
                 cancelText="Cancelar"
                 confirmLoading={loading}
@@ -198,7 +207,7 @@ const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
                             { required: true, message: "Campo obrigatório" },
                         ]}
                     >
-                        <Input placeholder="Digite o nome da coordenadoria" size="large" onPressEnter={() => form.submit()} />
+                        <Input placeholder="Digite o nome da coordenadoria" size="large" onPressEnter={salvar} />
                     </Form.Item>
 
                     <Form.Item
@@ -209,7 +218,7 @@ const ModalSalvarCoordenadoria: React.FC<ModalSalvarCoordenadoriaProps> = ({
                             </span>
                         }
                     >
-                        <Input placeholder="Digite a sigla" size="large" onPressEnter={() => form.submit()} />
+                        <Input placeholder="Digite a sigla" size="large" onPressEnter={salvar} />
                     </Form.Item>
                 </Form>
             </Modal>

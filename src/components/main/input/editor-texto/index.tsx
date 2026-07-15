@@ -29,6 +29,8 @@ const EditorTexto: FC<EditorTextoProps> = ({
     placeholder: label || '',
     disabled,
   };
+  const form = Form.useFormInstance();
+  const temErro = !!form.getFieldError(nome)?.length;
 
   const iconTooltip = exibirTooltip ? (
     <Tooltip>
@@ -38,25 +40,17 @@ const EditorTexto: FC<EditorTextoProps> = ({
     <></>
   );
   return (
-    <Form.Item shouldUpdate>
-      {(form) => {
-        const temErro = !!form.getFieldError(nome)?.length;
-
-        return (
-          <Form.Item
-            name={nome}
-            label={label}
-            rules={[{ required, message: mensagemErro || 'Campo obrigatório' }]}
-            tooltip={{
-              title: mensagemTooltip,
-              icon: iconTooltip,
-            }}
-            {...formItemProps}
-          >
-            <JoditEditorSME hasError={temErro} config={config} />
-          </Form.Item>
-        );
+    <Form.Item
+      name={nome}
+      label={label}
+      rules={[{ required, message: mensagemErro || 'Campo obrigatório' }]}
+      tooltip={{
+        title: mensagemTooltip,
+        icon: iconTooltip,
       }}
+      {...formItemProps}
+    >
+      <JoditEditorSME hasError={temErro} config={config} />
     </Form.Item>
   );
 };

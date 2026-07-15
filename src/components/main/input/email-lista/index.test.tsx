@@ -21,8 +21,8 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 });
 
-jest.mock('../email', () => (props: any) => {
-  return <input data-testid="input-email" {...props} />;
+jest.mock('../email', () => ({ inputProps, ...props }: any) => {
+  return <input data-testid="input-email" {...inputProps} />;
 });
 
 jest.mock('react-icons/fa', () => ({

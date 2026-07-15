@@ -21,10 +21,8 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { setDadosLogin } from '~/core/redux/modules/auth/actions';
 import { setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
 import { setSpinning } from '~/core/redux/modules/spin/actions';
-import { onClickVoltar } from '~/core/utils/form';
 import TokenExpirado from './token-expirado';
 import Spin from '~/components/main/spin';
-import { store } from '~/core/redux';
 import { setDeslogar } from '~/core/redux/modules/auth/actions';
 
 const RedefinirSenhaToken = () => {
@@ -83,7 +81,7 @@ const RedefinirSenhaToken = () => {
   }, [token]);
 
   useEffect(() => {
-    store.dispatch(setDeslogar());
+    dispatch(setDeslogar());
     if (token) validarToken();
   }, [token, validarToken]);
 
@@ -103,7 +101,7 @@ const RedefinirSenhaToken = () => {
       .finally(() => dispatch(setSpinning(false)));
   };
 
-  if (!validandoToken && !tokenValido) return <TokenExpirado />;
+  if (!validandoToken && !tokenValido && !erroGeral) return <TokenExpirado />;
 
   return (
     <Col span={14}>
@@ -158,7 +156,7 @@ const RedefinirSenhaToken = () => {
                   type='default'
                   block
                   style={{ fontWeight: 700 }}
-                  onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
+                  onClick={() => navigate(ROUTES.PRINCIPAL)}
                   id={CF_BUTTON_VOLTAR}
                 >
                   Voltar
@@ -175,7 +173,7 @@ const RedefinirSenhaToken = () => {
             </Row>
           </Form>
         ) : (
-          <></>
+          <>{erroGeral ? <ErroGeralLogin erros={erroGeral} /> : <></>}</>
         )}
       </Spin>
     </Col>
