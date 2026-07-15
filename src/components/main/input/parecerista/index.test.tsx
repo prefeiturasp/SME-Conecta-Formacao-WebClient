@@ -72,7 +72,10 @@ describe('SelectPareceristas', () => {
   });
 
   const renderComponent = async (props: Partial<React.ComponentProps<typeof SelectPareceristas>> = {}) => {
-    render(<SelectPareceristas {...props} />);
+    await act(async () => {
+      render(<SelectPareceristas {...props} />);
+      await Promise.resolve();
+    });
 
     await waitFor(() => {
       expect(obterPareceristas).toHaveBeenCalled();

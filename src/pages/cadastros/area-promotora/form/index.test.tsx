@@ -6,6 +6,7 @@ declare const require: any;
 
 import '@testing-library/jest-dom';
 import {
+  act,
   render,
   screen,
   fireEvent,
@@ -45,7 +46,7 @@ jest.mock('antd', () => {
   Form.Item = ({ children }: any) =>
     React.createElement('div', null, typeof children === 'function' ? children() : children);
 
-  const Button = ({ children, htmlType, ...rest }: any) =>
+  const Button = ({ children, htmlType, block, ...rest }: any) =>
     React.createElement(
       'button',
       { type: htmlType === 'submit' ? 'submit' : 'button', ...rest },
@@ -55,7 +56,7 @@ jest.mock('antd', () => {
   const Col = ({ children }: any) => React.createElement('div', null, children);
   const Row = ({ children }: any) => React.createElement('div', null, children);
   const Input = (props: any) => React.createElement('input', props);
-  const Select = ({ children, ...rest }: any) => React.createElement('select', rest, children);
+  const Select = ({ children, allowClear, ...rest }: any) => React.createElement('select', rest, children);
   Select.Option = ({ children, value }: any) => React.createElement('option', { value }, children);
 
   return {
@@ -176,6 +177,21 @@ const deletarMock =
 
 describe('FormCadastrosAreaPromotora',()=>{
 
+const renderComponent = async () => {
+ await act(async () => {
+  render(
+   <FormCadastrosAreaPromotora/>
+  );
+
+  await Promise.resolve();
+ });
+
+ await waitFor(()=>{
+  expect(obterTiposMock)
+   .toHaveBeenCalled();
+ });
+};
+
 beforeEach(()=>{
 
  jest.clearAllMocks();
@@ -201,9 +217,7 @@ beforeEach(()=>{
 });
 
 it('deve renderizar tela de cadastro',async()=>{
-render(
- <FormCadastrosAreaPromotora/>
-);
+await renderComponent();
 expect(
  screen.getByText(
   'Cadastro da Área Promotora'
@@ -232,9 +246,7 @@ obterAreaMock.mockResolvedValue({
  }
 });
 
-render(
- <FormCadastrosAreaPromotora/>
-);
+await renderComponent();
 
 await waitFor(()=>{
 
@@ -252,9 +264,7 @@ expect(
 });
 
 it('deve inserir área promotora',async()=>{
-render(
- <FormCadastrosAreaPromotora/>
-);
+await renderComponent();
 const form =
  screen.getByText('Salvar')
  .closest('button');
@@ -284,6 +294,11 @@ alterarMock.mockResolvedValue({
 render(
  <FormCadastrosAreaPromotora/>
 );
+
+await waitFor(()=>{
+ expect(obterTiposMock)
+  .toHaveBeenCalled();
+});
 
 await waitFor(()=>{
 
@@ -317,6 +332,11 @@ deletarMock.mockResolvedValue({
 render(
  <FormCadastrosAreaPromotora/>
 );
+
+await waitFor(()=>{
+ expect(obterTiposMock)
+  .toHaveBeenCalled();
+});
 
 fireEvent.click(
  screen.getByText('Excluir')
