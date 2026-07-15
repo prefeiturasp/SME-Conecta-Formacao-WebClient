@@ -1,5 +1,5 @@
 import { Button, Col, DatePicker, Form, Row, Select, Table } from 'antd';
-import locale from 'antd/es/date-picker/locale/pt_BR';
+import locale from 'antd/lib/date-picker/locale/pt_BR';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { FiDownload } from 'react-icons/fi';

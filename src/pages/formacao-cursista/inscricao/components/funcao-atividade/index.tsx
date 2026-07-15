@@ -20,22 +20,19 @@ const SelectFuncaoAtividade: React.FC<SelectFuncaoAtividadeProps> = ({
         const usuarioCargoSelecionado = form.getFieldsValue(true)?.usuarioCargoSelecionado;
         const usuarioCargos = form.getFieldsValue(true)?.usuarioCargos;
 
-        const usuarioFuncoes: any = [];
         let options = [];
 
         if (usuarioCargoSelecionado) {
           const usuarioCargo = usuarioCargos?.find(
             (item: any) => item?.codigo === usuarioCargoSelecionado,
           );
-          options = usuarioCargo?.funcoes?.length ? usuarioCargo?.funcoes : [];
-        }
-
-        if (usuarioFuncoes?.length) {
-          options = usuarioFuncoes.map((item: any) => ({
-            ...item,
-            label: item.descricao,
-            value: item.codigo,
-          }));
+          options = usuarioCargo?.funcoes?.length
+            ? usuarioCargo.funcoes.map((item: any) => ({
+                ...item,
+                label: item.descricao,
+                value: item.codigo,
+              }))
+            : [];
         }
 
         return (

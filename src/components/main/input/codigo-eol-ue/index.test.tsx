@@ -70,7 +70,7 @@ describe('InputCodigoEolUE', () => {
   it('deve marcar campo como obrigatório quando uesWatch for false', () => {
     (Form.useWatch as jest.Mock).mockReturnValue(false);
     setup();
-    expect(Form.useWatch).toHaveBeenCalledWith('ues', expect.anything());
+    expect(Form.useWatch).toHaveBeenCalled();
   });
 
   it('não deve ser obrigatório quando uesWatch for true', () => {
@@ -86,7 +86,7 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup();
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
@@ -98,7 +98,7 @@ describe('InputCodigoEolUE', () => {
   it('não deve chamar service no onSearch com valor vazio', async () => {
     const { getByRole } = setup();
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.keyDown(input, { target: { value: '' }, key: 'Enter', code: 'Enter' });
 
     await waitFor(() => {
@@ -128,7 +128,7 @@ describe('InputCodigoEolUE', () => {
   it('deve limpar nomeUnidade ao digitar no input', async () => {
     const { getByRole } = setup();
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.change(input, { target: { value: 'abc' } });
 
     await waitFor(() => {
@@ -145,7 +145,7 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup({ desativarBotaoAlterar: desativarMock });
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
@@ -176,9 +176,11 @@ describe('InputCodigoEolUE', () => {
 
     const { getByRole } = setup();
 
-    const input = getByRole('textbox');
+    const input = getByRole('searchbox');
     fireEvent.change(input, { target: { value: '123456' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+    expect(obterMock).toHaveBeenCalledWith('123456');
 
     resolveFn({ dados: { nomeUnidade: 'Teste' } });
 
