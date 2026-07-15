@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import DataTableOrdenacao from './index';
 import { TipoOrdenacaoEnum } from '../../../core/enum/tipo-ordenacao';
 
@@ -122,7 +122,9 @@ describe('DataTableOrdenacao', () => {
       expect(apiGetMock).toHaveBeenCalledTimes(1);
     });
 
-    fireEvent.click(getByTestId('ordenacao'));
+    await act(async () => {
+      fireEvent.click(getByTestId('ordenacao'));
+    });
 
     await waitFor(() => {
       expect(apiGetMock).toHaveBeenCalledTimes(2);
@@ -136,7 +138,9 @@ describe('DataTableOrdenacao', () => {
       expect(apiGetMock).toHaveBeenCalledTimes(1);
     });
 
-    fireEvent.click(getByTestId('change-page'));
+    await act(async () => {
+      fireEvent.click(getByTestId('change-page'));
+    });
 
     await waitFor(() => {
       expect(apiGetMock).toHaveBeenCalledTimes(2);

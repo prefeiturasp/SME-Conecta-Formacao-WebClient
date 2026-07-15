@@ -31,13 +31,17 @@ describe('SelectCargoFuncao', () => {
     jest.clearAllMocks();
   });
 
-  it('deve renderizar o select', () => {
+  it('deve renderizar o select', async () => {
     obterCargosFuncoesMock.mockResolvedValue({
       sucesso: true,
       dados: [],
     } as any);
 
     render(<SelectCargoFuncao />);
+
+    await waitFor(() => {
+      expect(obterCargosFuncoesMock).toHaveBeenCalled();
+    });
 
     expect(screen.getByTestId('select-cargo-funcao')).toBeInTheDocument();
   });
@@ -82,7 +86,7 @@ describe('SelectCargoFuncao', () => {
     });
   });
 
-  it('deve repassar selectProps', () => {
+  it('deve repassar selectProps', async () => {
     obterCargosFuncoesMock.mockResolvedValue({
       sucesso: true,
       dados: [],
@@ -99,6 +103,10 @@ describe('SelectCargoFuncao', () => {
       />,
     );
 
+    await waitFor(() => {
+      expect(obterCargosFuncoesMock).toHaveBeenCalled();
+    });
+
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
         disabled: true,
@@ -107,7 +115,7 @@ describe('SelectCargoFuncao', () => {
     );
   });
 
-  it('deve aceitar formItemProps', () => {
+  it('deve aceitar formItemProps', async () => {
     obterCargosFuncoesMock.mockResolvedValue({
       sucesso: true,
       dados: [],
@@ -121,6 +129,10 @@ describe('SelectCargoFuncao', () => {
         }}
       />,
     );
+
+    await waitFor(() => {
+      expect(obterCargosFuncoesMock).toHaveBeenCalled();
+    });
 
     expect(screen.getByTestId('select-cargo-funcao')).toBeInTheDocument();
   });

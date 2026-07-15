@@ -9,13 +9,13 @@ interface ButtonEditParams {
   onClickEditar: () => void;
 }
 
-const ButtonEditContainer = styled.div<ButtonEditParams>`
+const ButtonEditContainer = styled.div<{ $podeEditar?: boolean }>`
   border: none;
   border-radius: 4px;
-  cursor: ${(props) => props?.podeEditar ? 'pointer' : 'not-allowed'} pointer;
+  cursor: ${(props) => (props?.$podeEditar ? 'pointer' : 'not-allowed')};
   height: 32px;
   width: 32px;
-  color: ${(props) => props?.podeEditar ? props.theme?.token?.colorPrimary : '#f0f0f0'};
+  color: ${(props) => (props?.$podeEditar ? props.theme?.token?.colorPrimary : '#f0f0f0')};
 `;
 
 export const styleIcon: React.CSSProperties = {
@@ -24,15 +24,16 @@ export const styleIcon: React.CSSProperties = {
   fontSize: '16px'
 }
 
-export const ButtonEdit: React.FC<ButtonEditParams> = ({ ...res }) =>(
-  <Tooltip placement='top' destroyTooltipOnHide title={ res.descricaoTooltip }>
+export const ButtonEdit: React.FC<ButtonEditParams> = ({ descricaoTooltip, podeEditar, onClickEditar }) =>(
+  <Tooltip placement='top' destroyTooltipOnHide title={ descricaoTooltip }>
     <span>
       <ButtonEditContainer
         onClick={ () => {
-          if (res.podeEditar)
-            res.onClickEditar();
+          if (podeEditar) {
+            onClickEditar();
+          }
         }}
-        {...res}>
+        $podeEditar={podeEditar}>
           <FaEdit style={styleIcon} />
       </ButtonEditContainer>
     </span>

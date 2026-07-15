@@ -8,7 +8,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ModalAprovarRecusarButton } from './modal-aprovar-recusar-button';
 
 jest.mock('~/components/lib/button/primary', () => ({
-  ButtonPrimary: ({ children, onClick, disabled, id, ...props }: any) => (
+  ButtonPrimary: ({ children, onClick, disabled, id, block, ...props }: any) => (
     <button id={id} disabled={disabled} onClick={onClick} {...props}>
       {children}
     </button>

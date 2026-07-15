@@ -2,11 +2,10 @@
  * @jest-environment jsdom
  */
 import '@testing-library/jest-dom';
-import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import CheckboxAcaoInformatica from './index';
-import { ACAO_INFORMATIVA_NAO_ACEITA } from '~/core/constants/mensagens';
-import { obterComunicadoAcaoInformatica } from '~/core/services/proposta-service';
+import { ACAO_INFORMATIVA_NAO_ACEITA } from '../../../core/constants/mensagens';
+import { obterComunicadoAcaoInformatica } from '../../../core/services/proposta-service';
 
 const mockGetFieldValue = jest.fn();
 const mockSetFieldValue = jest.fn();
@@ -57,7 +56,9 @@ describe('CheckboxAcaoInformatica behavior', () => {
       },
     });
 
-    render(<CheckboxAcaoInformatica />);
+    await act(async () => {
+      render(<CheckboxAcaoInformatica />);
+    });
 
     await waitFor(() => {
       expect(obterComunicadoAcaoInformatica).toHaveBeenCalledWith('10');
@@ -71,7 +72,9 @@ describe('CheckboxAcaoInformatica behavior', () => {
       sucesso: false,
     });
 
-    render(<CheckboxAcaoInformatica />);
+    await act(async () => {
+      render(<CheckboxAcaoInformatica />);
+    });
 
     await waitFor(() => {
       expect(mockSetFieldValue).toHaveBeenCalledWith('acaoFormativaTexto', '');
@@ -82,7 +85,9 @@ describe('CheckboxAcaoInformatica behavior', () => {
   test('deve limpar campos quando rota não tem propostaId', async () => {
     mockUseParams.mockReturnValue({});
 
-    render(<CheckboxAcaoInformatica />);
+    await act(async () => {
+      render(<CheckboxAcaoInformatica />);
+    });
 
     await waitFor(() => {
       expect(obterComunicadoAcaoInformatica).not.toHaveBeenCalled();
@@ -94,7 +99,9 @@ describe('CheckboxAcaoInformatica behavior', () => {
   test('validator deve resolver quando valor for true', async () => {
     (obterComunicadoAcaoInformatica as jest.Mock).mockResolvedValue({ sucesso: false });
 
-    render(<CheckboxAcaoInformatica />);
+    await act(async () => {
+      render(<CheckboxAcaoInformatica />);
+    });
 
     await expect(ultimoPropsFormItem.rules[0].validator({}, true)).resolves.toBeUndefined();
   });
@@ -102,7 +109,9 @@ describe('CheckboxAcaoInformatica behavior', () => {
   test('validator deve rejeitar quando valor for false', async () => {
     (obterComunicadoAcaoInformatica as jest.Mock).mockResolvedValue({ sucesso: false });
 
-    render(<CheckboxAcaoInformatica />);
+    await act(async () => {
+      render(<CheckboxAcaoInformatica />);
+    });
 
     await expect(ultimoPropsFormItem.rules[0].validator({}, false)).rejects.toBe(
       ACAO_INFORMATIVA_NAO_ACEITA,
