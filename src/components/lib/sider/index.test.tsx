@@ -3,7 +3,7 @@
  */
 
 import '@testing-library/jest-dom';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { act, render, fireEvent, screen } from '@testing-library/react';
 
 import Sider, { getItemMenu } from './index';
 
@@ -214,7 +214,9 @@ describe('Sider', () => {
 
     const props = menuMock.mock.calls[0][0];
 
-    props.onOpenChange(['menu-1']);
+    act(() => {
+      props.onOpenChange(['menu-1']);
+    });
 
     expect(onOpenChange).toHaveBeenCalledWith([
       'menu-1',

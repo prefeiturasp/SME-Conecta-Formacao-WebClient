@@ -17,8 +17,8 @@ jest.mock('antd', () => {
     return <input data-testid="input-rf" {...props} />;
   };
 
-  Input.Search = ({ allowClear, ...props }: any) => {
-    inputSearchMock({ allowClear, ...props });
+  Input.Search = ({ allowClear, onSearch, ...props }: any) => {
+    inputSearchMock({ allowClear, onSearch, ...props });
     return <input data-testid="input-search-rf" {...props} />;
   };
 

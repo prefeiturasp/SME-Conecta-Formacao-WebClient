@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Form } from 'antd';
 
 import InputAnexo from './index';
@@ -97,16 +97,18 @@ describe('InputAnexo', () => {
   it('deve habilitar o botão para uma URL válida', async () => {
     renderComponent();
 
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        'Insira o link de acesso aos documentos'
-      ),
-      {
-        target: {
-          value: 'https://google.com',
-        },
-      }
-    );
+    act(() => {
+      fireEvent.change(
+        screen.getByPlaceholderText(
+          'Insira o link de acesso aos documentos'
+        ),
+        {
+          target: {
+            value: 'https://google.com',
+          },
+        }
+      );
+    });
 
     await waitFor(() =>
       expect(
@@ -120,16 +122,18 @@ describe('InputAnexo', () => {
   it('deve abrir o link ao clicar no botão', async () => {
     renderComponent();
 
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        'Insira o link de acesso aos documentos'
-      ),
-      {
-        target: {
-          value: 'https://google.com',
-        },
-      }
-    );
+    act(() => {
+      fireEvent.change(
+        screen.getByPlaceholderText(
+          'Insira o link de acesso aos documentos'
+        ),
+        {
+          target: {
+            value: 'https://google.com',
+          },
+        }
+      );
+    });
 
     const button = await screen.findByRole('button', {
       name: 'Abrir link',
@@ -147,16 +151,18 @@ describe('InputAnexo', () => {
   it('não deve abrir link inválido', async () => {
     renderComponent();
 
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        'Insira o link de acesso aos documentos'
-      ),
-      {
-        target: {
-          value: 'google.com',
-        },
-      }
-    );
+    act(() => {
+      fireEvent.change(
+        screen.getByPlaceholderText(
+          'Insira o link de acesso aos documentos'
+        ),
+        {
+          target: {
+            value: 'google.com',
+          },
+        }
+      );
+    });
 
     const button = screen.getByRole('button', {
       name: 'Abrir link',
@@ -172,22 +178,26 @@ describe('InputAnexo', () => {
   it('deve exibir mensagem de erro padrão', async () => {
     renderComponent();
 
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        'Insira o link de acesso aos documentos'
-      ),
-      {
-        target: {
-          value: 'abc',
-        },
-      }
-    );
+    act(() => {
+      fireEvent.change(
+        screen.getByPlaceholderText(
+          'Insira o link de acesso aos documentos'
+        ),
+        {
+          target: {
+            value: 'abc',
+          },
+        }
+      );
+    });
 
-    fireEvent.blur(
-      screen.getByPlaceholderText(
-        'Insira o link de acesso aos documentos'
-      )
-    );
+    act(() => {
+      fireEvent.blur(
+        screen.getByPlaceholderText(
+          'Insira o link de acesso aos documentos'
+        )
+      );
+    });
 
     expect(
       await screen.findByText(
@@ -201,22 +211,26 @@ describe('InputAnexo', () => {
       mensagemErro: 'URL inválida',
     });
 
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        'Insira o link de acesso aos documentos'
-      ),
-      {
-        target: {
-          value: 'abc',
-        },
-      }
-    );
+    act(() => {
+      fireEvent.change(
+        screen.getByPlaceholderText(
+          'Insira o link de acesso aos documentos'
+        ),
+        {
+          target: {
+            value: 'abc',
+          },
+        }
+      );
+    });
 
-    fireEvent.blur(
-      screen.getByPlaceholderText(
-        'Insira o link de acesso aos documentos'
-      )
-    );
+    act(() => {
+      fireEvent.blur(
+        screen.getByPlaceholderText(
+          'Insira o link de acesso aos documentos'
+        )
+      );
+    });
 
     expect(
       await screen.findByText('URL inválida')

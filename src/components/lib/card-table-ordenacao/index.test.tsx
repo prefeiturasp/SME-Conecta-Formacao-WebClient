@@ -150,7 +150,10 @@ describe('DataTableOrdenacao', () => {
   it('deve passar loading para a tabela', async () => {
     renderComponent();
 
-    expect(tablePropsCapture).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(apiGetMock).toHaveBeenCalled();
+      expect(tablePropsCapture).toHaveBeenCalled();
+    });
 
     const ultimaChamada =
       tablePropsCapture.mock.calls[

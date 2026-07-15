@@ -103,7 +103,9 @@ describe('CheckboxAcaoInformatica behavior', () => {
       render(<CheckboxAcaoInformatica />);
     });
 
-    await expect(ultimoPropsFormItem.rules[0].validator({}, true)).resolves.toBeUndefined();
+    await act(async () => {
+      await expect(ultimoPropsFormItem.rules[0].validator({}, true)).resolves.toBeUndefined();
+    });
   });
 
   test('validator deve rejeitar quando valor for false', async () => {
@@ -113,8 +115,10 @@ describe('CheckboxAcaoInformatica behavior', () => {
       render(<CheckboxAcaoInformatica />);
     });
 
-    await expect(ultimoPropsFormItem.rules[0].validator({}, false)).rejects.toBe(
-      ACAO_INFORMATIVA_NAO_ACEITA,
-    );
+    await act(async () => {
+      await expect(ultimoPropsFormItem.rules[0].validator({}, false)).rejects.toBe(
+        ACAO_INFORMATIVA_NAO_ACEITA,
+      );
+    });
   });
 });
