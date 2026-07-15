@@ -1,5 +1,4 @@
 import { Button, Checkbox, CheckboxProps, Col, Form, Input, Row } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +35,7 @@ import SelectTipoEmail from '~/components/main/input/tipo-email';
 import { TipoEmail } from '~/core/enum/tipo-email';
 
 export const CadastroDeUsuario = () => {
-  const [form] = useForm();
+  const [form] = Form.useForm();
   const DOMINIO_DEFAULT = '@edu.sme.prefeitura.sp.gov.br';
   const navigate = useNavigate();
   const dispatch = useAppDispatch();

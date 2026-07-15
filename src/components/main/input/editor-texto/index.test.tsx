@@ -21,6 +21,7 @@ jest.mock('~/components/lib/inputs/editor/index.tsx', () => (props: any) => {
 });
 
 jest.mock('antd', () => {
+  const actual = jest.requireActual('antd');
 
   const FormItem = jest.fn(({ children, ...props }: any) => {
     if (props.shouldUpdate) {
@@ -41,6 +42,8 @@ jest.mock('antd', () => {
   });
 
   return {
+    __esModule: true,
+    ...actual,
     Tooltip: (props: any) => {
       tooltipMock(props);
 
@@ -50,6 +53,8 @@ jest.mock('antd', () => {
     },
 
     Form: {
+      ...actual.Form,
+      useFormInstance: () => form,
       Item: FormItem,
     },
   };

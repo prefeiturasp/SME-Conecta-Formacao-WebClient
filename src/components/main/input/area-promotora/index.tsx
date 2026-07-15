@@ -28,9 +28,9 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
   const [disabledSelect, setDisabledSelect] = useState(false);
 
-  let resposta;
-
   const obterDados = async () => {
+    let resposta;
+
     switch (true) {
       case areaPublica:
         resposta = await obterAreaPromotoraPublico();
@@ -58,7 +58,7 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
   };
   useEffect(() => {
     obterDados();
-  }, [disabledSelect]);
+  }, [areaPublica, usuarioRedeParceria]);
 
   return (
     <Form.Item
