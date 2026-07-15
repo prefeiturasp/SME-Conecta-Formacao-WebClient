@@ -32,7 +32,6 @@ import {
   excluirCodafSuplementar,
   InscritoDetalheDTO,
   InscritoDTO,
-  RetificacaoDTO,
   fazerUploadAnexoCodaf,
   obterCodafOriginal,
   obterCodafSuplementarPorId,
