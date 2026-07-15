@@ -8,7 +8,6 @@ import { ThemeProvider } from 'styled-components';
 
 import {
   SiderContainer,
-  SiderIconContainer,
   SiderMenuButtonToggleStyle,
   SiderMenuContainer,
   SiderMenuGroup,
@@ -23,7 +22,7 @@ jest.mock('antd', () => {
   const Sider = ReactModule.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement>
-  >(({ children, ...props }, ref) =>
+  >(({ children, collapsedSider, ...props }: any, ref) =>
     // avoid JSX in .ts file by using createElement
     ReactModule.createElement('div', { ref, ...props }, children),
   );
@@ -44,7 +43,7 @@ jest.mock('antd/es/menu/SubMenu', () => {
   const SubMenu = ReactModule.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement>
-  >(({ children, ...props }, ref) =>
+  >(({ children, isSubMenu, collapsed, ...props }: any, ref) =>
     // avoid JSX in .ts file by using createElement
     ReactModule.createElement('div', { ref, ...props }, children),
   );

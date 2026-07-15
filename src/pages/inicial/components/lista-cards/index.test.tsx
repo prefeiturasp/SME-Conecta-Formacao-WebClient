@@ -468,13 +468,17 @@ describe('ListaCardsPropostas', () => {
     ).toBeInTheDocument();
   });
 
-  it('exibe o estado de carregamento', () => {
+  it('exibe o estado de carregamento', async () => {
     render(
       <ListaCardsPropostas
         filters={filtrosPadrao}
         carregando
       />,
     );
+
+    await waitFor(() => {
+      expect(mockObterPropostasDashboard).toHaveBeenCalled();
+    });
 
     expect(
       screen.getByTestId('list-loading'),
@@ -485,13 +489,17 @@ describe('ListaCardsPropostas', () => {
     ).toBeInTheDocument();
   });
 
-  it('configura o grid responsivo da lista principal', () => {
+  it('configura o grid responsivo da lista principal', async () => {
     render(
       <ListaCardsPropostas
         filters={filtrosPadrao}
         carregando={false}
       />,
     );
+
+    await waitFor(() => {
+      expect(mockObterPropostasDashboard).toHaveBeenCalled();
+    });
 
     const listaVazia =
       screen.getByTestId('list-empty');

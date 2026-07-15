@@ -376,7 +376,7 @@ describe('DataTable Component', () => {
         expect(mockApi).toHaveBeenCalledTimes(1);
       });
 
-      act(() => {
+      await act(async () => {
         getByTestId('table-mock').click();
       });
 
@@ -417,7 +417,7 @@ describe('DataTable Component', () => {
         expect(mockApi).toHaveBeenCalled();
       });
 
-      act(() => {
+      await act(async () => {
         getByTestId('table-mock').click();
       });
 

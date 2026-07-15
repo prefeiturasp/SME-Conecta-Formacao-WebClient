@@ -8,16 +8,16 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { CadastroDeUsuario } from './index';
 
-import funcionarioExternoService from '~/core/services/funcionario-externo-service';
-import usuarioService from '~/core/services/usuario-service';
+import funcionarioExternoService from '../../../core/services/funcionario-externo-service';
+import usuarioService from '../../../core/services/usuario-service';
 
-import { sucesso } from '~/core/services/alerta-service';
-import { onClickVoltar } from '~/core/utils/form';
-import { useAppDispatch } from '~/core/hooks/use-redux';
+import { sucesso } from '../../../core/services/alerta-service';
+import { onClickVoltar } from '../../../core/utils/form';
+import { useAppDispatch } from '../../../core/hooks/use-redux';
 import {
   CF_INPUT_CONFIRMAR_EMAIL,
   CF_INPUT_EMAIL,
-} from '~/core/constants/ids/input';
+} from '../../../core/constants/ids/input';
 
 const mockFormState: Record<string, any> = {
   cpf: '12345678901',
@@ -57,8 +57,6 @@ jest.mock('~/core/redux/modules/spin/actions', () => ({
 }));
 
 jest.mock('antd', () => {
-  const React = require('react');
-
   const formApi = {
     getFieldValue: jest.fn((fieldName: string) => mockFormState[fieldName]),
     setFieldsValue: jest.fn((values: Record<string, any>) => Object.assign(mockFormState, values)),
@@ -71,7 +69,7 @@ jest.mock('antd', () => {
     })),
   };
 
-  const Form = ({ children, onFinish, onFinishFailed }: any) => (
+  const Form = ({ children, onFinish }: any) => (
     <form
       role='form'
       onSubmit={(event) => {
@@ -91,7 +89,7 @@ jest.mock('antd', () => {
     </div>
   );
 
-  const Button = ({ children, htmlType, type: _visualType, onClick, disabled, ...rest }: any) => (
+  const Button = ({ children, htmlType, type: _visualType, onClick, disabled, block: _block, ...rest }: any) => (
     <button type={htmlType === 'submit' ? 'submit' : 'button'} onClick={onClick} disabled={disabled} {...rest}>
       {children}
     </button>
@@ -118,48 +116,6 @@ jest.mock('antd', () => {
     Row,
   };
 });
-
-jest.mock('antd/es/form/Form', () => ({
-  useForm: () => [
-    {
-      getFieldValue: jest.fn((fieldName: string) => {
-        if (fieldName === 'cpf') {
-          return '12345678901';
-        }
-
-        if (fieldName === 'tipoEmail') {
-          return 1;
-        }
-
-        if (fieldName === 'nomePessoa') {
-          return 'João Silva';
-        }
-
-        if (fieldName === 'email') {
-          return 'joao@teste.com';
-        }
-
-        if (fieldName === 'confirmarEmail') {
-          return 'joao@teste.com';
-        }
-
-        if (fieldName === 'nomeUnidade') {
-          return 'UE Teste';
-        }
-
-        return undefined;
-      }),
-      setFieldsValue: jest.fn((values: Record<string, any>) => Object.assign(mockFormState, values)),
-      setFieldValue: jest.fn((fieldName: string, value: any) => {
-        mockFormState[fieldName] = value;
-      }),
-      setFields: jest.fn(),
-      getFieldInstance: jest.fn(() => ({
-        focus: jest.fn(),
-      })),
-    },
-  ],
-}));
 
 jest.mock('~/components/main/input/cpf', () => ({
   __esModule: true,

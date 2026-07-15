@@ -39,10 +39,15 @@ jest.mock('~/components/lib/notification', () => ({
   },
 }));
 
+Object.defineProperty(HTMLFormElement.prototype, 'requestSubmit', {
+  value: jest.fn(),
+  writable: true,
+});
+
 jest.mock('antd', () => {
   const React = require('react');
 
-  const Form = ({ children }: any) => React.createElement('form', null, children);
+  const Form = ({ children }: any) => React.createElement('div', null, children);
   Form.Item = ({ children }: any) =>
     React.createElement('div', null, typeof children === 'function' ? children() : children);
 
@@ -87,7 +92,7 @@ jest.mock('~/components/lib/header-page', () => ({
 
 jest.mock('~/components/main/button/voltar', () => ({
   __esModule: true,
-  default: ({ onClick }: any) => <button onClick={onClick}>Voltar</button>,
+  default: ({ onClick }: any) => <button type='button' onClick={onClick}>Voltar</button>,
 }));
 
 jest.mock('~/components/lib/card-content', () => ({
@@ -115,9 +120,9 @@ jest.mock('~/components/lib/card-table', () => ({
     const rowHandlers = onRow(mockData);
 
     return (
-      <button data-testid='linha' onClick={rowHandlers.onClick}>
+      <div role='button' tabIndex={0} data-testid='linha' onClick={rowHandlers.onClick}>
         Linha
-      </button>
+      </div>
     );
   },
 }));
@@ -128,6 +133,7 @@ jest.mock('./components/modal-salvar-coordernadoria/modal-salvar-coordernadoria'
     <div>
       <span>ModalSalvar</span>
       <button
+          type='button'
         data-testid='confirmar'
         onClick={() =>
           props.onConfirm({
@@ -139,10 +145,10 @@ jest.mock('./components/modal-salvar-coordernadoria/modal-salvar-coordernadoria'
       >
         Confirmar
       </button>
-      <button data-testid='cancelar' onClick={props.onCancel}>
+      <button type='button' data-testid='cancelar' onClick={props.onCancel}>
         Cancelar
       </button>
-      <button data-testid='deletar' onClick={props.onDelete}>
+      <button type='button' data-testid='deletar' onClick={props.onDelete}>
         Deletar
       </button>
     </div>
@@ -154,7 +160,7 @@ jest.mock('./components/modal-excluir-coordenadoria/modal-excluir-coordenadoria'
   default: (props: any) => (
     <div>
       ModalExcluir
-      <button data-testid='confirmar-excluir' onClick={props.onConfirm}>
+      <button type='button' data-testid='confirmar-excluir' onClick={props.onConfirm}>
         ConfirmarExcluir
       </button>
     </div>
