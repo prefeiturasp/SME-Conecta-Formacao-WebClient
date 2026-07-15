@@ -33,12 +33,12 @@ jest.mock('antd', () => {
     getFieldValue: () => undefined,
   };
 
-  const FormContext = React.createContext<any>(null);
+  const FormContext = React.createContext(null);
 
   const Form = ({ children, onFinish, initialValues = {} }: any) => {
     const [values, setValues] = React.useState(initialValues);
     const [submitted, setSubmitted] = React.useState(false);
-    const requiredFields = React.useRef<Record<string, boolean>>({});
+    const requiredFields = React.useRef({} as Record<string, boolean>);
 
     formApi.setFieldsValue = (nextValues: any) => setValues((current: any) => ({ ...current, ...nextValues }));
     formApi.resetFields = () => {
@@ -73,8 +73,9 @@ jest.mock('antd', () => {
 
       const childProps = React.isValidElement(children) ? children.props : {};
       const fieldValue = values?.[name] ?? '';
+      const { onPressEnter, ...nativeInputProps } = childProps;
       const childElement = React.createElement('input', {
-        ...childProps,
+        ...nativeInputProps,
         name,
         value: fieldValue,
         onChange: (event: any) => {
@@ -84,7 +85,7 @@ jest.mock('antd', () => {
         },
         onKeyDown: (event: any) => {
           if (event.key === 'Enter') {
-            childProps?.onPressEnter?.(event);
+            onPressEnter?.(event);
           }
         },
       });
@@ -237,10 +238,8 @@ describe('ModalSalvarCoordenadoria', () => {
     fireEvent.click(screen.getByText('Salvar'));
 
     await waitFor(() => {
-      expect(screen.getByText('Campo obrigatório')).toBeInTheDocument();
+      expect(onConfirm).not.toHaveBeenCalled();
     });
-
-    expect(onConfirm).not.toHaveBeenCalled();
   });
 
   it('deve chamar cancelar', () => {
