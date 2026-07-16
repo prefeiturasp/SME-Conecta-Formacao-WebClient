@@ -1,7 +1,34 @@
 import { describe, test, expect } from '@jest/globals';
-import { DeltaInscritosDTO } from '~/core/services/codaf-lista-presenca-service';
+import { DeltaInscritosDTO } from '../../../../core/services/codaf-lista-presenca-service';
 
 describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados', () => {
+
+  describe('Filtragem de anexos exibidos', () => {
+    const filtrarAnexosValidos = (anexos: Array<{ arquivoCodigo?: string | null }>) =>
+      anexos.filter(
+        (anexo) =>
+          anexo?.arquivoCodigo != null &&
+          anexo?.arquivoCodigo !== '' &&
+          anexo?.arquivoCodigo !== '0',
+      );
+
+    test('deve manter apenas anexos com uid válido', () => {
+      const anexos = [
+        { arquivoCodigo: '123' },
+        { arquivoCodigo: null },
+        { arquivoCodigo: '0' },
+        { arquivoCodigo: '' },
+        { arquivoCodigo: 'abc' },
+      ];
+
+      const anexosFiltrados = filtrarAnexosValidos(anexos);
+
+      expect(anexosFiltrados).toEqual([
+        { arquivoCodigo: '123' },
+        { arquivoCodigo: 'abc' },
+      ]);
+    });
+  });
 
   describe('Conversores de Dados (Atividade Obrigatória)', () => {
     // Simulando as funções utilitárias puras do topo do arquivo
@@ -37,12 +64,12 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
       if (!d1 && !d2) return true;
       if (!d1 || !d2) return false;
 
-      const idsNovos1 = [...d1.inscritosNovos.map((i) => i.id)].sort();
-      const idsNovos2 = [...d2.inscritosNovos.map((i) => i.id)].sort();
+      const idsNovos1 = [...d1.inscritosNovos.map((i: { id: number }) => i.id)].sort();
+      const idsNovos2 = [...d2.inscritosNovos.map((i: { id: number }) => i.id)].sort();
       if (JSON.stringify(idsNovos1) !== JSON.stringify(idsNovos2)) return false;
 
-      const idsRemovidos1 = [...d1.inscritosRemovidos.map((i) => i.id)].sort();
-      const idsRemovidos2 = [...d2.inscritosRemovidos.map((i) => i.id)].sort();
+      const idsRemovidos1 = [...d1.inscritosRemovidos.map((i: { id: number }) => i.id)].sort();
+      const idsRemovidos2 = [...d2.inscritosRemovidos.map((i: { id: number }) => i.id)].sort();
       if (JSON.stringify(idsRemovidos1) !== JSON.stringify(idsRemovidos2)) return false;
 
       return true;

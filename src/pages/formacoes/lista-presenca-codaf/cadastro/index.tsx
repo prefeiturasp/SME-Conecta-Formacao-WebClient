@@ -370,16 +370,20 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
       if (dados.anexos && dados.anexos.length > 0) {
         form.setFieldsValue({
-          anexos: dados.anexos.map((anexo) => ({
-            uid: anexo.arquivoCodigo,
-            name: anexo.nomeArquivo,
-            status: 'done',
-            xhr: anexo.arquivoCodigo,
-            arquivoCodigo: anexo.arquivoCodigo,
-            nomeArquivo: anexo.nomeArquivo,
-            tipoAnexoId: anexo.tipoAnexoId,
-            urlDownload: anexo.urlDownload,
-          })),
+          anexos: dados.anexos
+            .filter((anexo) => anexo?.arquivoCodigo != null && 
+            anexo?.arquivoCodigo !== '' && 
+            anexo?.arquivoCodigo !== '0')
+            .map((anexo) => ({
+              uid: anexo.arquivoCodigo,
+              name: anexo.nomeArquivo,
+              status: 'done',
+              xhr: anexo.arquivoCodigo,
+              arquivoCodigo: anexo.arquivoCodigo,
+              nomeArquivo: anexo.nomeArquivo,
+              tipoAnexoId: anexo.tipoAnexoId,
+              urlDownload: anexo.urlDownload,
+            })),
         });
       }
     };
