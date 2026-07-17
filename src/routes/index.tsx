@@ -69,8 +69,6 @@ const RoutesConfig = () => {
       scrollNoInicio();
     }, [pathname]);
 
-    console.log(ListaPresencaCodaf, CadastroListaPresencaCodaf);
-
     return null;
   };
 

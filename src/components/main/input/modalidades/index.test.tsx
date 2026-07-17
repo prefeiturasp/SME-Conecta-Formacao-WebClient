@@ -3,7 +3,7 @@
  */
 
 import '@testing-library/jest-dom';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import SelectModalidade from './index';
 import { obterModalidades } from '../../../../core/services/modalidade-service';
 
@@ -164,7 +164,9 @@ describe('SelectModalidade', () => {
 
     const props = selectMock.mock.calls[0][0];
 
-    props.onChange();
+    act(() => {
+      props.onChange();
+    });
 
     expect(setFieldValueMock).toHaveBeenNthCalledWith(
       1,

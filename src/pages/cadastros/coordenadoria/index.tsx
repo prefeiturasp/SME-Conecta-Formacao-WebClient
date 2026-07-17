@@ -69,7 +69,6 @@ const ListCoordenadoria: React.FC = () => {
         const response = modoEdicao
             ? await atualizarCoordenadoria(coordenadoria.id, coordenadoria)
             : await criarCoordenadoria(coordenadoria);
-        console.log('Resposta da API:', response);
 
         tratarRespostaSalvar(response);
 
@@ -111,7 +110,6 @@ const ListCoordenadoria: React.FC = () => {
                     const mensagemPadrao = 'Erro ao excluir o registro';
                     const mensagemDetalhada =
                         mensagensErro.length > 0 ? mensagensErro.join(', ') : mensagemPadrao;
-                    console.error('Erro da API:', mensagensErro);
                     notification.error({ message: 'Erro ao excluir', description: mensagemDetalhada });
                 }
             });
@@ -129,7 +127,6 @@ const ListCoordenadoria: React.FC = () => {
           const mensagemPadrao = 'Erro ao salvar o registro';
           const mensagemDetalhada =
             mensagensErro.length > 0 ? mensagensErro.join(', ') : mensagemPadrao;
-          console.error('Erro da API:', mensagensErro);
           notification.error({ message: 'Erro ao salvar', description: mensagemDetalhada });
         }
       };

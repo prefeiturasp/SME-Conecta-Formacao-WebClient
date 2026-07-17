@@ -1,8 +1,10 @@
 import { Button, Col, Row, Table } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import { TableRowSelection } from 'antd/es/table/interface';
 import React from 'react';
 import { DeltaInscritosDTO } from '~/core/services/codaf-lista-presenca-service';
+import { BarraCursistasSelecionados } from '../../componentes/barra-cursistas-selecionados';
 
 interface SecaoListaInscritosProps {
   mostrarDivergencia: boolean;
@@ -16,6 +18,12 @@ interface SecaoListaInscritosProps {
   registrosPorPaginaInscritos: number;
   totalRegistrosInscritos: number;
   handleTableChangeInscritos: (pagination: TablePaginationConfig) => void;
+  rowSelection?: TableRowSelection<any>;
+  quantidadeSelecionados: number;
+  onClickRegistrarDados: () => void;
+  onClickEditarDados: () => void;
+  registrarDadosDesabilitado: boolean;
+  editarDadosDesabilitado: boolean;
 }
 
 const getBannerText = (
@@ -64,6 +72,12 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
   registrosPorPaginaInscritos,
   totalRegistrosInscritos,
   handleTableChangeInscritos,
+  rowSelection,
+  quantidadeSelecionados,
+  onClickRegistrarDados,
+  onClickEditarDados,
+  registrarDadosDesabilitado,
+  editarDadosDesabilitado,
 }) => {
   const bannerText = getBannerText(deltaInscritos, nomeFormacao);
   const mostrarListaCancelados =
@@ -91,7 +105,15 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
           </p>
         </Col>
       </Row>
-
+      {!mostrarDivergencia && (
+        <BarraCursistasSelecionados
+          quantidadeSelecionados={quantidadeSelecionados}
+          onClickRegistrarDados={onClickRegistrarDados}
+          onClickEditarDados={onClickEditarDados}
+          registrarDadosDesabilitado={registrarDadosDesabilitado}
+          editarDadosDesabilitado={editarDadosDesabilitado}
+        />
+      )}
       {mostrarDivergencia && (
         <>
           <Row gutter={[16, 8]} style={{ marginBottom: mostrarListaCancelados ? 0 : 16 }}>
@@ -222,6 +244,7 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
               columns={colunasCursistas}
               dataSource={cursistas}
               rowKey='id'
+              rowSelection={rowSelection}
               pagination={{
                 current: paginaAtualInscritos,
                 pageSize: registrosPorPaginaInscritos,

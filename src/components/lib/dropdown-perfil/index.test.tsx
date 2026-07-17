@@ -1,18 +1,17 @@
-import { describe, test, expect, jest } from '@jest/globals';
-
-jest.mock('~/core/services/api', () => ({
-  default: {},
-  obterRegistro: jest.fn(),
-  inserirRegistro: jest.fn(),
+jest.mock('../../../core/services/autenticacao-service', () => ({
+  __esModule: true,
+  default: {
+    alterarPerfilSelecionado: jest.fn(() => Promise.resolve({ data: {} })),
+  },
 }));
 
-jest.mock('~/core/utils/perfil', () => ({
+jest.mock('../../../core/utils/perfil', () => ({
   obterMenusPorPerfil: jest.fn(() => []),
 }));
 
 import DropdownPerfil from './index';
-import { ROUTES } from '~/core/enum/routes-enum';
-import { Colors } from '~/core/styles/colors';
+import { ROUTES } from '../../../core/enum/routes-enum';
+import { Colors } from '../../../core/styles/colors';
 
 describe('DropdownPerfil', () => {
   describe('Componente', () => {

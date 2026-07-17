@@ -4,10 +4,11 @@
 
 import '@testing-library/jest-dom';
 import { render, waitFor } from '@testing-library/react';
+import React from 'react';
 import SelectPalavrasChaves from './index';
-import { obterPalavrasChave } from '../../../../core/services/palavra-chave-service';
-import { obterPalavraChavePublico } from '../../../../core/services/area-publica-service';
 import { CF_SELECT_PALAVRA_CHAVE } from '../../../../core/constants/ids/select';
+import { obterPalavraChavePublico } from '../../../../core/services/area-publica-service';
+import { obterPalavrasChave } from '../../../../core/services/palavra-chave-service';
 
 jest.mock('../../../../core/services/palavra-chave-service', () => ({
   obterPalavrasChave: jest.fn(),
@@ -39,13 +40,32 @@ jest.mock('antd', () => ({
 
 jest.mock('~/components/lib/inputs/select', () => (props: any) => {
   selectMock(props);
-  return <div data-testid="select-palavras" />;
+  return <div data-testid='select-palavras' />;
 });
 
 describe('SelectPalavrasChaves', () => {
+  let consoleErrorSpy: jest.SpyInstance;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
+  });
+
+  const renderComponent = async (props: React.ComponentProps<typeof SelectPalavrasChaves> = {}) => {
+    render(<SelectPalavrasChaves {...props} />);
+
+    await waitFor(() => {
+      if (props.areaPublica) {
+        expect(obterPalavraChavePublico).toHaveBeenCalledTimes(1);
+      } else {
+        expect(obterPalavrasChave).toHaveBeenCalledTimes(1);
+      }
+    });
+  };
 
   it('deve carregar palavras-chave', async () => {
     (obterPalavrasChave as jest.Mock).mockResolvedValue({
@@ -56,7 +76,7 @@ describe('SelectPalavrasChaves', () => {
       ],
     });
 
-    render(<SelectPalavrasChaves />);
+    await renderComponent();
 
     await waitFor(() =>
       expect(obterPalavrasChave).toHaveBeenCalled()
@@ -78,7 +98,7 @@ describe('SelectPalavrasChaves', () => {
       dados: [{ id: 10, descricao: 'Pública' }],
     });
 
-    render(<SelectPalavrasChaves areaPublica />);
+    await renderComponent({ areaPublica: true });
 
     await waitFor(() =>
       expect(obterPalavraChavePublico).toHaveBeenCalled()
@@ -97,7 +117,7 @@ describe('SelectPalavrasChaves', () => {
       dados: [],
     });
 
-    render(<SelectPalavrasChaves />);
+    await renderComponent();
 
     await waitFor(() =>
       expect(selectMock).toHaveBeenLastCalledWith(
@@ -108,8 +128,8 @@ describe('SelectPalavrasChaves', () => {
     );
   });
 
-  it('deve configurar placeholder padrão', () => {
-    render(<SelectPalavrasChaves />);
+  it('deve configurar placeholder padrão', async () => {
+    await renderComponent();
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -119,8 +139,8 @@ describe('SelectPalavrasChaves', () => {
     );
   });
 
-  it('deve configurar placeholder da área pública', () => {
-    render(<SelectPalavrasChaves areaPublica />);
+  it('deve configurar placeholder da área pública', async () => {
+    await renderComponent({ areaPublica: true });
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -129,15 +149,13 @@ describe('SelectPalavrasChaves', () => {
     );
   });
 
-  it('deve repassar selectProps', () => {
-    render(
-      <SelectPalavrasChaves
-        selectProps={{
-          disabled: true,
-          mode: 'tags',
-        }}
-      />
-    );
+  it('deve repassar selectProps', async () => {
+    await renderComponent({
+      selectProps: {
+        disabled: true,
+        mode: 'tags',
+      },
+    });
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -147,16 +165,16 @@ describe('SelectPalavrasChaves', () => {
     );
   });
 
-  it('deve configurar required=false', () => {
-    render(<SelectPalavrasChaves required={false} />);
+  it('deve configurar required=false', async () => {
+    await renderComponent({ required: false });
 
     const rules = formItemMock.mock.calls[0][0].rules;
 
     expect(rules[0].required).toBe(false);
   });
 
-  it('deve configurar required=true por padrão', () => {
-    render(<SelectPalavrasChaves />);
+  it('deve configurar required=true por padrão', async () => {
+    await renderComponent();
 
     const rules = formItemMock.mock.calls[0][0].rules;
 
@@ -164,7 +182,7 @@ describe('SelectPalavrasChaves', () => {
   });
 
   it('deve limpar erros quando lista estiver vazia', async () => {
-    render(<SelectPalavrasChaves />);
+    await renderComponent();
 
     const validator = formItemMock.mock.calls[0][0].rules[1].validator;
 
@@ -179,7 +197,7 @@ describe('SelectPalavrasChaves', () => {
   });
 
   it('deve rejeitar quando possuir menos de 3 palavras', async () => {
-    render(<SelectPalavrasChaves />);
+    await renderComponent();
 
     const validator = formItemMock.mock.calls[0][0].rules[1].validator;
 
@@ -189,7 +207,7 @@ describe('SelectPalavrasChaves', () => {
   });
 
   it('deve rejeitar quando possuir mais de 5 palavras', async () => {
-    render(<SelectPalavrasChaves />);
+    await renderComponent();
 
     const validator = formItemMock.mock.calls[0][0].rules[1].validator;
 
@@ -199,7 +217,7 @@ describe('SelectPalavrasChaves', () => {
   });
 
   it('deve aceitar entre 3 e 5 palavras', async () => {
-    render(<SelectPalavrasChaves />);
+    await renderComponent();
 
     const validator = formItemMock.mock.calls[0][0].rules[1].validator;
 
@@ -213,7 +231,7 @@ describe('SelectPalavrasChaves', () => {
   });
 
   it('não deve validar quantidade quando for área pública', async () => {
-    render(<SelectPalavrasChaves areaPublica />);
+    await renderComponent({ areaPublica: true });
 
     const validator = formItemMock.mock.calls[0][0].rules[1].validator;
 
@@ -224,8 +242,8 @@ describe('SelectPalavrasChaves', () => {
     expect(formMock.setFields).not.toHaveBeenCalled();
   });
 
-  it('deve configurar tooltip', () => {
-    render(<SelectPalavrasChaves />);
+  it('deve configurar tooltip', async () => {
+    await renderComponent();
 
     expect(formItemMock.mock.calls[0][0].tooltip).toEqual(
       expect.objectContaining({
@@ -234,13 +252,13 @@ describe('SelectPalavrasChaves', () => {
     );
   });
 
- it('deve possuir id correto', () => {
-  render(<SelectPalavrasChaves />);
+  it('deve possuir id correto', async () => {
+    await renderComponent();
 
-  expect(selectMock).toHaveBeenCalledWith(
-    expect.objectContaining({
-      id: CF_SELECT_PALAVRA_CHAVE,
-    })
-  );
-});
+    expect(selectMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: CF_SELECT_PALAVRA_CHAVE,
+      })
+    );
+  });
 });

@@ -18,6 +18,8 @@ import { SecaoFormulario } from './componentes/secao-formulario';
 import { BannerComentarios } from './componentes/banner-comentarios';
 import DrawerAtualizacaoInscritos from '~/components/lib/drawer/atualizacao-inscritos/drawer-atualizacao-inscritos';
 import { InscritoAtualizacaoDTO } from '~/core/dto/atualizacao-inscritos-dto';
+import { TableRowSelection } from 'antd/es/table/interface';
+import { DrawerEdicaoLoteCursistas, DadosLoteCursistas } from './componentes/drawer-edicao-lote-cursistas';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -56,6 +58,7 @@ import { onClickVoltar } from '~/core/utils/form';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { downloadBlob } from '~/core/utils/functions';
+import { extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
 
 interface CursistaDTO {
   id: number;
@@ -95,6 +98,53 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
     null,
   );
+  const [cursistasSelecionadosIds, setCursistasSelecionadosIds] = useState<number[]>([]);
+
+  const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
+  const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
+
+  const cursistasSelecionados = cursistas.filter((c) => cursistasSelecionadosIds.includes(c.id));
+
+  const algumSelecionadoComDados = cursistasSelecionados.some(
+    (c) => c.frequencia !== null || c.atividade !== null || c.conceitoFinal !== null || c.aprovado !== null,
+  );
+
+  const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 2;
+
+  const registrarDadosDesabilitado = !quantidadeMinimaSelecionada || algumSelecionadoComDados;
+  const editarDadosDesabilitado = !quantidadeMinimaSelecionada || !algumSelecionadoComDados;
+
+  const onClickRegistrarDados = () => {
+    setDrawerLoteModo('registrar');
+    setDrawerLoteAberto(true);
+  };
+
+  const onClickEditarDados = () => {
+    setDrawerLoteModo('editar');
+    setDrawerLoteAberto(true);
+  };
+
+const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
+    const novaListaCursistas = cursistas.map((cursista) =>
+      cursistasSelecionadosIds.includes(cursista.id)
+        ? {
+            ...cursista,
+            frequencia: dados.frequencia,
+            atividade: dados.atividade,
+            conceitoFinal: dados.conceitoFinal,
+            aprovado: dados.aprovado,
+          }
+        : cursista,
+    );
+
+    const sucesso = await onClickSalvar(novaListaCursistas);
+
+    if (sucesso) {
+      setDrawerLoteAberto(false);
+      setCursistasSelecionadosIds([]);
+    }
+  };
+
   const [turmas, setTurmas] = useState<RetornoListagemDTO[]>([]);
   const [turmasFiltradas, setTurmasFiltradas] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
@@ -320,43 +370,33 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
       if (dados.anexos && dados.anexos.length > 0) {
         form.setFieldsValue({
-          anexos: dados.anexos.map((anexo) => ({
-            uid: anexo.arquivoCodigo,
-            name: anexo.nomeArquivo,
-            status: 'done',
-            xhr: anexo.arquivoCodigo,
-            arquivoCodigo: anexo.arquivoCodigo,
-            nomeArquivo: anexo.nomeArquivo,
-            tipoAnexoId: anexo.tipoAnexoId,
-            urlDownload: anexo.urlDownload,
-          })),
+          anexos: dados.anexos
+            .filter((anexo) => anexo?.arquivoCodigo != null && 
+            anexo?.arquivoCodigo !== '' && 
+            anexo?.arquivoCodigo !== '0')
+            .map((anexo) => ({
+              uid: anexo.arquivoCodigo,
+              name: anexo.nomeArquivo,
+              status: 'done',
+              xhr: anexo.arquivoCodigo,
+              arquivoCodigo: anexo.arquivoCodigo,
+              nomeArquivo: anexo.nomeArquivo,
+              tipoAnexoId: anexo.tipoAnexoId,
+              urlDownload: anexo.urlDownload,
+            })),
         });
       }
     };
 
     const aplicarRetificacoes = (dados: CodafListaPresencaDetalheDTO) => {
       if (!dados.retificacoes) return;
-      setRetificacoes(dados.retificacoes.map((_, index) => index + 1));
-      setContadorRetificacoes(dados.retificacoes.length);
+      const hydrationData = hydrateRetificacoesForm(form, dados.retificacoes);
 
-      const mapaRetificacoes = new Map<
-        number,
-        { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }
-      >();
-      dados.retificacoes.forEach((retificacao, index) => {
-        mapaRetificacoes.set(index + 1, retificacao);
-      });
-      setRetificacoesOriginais(mapaRetificacoes);
-
-      dados.retificacoes.forEach((retificacao, index) => {
-        const numeroFormatado = (index + 1).toString().padStart(2, '0');
-        form.setFieldsValue({
-          [`dataRetificacao${numeroFormatado}`]: retificacao.dataRetificacao
-            ? dayjs(retificacao.dataRetificacao)
-            : null,
-          [`paginaRetificacao${numeroFormatado}`]: retificacao.paginaRetificacaoDom,
-        });
-      });
+      if (hydrationData) {
+        setRetificacoesOriginais(hydrationData.retificacoesMap);
+        setRetificacoes(hydrationData.retificacaoKeys);
+        setContadorRetificacoes(hydrationData.contadorRetificacoes);
+      }
     };
 
     const carregarTurmas = async (dados: CodafListaPresencaDetalheDTO) => {
@@ -634,6 +674,17 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     },
   ];
 
+  const rowSelection: TableRowSelection<CursistaDTO> = {
+    selectedRowKeys: cursistasSelecionadosIds,
+    onChange: (selectedRowKeys) => {
+      setCursistasSelecionadosIds(selectedRowKeys as number[]);
+    },
+    preserveSelectedRowKeys: true,
+    getCheckboxProps: () => ({
+      disabled: bloqueios.campos.listaInscritos,
+    }),
+  };
+
   const onSearchFormacao = async (searchText: string) => {
     if (!searchText || searchText.length < 0) {
       setOpcoesFormacao([]);
@@ -644,7 +695,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     try {
       const response = await autocompletarFormacao(searchText);
       if (response.sucesso && response.dados && response.dados.items) {
-        //setOpcoesFormacao(response.dados.items.filter(x=>x.numeroHomologacao===Number(searchText) && x.codigoFormacao === 131));
         setOpcoesFormacao(
           response.dados.items.sort((a, b) => a.numeroHomologacao - b.numeroHomologacao),
         );
@@ -731,26 +781,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
   };
 
-
-  const montarRetificacoes = (values: any) =>
-    retificacoes
-      .map((numero) => {
-        const numeroFormatado = numero.toString().padStart(2, '0');
-        const dataRetificacao = values[`dataRetificacao${numeroFormatado}`];
-        const paginaRetificacao = values[`paginaRetificacao${numeroFormatado}`];
-        if (!dataRetificacao && !paginaRetificacao) return null;
-        const retificacaoOriginal = modoEdicao ? retificacoesOriginais.get(numero) : null;
-        return {
-          id: retificacaoOriginal?.id ?? 0,
-          dataRetificacao: formatarData(dataRetificacao),
-          paginaRetificacaoDom: Number(paginaRetificacao) || 0,
-        };
-      })
-      .filter(
-        (r): r is { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number } =>
-          r !== null,
-      );
-
   const tratarRespostaSalvar = (response: any) => {
     if (response.sucesso) {
       formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
@@ -804,6 +834,11 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     console.log('Anexos mapeados para envio:', anexosMapeados);
 
     const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
+    const retificacoesPayload = extractRetificacoesPayload(
+      values, 
+      retificacoes, 
+      modoEdicao ? retificacoesOriginais : undefined
+    );
 
     return {
       propostaId: propostaSelecionada?.propostaId || 0,
@@ -823,7 +858,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         aprovado: cursista.aprovado ?? null,
       })),
       anexos: anexosMapeados,
-      retificacoes: montarRetificacoes(values),
+      retificacoes: retificacoesPayload,
     };
   };
 
@@ -850,10 +885,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     notification.error({ message: 'Erro', description: mensagemErro });
   };
 
-  const onClickSalvar = async (inscritosOverride?: CursistaDTO[]) => {
+  const onClickSalvar = async (inscritosOverride?: CursistaDTO[]): Promise<boolean> => {
     try {
       if (registroId && await houveAlteracaoInscritosAoSalvar(registroId)) {
-        return;
+        return false;
       }
 
       const values = await form.validateFields();
@@ -877,9 +912,18 @@ const CadastroListaPresencaCodaf: React.FC = () => {
         if (registroIdAtual) {
           await atualizarDivergenciaPosSalvar(registroIdAtual);
         }
+
+        if (inscritosOverride) {
+          setCursistas(inscritosOverride);
+        }
+
+        return true;
       }
+
+      return false;
     } catch (error: any) {
       exibirErroSalvar(error);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -1285,7 +1329,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     }
 
     const inscritosMapeadosParaDrawer: InscritoAtualizacaoDTO[] = novos.map((novo) => {
-      // PRESERVA OS DADOS SE O CARA JÁ TIVER SIDO PREENCHIDO ANTES DA COND. DE CORRIDA
       const salvoLocal = cursistas.find((c) => c.id === novo.id);
 
       let freq = salvoLocal?.frequencia?.toString() ?? (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
@@ -1372,7 +1415,6 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const onCloseModalComentario = () => {
     setModalComentarioVisible(false);
-    //setMostrarBanner(false);
   };
 
   const cursistasParaTabela = cursistas.filter((cursista) => {
@@ -1385,7 +1427,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   });
 
   const aoDeletarRetificacao = async (retificacaoKey: number) => {
-    await deletarRetificacao(retificacaoKey);
+    return await deletarRetificacao(retificacaoKey);
   }
 
   return (
@@ -1541,7 +1583,22 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             registrosPorPaginaInscritos={registrosPorPaginaInscritos}
             totalRegistrosInscritos={totalRegistrosInscritos}
             handleTableChangeInscritos={handleTableChangeInscritos}
+            rowSelection={rowSelection}
+            quantidadeSelecionados={cursistasSelecionadosIds.length}
+            onClickRegistrarDados={onClickRegistrarDados}
+            onClickEditarDados={onClickEditarDados}
+            registrarDadosDesabilitado={registrarDadosDesabilitado}
+            editarDadosDesabilitado={editarDadosDesabilitado}
           />
+          <DrawerEdicaoLoteCursistas
+            open={drawerLoteAberto}
+            modo={drawerLoteModo}
+            quantidadeSelecionados={cursistasSelecionadosIds.length}
+            loading={false}
+            onClose={() => setDrawerLoteAberto(false)}
+            onConfirmar={onConfirmarDadosLote}
+          />
+
           <div style={{ display: ehAreaPromotoraEAdmin ? 'block' : 'none' }}>
             <SecaoRetificacoes
               retificacoes={retificacoes}

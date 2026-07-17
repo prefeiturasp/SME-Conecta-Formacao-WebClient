@@ -1,436 +1,1373 @@
-import { TipoEncontro } from '../../../core/enum/tipo-encontro';
+/**
+ * @jest-environment jsdom
+ */
+
+import '@testing-library/jest-dom';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import React from 'react';
+
+import DrawerFormularioEncontroTurmas from './drawer-form-encontro-turmas';
+import {
+  removerPropostaEncontro,
+  salvarPropostaEncontro,
+} from '../../../core/services/proposta-service';
+import { notification } from '../../../components/lib/notification';
+import { confirmacao } from '../../../core/services/alerta-service';
 import { DESEJA_CANCELAR_ALTERACOES } from '../../../core/constants/mensagens';
+import { TipoEncontro } from '../../../core/enum/tipo-encontro';
 import { CF_BUTTON_EXCLUIR } from '../../../core/constants/ids/button/intex';
 
+type FormValues = {
+  local?: string;
+  turmas?: number[];
+  tipoEncontro?: number;
+  datas?: Array<{
+    dataInicio?: {
+      toISOString: () => string;
+    };
+    horarios?: Array<{
+      format: (pattern: string) => string;
+    }>;
+  }>;
+};
+
+type DrawerMockProps = {
+  title?: React.ReactNode;
+  open?: boolean;
+  size?: string;
+  onClose?: () => void;
+  extra?: React.ReactNode;
+  children?: React.ReactNode;
+};
+
+type DatePickerMultiplosMockProps = {
+  disabledDate?: (current: unknown) => boolean;
+  onchange?: () => void;
+};
+
+type SelectTipoEncontroMockProps = {
+  exibirTooltip?: boolean;
+  selectProps?: {
+    onChange?: () => void;
+  };
+};
+
+type SelectTodasTurmasMockProps = {
+  idProposta?: number;
+  exibirTooltip?: boolean;
+  onChange?: () => void;
+};
+
+const mockResetFields = jest.fn();
+const mockValidateFields = jest.fn();
+const mockGetFieldValue = jest.fn();
+
+const mockFormInstance = {
+  resetFields: mockResetFields,
+  validateFields: mockValidateFields,
+  getFieldValue: mockGetFieldValue,
+};
+
+let mockParams: { id?: string } = { id: '123' };
+let capturedDrawerProps: DrawerMockProps | undefined;
+let capturedDatePickerProps:
+  | DatePickerMultiplosMockProps
+  | undefined;
+let capturedSelectTipoProps:
+  | SelectTipoEncontroMockProps
+  | undefined;
+let capturedSelectTurmasProps:
+  | SelectTodasTurmasMockProps
+  | undefined;
+
+jest.mock('react-router-dom', () => ({
+  useParams: () => mockParams,
+}));
+
+jest.mock('antd/es/form/Form', () => ({
+  useForm: () => [mockFormInstance],
+}));
+
+jest.mock('~/core/services/proposta-service', () => ({
+  salvarPropostaEncontro: jest.fn(),
+  removerPropostaEncontro: jest.fn(),
+}));
+
+jest.mock('~/components/lib/notification', () => ({
+  notification: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
+jest.mock('~/core/services/alerta-service', () => ({
+  confirmacao: jest.fn(),
+}));
+
+jest.mock('~/core/date/dayjs', () => {
+  const createDayjsValue = (
+    value: unknown,
+    format?: string,
+  ) => ({
+    value,
+    inputFormat: format,
+    format: jest.fn(() => String(value)),
+    toISOString: jest.fn(() => `iso-${String(value)}`),
+    startOf: jest.fn(() => `start-${String(value)}`),
+    endOf: jest.fn(() => `end-${String(value)}`),
+  });
+
+  const dayjsMock = jest.fn(createDayjsValue) as jest.Mock & {
+    tz: jest.Mock;
+  };
+
+  dayjsMock.tz = jest.fn((value: unknown) => ({
+    value,
+    toISOString: jest.fn(() => `iso-${String(value)}`),
+  }));
+
+  return {
+    dayjs: dayjsMock,
+  };
+});
+
+jest.mock('antd', () => {
+  const ReactModule =
+    jest.requireActual<typeof import('react')>('react');
+
+  const Button = ({
+    children,
+    onClick,
+    disabled,
+    type,
+  }: {
+    children?: React.ReactNode;
+    onClick?: () => void;
+    disabled?: boolean;
+    type?: string;
+  }) => (
+    <button
+      type='button'
+      onClick={onClick}
+      disabled={disabled}
+      data-button-type={type}
+    >
+      {children}
+    </button>
+  );
+
+  const Drawer = (props: DrawerMockProps) => {
+    capturedDrawerProps = props;
+
+    return (
+      <section data-testid='drawer'>
+        <h1>{props.title}</h1>
+
+        <button
+          type='button'
+          onClick={props.onClose}
+        >
+          Fechar drawer
+        </button>
+
+        <div data-testid='drawer-extra'>
+          {props.extra}
+        </div>
+
+        {props.children}
+      </section>
+    );
+  };
+
+  const Form = ({
+    children,
+    initialValues,
+    validateMessages,
+  }: {
+    children?: React.ReactNode;
+    initialValues?: unknown;
+    validateMessages?: unknown;
+  }) => (
+    <form
+      data-testid='form-encontro'
+      data-initial-values={JSON.stringify(initialValues)}
+      data-validate-messages={JSON.stringify(
+        validateMessages,
+      )}
+    >
+      {children}
+    </form>
+  );
+
+  Form.Item = ({
+    children,
+    label,
+    name,
+    rules,
+  }: {
+    children?: React.ReactNode;
+    label?: React.ReactNode;
+    name?: string;
+    rules?: unknown[];
+  }) => (
+    <div
+      data-testid={`form-item-${name}`}
+      data-rules={JSON.stringify(rules)}
+    >
+      <span>{label}</span>
+      {children}
+    </div>
+  );
+
+  const TextArea = ({
+    placeholder,
+    maxLength,
+    onChange,
+  }: {
+    placeholder?: string;
+    maxLength?: number;
+    onChange?: () => void;
+  }) => (
+    <textarea
+      placeholder={placeholder}
+      maxLength={maxLength}
+      onChange={onChange}
+    />
+  );
+
+  const Col = ({
+    children,
+  }: {
+    children?: React.ReactNode;
+  }) => <div>{children}</div>;
+
+  const Row = ({
+    children,
+  }: {
+    children?: React.ReactNode;
+  }) => <div>{children}</div>;
+
+  const Space = ({
+    children,
+  }: {
+    children?: React.ReactNode;
+  }) => <div>{children}</div>;
+
+  return {
+    Button,
+    Col,
+    Drawer,
+    Form,
+    Input: {
+      TextArea,
+    },
+    Row,
+    Space,
+  };
+});
+
+jest.mock('~/components/lib/excluir-button', () => ({
+  __esModule: true,
+  default: ({
+    id,
+    onClick,
+  }: {
+    id?: string;
+    onClick?: () => void;
+  }) => (
+    <button
+      type='button'
+      id={id}
+      onClick={onClick}
+    >
+      Excluir
+    </button>
+  ),
+}));
+
+jest.mock('~/components/main/input/data-lista', () => ({
+  __esModule: true,
+  default: (props: DatePickerMultiplosMockProps) => {
+    capturedDatePickerProps = props;
+
+    return (
+      <button
+        type='button'
+        onClick={props.onchange}
+      >
+        Alterar datas
+      </button>
+    );
+  },
+}));
+
+jest.mock(
+  '~/components/main/input/selecionar-todas-turmas',
+  () => ({
+    __esModule: true,
+    default: (props: SelectTodasTurmasMockProps) => {
+      capturedSelectTurmasProps = props;
+
+      return (
+        <button
+          type='button'
+          onClick={props.onChange}
+        >
+          Alterar turmas
+        </button>
+      );
+    },
+  }),
+);
+
+jest.mock(
+  '~/components/main/input/tipo-encontro',
+  () => ({
+    __esModule: true,
+    default: (props: SelectTipoEncontroMockProps) => {
+      capturedSelectTipoProps = props;
+
+      return (
+        <button
+          type='button'
+          onClick={props.selectProps?.onChange}
+        >
+          Alterar tipo de encontro
+        </button>
+      );
+    },
+  }),
+);
+
+const mockSalvarPropostaEncontro =
+  salvarPropostaEncontro as jest.MockedFunction<
+    typeof salvarPropostaEncontro
+  >;
+
+const mockRemoverPropostaEncontro =
+  removerPropostaEncontro as jest.MockedFunction<
+    typeof removerPropostaEncontro
+  >;
+
+const mockNotificationSuccess =
+  notification.success as jest.MockedFunction<
+    typeof notification.success
+  >;
+
+const mockNotificationError =
+  notification.error as jest.MockedFunction<
+    typeof notification.error
+  >;
+
+const mockConfirmacao =
+  confirmacao as jest.MockedFunction<
+    typeof confirmacao
+  >;
+
 describe('DrawerFormularioEncontroTurmas', () => {
-  describe('Estados iniciais', () => {
-    test('tipoEncontroSelecionado deve iniciar como undefined', () => {
-      const tipoEncontroSelecionado = undefined;
-      expect(tipoEncontroSelecionado).toBeUndefined();
-    });
+  const periodoRealizacao = {
+    dataInicio: {
+      startOf: jest.fn(() => 10),
+    },
+    dataFim: {
+      endOf: jest.fn(() => 20),
+    },
+  } as never;
 
-    test('desativarBotaoCancelar deve iniciar como true', () => {
-      const desativarBotaoCancelar = true;
-      expect(desativarBotaoCancelar).toBe(true);
-    });
+  const dadosEncontro = {
+    id: 50,
+    local: 'Sala 10',
+    turmasId: [1, 2],
+    tipoEncontro: TipoEncontro.Presencial,
+    horaInicio: '08:00',
+    horaFim: '10:00',
+    datasPeriodos: [
+      {
+        data: '2026-07-10',
+        horaInicio: '09:00',
+        horaFim: '11:00',
+      },
+    ],
+  } as never;
 
-    test('formInitialValues deve ter datas com dataInicio e dataFim vazios', () => {
-      const formInitialValues = { datas: [{ dataInicio: '', dataFim: '' }] };
-      expect(formInitialValues.datas).toHaveLength(1);
-      expect(formInitialValues.datas[0].dataInicio).toBe('');
-      expect(formInitialValues.datas[0].dataFim).toBe('');
-    });
+  const onCloseModal = jest.fn();
+
+  const criarProps = (
+    overrides: Partial<
+      React.ComponentProps<
+        typeof DrawerFormularioEncontroTurmas
+      >
+    > = {},
+  ): React.ComponentProps<
+    typeof DrawerFormularioEncontroTurmas
+  > => ({
+    openModal: true,
+    periodoRealizacao,
+    onCloseModal,
+    dadosEncontro: undefined,
+    ...overrides,
   });
 
-  describe('Extração do propostaId via params', () => {
-    test('deve converter o id da rota para inteiro', () => {
-      const paramsRoute = { id: '42' };
-      const propostaId = paramsRoute?.id ? parseInt(paramsRoute.id) : 0;
-      expect(propostaId).toBe(42);
-    });
+  const configurarCamposVazios = () => {
+    mockGetFieldValue.mockImplementation(
+      (field: string | unknown[]) => {
+        if (field === 'local') return '';
+        if (field === 'turmas') return [];
+        if (field === 'tipoEncontro') return undefined;
 
-    test('deve retornar 0 quando id não está presente nos params', () => {
-      const paramsRoute = {};
-      const propostaId = (paramsRoute as any)?.id ? parseInt((paramsRoute as any).id) : 0;
-      expect(propostaId).toBe(0);
-    });
-
-    test('deve retornar 0 quando id é undefined', () => {
-      const paramsRoute = { id: undefined };
-      const propostaId = paramsRoute?.id ? parseInt(paramsRoute.id) : 0;
-      expect(propostaId).toBe(0);
-    });
-  });
-
-  describe('Lógica de salvarDadosForm - formatação de horários', () => {
-    test('deve formatar hora de início no formato HH:mm', () => {
-      const horario = { format: (fmt: string) => fmt === 'HH:mm' ? '08:30' : '' };
-      const horaInicio = horario.format('HH:mm');
-      expect(horaInicio).toBe('08:30');
-    });
-
-    test('deve formatar hora de fim no formato HH:mm', () => {
-      const horario = { format: (fmt: string) => fmt === 'HH:mm' ? '17:00' : '' };
-      const horaFim = horario.format('HH:mm');
-      expect(horaFim).toBe('17:00');
-    });
-
-    test('deve extrair apenas os 5 primeiros caracteres da hora', () => {
-      const horaInicio = '08:30:00';
-      const horaFormatada = horaInicio.substring(0, 5);
-      expect(horaFormatada).toBe('08:30');
-    });
-  });
-
-  describe('Lógica de salvarDadosForm - formatação de turmas', () => {
-    test('deve mapear ids de turmas para objetos com turmaId', () => {
-      const turmasIds = [1, 2, 3];
-      const turmas = turmasIds.map((turmaId) => ({ turmaId }));
-      expect(turmas).toEqual([{ turmaId: 1 }, { turmaId: 2 }, { turmaId: 3 }]);
-    });
-
-    test('deve retornar array vazio quando não há turmas', () => {
-      const turmasIds: number[] = [];
-      const turmas = turmasIds.map((turmaId) => ({ turmaId }));
-      expect(turmas).toHaveLength(0);
-    });
-  });
-
-  describe('Lógica de salvarDadosForm - montagem do encontro', () => {
-    test('deve usar id do dadosEncontro quando disponível', () => {
-      const dadosEncontro = { id: 10 };
-      const id = dadosEncontro?.id || 0;
-      expect(id).toBe(10);
-    });
-
-    test('deve usar 0 como id quando dadosEncontro não tem id', () => {
-      const dadosEncontro = undefined;
-      const id = (dadosEncontro as any)?.id || 0;
-      expect(id).toBe(0);
-    });
-
-    test('deve definir dataFim como null quando dataFim não tem conteúdo', () => {
-      const datas = [{ dataInicio: '2024-01-01', dataFim: '' }];
-      const datasFormatadas = datas.map((d) => ({
-        dataInicio: d.dataInicio,
-        dataFim: datas[0]?.dataFim?.toString()?.length ? d.dataFim : null,
-      }));
-      expect(datasFormatadas[0].dataFim).toBeNull();
-    });
-
-    test('deve manter dataFim quando possui conteúdo', () => {
-      const datas = [{ dataInicio: '2024-01-01', dataFim: '2024-01-31' }];
-      const datasFormatadas = datas.map((d) => ({
-        dataInicio: d.dataInicio,
-        dataFim: datas[0]?.dataFim?.toString()?.length ? d.dataFim : null,
-      }));
-      expect(datasFormatadas[0].dataFim).toBe('2024-01-31');
-    });
-  });
-
-  describe('Lógica de salvarEncontro', () => {
-    test('deve chamar fecharModal(true) em caso de sucesso', async () => {
-      const fecharModal = jest.fn();
-      const salvarPropostaEncontro = jest.fn().mockResolvedValue({ sucesso: true });
-
-      const result = await salvarPropostaEncontro(1, {});
-      if (result.sucesso) fecharModal(true);
-
-      expect(fecharModal).toHaveBeenCalledWith(true);
-    });
-
-    test('não deve chamar fecharModal em caso de erro', async () => {
-      const fecharModal = jest.fn();
-      const salvarPropostaEncontro = jest.fn().mockResolvedValue({ sucesso: false });
-
-      const result = await salvarPropostaEncontro(1, {});
-      if (result.sucesso) fecharModal(true);
-
-      expect(fecharModal).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Lógica de fecharModal', () => {
-    test('deve chamar onCloseModal(true) quando recarregarLista é true', () => {
-      const onCloseModal = jest.fn();
-      const desativarBotaoCancelar = false;
-
-      const fecharModal = (recarregarLista?: boolean) => {
-        if (recarregarLista) {
-          onCloseModal(!!recarregarLista);
-        } else if (!desativarBotaoCancelar) {
-          // abre confirmação
-        } else {
-          onCloseModal(!!recarregarLista);
+        if (
+          Array.isArray(field) &&
+          field.join('.') === 'datas.0.horarios'
+        ) {
+          return undefined;
         }
-      };
 
-      fecharModal(true);
-      expect(onCloseModal).toHaveBeenCalledWith(true);
-    });
-
-    test('deve chamar onCloseModal(false) quando desativarBotaoCancelar é true e recarregarLista é falso', () => {
-      const onCloseModal = jest.fn();
-      const desativarBotaoCancelar = true;
-
-      const fecharModal = (recarregarLista?: boolean) => {
-        if (recarregarLista) {
-          onCloseModal(!!recarregarLista);
-        } else if (!desativarBotaoCancelar) {
-          // abre confirmação
-        } else {
-          onCloseModal(!!recarregarLista);
+        if (field === 'datas') {
+          return [{ dataInicio: undefined }];
         }
-      };
 
-      fecharModal();
-      expect(onCloseModal).toHaveBeenCalledWith(false);
-    });
+        return undefined;
+      },
+    );
+  };
 
-    test('não deve chamar onCloseModal diretamente quando há alterações e recarregarLista é falso', () => {
-      const onCloseModal = jest.fn();
-      const desativarBotaoCancelar = false;
-      let confirmacaoAberta = false;
+  beforeEach(() => {
+    jest.clearAllMocks();
 
-      const fecharModal = (recarregarLista?: boolean) => {
-        if (recarregarLista) {
-          onCloseModal(!!recarregarLista);
-        } else if (!desativarBotaoCancelar) {
-          confirmacaoAberta = true;
-        } else {
-          onCloseModal(!!recarregarLista);
-        }
-      };
+    capturedDrawerProps = undefined;
+    capturedDatePickerProps = undefined;
+    capturedSelectTipoProps = undefined;
+    capturedSelectTurmasProps = undefined;
 
-      fecharModal();
-      expect(onCloseModal).not.toHaveBeenCalled();
-      expect(confirmacaoAberta).toBe(true);
-    });
-  });
-
-  describe('Lógica de excluirEncontro', () => {
-    test('deve chamar fecharModal(true) após exclusão bem-sucedida', async () => {
-      const fecharModal = jest.fn();
-      const removerPropostaEncontro = jest.fn().mockResolvedValue({ sucesso: true });
-
-      const response = await removerPropostaEncontro(1);
-      if (response.sucesso) fecharModal(true);
-
-      expect(fecharModal).toHaveBeenCalledWith(true);
-    });
-
-    test('não deve chamar fecharModal quando exclusão falha', async () => {
-      const fecharModal = jest.fn();
-      const removerPropostaEncontro = jest.fn().mockResolvedValue({ sucesso: false });
-
-      const response = await removerPropostaEncontro(1);
-      if (response.sucesso) fecharModal(true);
-
-      expect(fecharModal).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Lógica de validarAlteracaoEmCampos', () => {
-    const avaliarCampos = (campos: {
-      local?: string;
-      turmas?: any[];
-      horarios?: any[];
-      dataInicio?: any;
-      tipoEncontro?: number;
-    }) => {
-      const local = (campos.local?.length ?? 0) > 0;
-      const turmas = (campos.turmas?.length ?? 0) > 0;
-      const horarios = (campos.horarios?.length ?? 0) > 0;
-      const datas = !!campos.dataInicio;
-      const tipoEncontro = (campos.tipoEncontro ?? -1) >= 0;
-      return local || turmas || horarios || datas || tipoEncontro;
+    mockParams = {
+      id: '123',
     };
 
-    test('deve desativar cancelar quando todos os campos estão vazios', () => {
-      const temAlteracao = avaliarCampos({});
-      expect(temAlteracao).toBe(false);
+    configurarCamposVazios();
+
+    mockValidateFields.mockResolvedValue({
+      local: 'Auditório',
+      turmas: [10, 20],
+      tipoEncontro: TipoEncontro.Presencial,
+      datas: [
+        {
+          dataInicio: {
+            toISOString: () => '2026-07-15T00:00:00.000Z',
+          },
+          horarios: [
+            {
+              format: () => '08:30',
+            },
+            {
+              format: () => '10:45',
+            },
+          ],
+        },
+      ],
     });
 
-    test('deve ativar cancelar quando campo local tem conteúdo', () => {
-      const temAlteracao = avaliarCampos({ local: 'Auditório' });
-      expect(temAlteracao).toBe(true);
-    });
+    mockSalvarPropostaEncontro.mockResolvedValue({
+      sucesso: true,
+    } as never);
 
-    test('deve ativar cancelar quando há turmas selecionadas', () => {
-      const temAlteracao = avaliarCampos({ turmas: [1, 2] });
-      expect(temAlteracao).toBe(true);
-    });
-
-    test('deve ativar cancelar quando há horários preenchidos', () => {
-      const temAlteracao = avaliarCampos({ horarios: ['08:00', '17:00'] });
-      expect(temAlteracao).toBe(true);
-    });
-
-    test('deve ativar cancelar quando há data de início preenchida', () => {
-      const temAlteracao = avaliarCampos({ dataInicio: '2024-01-01' });
-      expect(temAlteracao).toBe(true);
-    });
-
-    test('deve ativar cancelar quando tipo de encontro é 0 (Presencial)', () => {
-      const temAlteracao = avaliarCampos({ tipoEncontro: TipoEncontro.Presencial });
-      expect(temAlteracao).toBe(true);
-    });
-
-    test('deve ativar cancelar quando tipo de encontro é 1 (Síncrono)', () => {
-      const temAlteracao = avaliarCampos({ tipoEncontro: TipoEncontro.Sincrono });
-      expect(temAlteracao).toBe(true);
-    });
+    mockRemoverPropostaEncontro.mockResolvedValue({
+      sucesso: true,
+    } as never);
   });
 
-  describe('Lógica de disabledDate', () => {
-    test('deve bloquear datas anteriores ao início do período', () => {
-      const dataInicio = { startOf: () => new Date('2024-03-01') };
-      const dataFim = { endOf: () => new Date('2024-03-31') };
+  it('não renderiza o drawer quando openModal é false', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          openModal: false,
+        })}
+      />,
+    );
 
-      const disabledDate = (current: Date) =>
-        (current && current < dataInicio.startOf()) || current > dataFim.endOf();
-
-      expect(disabledDate(new Date('2024-02-28'))).toBe(true);
-    });
-
-    test('deve bloquear datas posteriores ao fim do período', () => {
-      const dataInicio = { startOf: () => new Date('2024-03-01') };
-      const dataFim = { endOf: () => new Date('2024-03-31') };
-
-      const disabledDate = (current: Date) =>
-        (current && current < dataInicio.startOf()) || current > dataFim.endOf();
-
-      expect(disabledDate(new Date('2024-04-01'))).toBe(true);
-    });
-
-    test('deve permitir datas dentro do período', () => {
-      const dataInicio = { startOf: () => new Date('2024-03-01') };
-      const dataFim = { endOf: () => new Date('2024-03-31') };
-
-      const disabledDate = (current: Date) =>
-        (current && current < dataInicio.startOf()) || current > dataFim.endOf();
-
-      expect(disabledDate(new Date('2024-03-15'))).toBe(false);
-    });
+    expect(
+      screen.queryByTestId('drawer'),
+    ).not.toBeInTheDocument();
   });
 
-  describe('Campo local - obrigatoriedade', () => {
-    test('deve ser obrigatório quando tipoEncontro é Presencial (0)', () => {
-      const tipoEncontroSelecionado = TipoEncontro.Presencial;
-      const required = tipoEncontroSelecionado === TipoEncontro.Presencial;
-      expect(required).toBe(true);
-    });
+  it('renderiza o drawer quando openModal é true', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
 
-    test('não deve ser obrigatório quando tipoEncontro é Síncrono (1)', () => {
-      const tipoEncontroSelecionado = TipoEncontro.Sincrono;
-       expect(tipoEncontroSelecionado).not.toBe(TipoEncontro.Presencial);
-    });
+    expect(
+      screen.getByTestId('drawer'),
+    ).toBeInTheDocument();
 
-   test('não deve ser obrigatório quando tipoEncontro é Assíncrono (2)', () => {
-    const tipoEncontroSelecionado = TipoEncontro.Assincrono;
+    expect(
+      screen.getByRole('heading', {
+        name: 'Encontro de turmas',
+      }),
+    ).toBeInTheDocument();
 
-     expect(tipoEncontroSelecionado).not.toBe(TipoEncontro.Presencial);
-    });
-
-    test('não deve ser obrigatório quando tipoEncontro é undefined', () => {
-      const tipoEncontroSelecionado = undefined;
-      const required = tipoEncontroSelecionado === TipoEncontro.Presencial;
-      expect(required).toBe(false);
-    });
+    expect(
+      screen.getByRole('button', {
+        name: 'Salvar',
+      }),
+    ).toBeInTheDocument();
   });
 
-  describe('Visibilidade do botão de exclusão', () => {
-    test('deve exibir ButtonExcluir quando dadosEncontro tem id', () => {
-      const dadosEncontro = { id: 5 };
-      const deveExibir = !!dadosEncontro?.id;
-      expect(deveExibir).toBe(true);
-    });
+  it('converte o id da rota para número', () => {
+    mockParams = {
+      id: '456',
+    };
 
-    test('não deve exibir ButtonExcluir quando dadosEncontro não tem id', () => {
-      const dadosEncontro = { id: undefined };
-      const deveExibir = !!dadosEncontro?.id;
-      expect(deveExibir).toBe(false);
-    });
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
 
-    test('não deve exibir ButtonExcluir quando dadosEncontro é undefined', () => {
-      const dadosEncontro = undefined;
-      const deveExibir = !!(dadosEncontro as any)?.id;
-      expect(deveExibir).toBe(false);
-    });
-
-    test('deve usar o id CF_BUTTON_EXCLUIR no botão de exclusão', () => {
-      expect(CF_BUTTON_EXCLUIR).toBe('CF_BUTTON_EXCLUIR');
-    });
+    expect(capturedSelectTurmasProps).toEqual(
+      expect.objectContaining({
+        idProposta: 456,
+        exibirTooltip: false,
+      }),
+    );
   });
 
-  describe('Configurações do Drawer', () => {
-    test('deve ter title "Encontro de turmas"', () => {
-      const title = 'Encontro de turmas';
-      expect(title).toBe('Encontro de turmas');
-    });
+  it('usa propostaId zero quando a rota não possui id', () => {
+    mockParams = {};
 
-    test('deve ter size large', () => {
-      const size = 'large';
-      expect(size).toBe('large');
-    });
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
 
-    test('deve estar aberto (open) quando openModal é true', () => {
-      const openModal = true;
-      expect(openModal).toBe(true);
-    });
-
-    test('não deve renderizar o Drawer quando openModal é false', () => {
-      const openModal = false;
-      const renderizarDrawer = openModal;
-      expect(renderizarDrawer).toBe(false);
-    });
+    expect(
+      capturedSelectTurmasProps?.idProposta,
+    ).toBe(0);
   });
 
-  describe('Configurações do TimePicker', () => {
-    test('deve usar formato HH:mm', () => {
-      const format = 'HH:mm';
-      expect(format).toBe('HH:mm');
-    });
+  it('não exibe o botão excluir em um novo encontro', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro: undefined,
+        })}
+      />,
+    );
 
-    test('deve ter allowClear habilitado', () => {
-      const allowClear = true;
-      expect(allowClear).toBe(true);
-    });
-
-    test('deve ter width de 100%', () => {
-      const style = { width: '100%' };
-      expect(style.width).toBe('100%');
-    });
-
-    test('deve ter needConfirm false', () => {
-      const needConfirm = false;
-      expect(needConfirm).toBe(false);
-    });
+    expect(
+      screen.queryByRole('button', {
+        name: 'Excluir',
+      }),
+    ).not.toBeInTheDocument();
   });
 
-  describe('Configurações do TextArea (Local)', () => {
-    test('deve ter maxLength de 200', () => {
-      const maxLength = 200;
-      expect(maxLength).toBe(200);
-    });
+  it('exibe o botão excluir em um encontro existente', async () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro,
+        })}
+      />,
+    );
 
-    test('deve ter placeholder "Informe o Local"', () => {
-      const placeholder = 'Informe o Local';
-      expect(placeholder).toBe('Informe o Local');
-    });
+    expect(
+      await screen.findByRole('button', {
+        name: 'Excluir',
+      }),
+    ).toHaveAttribute('id', CF_BUTTON_EXCLUIR);
   });
 
-  describe('Mensagem de cancelamento', () => {
-    test('deve usar a mensagem correta no modal de confirmação de cancelamento', () => {
-      expect(DESEJA_CANCELAR_ALTERACOES).toBe(
-        'Você não salvou as informações preenchidas. Deseja realmente cancelar as alterações?',
+  it('carrega os valores iniciais de um encontro existente', async () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro,
+        })}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('form-encontro'),
+      ).toHaveAttribute(
+        'data-initial-values',
+        expect.stringContaining('"local":"Sala 10"'),
+      );
+    });
+
+    const initialValues = JSON.parse(
+      screen
+        .getByTestId('form-encontro')
+        .getAttribute('data-initial-values') ?? '{}',
+    );
+
+    expect(initialValues).toEqual(
+      expect.objectContaining({
+        local: 'Sala 10',
+        turmas: [1, 2],
+        tipoEncontro: TipoEncontro.Presencial,
+      }),
+    );
+  });
+
+  it('usa horários específicos de cada data quando ambos existem', async () => {
+    const { dayjs } = jest.requireMock(
+      '~/core/date/dayjs',
+    ) as {
+      dayjs: jest.Mock & { tz: jest.Mock };
+    };
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro,
+        })}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(dayjs).toHaveBeenCalledWith(
+        '09:00',
+        'HH:mm',
+      );
+
+      expect(dayjs).toHaveBeenCalledWith(
+        '11:00',
+        'HH:mm',
       );
     });
   });
 
-  describe('Notificações', () => {
-    test('deve exibir mensagem de sucesso ao salvar', () => {
-      const successConfig = { message: 'Sucesso', description: 'Registro salvo com Sucesso!' };
-      expect(successConfig.message).toBe('Sucesso');
-      expect(successConfig.description).toBe('Registro salvo com Sucesso!');
+  it('usa horários padrão quando a data não possui horários completos', async () => {
+    const { dayjs } = jest.requireMock(
+      '~/core/date/dayjs',
+    ) as {
+      dayjs: jest.Mock & { tz: jest.Mock };
+    };
+
+    const dadosSemHorarios = {
+      ...(dadosEncontro as Record<string, unknown>),
+      datasPeriodos: [
+        {
+          data: '2026-07-10',
+          horaInicio: undefined,
+          horaFim: undefined,
+        },
+      ],
+    } as never;
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro: dadosSemHorarios,
+        })}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(dayjs).toHaveBeenCalledWith(
+        '08:00',
+        'HH:mm',
+      );
+
+      expect(dayjs).toHaveBeenCalledWith(
+        '10:00',
+        'HH:mm',
+      );
+    });
+  });
+
+  it('reinicia o formulário quando os valores iniciais mudam', async () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro,
+        })}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(mockResetFields).toHaveBeenCalled();
+    });
+  });
+
+  it('desabilita data anterior ao início do período', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    expect(
+      capturedDatePickerProps?.disabledDate?.(5),
+    ).toBe(true);
+  });
+
+  it('desabilita data posterior ao final do período', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    expect(
+      capturedDatePickerProps?.disabledDate?.(25),
+    ).toBe(true);
+  });
+
+  it('permite data dentro do período', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    expect(
+      capturedDatePickerProps?.disabledDate?.(15),
+    ).toBe(false);
+  });
+
+  it('permite data quando current é vazio', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    expect(
+      capturedDatePickerProps?.disabledDate?.(null),
+    ).toBe(false);
+  });
+
+  it('permite datas posteriores quando não existe data final', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          periodoRealizacao: {
+            dataInicio: {
+              startOf: jest.fn(() => 10),
+            },
+            dataFim: undefined,
+          } as never,
+        })}
+      />,
+    );
+
+    expect(
+      capturedDatePickerProps?.disabledDate?.(100),
+    ).toBe(false);
+  });
+
+  it('mantém o botão cancelar desabilitado inicialmente', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Cancelar',
+      }),
+    ).toBeDisabled();
+  });
+
+  it.each([
+    ['local', 'Sala 10'],
+    ['turmas', [1]],
+    ['horarios', [{ format: jest.fn() }]],
+    ['datas', [{ dataInicio: '2026-07-10' }]],
+    ['tipoEncontro', 0],
+  ])(
+    'habilita cancelar quando o campo %s possui valor',
+    async (campo, valor) => {
+      mockGetFieldValue.mockImplementation(
+        (field: string | unknown[]) => {
+          if (campo === 'local' && field === 'local') {
+            return valor;
+          }
+
+          if (campo === 'turmas' && field === 'turmas') {
+            return valor;
+          }
+
+          if (
+            campo === 'horarios' &&
+            Array.isArray(field)
+          ) {
+            return valor;
+          }
+
+          if (campo === 'datas' && field === 'datas') {
+            return valor;
+          }
+
+          if (
+            campo === 'tipoEncontro' &&
+            field === 'tipoEncontro'
+          ) {
+            return valor;
+          }
+
+          if (field === 'local') return '';
+          if (field === 'turmas') return [];
+          if (field === 'tipoEncontro') {
+            return undefined;
+          }
+
+          if (field === 'datas') {
+            return [{ dataInicio: undefined }];
+          }
+
+          return undefined;
+        },
+      );
+
+      render(
+        <DrawerFormularioEncontroTurmas
+          {...criarProps()}
+        />,
+      );
+
+      fireEvent.click(
+        screen.getByRole('button', {
+          name: 'Alterar turmas',
+        }),
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', {
+            name: 'Cancelar',
+          }),
+        ).toBeEnabled();
+      });
+    },
+  );
+
+  it('mantém cancelar desabilitado quando não há alterações', () => {
+    configurarCamposVazios();
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Alterar datas',
+      }),
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Cancelar',
+      }),
+    ).toBeDisabled();
+  });
+
+  it('atualiza o tipo selecionado ao alterar tipo de encontro', async () => {
+    mockGetFieldValue.mockImplementation(
+      (field: string | unknown[]) => {
+        if (field === 'tipoEncontro') {
+          return TipoEncontro.Presencial;
+        }
+
+        if (field === 'local') return '';
+        if (field === 'turmas') return [];
+        if (field === 'datas') {
+          return [{ dataInicio: undefined }];
+        }
+
+        return undefined;
+      },
+    );
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Alterar tipo de encontro',
+      }),
+    );
+
+    await waitFor(() => {
+      const formItem = screen.getByTestId(
+        'form-item-local',
+      );
+
+      expect(formItem).toHaveAttribute(
+        'data-rules',
+        JSON.stringify([{ required: true }]),
+      );
+    });
+  });
+
+  it('não exige local para encontro não presencial', async () => {
+    mockGetFieldValue.mockImplementation(
+      (field: string | unknown[]) => {
+        if (field === 'tipoEncontro') {
+          return -1;
+        }
+
+        if (field === 'local') return '';
+        if (field === 'turmas') return [];
+        if (field === 'datas') {
+          return [{ dataInicio: undefined }];
+        }
+
+        return undefined;
+      },
+    );
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Alterar tipo de encontro',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('form-item-local'),
+      ).toHaveAttribute(
+        'data-rules',
+        JSON.stringify([{ required: false }]),
+      );
+    });
+  });
+
+  it('fecha diretamente quando não há alterações', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Fechar drawer',
+      }),
+    );
+
+    expect(onCloseModal).toHaveBeenCalledWith(false);
+    expect(mockResetFields).toHaveBeenCalled();
+    expect(mockConfirmacao).not.toHaveBeenCalled();
+  });
+
+  it('solicita confirmação ao cancelar com alterações', async () => {
+    mockGetFieldValue.mockImplementation(
+      (field: string | unknown[]) => {
+        if (field === 'local') return 'Sala alterada';
+        if (field === 'turmas') return [];
+        if (field === 'datas') {
+          return [{ dataInicio: undefined }];
+        }
+        if (field === 'tipoEncontro') {
+          return undefined;
+        }
+
+        return undefined;
+      },
+    );
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Informe o Local'),
+      {
+        target: {
+          value: 'Sala alterada',
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', {
+          name: 'Cancelar',
+        }),
+      ).toBeEnabled();
     });
 
-    test('deve exibir mensagem de erro ao falhar ao salvar', () => {
-      const errorConfig = { message: 'Erro', description: 'Falha ao salvar encontro!' };
-      expect(errorConfig.message).toBe('Erro');
-      expect(errorConfig.description).toBe('Falha ao salvar encontro!');
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Cancelar',
+      }),
+    );
+
+    expect(mockConfirmacao).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: DESEJA_CANCELAR_ALTERACOES,
+        onOk: expect.any(Function),
+      }),
+    );
+  });
+
+  it('fecha e reinicia após confirmar o cancelamento', async () => {
+    mockGetFieldValue.mockImplementation(
+      (field: string | unknown[]) => {
+        if (field === 'local') return 'Sala';
+        if (field === 'turmas') return [];
+        if (field === 'datas') {
+          return [{ dataInicio: undefined }];
+        }
+
+        return undefined;
+      },
+    );
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Informe o Local'),
+      {
+        target: {
+          value: 'Sala',
+        },
+      },
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Cancelar',
+      }),
+    );
+
+    const config =
+      mockConfirmacao.mock.calls[0][0] as {
+        onOk: () => void;
+      };
+
+    config.onOk();
+
+    expect(onCloseModal).toHaveBeenCalledWith(false);
+    expect(mockResetFields).toHaveBeenCalled();
+  });
+
+  it('valida o formulário ao clicar em salvar', () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Salvar',
+      }),
+    );
+
+    expect(mockValidateFields).toHaveBeenCalledTimes(1);
+  });
+
+  it('salva um novo encontro com payload formatado', async () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Salvar',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        mockSalvarPropostaEncontro,
+      ).toHaveBeenCalledWith(123, {
+        id: 0,
+        propostaId: 123,
+        horaFim: '10:45',
+        horaInicio: '08:30',
+        tipo: TipoEncontro.Presencial,
+        local: 'Auditório',
+        turmas: [
+          { turmaId: 10 },
+          { turmaId: 20 },
+        ],
+        datas: [
+          {
+            dataInicio:
+              '2026-07-15T00:00:00.000Z',
+            horaInicio: '08:30',
+            horaFim: '10:45',
+          },
+        ],
+      });
+    });
+  });
+
+  it('salva uma edição mantendo o id existente', async () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro,
+        })}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Salvar',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        mockSalvarPropostaEncontro,
+      ).toHaveBeenCalledWith(
+        123,
+        expect.objectContaining({
+          id: 50,
+          propostaId: 123,
+        }),
+      );
+    });
+  });
+
+  it('usa strings vazias quando horários não são informados', async () => {
+    mockValidateFields.mockResolvedValue({
+      local: 'Online',
+      turmas: [],
+      tipoEncontro: 1,
+      datas: [
+        {
+          dataInicio: {
+            toISOString: () => '2026-07-20T00:00:00.000Z',
+          },
+          horarios: undefined,
+        },
+      ],
     });
 
-    test('deve exibir mensagem de sucesso ao excluir', () => {
-      const successConfig = { message: 'Sucesso', description: 'Registro excluído com Sucesso!' };
-      expect(successConfig.message).toBe('Sucesso');
-      expect(successConfig.description).toBe('Registro excluído com Sucesso!');
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Salvar',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        mockSalvarPropostaEncontro,
+      ).toHaveBeenCalledWith(
+        123,
+        expect.objectContaining({
+          horaInicio: '',
+          horaFim: '',
+          datas: [
+            {
+              dataInicio:
+                '2026-07-20T00:00:00.000Z',
+              horaInicio: '',
+              horaFim: '',
+            },
+          ],
+        }),
+      );
+    });
+  });
+
+  it('usa dataInicio undefined quando a data não foi informada', async () => {
+    mockValidateFields.mockResolvedValue({
+      local: '',
+      turmas: [],
+      tipoEncontro: 1,
+      datas: [
+        {
+          dataInicio: undefined,
+          horarios: undefined,
+        },
+      ],
     });
 
-    test('deve exibir mensagem de erro ao falhar ao excluir', () => {
-      const errorConfig = { message: 'Erro', description: 'Falha ao excluir encontro!' };
-      expect(errorConfig.message).toBe('Erro');
-      expect(errorConfig.description).toBe('Falha ao excluir encontro!');
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Salvar',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        mockSalvarPropostaEncontro,
+      ).toHaveBeenCalledWith(
+        123,
+        expect.objectContaining({
+          datas: [
+            {
+              dataInicio: undefined,
+              horaInicio: '',
+              horaFim: '',
+            },
+          ],
+        }),
+      );
     });
+  });
+
+  it('notifica sucesso e fecha após salvar', async () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Salvar',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockNotificationSuccess).toHaveBeenCalledWith({
+        message: 'Sucesso',
+        description: 'Registro salvo com Sucesso!',
+      });
+
+      expect(onCloseModal).toHaveBeenCalledWith(true);
+    });
+  });
+
+  it('notifica erro quando o salvamento falha', async () => {
+    mockSalvarPropostaEncontro.mockResolvedValue({
+      sucesso: false,
+    } as never);
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Salvar',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockNotificationError).toHaveBeenCalledWith({
+        message: 'Erro',
+        description: 'Falha ao salvar encontro!',
+      });
+    });
+
+    expect(onCloseModal).not.toHaveBeenCalled();
+  });
+
+  it('exclui um encontro existente', async () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro,
+        })}
+      />,
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Excluir',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        mockRemoverPropostaEncontro,
+      ).toHaveBeenCalledWith(50);
+    });
+  });
+
+  it('notifica sucesso e fecha após excluir', async () => {
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro,
+        })}
+      />,
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Excluir',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockNotificationSuccess).toHaveBeenCalledWith({
+        message: 'Sucesso',
+        description:
+          'Registro excluído com Sucesso!',
+      });
+
+      expect(onCloseModal).toHaveBeenCalledWith(true);
+    });
+  });
+
+  it('notifica erro quando a exclusão falha', async () => {
+    mockRemoverPropostaEncontro.mockResolvedValue({
+      sucesso: false,
+    } as never);
+
+    render(
+      <DrawerFormularioEncontroTurmas
+        {...criarProps({
+          dadosEncontro,
+        })}
+      />,
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Excluir',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockNotificationError).toHaveBeenCalledWith({
+        message: 'Erro',
+        description: 'Falha ao excluir encontro!',
+      });
+    });
+
+    expect(onCloseModal).not.toHaveBeenCalled();
   });
 });

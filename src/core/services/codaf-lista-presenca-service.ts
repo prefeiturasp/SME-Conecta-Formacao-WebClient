@@ -1,5 +1,6 @@
 import { CodafBaseDetalheDTO } from '../dto/codaf-base-detalhe-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
+import { TipoCodaf } from '../enum/tipo-codaf';
 import api, {
   ApiResult,
   alterarRegistro,
@@ -237,8 +238,8 @@ export const imprimirRelatorioCodaf = (codafId: number) => {
   );
 };
 
-export const emitirCertificadosCodaf = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
-  return inserirRegistro(`v1/CodafCertificado/${codafListaPresencaId}/emitir`, {});
+export const emitirCertificadosCodaf = (codafListaPresencaId: number, tipoCodaf: TipoCodaf): Promise<ApiResult<any>> => {  
+  return inserirRegistro(`v1/CodafCertificado/${codafListaPresencaId}/emitir?tipoCodaf=${tipoCodaf}`, {});
 };
 
 export type CertificadoUsuarioFiltroDTO = {

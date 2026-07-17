@@ -175,6 +175,12 @@ describe('FormularioCertificacao', () => {
     mockGetFieldError.mockReturnValue([]);
   });
 
+  afterEach(() => {
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+  });
+
   it('deve renderizar normalmente', () => {
     renderComponent();
 
@@ -223,11 +229,10 @@ describe('FormularioCertificacao', () => {
 
     renderComponent();
 
-    fireEvent.click(
-      screen.getByTestId('criterio'),
-    );
-
-    act(() => {
+    await act(async () => {
+      fireEvent.click(
+        screen.getByTestId('criterio'),
+      );
       jest.advanceTimersByTime(1000);
     });
 
@@ -248,11 +253,10 @@ describe('FormularioCertificacao', () => {
 
     renderComponent();
 
-    fireEvent.click(
-      screen.getByTestId('criterio'),
-    );
-
-    act(() => {
+    await act(async () => {
+      fireEvent.click(
+        screen.getByTestId('criterio'),
+      );
       jest.advanceTimersByTime(1000);
     });
 
@@ -275,7 +279,9 @@ describe('FormularioCertificacao', () => {
 
     const radioSim = await screen.findByText('Sim');
 
-    act(() => fireEvent.click(radioSim));
+    await act(async () => {
+      fireEvent.click(radioSim);
+    });
 
     await waitFor(() => {
       expect(mockSetFieldValue).toHaveBeenCalledWith(
@@ -384,14 +390,16 @@ describe('FormularioCertificacao', () => {
     );
   });
 
-  it('não deve limpar erro quando não houver erros', () => {
+  it('não deve limpar erro quando não houver erros', async () => {
     mockGetFieldError.mockReturnValue([]);
 
     renderComponent();
 
-    fireEvent.click(
-      screen.getByTestId('criterio'),
-    );
+    await act(async () => {
+      fireEvent.click(
+        screen.getByTestId('criterio'),
+      );
+    });
 
     expect(
       mockSetFields,
