@@ -25,6 +25,7 @@ export interface FiltroInscricoesProps {
   codigoFormacao: number | null;
   nomeFormacao: string | null;
   numeroHomologacao: number | null;
+  apenasSemCodaf: boolean | null;
 }
 
 export const Inscricoes = () => {
@@ -36,6 +37,7 @@ export const Inscricoes = () => {
     codigoFormacao: null,
     nomeFormacao: null,
     numeroHomologacao: null,
+    apenasSemCodaf: null,
   });
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export const Inscricoes = () => {
       codigoFormacao: codigoFormacao,
       nomeFormacao: nomeFormacao,
       numeroHomologacao: numeroHomologacao,
+      apenasSemCodaf: true,
     });
   };
 
