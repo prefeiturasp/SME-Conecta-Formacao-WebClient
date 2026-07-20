@@ -49,7 +49,8 @@ import {
 import SecaoRetificacoes from '../../lista-presenca-codaf/cadastro/componentes/secao-retificacoes/secao-retificacoes';
 import { SecaoAnexos } from '../../lista-presenca-codaf/cadastro/componentes/secao-anexos';
 import ModalExcluir from '../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir';
-import { extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
 
 export interface CursistaDTO {
   inscricaoId: number;
@@ -347,6 +348,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   const [retificacoesOriginais, setRetificacoesOriginais] = useState<
     Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
   >(new Map());
+  const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
 
   const viewState = {
     isStarted: currentStatus === 1,
@@ -388,6 +390,8 @@ const CadastroCodafSuplementar: React.FC = () => {
         const dados = response.dados;
         setRegistroId(dados.id);
         setCodafId(dados.codafId);
+        setRegrasAprovacao(dados.regrasAprovacao);
+
         preencherFormularioComDetalhes(form, dados);
 
         const hydrationData = hydrateRetificacoesForm(form, dados.retificacoes);
@@ -503,6 +507,7 @@ const CadastroCodafSuplementar: React.FC = () => {
     if (!proposta) return;
 
     setPropostaSelecionada(proposta);
+    setRegrasAprovacao(proposta.regrasAprovacao);
     form.setFieldsValue({
       numeroHomologacao: proposta.numeroHomologacao,
       nomeFormacao: proposta.nomeFormacao,
@@ -563,7 +568,27 @@ const CadastroCodafSuplementar: React.FC = () => {
     value: CursistaDTO[keyof CursistaDTO],
   ) => {
     setCursistas((prevCursistas) =>
-      prevCursistas.map((c) => (c.inscricaoId === inscricaoId ? { ...c, [field]: value } : c)),
+      prevCursistas.map((c) => {
+      if (c.inscricaoId !== inscricaoId) return c;
+
+      const cursistaAtualizado = { ...c, [field]: value };
+
+      // Gatilho do motor de aprovação
+      if (['frequencia', 'atividade', 'conceitoFinal'].includes(field)) {
+        const autoAprovado = calcularAprovacao(
+          cursistaAtualizado.frequencia,
+          cursistaAtualizado.conceitoFinal,
+          cursistaAtualizado.atividade,
+          regrasAprovacao
+        );
+
+        if (autoAprovado !== null) {
+          cursistaAtualizado.aprovado = autoAprovado;
+        }
+      }
+
+      return cursistaAtualizado;
+    }),
     );
   };
 
