@@ -6,6 +6,8 @@ import { validateMessages } from '~/core/constants/validate-messages';
 import { confirmacao } from '~/core/services/alerta-service';
 import { FormularioAtualizacaoInscritos, InscritoAtualizacaoDTO } from '~/core/dto/atualizacao-inscritos-dto';
 import CardInscrito from './card-inscrito';
+import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
+import { calcularAprovacao } from '~/core/utils/codaf-utils';
 
 const { Text } = Typography;
 
@@ -14,6 +16,7 @@ type DrawerAtualizacaoInscritosProps = {
   onCloseModal: () => void;
   onSave: (inscritosAtualizados: InscritoAtualizacaoDTO[]) => void;
   inscritos: InscritoAtualizacaoDTO[];
+  regrasAprovacao?: RegrasAprovacaoCursistaCodafDto;
 };
 
 const DrawerAtualizacaoInscritos: React.FC<DrawerAtualizacaoInscritosProps> = ({
@@ -21,6 +24,7 @@ const DrawerAtualizacaoInscritos: React.FC<DrawerAtualizacaoInscritosProps> = ({
   onCloseModal,
   onSave,
   inscritos,
+  regrasAprovacao,
 }) => {
   const [formDrawer] = Form.useForm<FormularioAtualizacaoInscritos>();
   const [desativarBotaoCancelar, setDesativarBotaoCancelar] = useState(true);
@@ -56,6 +60,38 @@ const DrawerAtualizacaoInscritos: React.FC<DrawerAtualizacaoInscritosProps> = ({
       onCloseModal();
       formDrawer.resetFields();
     }
+  };
+
+  const handleValuesChange = (changedValues: any, allValues: FormularioAtualizacaoInscritos) => {
+    validarAlteracaoEmCampos();
+
+    if (!regrasAprovacao?.possuiRegraAvaliacao || !changedValues.inscritos) return;
+
+    // Detecta qual índice do array mudou
+    changedValues.inscritos.forEach((inscritoAlterado: any, index: number) => {
+      if (
+        inscritoAlterado && 
+        (inscritoAlterado.frequencia !== undefined || 
+         inscritoAlterado.atividadeObrigatoria !== undefined || 
+         inscritoAlterado.conceitoFinal !== undefined)
+      ) {
+        const dadosAtuais = allValues.inscritos[index];
+        const freqNum = dadosAtuais.frequencia ? parseInt(String(dadosAtuais.frequencia).replace(/\D/g, ''), 10) : null;
+        
+        const autoAprovado = calcularAprovacao(
+          freqNum, 
+          dadosAtuais.conceitoFinal ?? null, 
+          dadosAtuais.atividadeObrigatoria ?? null, 
+          regrasAprovacao
+        );
+
+        if (autoAprovado !== null) {
+          const novaLista = [...allValues.inscritos];
+          novaLista[index] = { ...dadosAtuais, aprovado: autoAprovado ? 'Sim' : 'Não' };
+          formDrawer.setFieldsValue({ inscritos: novaLista });
+        }
+      }
+    });
   };
 
   return (
@@ -96,6 +132,7 @@ const DrawerAtualizacaoInscritos: React.FC<DrawerAtualizacaoInscritosProps> = ({
             layout="vertical"
             autoComplete="off"
             validateMessages={validateMessages}
+            onValuesChange={handleValuesChange}
           >
             <Form.List name="inscritos">
               {(fields) => (

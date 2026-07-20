@@ -6,12 +6,14 @@ import {
   hydrateRetificacoesForm,
   extractRetificacoesPayload,
   RetificacaoDTO,
-  RetificacaoMapEntry
+  RetificacaoMapEntry,
+  calcularAprovacao
 } from './codaf-utils';
+import { RegrasAprovacaoCursistaCodafDto } from '../dto/cursista-dto';
 
 describe('CodafUtils - Retificacoes', () => {
   describe('formatRetificacaoKey', () => {
-    test('DadoNumeroMenorQueDezQuandoFormatarChaveEntaoDevePreencherComZeroAEsquerda', () => {
+    test('DadoNumeroMenorQueDez_QuandoFormatarChave_EntaoDevePreencherComZeroAEsquerda', () => {
       // Arrange & Act
       const resultado = formatRetificacaoKey(5);
 
@@ -19,7 +21,7 @@ describe('CodafUtils - Retificacoes', () => {
       expect(resultado).toBe('05');
     });
 
-    test('DadoNumeroMaiorOuIgualADezQuandoFormatarChaveEntaoDeveRetornarAStringOriginal', () => {
+    test('DadoNumeroMaiorOuIgualADez_QuandoFormatarChave_EntaoDeveRetornarAStringOriginal', () => {
       // Arrange & Act
       const resultado = formatRetificacaoKey(12);
 
@@ -38,7 +40,7 @@ describe('CodafUtils - Retificacoes', () => {
       } as unknown as jest.Mocked<FormInstance<any>>;
     });
 
-    test('DadoArrayDeRetificacoesNuloOuVazioQuandoHidratarFormularioEntaoDeveRetornarNuloENaoPreencher', () => {
+    test('DadoArrayDeRetificacoesNuloOuVazio_QuandoHidratarFormulario_EntaoDeveRetornarNuloENaoPreencher', () => {
       // Arrange
       const retificacoesVazias: RetificacaoDTO[] = [];
 
@@ -52,7 +54,7 @@ describe('CodafUtils - Retificacoes', () => {
       expect(formMock.setFieldsValue).not.toHaveBeenCalled();
     });
 
-    test('DadoArrayDeRetificacoesValidoQuandoHidratarFormularioEntaoDevePreencherChavesPlanasERetornarMapaDeEstado', () => {
+    test('DadoArrayDeRetificacoesValido_QuandoHidratarFormulario_EntaoDevePreencherChavesPlanasERetornarMapaDeEstado', () => {
       // Arrange
       const retificacoesApi: RetificacaoDTO[] = [
         { id: 101, dataRetificacao: '2026-07-13', paginaRetificacaoDom: 5 },
@@ -85,7 +87,7 @@ describe('CodafUtils - Retificacoes', () => {
   });
 
   describe('extractRetificacoesPayload', () => {
-    test('DadoFormularioComNovasRetificacoesQuandoExtrairPayloadEntaoDeveMapearParaDtoComIdZeroEDatasFormatadas', () => {
+    test('DadoFormularioComNovasRetificacoes_QuandoExtrairPayload_EntaoDeveMapearParaDtoComIdZeroEDatasFormatadas', () => {
       // Arrange
       const formValues = {
         dataRetificacao01: dayjs('2026-07-14'),
@@ -112,7 +114,7 @@ describe('CodafUtils - Retificacoes', () => {
       });
     });
 
-    test('DadoFormularioComRetificacoesOriginaisQuandoExtrairPayloadEntaoDevePreservarOIdOriginal', () => {
+    test('DadoFormularioComRetificacoesOriginais_QuandoExtrairPayload_EntaoDevePreservarOIdOriginal', () => {
       // Arrange
       const formValues = {
         dataRetificacao01: dayjs('2026-07-20'),
@@ -135,7 +137,7 @@ describe('CodafUtils - Retificacoes', () => {
       });
     });
 
-    test('DadoCamposVaziosEAdicionadosSemPreenchimentoQuandoExtrairPayloadEntaoDeveFiltrarEIgnorarEssasEntradas', () => {
+    test('DadoCamposVaziosEAdicionadosSemPreenchimento_QuandoExtrairPayload_EntaoDeveFiltrarEIgnorarEssasEntradas', () => {
       // Arrange
       const formValues = {
         dataRetificacao01: dayjs('2026-07-10'),
@@ -153,7 +155,7 @@ describe('CodafUtils - Retificacoes', () => {
       expect(payload[0].paginaRetificacaoDom).toBe(5);
     });
 
-    test('DadoDataComoStringPadraoQuandoExtrairPayloadEntaoDeveFazerParseCorretamenteOuDeixarNuloSeInvalida', () => {
+    test('DadoDataComoStringPadrao_QuandoExtrairPayload_EntaoDeveFazerParseCorretamenteOuDeixarNuloSeInvalida', () => {
       // Arrange
       const formValues = {
         dataRetificacao01: new Date('2026-08-01T00:00:00'), // Objeto Date nativo
@@ -168,5 +170,151 @@ describe('CodafUtils - Retificacoes', () => {
       expect(payload).toHaveLength(1);
       expect(payload[0].dataRetificacao).toBe('2026-08-01');
     });
+  });
+});
+
+describe('CodafUtils - Motor de Regras de Certificacao (calcularAprovacao)', () => {
+  
+  // Arrange global para reaproveitamento (DRY)
+  const regrasBaseMock: RegrasAprovacaoCursistaCodafDto = {
+    frequenciaMinima: 75,
+    conceitosAceitos: ['S', 'P'],
+    exigeAtividadeObrigatoria: true,
+    possuiRegraAvaliacao: true
+  };
+
+  test('DadoRegrasNulas_QuandoCalcularAprovacao_EntaoDeveRetornarNulo', () => {
+    // Arrange
+    const regrasNulas = undefined;
+
+    // Act
+    const resultado = calcularAprovacao(100, 'S', 'S', regrasNulas);
+
+    // Assert
+    expect(resultado).toBeNull();
+  });
+
+  test('DadoRegraSemAvaliacaoAtiva_QuandoCalcularAprovacao_EntaoDeveRetornarNulo', () => {
+    // Arrange
+    const regrasInativas: RegrasAprovacaoCursistaCodafDto = { 
+      ...regrasBaseMock, 
+      possuiRegraAvaliacao: false 
+    };
+
+    // Act
+    const resultado = calcularAprovacao(100, 'S', 'S', regrasInativas);
+
+    // Assert
+    expect(resultado).toBeNull();
+  });
+
+  test('DadoFrequenciaMenorQueMinimaExigida_QuandoCalcularAprovacao_EntaoDeveRetornarFalso', () => {
+    // Arrange
+    const frequenciaInsuficiente = 74;
+
+    // Act
+    const resultado = calcularAprovacao(frequenciaInsuficiente, 'S', 'S', regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoFrequenciaNula_QuandoFrequenciaMinimaSendoExigida_EntaoDeveRetornarFalso', () => {
+    // Arrange
+    const frequenciaNula = null;
+
+    // Act
+    const resultado = calcularAprovacao(frequenciaNula, 'S', 'S', regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoConceitoFinalNaoMapeadoNosAceitos_QuandoCalcularAprovacao_EntaoDeveRetornarFalso', () => {
+    // Arrange
+    const conceitoInvalido = 'NS';
+
+    // Act
+    const resultado = calcularAprovacao(100, conceitoInvalido, 'S', regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoConceitoFinalNulo_QuandoRegraExigeConceito_EntaoDeveRetornarFalso', () => {
+    // Arrange
+    const conceitoNulo = null;
+
+    // Act
+    const resultado = calcularAprovacao(100, conceitoNulo, 'S', regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoAtividadeObrigatoriaComStatusDiferenteDeSim_QuandoCalcularAprovacao_EntaoDeveRetornarFalso', () => {
+    // Arrange
+    const atividadeNaoRealizada = 'N';
+
+    // Act
+    const resultado = calcularAprovacao(100, 'P', atividadeNaoRealizada, regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoTodasAsInvariantesSatisfeitas_QuandoCalcularAprovacao_EntaoDeveRetornarVerdadeiro', () => {
+    // Arrange
+    const frequenciaAdequada = 80;
+    const conceitoAdequado = 'P';
+    const atividadeAdequada = 'S';
+
+    // Act
+    const resultado = calcularAprovacao(frequenciaAdequada, conceitoAdequado, atividadeAdequada, regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(true);
+  });
+
+  test('DadoRegraSemThresholdDeFrequencia_QuandoCalcularAprovacaoComQualquerFrequencia_EntaoDeveIgnorarEValidarVerdadeiro', () => {
+    // Arrange
+    const regrasSemFrequencia: RegrasAprovacaoCursistaCodafDto = { 
+      ...regrasBaseMock, 
+      frequenciaMinima: 0 
+    };
+
+    // Act
+    const resultado = calcularAprovacao(10, 'P', 'S', regrasSemFrequencia);
+
+    // Assert
+    expect(resultado).toBe(true);
+  });
+
+  test('DadoRegraComVetorDeConceitosVazio_QuandoCalcularAprovacaoComQualquerConceito_EntaoDeveIgnorarEValidarVerdadeiro', () => {
+    // Arrange
+    const regrasSemConceito: RegrasAprovacaoCursistaCodafDto = { 
+      ...regrasBaseMock, 
+      conceitosAceitos: [] 
+    };
+
+    // Act
+    const resultado = calcularAprovacao(100, 'NS', 'S', regrasSemConceito);
+
+    // Assert
+    expect(resultado).toBe(true);
+  });
+
+  test('DadoRegraSemExigenciaDeAtividade_QuandoCalcularAprovacaoComQualquerAtividade_EntaoDeveIgnorarEValidarVerdadeiro', () => {
+    // Arrange
+    const regrasSemAtividade: RegrasAprovacaoCursistaCodafDto = { 
+      ...regrasBaseMock, 
+      exigeAtividadeObrigatoria: false 
+    };
+
+    // Act
+    const resultado = calcularAprovacao(100, 'P', 'N', regrasSemAtividade);
+
+    // Assert
+    expect(resultado).toBe(true);
   });
 });

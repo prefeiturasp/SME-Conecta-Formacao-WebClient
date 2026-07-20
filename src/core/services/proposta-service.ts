@@ -1,4 +1,5 @@
 import { AcaoInformativaDto } from '../dto/acao-informativa-url-dto';
+import { RegrasAprovacaoCursistaCodafDto } from '../dto/cursista-dto';
 import { CriterioValidacaoInscricaoDTO } from '../dto/criterio-validacao-inscricao-dto';
 import { DevolverPropostaDTO } from '../dto/devolver-proposta-dto';
 import { PropostaInformacoesCadastranteDTO } from '../dto/informacoes-cadastrante-dto';
@@ -33,6 +34,7 @@ export type PropostaAutocompletarDTO = {
   numeroHomologacao: number;
   nomeFormacao: string;
   codigoFormacao: number;
+  regrasAprovacao?: RegrasAprovacaoCursistaCodafDto;
 };
 
 export type PropostaAutocompletarRetornoDTO = {
