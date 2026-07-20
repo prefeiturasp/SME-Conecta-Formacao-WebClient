@@ -13,7 +13,7 @@ import { notification } from '~/components/lib/notification';
 const { Text } = Typography;
 
 function FormTransferir() {
-  const { data: formacoes = [], loading, erro } = useFormacoesSimples({ nomeFormacao: '' });
+  const { data: formacoes = [], loading, erro } = useFormacoesSimples({ nomeFormacao: '', apenasSemCodaf: true });
   const { transferir, loading: loadingTransfer, message } = useTransferirCursistas();
 
   const [idFormacaoOrigem, setIdFormacaoOrigem] = useState<number | null>(null);
