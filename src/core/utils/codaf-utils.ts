@@ -1,5 +1,6 @@
 import type { FormInstance } from 'antd';
 import dayjs from 'dayjs';
+import { RegrasAprovacaoCursistaCodafDto } from '../dto/cursista-dto';
 
 /**
  * @interface RetificacaoDTO
@@ -130,3 +131,28 @@ export function extractRetificacoesPayload<T extends Record<string, any>>(
     })
     .filter((r): r is RetificacaoDTO => r !== null);
 }
+
+export const calcularAprovacao = (
+  frequencia: number | null,
+  conceitoFinal: string | null,
+  atividade: string | null,
+  regras?: RegrasAprovacaoCursistaCodafDto
+): boolean | null => {
+    if (!regras || !regras.possuiRegraAvaliacao) return null;
+
+    let aprovado = true;
+
+    if (regras.frequenciaMinima > 0) {
+      if ((frequencia ?? 0) < regras.frequenciaMinima) aprovado = false;
+    }
+    
+    if (regras.conceitosAceitos.length > 0) {
+      if (!conceitoFinal || !regras.conceitosAceitos.includes(conceitoFinal)) aprovado = false;
+    }
+    
+    if (regras.exigeAtividadeObrigatoria) {
+      if (atividade !== 'S') aprovado = false;
+    }
+
+    return aprovado;
+};

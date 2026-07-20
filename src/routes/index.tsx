@@ -44,6 +44,8 @@ import ListCoordenadoria from '~/pages/cadastros/coordenadoria';
 import CodafSuplementar from '~/pages/formacoes/codaf-suplementar';
 import CadastroCodafSuplementar from '~/pages/formacoes/codaf-suplementar/cadastro';
 
+const isCodafSuplementarEnabled: boolean = !import.meta.env.PROD;
+
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);
 
@@ -204,6 +206,7 @@ const RoutesConfig = () => {
                 </Route>
               </Route>
 
+              {isCodafSuplementarEnabled && (
               <Route path={ROUTES.CODAF_SUPLEMENTAR}>
                 <Route element={<GuardPermissao menuKey={MenuEnum.CodafSuplementar} />}>
                   <Route path='' element={<CodafSuplementar />} />
@@ -220,7 +223,7 @@ const RoutesConfig = () => {
                     element={<CadastroCodafSuplementar />}
                   />
                 </Route>
-              </Route>
+              </Route>)}
 
               <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
                 <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />

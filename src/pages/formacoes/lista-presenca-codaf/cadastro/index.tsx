@@ -58,7 +58,8 @@ import { onClickVoltar } from '~/core/utils/form';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { downloadBlob } from '~/core/utils/functions';
-import { extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
 
 interface CursistaDTO {
   id: number;
@@ -119,6 +120,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
   const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
+  const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
 
   const cursistasSelecionados = cursistas.filter((c) => cursistasSelecionadosIds.includes(c.id));
 
@@ -453,6 +455,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         const dados = response.dados;
         setRegistroId(dados.id);
         setStatus(dados.status);
+        setRegrasAprovacao(dados.regrasAprovacao);
 
         if (dados.comentario) {
           setComentario(dados.comentario);
@@ -556,7 +559,27 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
   const handleCursistaChange = (id: number, field: keyof CursistaDTO, value: any) => {
     setCursistas((prev) =>
-      prev.map((cursista) => (cursista.id === id ? { ...cursista, [field]: value } : cursista)),
+      prev.map((cursista) => {
+        if (cursista.id !== id) return cursista;
+
+        const cursistaAtualizado = { ...cursista, [field]: value };
+
+        // Só recalcula se a alteração for nos campos de avaliação
+        if (['frequencia', 'atividade', 'conceitoFinal'].includes(field)) {
+          const autoAprovado = calcularAprovacao(
+            cursistaAtualizado.frequencia,
+            cursistaAtualizado.conceitoFinal,
+            cursistaAtualizado.atividade,
+            regrasAprovacao
+          );
+
+          if (autoAprovado !== null) {
+            cursistaAtualizado.aprovado = autoAprovado;
+          }
+        }
+
+        return cursistaAtualizado;
+      }),
     );
   };
 
@@ -717,6 +740,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     const proposta = opcoesFormacao.find((p) => p.propostaId === option.propostaId);
     if (proposta) {
       setPropostaSelecionada(proposta);
+      setRegrasAprovacao(proposta.regrasAprovacao);
       form.setFieldsValue({
         numeroHomologacao: proposta.numeroHomologacao,
         nomeFormacao: proposta.nomeFormacao,
@@ -1609,6 +1633,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             loading={false}
             onClose={() => setDrawerLoteAberto(false)}
             onConfirmar={onConfirmarDadosLote}
+            regrasAprovacao={regrasAprovacao}
           />
 
           <div style={{ display: ehAreaPromotoraEAdmin ? 'block' : 'none' }}>
@@ -1709,6 +1734,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         onCloseModal={() => setModalDrawerInscritosVisible(false)}
         onSave={onSaveDrawerInscritos}
         inscritos={novosInscritosDrawer}
+        regrasAprovacao={regrasAprovacao}
       />
     </Col>
   );

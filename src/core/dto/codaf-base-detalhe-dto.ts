@@ -1,3 +1,5 @@
+import { RegrasAprovacaoCursistaCodafDto } from './cursista-dto';
+
 export interface CodafBaseDetalheDTO {
   id: number;
   propostaId: number;
@@ -13,6 +15,7 @@ export interface CodafBaseDetalheDTO {
   codigoNivel: number;
   observacao: string | null;
   status: number;
+  regrasAprovacao?: RegrasAprovacaoCursistaCodafDto;
   alteradoEm: string | null;
   alteradoPor: string | null;
   alteradoLogin: string | null;
