@@ -86,6 +86,23 @@ const formatarData = (data: any) => {
   return dayjs(data).format('YYYY-MM-DD');
 };
 
+const mapearAnexosParaFormulario = (anexos: CodafListaPresencaDetalheDTO['anexos'] = []) =>
+  anexos
+    .filter(
+      (anexo) =>
+        anexo?.arquivoCodigo != null && anexo?.arquivoCodigo !== '' && anexo?.arquivoCodigo !== '0',
+    )
+    .map((anexo) => ({
+      uid: anexo.arquivoCodigo,
+      name: anexo.nomeArquivo,
+      status: 'done',
+      xhr: anexo.arquivoCodigo,
+      arquivoCodigo: anexo.arquivoCodigo,
+      nomeArquivo: anexo.nomeArquivo,
+      tipoAnexoId: anexo.tipoAnexoId,
+      urlDownload: anexo.urlDownload,
+    }));
+
 const CadastroListaPresencaCodaf: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
@@ -370,20 +387,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
       if (dados.anexos && dados.anexos.length > 0) {
         form.setFieldsValue({
-          anexos: dados.anexos
-            .filter((anexo) => anexo?.arquivoCodigo != null && 
-            anexo?.arquivoCodigo !== '' && 
-            anexo?.arquivoCodigo !== '0')
-            .map((anexo) => ({
-              uid: anexo.arquivoCodigo,
-              name: anexo.nomeArquivo,
-              status: 'done',
-              xhr: anexo.arquivoCodigo,
-              arquivoCodigo: anexo.arquivoCodigo,
-              nomeArquivo: anexo.nomeArquivo,
-              tipoAnexoId: anexo.tipoAnexoId,
-              urlDownload: anexo.urlDownload,
-            })),
+          anexos: mapearAnexosParaFormulario(dados.anexos),
         });
       }
     };
@@ -804,6 +808,13 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     }
   };
 
+  const recarregarAnexos = async (registroIdAtual: number) => {
+    const detalhes = await obterCodafListaPresencaPorId(registroIdAtual);
+    if (detalhes.sucesso && detalhes.dados?.anexos) {
+      form.setFieldsValue({ anexos: mapearAnexosParaFormulario(detalhes.dados.anexos) });
+    }
+  };
+
   const houveAlteracaoInscritosAoSalvar = async (idRegistroSelecionado: number) => {
     const response = await obterDeltaInscritosSilencioso(idRegistroSelecionado);
     if (response.sucesso && response.dados) {
@@ -910,6 +921,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         const registroIdAtual = id ?? response.dados?.id;
 
         if (registroIdAtual) {
+          await recarregarAnexos(Number(registroIdAtual));
           await atualizarDivergenciaPosSalvar(registroIdAtual);
         }
 
