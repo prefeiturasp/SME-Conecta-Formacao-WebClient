@@ -259,7 +259,7 @@ function getSaveErrorMessage(response: ApiResponseMessage, isEditing: boolean) {
 
 export const deveDesabilitarSalvar = (certificadoEmitido: boolean) => certificadoEmitido;
 
-type ActionButtonsProps = {
+type ActionButtonsProps = Readonly<{
   navigate: ReturnType<typeof useNavigate>;
   onClickExcluir: () => void;
   onClickSalvar: () => void;
@@ -271,7 +271,7 @@ type ActionButtonsProps = {
       excluir: { visible: boolean; locked: boolean };
     };
   };
-};
+}>;
 
 function ActionButtons({
   navigate,
