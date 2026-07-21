@@ -23,6 +23,7 @@ interface SecaoBuscaEListaInscritosProps {
       value: CursistaDTO[keyof CursistaDTO],
     ) => void;
     propostaTurmaId: number;
+    certificadoEmitido: boolean;
 }
 
 const TAMANHO_PAGINA = 20;
@@ -73,6 +74,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
     onRemoverCursista,
     onChangeCursista,
     propostaTurmaId,
+    certificadoEmitido,
 }) => {
   const [buscando, setBuscando] = useState<boolean>(false);
   const [carregandoMais, setCarregandoMais] = useState<boolean>(false);
@@ -209,6 +211,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
           onChange={(e) => handleFrequenciaChange(registro.inscricaoId, e.target.value)}
           style={{ width: '100%' }}
           maxLength={4}
+          disabled={certificadoEmitido}
         />
       ),
     },
@@ -228,6 +231,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
             { label: 'Não', value: 'N' },
           ]}
           allowClear
+          disabled={certificadoEmitido}
         />
       ),
     },
@@ -248,6 +252,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
             { label: 'Não Satisfatório (NS)', value: 'NS' },
           ]}
           allowClear
+          disabled={certificadoEmitido}
         />
       ),
     },
@@ -267,6 +272,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
             { label: 'Não', value: 'N' },
           ]}
           allowClear
+          disabled={certificadoEmitido}
         />
       ),
     },
@@ -281,6 +287,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
           danger
           icon={<DeleteOutlined />}
           onClick={() => onRemoverCursista(registro.inscricaoId)}
+          disabled={certificadoEmitido}
         />
       ),
     },
@@ -324,7 +331,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
             onPopupScroll={handlePopupScroll}
             style={{ width: '100%' }}
             size="large"
-            disabled={!propostaTurmaId}
+            disabled={!propostaTurmaId || certificadoEmitido}
             allowClear
             optionLabelProp="label"
             dropdownRender={(menu) => (
@@ -356,7 +363,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
             type="primary"
             size="large"
             block
-            disabled={itensSelecionados.length === 0}
+            disabled={itensSelecionados.length === 0 || certificadoEmitido}
             onClick={handlerAdicionarInscritos}
             style={{ fontWeight: 700 }}
           >
@@ -379,7 +386,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
 
       <Row gutter={[16, 8]}>
         <Col span={24}>
-          <Table
+          <Table          
             columns={colunas}
             dataSource={cursistas}
             rowKey="inscricaoId"

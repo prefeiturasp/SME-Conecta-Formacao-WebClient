@@ -31,6 +31,7 @@ interface SecaoFormularioProps {
     numeroHomologacao: boolean;
     turma: boolean;
   };
+  certificadoEmitido: boolean;
 }
 
 export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
@@ -44,7 +45,8 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
   exibirTooltipTurma = true,
   ehPerfilDF,
   ehPerfilEMFORPEF,
-  camposBloqueados
+  camposBloqueados,
+  certificadoEmitido
 }) => {
   return (
     <div>
@@ -58,7 +60,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
             >
               <AutoComplete
                 id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                disabled={camposBloqueados.numeroHomologacao}
+                disabled={camposBloqueados.numeroHomologacao || certificadoEmitido}
                 placeholder='Digite para buscar formação'
                 onSearch={onSearchFormacao}
                 onSelect={onSelectFormacao}
@@ -137,7 +139,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                   label: turma.descricao,
                   value: turma.id,
                 }))}
-                disabled={camposBloqueados.turma ?? turmaDisabled}
+                disabled={(camposBloqueados.turma ?? turmaDisabled) || certificadoEmitido}
                 allowClear
               />
             </Form.Item>

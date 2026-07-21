@@ -849,6 +849,7 @@ const CadastroCodafSuplementar: React.FC = () => {
             ehPerfilDF={false}
             ehPerfilEMFORPEF={false}
             camposBloqueados={formLocks.fields.formulario}
+            certificadoEmitido={certificadoEmitido}
           />
 
           <SecaoBuscaEListaInscritos
@@ -857,6 +858,7 @@ const CadastroCodafSuplementar: React.FC = () => {
             onRemoverCursista={onRemoverCursista}
             onChangeCursista={onChangeCursista}
             propostaTurmaId={turmaIdWatch ?? 0}
+            certificadoEmitido={certificadoEmitido}
           />
           <div style={{ display: 'block'}}>
             <SecaoRetificacoes
