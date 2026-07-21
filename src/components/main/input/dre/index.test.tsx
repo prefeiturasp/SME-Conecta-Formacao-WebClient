@@ -7,6 +7,10 @@ import { render, waitFor } from '@testing-library/react';
 import { Form } from 'antd';
 import { SelectDRE } from './index';
 import { obterDREs } from '../../../../core/services/dre-service';
+import {
+  onchangeMultiSelectLabelInValueOpcaoTodos,
+  onchangeMultiSelectOpcaoTodos,
+} from '../../../../core/utils/functions';
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -46,13 +50,17 @@ describe('SelectDRE', () => {
     jest.clearAllMocks();
   });
 
-  it('deve renderizar o componente corretamente', () => {
+  it('deve renderizar o componente corretamente', async () => {
     obterDREsMock.mockResolvedValue({
       sucesso: true,
       dados: [],
     });
 
     const { getByText } = renderComponent();
+
+    await waitFor(() => {
+      expect(obterDREsMock).toHaveBeenCalled();
+    });
 
     expect(getByText('DRE')).toBeInTheDocument();
   });
@@ -108,20 +116,22 @@ describe('SelectDRE', () => {
     });
   });
 
-  it('deve aplicar normalize simples quando não é múltiplo', () => {
+  it('deve aplicar normalize simples quando não é múltiplo', async () => {
     const { container } = render(
       <Form>
         <SelectDRE selectProps={{ mode: undefined }} />
       </Form>,
     );
 
+    await waitFor(() => {
+      expect(container).toBeInTheDocument();
+    });
+
     const form = container.querySelector('form');
     expect(form).toBeInTheDocument();
   });
 
   it('deve chamar normalize com onchangeMultiSelectOpcaoTodos quando labelInValue=false', async () => {
-    const utils = require('~/core/utils/functions');
-
     const { container } = render(
       <Form>
         <SelectDRE
@@ -135,12 +145,10 @@ describe('SelectDRE', () => {
       expect(container).toBeInTheDocument();
     });
 
-    expect(utils.onchangeMultiSelectOpcaoTodos).toBeDefined();
+    expect(onchangeMultiSelectOpcaoTodos).toBeDefined();
   });
 
   it('deve chamar onchangeMultiSelectLabelInValueOpcaoTodos quando labelInValue=true', async () => {
-    const utils = require('~/core/utils/functions');
-
     render(
       <Form>
         <SelectDRE
@@ -151,7 +159,7 @@ describe('SelectDRE', () => {
     );
 
     await waitFor(() => {
-      expect(utils.onchangeMultiSelectLabelInValueOpcaoTodos).toBeDefined();
+      expect(onchangeMultiSelectLabelInValueOpcaoTodos).toBeDefined();
     });
   });
 

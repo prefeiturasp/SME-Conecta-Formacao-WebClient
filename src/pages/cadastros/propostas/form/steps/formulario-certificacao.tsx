@@ -130,7 +130,6 @@ const FormularioCertificacao: React.FC = () => {
                 <Radio.Group
                   onChange={obterPossuiCertificado}
                   value={valuePossuiCertificado}
-                  defaultValue={false}
                 >
                   <Radio value={true}>Sim</Radio>
                   <Radio value={false}>Não</Radio>

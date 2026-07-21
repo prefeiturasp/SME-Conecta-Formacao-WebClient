@@ -2,179 +2,487 @@
  * @jest-environment jsdom
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import DrawerAtualizacaoInscritos from './drawer-atualizacao-inscritos';
-import { confirmacao } from '~/core/services/alerta-service';
 
-// 1. MOCK DO CSS MODULE
-jest.mock('./card-inscrito.module.css', () => ({}));
+import { fireEvent, render, screen } from '@testing-library/react';
+import React from 'react';
 
-// 2. Mock do matchMedia (Obrigatório para testes com componentes do Ant Design)
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
+import CardInscrito from './card-inscrito';
 
-// 3. Mock do serviço de alerta
-jest.mock('~/core/services/alerta-service', () => ({
-  confirmacao: jest.fn(),
+type FormItemMockProps = {
+  label?: React.ReactNode;
+  name?: Array<number | string>;
+  rules?: Array<{
+    required?: boolean;
+    message?: string;
+  }>;
+  children?: React.ReactNode;
+};
+
+type InputMockProps = {
+  placeholder?: string;
+  maxLength?: number;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+};
+
+type SelectMockProps = {
+  placeholder?: string;
+  onChange?: (value: string) => void;
+  children?: React.ReactNode;
+};
+
+type SelectOptionMockProps = {
+  value?: string;
+  children?: React.ReactNode;
+};
+
+let capturedFormItems: FormItemMockProps[] = [];
+
+jest.mock('./card-inscrito.module.css', () => ({
+  cardContainer: 'cardContainer',
+  cardHeader: 'cardHeader',
+  subscriberName: 'subscriberName',
+  subscriberDocument: 'subscriberDocument',
+  cardBody: 'cardBody',
 }));
 
-// 4. Mock do componente filho (CardInscrito)
-jest.mock('./card-inscrito', () => {
-  const ReactMock = require('react');
-  const { Form, Input } = require('antd');
-  
-  return function MockCardInscrito({ name, onChangeForm }: any) {
+jest.mock('antd', () => {
+  const FormItem = ({
+    label,
+    name,
+    rules,
+    children,
+  }: FormItemMockProps) => {
+    capturedFormItems.push({
+      label,
+      name,
+      rules,
+      children,
+    });
+
     return (
-      <div data-testid="mock-card-inscrito">
-        <Form.Item name={[name, 'frequencia']}>
-          <Input data-testid={`mock-input-${name}`} onChange={onChangeForm} />
-        </Form.Item>
+      <div
+        data-testid={`form-item-${String(name?.[1])}`}
+        data-name={JSON.stringify(name)}
+        data-rules={JSON.stringify(rules)}
+      >
+        <label>{label}</label>
+        {children}
       </div>
     );
   };
+
+  const Input = ({
+    placeholder,
+    maxLength,
+    onChange,
+  }: InputMockProps) => (
+    <input
+      placeholder={placeholder}
+      maxLength={maxLength}
+      onChange={onChange}
+    />
+  );
+
+  const Select = ({
+    placeholder,
+    onChange,
+    children,
+  }: SelectMockProps) => (
+    <select
+      aria-label={placeholder}
+      value=''
+      onChange={(event) => onChange?.(event.target.value)}
+    >
+      <option value='' disabled>
+        {placeholder}
+      </option>
+      {children}
+    </select>
+  );
+
+  Select.Option = ({
+    value,
+    children,
+  }: SelectOptionMockProps) => (
+    <option value={value}>{children}</option>
+  );
+
+  const Row = ({
+    children,
+  }: {
+    children?: React.ReactNode;
+  }) => <div data-testid='row'>{children}</div>;
+
+  const Col = ({
+    children,
+    xs,
+    md,
+  }: {
+    children?: React.ReactNode;
+    xs?: number;
+    md?: number;
+  }) => (
+    <div
+      data-testid='col'
+      data-xs={xs}
+      data-md={md}
+    >
+      {children}
+    </div>
+  );
+
+  return {
+    Col,
+    Form: {
+      Item: FormItem,
+    },
+    Input,
+    Row,
+    Select,
+  };
 });
 
-describe('DrawerAtualizacaoInscritos - Regras e Lógica de Formulário', () => {
-  const mockOnCloseModal = jest.fn();
-  const mockOnSave = jest.fn();
-  const mockInscritos = [
-    {
-      id: 1,
-      nome: 'João Cursista',
-      documento: '123.456.789-00',
-    } as any,
-  ];
+describe('CardInscrito', () => {
+  const onChangeForm = jest.fn();
+
+  const renderizar = (
+    overrides: Partial<
+      React.ComponentProps<typeof CardInscrito>
+    > = {},
+  ) =>
+    render(
+      <CardInscrito
+        name={0}
+        nome='Maria da Silva'
+        documento='123.456.789-00'
+        onChangeForm={onChangeForm}
+        {...overrides}
+      />,
+    );
 
   beforeEach(() => {
     jest.clearAllMocks();
+    capturedFormItems = [];
   });
 
-  test('Cenário 1: Não deve renderizar o Drawer quando openModal for false', () => {
-    render(
-      <DrawerAtualizacaoInscritos
-        openModal={false}
-        onCloseModal={mockOnCloseModal}
-        onSave={mockOnSave}
-        inscritos={mockInscritos}
-      />
-    );
+  it('renderiza o nome e o documento do inscrito', () => {
+    renderizar();
 
-    expect(screen.queryByText('Atualização de inscritos')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        name: 'Maria da Silva',
+        level: 3,
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        'RF ou CPF: 123.456.789-00',
+      ),
+    ).toBeInTheDocument();
   });
 
-  test('Cenário 2: Deve renderizar o Drawer e os Cards quando openModal for true', () => {
-    render(
-      <DrawerAtualizacaoInscritos
-        openModal={true}
-        onCloseModal={mockOnCloseModal}
-        onSave={mockOnSave}
-        inscritos={mockInscritos}
-      />
-    );
+  it('aplica as classes CSS esperadas', () => {
+    const { container } = renderizar();
 
-    expect(screen.getByText('Atualização de inscritos')).toBeInTheDocument();
-    expect(screen.getByText(/Atualize as informações dos novos inscritos/i)).toBeInTheDocument();
-    
-    expect(screen.getByRole('button', { name: /cancelar/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /atualizar inscritos/i })).toBeInTheDocument();
+    expect(
+      container.querySelector('.cardContainer'),
+    ).toBeInTheDocument();
 
-    expect(screen.getAllByTestId('mock-card-inscrito')).toHaveLength(1);
+    expect(
+      container.querySelector('.cardHeader'),
+    ).toBeInTheDocument();
+
+    expect(
+      container.querySelector('.subscriberName'),
+    ).toBeInTheDocument();
+
+    expect(
+      container.querySelector(
+        '.subscriberDocument',
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      container.querySelector('.cardBody'),
+    ).toBeInTheDocument();
   });
 
-  test('Cenário 3: Deve fechar a modal DIRETAMENTE se clicar em Cancelar com o formulário limpo', async () => {
-    render(
-      <DrawerAtualizacaoInscritos
-        openModal={true}
-        onCloseModal={mockOnCloseModal}
-        onSave={mockOnSave}
-        inscritos={mockInscritos}
-      />
-    );
+  it('renderiza quatro campos do formulário', () => {
+    renderizar();
 
-    const btnCancelar = screen.getByRole('button', { name: /cancelar/i });
-    
-    // O fechamento também aciona resetFields() nativo do form, por isso usamos act()
-    await act(async () => {
-      fireEvent.click(btnCancelar);
-    });
+    expect(capturedFormItems).toHaveLength(4);
 
-    expect(confirmacao).not.toHaveBeenCalled();
-    expect(mockOnCloseModal).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByText('Frequência (%)'),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText('Atividade obrigatória'),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText('Conceito final'),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText('Aprovado'),
+    ).toBeInTheDocument();
   });
 
-  test('Cenário 4: Deve exibir a modal de CONFIRMAÇÃO se clicar em Cancelar após alterar o formulário', async () => {
-    render(
-      <DrawerAtualizacaoInscritos
-        openModal={true}
-        onCloseModal={mockOnCloseModal}
-        onSave={mockOnSave}
-        inscritos={mockInscritos}
-      />
-    );
-
-    // 1. Simulamos a alteração no campo
-    const inputMock = screen.getByTestId('mock-input-0');
-    fireEvent.change(inputMock, { target: { value: '85' } });
-
-    // 2. Clicamos em Cancelar
-    const btnCancelar = screen.getByRole('button', { name: /cancelar/i });
-    fireEvent.click(btnCancelar);
-
-    expect(confirmacao).toHaveBeenCalledTimes(1);
-    expect(mockOnCloseModal).not.toHaveBeenCalled();
-
-    // 3. Simulamos o clique no botão "OK" da modal (envolvido no act)
-    const argsConfirmacao = (confirmacao as jest.Mock).mock.calls[0][0];
-    
-    await act(async () => {
-      argsConfirmacao.onOk();
+  it('usa o índice recebido nos nomes dos campos', () => {
+    renderizar({
+      name: 7,
     });
 
-    expect(mockOnCloseModal).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByTestId('form-item-frequencia'),
+    ).toHaveAttribute(
+      'data-name',
+      JSON.stringify([7, 'frequencia']),
+    );
+
+    expect(
+      screen.getByTestId(
+        'form-item-atividadeObrigatoria',
+      ),
+    ).toHaveAttribute(
+      'data-name',
+      JSON.stringify([
+        7,
+        'atividadeObrigatoria',
+      ]),
+    );
+
+    expect(
+      screen.getByTestId('form-item-conceitoFinal'),
+    ).toHaveAttribute(
+      'data-name',
+      JSON.stringify([7, 'conceitoFinal']),
+    );
+
+    expect(
+      screen.getByTestId('form-item-aprovado'),
+    ).toHaveAttribute(
+      'data-name',
+      JSON.stringify([7, 'aprovado']),
+    );
   });
 
-  test('Cenário 5: Deve validar o formulário e chamar onSave com os dados ao clicar em Atualizar Inscritos', async () => {
-    render(
-      <DrawerAtualizacaoInscritos
-        openModal={true}
-        onCloseModal={mockOnCloseModal}
-        onSave={mockOnSave}
-        inscritos={mockInscritos}
-      />
+  it('configura todos os campos como obrigatórios', () => {
+    renderizar();
+
+    capturedFormItems.forEach((item) => {
+      expect(item.rules).toEqual([
+        {
+          required: true,
+          message: 'Campo obrigatório',
+        },
+      ]);
+    });
+  });
+
+  it('configura corretamente o campo de frequência', () => {
+    renderizar();
+
+    const input = screen.getByPlaceholderText('Ex: 85');
+
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveAttribute('maxlength', '3');
+  });
+
+  it('dispara onChangeForm ao alterar a frequência', () => {
+    renderizar();
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Ex: 85'),
+      {
+        target: {
+          value: '85',
+        },
+      },
     );
 
-    const inputMock = screen.getByTestId('mock-input-0');
-    fireEvent.change(inputMock, { target: { value: '100' } });
+    expect(onChangeForm).toHaveBeenCalledTimes(1);
+  });
 
-    const btnAtualizar = screen.getByRole('button', { name: /atualizar inscritos/i });
-    
-    await act(async () => {
-      fireEvent.click(btnAtualizar);
+  it('renderiza as opções de atividade obrigatória', () => {
+    renderizar();
+
+    const selects = screen.getAllByRole('combobox');
+
+    expect(selects[0]).toHaveTextContent('Sim');
+    expect(selects[0]).toHaveTextContent('Não');
+
+    expect(
+      screen.getAllByRole('option', {
+        name: 'Sim',
+      }),
+    ).toHaveLength(2);
+
+    expect(
+      screen.getAllByRole('option', {
+        name: 'Não',
+      }),
+    ).toHaveLength(2);
+  });
+
+  it('dispara onChangeForm ao alterar atividade obrigatória', () => {
+    renderizar();
+
+    const selects = screen.getAllByRole('combobox');
+
+    fireEvent.change(selects[0], {
+      target: {
+        value: 'S',
+      },
     });
 
-    await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledTimes(1);
+    expect(onChangeForm).toHaveBeenCalledTimes(1);
+  });
+
+  it('renderiza as opções de conceito final', () => {
+    renderizar();
+
+    const selects = screen.getAllByRole('combobox');
+
+    expect(selects[1]).toHaveTextContent(
+      'Satisfatório (S)',
+    );
+
+    expect(selects[1]).toHaveTextContent(
+      'Não satisfatório (NS)',
+    );
+
+    expect(selects[1]).toHaveTextContent(
+      'Plenamente satisfatório (P)',
+    );
+  });
+
+  it('usa os valores corretos nas opções de conceito final', () => {
+    renderizar();
+
+    const selects = screen.getAllByRole('combobox');
+    const options = Array.from(
+      selects[1].querySelectorAll('option'),
+    );
+
+    expect(options).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          value: 'S',
+        }),
+        expect.objectContaining({
+          value: 'NS',
+        }),
+        expect.objectContaining({
+          value: 'P',
+        }),
+      ]),
+    );
+  });
+
+  it('dispara onChangeForm ao alterar o conceito final', () => {
+    renderizar();
+
+    const selects = screen.getAllByRole('combobox');
+
+    fireEvent.change(selects[1], {
+      target: {
+        value: 'NS',
+      },
     });
 
-    const argumentoChamadaOnSave = (mockOnSave as jest.Mock).mock.calls[0][0];
-    
-    expect(argumentoChamadaOnSave[0]).toMatchObject({
-      id: 1,
-      nome: 'João Cursista',
-      frequencia: '100', 
+    expect(onChangeForm).toHaveBeenCalledTimes(1);
+  });
+
+  it('renderiza as opções de aprovado', () => {
+    renderizar();
+
+    const selects = screen.getAllByRole('combobox');
+
+    expect(selects[2]).toHaveTextContent('Sim');
+    expect(selects[2]).toHaveTextContent('Não');
+  });
+
+  it('dispara onChangeForm ao alterar aprovado', () => {
+    renderizar();
+
+    const selects = screen.getAllByRole('combobox');
+
+    fireEvent.change(selects[2], {
+      target: {
+        value: 'N',
+      },
     });
+
+    expect(onChangeForm).toHaveBeenCalledTimes(1);
+  });
+
+  it('dispara onChangeForm para todos os campos alteráveis', () => {
+    renderizar();
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Ex: 85'),
+      {
+        target: {
+          value: '90',
+        },
+      },
+    );
+
+    const selects = screen.getAllByRole('combobox');
+
+    fireEvent.change(selects[0], {
+      target: {
+        value: 'S',
+      },
+    });
+
+    fireEvent.change(selects[1], {
+      target: {
+        value: 'P',
+      },
+    });
+
+    fireEvent.change(selects[2], {
+      target: {
+        value: 'S',
+      },
+    });
+
+    expect(onChangeForm).toHaveBeenCalledTimes(4);
+  });
+
+  it('configura todas as colunas com xs 24 e md 12', () => {
+    renderizar();
+
+    const colunas = screen.getAllByTestId('col');
+
+    expect(colunas).toHaveLength(4);
+
+    colunas.forEach((coluna) => {
+      expect(coluna).toHaveAttribute('data-xs', '24');
+      expect(coluna).toHaveAttribute('data-md', '12');
+    });
+  });
+
+  it('renderiza o componente com valores vazios', () => {
+    renderizar({
+      nome: '',
+      documento: '',
+    });
+
+    expect(
+      screen.getByRole('heading', {
+        name: '',
+        level: 3,
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText('RF ou CPF:'),
+    ).toBeInTheDocument();
   });
 });

@@ -57,7 +57,7 @@ jest.mock('antd', () => {
   return {
     __esModule: true,
     Badge: { Ribbon: Mock },
-    Button: (props: any) => <button {...props}>{props.children}</button>,
+    Button: ({ block, ...props }: any) => <button {...props}>{props.children}</button>,
     Col: Mock,
     Row: Mock,
     Divider: Mock,
@@ -150,13 +150,18 @@ jest.mock('~/components/lib/header-page', () => (props: any) => (
 ));
 
 jest.mock('~/components/main/steps', () => () => <div>steps</div>);
+const stepsMock = jest.fn();
+jest.mock('~/components/main/steps', () => (props: any) => {
+  stepsMock(props);
+  return <div>steps</div>;
+});
 jest.mock('~/components/main/spin', () => (props: any) => <div>{props.children}</div>);
 jest.mock('~/components/lib/card-content', () => (props: any) => <div>{props.children}</div>);
 jest.mock('~/components/main/text/auditoria', () => () => <div>auditoria</div>);
 
 // ─── CONTEXTS ─────────────────────────────────────────────────────────────────
 jest.mock('~/routes/config/guard/permissao/provider', () => {
-  const React = require('react');
+  const React = jest.requireActual('react');
   return {
     PermissaoContext: React.createContext({
       desabilitarCampos: false,
@@ -166,7 +171,7 @@ jest.mock('~/routes/config/guard/permissao/provider', () => {
 });
 
 jest.mock('./provider', () => {
-  const React = require('react');
+  const React = jest.requireActual('react');
   return {
     PropostaContext: React.createContext({
       formInitialValues: { podeEnviar: true },
@@ -176,7 +181,7 @@ jest.mock('./provider', () => {
 });
 
 // ─── IMPORTS ──────────────────────────────────────────────────────────────────
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { FormCadastroDePropostas } from './index';
 import cloneDeep from 'lodash/cloneDeep';
@@ -184,10 +189,21 @@ import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { useParams } from 'react-router-dom';
+import {
+  enviarPropostaAnalise,
+  inserirProposta,
+  obterPropostaPorId,
+} from '../../../../core/services/proposta-service';
 import { SituacaoProposta } from '../../../../core/enum/situacao-proposta';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
+Object.defineProperty(window, 'scrollTo', {
+  writable: true,
+  value: jest.fn(),
+});
 
 // ─── TESTS ────────────────────────────────────────────────────────────────────
 
@@ -204,13 +220,20 @@ describe('FormCadastroDePropostas (coverage)', () => {
   it('should click próximo passo', async () => {
     render(<FormCadastroDePropostas />);
     const btn = await screen.findByText('Próximo passo');
-    fireEvent.click(btn);
+
+    await act(async () => {
+      fireEvent.click(btn);
+    });
+
+    await waitFor(() => {
+      expect(stepsMock).toHaveBeenCalled();
+      expect(stepsMock.mock.calls.length).toBeGreaterThan(1);
+    });
+
     expect(btn).toBeInTheDocument();
   });
 
   it('should call salvar rascunho', async () => {
-    const { inserirProposta } = require('~/core/services/proposta-service');
-
     render(<FormCadastroDePropostas />);
     const btn = await screen.findByText('Salvar rascunho');
     fireEvent.click(btn);
@@ -221,10 +244,7 @@ describe('FormCadastroDePropostas (coverage)', () => {
   });
 
   it('should load data when id exists', async () => {
-    const router = require('react-router-dom');
-    router.useParams.mockReturnValue({ id: '1' });
-
-    const { obterPropostaPorId } = require('~/core/services/proposta-service');
+    (useParams as jest.Mock).mockReturnValue({ id: '1' });
 
     render(<FormCadastroDePropostas />);
 
@@ -234,8 +254,6 @@ describe('FormCadastroDePropostas (coverage)', () => {
   });
 
   it('should handle enviar proposta', async () => {
-    const { enviarPropostaAnalise } = require('~/core/services/proposta-service');
-
     render(<FormCadastroDePropostas />);
     const btn = await screen.findByText('Enviar');
     fireEvent.click(btn);

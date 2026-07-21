@@ -1,3 +1,4 @@
+// src/pages/formacoes/lista-presenca-codaf/cadastro/componentes/secao-retificacoes/secao-retificacoes.tsx
 import { Button, Col, DatePicker, Form, Modal, Row } from 'antd';
 import locale from 'antd/lib/date-picker/locale/pt_BR';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
@@ -6,15 +7,18 @@ import React from 'react';
 import InputNumero from '~/components/main/numero';
 import { notification } from '~/components/lib/notification';
 
+interface RetificacaoOriginal {
+  id: number;
+  dataRetificacao: string | null;
+  paginaRetificacaoDom: number;
+}
+
 interface SecaoRetificacoesProps {
   retificacoes: number[];
   setRetificacoes: React.Dispatch<React.SetStateAction<number[]>>;
   contadorRetificacoes: number;
   setContadorRetificacoes: React.Dispatch<React.SetStateAction<number>>;
-  retificacoesOriginais: Map<
-    number,
-    { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }
-  >;
+  retificacoesOriginais: Map<number, RetificacaoOriginal>;
   setRetificacoesOriginais: React.Dispatch<
     React.SetStateAction<
       Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
@@ -28,6 +32,7 @@ interface SecaoRetificacoesProps {
 
 type RetificacaoCardProps = {
   numero: number;
+  displayIndex: number;
   totalRetificacoes: number;
   onExcluir: (numero: number) => void;
   bloqueado: boolean;
@@ -35,125 +40,158 @@ type RetificacaoCardProps = {
 
 const RetificacaoCard: React.FC<RetificacaoCardProps> = ({
   numero,
+  displayIndex,
   totalRetificacoes,
   onExcluir,
   bloqueado: camposBaseadosBloqueados,
-}) => (
-  <Col
-    xs={24}
-    sm={24}
-    md={totalRetificacoes === 1 ? 24 : 12}
-    lg={totalRetificacoes === 1 ? 24 : 12}
-    xl={totalRetificacoes === 1 ? 24 : 12}
-  >
-    <div
-      style={{
-        border: '1px solid #d9d9d9',
-        borderRadius: '2px',
-        overflow: 'hidden',
-      }}
+}) => {
+  const numeroFormatado = numero.toString().padStart(2, '0');
+  const displayIndexFormatado = displayIndex.toString().padStart(2, '0');
+
+  return (
+    <Col
+      xs={24}
+      sm={24}
+      md={totalRetificacoes === 1 ? 24 : 12}
+      lg={totalRetificacoes === 1 ? 24 : 12}
+      xl={totalRetificacoes === 1 ? 24 : 12}
     >
       <div
         style={{
-          backgroundColor: '#ff9a52',
-          color: '#fff',
-          padding: '8px',
-          fontWeight: 600,
-          fontSize: '14px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          border: '1px solid #d9d9d9',
+          borderRadius: '2px',
+          overflow: 'hidden',
         }}
       >
-        <span>Retificação {numero.toString().padStart(2, '0')}</span>
-        <Button
-          disabled={camposBaseadosBloqueados}
-          type='text'
-          icon={<DeleteOutlined />}
-          onClick={() => onExcluir(numero)}
+        <div
           style={{
-            color: '#fff',
-            border: '1px solid #fff',
             backgroundColor: '#ff9a52',
-            fontWeight: 500,
+            color: '#fff',
+            padding: '8px',
+            fontWeight: 600,
+            fontSize: '14px',
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: '8px',
-            padding: '4px 12px',
-            height: 'auto',
           }}
         >
-          Excluir
-        </Button>
+          <span>Retificação {displayIndexFormatado}</span>
+          <Button
+            disabled={camposBaseadosBloqueados}
+            type='text'
+            icon={<DeleteOutlined />}
+            onClick={() => onExcluir(numero)}
+            style={{
+              color: '#fff',
+              border: '1px solid #fff',
+              backgroundColor: '#ff9a52',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '4px 12px',
+              height: 'auto',
+            }}
+          >
+            Excluir
+          </Button>
+        </div>
+        <div style={{ padding: '16px', backgroundColor: '#fff' }}>
+          <Row gutter={[16, 8]}>
+            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+              <Form.Item
+                label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
+                name={`dataRetificacao${numeroFormatado}`}
+              >
+                <DatePicker
+                  disabled={camposBaseadosBloqueados}
+                  format='DD/MM/YYYY'
+                  placeholder='Selecione a data'
+                  locale={locale}
+                  style={{ width: '100%' }}
+                  disabledDate={(current) => current && current > dayjs().endOf('day')}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+              <Form.Item noStyle shouldUpdate>
+                {({ getFieldValue }) => {
+                  const dataRetificacao = getFieldValue(`dataRetificacao${numeroFormatado}`);
+                  return (
+                    <InputNumero
+                      formItemProps={{
+                        label: <span style={{ fontWeight: 700 }}>Página da retificação</span>,
+                        name: `paginaRetificacao${numeroFormatado}`,
+                        rules: [
+                          {
+                            type: 'number',
+                            max: 32767,
+                            message: 'O valor máximo permitido é 32767',
+                            transform: (value) => (value ? Number(value) : value),
+                          }
+                        ]
+                      }}
+                      inputProps={{
+                        placeholder: 'Número da página',
+                        maxLength: 5,
+                        max: 32767,
+                        disabled: !dataRetificacao,
+                      }}
+                    />
+                  );
+                }}
+              </Form.Item>
+            </Col>
+          </Row>
+        </div>
       </div>
-      <div style={{ padding: '16px', backgroundColor: '#fff' }}>
-        <Row gutter={[16, 8]}>
-          <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-            <Form.Item
-              label={<span style={{ fontWeight: 700 }}>Data da retificação</span>}
-              name={`dataRetificacao${numero.toString().padStart(2, '0')}`}
-            >
-              <DatePicker
-                disabled={camposBaseadosBloqueados}
-                format='DD/MM/YYYY'
-                placeholder='Selecione a data'
-                locale={locale}
-                style={{ width: '100%' }}
-                disabledDate={(current) => current && current > dayjs().endOf('day')}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-            <Form.Item noStyle shouldUpdate>
-              {({ getFieldValue }) => {
-                const dataRetificacao = getFieldValue(
-                  `dataRetificacao${numero.toString().padStart(2, '0')}`,
-                );
-                return (
-                  <InputNumero
-                    formItemProps={{
-                      label: <span style={{ fontWeight: 700 }}>Página da retificação</span>,
-                      name: `paginaRetificacao${numero.toString().padStart(2, '0')}`,
-                    }}
-                    inputProps={{
-                      placeholder: 'Número da página',
-                      maxLength: 10,
-                      disabled: !dataRetificacao,
-                    }}
-                  />
-                );
-              }}
-            </Form.Item>
-          </Col>
-        </Row>
-      </div>
-    </div>
-  </Col>
-);
+    </Col>
+  );
+};
 
 const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
   retificacoes,
   setRetificacoes,
-  contadorRetificacoes,
-  setContadorRetificacoes,
   retificacoesOriginais,
   setRetificacoesOriginais,
   form,
   camposBaseadosBloqueados,
   aoDeletarRetificacao,
-  podeAdicionarNovaRetificacao
+  podeAdicionarNovaRetificacao = true,
 }) => {
   const adicionarNovaRetificacao = () => {
     if (!podeAdicionarNovaRetificacao) return;
-    const novoContador = contadorRetificacoes + 1;
-    setContadorRetificacoes(novoContador);
-    setRetificacoes([...retificacoes, novoContador]);
+
+    const nextId = retificacoes.length > 0 ? Math.max(...retificacoes) + 1 : 1;
+    setRetificacoes([...retificacoes, nextId]);
   };
 
   const excluirRetificacao = (numero: number) => {
-    if (retificacoes.length === 1) {
-      form.setFieldValue(`dataRetificacao${numero.toString().padStart(2, '0')}`, undefined);
-      form.setFieldValue(`paginaRetificacao${numero.toString().padStart(2, '0')}`, undefined);
+    const numeroFormatado = numero.toString().padStart(2, '0');
+    const retificacaoOriginal = retificacoesOriginais.get(numero);
+    const persistida = !!(retificacaoOriginal && retificacaoOriginal.id > 0);
+
+    const realizarLimpezaLocal = () => {
+      if (retificacoes.length === 1) {
+        form.setFieldValue(`dataRetificacao${numeroFormatado}`, undefined);
+        form.setFieldValue(`paginaRetificacao${numeroFormatado}`, undefined);
+
+        if (persistida) {
+          retificacoesOriginais.delete(numero);
+          setRetificacoesOriginais(new Map(retificacoesOriginais));
+        }
+      }
+      else {
+        setRetificacoes(retificacoes.filter((r) => r !== numero));
+        retificacoesOriginais.delete(numero);
+        setRetificacoesOriginais(new Map(retificacoesOriginais));
+        form.setFieldValue(`dataRetificacao${numeroFormatado}`, undefined);
+        form.setFieldValue(`paginaRetificacao${numeroFormatado}`, undefined);
+      }
+    };
+
+    if (!persistida) {
+      realizarLimpezaLocal();
       return;
     }
 
@@ -162,8 +200,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
       content: (
         <div>
           <p style={{ marginBottom: 8 }}>
-            Deseja realmente excluir a{' '}
-            <strong>Retificação {numero.toString().padStart(2, '0')}</strong>?
+            Deseja realmente excluir a <strong>Retificação {numeroFormatado}</strong>?
           </p>
           <p style={{ color: '#8c8c8c', fontSize: '13px', marginBottom: 0 }}>
             Esta ação não poderá ser desfeita.
@@ -178,9 +215,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
       centered: true,
       onOk: async () => {
         try {
-          const retificacaoOriginal = retificacoesOriginais.get(numero);
-
-          if (retificacaoOriginal && retificacaoOriginal.id > 0) {
+          if (persistida) {
             const response = await aoDeletarRetificacao(retificacaoOriginal.id);
             if (response.sucesso) {
               notification.success({
@@ -196,11 +231,7 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
             }
           }
 
-          setRetificacoes(retificacoes.filter((r) => r !== numero));
-          retificacoesOriginais.delete(numero);
-          setRetificacoesOriginais(new Map(retificacoesOriginais));
-          form.setFieldValue(`dataRetificacao${numero.toString().padStart(2, '0')}`, undefined);
-          form.setFieldValue(`paginaRetificacao${numero.toString().padStart(2, '0')}`, undefined);
+          realizarLimpezaLocal();
         } catch (error) {
           console.error('Erro ao excluir retificação:', error);
           notification.error({
@@ -235,10 +266,11 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
       </Row>
 
       <Row gutter={[16, 16]}>
-        {retificacoes.map((numero) => (
+        {retificacoes.map((numero, arrayIndex) => (
           <RetificacaoCard
             key={numero}
             numero={numero}
+            displayIndex={arrayIndex + 1}
             totalRetificacoes={retificacoes.length}
             onExcluir={excluirRetificacao}
             bloqueado={camposBaseadosBloqueados}
@@ -248,19 +280,37 @@ const SecaoRetificacoes: React.FC<SecaoRetificacoesProps> = ({
 
       <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
         <Col>
-          <Button
-            disabled={camposBaseadosBloqueados || !podeAdicionarNovaRetificacao}
-            type='default'
-            icon={<PlusOutlined />}
-            onClick={adicionarNovaRetificacao}
-            style={{
-              borderColor: '#ff6b35',
-              color: '#ff6b35',
-              fontWeight: 500,
+          <Form.Item noStyle shouldUpdate>
+            {({ getFieldValue }) => {
+              const todosOsCamposPreenchidos = retificacoes.every((numero) => {
+                const numeroFormatado = numero.toString().padStart(2, '0');
+                const dataRetificacao = getFieldValue(`dataRetificacao${numeroFormatado}`);
+                const paginaRetificacao = getFieldValue(`paginaRetificacao${numeroFormatado}`);
+                return !!dataRetificacao && !!paginaRetificacao;
+              });
+
+              const botaoDesabilitado =
+                camposBaseadosBloqueados ||
+                !podeAdicionarNovaRetificacao ||
+                !todosOsCamposPreenchidos;
+
+              return (
+                <Button
+                  disabled={botaoDesabilitado}
+                  type='default'
+                  icon={<PlusOutlined />}
+                  onClick={adicionarNovaRetificacao}
+                  style={{
+                    borderColor: '#ff6b35',
+                    color: '#ff6b35',
+                    fontWeight: 500,
+                  }}
+                >
+                  Nova retificação
+                </Button>
+              );
             }}
-          >
-            Nova retificação
-          </Button>
+          </Form.Item>
         </Col>
       </Row>
     </>

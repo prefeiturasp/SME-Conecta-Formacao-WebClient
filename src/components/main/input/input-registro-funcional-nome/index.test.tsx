@@ -66,16 +66,18 @@ jest.mock('antd', () => ({
       Search: (props: any) => {
         searchMock(props);
 
+        const { loading: _loading, onSearch, ...inputProps } = props;
+
         return (
           <>
             <input
               data-testid="input-rf"
-              {...props}
+              {...inputProps}
             />
 
             <button
               data-testid="search-button"
-              onClick={props.onSearch}
+              onClick={onSearch}
             />
           </>
         );

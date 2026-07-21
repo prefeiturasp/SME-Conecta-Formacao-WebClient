@@ -39,12 +39,12 @@ import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import {
-  emitirCertificadosCodaf,
-  imprimirRelatorioCodaf,
+  emitirCertificadosCodaf
 } from '~/core/services/codaf-lista-presenca-service';
 import {
   baixarArquivoRemessaEol,
   CodafSuplementarDTO,
+  imprimirRelatorioCodafSuplementar,
   obterCodafSuplementar,
 } from '~/core/services/codaf-suplementar-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -55,6 +55,7 @@ import {
 import { onClickVoltar } from '~/core/utils/form';
 import { downloadBlob } from '~/core/utils/functions';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
+import { TipoCodaf } from '~/core/enum/tipo-codaf';
 
 dayjs.locale('pt-br');
 
@@ -379,7 +380,7 @@ const CodafSuplementar: React.FC = () => {
     async (record: CodafSuplementarDTO) => {
       try {
         setBusy(true);
-        const response = await emitirCertificadosCodaf(record.id);
+        const response = await emitirCertificadosCodaf(record.id, TipoCodaf.Suplementar);
 
         if (!response.sucesso) {
           throw new Error('Certificate issue request failed');
@@ -433,7 +434,7 @@ const CodafSuplementar: React.FC = () => {
 
       try {
         setBusy(true);
-        const response = await imprimirRelatorioCodaf(record.id);
+        const response = await imprimirRelatorioCodafSuplementar(record.id);
 
         if (response.status !== 200) {
           throw new Error('Report download request failed');
@@ -592,7 +593,7 @@ const CodafSuplementar: React.FC = () => {
         render: (_value, record) => {
           const certificate = buildCertificateState(record.statusCertificacaoTurma);
 
-          const isFeatureAvailable = false; 
+          const isFeatureAvailable = true; 
           
           const isButtonDisabled = certificate.disabled;
 
@@ -608,6 +609,7 @@ const CodafSuplementar: React.FC = () => {
                   disabled={isButtonDisabled}
                   onClick={(event) => {
                     event.stopPropagation();
+                    requestCertificateIssue(record);
                   }}
                   style={{
                     width: '100%',

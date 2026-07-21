@@ -6,8 +6,8 @@ import styled from 'styled-components';
 import { Colors } from '~/core/styles/colors';
 
 interface ButtonContainerProps {
-  borderColor?: string;
-  backgroundColor?: string;
+  $borderColor?: string;
+  $backgroundColor?: string;
   children?: React.ReactNode;
 }
 
@@ -24,11 +24,11 @@ const ButtonContainer = styled(Button)<ButtonContainerProps>`
   }
 
   &.ant-btn-default:not(:disabled) {
-    border-color: ${(props) => props.borderColor};
-    background-color: ${(props) => props.backgroundColor};
+    border-color: ${(props) => props.$borderColor};
+    background-color: ${(props) => props.$backgroundColor};
 
     :not(.ant-btn-disabled):hover {
-      border-color: ${(props) => props.borderColor};
+      border-color: ${(props) => props.$borderColor};
     }
   }
 `;
@@ -58,8 +58,8 @@ export const IconButtonDataTable: React.FC<IconButtonDataTableProps & PropsWithC
       type={type}
       onClick={onClick}
       disabled={disabled}
-      borderColor={backgroundColor}
-      backgroundColor={backgroundColor}
+      $borderColor={backgroundColor}
+      $backgroundColor={backgroundColor}
       style={{
         color: disabled ? undefined : color,
       }}
