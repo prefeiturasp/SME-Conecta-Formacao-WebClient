@@ -15,6 +15,7 @@ export interface CodafBaseDetalheDTO {
   codigoNivel: number;
   observacao: string | null;
   status: number;
+  certificadoEmitido: boolean;
   regrasAprovacao?: RegrasAprovacaoCursistaCodafDto;
   alteradoEm: string | null;
   alteradoPor: string | null;
