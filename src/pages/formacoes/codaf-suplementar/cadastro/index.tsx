@@ -377,8 +377,8 @@ const CadastroCodafSuplementar: React.FC = () => {
       informacoesAdicionais: viewState.isDone,
     },
     actions: {
-      salvar: { visible: true, locked: false },
-      excluir: { visible: true, locked: false },
+      salvar: { visible: true, locked: !!certificadoEmitido },
+      excluir: { visible: true, locked: !!certificadoEmitido },
     },
   };
 
