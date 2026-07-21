@@ -257,11 +257,14 @@ function getSaveErrorMessage(response: ApiResponseMessage, isEditing: boolean) {
   return isEditing ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro';
 }
 
+export const deveDesabilitarSalvar = (certificadoEmitido: boolean) => certificadoEmitido;
+
 type ActionButtonsProps = {
   navigate: ReturnType<typeof useNavigate>;
   onClickExcluir: () => void;
   onClickSalvar: () => void;
   loading: boolean;
+  salvarDesabilitado: boolean;
   formLocks: {
     actions: {
       salvar: { visible: boolean; locked: boolean };
@@ -270,7 +273,14 @@ type ActionButtonsProps = {
   };
 };
 
-function ActionButtons({ navigate, onClickExcluir, onClickSalvar, loading, formLocks }: ActionButtonsProps) {
+function ActionButtons({
+  navigate,
+  onClickExcluir,
+  onClickSalvar,
+  loading,
+  salvarDesabilitado,
+  formLocks,
+}: ActionButtonsProps) {
   return (
     <Row gutter={[8, 8]}>
       <Col>
@@ -308,6 +318,7 @@ function ActionButtons({ navigate, onClickExcluir, onClickSalvar, loading, formL
       {formLocks.actions.salvar.visible && (
         <Col>
           <Button
+            disabled={salvarDesabilitado}
             type='primary'
             onClick={onClickSalvar}
             loading={loading}
@@ -338,6 +349,7 @@ const CadastroCodafSuplementar: React.FC = () => {
 
   const [codafId, setCodafId] = useState<number | null>(null);
   const [registroId, setRegistroId] = useState<number | null>(null);
+  const [certificadoEmitido, setCertificadoEmitido] = useState(false);
   const currentStatus: number | null = null;
   const turmaIdWatch = Form.useWatch('turmaId', form);
 
@@ -391,6 +403,7 @@ const CadastroCodafSuplementar: React.FC = () => {
         setRegistroId(dados.id);
         setCodafId(dados.codafId);
         setRegrasAprovacao(dados.regrasAprovacao);
+        setCertificadoEmitido(Boolean(dados.certificadoEmitido));
 
         preencherFormularioComDetalhes(form, dados);
 
@@ -806,6 +819,7 @@ const CadastroCodafSuplementar: React.FC = () => {
             onClickExcluir={onClickExcluir}
             onClickSalvar={onClickSalvar}
             loading={loading}
+            salvarDesabilitado={deveDesabilitarSalvar(certificadoEmitido)}
             formLocks={formLocks}
           />
         </Col>
