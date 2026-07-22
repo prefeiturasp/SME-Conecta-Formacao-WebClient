@@ -116,6 +116,16 @@ type CodafFormValues = {
     | undefined;
 };
 
+type SalvarBloqueioFields = Pick<
+  CodafFormValues,
+  | 'numeroComunicado'
+  | 'dataPublicacao'
+  | 'paginaComunicado'
+  | 'dataPublicacaoDiarioOficial'
+  | 'codigoCursoEol'
+  | 'anexos'
+>;
+
 const resolveAtividade = (atividade: string | null): boolean | null => {
   if (atividade === 'S') {
     return true;
@@ -257,7 +267,44 @@ function getSaveErrorMessage(response: ApiResponseMessage, isEditing: boolean) {
   return isEditing ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro';
 }
 
-export const deveDesabilitarSalvar = (certificadoEmitido: boolean) => certificadoEmitido;
+const isEmptyValue = (value: unknown) => {
+  if (value === null || value === undefined) {
+    return true;
+  }
+
+  if (typeof value === 'string') {
+    return value.trim() === '';
+  }
+
+  if (Array.isArray(value)) {
+    return value.length === 0;
+  }
+
+  return false;
+};
+
+export const deveDesabilitarSalvar = (
+  certificadoEmitido: boolean,
+  campos?: Partial<SalvarBloqueioFields>,
+) => {
+  if (!certificadoEmitido) {
+    return false;
+  }
+
+  if (!campos) {
+    return true;
+  }
+
+  const camposObrigatorios = [
+    campos.numeroComunicado,
+    campos.dataPublicacao,
+    campos.paginaComunicado,
+    campos.dataPublicacaoDiarioOficial,
+    campos.codigoCursoEol,
+  ];
+
+  return camposObrigatorios.some(isEmptyValue) || isEmptyValue(campos.anexos);
+};
 
 type ActionButtonsProps = Readonly<{
   navigate: ReturnType<typeof useNavigate>;
@@ -367,6 +414,22 @@ const CadastroCodafSuplementar: React.FC = () => {
     isWaiting: currentStatus === 2,
     isDone: currentStatus === 3,
   };
+
+  const numeroComunicadoWatch = Form.useWatch('numeroComunicado', form);
+  const dataPublicacaoWatch = Form.useWatch('dataPublicacao', form);
+  const paginaComunicadoWatch = Form.useWatch('paginaComunicado', form);
+  const dataPublicacaoDiarioOficialWatch = Form.useWatch('dataPublicacaoDiarioOficial', form);
+  const codigoCursoEolWatch = Form.useWatch('codigoCursoEol', form);
+  const anexosWatch = Form.useWatch('anexos', form) as FormAnexoDTO[] | undefined;
+
+  const salvarDesabilitado = deveDesabilitarSalvar(certificadoEmitido, {
+    numeroComunicado: numeroComunicadoWatch,
+    dataPublicacao: dataPublicacaoWatch,
+    paginaComunicado: paginaComunicadoWatch,
+    dataPublicacaoDiarioOficial: dataPublicacaoDiarioOficialWatch,
+    codigoCursoEol: codigoCursoEolWatch,
+    anexos: anexosWatch,
+  });
 
   const formLocks = {
     fields: {
@@ -819,7 +882,7 @@ const CadastroCodafSuplementar: React.FC = () => {
             onClickExcluir={onClickExcluir}
             onClickSalvar={onClickSalvar}
             loading={loading}
-            salvarDesabilitado={deveDesabilitarSalvar(certificadoEmitido)}
+            salvarDesabilitado={salvarDesabilitado}
             formLocks={formLocks}
           />
         </Col>
