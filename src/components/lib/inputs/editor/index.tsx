@@ -390,7 +390,7 @@ const JoditEditorSME = forwardRef((props: JoditEditorProps, ref: any) => {
 
   return (
     <EditorContainer hasError={hasError}>
-      <textarea value={value ?? ''} name={name} id={id} ref={textArea as any} readOnly />
+      <textarea value={value ?? ''} name={name} id={id} ref={textArea as any} />
     </EditorContainer>
   );
 });
