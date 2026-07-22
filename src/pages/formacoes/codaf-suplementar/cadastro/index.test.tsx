@@ -1,4 +1,57 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, jest, test } from '@jest/globals';
+import dayjs from 'dayjs';
+
+jest.mock('antd/es/date-picker/locale/pt_BR', () => ({
+  __esModule: true,
+  default: {},
+}));
+
+jest.mock('~/components/lib/card-content', () => ({
+  __esModule: true,
+  default: ({ children }: { children: unknown }) => children,
+}));
+
+jest.mock('~/components/lib/header-page', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('~/components/lib/notification', () => ({
+  notification: {
+    error: jest.fn(),
+    warning: jest.fn(),
+    success: jest.fn(),
+  },
+}));
+
+jest.mock('~/components/main/button/voltar', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../../lista-presenca-codaf/cadastro/componentes/secao-formulario', () => ({
+  SecaoFormulario: () => null,
+}));
+
+jest.mock('./componentes/secao-busca-lista-inscritos', () => ({
+  SecaoBuscaEListaInscritos: () => null,
+}));
+
+jest.mock('../../lista-presenca-codaf/cadastro/componentes/secao-retificacoes/secao-retificacoes', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../../lista-presenca-codaf/cadastro/componentes/secao-anexos', () => ({
+  SecaoAnexos: () => null,
+}));
+
+jest.mock('../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+import { deveDesabilitarSalvar } from './index';
 
 describe('CadastroCodafSuplementar - Regras de Negócio', () => {
   const resolveAtividade = (atividade: string | null): boolean | null => {
@@ -135,6 +188,51 @@ describe('CadastroCodafSuplementar - Regras de Negócio', () => {
 
   test('deve usar fallback quando não houver mensagem no erro', () => {
     expect(getErrorMessage({}, 'Fallback')).toBe('Fallback');
+  });
+
+  test('deve desabilitar o salvar na edicao do CODAF suplementar com certificado emitido quando faltar qualquer campo obrigatorio', () => {
+    const camposCompletos = {
+      numeroComunicado: '1234',
+      dataPublicacao: dayjs('2026-01-10'),
+      paginaComunicado: '45',
+      dataPublicacaoDiarioOficial: dayjs('2026-01-11'),
+      codigoCursoEol: '998877',
+      anexos: [{ uid: 'anexo-1', name: 'arquivo.pdf' }],
+    };
+
+    expect(deveDesabilitarSalvar(true, camposCompletos)).toBe(false);
+
+    const camposObrigatorios = [
+      ['Numero do comunicado', 'numeroComunicado', ''],
+      ['Data do comunicado', 'dataPublicacao', null],
+      ['Pagina do comunicado no Diario Oficial', 'paginaComunicado', ''],
+      ['Data de publicacao do Diario Oficial', 'dataPublicacaoDiarioOficial', undefined],
+      ['Codigo do curso no EOL', 'codigoCursoEol', ''],
+      ['Anexo', 'anexos', []],
+    ] as const;
+
+    camposObrigatorios.forEach(([, campo, valor]) => {
+      expect(
+        deveDesabilitarSalvar(true, {
+          ...camposCompletos,
+          [campo]: valor,
+        }),
+      ).toBe(true);
+    });
+  });
+
+  test('deve permitir salvar quando não houve emissão de certificados', () => {
+    expect(deveDesabilitarSalvar(false, undefined)).toBe(false);
+    expect(
+      deveDesabilitarSalvar(false, {
+        numeroComunicado: '',
+        dataPublicacao: null,
+        paginaComunicado: '',
+        dataPublicacaoDiarioOficial: null,
+        codigoCursoEol: '',
+        anexos: [],
+      }),
+    ).toBe(false);
   });
 
   test('deve mapear inscritos para payload mantendo regra de atividade', () => {
