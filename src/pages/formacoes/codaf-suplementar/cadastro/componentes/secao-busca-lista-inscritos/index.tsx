@@ -114,9 +114,16 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
         setOpcoesAtuais((prev) => (acrescentar ? [...prev, ...items] : items));
 
         setOpcoesEmCache((prev) => {
-          const novosItems = items.filter(
-            (item) => !prev.some((p) => p.inscricaoId === item.inscricaoId),
-          );
+          const novosItems: DadosInscricaoCursistaDTO[] = [];
+
+          for (const item of items) {
+            const itemJaExiste = prev.some((registro) => registro.inscricaoId === item.inscricaoId);
+
+            if (!itemJaExiste) {
+              novosItems.push(item);
+            }
+          }
+
           return [...prev, ...novosItems];
         });
 
