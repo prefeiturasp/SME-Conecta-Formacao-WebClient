@@ -403,7 +403,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   const [codafId, setCodafId] = useState<number | null>(null);
   const [registroId, setRegistroId] = useState<number | null>(null);
   const [certificadoEmitido, setCertificadoEmitido] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState<number | null>(null);
+  const [currentStatus, setCurrentStatus] = useState<StatusCodafSuplementar | null>(null);
   const turmaIdWatch = Form.useWatch('turmaId', form);
 
   const isEditing = Boolean(id);
@@ -416,9 +416,9 @@ const CadastroCodafSuplementar: React.FC = () => {
   const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
 
   const viewState = {
-    isStarted: currentStatus === 1,
-    isWaiting: currentStatus === 2,
-    isDone: currentStatus === 3,
+    isStarted: currentStatus === StatusCodafSuplementar.Iniciado,
+    isWaiting: currentStatus === StatusCodafSuplementar.Aguardando,
+    isDone: currentStatus === StatusCodafSuplementar.Finalizado,
   };
 
   const numeroComunicadoWatch = Form.useWatch('numeroComunicado', form);
@@ -920,6 +920,8 @@ const CadastroCodafSuplementar: React.FC = () => {
             ehPerfilDF={false}
             ehPerfilEMFORPEF={false}
             camposBloqueados={formLocks.fields.formulario}
+            certificadoEmitido={certificadoEmitido}
+            statusCodafSuplementar={currentStatus}
           />
 
           <SecaoBuscaEListaInscritos

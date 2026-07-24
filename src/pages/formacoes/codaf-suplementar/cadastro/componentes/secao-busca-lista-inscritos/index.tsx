@@ -1,11 +1,15 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Col, Divider, Input, Row, Select, Spin, Table } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { debounce } from "lodash";
-import { useMemo, useRef, useState } from "react";
-import { CursistaDTO } from "../..";
-import { DadosInscricaoCursistaDTO, pesquisarCursistasDaTurma } from "~/core/services/proposta-service";
-import { notification } from "~/components/lib/notification";
+import { DeleteOutlined } from '@ant-design/icons';
+import { Button, Col, Divider, Input, Row, Select, Spin, Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { debounce } from 'lodash';
+import { useMemo, useRef, useState } from 'react';
+import { CursistaDTO } from '../..';
+import {
+  DadosInscricaoCursistaDTO,
+  pesquisarCursistasDaTurma,
+} from '~/core/services/proposta-service';
+import { notification } from '~/components/lib/notification';
+import { StatusCodafSuplementar } from '~/core/enum/status-codaf-suplementar';
 
 export interface ResultadoBuscaDTO {
   id: number;
@@ -14,16 +18,17 @@ export interface ResultadoBuscaDTO {
 }
 
 interface SecaoBuscaEListaInscritosProps {
-    cursistas: CursistaDTO[];
-    onAdicionarCursista: (novoCursista: DadosInscricaoCursistaDTO[]) => void;
-    onRemoverCursista: (id: number) => void;
-    onChangeCursista: (
-      id: number,
-      field: keyof CursistaDTO,
-      value: CursistaDTO[keyof CursistaDTO],
-    ) => void;
-    propostaTurmaId: number;
-    certificadoEmitido: boolean;
+  cursistas: CursistaDTO[];
+  onAdicionarCursista: (novoCursista: DadosInscricaoCursistaDTO[]) => void;
+  onRemoverCursista: (id: number) => void;
+  onChangeCursista: (
+    id: number,
+    field: keyof CursistaDTO,
+    value: CursistaDTO[keyof CursistaDTO],
+  ) => void;
+  propostaTurmaId: number;
+  certificadoEmitido: boolean;
+  statusCodafSuplementar: StatusCodafSuplementar | null;
 }
 
 const TAMANHO_PAGINA = 20;
@@ -69,12 +74,13 @@ const buildHighlightNodes = (text: string, highlighted: string) => {
 };
 
 export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps> = ({
-    cursistas,
-    onAdicionarCursista,
-    onRemoverCursista,
-    onChangeCursista,
-    propostaTurmaId,
-    certificadoEmitido,
+  cursistas,
+  onAdicionarCursista,
+  onRemoverCursista,
+  onChangeCursista,
+  propostaTurmaId,
+  certificadoEmitido,
+  statusCodafSuplementar,
 }) => {
   const [buscando, setBuscando] = useState<boolean>(false);
   const [carregandoMais, setCarregandoMais] = useState<boolean>(false);
@@ -89,17 +95,28 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
 
   const buscaRef = useRef(0);
 
-  const buscarInscritos = async (textoBusca: string, pagina: number, acrescentar: boolean = false) => {
+  const buscarInscritos = async (
+    textoBusca: string,
+    pagina: number,
+    acrescentar: boolean = false,
+  ) => {
     try {
-      const resultado = await pesquisarCursistasDaTurma(textoBusca, propostaTurmaId, pagina, TAMANHO_PAGINA);
+      const resultado = await pesquisarCursistasDaTurma(
+        textoBusca,
+        propostaTurmaId,
+        pagina,
+        TAMANHO_PAGINA,
+      );
 
-      if (resultado.sucesso && resultado.dados){
+      if (resultado.sucesso && resultado.dados) {
         const { items, totalPaginas } = resultado.dados;
 
-        setOpcoesAtuais(prev => acrescentar ? [...prev, ...items] : items);
+        setOpcoesAtuais((prev) => (acrescentar ? [...prev, ...items] : items));
 
-        setOpcoesEmCache(prev => {
-          const novosItems = items.filter(item => !prev.some(p => p.inscricaoId === item.inscricaoId));
+        setOpcoesEmCache((prev) => {
+          const novosItems = items.filter(
+            (item) => !prev.some((p) => p.inscricaoId === item.inscricaoId),
+          );
           return [...prev, ...novosItems];
         });
 
@@ -165,7 +182,9 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
   };
 
   const handlerAdicionarInscritos = () => {
-    const inscritosParaAdicionar = opcoesEmCache.filter((opt) => itensSelecionados.includes(opt.inscricaoId));
+    const inscritosParaAdicionar = opcoesEmCache.filter((opt) =>
+      itensSelecionados.includes(opt.inscricaoId),
+    );
     onAdicionarCursista(inscritosParaAdicionar);
     setItensSelecionados([]);
     setOpcoesAtuais([]);
@@ -176,6 +195,15 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
     const valorFinal = valorNumerico ? Math.min(parseInt(valorNumerico, 10), 100) : null;
     onChangeCursista(inscricaoId, 'frequencia', valorFinal);
   };
+
+  const deveDesabilitarCampo = (
+    certificadoEmitido: boolean,
+    statusCodafSuplementar: StatusCodafSuplementar | null,
+  ): boolean => {
+    return certificadoEmitido || statusCodafSuplementar === StatusCodafSuplementar.Finalizado;
+  };
+
+  const campoDesabilitado = deveDesabilitarCampo(certificadoEmitido, statusCodafSuplementar);
 
   const colunas: ColumnsType<CursistaDTO> = [
     {
@@ -211,7 +239,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
           onChange={(e) => handleFrequenciaChange(registro.inscricaoId, e.target.value)}
           style={{ width: '100%' }}
           maxLength={4}
-          disabled={certificadoEmitido}
+          disabled={campoDesabilitado}
         />
       ),
     },
@@ -231,7 +259,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
             { label: 'Não', value: 'N' },
           ]}
           allowClear
-          disabled={certificadoEmitido}
+          disabled={campoDesabilitado}
         />
       ),
     },
@@ -244,7 +272,9 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
         <Select
           value={conceitoFinal}
           placeholder='Selecione'
-          onChange={(valor) => onChangeCursista(registro.inscricaoId, 'conceitoFinal', valor || null)}
+          onChange={(valor) =>
+            onChangeCursista(registro.inscricaoId, 'conceitoFinal', valor || null)
+          }
           style={{ width: '100%' }}
           options={[
             { label: 'Plenamente satisfatório (P)', value: 'P' },
@@ -252,7 +282,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
             { label: 'Não Satisfatório (NS)', value: 'NS' },
           ]}
           allowClear
-          disabled={certificadoEmitido}
+          disabled={campoDesabilitado}
         />
       ),
     },
@@ -265,14 +295,16 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
         <Select
           value={getAprovadoValue(aprovado)}
           placeholder='Selecione'
-          onChange={(valor) => onChangeCursista(registro.inscricaoId, 'aprovado', valor ? valor === 'S' : null)}
+          onChange={(valor) =>
+            onChangeCursista(registro.inscricaoId, 'aprovado', valor ? valor === 'S' : null)
+          }
           style={{ width: '100%' }}
           options={[
             { label: 'Sim', value: 'S' },
             { label: 'Não', value: 'N' },
           ]}
           allowClear
-          disabled={certificadoEmitido}
+          disabled={campoDesabilitado}
         />
       ),
     },
@@ -283,11 +315,11 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
       align: 'center',
       render: (_texto: unknown, registro: CursistaDTO) => (
         <Button
-          type="text"
+          type='text'
           danger
           icon={<DeleteOutlined />}
           onClick={() => onRemoverCursista(registro.inscricaoId)}
-          disabled={certificadoEmitido}
+          disabled={campoDesabilitado}
         />
       ),
     },
@@ -295,7 +327,9 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
 
   const opcoesParaRenderizar = useMemo(() => {
     const selecionadosMasNaoAtuais = opcoesEmCache.filter(
-      opt => itensSelecionados.includes(opt.inscricaoId) && !opcoesAtuais.some(a => a.inscricaoId === opt.inscricaoId)
+      (opt) =>
+        itensSelecionados.includes(opt.inscricaoId) &&
+        !opcoesAtuais.some((a) => a.inscricaoId === opt.inscricaoId),
     );
     return [...selecionadosMasNaoAtuais, ...opcoesAtuais];
   }, [opcoesAtuais, opcoesEmCache, itensSelecionados]);
@@ -314,26 +348,26 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
         </Col>
       </Row>
 
-      <Row gutter={[16, 0]} align="bottom" style={{ marginBottom: 32 }}>
+      <Row gutter={[16, 0]} align='bottom' style={{ marginBottom: 32 }}>
         <Col xs={24} sm={18} md={20}>
           <div style={{ marginBottom: '8px', fontWeight: 700, color: '#42474A' }}>
             Nome, RF ou CPF
           </div>
           <Select
-            mode="multiple"
+            mode='multiple'
             labelInValue={false}
             value={itensSelecionados}
-            placeholder="Digite o nome, RF ou CPF da pessoa inscrita na formação"
-            notFoundContent={buscando ? <Spin size="small" /> : 'Nenhum cursista encontrado'}
+            placeholder='Digite o nome, RF ou CPF da pessoa inscrita na formação'
+            notFoundContent={buscando ? <Spin size='small' /> : 'Nenhum cursista encontrado'}
             filterOption={false}
             onSearch={handleSearchChange}
             onChange={(valores) => setItensSelecionados(valores)}
             onPopupScroll={handlePopupScroll}
             style={{ width: '100%' }}
-            size="large"
-            disabled={!propostaTurmaId || certificadoEmitido}
+            size='large'
+            disabled={!propostaTurmaId || campoDesabilitado}
             allowClear
-            optionLabelProp="label"
+            optionLabelProp='label'
             dropdownRender={(menu) => (
               <>
                 {menu}
@@ -341,7 +375,7 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
                   <>
                     <Divider style={{ margin: '4px 0' }} />
                     <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                      <Spin size="small" /> Carregando mais...
+                      <Spin size='small' /> Carregando mais...
                     </div>
                   </>
                 )}
@@ -360,10 +394,10 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
         </Col>
         <Col xs={24} sm={6} md={4}>
           <Button
-            type="primary"
-            size="large"
+            type='primary'
+            size='large'
             block
-            disabled={itensSelecionados.length === 0 || certificadoEmitido}
+            disabled={itensSelecionados.length === 0 || campoDesabilitado}
             onClick={handlerAdicionarInscritos}
             style={{ fontWeight: 700 }}
           >
@@ -386,10 +420,10 @@ export const SecaoBuscaEListaInscritos: React.FC<SecaoBuscaEListaInscritosProps>
 
       <Row gutter={[16, 8]}>
         <Col span={24}>
-          <Table          
+          <Table
             columns={colunas}
             dataSource={cursistas}
-            rowKey="inscricaoId"
+            rowKey='inscricaoId'
             pagination={false}
             scroll={{ x: 'max-content' }}
             locale={{
