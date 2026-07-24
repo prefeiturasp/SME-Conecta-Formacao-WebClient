@@ -1606,7 +1606,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             ehPerfilDF={perfil.df}
             ehPerfilEMFORPEF={perfil.emforpef}
             camposBloqueados={bloqueios.campos.secaoFormulario}
-            certificadoEmitido={false}
           />
           <SecaoListaInscritos
             mostrarDivergencia={mostrarDivergencia}
