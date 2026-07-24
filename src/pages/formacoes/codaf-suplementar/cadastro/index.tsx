@@ -51,6 +51,7 @@ import { SecaoAnexos } from '../../lista-presenca-codaf/cadastro/componentes/sec
 import ModalExcluir from '../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir';
 import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
 import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
+import { StatusCodafSuplementar } from '~/core/enum/status-codaf-suplementar';
 
 export interface CursistaDTO {
   inscricaoId: number;
@@ -284,6 +285,7 @@ const isEmptyValue = (value: unknown) => {
 };
 
 export const deveDesabilitarSalvar = (
+  finalizado: boolean,
   certificadoEmitido: boolean,
   campos?: Partial<SalvarBloqueioFields>,
 ) => {
@@ -293,6 +295,10 @@ export const deveDesabilitarSalvar = (
 
   if (!campos) {
     return true;
+  }
+
+  if (!finalizado) {
+    return false;
   }
 
   const camposObrigatorios = [
@@ -397,7 +403,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   const [codafId, setCodafId] = useState<number | null>(null);
   const [registroId, setRegistroId] = useState<number | null>(null);
   const [certificadoEmitido, setCertificadoEmitido] = useState(false);
-  const currentStatus: number | null = null;
+  const [currentStatus, setCurrentStatus] = useState<number | null>(null);
   const turmaIdWatch = Form.useWatch('turmaId', form);
 
   const isEditing = Boolean(id);
@@ -422,7 +428,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   const codigoCursoEolWatch = Form.useWatch('codigoCursoEol', form);
   const anexosWatch = Form.useWatch('anexos', form) as FormAnexoDTO[] | undefined;
 
-  const salvarDesabilitado = deveDesabilitarSalvar(certificadoEmitido, {
+  const salvarDesabilitado = deveDesabilitarSalvar(currentStatus === StatusCodafSuplementar.Finalizado, certificadoEmitido, {
     numeroComunicado: numeroComunicadoWatch,
     dataPublicacao: dataPublicacaoWatch,
     paginaComunicado: paginaComunicadoWatch,
@@ -465,6 +471,7 @@ const CadastroCodafSuplementar: React.FC = () => {
         const dados = response.dados;
         setRegistroId(dados.id);
         setCodafId(dados.codafId);
+        setCurrentStatus(dados.status);
         setRegrasAprovacao(dados.regrasAprovacao);
         setCertificadoEmitido(Boolean(dados.certificadoEmitido));
         setTurmas(dados.turma ? [dados.turma] : []);

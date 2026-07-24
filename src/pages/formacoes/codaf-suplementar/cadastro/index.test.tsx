@@ -191,16 +191,23 @@ describe('CadastroCodafSuplementar - Regras de Negócio', () => {
   });
 
   test('deve desabilitar o salvar na edicao do CODAF suplementar com certificado emitido quando faltar qualquer campo obrigatorio', () => {
-    const camposCompletos = {
-      numeroComunicado: '1234',
+    const camposCompletos: Partial<{
+      numeroComunicado: number;
+      dataPublicacao: dayjs.Dayjs | null;
+      paginaComunicado: number;
+      dataPublicacaoDiarioOficial: dayjs.Dayjs | null;
+      codigoCursoEol: number | null;
+      anexos: Array<{ uid: string; name: string }>;
+    }> = {
+      numeroComunicado: 1234,
       dataPublicacao: dayjs('2026-01-10'),
-      paginaComunicado: '45',
+      paginaComunicado: 45,
       dataPublicacaoDiarioOficial: dayjs('2026-01-11'),
-      codigoCursoEol: '998877',
+      codigoCursoEol: 998877,
       anexos: [{ uid: 'anexo-1', name: 'arquivo.pdf' }],
     };
 
-    expect(deveDesabilitarSalvar(true, camposCompletos)).toBe(false);
+    expect(deveDesabilitarSalvar(true, true, camposCompletos)).toBe(false);
 
     const camposObrigatorios = [
       ['Numero do comunicado', 'numeroComunicado', ''],
@@ -213,7 +220,7 @@ describe('CadastroCodafSuplementar - Regras de Negócio', () => {
 
     camposObrigatorios.forEach(([, campo, valor]) => {
       expect(
-        deveDesabilitarSalvar(true, {
+        deveDesabilitarSalvar(true, true, {
           ...camposCompletos,
           [campo]: valor,
         }),
@@ -221,15 +228,28 @@ describe('CadastroCodafSuplementar - Regras de Negócio', () => {
     });
   });
 
-  test('deve permitir salvar quando não houve emissão de certificados', () => {
-    expect(deveDesabilitarSalvar(false, undefined)).toBe(false);
+  test('deve liberar o salvar quando o registro ainda nao estiver finalizado, mesmo com campos faltando', () => {
     expect(
-      deveDesabilitarSalvar(false, {
-        numeroComunicado: '',
+      deveDesabilitarSalvar(false, true, {
+        numeroComunicado: undefined,
         dataPublicacao: null,
-        paginaComunicado: '',
+        paginaComunicado: undefined,
         dataPublicacaoDiarioOficial: null,
-        codigoCursoEol: '',
+        codigoCursoEol: undefined,
+        anexos: [],
+      }),
+    ).toBe(false);
+  });
+
+  test('deve permitir salvar quando não houve emissão de certificados', () => {
+    expect(deveDesabilitarSalvar(true, false, undefined)).toBe(false);
+    expect(
+      deveDesabilitarSalvar(true, false, {
+        numeroComunicado: undefined,
+        dataPublicacao: null,
+        paginaComunicado: undefined,
+        dataPublicacaoDiarioOficial: null,
+        codigoCursoEol: undefined,
         anexos: [],
       }),
     ).toBe(false);
