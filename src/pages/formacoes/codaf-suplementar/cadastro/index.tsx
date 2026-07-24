@@ -441,7 +441,7 @@ const CadastroCodafSuplementar: React.FC = () => {
     },
     actions: {
       salvar: { visible: true, locked: !!certificadoEmitido },
-      excluir: { visible: true, locked: !!certificadoEmitido },
+      excluir: { visible: true, locked: !!certificadoEmitido || !isEditing },
     },
   };
 
@@ -467,6 +467,7 @@ const CadastroCodafSuplementar: React.FC = () => {
         setCodafId(dados.codafId);
         setRegrasAprovacao(dados.regrasAprovacao);
         setCertificadoEmitido(Boolean(dados.certificadoEmitido));
+        setTurmas(dados.turma ? [dados.turma] : []);
 
         preencherFormularioComDetalhes(form, dados);
 
@@ -912,7 +913,6 @@ const CadastroCodafSuplementar: React.FC = () => {
             ehPerfilDF={false}
             ehPerfilEMFORPEF={false}
             camposBloqueados={formLocks.fields.formulario}
-            certificadoEmitido={certificadoEmitido}
           />
 
           <SecaoBuscaEListaInscritos
