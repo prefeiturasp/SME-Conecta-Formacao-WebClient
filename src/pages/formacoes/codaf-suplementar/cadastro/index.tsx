@@ -931,6 +931,7 @@ const CadastroCodafSuplementar: React.FC = () => {
             onChangeCursista={onChangeCursista}
             propostaTurmaId={turmaIdWatch ?? 0}
             certificadoEmitido={certificadoEmitido}
+            statusCodafSuplementar={currentStatus}
           />
           <div style={{ display: 'block'}}>
             <SecaoRetificacoes
