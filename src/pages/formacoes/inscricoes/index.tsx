@@ -69,7 +69,14 @@ export const Inscricoes = () => {
       {openModal ? (
         <Modal
           open
-          title='Transferência de cursistas para outra formação'
+          title={
+            <div>
+              <div>Transferência de cursistas para outra formação</div>
+              <div style={{ fontSize: 14, fontWeight: 400, marginTop: 4 }}>
+                Turmas vinculadas a um CODAF não são exibidas para as formações de origem e destino.
+              </div>
+            </div>
+          }
           centered
           destroyOnClose
           footer={null}
