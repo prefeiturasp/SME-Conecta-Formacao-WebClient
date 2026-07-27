@@ -920,8 +920,6 @@ const CadastroCodafSuplementar: React.FC = () => {
             ehPerfilDF={false}
             ehPerfilEMFORPEF={false}
             camposBloqueados={formLocks.fields.formulario}
-            certificadoEmitido={certificadoEmitido}
-            statusCodafSuplementar={currentStatus}
           />
 
           <SecaoBuscaEListaInscritos
