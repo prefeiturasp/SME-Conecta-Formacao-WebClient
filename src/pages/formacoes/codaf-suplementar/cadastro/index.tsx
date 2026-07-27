@@ -442,8 +442,7 @@ const CadastroCodafSuplementar: React.FC = () => {
       formulario: {
         numeroHomologacao: viewState.isDone || isEditing,
         turma: viewState.isDone || isEditing,
-      },
-      informacoesAdicionais: viewState.isDone,
+      }
     },
     actions: {
       salvar: { visible: true, locked: !!certificadoEmitido },
@@ -970,7 +969,6 @@ const CadastroCodafSuplementar: React.FC = () => {
                   rows={4}
                   placeholder='Digite as informações adicionais...'
                   maxLength={500}
-                  disabled={formLocks.fields.informacoesAdicionais}
                 />
               </Form.Item>
             </Col>
