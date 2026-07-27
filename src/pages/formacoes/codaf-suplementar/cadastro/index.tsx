@@ -446,7 +446,7 @@ const CadastroCodafSuplementar: React.FC = () => {
     },
     actions: {
       salvar: { visible: true, locked: !!certificadoEmitido },
-      excluir: { visible: true, locked: !!certificadoEmitido || !isEditing },
+      excluir: { visible: true, locked: !!certificadoEmitido || !isEditing || currentStatus === StatusCodafSuplementar.Finalizado },
     },
   };
 
@@ -787,11 +787,9 @@ const CadastroCodafSuplementar: React.FC = () => {
           anexos: payloadBase.anexos,
           retificacoes: payloadBase.retificacoes,
         };
-
-        console.log('Dados enviados para API (PUT):', JSON.stringify(payloadEdicao, null, 2));
+        
         res = await alterarCodafSuplementar(Number(id), payloadEdicao);
-      } else {
-        console.log('Dados enviados para API (POST):', JSON.stringify(payloadBase, null, 2));
+      } else {        
         res = await criarCodafSuplementar(payloadBase);
       }
       handleSaveResponse(res);
