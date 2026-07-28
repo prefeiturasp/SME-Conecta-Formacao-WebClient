@@ -14,6 +14,7 @@ import { MeusDadosContext } from '../provider';
 
 type ModalEditDefaultServiceProps = {
   nome: string;
+  nomeSocial: string;
   email: string;
   telefone: string;
   nomeUnidade: string;
@@ -31,6 +32,7 @@ type ModalEditDefaultProps = {
   permiteEdicao?: boolean;
   closeModal: () => void;
   desativarBotaoAlterar?: boolean;
+  adicionar?: boolean;
 } & PropsWithChildren;
 
 const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
@@ -40,6 +42,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
   form,
   mensagemConfirmarCancelar,
   desativarBotaoAlterar = false,
+  adicionar = false,
   closeModal,
   children,
 }) => {
@@ -122,7 +125,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
       closable={!loading}
       maskClosable={!loading}
       keyboard={!loading}
-      okText='Alterar'
+      okText={adicionar ? 'Adicionar' : 'Alterar'}
     >
       <Spin spinning={loading}>{children}</Spin>
     </Modal>
