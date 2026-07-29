@@ -1,6 +1,5 @@
-import { FormInstance, Form } from 'antd';
+import { FormInstance, Form, Button } from 'antd';
 import React, { useState } from 'react';
-import { Button } from 'antd';
 import { ModalEditNomeSocial } from './modal-edit-nome-social';
 
 type ModalEditNomeSocialButtonProps = {
