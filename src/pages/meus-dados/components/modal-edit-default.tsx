@@ -1,5 +1,5 @@
 import { Spin } from 'antd';
-import { FormInstance } from 'antd/es/form/Form';
+import type { FormInstance } from 'antd';
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import React, { PropsWithChildren, useContext, useState } from 'react';
 import Modal from '~/components/lib/modal';
@@ -87,7 +87,7 @@ const ModalEditDefault: React.FC<ModalEditDefaultProps> = ({
   };
 
   const validateFields = () => {
-    form.validateFields().then(() => {
+    return form.validateFields().then(() => {
       handleOk();
     });
   };
