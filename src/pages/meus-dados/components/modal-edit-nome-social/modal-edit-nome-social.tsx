@@ -1,6 +1,5 @@
 import { Form } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { InputNome } from '~/components/main/input/nome';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import usuarioService from '~/core/services/usuario-service';
 import ModalEditDefault from '../modal-edit-default';
@@ -50,7 +49,7 @@ export const ModalEditNomeSocial: React.FC<ModalEditNomeSocialProps> = ({
         <InputNomeSocial
           inputProps={{
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              const newValue = e.target.value.replace(/[^\p{L}\s]/gu, '');
+              const newValue = e.target.value.replaceAll(/[^\p{L}\s]/gu, '');
               form.setFieldValue('nomeSocial', newValue);
             },
           }}
