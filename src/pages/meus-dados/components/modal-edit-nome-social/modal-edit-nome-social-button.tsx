@@ -1,4 +1,4 @@
-import { FormInstance } from 'antd/es/form/Form';
+import { FormInstance, Form } from 'antd';
 import React, { useState } from 'react';
 import { Button } from 'antd';
 import { ModalEditNomeSocial } from './modal-edit-nome-social';
@@ -14,7 +14,7 @@ export const ModalEditNomeSocialButton: React.FC<ModalEditNomeSocialButtonProps>
 
   const showModal = () => setOpen(true);
 
-  const nomeSocial = formPreview.getFieldValue('nomeSocial');
+  const nomeSocial = Form.useWatch('nomeSocial', formPreview);
 
   const updateFields = (values: { nomeSocial: string }) => {
     formPreview.setFieldValue('nomeSocial', values?.nomeSocial);

@@ -19,9 +19,9 @@ export const ModalEditNomeSocial: React.FC<ModalEditNomeSocialProps> = ({
   const [form] = useForm();
   const auth = useAppSelector((store) => store.auth);
   const usuarioLogin = auth?.usuarioLogin;
-  const nomeSocial = form.getFieldValue('nomeSocial');
-  const prefixo = nomeSocial ? 'Alterar' : 'Adicionar';
-
+  const nomeSocialInicial = initialValues?.nomeSocial;
+  const prefixo = nomeSocialInicial ? 'Alterar' : 'Adicionar';
+  
   const validateMessages = {
     required: 'Campo obrigatório',
   };
@@ -34,7 +34,7 @@ export const ModalEditNomeSocial: React.FC<ModalEditNomeSocialProps> = ({
       form={form}
       title={`${prefixo} nome social`}
       service={alterarNomeSocial}
-      adicionar={!nomeSocial}
+      adicionar={!nomeSocialInicial}
       updateFields={updateFields}
       mensagemConfirmarCancelar='Você não salvou o novo nome social, confirma que deseja descartar a alteração?'
       closeModal={closeModal}
