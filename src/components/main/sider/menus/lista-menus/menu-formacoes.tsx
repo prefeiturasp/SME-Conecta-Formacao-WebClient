@@ -4,7 +4,7 @@ import { PermissaoEnum } from '~/core/enum/permissao-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { MenuItemConectaProps } from '..';
 
-const isCodafSuplementarEnabled: boolean = !import.meta.env.PROD;
+const isCodafSuplementarEnabled: boolean = true;
 
 export const MENU_FORMACOES: MenuItemConectaProps = {
   key: MenuEnum.Formacoes,

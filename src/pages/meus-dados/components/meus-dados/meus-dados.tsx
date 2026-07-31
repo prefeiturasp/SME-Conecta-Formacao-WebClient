@@ -37,6 +37,8 @@ import ModalEditTipoEmailEducacionalButton from '../modal-edit-tipo-email-educac
 import { CF_SELECT_TIPO_EMAIL } from '~/core/constants/ids/select';
 import InputTelefone from '~/components/main/input/telefone';
 import { ModalEditTelefoneButton } from '../modal-edit-telefone/modal-edit-telefone-button';
+import { ModalEditNomeSocialButton } from '../modal-edit-nome-social/modal-edit-nome-social-button';
+import { InputNomeSocial } from '~/components/main/input/nome-social';
 
 export const DadosPerfil = styled.div`
   color: #a4a4a4;
@@ -65,7 +67,7 @@ const MeusDados: React.FC = () => {
   const auth = useAppSelector((store) => store.auth);
   const perfil = useAppSelector((store) => store.perfil);
 
-  const usuarioNome = auth?.usuarioNome;
+  const usuarioNome = auth?.nomeSocial ? auth?.nomeSocial : auth?.usuarioNome;
   const perfilNome = perfil.perfilSelecionado?.perfilNome;
 
   const [pessoaComDeficiencia, setPessoaComDeficiencia] = useState<string | undefined>(undefined);
@@ -231,6 +233,18 @@ const MeusDados: React.FC = () => {
                       }}
                     />
                     <ModalEditNomeButton formPreview={form} />
+                  </Row>
+                </Col>
+                <Col span={24}>
+                  <Row wrap={false} align='middle'>
+                    <InputNomeSocial
+                      inputProps={{ disabled: true }}
+                      formItemProps={{
+                        style: { width: '100%', marginRight: '8px' },
+                        required: false,
+                      }}
+                    />
+                    <ModalEditNomeSocialButton formPreview={form} />
                   </Row>
                 </Col>
                 <Col span={24}>

@@ -6,6 +6,7 @@ export interface FiltroInscricoesProps {
   codigoFormacao?: number | null;
   nomeFormacao?: string | null;
   numeroHomologacao?: number | null;
+  apenasSemCodaf?: boolean | null;
 }
 
 export interface TurmaFormacao {

@@ -9,7 +9,7 @@ type InputNomeProps = {
 
 export const InputNome: React.FC<InputNomeProps> = ({ inputProps, formItemProps }) => {
   return (
-    <Form.Item label='Nome' name='nome' {...formItemProps}>
+    <Form.Item label='Nome completo (registro civil)' name='nome' {...formItemProps}>
       <Input id={CF_INPUT_NOME} placeholder='Nome' {...inputProps} />
     </Form.Item>
   );
