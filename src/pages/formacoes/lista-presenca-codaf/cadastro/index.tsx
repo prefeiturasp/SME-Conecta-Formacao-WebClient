@@ -164,7 +164,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     }
   };
 
-  const [turmas, setTurmas] = useState<RetornoListagemDTO[]>([]);
   const [turmasFiltradas, setTurmasFiltradas] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [formValido, setFormValido] = useState(false);
@@ -409,8 +408,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       try {
         const turmasResponse = await obterTurmasInscricao(dados.propostaId);
         if (!turmasResponse.sucesso || !turmasResponse.dados) return;
-
-        setTurmas(turmasResponse.dados);
 
         const turmasDisponiveis: RetornoListagemDTO[] = [];
         const turmaSelecionada = turmasResponse.dados.find((t) => t.id === dados.propostaTurmaId);
@@ -752,7 +749,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados) {
-          setTurmas(response.dados);
 
           const turmasDisponiveis: RetornoListagemDTO[] = [];
           for (const turma of response.dados) {
@@ -786,7 +782,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             setTodasTurmasPossuemLista(false);
           }
         } else {
-          setTurmas([]);
           setTurmasFiltradas([]);
           setTurmaDisabled(true);
           notification.warning({
@@ -796,7 +791,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         }
       } catch (error) {
         console.error('Erro ao buscar turmas:', error);
-        setTurmas([]);
         setTurmasFiltradas([]);
         setTurmaDisabled(true);
         notification.error({
