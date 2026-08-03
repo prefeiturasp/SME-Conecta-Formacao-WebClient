@@ -5,9 +5,11 @@ import {
   validarAutenticacao,
   obterPermissaoPorRolesMenu,
 } from './index';
-import { PermissaoMenusAcoesDTO } from '~/core/dto/permissao-menu-acoes-dto';
-import { MenuEnum } from '~/core/enum/menu-enum';
-import { PermissaoEnum } from '~/core/enum/permissao-enum';
+import { PermissaoMenusAcoesDTO } from '../../../core/dto/permissao-menu-acoes-dto';
+import { MenuEnum } from '../../../core/enum/menu-enum';
+import { PermissaoEnum } from '../../../core/enum/permissao-enum';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '../../../core/enum/tipo-perfil';
+import { typeSetPermissaoPorMenu } from '../../../core/redux/modules/roles/actions';
 
 // Mock React
 jest.mock('react', () => ({
@@ -34,7 +36,12 @@ jest.mock('jwt-decode', () => ({
 }));
 
 jest.mock('~/components/main/sider/menus', () => ({
-  menus: [],
+  menus: [
+    {
+      key: 6,
+      children: [{ key: 11 }],
+    },
+  ],
   RolesMenu: {},
 }));
 
@@ -409,6 +416,78 @@ describe('Perfil Utils', () => {
 
       expect(jwt_decode).toHaveBeenCalledWith('mock-token');
       expect(mockStore.dispatch).toHaveBeenCalled();
+    });
+   
+    test('deve exibir pesquisar certificados apenas para Admin DF', () => {
+      const mockData = {
+        token: 'mock-token',
+        perfilUsuario: [
+          {
+            perfil: '1',
+            perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF],
+          },
+        ],
+        usuarioNome: 'Teste',
+        usuarioLogin: 'teste',
+        dataHoraExpiracao: '2025-12-31',
+        email: 'teste@teste.com',
+        autenticado: true,
+      } as any;
+
+      const mockDecoded = {
+        perfil: '1',
+        roles: [PermissaoEnum.Inscricao_C],
+      };
+
+      jwt_decode.mockReturnValue(mockDecoded);
+
+      validarAutenticacao(mockData);
+
+      const permissaoPorMenuAction = mockStore.dispatch.mock.calls
+        .map(([action]) => action)
+        .find((action) => action.type === typeSetPermissaoPorMenu);
+
+      expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]).toBeDefined();
+    });
+
+    test('não deve exibir pesquisar certificados para outros tipos de usuários', () => {
+      const mockData = {
+        token: 'mock-token',
+        perfilUsuario: [
+          {
+            perfil: '1',
+            perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.DF],
+          },
+          {
+            perfil: '2',
+            perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.Cursista],
+          },
+            {
+            perfil: '3',
+            perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.Parecerista],
+          },
+        ],
+        usuarioNome: 'Teste',
+        usuarioLogin: 'teste',
+        dataHoraExpiracao: '2025-12-31',
+        email: 'teste@teste.com',
+        autenticado: true,
+      } as any;
+
+      const mockDecoded = {
+        perfil: '1',
+        roles: [PermissaoEnum.Inscricao_C],
+      };
+
+      jwt_decode.mockReturnValue(mockDecoded);
+
+      validarAutenticacao(mockData);
+
+      const permissaoPorMenuAction = mockStore.dispatch.mock.calls
+        .map(([action]) => action)
+        .find((action) => action.type === typeSetPermissaoPorMenu);
+
+      expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]).toBeUndefined();
     });
   });
 });
