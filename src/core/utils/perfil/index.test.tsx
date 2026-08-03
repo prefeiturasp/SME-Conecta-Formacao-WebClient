@@ -5,9 +5,10 @@ import {
   validarAutenticacao,
   obterPermissaoPorRolesMenu,
 } from './index';
-import { PermissaoMenusAcoesDTO } from '~/core/dto/permissao-menu-acoes-dto';
-import { MenuEnum } from '~/core/enum/menu-enum';
-import { PermissaoEnum } from '~/core/enum/permissao-enum';
+import { PermissaoMenusAcoesDTO } from '../../../core/dto/permissao-menu-acoes-dto';
+import { MenuEnum } from '../../../core/enum/menu-enum';
+import { PermissaoEnum } from '../../../core/enum/permissao-enum';
+import { typeSetPermissaoPorMenu } from '../../../core/redux/modules/roles/actions';
 
 // Mock React
 jest.mock('react', () => ({
@@ -409,6 +410,40 @@ describe('Perfil Utils', () => {
 
       expect(jwt_decode).toHaveBeenCalledWith('mock-token');
       expect(mockStore.dispatch).toHaveBeenCalled();
+    });
+
+    test('deve ocultar pesquisar certificados para área promotora', () => {
+      const mockData = {
+        token: 'mock-token',
+        perfilUsuario: [
+          {
+            perfil: '1',
+            nomePerfil: 'DRE',
+            areaPromotoraId: 1,
+            nomeAreaPromotora: 'Área 1',
+          },
+        ],
+        usuarioNome: 'Teste',
+        usuarioLogin: 'teste',
+        dataHoraExpiracao: '2025-12-31',
+        email: 'teste@teste.com',
+        autenticado: true,
+      } as any;
+
+      const mockDecoded = {
+        perfil: '1',
+        roles: [PermissaoEnum.Inscricao_C],
+      };
+
+      jwt_decode.mockReturnValue(mockDecoded);
+
+      validarAutenticacao(mockData);
+
+      const permissaoPorMenuAction = mockStore.dispatch.mock.calls
+        .map(([action]) => action)
+        .find((action) => action.type === typeSetPermissaoPorMenu);
+
+      expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]).toBeUndefined();
     });
   });
 });
