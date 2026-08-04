@@ -1,4 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
+import { StatusCodafSuplementar } from '../../../../../../core/enum/status-codaf-suplementar';
 
 describe('SecaoBuscaEListaInscritos - Regras de Negócio', () => {
   const removeNonDigits = (value: string) => value.replace(/\D/g, '');
@@ -38,6 +39,11 @@ describe('SecaoBuscaEListaInscritos - Regras de Negócio', () => {
 
     return [...selecionadosMasNaoAtuais, ...opcoesAtuais];
   };
+
+  const deveDesabilitarCampo = (
+    certificadoEmitido: boolean,
+    statusCodafSuplementar: StatusCodafSuplementar | null,
+  ) => certificadoEmitido || statusCodafSuplementar === StatusCodafSuplementar.Finalizado;
 
   test('deve remover todos os caracteres não numéricos da frequência', () => {
     expect(removeNonDigits('85%')).toBe('85');
@@ -109,5 +115,19 @@ describe('SecaoBuscaEListaInscritos - Regras de Negócio', () => {
     );
 
     expect(novosItems).toEqual([{ inscricaoId: 3 }]);
+  });
+
+  test('deve desabilitar os campos quando o certificado ja foi emitido', () => {
+    expect(deveDesabilitarCampo(true, null)).toBe(true);
+    expect(deveDesabilitarCampo(true, StatusCodafSuplementar.Iniciado)).toBe(true);
+  });
+
+  test('deve desabilitar os campos quando o status for finalizado', () => {
+    expect(deveDesabilitarCampo(false, StatusCodafSuplementar.Finalizado)).toBe(true);
+  });
+
+  test('deve manter os campos habilitados quando nao houver certificado emitido e o status nao for finalizado', () => {
+    expect(deveDesabilitarCampo(false, StatusCodafSuplementar.Iniciado)).toBe(false);
+    expect(deveDesabilitarCampo(false, null)).toBe(false);
   });
 });

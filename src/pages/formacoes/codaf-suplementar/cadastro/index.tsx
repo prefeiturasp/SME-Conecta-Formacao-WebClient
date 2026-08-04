@@ -49,7 +49,9 @@ import {
 import SecaoRetificacoes from '../../lista-presenca-codaf/cadastro/componentes/secao-retificacoes/secao-retificacoes';
 import { SecaoAnexos } from '../../lista-presenca-codaf/cadastro/componentes/secao-anexos';
 import ModalExcluir from '../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir';
-import { extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
+import { StatusCodafSuplementar } from '~/core/enum/status-codaf-suplementar';
 
 export interface CursistaDTO {
   inscricaoId: number;
@@ -114,6 +116,16 @@ type CodafFormValues = {
     | null
     | undefined;
 };
+
+type SalvarBloqueioFields = Pick<
+  CodafFormValues,
+  | 'numeroComunicado'
+  | 'dataPublicacao'
+  | 'paginaComunicado'
+  | 'dataPublicacaoDiarioOficial'
+  | 'codigoCursoEol'
+  | 'anexos'
+>;
 
 const resolveAtividade = (atividade: string | null): boolean | null => {
   if (atividade === 'S') {
@@ -256,20 +268,72 @@ function getSaveErrorMessage(response: ApiResponseMessage, isEditing: boolean) {
   return isEditing ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro';
 }
 
-type ActionButtonsProps = {
+const isEmptyValue = (value: unknown) => {
+  if (value === null || value === undefined) {
+    return true;
+  }
+
+  if (typeof value === 'string') {
+    return value.trim() === '';
+  }
+
+  if (Array.isArray(value)) {
+    return value.length === 0;
+  }
+
+  return false;
+};
+
+export const deveDesabilitarSalvar = (
+  finalizado: boolean,
+  certificadoEmitido: boolean,
+  campos?: Partial<SalvarBloqueioFields>,
+) => {
+  if (!certificadoEmitido) {
+    return false;
+  }
+
+  if (!campos) {
+    return true;
+  }
+
+  if (!finalizado) {
+    return false;
+  }
+
+  const camposObrigatorios = [
+    campos.numeroComunicado,
+    campos.dataPublicacao,
+    campos.paginaComunicado,
+    campos.dataPublicacaoDiarioOficial,
+    campos.codigoCursoEol,
+  ];
+
+  return camposObrigatorios.some(isEmptyValue) || isEmptyValue(campos.anexos);
+};
+
+type ActionButtonsProps = Readonly<{
   navigate: ReturnType<typeof useNavigate>;
   onClickExcluir: () => void;
   onClickSalvar: () => void;
   loading: boolean;
+  salvarDesabilitado: boolean;
   formLocks: {
     actions: {
       salvar: { visible: boolean; locked: boolean };
       excluir: { visible: boolean; locked: boolean };
     };
   };
-};
+}>;
 
-function ActionButtons({ navigate, onClickExcluir, onClickSalvar, loading, formLocks }: ActionButtonsProps) {
+function ActionButtons({
+  navigate,
+  onClickExcluir,
+  onClickSalvar,
+  loading,
+  salvarDesabilitado,
+  formLocks,
+}: ActionButtonsProps) {
   return (
     <Row gutter={[8, 8]}>
       <Col>
@@ -307,6 +371,7 @@ function ActionButtons({ navigate, onClickExcluir, onClickSalvar, loading, formL
       {formLocks.actions.salvar.visible && (
         <Col>
           <Button
+            disabled={salvarDesabilitado}
             type='primary'
             onClick={onClickSalvar}
             loading={loading}
@@ -337,7 +402,8 @@ const CadastroCodafSuplementar: React.FC = () => {
 
   const [codafId, setCodafId] = useState<number | null>(null);
   const [registroId, setRegistroId] = useState<number | null>(null);
-  const currentStatus: number | null = null;
+  const [certificadoEmitido, setCertificadoEmitido] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<StatusCodafSuplementar | null>(null);
   const turmaIdWatch = Form.useWatch('turmaId', form);
 
   const isEditing = Boolean(id);
@@ -347,24 +413,40 @@ const CadastroCodafSuplementar: React.FC = () => {
   const [retificacoesOriginais, setRetificacoesOriginais] = useState<
     Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
   >(new Map());
+  const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
 
   const viewState = {
-    isStarted: currentStatus === 1,
-    isWaiting: currentStatus === 2,
-    isDone: currentStatus === 3,
+    isStarted: currentStatus === StatusCodafSuplementar.Iniciado,
+    isWaiting: currentStatus === StatusCodafSuplementar.Aguardando,
+    isDone: currentStatus === StatusCodafSuplementar.Finalizado,
   };
+
+  const numeroComunicadoWatch = Form.useWatch('numeroComunicado', form);
+  const dataPublicacaoWatch = Form.useWatch('dataPublicacao', form);
+  const paginaComunicadoWatch = Form.useWatch('paginaComunicado', form);
+  const dataPublicacaoDiarioOficialWatch = Form.useWatch('dataPublicacaoDiarioOficial', form);
+  const codigoCursoEolWatch = Form.useWatch('codigoCursoEol', form);
+  const anexosWatch = Form.useWatch('anexos', form) as FormAnexoDTO[] | undefined;
+
+  const salvarDesabilitado = deveDesabilitarSalvar(currentStatus === StatusCodafSuplementar.Finalizado, certificadoEmitido, {
+    numeroComunicado: numeroComunicadoWatch,
+    dataPublicacao: dataPublicacaoWatch,
+    paginaComunicado: paginaComunicadoWatch,
+    dataPublicacaoDiarioOficial: dataPublicacaoDiarioOficialWatch,
+    codigoCursoEol: codigoCursoEolWatch,
+    anexos: anexosWatch,
+  });
 
   const formLocks = {
     fields: {
       formulario: {
         numeroHomologacao: viewState.isDone || isEditing,
         turma: viewState.isDone || isEditing,
-      },
-      informacoesAdicionais: viewState.isDone,
+      }
     },
     actions: {
-      salvar: { visible: true, locked: false },
-      excluir: { visible: true, locked: false },
+      salvar: { visible: true, locked: !!certificadoEmitido },
+      excluir: { visible: true, locked: !!certificadoEmitido || !isEditing || currentStatus === StatusCodafSuplementar.Finalizado },
     },
   };
 
@@ -388,6 +470,11 @@ const CadastroCodafSuplementar: React.FC = () => {
         const dados = response.dados;
         setRegistroId(dados.id);
         setCodafId(dados.codafId);
+        setCurrentStatus(dados.status);
+        setRegrasAprovacao(dados.regrasAprovacao);
+        setCertificadoEmitido(Boolean(dados.certificadoEmitido));
+        setTurmas(dados.turma ? [dados.turma] : []);
+
         preencherFormularioComDetalhes(form, dados);
 
         const hydrationData = hydrateRetificacoesForm(form, dados.retificacoes);
@@ -503,6 +590,7 @@ const CadastroCodafSuplementar: React.FC = () => {
     if (!proposta) return;
 
     setPropostaSelecionada(proposta);
+    setRegrasAprovacao(proposta.regrasAprovacao);
     form.setFieldsValue({
       numeroHomologacao: proposta.numeroHomologacao,
       nomeFormacao: proposta.nomeFormacao,
@@ -563,7 +651,27 @@ const CadastroCodafSuplementar: React.FC = () => {
     value: CursistaDTO[keyof CursistaDTO],
   ) => {
     setCursistas((prevCursistas) =>
-      prevCursistas.map((c) => (c.inscricaoId === inscricaoId ? { ...c, [field]: value } : c)),
+      prevCursistas.map((c) => {
+      if (c.inscricaoId !== inscricaoId) return c;
+
+      const cursistaAtualizado = { ...c, [field]: value };
+
+      // Gatilho do motor de aprovação
+      if (['frequencia', 'atividade', 'conceitoFinal'].includes(field)) {
+        const autoAprovado = calcularAprovacao(
+          cursistaAtualizado.frequencia,
+          cursistaAtualizado.conceitoFinal,
+          cursistaAtualizado.atividade,
+          regrasAprovacao
+        );
+
+        if (autoAprovado !== null) {
+          cursistaAtualizado.aprovado = autoAprovado;
+        }
+      }
+
+      return cursistaAtualizado;
+    }),
     );
   };
 
@@ -679,11 +787,9 @@ const CadastroCodafSuplementar: React.FC = () => {
           anexos: payloadBase.anexos,
           retificacoes: payloadBase.retificacoes,
         };
-
-        console.log('Dados enviados para API (PUT):', JSON.stringify(payloadEdicao, null, 2));
+        
         res = await alterarCodafSuplementar(Number(id), payloadEdicao);
-      } else {
-        console.log('Dados enviados para API (POST):', JSON.stringify(payloadBase, null, 2));
+      } else {        
         res = await criarCodafSuplementar(payloadBase);
       }
       handleSaveResponse(res);
@@ -781,6 +887,7 @@ const CadastroCodafSuplementar: React.FC = () => {
             onClickExcluir={onClickExcluir}
             onClickSalvar={onClickSalvar}
             loading={loading}
+            salvarDesabilitado={salvarDesabilitado}
             formLocks={formLocks}
           />
         </Col>
@@ -818,6 +925,8 @@ const CadastroCodafSuplementar: React.FC = () => {
             onRemoverCursista={onRemoverCursista}
             onChangeCursista={onChangeCursista}
             propostaTurmaId={turmaIdWatch ?? 0}
+            certificadoEmitido={certificadoEmitido}
+            statusCodafSuplementar={currentStatus}
           />
           <div style={{ display: 'block'}}>
             <SecaoRetificacoes
@@ -858,7 +967,6 @@ const CadastroCodafSuplementar: React.FC = () => {
                   rows={4}
                   placeholder='Digite as informações adicionais...'
                   maxLength={500}
-                  disabled={formLocks.fields.informacoesAdicionais}
                 />
               </Form.Item>
             </Col>

@@ -44,7 +44,7 @@ import ListCoordenadoria from '~/pages/cadastros/coordenadoria';
 import CodafSuplementar from '~/pages/formacoes/codaf-suplementar';
 import CadastroCodafSuplementar from '~/pages/formacoes/codaf-suplementar/cadastro';
 
-const isCodafSuplementarEnabled: boolean = !import.meta.env.PROD;
+const isCodafSuplementarEnabled: boolean = true;
 
 const RoutesConfig = () => {
   const autenticado = useAppSelector((state) => state.auth.autenticado);

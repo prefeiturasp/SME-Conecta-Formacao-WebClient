@@ -1,5 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
 import { DeltaInscritosDTO } from '../../../../core/services/codaf-lista-presenca-service';
+import { calcularAprovacao } from '../../../../core/utils/codaf-utils';
+import type { RegrasAprovacaoCursistaCodafDto } from '../../../../core/dto/cursista-dto';
 
 describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados', () => {
 
@@ -225,4 +227,115 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
     });
 
   });
+
+  describe('CodafUtils - Motor de Regras de Certificacao (calcularAprovacao)', () => {
+  
+  const regrasBaseMock: RegrasAprovacaoCursistaCodafDto = {
+    frequenciaMinima: 75,
+    conceitosAceitos: ['S', 'P'],
+    exigeAtividadeObrigatoria: true,
+    possuiRegraAvaliacao: true
+  };
+
+  test('DadoRegrasNaoDefinidasQuandoCalcularEntaoRetornaNulo', () => {
+    // Arrange
+    const regrasNulas = undefined;
+
+    // Act
+    const resultado = calcularAprovacao(100, 'S', 'S', regrasNulas);
+
+    // Assert
+    expect(resultado).toBeNull();
+  });
+
+  test('DadoPossuiRegraAvaliacaoFalsoQuandoCalcularEntaoRetornaNulo', () => {
+    // Arrange
+    const regrasVazias: RegrasAprovacaoCursistaCodafDto = { ...regrasBaseMock, possuiRegraAvaliacao: false };
+
+    // Act
+    const resultado = calcularAprovacao(100, 'S', 'S', regrasVazias);
+
+    // Assert
+    expect(resultado).toBeNull();
+  });
+
+  test('DadoFrequenciaAbaixoDoMinimoQuandoCalcularEntaoRetornaFalso', () => {
+    // Arrange
+    const frequenciaReprovacao = 74;
+
+    // Act
+    const resultado = calcularAprovacao(frequenciaReprovacao, 'S', 'S', regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoConceitoForaDosAceitosQuandoCalcularEntaoRetornaFalso', () => {
+    // Arrange
+    const conceitoFinalInvalido = 'NS';
+
+    // Act
+    const resultado = calcularAprovacao(100, conceitoFinalInvalido, 'S', regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoConceitoNuloQuandoRegraExigeConceitoEntaoRetornaFalso', () => {
+    // Arrange
+    const conceitoFinalNulo = null;
+
+    // Act
+    const resultado = calcularAprovacao(100, conceitoFinalNulo, 'S', regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoAtividadeObrigatoriaNaoRealizadaQuandoCalcularEntaoRetornaFalso', () => {
+    // Arrange
+    const atividadeNaoRealizada = 'N';
+
+    // Act
+    const resultado = calcularAprovacao(100, 'P', atividadeNaoRealizada, regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test('DadoTodasAsRegrasSatisfeitasQuandoCalcularEntaoRetornaVerdadeiro', () => {
+    // Arrange
+    const frequenciaValida = 80;
+    const conceitoValido = 'P';
+    const atividadeRealizada = 'S';
+
+    // Act
+    const resultado = calcularAprovacao(frequenciaValida, conceitoValido, atividadeRealizada, regrasBaseMock);
+
+    // Assert
+    expect(resultado).toBe(true);
+  });
+
+  test('DadoRegraSemExigenciaDeAtividadeQuandoAvaliarComAtividadeNaoRealizadaEntaoRetornaVerdadeiro', () => {
+    // Arrange
+    const regrasSemAtividade = { ...regrasBaseMock, exigeAtividadeObrigatoria: false };
+
+    // Act
+    const resultado = calcularAprovacao(100, 'S', 'N', regrasSemAtividade);
+
+    // Assert
+    expect(resultado).toBe(true);
+  });
+
+  test('DadoRegraSemExigenciaDeConceitoQuandoAvaliarComQualquerConceitoEntaoRetornaVerdadeiro', () => {
+    // Arrange
+    const regrasSemConceito = { ...regrasBaseMock, conceitosAceitos: [] };
+
+    // Act
+    const resultado = calcularAprovacao(100, 'NS', 'S', regrasSemConceito);
+
+    // Assert
+    expect(resultado).toBe(true);
+  });
+});
 });

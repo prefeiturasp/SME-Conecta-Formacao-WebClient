@@ -2,6 +2,7 @@ import { PerfilUsuarioDTO } from './perfil-usuario-dto';
 
 export interface RetornoPerfilUsuarioDTO {
   usuarioNome: string;
+  nomeSocial?: string;
   usuarioLogin: string;
   dataHoraExpiracao: string;
   token: string;
