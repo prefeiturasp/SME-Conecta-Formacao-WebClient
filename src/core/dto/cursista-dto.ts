@@ -5,3 +5,10 @@ export type CursistaDTO = {
   cpf: string;
   usuarioCargos: DadosInscricaoCargoEolDTO[];
 };
+
+export interface RegrasAprovacaoCursistaCodafDto {
+  frequenciaMinima: number;
+  conceitosAceitos: string[];
+  exigeAtividadeObrigatoria: boolean;
+  possuiRegraAvaliacao: boolean;
+}

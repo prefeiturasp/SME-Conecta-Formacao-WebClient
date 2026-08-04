@@ -58,7 +58,8 @@ import { onClickVoltar } from '~/core/utils/form';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { downloadBlob } from '~/core/utils/functions';
-import { extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
 
 interface CursistaDTO {
   id: number;
@@ -119,6 +120,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
   const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
+  const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
 
   const cursistasSelecionados = cursistas.filter((c) => cursistasSelecionadosIds.includes(c.id));
 
@@ -162,7 +164,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     }
   };
 
-  const [turmas, setTurmas] = useState<RetornoListagemDTO[]>([]);
   const [turmasFiltradas, setTurmasFiltradas] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [formValido, setFormValido] = useState(false);
@@ -408,9 +409,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         const turmasResponse = await obterTurmasInscricao(dados.propostaId);
         if (!turmasResponse.sucesso || !turmasResponse.dados) return;
 
-        setTurmas(turmasResponse.dados);
-        console.log(turmas);
-
         const turmasDisponiveis: RetornoListagemDTO[] = [];
         const turmaSelecionada = turmasResponse.dados.find((t) => t.id === dados.propostaTurmaId);
         if (turmaSelecionada) turmasDisponiveis.push(turmaSelecionada);
@@ -453,6 +451,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         const dados = response.dados;
         setRegistroId(dados.id);
         setStatus(dados.status);
+        setRegrasAprovacao(dados.regrasAprovacao);
 
         if (dados.comentario) {
           setComentario(dados.comentario);
@@ -556,7 +555,27 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
   const handleCursistaChange = (id: number, field: keyof CursistaDTO, value: any) => {
     setCursistas((prev) =>
-      prev.map((cursista) => (cursista.id === id ? { ...cursista, [field]: value } : cursista)),
+      prev.map((cursista) => {
+        if (cursista.id !== id) return cursista;
+
+        const cursistaAtualizado = { ...cursista, [field]: value };
+
+        // Só recalcula se a alteração for nos campos de avaliação
+        if (['frequencia', 'atividade', 'conceitoFinal'].includes(field)) {
+          const autoAprovado = calcularAprovacao(
+            cursistaAtualizado.frequencia,
+            cursistaAtualizado.conceitoFinal,
+            cursistaAtualizado.atividade,
+            regrasAprovacao
+          );
+
+          if (autoAprovado !== null) {
+            cursistaAtualizado.aprovado = autoAprovado;
+          }
+        }
+
+        return cursistaAtualizado;
+      }),
     );
   };
 
@@ -717,6 +736,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     const proposta = opcoesFormacao.find((p) => p.propostaId === option.propostaId);
     if (proposta) {
       setPropostaSelecionada(proposta);
+      setRegrasAprovacao(proposta.regrasAprovacao);
       form.setFieldsValue({
         numeroHomologacao: proposta.numeroHomologacao,
         nomeFormacao: proposta.nomeFormacao,
@@ -729,8 +749,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados) {
-          setTurmas(response.dados);
-          console.log(turmas);
 
           const turmasDisponiveis: RetornoListagemDTO[] = [];
           for (const turma of response.dados) {
@@ -764,7 +782,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             setTodasTurmasPossuemLista(false);
           }
         } else {
-          setTurmas([]);
           setTurmasFiltradas([]);
           setTurmaDisabled(true);
           notification.warning({
@@ -774,7 +791,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         }
       } catch (error) {
         console.error('Erro ao buscar turmas:', error);
-        setTurmas([]);
         setTurmasFiltradas([]);
         setTurmaDisabled(true);
         notification.error({
@@ -842,8 +858,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       tipoAnexoId: 3,
     })) ?? [];
 
-    console.log('Anexos mapeados para envio:', anexosMapeados);
-
     const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
     const retificacoesPayload = extractRetificacoesPayload(
       values, 
@@ -907,13 +921,10 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
       const dados = montarPayloadSalvar(values, inscritosOverride);
 
-      console.log('Dados enviados para API:', JSON.stringify(dados, null, 2));
-
       const response = modoEdicao
         ? await atualizarCodafListaPresenca(registroId ?? 0, dados)
         : await criarCodafListaPresenca(dados);
-
-      console.log('Resposta da API:', response);
+        
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
@@ -1053,15 +1064,12 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
   const onDownloadAnexo = async (arquivo: any) => {
     try {
-      console.log('Arquivo completo para download:', arquivo);
-
       if (arquivo.urlDownload) {
         window.open(arquivo.urlDownload, '_blank');
         return;
       }
 
       const codigoArquivo = arquivo.xhr || arquivo.arquivoCodigo || arquivo.response;
-      console.log('Código do arquivo extraído:', codigoArquivo);
 
       if (!codigoArquivo) {
         notification.error({
@@ -1090,12 +1098,39 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     }
   };
 
+  const sanitizarDadosParaComparacao = (dados: any) => {
+    if (!dados) return dados;
+
+    console.log('Sanitizando dados para comparação:', dados);
+
+    const copia = JSON.parse(JSON.stringify(dados));
+
+    if (copia.anexos && Array.isArray(copia.anexos)) {
+      copia.anexos = copia.anexos.map((anexo: any) => ({
+        arquivoCodigo: anexo.arquivoCodigo || anexo.response?.codigo || anexo.uid,
+        nomeArquivo: anexo.nomeArquivo || anexo.name
+      }));
+
+      copia.anexos.sort((a: any, b: any) => 
+        (a.arquivoCodigo || '').localeCompare(b.arquivoCodigo || '')
+      );
+
+      console.log('Sanitização de anexos concluída:', copia.anexos);
+    }
+
+    return copia;
+  }
+
   const verificarAlteracoes = () => {
     if (!modoEdicao || !formOriginal.current) return false;
 
     const formAtual = form.getFieldsValue();
-    const formOriginalStr = JSON.stringify(formOriginal.current);
-    const formAtualStr = JSON.stringify(formAtual);
+    
+    const formOriginalSanitizado = sanitizarDadosParaComparacao(formOriginal.current);
+    const formAtualSanitizado = sanitizarDadosParaComparacao(formAtual);
+
+    const formOriginalStr = JSON.stringify(formOriginalSanitizado);
+    const formAtualStr = JSON.stringify(formAtualSanitizado);
     const cursistasOriginaisStr = JSON.stringify(cursistasOriginais.current);
     const cursistasAtuaisStr = JSON.stringify(cursistas);
 
@@ -1609,6 +1644,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             loading={false}
             onClose={() => setDrawerLoteAberto(false)}
             onConfirmar={onConfirmarDadosLote}
+            regrasAprovacao={regrasAprovacao}
           />
 
           <div style={{ display: ehAreaPromotoraEAdmin ? 'block' : 'none' }}>
@@ -1709,6 +1745,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         onCloseModal={() => setModalDrawerInscritosVisible(false)}
         onSave={onSaveDrawerInscritos}
         inscritos={novosInscritosDrawer}
+        regrasAprovacao={regrasAprovacao}
       />
     </Col>
   );

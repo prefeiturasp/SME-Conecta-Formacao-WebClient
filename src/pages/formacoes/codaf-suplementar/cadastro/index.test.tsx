@@ -1,4 +1,57 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, jest, test } from '@jest/globals';
+import dayjs from 'dayjs';
+
+jest.mock('antd/es/date-picker/locale/pt_BR', () => ({
+  __esModule: true,
+  default: {},
+}));
+
+jest.mock('~/components/lib/card-content', () => ({
+  __esModule: true,
+  default: ({ children }: { children: unknown }) => children,
+}));
+
+jest.mock('~/components/lib/header-page', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('~/components/lib/notification', () => ({
+  notification: {
+    error: jest.fn(),
+    warning: jest.fn(),
+    success: jest.fn(),
+  },
+}));
+
+jest.mock('~/components/main/button/voltar', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../../lista-presenca-codaf/cadastro/componentes/secao-formulario', () => ({
+  SecaoFormulario: () => null,
+}));
+
+jest.mock('./componentes/secao-busca-lista-inscritos', () => ({
+  SecaoBuscaEListaInscritos: () => null,
+}));
+
+jest.mock('../../lista-presenca-codaf/cadastro/componentes/secao-retificacoes/secao-retificacoes', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('../../lista-presenca-codaf/cadastro/componentes/secao-anexos', () => ({
+  SecaoAnexos: () => null,
+}));
+
+jest.mock('../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+import { deveDesabilitarSalvar } from './index';
 
 describe('CadastroCodafSuplementar - Regras de Negócio', () => {
   const resolveAtividade = (atividade: string | null): boolean | null => {
@@ -135,6 +188,71 @@ describe('CadastroCodafSuplementar - Regras de Negócio', () => {
 
   test('deve usar fallback quando não houver mensagem no erro', () => {
     expect(getErrorMessage({}, 'Fallback')).toBe('Fallback');
+  });
+
+  test('deve desabilitar o salvar na edicao do CODAF suplementar com certificado emitido quando faltar qualquer campo obrigatorio', () => {
+    const camposCompletos: Partial<{
+      numeroComunicado: number;
+      dataPublicacao: dayjs.Dayjs | null;
+      paginaComunicado: number;
+      dataPublicacaoDiarioOficial: dayjs.Dayjs | null;
+      codigoCursoEol: number | null;
+      anexos: Array<{ uid: string; name: string }>;
+    }> = {
+      numeroComunicado: 1234,
+      dataPublicacao: dayjs('2026-01-10'),
+      paginaComunicado: 45,
+      dataPublicacaoDiarioOficial: dayjs('2026-01-11'),
+      codigoCursoEol: 998877,
+      anexos: [{ uid: 'anexo-1', name: 'arquivo.pdf' }],
+    };
+
+    expect(deveDesabilitarSalvar(true, true, camposCompletos)).toBe(false);
+
+    const camposObrigatorios = [
+      ['Numero do comunicado', 'numeroComunicado', ''],
+      ['Data do comunicado', 'dataPublicacao', null],
+      ['Pagina do comunicado no Diario Oficial', 'paginaComunicado', ''],
+      ['Data de publicacao do Diario Oficial', 'dataPublicacaoDiarioOficial', undefined],
+      ['Codigo do curso no EOL', 'codigoCursoEol', ''],
+      ['Anexo', 'anexos', []],
+    ] as const;
+
+    camposObrigatorios.forEach(([, campo, valor]) => {
+      expect(
+        deveDesabilitarSalvar(true, true, {
+          ...camposCompletos,
+          [campo]: valor,
+        }),
+      ).toBe(true);
+    });
+  });
+
+  test('deve liberar o salvar quando o registro ainda nao estiver finalizado, mesmo com campos faltando', () => {
+    expect(
+      deveDesabilitarSalvar(false, true, {
+        numeroComunicado: undefined,
+        dataPublicacao: null,
+        paginaComunicado: undefined,
+        dataPublicacaoDiarioOficial: null,
+        codigoCursoEol: undefined,
+        anexos: [],
+      }),
+    ).toBe(false);
+  });
+
+  test('deve permitir salvar quando não houve emissão de certificados', () => {
+    expect(deveDesabilitarSalvar(true, false, undefined)).toBe(false);
+    expect(
+      deveDesabilitarSalvar(true, false, {
+        numeroComunicado: undefined,
+        dataPublicacao: null,
+        paginaComunicado: undefined,
+        dataPublicacaoDiarioOficial: null,
+        codigoCursoEol: undefined,
+        anexos: [],
+      }),
+    ).toBe(false);
   });
 
   test('deve mapear inscritos para payload mantendo regra de atividade', () => {

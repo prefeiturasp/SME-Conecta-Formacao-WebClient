@@ -25,11 +25,13 @@ const mockNavigate = jest.fn();
 const mockSetFieldsValue = jest.fn();
 const mockSetFieldValue = jest.fn();
 const mockGetFieldsValue = jest.fn();
+const mockGetFieldValue = jest.fn();
 
 const mockForm = {
   setFieldsValue: mockSetFieldsValue,
   setFieldValue: mockSetFieldValue,
   getFieldsValue: mockGetFieldsValue,
+  getFieldValue: mockGetFieldValue,
 };
 
 let mockAuthState: {
@@ -107,17 +109,69 @@ jest.mock('styled-components', () => {
   const ReactModule =
     jest.requireActual<typeof import('react')>('react');
 
+  const createStyledComponent = (
+    baseComponent: React.ElementType | string,
+  ) =>
+    (_styles: TemplateStringsArray, ..._expressions: unknown[]) =>
+    ({
+      children,
+      ...props
+    }: {
+      children?: React.ReactNode;
+      [key: string]: unknown;
+    }) =>
+      typeof baseComponent === 'string'
+        ? ReactModule.createElement(
+            baseComponent,
+            {
+              ...props,
+              ...(baseComponent === 'div'
+                ? { 'data-testid': 'dados-perfil' }
+                : {}),
+            },
+            children,
+          )
+        : ReactModule.createElement(
+            baseComponent,
+            props,
+            children,
+          );
+
+  const styledMock = new Proxy(
+    ((baseComponent: React.ElementType | string) =>
+      createStyledComponent(baseComponent)) as {
+      (baseComponent: React.ElementType | string): (
+        styles: TemplateStringsArray,
+        ...expressions: unknown[]
+      ) => (props: {
+        children?: React.ReactNode;
+        [key: string]: unknown;
+      }) => React.ReactElement | null;
+    },
+    {
+      apply: (_target, _thisArg, argumentsList) =>
+        createStyledComponent(argumentsList[0] as React.ElementType | string),
+      get: (_target, property) => {
+        if (property === 'default') {
+          return styledMock;
+        }
+
+        if (property === '__esModule') {
+          return true;
+        }
+
+        if (typeof property === 'string') {
+          return createStyledComponent(property);
+        }
+
+        return undefined;
+      },
+    },
+  );
+
   return {
     __esModule: true,
-    default: {
-      div: () =>
-        ({ children }: { children?: React.ReactNode }) =>
-          ReactModule.createElement(
-            'div',
-            { 'data-testid': 'dados-perfil' },
-            children,
-          ),
-    },
+    default: styledMock,
   };
 });
 
@@ -356,6 +410,16 @@ jest.mock(
 );
 
 jest.mock(
+  '../modal-edit-nome-social/modal-edit-nome-social-button',
+  () => ({
+    __esModule: true,
+    ModalEditNomeSocialButton: () => (
+      <button>Editar nome social</button>
+    ),
+  }),
+);
+
+jest.mock(
   '../modal-edit-nova-senha/modal-edit-nova-senha-button',
   () => ({
     __esModule: true,
@@ -459,6 +523,10 @@ describe('MeusDados', () => {
       qualDeficiencia: 'Deficiência visual',
       qualTipoAdaptacao: 'Leitor de tela',
     });
+
+    mockGetFieldValue.mockImplementation((fieldName: string) =>
+      mockGetFieldsValue.mock.results[0]?.value?.[fieldName],
+    );
 
     mockSalvarAcessibilidade.mockResolvedValue({
       sucesso: true,

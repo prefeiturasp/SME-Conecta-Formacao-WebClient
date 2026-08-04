@@ -1,5 +1,6 @@
 import { CodafBaseDetalheDTO } from "../dto/codaf-base-detalhe-dto";
 import api, { alterarRegistro, ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from "./api";
+import { PropostaTurmaComCodafDTO } from "./codaf-lista-presenca-service";
 import {
   CodafAnexoDTO,
   CodafAnexoTemporarioDTO,
@@ -28,6 +29,7 @@ export type InscritoDetalheDTO = {
 export interface CodafSuplementarDetalheDTO extends CodafBaseDetalheDTO {
   codafId: number;
   inscritos?: InscritoDetalheDTO[];
+  turma: PropostaTurmaComCodafDTO;
 }
 
 export type AnexoCodafDetalheDTO = {

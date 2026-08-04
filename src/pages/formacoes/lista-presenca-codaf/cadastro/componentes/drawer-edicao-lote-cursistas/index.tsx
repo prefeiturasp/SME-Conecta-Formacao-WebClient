@@ -1,5 +1,7 @@
 import { Button, Drawer, Form, Input, Select, Space } from 'antd';
 import React, { useEffect } from 'react';
+import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
+import { calcularAprovacao } from '~/core/utils/codaf-utils';
 
 export interface DadosLoteCursistas {
   frequencia: number;
@@ -15,6 +17,7 @@ interface DrawerEdicaoLoteCursistasProps {
   loading: boolean;
   onClose: () => void;
   onConfirmar: (dados: DadosLoteCursistas) => void | Promise<void>;
+  regrasAprovacao?: RegrasAprovacaoCursistaCodafDto;
 }
 
 export const DrawerEdicaoLoteCursistas: React.FC<DrawerEdicaoLoteCursistasProps> = ({
@@ -24,6 +27,7 @@ export const DrawerEdicaoLoteCursistas: React.FC<DrawerEdicaoLoteCursistasProps>
   loading,
   onClose,
   onConfirmar,
+  regrasAprovacao,
 }) => {
   const [form] = Form.useForm();
 
@@ -31,6 +35,19 @@ export const DrawerEdicaoLoteCursistas: React.FC<DrawerEdicaoLoteCursistasProps>
   const atividade = Form.useWatch('atividade', form);
   const conceitoFinal = Form.useWatch('conceitoFinal', form);
   const aprovado = Form.useWatch('aprovado', form);
+
+  useEffect(() => {
+    if (regrasAprovacao?.possuiRegraAvaliacao) {
+      const freqNum = frequencia ? parseInt(String(frequencia).replace(/\D/g, ''), 10) : null;
+      
+      if (freqNum !== null || atividade || conceitoFinal) {
+        const resultadoAprovacao = calcularAprovacao(freqNum, conceitoFinal, atividade, regrasAprovacao);
+        if (resultadoAprovacao !== null) {
+          form.setFieldValue('aprovado', resultadoAprovacao ? 'S' : 'N');
+        }
+      }
+    }
+  }, [frequencia, atividade, conceitoFinal, regrasAprovacao, form]);
 
   const todosCamposPreenchidos =
     frequencia !== undefined &&
