@@ -631,11 +631,11 @@ export const FormCadastroDePropostas: React.FC = () => {
       outrosCriterios: clonedValues?.outrosCriterios || '',
       cursoComCertificado: !!clonedValues.cursoComCertificado,
       tipoEmissor:
-        clonedValues?.cursoComCertificado && tipoEmissorNumero !== null && !Number.isNaN(tipoEmissorNumero)
+        tipoEmissorNumero !== null && !Number.isNaN(tipoEmissorNumero)
           ? tipoEmissorNumero
           : null,
       idEmissor:
-        clonedValues?.cursoComCertificado && idEmissorNumero !== null && !Number.isNaN(idEmissorNumero)
+        idEmissorNumero !== null && !Number.isNaN(idEmissorNumero)
           ? idEmissorNumero
           : null,
       acaoInformativa: !!clonedValues.acaoInformativa,

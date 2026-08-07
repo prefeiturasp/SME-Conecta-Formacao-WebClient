@@ -82,7 +82,7 @@ const FormularioCertificacao: React.FC = () => {
         label='Emissor'
         name='idEmissor'
         style={{ marginBottom: 0 }}
-        rules={[{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }]}
+        rules={[{ required: true, message: 'É necessário informar o Emissor' }]}
       >
         <Select placeholder='Selecione' disabled />
       </Form.Item>
@@ -97,7 +97,7 @@ const FormularioCertificacao: React.FC = () => {
           formItemProps={{
             label: 'Emissor',
             name: 'idEmissor',
-            rules: [{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }],
+            rules: [{ required: true, message: 'É necessário informar o Emissor' }],
           }}
         />
       </Col>
@@ -109,7 +109,7 @@ const FormularioCertificacao: React.FC = () => {
           formItemProps={{
             label: 'Emissor',
             name: 'idEmissor',
-            rules: [{ required: valuePossuiCertificado === true, message: 'É necessário informar o Emissor' }],
+            rules: [{ required: true, message: 'É necessário informar o Emissor' }],
           }}
         />
       </Col>
@@ -137,15 +137,13 @@ const FormularioCertificacao: React.FC = () => {
               </Form.Item>
             </ButtonParecer>
           </Col>
-          <Col flex='auto' />
-          {valuePossuiCertificado === true && (
+          <Col flex='auto' />          
             <>
               <Col span={8}>
-                <SelectTipoEmissor campoRequerido={valuePossuiCertificado === true} />
+                <SelectTipoEmissor campoRequerido={true} />
               </Col>
               {campoEmissor}
             </>
-          )}
           <Col span={24}>
             <ButtonParecer campo={CampoConsideracaoEnum.criterioCertificacao}>
               <SelectCriterioCertificacao onchange={verificarCriteriosSelecionados} />
