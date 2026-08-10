@@ -39,7 +39,7 @@ jest.mock('~/components/main/sider/menus', () => ({
   menus: [
     {
       key: 6,
-      children: [{ key: 11 }],
+      children: [{ key: 11 }, { key: 13 }],
     },
   ],
   RolesMenu: {},

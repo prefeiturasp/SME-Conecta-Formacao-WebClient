@@ -444,7 +444,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             message: 'Erro',
             description: response.mensagens?.[0] ?? 'Erro ao carregar dados do registro',
           });
-          navigate(ROUTES.LISTA_PRESENCA_CODAF);
+          navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO);
           return;
         }
 
@@ -485,7 +485,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           message: 'Erro',
           description: 'Erro ao carregar dados do registro',
         });
-        navigate(ROUTES.LISTA_PRESENCA_CODAF);
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO);
       } finally {
         setLoading(false);
       }
@@ -810,7 +810,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         description: modoEdicao ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
       });
       if (!id) {
-        navigate(ROUTES.LISTA_PRESENCA_CODAF_EDITAR.replace(':id', response.dados.id));
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', response.dados.id));
       }
     } else {
       const mensagensErro = response.mensagens ?? [];
@@ -953,7 +953,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   };
 
   const onClickCancelar = () => {
-    onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF });
+    onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO });
   };
 
   const onClickExcluir = () => {
@@ -981,7 +981,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           message: 'Sucesso',
           description: 'Registro excluído com sucesso!',
         });
-        navigate(ROUTES.LISTA_PRESENCA_CODAF);
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO);
       } else {
         const mensagemErro =
           response.mensagens && response.mensagens.length > 0
@@ -1276,7 +1276,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           message: 'Sucesso',
           description: 'Registro enviado para DF com sucesso!',
         });
-        navigate(ROUTES.LISTA_PRESENCA_CODAF);
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO);
       } else {
         const mensagemErro =
           response.mensagens && response.mensagens.length > 0
@@ -1326,7 +1326,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           message: 'Sucesso',
           description: 'Registro devolvido para correção com sucesso!',
         });
-        navigate(ROUTES.LISTA_PRESENCA_CODAF);
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO);
       } else {
         const mensagemErro =
           response.mensagens && response.mensagens.length > 0
@@ -1486,7 +1486,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           <Row gutter={[8, 8]}>
             <Col>
               <ButtonVoltar
-                onClick={() => onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF })}
+                onClick={() => onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO })}
                 id={CF_BUTTON_VOLTAR}
               />
             </Col>

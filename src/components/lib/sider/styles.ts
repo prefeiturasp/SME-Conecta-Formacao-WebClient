@@ -38,7 +38,7 @@ export const SiderSubMenuContainer = styled(SubMenu)<SiderSubMenuStylePros>`
 
     & {
       :not(.ant-menu-submenu-open) {
-        color: white !important;
+        color: ${(props) => (props?.isSubMenu ? props.theme?.token?.colorText : 'white')} !important;
         background: ${(props) => (props?.isSubMenu ? 'white' : props.theme?.token?.colorPrimary)};
 
         :hover {
@@ -57,7 +57,15 @@ export const SiderSubMenuContainer = styled(SubMenu)<SiderSubMenuStylePros>`
       line-height: 20px !important;
       height: ${(props) => (props?.collapsed ? '60px' : '40px')} !important;
 
-      ${(props) => props?.isSubMenu && `padding-left: 22px !important;`}
+      ${(props) => props?.isSubMenu && `
+        height: auto !important;
+        min-height: 40px !important;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        padding-left: 48px !important;
+        padding-right: 8px !important;
+        margin-left: 4px !important;
+      `}
     }
 
     &.ant-menu-submenu-open {
@@ -80,7 +88,10 @@ export const SiderSubMenuContainer = styled(SubMenu)<SiderSubMenuStylePros>`
     ${(props) =>
       props?.isSubMenu &&
       `.ant-menu-item {
-          padding-left: 52px !important;
+          height: auto !important;
+          min-height: 40px !important;
+          padding-top: 10px !important;
+          padding-bottom: 10px !important;
         }
         width: ${props.collapsed ? '80px' : '221px'};
       `}
@@ -104,8 +115,8 @@ export const SiderSubMenuContainer = styled(SubMenu)<SiderSubMenuStylePros>`
       }
     }
 
-    &:not(.ant-menu-submenu-selected) .ant-menu-submenu-title {
-      color: white;
+    &:not(.ant-menu-submenu-selected) > .ant-menu-submenu-title {
+      color: ${(props) => (props?.isSubMenu ? props.theme?.token?.colorText : 'white')};
     }
   }
 `;
@@ -194,6 +205,7 @@ export const SiderMenuGroup = styled.div<SiderMenuStylePros>`
   display: flex;
   align-items: center;
   flex-direction: ${(props) => (props?.collapsed ? 'column' : 'row')} !important;
+  width: 100%;
 `;
 
 export const SiderIconContainer = styled.div<SiderMenuStylePros>`
@@ -215,5 +227,7 @@ export const SiderMenuTitle = styled.div<SiderMenuStylePros>`
   font-size: ${(props) => (props.collapsed ? '10px' : '14px')};
   font-weight: 700;
   white-space: normal;
-  line-height: 12px;
+  line-height: 14px;
+  text-align: ${(props) => (props.collapsed ? 'center' : 'left')};
+  width: 100%;
 `;

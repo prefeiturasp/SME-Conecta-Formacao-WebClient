@@ -245,6 +245,29 @@ export const pesquisarCursistasDaTurma = (
   return obterRegistro(`${URL_API_PROPOSTA}/proposta-turmas/${propostaTurmaId}/inscritos/buscar`, { params });
 }
 
+export type PropostaTurmaDTO = {
+  id: number;
+  descricao: string;
+}
+
+export type PropostaComTurmasDTO = {
+  id: number;
+  nomeFormacao: string;
+  numeroFormacao: number | null;
+  turmas: PropostaTurmaDTO[];
+}
+
+export const obterDetalhesPropostaComTurmasPorId = (
+  propostaId: number, 
+  formacoesHomologas: boolean
+): Promise<ApiResult<PropostaComTurmasDTO>> => {
+  const params = {
+    formacoesHomologas,
+  };
+  return obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/detalhes-com-turmas`, { params });
+};
+
+
 export {
   alterarParecer,
   alterarProposta,

@@ -13,9 +13,9 @@ import {
   Tooltip,
 } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import locale from 'antd/es/date-picker/locale/pt_BR';
-import { useForm } from 'antd/es/form/Form';
-import { ColumnsType } from 'antd/es/table';
+import locale from 'antd/lib/date-picker/locale/pt_BR';
+import { useForm } from 'antd/lib/form/Form';
+import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import React, { useState } from 'react';
@@ -39,30 +39,29 @@ import {
 } from '~/core/constants/ids/input';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
-import {
-  baixarRelatorioCodaf,
-  CodafListaPresencaDTO,
-  obterListaPresencaCodaf,
-  emitirCertificadosCodaf,
-  imprimirRelatorioCodaf,
-} from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
-import { downloadBlob } from '~/core/utils/functions';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-import { TipoCodaf } from '~/core/enum/tipo-codaf';
+import { CodafNaoHomologadoListagemDTO, obterListaCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
 
-const ListaPresencaCodaf: React.FC = () => {
+const HEADER_TEXT_STYLE = {
+  paddingBottom: '24px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+};
+
+const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
-  const permissao = obterPermissaoPorMenu(MenuEnum.ListaPresencaCodaf);
+  const permissao = obterPermissaoPorMenu(MenuEnum.CodafFormacoesNaoHomologadas);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
-  const [dados, setDados] = useState<CodafListaPresencaDTO[]>([]);
+  const [dados, setDados] = useState<CodafNaoHomologadoListagemDTO[]>([]);
   //const [dadosOriginais, setDadosOriginais] = useState<CodafListaPresencaDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [paginaAtual, setPaginaAtual] = useState(1);
@@ -86,45 +85,14 @@ const ListaPresencaCodaf: React.FC = () => {
 
   const situacoes = [
     { id: 1, descricao: 'Iniciado' },
-    { id: 2, descricao: 'Aguardando DF' },
-    { id: 3, descricao: 'Devolvido pelo DF' },
-    { id: 4, descricao: 'Finalizado' },
+    { id: 2, descricao: 'Aguardando finalização' },
+    { id: 3, descricao: 'Finalizado' },
   ];
-
-  const LOCAL_STORAGE_KEY = 'codaf_emitir_certificados_clicked';
-
-  const getEmitidos = (): number[] => {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  };
-
-  const saveEmitido = (id: number) => {
-    const emitidos = getEmitidos();
-    if (!emitidos.includes(id)) {
-      emitidos.push(id);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(emitidos));
-    }
-  };
-
-  const wasEmitido = (id: number): boolean => {
-    return getEmitidos().includes(id);
-  };
-
-  const EOL_STORAGE_KEY = 'eol_txt_generated';
-
-  const getGeneratedMap = (): Record<number, boolean> => {
-    return JSON.parse(localStorage.getItem(EOL_STORAGE_KEY) || '{}');
-  };
-
-  const setGenerated = (id: number) => {
-    const map = getGeneratedMap();
-    map[id] = true;
-    localStorage.setItem(EOL_STORAGE_KEY, JSON.stringify(map));
-  };
-
-  const wasGenerated = (id: number): boolean => {
-    return !!getGeneratedMap()[id];
-  };
+  
+  React.useEffect(() => {    
+    buscarDados(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onClickNovo = () => {
     setModalVisible(true);
@@ -137,122 +105,13 @@ const ListaPresencaCodaf: React.FC = () => {
 
   const onClickContinuarRegistro = () => {
     setModalVisible(false);
-    navigate(ROUTES.LISTA_PRESENCA_CODAF_NOVO);
+    navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_NOVO);
   };
 
-  const onClickEmitirCertificado = async (record: CodafListaPresencaDTO) => {
-    try {
-      setLoading(true);
-
-      // 👇 SAVE immediately so refresh keeps state
-      saveEmitido(record.id);
-
-      const response = await emitirCertificadosCodaf(record.id, TipoCodaf.ListaPresenca);
-      forceUpdate((x) => x + 1);
-      if (response.sucesso) {
-        notification.success({
-          message: 'Sucesso',
-          description:
-            'O certificado está sendo emitido, volte mais tarde para acompanhar a atualização.',
-        });
-
-        buscarDados(paginaAtual);
-      } else {
-        notification.error({
-          message: 'Erro',
-          description: 'Erro ao emitir certificados',
-        });
-      }
-    } catch (error) {
-      notification.error({
-        message: 'Erro',
-        description: 'Erro ao emitir certificados',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const downloadTxtFile = (content: string, filename: string) => {
-    const formattedContent = content.replace(/\|00\|HOM/g, '||HOM');
-    const blob = new Blob([formattedContent], { type: 'text/plain;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  };
-
-  const onClickExportarListaInscritos = async (record: CodafListaPresencaDTO) => {
-    try {
-      const response = await baixarRelatorioCodaf(record.id);
-      if (response.sucesso && response.dados) {
-        const filename = `HOM${record.numeroHomologacao}${record.id}.txt`;
-        downloadTxtFile(response.dados, filename);
-        setGenerated(record.id);
-        notification.success({
-          message: 'Sucesso',
-          description: `O arquivo ${filename} foi gerado com sucesso!`,
-        });
-        buscarDados(paginaAtual);
-      }
-    } catch {
-      notification.error({
-        message: 'Erro',
-        description: 'Erro ao exportar lista de inscritos',
-      });
-    }
-  };
-
-  const onClickBaixarRelatorioCodaf = async (record: CodafListaPresencaDTO) => {
-    try {
-      setLoading(true);
-      let fileName = `CODAF_${record.numeroHomologacao}_${record.nomeTurma.replace(' ', '_')}.xlsx`;
-      const response = await imprimirRelatorioCodaf(record.id);
-
-      if (response.status === 200) {
-        const contentDisposition = response.headers['content-disposition'];
-
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-          if (fileNameMatch && fileNameMatch[1]) {
-            fileName = fileNameMatch[1].replace(/['"]/g, '');
-          }
-        }
-
-        downloadBlob(response.data, fileName);
-
-        notification.success({
-          message: 'Sucesso',
-          description: `${fileName}. Arquivo baixado com sucesso`,
-        });
-
-        buscarDados();
-      } else {
-        notification.error({
-          message: 'Erro',
-          description: `${fileName}. Não conseguimos gerar o seu arquivo. Tente novamente.`,
-        });
-      }
-    } catch {
-      notification.error({
-        message: 'Erro',
-        description: '${fileName}. Não conseguimos gerar o seu arquivo. Tente novamente.',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getMenuAcoes = (record: CodafListaPresencaDTO): MenuProps => {
-    const hasCodigoCursoEol = record.codigoCursoEol != null;
-    const isAguardandoDF = record.status === 2;
-    const isFinalizado = record.status === 4;
-    const isCertificacaoConcluida = record.statusCertificacaoTurma === 4;
-    const podeGerarComoComum = isAguardandoDF && hasCodigoCursoEol;
+  const getMenuAcoes = (record: CodafNaoHomologadoListagemDTO): MenuProps => {
+    const isAguardando = record.status === 2;
+    const isFinalizado = record.status === 3;
+    const podeGerarComoComum = isAguardando;
     const podeGerarComoAdmin = isFinalizado && ehPerfilAdminDf;
     const podeGerarTxtEol = podeGerarComoComum || podeGerarComoAdmin;
 
@@ -260,10 +119,10 @@ const ListaPresencaCodaf: React.FC = () => {
       if (podeGerarTxtEol) {
         return 'Clique para gerar TXT EOL';
       }
-      if (isAguardandoDF && !hasCodigoCursoEol) {
+      if (isAguardando) {
         return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
       }
-      return 'Função ativa apenas para a situação Aguardando DF com valor de Cod. Curso EOL informado';
+      return 'Função ativa apenas para a situação Aguardando DF ou para o perfil Admin DF quando a situação for Finalizado.';
        
     };
 
@@ -275,7 +134,7 @@ const ListaPresencaCodaf: React.FC = () => {
         disabled: !podeGerarTxtEol,
         label: !podeGerarTxtEol ? (
           <span style={{ display: 'block' }}>
-            Gerar TXT EOL &nbsp;
+            Exportar Lista de inscritos &nbsp;
             <Tooltip title={getTooltipMessage()}>
               <QuestionCircleOutlined
                 style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
@@ -290,7 +149,6 @@ const ListaPresencaCodaf: React.FC = () => {
         onClick: (e: any) => {
           e.domEvent.stopPropagation();
           if (podeGerarTxtEol) {
-            onClickExportarListaInscritos(record);
           }
         },
       });
@@ -298,27 +156,12 @@ const ListaPresencaCodaf: React.FC = () => {
 
     items.push({
       key: 'baixar-relatorio-codaf',
-      disabled: !isCertificacaoConcluida,
       label:
-        !isCertificacaoConcluida ? (
-          <span style={{ display: 'block' }}>
-            Baixar Relatório CODAF &nbsp;
-            <Tooltip title='Gere os certificados para baixar o relatório CODAF.'>
-              <QuestionCircleOutlined
-                style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
-              />
-            </Tooltip>
-          </span>
-        ) : (
-          <Tooltip title='Clique para exportar arquivo CODAF desta turma'>
+          <Tooltip title='Gere as declarações para baixar o relatório CODAF.'>
             <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
-          </Tooltip>
-        ),
+          </Tooltip>,
       onClick: (e: any) => {
         e.domEvent.stopPropagation();
-        if (isCertificacaoConcluida) {
-          onClickBaixarRelatorioCodaf(record);
-        }
       },
     });
 
@@ -330,37 +173,33 @@ const ListaPresencaCodaf: React.FC = () => {
     return situacao?.descricao || 'Desconhecido';
   };
 
-  const getCertificadoButtonState = (record: CodafListaPresencaDTO, loading: boolean) => {
-    const gerado = wasGenerated(record.id);
-    const emitido = wasEmitido(record.id);
-    console.log(emitido, gerado);
-    const status = record.statusCertificacaoTurma;
-    console.log(loading);
+  const getDeclaracaoButtonState = (record: CodafNaoHomologadoListagemDTO, loading: boolean) => {
+    const status = 0; 
 
     if (status === 0) {
-      return { text: 'Sem certificado', disabled: true };
+      return { text: 'Sem declaração', disabled: true };
     }
 
     if (status === 1) {
-      return { text: 'Não emitidos', disabled: true };
+      return { text: 'Não emitidas', disabled: true };
     }
 
     if (status === 2) {
-      return { text: 'Emitir certificados', disabled: false };
+      return { text: 'Emitir declarações', disabled: false };
     }
 
     if (status === 3) {
-      return { text: 'Emitindo certificado', disabled: true };
+      return { text: 'Emitindo declarações', disabled: true };
     }
 
     if (status === 4) {
-      return { text: 'Certificados emitidos', disabled: true };
+      return { text: 'Declarações emitidas', disabled: true };
     }
 
     return { text: '—', disabled: true };
   };
 
-  const colunasBase: ColumnsType<CodafListaPresencaDTO> = [
+  const colunasBase: ColumnsType<CodafNaoHomologadoListagemDTO> = [
     {
       key: 'codigoFormacao',
       title: 'Código da formação',
@@ -421,30 +260,29 @@ const ListaPresencaCodaf: React.FC = () => {
     },
   ];
 
-  const colunasAdicionais: ColumnsType<CodafListaPresencaDTO> = [
+  const colunasAdicionais: ColumnsType<CodafNaoHomologadoListagemDTO> = [
     {
-      key: 'certificado',
+      key: 'declaracao',
       title: (
         <span>
-          Certificado{' '}
-          <Tooltip title='Ao emitir certificado, a conclusão do curso é gerada tanto para cursistas quanto para regentes.'>
+          Declaração{' '}
+          <Tooltip title='Ao emitir declaração, a conclusão do curso é gerada tanto para cursistas quanto para regentes.'>
             <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
           </Tooltip>
         </span>
       ),
       width: 220,
-      render: (_: any, record: CodafListaPresencaDTO) => {
-        const { text, disabled } = getCertificadoButtonState(record, loading);
+      render: (_: any, record: CodafNaoHomologadoListagemDTO) => {
+        const { text, disabled } = getDeclaracaoButtonState(record, loading);
 
         return (
           <Button
             type='default'
             icon={<FiPrinter />}
-            loading={loading && text === 'Estamos emitindo certificado'}
+            loading={loading && text === 'Emitindo declarações'}
             disabled={disabled}
             onClick={(e) => {
               e.stopPropagation();
-              onClickEmitirCertificado(record);
             }}
             style={{
               width: '100%',
@@ -461,13 +299,13 @@ const ListaPresencaCodaf: React.FC = () => {
     },
   ];
 
-  const colunaAcoes: ColumnsType<CodafListaPresencaDTO> = [
+  const colunaAcoes: ColumnsType<CodafNaoHomologadoListagemDTO> = [
     {
       key: 'acoes',
       title: 'Ações',
       width: 80,
       align: 'center',
-      render: (_: any, record: CodafListaPresencaDTO) => (
+      render: (_: any, record: CodafNaoHomologadoListagemDTO) => (
         <Dropdown
           menu={getMenuAcoes(record)}
           trigger={['click']}
@@ -507,8 +345,8 @@ const ListaPresencaCodaf: React.FC = () => {
   const buscarDados = async (pagina = 1) => {
     setLoading(true);
     try {
-      const dataEnvio = form.getFieldValue('dataEnvio');
-      const dataEnvioDf = dataEnvio ? dayjs(dataEnvio).format('YYYY-MM-DD') : undefined;
+      const dataFinalizacao = form.getFieldValue('dataFinalizacao');
+      const dataFinalizacaoDf = dataFinalizacao ? dayjs(dataFinalizacao).format('YYYY-MM-DD') : undefined;
 
       const numeroHomologacao = form.getFieldValue('numeroHomologacao');
 
@@ -519,12 +357,12 @@ const ListaPresencaCodaf: React.FC = () => {
         PropostaTurmaId: form.getFieldValue('turmaId') || undefined,
         AreaPromotoraId: form.getFieldValue('areaPromotoraId') || undefined,
         Status: form.getFieldValue('situacao'),
-        DataEnvioDf: dataEnvioDf,
+        DataFinalizacao: dataFinalizacaoDf,
         NumeroPagina: pagina,
         NumeroRegistros: registrosPorPagina,
       };
 
-      const response = await obterListaPresencaCodaf(filtros);
+      const response = await obterListaCodafNaoHomologado(filtros);
 
       if (response.sucesso && response.dados) {
         const dadosFiltrados = response.dados.items || [];
@@ -536,7 +374,7 @@ const ListaPresencaCodaf: React.FC = () => {
       } else {
         notification.error({
           message: 'Erro',
-          description: 'Erro ao buscar dados da lista de presença CODAF',
+          description: 'Erro ao buscar dados da lista do CODAF Não Homologado',
         });
         setDados([]);
         setTotalRegistros(0);
@@ -544,7 +382,7 @@ const ListaPresencaCodaf: React.FC = () => {
     } catch (error) {
       notification.error({
         message: 'Erro',
-        description: 'Erro ao buscar dados da lista de presença CODAF',
+        description: 'Erro ao buscar dados da lista do CODAF Não Homologado',
       });
       setDados([]);
       setTotalRegistros(0);
@@ -631,13 +469,11 @@ const ListaPresencaCodaf: React.FC = () => {
     if (pagination.pageSize !== registrosPorPagina) {
       setRegistrosPorPagina(pagination.pageSize);
       setPaginaAtual(1);
-      // A busca será feita pelo useEffect
     } else {
       buscarDados(pagination.current);
     }
   };
 
-  // Recarrega os dados quando o tamanho da página muda
   React.useEffect(() => {
     if (filtroAplicado) {
       buscarDados(1);
@@ -688,7 +524,7 @@ const ListaPresencaCodaf: React.FC = () => {
         </p>
         <br></br>
       </Modal>
-      <HeaderPage title='Lista Presença Codaf'>
+      <HeaderPage title='CODAF não homologado'>
         <Col span={24}>
           <Row gutter={[8, 8]}>
             <Col>
@@ -716,6 +552,14 @@ const ListaPresencaCodaf: React.FC = () => {
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
           <Row gutter={[16, 8]}>
+            <Col span={24}>
+              <div style={HEADER_TEXT_STYLE}>
+                <div>
+                  Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de
+                  salvar.
+                </div>
+              </div>
+            </Col>
             <Col span={24}>
               <b>
                 <InputTexto
@@ -845,58 +689,56 @@ const ListaPresencaCodaf: React.FC = () => {
               </Button>
             </Col>
           </Row>
-          {filtroAplicado && (
-            <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
-              <Col span={24}>
-                <div className='table-pagination-center'>
-                  <Table
-                    columns={columns}
-                    dataSource={dados}
-                    rowKey='id'
-                    loading={loading}
-                    pagination={{
-                      current: paginaAtual,
-                      pageSize: registrosPorPagina,
-                      total: totalRegistros,
-                      showSizeChanger: true,
-                      pageSizeOptions: [10, 20, 30, 50, 100],
-                      locale: { items_per_page: '' },
-                    }}
-                    onChange={handleTableChange}
-                    onRow={(record) => ({
-                      onClick: () =>
-                        navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
-                      style: { cursor: 'pointer' },
-                    })}
-                    scroll={{ x: 'max-content' }}
-                    locale={{
-                      emptyText: 'Não encontramos registros para os filtros aplicados',
-                    }}
-                  />
-                </div>
-                <style>{`
-                  .table-pagination-center .ant-pagination {
-                    display: flex;
-                    justify-content: center;
-                  }
-                  .table-pagination-center .ant-dropdown-menu {
-                    background-color: #FFFFFF;
-                  }
-                  .table-pagination-center .ant-dropdown-menu-item {
-                    color: #42474A;
-                  }
-                  .table-pagination-center .ant-dropdown-menu-item:hover {
-                    background-color: #f5f5f5;
-                    color: #42474A;
-                  }
-                `}</style>
-              </Col>
-            </Row>
-          )}
+          <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
+            <Col span={24}>
+              <div className='table-pagination-center'>
+                <Table
+                  columns={columns}
+                  dataSource={dados}
+                  rowKey='id'
+                  loading={loading}
+                  pagination={{
+                    current: paginaAtual,
+                    pageSize: registrosPorPagina,
+                    total: totalRegistros,
+                    showSizeChanger: true,
+                    pageSizeOptions: [10, 20, 30, 50, 100],
+                    locale: { items_per_page: '' },
+                  }}
+                  onChange={handleTableChange}
+                  onRow={(record) => ({
+                    onClick: () =>
+                      navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
+                    style: { cursor: 'pointer' },
+                  })}
+                  scroll={{ x: 'max-content' }}
+                  locale={{
+                    emptyText: 'Não encontramos registros para os filtros aplicados',
+                  }}
+                />
+              </div>
+              <style>{`
+                .table-pagination-center .ant-pagination {
+                  display: flex;
+                  justify-content: center;
+                }
+                .table-pagination-center .ant-dropdown-menu {
+                  background-color: #FFFFFF;
+                }
+                .table-pagination-center .ant-dropdown-menu-item {
+                  color: #42474A;
+                }
+                .table-pagination-center .ant-dropdown-menu-item:hover {
+                  background-color: #f5f5f5;
+                  color: #42474A;
+                }
+              `}</style>
+            </Col>
+          </Row>
         </CardContent>
       </Form>
     </Col>
   );
 };
 
-export default ListaPresencaCodaf;
+export default CodafFormacoesNaoHomologadas;

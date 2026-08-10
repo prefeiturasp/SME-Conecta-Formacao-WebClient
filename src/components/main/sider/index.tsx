@@ -21,7 +21,14 @@ const SiderConectaFormacao: React.FC = () => {
         if (menu?.children?.length) {
           const children = validarExibicaoMenus(menu.children).filter((subMenu) => {
             const permissaoMenu = permissaoPorMenu[subMenu?.key];
-            return !!permissaoMenu?.exibir;
+            const temPermissao = !!permissaoMenu?.exibir;
+
+            // Se for um menu de agrupamento (tem array children, mas ficou vazio após validarExibicaoMenus)
+            if (subMenu.children && subMenu.children.length === 0) {
+              return false;
+            }
+
+            return temPermissao;
           });
 
           menu.children = children;

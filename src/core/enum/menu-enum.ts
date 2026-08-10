@@ -8,6 +8,8 @@ export enum MenuEnum {
   Inscricoes,
   RedeParceria,
   ListaPresencaCodaf,
+  CodafFormacoesHomologadas,
+  CodafFormacoesNaoHomologadas,
   Certificados,
   CertificadosPesquisa,
   Relatorios,

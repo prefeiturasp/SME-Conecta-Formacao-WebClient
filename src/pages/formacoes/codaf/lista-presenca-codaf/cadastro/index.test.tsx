@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
-import { DeltaInscritosDTO } from '../../../../core/services/codaf-lista-presenca-service';
-import { calcularAprovacao } from '../../../../core/utils/codaf-utils';
-import type { RegrasAprovacaoCursistaCodafDto } from '../../../../core/dto/cursista-dto';
+import { DeltaInscritosDTO } from '../../../../../core/services/codaf-lista-presenca-service';
+import { calcularAprovacao } from '../../../../../core/utils/codaf-utils';
+import type { RegrasAprovacaoCursistaCodafDto } from '../../../../../core/dto/cursista-dto';
 
 describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados', () => {
 
