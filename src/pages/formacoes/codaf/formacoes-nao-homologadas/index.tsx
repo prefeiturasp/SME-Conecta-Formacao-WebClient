@@ -42,6 +42,22 @@ const obterSituacaoTexto = (status: number): string => {
   return situacao?.descricao || 'Desconhecido';
 };
 
+interface DropdownMenuRenderProps {
+  menu: React.ReactElement;
+}
+
+const CustomDropdownRender: React.FC<DropdownMenuRenderProps> = ({ menu }) => (
+  <div
+    style={{
+      backgroundColor: '#FFFFFF',
+      borderRadius: 4,
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+    }}
+  >
+    {React.cloneElement(menu, { style: { boxShadow: 'none' } })}
+  </div>
+);
+
 const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
@@ -102,37 +118,14 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     return { text: '—', disabled: true };
   };
 
-  const getMenuAcoes = (record: CodafNaoHomologadoListagemDTO): MenuProps => {
-    const isAguardando = record.status === 2;
-    const isFinalizado = record.status === 3;
-    const podeGerarComoComum = isAguardando;
-    const podeGerarComoAdmin = isFinalizado && ehPerfilAdminDf;
-    const podeGerarTxtEol = podeGerarComoComum || podeGerarComoAdmin;
-
-    const getTooltipMessage = () => {
-      if (podeGerarTxtEol) return 'Clique para gerar TXT EOL';
-      if (isAguardando) return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
-      return 'Função ativa apenas para a situação Aguardando DF ou para o perfil Admin DF quando a situação for Finalizado.';
-    };
+  const getMenuAcoes = (): MenuProps => {
 
     const items: MenuProps['items'] = [];
 
     if (!ocultarColunas) {
       items.push({
         key: 'exportar-lista-inscritos',
-        disabled: !podeGerarTxtEol,
-        label: !podeGerarTxtEol ? (
-          <span style={{ display: 'block' }}>
-            Exportar Lista de inscritos &nbsp;
-            <Tooltip title={getTooltipMessage()}>
-              <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }} />
-            </Tooltip>
-          </span>
-        ) : (
-          <Tooltip title='Clique para gerar TXT EOL'>
-            <span style={{ display: 'block' }}>Gerar TXT EOL</span>
-          </Tooltip>
-        ),
+        label: 'Exportar Lista de inscritos',
         onClick: (e: any) => {
           e.domEvent.stopPropagation();
         },
@@ -182,8 +175,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
             style={{
               width: '100%',
-              borderColor: !disabled ? '#ff6b35' : '#ccc',
-              color: !disabled ? '#ff6b35' : '#999',
+              borderColor: disabled ? '#ccc' : '#ff6b35',
+              color: disabled ? '#999' : '#ff6b35',
               fontWeight: 500,
               cursor: disabled ? 'not-allowed' : 'pointer',
             }}
@@ -201,22 +194,12 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       title: 'Ações',
       width: 80,
       align: 'center',
-      render: (_: any, record: CodafNaoHomologadoListagemDTO) => (
+      render: (_: any) => (
         <Dropdown
-          menu={getMenuAcoes(record)}
+          menu={getMenuAcoes()}
           trigger={['click']}
           placement='bottomRight'
-          dropdownRender={(menu) => (
-            <div
-              style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: 4,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-              }}
-            >
-              {React.cloneElement(menu as React.ReactElement, { style: { boxShadow: 'none' } })}
-            </div>
-          )}
+          dropdownRender={(menu) => <CustomDropdownRender menu={menu as React.ReactElement} />}
         >
           <Button
             type='default'

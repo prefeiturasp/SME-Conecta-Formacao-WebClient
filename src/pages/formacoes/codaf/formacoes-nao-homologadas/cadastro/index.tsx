@@ -21,11 +21,6 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { ROUTES } from '~/core/enum/routes-enum';
-import {
-  baixarModeloTermoResponsabilidade,
-  fazerUploadAnexoCodaf,
-  obterAnexoCodafParaDownload,
-} from '~/core/services/codaf-nao-homologado-service';
 import { obterDetalhesPropostaComTurmasPorId, PropostaTurmaDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { onClickVoltar } from '~/core/utils/form';
@@ -35,9 +30,12 @@ import { downloadBlob } from '~/core/utils/functions';
 import { mapearAnexosParaFormulario } from '~/pages/formacoes/codaf/shared/utils/mapear-anexos';
 import {
   atualizarCodafNaoHomologado,
+  baixarModeloTermoResponsabilidade,
   CodafNaoHomologadoDetalheDTO,
   criarCodafNaoHomologado,
   excluirCodafNaoHomologado,
+  fazerUploadAnexoCodaf,
+  obterAnexoCodafParaDownload,
   obterCodafNaoHomologadoPorId,
   obterInscritosTurma,
 } from '~/core/services/codaf-nao-homologado-service';
