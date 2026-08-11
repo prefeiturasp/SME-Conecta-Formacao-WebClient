@@ -60,6 +60,7 @@ import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { downloadBlob } from '~/core/utils/functions';
 import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
 import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
+import { mapearAnexosParaFormulario } from '~/pages/formacoes/codaf/shared/utils/mapear-anexos';
 
 interface CursistaDTO {
   id: number;
@@ -86,23 +87,6 @@ const formatarData = (data: any) => {
   if (!data) return null;
   return dayjs(data).format('YYYY-MM-DD');
 };
-
-const mapearAnexosParaFormulario = (anexos: CodafListaPresencaDetalheDTO['anexos'] = []) =>
-  anexos
-    .filter(
-      (anexo) =>
-        anexo?.arquivoCodigo != null && anexo?.arquivoCodigo !== '' && anexo?.arquivoCodigo !== '0',
-    )
-    .map((anexo) => ({
-      uid: anexo.arquivoCodigo,
-      name: anexo.nomeArquivo,
-      status: 'done',
-      xhr: anexo.arquivoCodigo,
-      arquivoCodigo: anexo.arquivoCodigo,
-      nomeArquivo: anexo.nomeArquivo,
-      tipoAnexoId: anexo.tipoAnexoId,
-      urlDownload: anexo.urlDownload,
-    }));
 
 const CadastroListaPresencaCodaf: React.FC = () => {
   const [form] = useForm();

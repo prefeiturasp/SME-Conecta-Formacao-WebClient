@@ -25,7 +25,7 @@ import {
   baixarModeloTermoResponsabilidade,
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
-} from '~/core/services/codaf-lista-presenca-service';
+} from '~/core/services/codaf-nao-homologado-service';
 import { autocompletarFormacao, obterDetalhesPropostaComTurmasPorId, PropostaAutocompletarDTO, PropostaTurmaDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
@@ -33,6 +33,7 @@ import { onClickVoltar } from '~/core/utils/form';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { downloadBlob } from '~/core/utils/functions';
+import { mapearAnexosParaFormulario } from '~/pages/formacoes/codaf/shared/utils/mapear-anexos';
 import {
   atualizarCodafNaoHomologado,
   CodafNaoHomologadoDetalheDTO,
@@ -53,22 +54,6 @@ interface CursistaDTO {
   participou: boolean | null;
 }
 
-const mapearAnexosParaFormulario = (anexos: CodafNaoHomologadoDetalheDTO['anexos'] = []) =>
-  anexos
-    .filter(
-      (anexo) =>
-        anexo?.arquivoCodigo != null && anexo?.arquivoCodigo !== '' && anexo?.arquivoCodigo !== '0',
-    )
-    .map((anexo) => ({
-      uid: anexo.arquivoCodigo,
-      name: anexo.nomeArquivo,
-      status: 'done',
-      xhr: anexo.arquivoCodigo,
-      arquivoCodigo: anexo.arquivoCodigo,
-      nomeArquivo: anexo.nomeArquivo,
-      tipoAnexoId: anexo.tipoAnexoId,
-      urlDownload: anexo.urlDownload,
-    }));
 
 const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const [form] = useForm();

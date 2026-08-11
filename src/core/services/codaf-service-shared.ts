@@ -6,6 +6,7 @@ export type CodafListagemFiltroBaseDTO = {
   AreaPromotoraId?: number | null;
   Status?: number | null;
   DataEnvioDf?: string | null;
+  DataFinalizacao?: string | null;
   NumeroPagina?: number;
   NumeroRegistros?: number;
 };
@@ -61,6 +62,7 @@ export type CodafAnexoTemporarioDTO = {
 export const montarParametrosFiltroCodaf = (
   filtros: CodafListagemFiltroBaseDTO,
   incluirDataEnvioDf = false,
+  incluirDataFinalizacao = false,
 ) => {
   const params: Record<string, string | number> = {
     NumeroPagina: filtros.NumeroPagina || 1,
@@ -74,6 +76,7 @@ export const montarParametrosFiltroCodaf = (
   if (filtros.AreaPromotoraId) params.AreaPromotoraId = filtros.AreaPromotoraId;
   if (filtros.Status !== null && filtros.Status !== undefined) params.Status = filtros.Status;
   if (incluirDataEnvioDf && filtros.DataEnvioDf) params.DataEnvioDf = filtros.DataEnvioDf;
+  if (incluirDataFinalizacao && filtros.DataFinalizacao) params.DataFinalizacao = filtros.DataFinalizacao;
 
   return params;
 };
