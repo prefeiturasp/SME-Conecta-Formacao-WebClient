@@ -1,4 +1,4 @@
-import { Button, Col, Dropdown, MenuProps, Modal, Row, Table, Tooltip } from 'antd';
+import { Button, Dropdown, MenuProps, Tooltip } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
@@ -7,11 +7,8 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiPrinter } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
-import CardContent from '~/components/lib/card-content';
-import HeaderPage from '~/components/lib/header-page';
+import { CodafListagemLayout } from '~/pages/formacoes/codaf/shared/componentes/codaf-listagem-layout';
 import { notification } from '~/components/lib/notification';
-import ButtonVoltar from '~/components/main/button/voltar';
-import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
@@ -21,9 +18,8 @@ import {
   emitirCertificadosCodaf,
   imprimirRelatorioCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
-import { onClickVoltar } from '~/core/utils/form';
-import { downloadBlob } from '~/core/utils/functions';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
+import { downloadBlob } from '~/core/utils/functions';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { TipoCodaf } from '~/core/enum/tipo-codaf';
@@ -369,125 +365,41 @@ const ListaPresencaCodaf: React.FC = () => {
     : [...colunasBase, ...colunasAdicionais, ...colunaAcoes];
 
   return (
-    <Col>
-      <Modal
-        title={
-          <span
-            style={{ fontWeight: 700, fontSize: '20px', lineHeight: '100%', letterSpacing: '0%' }}
-          >
-            Atenção!
-          </span>
-        }
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        centered
-        width={600}
-        footer={[
-          <Button
-            key='inscricoes'
-            onClick={onClickIrParaInscricoes}
-            style={{ borderColor: '#ff6b35', color: '#ff6b35', fontWeight: 500 }}
-          >
-            Ir para tela de inscrições
-          </Button>,
-          <Button key='continuar' type='primary' onClick={onClickContinuarRegistro}>
-            Continuar registro
-          </Button>,
-        ]}
-      >
-        <br />
-        <p>
-          Antes de iniciar o registro CODAF, verifique se todos os cursistas estão inscritos na
-          formação. Caso necessário, você pode realizar o cadastro pela tela de inscrições.
-        </p>
-        <br />
-      </Modal>
-
-      <HeaderPage title='CODAF Lista de Presença'>
-        <Col span={24}>
-          <Row gutter={[8, 8]}>
-            <Col>
-              <ButtonVoltar
-                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
-                id={CF_BUTTON_VOLTAR}
-              />
-            </Col>
-            <Col>
-              <Button
-                block
-                type='primary'
-                htmlType='submit'
-                id={CF_BUTTON_NOVO}
-                disabled={!permissao.podeIncluir}
-                onClick={onClickNovo}
-                style={{ fontWeight: 700 }}
-              >
-                Novo registro
-              </Button>
-            </Col>
-          </Row>
-        </Col>
-      </HeaderPage>
-
-      <CardContent>
-        <CodafFiltroForm
-          form={form}
-          situacoes={situacoes}
-          loading={loading}
-          opcoesFormacao={opcoesFormacao}
-          loadingAutocomplete={loadingAutocomplete}
-          turmasAPI={turmasAPI}
-          turmaDisabled={turmaDisabled}
-          onSearchFormacao={onSearchFormacao}
-          onSelectFormacao={onSelectFormacao}
-          onClickFiltrar={onClickFiltrar}
-          onClickLimpar={onClickLimpar}
-          campoData={{ label: 'Data de envio para DF', name: 'dataEnvio' }}
-        />
-
-        <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
-          <Col span={24}>
-            <div className='table-pagination-center'>
-              <Table
-                columns={columns}
-                dataSource={dados}
-                rowKey='id'
-                loading={loading}
-                pagination={{
-                  current: paginaAtual,
-                  pageSize: registrosPorPagina,
-                  total: totalRegistros,
-                  showSizeChanger: true,
-                  pageSizeOptions: [10, 20, 30, 50, 100],
-                  locale: { items_per_page: '' },
-                }}
-                onChange={(pagination) =>
-                  handleTableChange(pagination, setRegistrosPorPagina)
-                }
-                onRow={(record) => ({
-                  onClick: () =>
-                    navigate(
-                      ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(
-                        ':id',
-                        String(record.id),
-                      ),
-                    ),
-                  style: { cursor: 'pointer' },
-                })}
-                scroll={{ x: 'max-content' }}
-                locale={{ emptyText: 'Não encontramos registros para os filtros aplicados' }}
-              />
-            </div>
-            <style>{`
-              .table-pagination-center .ant-pagination { display: flex; justify-content: center; }
-              .table-pagination-center .ant-dropdown-menu { background-color: #FFFFFF; }
-              .table-pagination-center .ant-dropdown-menu-item { color: #42474A; }
-              .table-pagination-center .ant-dropdown-menu-item:hover { background-color: #f5f5f5; color: #42474A; }
-            `}</style>
-          </Col>
-        </Row>
-      </CardContent>
-    </Col>
+    <CodafListagemLayout
+      title='CODAF Lista de Presença'
+      permissaoIncluir={permissao?.podeIncluir ?? false}
+      onClickNovo={onClickNovo}
+      modalVisible={modalVisible}
+      setModalVisible={setModalVisible}
+      onClickIrParaInscricoes={onClickIrParaInscricoes}
+      onClickContinuarRegistro={onClickContinuarRegistro}
+      dados={dados}
+      columns={columns}
+      loading={loading}
+      paginaAtual={paginaAtual}
+      registrosPorPagina={registrosPorPagina}
+      totalRegistros={totalRegistros}
+      setRegistrosPorPagina={setRegistrosPorPagina}
+      handleTableChange={handleTableChange}
+      onRowClick={(record) =>
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', String(record.id)))
+      }
+    >
+      <CodafFiltroForm
+        form={form}
+        situacoes={situacoes}
+        loading={loading}
+        opcoesFormacao={opcoesFormacao}
+        loadingAutocomplete={loadingAutocomplete}
+        turmasAPI={turmasAPI}
+        turmaDisabled={turmaDisabled}
+        onSearchFormacao={onSearchFormacao}
+        onSelectFormacao={onSelectFormacao}
+        onClickFiltrar={onClickFiltrar}
+        onClickLimpar={onClickLimpar}
+        campoData={{ label: 'Data de envio para DF', name: 'dataEnvio' }}
+      />
+    </CodafListagemLayout>
   );
 };
 

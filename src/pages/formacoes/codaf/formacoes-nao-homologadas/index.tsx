@@ -1,4 +1,4 @@
-import { Button, Col, Dropdown, MenuProps, Modal, Row, Table, Tooltip } from 'antd';
+import { Button, Dropdown, MenuProps, Tooltip, Row, Col } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/lib/form/Form';
 import { ColumnsType } from 'antd/lib/table';
@@ -7,17 +7,13 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiPrinter } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
-import CardContent from '~/components/lib/card-content';
-import HeaderPage from '~/components/lib/header-page';
-import ButtonVoltar from '~/components/main/button/voltar';
-import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
+import { CodafListagemLayout } from '~/pages/formacoes/codaf/shared/componentes/codaf-listagem-layout';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
   CodafNaoHomologadoListagemDTO,
   obterListaCodafNaoHomologado,
 } from '~/core/services/codaf-nao-homologado-service';
-import { onClickVoltar } from '~/core/utils/form';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
@@ -209,137 +205,57 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     : [...colunasBase, ...colunasAdicionais, ...colunaAcoes];
 
   return (
-    <Col>
-      <Modal
-        title={
-          <span
-            style={{ fontWeight: 700, fontSize: '20px', lineHeight: '100%', letterSpacing: '0%' }}
-          >
-            Atenção!
-          </span>
-        }
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        centered
-        width={600}
-        footer={[
-          <Button
-            key='inscricoes'
-            onClick={onClickIrParaInscricoes}
-            style={{ borderColor: '#ff6b35', color: '#ff6b35', fontWeight: 500 }}
-          >
-            Ir para tela de inscrições
-          </Button>,
-          <Button key='continuar' type='primary' onClick={onClickContinuarRegistro}>
-            Continuar registro
-          </Button>,
-        ]}
-      >
-        <br />
-        <p>
-          Antes de iniciar o registro CODAF, verifique se todos os cursistas estão inscritos na
-          formação. Caso necessário, você pode realizar o cadastro pela tela de inscrições.
-        </p>
-        <br />
-      </Modal>
-
-      <HeaderPage title='CODAF não homologado'>
+    <CodafListagemLayout
+      title='CODAF não homologado'
+      permissaoIncluir={permissao?.podeIncluir ?? false}
+      onClickNovo={onClickNovo}
+      modalVisible={modalVisible}
+      setModalVisible={setModalVisible}
+      onClickIrParaInscricoes={onClickIrParaInscricoes}
+      onClickContinuarRegistro={onClickContinuarRegistro}
+      dados={dados}
+      columns={columns}
+      loading={loading}
+      paginaAtual={paginaAtual}
+      registrosPorPagina={registrosPorPagina}
+      totalRegistros={totalRegistros}
+      setRegistrosPorPagina={setRegistrosPorPagina}
+      handleTableChange={handleTableChange}
+      onRowClick={(record) => navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`)}
+    >
+      <Row gutter={[16, 8]}>
         <Col span={24}>
-          <Row gutter={[8, 8]}>
-            <Col>
-              <ButtonVoltar
-                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
-                id={CF_BUTTON_VOLTAR}
-              />
-            </Col>
-            <Col>
-              <Button
-                block
-                type='primary'
-                htmlType='submit'
-                id={CF_BUTTON_NOVO}
-                disabled={!permissao.podeIncluir}
-                onClick={onClickNovo}
-                style={{ fontWeight: 700 }}
-              >
-                Novo registro
-              </Button>
-            </Col>
-          </Row>
+          <div
+            style={{
+              paddingBottom: '24px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de
+              salvar.
+            </div>
+          </div>
         </Col>
-      </HeaderPage>
+      </Row>
 
-      <CardContent>
-        <Row gutter={[16, 8]}>
-          <Col span={24}>
-            <div
-              style={{
-                paddingBottom: '24px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <div>
-                Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de
-                salvar.
-              </div>
-            </div>
-          </Col>
-        </Row>
-
-        <CodafFiltroForm
-          form={form}
-          situacoes={situacoes}
-          loading={loading}
-          opcoesFormacao={opcoesFormacao}
-          loadingAutocomplete={loadingAutocomplete}
-          turmasAPI={turmasAPI}
-          turmaDisabled={turmaDisabled}
-          onSearchFormacao={onSearchFormacao}
-          onSelectFormacao={onSelectFormacao}
-          onClickFiltrar={onClickFiltrar}
-          onClickLimpar={onClickLimpar}
-          campoData={{ label: 'Data de envio para finalização', name: 'dataFinalizacao' }}
-        />
-
-        <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
-          <Col span={24}>
-            <div className='table-pagination-center'>
-              <Table
-                columns={columns}
-                dataSource={dados}
-                rowKey='id'
-                loading={loading}
-                pagination={{
-                  current: paginaAtual,
-                  pageSize: registrosPorPagina,
-                  total: totalRegistros,
-                  showSizeChanger: true,
-                  pageSizeOptions: [10, 20, 30, 50, 100],
-                  locale: { items_per_page: '' },
-                }}
-                onChange={(pagination) =>
-                  handleTableChange(pagination, setRegistrosPorPagina)
-                }
-                onRow={(record) => ({
-                  onClick: () => navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
-                  style: { cursor: 'pointer' },
-                })}
-                scroll={{ x: 'max-content' }}
-                locale={{ emptyText: 'Não encontramos registros para os filtros aplicados' }}
-              />
-            </div>
-            <style>{`
-              .table-pagination-center .ant-pagination { display: flex; justify-content: center; }
-              .table-pagination-center .ant-dropdown-menu { background-color: #FFFFFF; }
-              .table-pagination-center .ant-dropdown-menu-item { color: #42474A; }
-              .table-pagination-center .ant-dropdown-menu-item:hover { background-color: #f5f5f5; color: #42474A; }
-            `}</style>
-          </Col>
-        </Row>
-      </CardContent>
-    </Col>
+      <CodafFiltroForm
+        form={form}
+        situacoes={situacoes}
+        loading={loading}
+        opcoesFormacao={opcoesFormacao}
+        loadingAutocomplete={loadingAutocomplete}
+        turmasAPI={turmasAPI}
+        turmaDisabled={turmaDisabled}
+        onSearchFormacao={onSearchFormacao}
+        onSelectFormacao={onSelectFormacao}
+        onClickFiltrar={onClickFiltrar}
+        onClickLimpar={onClickLimpar}
+        campoData={{ label: 'Data de envio para finalização', name: 'dataFinalizacao' }}
+      />
+    </CodafListagemLayout>
   );
 };
 

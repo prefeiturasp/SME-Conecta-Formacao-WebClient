@@ -1,5 +1,5 @@
 import { Button, Col, Form, Input, Row, Select } from 'antd';
-import { useForm } from 'antd/es/form/Form';
+
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
@@ -19,7 +19,10 @@ import { BannerComentarios } from './componentes/banner-comentarios';
 import DrawerAtualizacaoInscritos from '~/components/lib/drawer/atualizacao-inscritos/drawer-atualizacao-inscritos';
 import { InscritoAtualizacaoDTO } from '~/core/dto/atualizacao-inscritos-dto';
 import { TableRowSelection } from 'antd/es/table/interface';
-import { DrawerEdicaoLoteCursistas, DadosLoteCursistas } from './componentes/drawer-edicao-lote-cursistas';
+import {
+  DrawerEdicaoLoteCursistas,
+  DadosLoteCursistas,
+} from './componentes/drawer-edicao-lote-cursistas';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -49,18 +52,23 @@ import {
   obterInscritosTurma,
   verificarTurmaPossuiLista,
   obterDeltaInscritosSilencioso,
-  deletarRetificacao
+  deletarRetificacao,
 } from '~/core/services/codaf-lista-presenca-service';
-import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
+import { autocompletarFormacao } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { downloadBlob } from '~/core/utils/functions';
-import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import {
+  calcularAprovacao,
+  extractRetificacoesPayload,
+  hydrateRetificacoesForm,
+} from '~/core/utils/codaf-utils';
 import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
 import { mapearAnexosParaFormulario } from '~/pages/formacoes/codaf/shared/utils/mapear-anexos';
+import { useCodafCadastro } from '~/pages/formacoes/codaf/shared/hooks/use-codaf-cadastro';
 
 interface CursistaDTO {
   id: number;
@@ -89,45 +97,70 @@ const formatarData = (data: any) => {
 };
 
 const CadastroListaPresencaCodaf: React.FC = () => {
-  const [form] = useForm();
+  const {
+    form,
+    loading,
+    setLoading,
+    cursistas,
+    setCursistas,
+    opcoesFormacao,
+    setOpcoesFormacao,
+    loadingAutocomplete,
+    setLoadingAutocomplete,
+    propostaSelecionada,
+    setPropostaSelecionada,
+    cursistasSelecionadosIds,
+    setCursistasSelecionadosIds,
+    drawerLoteAberto,
+    setDrawerLoteAberto,
+    drawerLoteModo,
+    turmasFiltradas,
+    setTurmasFiltradas,
+    turmaDisabled,
+    setTurmaDisabled,
+    formValido,
+    setFormValido,
+    registroId,
+    setRegistroId,
+    status,
+    setStatus,
+    paginaAtualInscritos,
+    setPaginaAtualInscritos,
+    totalRegistrosInscritos,
+    setTotalRegistrosInscritos,
+    registrosPorPaginaInscritos,
+    setRegistrosPorPaginaInscritos,
+    tooltipAberto,
+    setTooltipAberto,
+    todasTurmasPossuemLista,
+    setTodasTurmasPossuemLista,
+    modalExcluirVisible,
+    setModalExcluirVisible,
+    formOriginal,
+    cursistasSelecionados,
+    quantidadeMinimaSelecionada,
+    onClickRegistrarDados,
+    onClickEditarDados,
+  } = useCodafCadastro<CursistaDTO>();
+
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
-  const [loading, setLoading] = useState(false);
-  const [cursistas, setCursistas] = useState<CursistaDTO[]>([]);
-  const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
-  const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
-  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
-    null,
-  );
-  const [cursistasSelecionadosIds, setCursistasSelecionadosIds] = useState<number[]>([]);
 
-  const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
-  const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
   const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
 
-  const cursistasSelecionados = cursistas.filter((c) => cursistasSelecionadosIds.includes(c.id));
-
   const algumSelecionadoComDados = cursistasSelecionados.some(
-    (c) => c.frequencia !== null || c.atividade !== null || c.conceitoFinal !== null || c.aprovado !== null,
+    (c) =>
+      c.frequencia !== null ||
+      c.atividade !== null ||
+      c.conceitoFinal !== null ||
+      c.aprovado !== null,
   );
-
-  const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 2;
 
   const registrarDadosDesabilitado = !quantidadeMinimaSelecionada || algumSelecionadoComDados;
   const editarDadosDesabilitado = !quantidadeMinimaSelecionada || !algumSelecionadoComDados;
 
-  const onClickRegistrarDados = () => {
-    setDrawerLoteModo('registrar');
-    setDrawerLoteAberto(true);
-  };
-
-  const onClickEditarDados = () => {
-    setDrawerLoteModo('editar');
-    setDrawerLoteAberto(true);
-  };
-
-const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
+  const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     const novaListaCursistas = cursistas.map((cursista) =>
       cursistasSelecionadosIds.includes(cursista.id)
         ? {
@@ -148,16 +181,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     }
   };
 
-  const [turmasFiltradas, setTurmasFiltradas] = useState<RetornoListagemDTO[]>([]);
-  const [turmaDisabled, setTurmaDisabled] = useState(true);
-  const [formValido, setFormValido] = useState(false);
-  const [registroId, setRegistroId] = useState<number | null>(null);
-  const [status, setStatus] = useState<number | null>(null);
-  const [paginaAtualInscritos, setPaginaAtualInscritos] = useState(1);
-  const [totalRegistrosInscritos, setTotalRegistrosInscritos] = useState(0);
-  const [registrosPorPaginaInscritos, setRegistrosPorPaginaInscritos] = useState(10);
-  const [tooltipAberto, setTooltipAberto] = useState(false);
-  const [todasTurmasPossuemLista, setTodasTurmasPossuemLista] = useState(false);
   const [retificacoes, setRetificacoes] = useState<number[]>([1]);
   const [contadorRetificacoes, setContadorRetificacoes] = useState(1);
   const [retificacoesOriginais, setRetificacoesOriginais] = useState<
@@ -170,12 +193,11 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   const [comentario, setComentario] = useState<ComentarioCodafDTO | null>(null);
   const [modalEnviarDFVisible, setModalEnviarDFVisible] = useState(false);
   const [modalDevolverDFVisible, setModalDevolverDFVisible] = useState(false);
-  const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
   const [modalComentarioVisible, setModalComentarioVisible] = useState(false);
   const [modalDrawerInscritosVisible, setModalDrawerInscritosVisible] = useState(false);
   const [novosInscritosDrawer, setNovosInscritosDrawer] = useState<InscritoAtualizacaoDTO[]>([]);
-  const [deltaResolvidoLocalmente, setDeltaResolvidoLocalmente] = useState<DeltaInscritosDTO | null>(null);
-  const formOriginal = React.useRef<any>(null);
+  const [deltaResolvidoLocalmente, setDeltaResolvidoLocalmente] =
+    useState<DeltaInscritosDTO | null>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
   const situacoes = [
     { id: 1, descricao: 'Iniciado' },
@@ -201,27 +223,18 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   const modoEdicao = !!id;
 
   const perfil = {
-    df:
-      perfilSelecionado ===
-      TipoPerfilTagDisplay[TipoPerfilEnum.DF],
+    df: perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF],
 
-    emforpef:
-      perfilSelecionado === 'EMFORPEF',
+    emforpef: perfilSelecionado === 'EMFORPEF',
 
-    admin:
-      perfilSelecionado ===
-      TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF],
+    admin: perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF],
 
-    cursista:
-      perfilSelecionado ===
-      TipoPerfilTagDisplay[TipoPerfilEnum.Cursista],
+    cursista: perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista],
   };
 
-  const ehAreaPromotora =
-    !perfil.cursista && !perfil.admin;
+  const ehAreaPromotora = !perfil.cursista && !perfil.admin;
 
-  const ehAreaPromotoraEAdmin =
-    perfil.df || perfil.emforpef || perfil.admin;
+  const ehAreaPromotoraEAdmin = perfil.df || perfil.emforpef || perfil.admin;
 
   const situacao = {
     iniciado: status === 1,
@@ -234,16 +247,11 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   };
 
   const bloqueioDivergenciaSalvar =
-    modoEdicao &&
-    (situacao.iniciado || situacao.aguardandoDF) &&
-    mostrarDivergencia;
+    modoEdicao && (situacao.iniciado || situacao.aguardandoDF) && mostrarDivergencia;
 
-  const bloqueioDivergenciaEnviarDF =
-    modoEdicao &&
-    mostrarDivergencia;
+  const bloqueioDivergenciaEnviarDF = modoEdicao && mostrarDivergencia;
 
   const bloqueios = {
-
     campos: {
       secaoFormulario: {
         numeroHomologacao: situacao.finalizado,
@@ -252,11 +260,9 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
       listaInscritos: situacao.finalizado,
 
-      retificacoes:
-        situacao.finalizado && ehAreaPromotora,
+      retificacoes: situacao.finalizado && ehAreaPromotora,
 
-      informacoesAdicionais:
-        situacao.finalizado && ehAreaPromotora,
+      informacoesAdicionais: situacao.finalizado && ehAreaPromotora,
     },
 
     anexos: {
@@ -265,51 +271,35 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
     botoes: {
       excluir: {
-        visivel:
-          modoEdicao &&
-          situacao.iniciado,
+        visivel: modoEdicao && situacao.iniciado,
 
-        bloqueado:
-          situacao.finalizado,
+        bloqueado: situacao.finalizado,
       },
 
       enviarDF: {
-        visivel:
-          (
-            situacao.iniciado ||
-            status === null ||
-            situacao.devolvidoDF
-          ) &&
-          ehAreaPromotora,
+        visivel: (situacao.iniciado || status === null || situacao.devolvidoDF) && ehAreaPromotora,
 
-        bloqueado:
-          situacao.finalizado || bloqueioDivergenciaEnviarDF,
+        bloqueado: situacao.finalizado || bloqueioDivergenciaEnviarDF,
       },
 
       devolver: {
-        visivel:
-          situacao.aguardandoDF &&
-          perfil.admin,
+        visivel: situacao.aguardandoDF && perfil.admin,
 
-        bloqueado:
-          !formValido ||
-          situacao.finalizado,
+        bloqueado: !formValido || situacao.finalizado,
       },
 
       salvar: {
         visivel:
-          (
-            !situacao.aguardandoDF ||
-            situacao.aguardandoDF &&
-            perfil.admin
-          ) && !situacao.finalizado,
+          (!situacao.aguardandoDF || (situacao.aguardandoDF && perfil.admin)) &&
+          !situacao.finalizado,
 
-        bloqueado: (!modoEdicao && todasTurmasPossuemLista) ||
-          situacao.finalizado || bloqueioDivergenciaSalvar,
+        bloqueado:
+          (!modoEdicao && todasTurmasPossuemLista) ||
+          situacao.finalizado ||
+          bloqueioDivergenciaSalvar,
       },
     },
   };
-
 
   const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
   const nomeFormacao = Form.useWatch('nomeFormacao', form);
@@ -478,7 +468,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     carregarDados();
   }, [id, form, navigate]);
 
-
   const buscarInscritos = async () => {
     if (!turmaId) {
       setCursistas([]);
@@ -550,7 +539,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             cursistaAtualizado.frequencia,
             cursistaAtualizado.conceitoFinal,
             cursistaAtualizado.atividade,
-            regrasAprovacao
+            regrasAprovacao,
           );
 
           if (autoAprovado !== null) {
@@ -733,7 +722,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados) {
-
           const turmasDisponiveis: RetornoListagemDTO[] = [];
           for (const turma of response.dados) {
             try {
@@ -791,7 +779,9 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
       notification.success({
         message: 'Sucesso',
-        description: modoEdicao ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
+        description: modoEdicao
+          ? 'Registro atualizado com sucesso!'
+          : 'Registro salvo com sucesso!',
       });
       if (!id) {
         navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', response.dados.id));
@@ -836,17 +826,18 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   };
 
   const montarPayloadSalvar = (values: any, inscritosOverride?: CursistaDTO[]) => {
-    const anexosMapeados = values.anexos?.map((arquivo: any) => ({
-      arquivoCodigo: arquivo.response?.codigo ?? arquivo.arquivoCodigo,
-      nomeArquivo: arquivo.name || arquivo.nomeArquivo,
-      tipoAnexoId: 3,
-    })) ?? [];
+    const anexosMapeados =
+      values.anexos?.map((arquivo: any) => ({
+        arquivoCodigo: arquivo.response?.codigo ?? arquivo.arquivoCodigo,
+        nomeArquivo: arquivo.name || arquivo.nomeArquivo,
+        tipoAnexoId: 3,
+      })) ?? [];
 
     const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
     const retificacoesPayload = extractRetificacoesPayload(
-      values, 
-      retificacoes, 
-      modoEdicao ? retificacoesOriginais : undefined
+      values,
+      retificacoes,
+      modoEdicao ? retificacoesOriginais : undefined,
     );
 
     return {
@@ -884,7 +875,9 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   };
 
   const exibirErroSalvar = (error: any) => {
-    const mensagemPadraoErro = modoEdicao ? 'Erro ao atualizar o registro' : 'Erro ao salvar o registro';
+    const mensagemPadraoErro = modoEdicao
+      ? 'Erro ao atualizar o registro'
+      : 'Erro ao salvar o registro';
     const mensagemErro =
       error?.response?.data?.erros?.[0] ??
       error?.response?.data?.mensagens?.[0] ??
@@ -896,7 +889,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]): Promise<boolean> => {
     try {
-      if (registroId && await houveAlteracaoInscritosAoSalvar(registroId)) {
+      if (registroId && (await houveAlteracaoInscritosAoSalvar(registroId))) {
         return false;
       }
 
@@ -908,7 +901,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       const response = modoEdicao
         ? await atualizarCodafListaPresenca(registroId ?? 0, dados)
         : await criarCodafListaPresenca(dados);
-        
+
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
@@ -1092,24 +1085,24 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     if (copia.anexos && Array.isArray(copia.anexos)) {
       copia.anexos = copia.anexos.map((anexo: any) => ({
         arquivoCodigo: anexo.arquivoCodigo || anexo.response?.codigo || anexo.uid,
-        nomeArquivo: anexo.nomeArquivo || anexo.name
+        nomeArquivo: anexo.nomeArquivo || anexo.name,
       }));
 
-      copia.anexos.sort((a: any, b: any) => 
-        (a.arquivoCodigo || '').localeCompare(b.arquivoCodigo || '')
+      copia.anexos.sort((a: any, b: any) =>
+        (a.arquivoCodigo || '').localeCompare(b.arquivoCodigo || ''),
       );
 
       console.log('Sanitização de anexos concluída:', copia.anexos);
     }
 
     return copia;
-  }
+  };
 
   const verificarAlteracoes = () => {
     if (!modoEdicao || !formOriginal.current) return false;
 
     const formAtual = form.getFieldsValue();
-    
+
     const formOriginalSanitizado = sanitizarDadosParaComparacao(formOriginal.current);
     const formAtualSanitizado = sanitizarDadosParaComparacao(formAtual);
 
@@ -1123,17 +1116,26 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
   const validarParaEnvio = (): boolean => {
     if (!registroId) {
-      notification.warning({ message: 'Atenção', description: 'É necessário salvar o registro antes de enviar para DF' });
+      notification.warning({
+        message: 'Atenção',
+        description: 'É necessário salvar o registro antes de enviar para DF',
+      });
       return false;
     }
 
     if (verificarAlteracoes()) {
-      notification.warning({ message: 'Atenção', description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.' });
+      notification.warning({
+        message: 'Atenção',
+        description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.',
+      });
       return false;
     }
 
     if (!form.getFieldValue('anexos')?.length) {
-      notification.warning({ message: 'Atenção', description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF' });
+      notification.warning({
+        message: 'Atenção',
+        description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF',
+      });
       return false;
     }
 
@@ -1154,24 +1156,30 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     if (camposVazios.length > 0) {
       notification.warning({
         message: 'Atenção',
-        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(', ')})`,
+        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(
+          ', ',
+        )})`,
       });
       return false;
     }
 
     if (cursistas.length === 0) {
-      notification.warning({ message: 'Atenção', description: 'Não é possível enviar para DF sem inscritos na lista de presença' });
+      notification.warning({
+        message: 'Atenção',
+        description: 'Não é possível enviar para DF sem inscritos na lista de presença',
+      });
       return false;
     }
 
     const possuiCursistaIncompleto = cursistas.some(
-      (c) => c.frequencia === null || c.conceitoFinal === null || c.aprovado === null
+      (c) => c.frequencia === null || c.conceitoFinal === null || c.aprovado === null,
     );
 
     if (possuiCursistaIncompleto) {
       notification.warning({
         message: 'Atenção',
-        description: 'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
+        description:
+          'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
       });
       return false;
     }
@@ -1362,7 +1370,9 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     const inscritosMapeadosParaDrawer: InscritoAtualizacaoDTO[] = novos.map((novo) => {
       const salvoLocal = cursistas.find((c) => c.id === novo.id);
 
-      let freq = salvoLocal?.frequencia?.toString() ?? (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
+      const freq =
+        salvoLocal?.frequencia?.toString() ??
+        (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
 
       let ativ: 'Sim' | 'Não' | undefined = undefined;
       if (salvoLocal?.atividade === 'S') ativ = 'Sim';
@@ -1370,7 +1380,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       else if (novo.atividadeObrigatorio === true) ativ = 'Sim';
       else if (novo.atividadeObrigatorio === false) ativ = 'Não';
 
-      let conceito = salvoLocal?.conceitoFinal ?? novo.conceitoFinal ?? undefined;
+      const conceito = salvoLocal?.conceitoFinal ?? novo.conceitoFinal ?? undefined;
 
       let aprov: 'Sim' | 'Não' | undefined = undefined;
       if (salvoLocal?.aprovado === true) aprov = 'Sim';
@@ -1398,13 +1408,17 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       const idsRemovidos = deltaInscritos?.inscritosRemovidos?.map((r) => r.id) ?? [];
       const idsNovos = novosInscritosPreenchidos.map((i) => i.id);
 
-      const cursistasAtuaisFiltrados = cursistas.filter((c) => !idsRemovidos.includes(c.id) && !idsNovos.includes(c.id));
+      const cursistasAtuaisFiltrados = cursistas.filter(
+        (c) => !idsRemovidos.includes(c.id) && !idsNovos.includes(c.id),
+      );
 
       const novosCursistas: CursistaDTO[] = novosInscritosPreenchidos.map((inscrito) => ({
         id: inscrito.id,
         rfOuCpf: inscrito.documento,
         nomeCursista: inscrito.nome,
-        frequencia: inscrito.frequencia ? parseInt(inscrito.frequencia.replace(/\D/g, ''), 10) : null,
+        frequencia: inscrito.frequencia
+          ? parseInt(inscrito.frequencia.replace(/\D/g, ''), 10)
+          : null,
         atividade: inscrito.atividadeObrigatoria ?? null,
         conceitoFinal: inscrito.conceitoFinal ?? null,
         aprovado: inscrito.aprovado === 'Sim',
@@ -1452,14 +1466,16 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     if (!mostrarDivergencia || !deltaInscritos) return true;
 
     const isNovo = deltaInscritos.inscritosNovos?.some((novo) => novo.id === cursista.id);
-    const isRemovido = deltaInscritos.inscritosRemovidos?.some((removido) => removido.id === cursista.id);
+    const isRemovido = deltaInscritos.inscritosRemovidos?.some(
+      (removido) => removido.id === cursista.id,
+    );
 
     return !isNovo && !isRemovido;
   });
 
   const aoDeletarRetificacao = async (retificacaoKey: number) => {
     return await deletarRetificacao(retificacaoKey);
-  }
+  };
 
   return (
     <Col>
@@ -1470,7 +1486,9 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           <Row gutter={[8, 8]}>
             <Col>
               <ButtonVoltar
-                onClick={() => onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO })}
+                onClick={() =>
+                  onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO })
+                }
                 id={CF_BUTTON_VOLTAR}
               />
             </Col>
@@ -1583,7 +1601,8 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
                       marginLeft: 16,
                     }}
                   >
-                    <b>Situação:</b> {situacoes.find((s) => s.id === status)?.descricao || 'Desconhecido'}
+                    <b>Situação:</b>{' '}
+                    {situacoes.find((s) => s.id === status)?.descricao || 'Desconhecido'}
                   </div>
                 )}
               </div>
