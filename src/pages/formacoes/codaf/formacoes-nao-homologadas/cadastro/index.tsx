@@ -22,26 +22,29 @@ import {
 } from '~/core/constants/ids/button/intex';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
+  baixarModeloTermoResponsabilidade,
+  fazerUploadAnexoCodaf,
+  obterAnexoCodafParaDownload,
+} from '~/core/services/codaf-lista-presenca-service';
+import { autocompletarFormacao, obterDetalhesPropostaComTurmasPorId, PropostaAutocompletarDTO, PropostaTurmaDTO } from '~/core/services/proposta-service';
+import { obterTurmasInscricao } from '~/core/services/inscricao-service';
+import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
+import { onClickVoltar } from '~/core/utils/form';
+import { useAppSelector } from '~/core/hooks/use-redux';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
+import { downloadBlob } from '~/core/utils/functions';
+import {
   atualizarCodafNaoHomologado,
   CodafNaoHomologadoDetalheDTO,
   criarCodafNaoHomologado,
   excluirCodafNaoHomologado,
   obterCodafNaoHomologadoPorId,
   obterInscritosTurma,
-  baixarModeloTermoResponsabilidade,
-  fazerUploadAnexoCodaf,
-  obterAnexoCodafParaDownload,
 } from '~/core/services/codaf-nao-homologado-service';
-import { obterDetalhesPropostaComTurmasPorId, PropostaTurmaDTO } from '~/core/services/proposta-service';
-import { obterTurmasInscricao } from '~/core/services/inscricao-service';
-import { onClickVoltar } from '~/core/utils/form';
-import { useAppSelector } from '~/core/hooks/use-redux';
-import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-import { downloadBlob } from '~/core/utils/functions';
-import { mapearAnexosParaFormulario } from '~/pages/formacoes/codaf/shared/utils/mapear-anexos';
 import ModalExcluir from '../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir';
 import { BannerDownloadTermo } from '../../lista-presenca-codaf/cadastro/componentes/banner-download-termo';
 import { SecaoAnexos } from '../../lista-presenca-codaf/cadastro/componentes/secao-anexos';
+import { DadosLoteCursistas, DrawerEdicaoLoteCursistas } from './componentes/drawer-edicao-lote-cursistas';
 
 interface CursistaDTO {
   id: number;
@@ -50,6 +53,22 @@ interface CursistaDTO {
   participou: boolean | null;
 }
 
+const mapearAnexosParaFormulario = (anexos: CodafNaoHomologadoDetalheDTO['anexos'] = []) =>
+  anexos
+    .filter(
+      (anexo) =>
+        anexo?.arquivoCodigo != null && anexo?.arquivoCodigo !== '' && anexo?.arquivoCodigo !== '0',
+    )
+    .map((anexo) => ({
+      uid: anexo.arquivoCodigo,
+      name: anexo.nomeArquivo,
+      status: 'done',
+      xhr: anexo.arquivoCodigo,
+      arquivoCodigo: anexo.arquivoCodigo,
+      nomeArquivo: anexo.nomeArquivo,
+      tipoAnexoId: anexo.tipoAnexoId,
+      urlDownload: anexo.urlDownload,
+    }));
 
 const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const [form] = useForm();
@@ -58,17 +77,71 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
   const [loading, setLoading] = useState(false);
   const [cursistas, setCursistas] = useState<CursistaDTO[]>([]);
+  const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
+  const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
   const [cursistasSelecionadosIds, setCursistasSelecionadosIds] = useState<number[]>([]);
+
+  const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
+  const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
+
+  const cursistasSelecionados = cursistas.filter((c) => cursistasSelecionadosIds.includes(c.id));
+
+  const algumSelecionadoComDados = cursistasSelecionados.some(
+    (c) => c.participou !== null && c.participou !== undefined,
+  );
+
+  const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 2;
+
+  const registrarDadosDesabilitado = !quantidadeMinimaSelecionada || algumSelecionadoComDados;
+  const editarDadosDesabilitado = !quantidadeMinimaSelecionada || !algumSelecionadoComDados;
+
+  const onClickRegistrarDados = () => {
+    setDrawerLoteModo('registrar');
+    setDrawerLoteAberto(true);
+  };
+
+  const onClickEditarDados = () => {
+    setDrawerLoteModo('editar');
+    setDrawerLoteAberto(true);
+  };
+
+  const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
+    const novaListaCursistas = cursistas.map((cursista) =>
+      cursistasSelecionadosIds.includes(cursista.id)
+        ? {
+            ...cursista,
+            participou: dados.participou,
+          }
+        : cursista,
+    );
+
+    const sucesso = await onClickSalvar(novaListaCursistas);
+
+    if (sucesso) {
+      setDrawerLoteAberto(false);
+      setCursistasSelecionadosIds([]);
+    }
+  };
 
   const [turmasFiltradas, setTurmasFiltradas] = useState<PropostaTurmaDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
+  const [formValido, setFormValido] = useState(false);
   const [registroId, setRegistroId] = useState<number | null>(null);
   const [status, setStatus] = useState<number | null>(null);
   const [paginaAtualInscritos, setPaginaAtualInscritos] = useState(1);
   const [totalRegistrosInscritos, setTotalRegistrosInscritos] = useState(0);
   const [registrosPorPaginaInscritos, setRegistrosPorPaginaInscritos] = useState(10);
+  const [tooltipAberto, setTooltipAberto] = useState(false);
+  const [todasTurmasPossuemLista, setTodasTurmasPossuemLista] = useState(false);
+  const [retificacoes, setRetificacoes] = useState<number[]>([1]);
   const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
   const formOriginal = React.useRef<any>(null);
+  const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
+  const situacoes = [
+    { id: 1, descricao: 'Iniciado' },
+    { id: 2, descricao: 'Aguardando Finalização' },
+    { id: 3, descricao: 'Finalizado' },
+  ];
 
   const modoEdicao = !!id;
 
@@ -127,7 +200,19 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
       },
     },
   };
+
+  const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
+  const nomeFormacao = Form.useWatch('nomeFormacao', form);
+  const codigoFormacao = Form.useWatch('codigoFormacao', form);
   const turmaId = Form.useWatch('turmaId', form);
+
+  React.useEffect(() => {
+    const camposBasicosPreenchidos = numeroHomologacao && nomeFormacao && codigoFormacao && turmaId;
+
+    const todosPreenchidos = camposBasicosPreenchidos;
+
+    setFormValido(!!todosPreenchidos);
+  }, [numeroHomologacao, nomeFormacao, codigoFormacao, turmaId, ehAreaPromotora]);
 
   React.useEffect(() => {
     const aplicarCamposFormulario = (dados: CodafNaoHomologadoDetalheDTO) => {
@@ -152,6 +237,8 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         if (!turmasResponse.sucesso || !turmasResponse.dados) return;
 
         setTurmaDisabled(!!dados.propostaTurmaId);
+        setTooltipAberto(false);
+        setTodasTurmasPossuemLista(false);
       } catch (error) {
         console.error('Erro ao buscar turmas:', error);
       }
@@ -182,7 +269,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         await carregarTurmas(dados);
 
         setTimeout(() => {
-          formOriginal.current = structuredClone(form.getFieldsValue());
+          formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
         }, 100);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -220,6 +307,9 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         setCursistas(inscritosFormatados);
         setTotalRegistrosInscritos(response.dados.totalRegistros || 0);
         setPaginaAtualInscritos(1);
+        setTimeout(() => {
+          cursistasOriginais.current = JSON.parse(JSON.stringify(inscritosFormatados));
+        }, 100);
       } else {
         setCursistas([]);
         setTotalRegistrosInscritos(0);
@@ -295,24 +385,19 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
             { label: 'Sim', value: true },
             { label: 'Não', value: false },
           ]}
-          onChange={(novoValor) => handleParticipacaoChange(novoValor, record)}
+          onChange={(novoValor) => {
+            setCursistas((prevCursistas) =>
+              prevCursistas.map((cursista) =>
+                cursista.id === record.id
+                  ? { ...cursista, participou: novoValor }
+                  : cursista
+              )
+            );
+          }}
         />
       ),
     },
   ];
-
-  const handleParticipacaoChange = (novoValor: boolean, record: CursistaDTO) => {
-    setCursistas((prevCursistas) =>
-      prevCursistas.map((cursista) => updateCursistaParticipacao(cursista, record.id, novoValor))
-    );
-  };
-
-  const updateCursistaParticipacao = (cursista: CursistaDTO, recordId: number, novoValor: boolean) => {
-    if (cursista.id === recordId) {
-      return { ...cursista, participou: novoValor };
-    }
-    return cursista;
-  };  
 
   const rowSelection: TableRowSelection<CursistaDTO> = {
     selectedRowKeys: cursistasSelecionadosIds,
@@ -331,7 +416,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   }
 
   const onBlurCodigoFormacao = async (_value: string) => {
-    const valor = _value.replaceAll(/\D/g, '');
+    const valor = _value.replace(/\D/g, '');
 
     if (valor.length < 1) {
       setTurmasFiltradas([]);
@@ -391,6 +476,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const tratarRespostaSalvar = (response: any) => {
     if (response.sucesso) {
       formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
+      cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
       notification.success({
         message: 'Sucesso',
         description: modoEdicao
@@ -572,8 +658,8 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
 
         if (contentDisposition) {
           const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-          if (fileNameMatch?.[1]) {
-            fileName = fileNameMatch[1].replaceAll(/['"]/g, '');
+          if (fileNameMatch && fileNameMatch[1]) {
+            fileName = fileNameMatch[1].replace(/['"]/g, '');
           }
         }
 
@@ -717,8 +803,10 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           </Row>
 
           <SecaoFormulario
+            opcoesFormacao={opcoesFormacao}
             onChangeCodigoFormacao={onChangeCodigoFormacao}
             onBlurCodigoFormacao={onBlurCodigoFormacao}
+            loadingAutocomplete={loadingAutocomplete}
             turmasFiltradas={turmasFiltradas}
             turmaDisabled={turmaDisabled}
             camposBloqueados={bloqueios.campos.secaoFormulario}
@@ -731,6 +819,14 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
             totalRegistrosInscritos={totalRegistrosInscritos}
             handleTableChangeInscritos={handleTableChangeInscritos}
             rowSelection={rowSelection}
+          />
+          <DrawerEdicaoLoteCursistas
+            open={drawerLoteAberto}
+            modo={drawerLoteModo}
+            quantidadeSelecionados={cursistasSelecionadosIds.length}
+            loading={false}
+            onClose={() => setDrawerLoteAberto(false)}
+            onConfirmar={onConfirmarDadosLote}
           />
           <SecaoAnexos
             form={form}

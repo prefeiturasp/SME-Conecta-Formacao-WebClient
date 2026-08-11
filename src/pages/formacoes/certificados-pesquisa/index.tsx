@@ -24,7 +24,6 @@ import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
 import ButtonVoltar from '~/components/main/button/voltar';
-import SelectTurma from '~/components/main/input/select-turma';
 import { SelectDRE } from '~/components/main/input/dre';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
@@ -437,7 +436,17 @@ const CertificadosPesquisa: React.FC = () => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <SelectTurma turmasAPI={turmasAPI} turmaDisabled={turmaDisabled} />
+              <Form.Item label='Turma' name='turmaId' rules={[{ required: false }]}>
+                <Select
+                  placeholder='Selecione a turma'
+                  options={turmasAPI.map((turma) => ({
+                    label: turma.descricao,
+                    value: turma.id,
+                  }))}
+                  disabled={turmaDisabled}
+                  allowClear
+                />
+              </Form.Item>
             </Col>
           </Row>
 

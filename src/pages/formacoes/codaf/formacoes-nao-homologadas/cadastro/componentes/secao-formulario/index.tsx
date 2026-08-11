@@ -3,10 +3,13 @@ import InputNumero from "~/components/main/numero";
 import InputTexto from "~/components/main/text/input-text";
 import { CF_INPUT_NUMERO_HOMOLOGACAO, CF_INPUT_NOME_FORMACAO, CF_INPUT_CODIGO_FORMACAO } from "~/core/constants/ids/input";
 import { RetornoListagemDTO } from "~/core/dto/retorno-listagem-dto";
+import { PropostaAutocompletarDTO } from "~/core/services/proposta-service";
 
 interface SecaoFormularioProps {
+  opcoesFormacao: PropostaAutocompletarDTO[];
   onChangeCodigoFormacao: (value: string) => void;
   onBlurCodigoFormacao: (value: string) => void;
+  loadingAutocomplete: boolean;
   turmasFiltradas: RetornoListagemDTO[];
   turmaDisabled: boolean;
   camposBloqueados: {
