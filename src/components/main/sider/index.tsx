@@ -31,7 +31,7 @@ const SiderConectaFormacao: React.FC = () => {
             return temPermissao;
           });
 
-          menu.children = children;
+          return { ...menu, children };
         }
         return menu;
       });
@@ -41,15 +41,7 @@ const SiderConectaFormacao: React.FC = () => {
     [permissaoPorMenu],
   );
 
-  useEffect(() => {
-    if (menus?.length && permissaoPorMenu?.length) {
-      const menuCloned = cloneDeep(menus);
-      const menusParaExibir = validarExibicaoMenus(menuCloned);
-      const menusParaExibirComSubMenus = menusParaExibir.filter((menu) => menu?.children?.length);
 
-      setItems(menusParaExibirComSubMenus);
-    }
-  }, [validarExibicaoMenus, permissaoPorMenu]);
 
   useEffect(() => {
     if (menus?.length && permissaoPorMenu?.length) {

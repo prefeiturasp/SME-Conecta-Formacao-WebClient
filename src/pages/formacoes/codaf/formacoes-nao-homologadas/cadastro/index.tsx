@@ -21,6 +21,17 @@ import {
   CF_BUTTON_VOLTAR,
 } from '~/core/constants/ids/button/intex';
 import { ROUTES } from '~/core/enum/routes-enum';
+import {
+  atualizarCodafNaoHomologado,
+  CodafNaoHomologadoDetalheDTO,
+  criarCodafNaoHomologado,
+  excluirCodafNaoHomologado,
+  obterCodafNaoHomologadoPorId,
+  obterInscritosTurma,
+  baixarModeloTermoResponsabilidade,
+  fazerUploadAnexoCodaf,
+  obterAnexoCodafParaDownload,
+} from '~/core/services/codaf-nao-homologado-service';
 import { obterDetalhesPropostaComTurmasPorId, PropostaTurmaDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { onClickVoltar } from '~/core/utils/form';
@@ -28,17 +39,6 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { downloadBlob } from '~/core/utils/functions';
 import { mapearAnexosParaFormulario } from '~/pages/formacoes/codaf/shared/utils/mapear-anexos';
-import {
-  atualizarCodafNaoHomologado,
-  baixarModeloTermoResponsabilidade,
-  CodafNaoHomologadoDetalheDTO,
-  criarCodafNaoHomologado,
-  excluirCodafNaoHomologado,
-  fazerUploadAnexoCodaf,
-  obterAnexoCodafParaDownload,
-  obterCodafNaoHomologadoPorId,
-  obterInscritosTurma,
-} from '~/core/services/codaf-nao-homologado-service';
 import ModalExcluir from '../../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir';
 import { BannerDownloadTermo } from '../../lista-presenca-codaf/cadastro/componentes/banner-download-termo';
 import { SecaoAnexos } from '../../lista-presenca-codaf/cadastro/componentes/secao-anexos';
@@ -69,7 +69,6 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const [registrosPorPaginaInscritos, setRegistrosPorPaginaInscritos] = useState(10);
   const [modalExcluirVisible, setModalExcluirVisible] = useState(false);
   const formOriginal = React.useRef<any>(null);
-  const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
 
   const modoEdicao = !!id;
 
@@ -221,9 +220,6 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         setCursistas(inscritosFormatados);
         setTotalRegistrosInscritos(response.dados.totalRegistros || 0);
         setPaginaAtualInscritos(1);
-        setTimeout(() => {
-          cursistasOriginais.current = structuredClone(inscritosFormatados);
-        }, 100);
       } else {
         setCursistas([]);
         setTotalRegistrosInscritos(0);
@@ -394,8 +390,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
 
   const tratarRespostaSalvar = (response: any) => {
     if (response.sucesso) {
-      formOriginal.current = structuredClone(form.getFieldsValue());
-      cursistasOriginais.current = structuredClone(cursistas);
+      formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
       notification.success({
         message: 'Sucesso',
         description: modoEdicao

@@ -2,6 +2,7 @@ import { AutoComplete, Button, Col, DatePicker, Form, FormInstance, Row, Select 
 import locale from 'antd/lib/date-picker/locale/pt_BR';
 import React from 'react';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
+import SelectTurma from '~/components/main/input/select-turma';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
 import {
@@ -110,17 +111,7 @@ export const CodafFiltroForm: React.FC<CodafFiltroFormProps> = ({
       </Row>
       <Row gutter={[16, 8]}>
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <Form.Item label='Turma' name='turmaId' rules={[{ required: false }]}>
-            <Select
-              placeholder='Selecione a turma'
-              options={turmasAPI.map((turma) => ({
-                label: turma.descricao,
-                value: turma.id,
-              }))}
-              disabled={turmaDisabled}
-              allowClear
-            />
-          </Form.Item>
+          <SelectTurma turmasAPI={turmasAPI} turmaDisabled={turmaDisabled} />
         </Col>
         {campoData && (
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>

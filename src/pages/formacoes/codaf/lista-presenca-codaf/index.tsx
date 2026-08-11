@@ -1,13 +1,4 @@
-import {
-  Button,
-  Col,
-  Dropdown,
-  MenuProps,
-  Modal,
-  Row,
-  Table,
-  Tooltip,
-} from 'antd';
+import { Button, Col, Dropdown, MenuProps, Modal, Row, Table, Tooltip } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
@@ -140,7 +131,8 @@ const ListaPresencaCodaf: React.FC = () => {
       if (response.sucesso) {
         notification.success({
           message: 'Sucesso',
-          description: 'O certificado está sendo emitido, volte mais tarde para acompanhar a atualização.',
+          description:
+            'O certificado está sendo emitido, volte mais tarde para acompanhar a atualização.',
         });
         buscarPagina(paginaAtual);
       } else {
@@ -173,7 +165,10 @@ const ListaPresencaCodaf: React.FC = () => {
         const filename = `HOM${record.numeroHomologacao}${record.id}.txt`;
         downloadTxtFile(response.dados, filename);
         setGenerated(record.id);
-        notification.success({ message: 'Sucesso', description: `O arquivo ${filename} foi gerado com sucesso!` });
+        notification.success({
+          message: 'Sucesso',
+          description: `O arquivo ${filename} foi gerado com sucesso!`,
+        });
         buscarPagina(paginaAtual);
       }
     } catch {
@@ -194,13 +189,22 @@ const ListaPresencaCodaf: React.FC = () => {
           if (fileNameMatch?.[1]) fileName = fileNameMatch[1].replace(/['"]/g, '');
         }
         downloadBlob(response.data, fileName);
-        notification.success({ message: 'Sucesso', description: `${fileName}. Arquivo baixado com sucesso` });
+        notification.success({
+          message: 'Sucesso',
+          description: `${fileName}. Arquivo baixado com sucesso`,
+        });
         buscarPagina(paginaAtual);
       } else {
-        notification.error({ message: 'Erro', description: `${fileName}. Não conseguimos gerar o seu arquivo. Tente novamente.` });
+        notification.error({
+          message: 'Erro',
+          description: `${fileName}. Não conseguimos gerar o seu arquivo. Tente novamente.`,
+        });
       }
     } catch {
-      notification.error({ message: 'Erro', description: 'Não conseguimos gerar o seu arquivo. Tente novamente.' });
+      notification.error({
+        message: 'Erro',
+        description: 'Não conseguimos gerar o seu arquivo. Tente novamente.',
+      });
     } finally {
       setLoadingAcoes(false);
     }
@@ -232,7 +236,9 @@ const ListaPresencaCodaf: React.FC = () => {
           <span style={{ display: 'block' }}>
             Gerar TXT EOL &nbsp;
             <Tooltip title={getTooltipMessage()}>
-              <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }} />
+              <QuestionCircleOutlined
+                style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
+              />
             </Tooltip>
           </span>
         ) : (
@@ -366,7 +372,9 @@ const ListaPresencaCodaf: React.FC = () => {
     <Col>
       <Modal
         title={
-          <span style={{ fontWeight: 700, fontSize: '20px', lineHeight: '100%', letterSpacing: '0%' }}>
+          <span
+            style={{ fontWeight: 700, fontSize: '20px', lineHeight: '100%', letterSpacing: '0%' }}
+          >
             Atenção!
           </span>
         }
@@ -454,12 +462,15 @@ const ListaPresencaCodaf: React.FC = () => {
                   locale: { items_per_page: '' },
                 }}
                 onChange={(pagination) =>
-                  handleTableChange(pagination, registrosPorPagina, setRegistrosPorPagina)
+                  handleTableChange(pagination, setRegistrosPorPagina)
                 }
                 onRow={(record) => ({
                   onClick: () =>
                     navigate(
-                      ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', String(record.id)),
+                      ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(
+                        ':id',
+                        String(record.id),
+                      ),
                     ),
                   style: { cursor: 'pointer' },
                 })}

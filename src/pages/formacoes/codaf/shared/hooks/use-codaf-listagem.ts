@@ -36,8 +36,9 @@ export const useCodafListagem = <TItem = any>(
   const [filtroAplicado, setFiltroAplicado] = useState(false);
   const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
   const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
-  const [propostaSelecionada, setPropostaSelecionada] =
-    useState<PropostaAutocompletarDTO | null>(null);
+  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
+    null,
+  );
   const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
 
@@ -87,34 +88,29 @@ export const useCodafListagem = <TItem = any>(
     [form, registrosPorPagina, options.campoData, options.parametroData, options.buscarDados],
   );
 
-  const onSearchFormacao = useCallback(
-    async (searchText: string) => {
-      if (!searchText) {
+  const onSearchFormacao = useCallback(async (searchText: string) => {
+    if (!searchText) {
+      setOpcoesFormacao([]);
+      return;
+    }
+    setLoadingAutocomplete(true);
+    try {
+      const response = await autocompletarFormacao(searchText);
+      if (response.sucesso && response.dados?.items) {
+        setOpcoesFormacao(response.dados.items);
+      } else {
         setOpcoesFormacao([]);
-        return;
       }
-      setLoadingAutocomplete(true);
-      try {
-        const response = await autocompletarFormacao(searchText);
-        if (response.sucesso && response.dados?.items) {
-          setOpcoesFormacao(response.dados.items);
-        } else {
-          setOpcoesFormacao([]);
-        }
-      } catch {
-        setOpcoesFormacao([]);
-      } finally {
-        setLoadingAutocomplete(false);
-      }
-    },
-    [],
-  );
+    } catch {
+      setOpcoesFormacao([]);
+    } finally {
+      setLoadingAutocomplete(false);
+    }
+  }, []);
 
   const onSelectFormacao = useCallback(
     async (_value: string, option: any) => {
-      const proposta = opcoesFormacao.find(
-        (p) => p.numeroHomologacao === option.numeroHomologacao,
-      );
+      const proposta = opcoesFormacao.find((p) => p.numeroHomologacao === option.numeroHomologacao);
       if (!proposta) return;
 
       setPropostaSelecionada(proposta);
@@ -160,7 +156,7 @@ export const useCodafListagem = <TItem = any>(
   }, [form]);
 
   const handleTableChange = useCallback(
-    (pagination: any, _currentRegistrosPorPagina: number, setRegistrosPorPagina: (n: number) => void) => {
+    (pagination: any, setRegistrosPorPagina: (n: number) => void) => {
       if (pagination.pageSize !== registrosPorPagina) {
         setRegistrosPorPagina(pagination.pageSize);
         setPaginaAtual(1);

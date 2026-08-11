@@ -1,13 +1,4 @@
-import {
-  Button,
-  Col,
-  Dropdown,
-  MenuProps,
-  Modal,
-  Row,
-  Table,
-  Tooltip,
-} from 'antd';
+import { Button, Col, Dropdown, MenuProps, Modal, Row, Table, Tooltip } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/lib/form/Form';
 import { ColumnsType } from 'antd/lib/table';
@@ -22,7 +13,10 @@ import ButtonVoltar from '~/components/main/button/voltar';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { CodafNaoHomologadoListagemDTO, obterListaCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
+import {
+  CodafNaoHomologadoListagemDTO,
+  obterListaCodafNaoHomologado,
+} from '~/core/services/codaf-nao-homologado-service';
 import { onClickVoltar } from '~/core/utils/form';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
@@ -67,7 +61,6 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const ehPerfilAdminDf = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
   const ocultarColunas = ehPerfilDF || ehPerfilEMFORPEF;
@@ -119,7 +112,6 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   };
 
   const getMenuAcoes = (): MenuProps => {
-
     const items: MenuProps['items'] = [];
 
     if (!ocultarColunas) {
@@ -220,7 +212,9 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     <Col>
       <Modal
         title={
-          <span style={{ fontWeight: 700, fontSize: '20px', lineHeight: '100%', letterSpacing: '0%' }}>
+          <span
+            style={{ fontWeight: 700, fontSize: '20px', lineHeight: '100%', letterSpacing: '0%' }}
+          >
             Atenção!
           </span>
         }
@@ -326,7 +320,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
                   locale: { items_per_page: '' },
                 }}
                 onChange={(pagination) =>
-                  handleTableChange(pagination, registrosPorPagina, setRegistrosPorPagina)
+                  handleTableChange(pagination, setRegistrosPorPagina)
                 }
                 onRow={(record) => ({
                   onClick: () => navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
