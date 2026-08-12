@@ -868,7 +868,7 @@ const ListaPresencaCodaf: React.FC = () => {
                     onChange={handleTableChange}
                     onRow={(record) => ({
                       onClick: () =>
-                        navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
+                        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', String(record.id))),
                       style: { cursor: 'pointer' },
                     })}
                     scroll={{ x: 'max-content' }}
