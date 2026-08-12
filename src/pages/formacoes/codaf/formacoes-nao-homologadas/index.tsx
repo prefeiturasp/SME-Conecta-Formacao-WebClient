@@ -5,7 +5,6 @@ import {
   Dropdown,
   Form,
   MenuProps,
-  Modal,
   Row,
   Select,
   Table,
@@ -24,13 +23,10 @@ import { useNavigate } from 'react-router-dom';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
-import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
-import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
-import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
   CF_INPUT_CODIGO_FORMACAO,
   CF_INPUT_NOME_FORMACAO,
@@ -40,11 +36,13 @@ import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { obterDetalhesPropostaComTurmasPorId } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
-import { onClickVoltar } from '~/core/utils/form';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { CodafNaoHomologadoListagemDTO, obterListaCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
+import { criarColunasBaseListagemCodaf } from '../shared/componentes/codaf-colunas-factory';
+import { ModalAvisoNovoRegistroCodaf } from '../shared/componentes/modal-aviso-novo-registro-codaf';
+import { HeaderListagemCodaf } from '../shared/componentes/header-listagem-codaf';
 
 const HEADER_TEXT_STYLE = {
   paddingBottom: '24px',
@@ -85,7 +83,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [filtroUtilizado, setFiltroUtilizado] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [turmasProposta, setTurmasProposta] = useState<RetornoListagemDTO[]>([]);
-  const [turmaDesabilitada, setTurmaDisabilitada] = useState(true);
+  const [turmaDesabilitada, setTurmaDesabilitada] = useState(true);
 
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
@@ -101,32 +99,16 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     carregarDadosCodaf(1);
   }, []);
 
-  const onClickNovo = () => {
-    setModalVisivel(true);
-  };
-
-  const onClickIrParaInscricoes = () => {
-    setModalVisivel(false);
-    navigate(ROUTES.FORMACAOES_INSCRICOES);
-  };
-
-  const onClickContinuarRegistro = () => {
-    setModalVisivel(false);
-    navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_NOVO);
-  };
-
   const getMenuAcoes = (): MenuProps => {
     const items = [];
 
-    if (!ocultarColunas) {
-      items.push({
-        key: 'exportar-lista-inscritos',
-        label: 'Exportar Lista de inscritos',
-        onClick: (e: any) => {
-          e.domEvent.stopPropagation();
-        },
-      });
-    }
+    items.push({
+      key: 'exportar-lista-inscritos',
+      label: 'Exportar Lista de inscritos',
+      onClick: (e: any) => {
+        e.domEvent.stopPropagation();
+      },
+    });
 
     items.push({
       key: 'baixar-relatorio-codaf',
@@ -142,10 +124,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     return { items };
   };
 
-  const obterSituacaoTexto = (idStatus: number): string => {
-    const situacao = status.find((s) => s.id === idStatus);
-    return situacao?.descricao || 'Desconhecido';
-  };
+  const obterSituacaoTexto = (idStatus: number): string => status.find((s) => s.id === idStatus)?.descricao || 'Desconhecido';
 
   const getDeclaracaoButtonState = () => {
     const status = 0; 
@@ -159,64 +138,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     return { text: '—', disabled: true };
   };
 
-  const colunasBase: ColumnsType<CodafNaoHomologadoListagemDTO> = [
-    {
-      key: 'codigoFormacao',
-      title: 'Código da formação',
-      dataIndex: 'codigoFormacao',
-      width: ocultarColunas ? 100 : 80,
-    },
-    {
-      key: 'numeroHomologacao',
-      title: 'Número de homologação',
-      dataIndex: 'numeroHomologacao',
-      width: ocultarColunas ? 100 : 80,
-    },
-    {
-      key: 'nomeFormacao',
-      title: 'Nome da formação',
-      dataIndex: 'nomeFormacao',
-      ellipsis: {
-        showTitle: false,
-      },
-      width: 300,
-      render: (text: string) => (
-        <Tooltip title={text}>
-          <div
-            style={{
-              maxWidth: 300,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {text}
-          </div>
-        </Tooltip>
-      ),
-    },
-    {
-      key: 'nomeAreaPromotora',
-      title: 'Área promotora',
-      dataIndex: 'nomeAreaPromotora',
-      width: ocultarColunas ? 200 : 150,
-      ellipsis: true,
-    },
-    {
-      key: 'nomeTurma',
-      title: 'Turma',
-      dataIndex: 'nomeTurma',
-      width: ocultarColunas ? 150 : 120,
-      ellipsis: true,
-    },
-    {
-      key: 'status',
-      title: 'Situação',
-      dataIndex: 'status',
-      width: ocultarColunas ? 150 : 100,
-      render: (status: number) => obterSituacaoTexto(status),
-    },
-  ];
+  const colunasBase = criarColunasBaseListagemCodaf<CodafNaoHomologadoListagemDTO>(ocultarColunas, obterSituacaoTexto);
 
   const colunasAdicionais: ColumnsType<CodafNaoHomologadoListagemDTO> = [
     {
@@ -244,8 +166,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
             }}
             style={{
               width: '100%',
-              borderColor: !disabled ? '#ff6b35' : '#ccc',
-              color: !disabled ? '#ff6b35' : '#999',
+              borderColor: disabled ? '#ccc':'#ff6b35',
+              color: disabled ? '#999':'#ff6b35',
               fontWeight: 500,
               cursor: disabled ? 'not-allowed' : 'pointer',
             }}
@@ -332,13 +254,14 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         description: 'Erro ao buscar dados da lista do CODAF Não Homologado',
       });
       setTotalRegistrosApi(0);
+      console.log('Erro ao buscar dados da lista do CODAF Não Homologado:', error);
     } finally {
       setCarregando(false);
     }
   };
 
   const aoMudarCodigoProposta = () => {    
-    setTurmaDisabilitada(true);
+    setTurmaDesabilitada(true);
     setTurmasProposta([]);
   }
 
@@ -346,7 +269,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     const value = Number(_valor.trim().replaceAll(/\D/g, ''));
 
     if (value === 0) {
-      setTurmaDisabilitada(true);
+      setTurmaDesabilitada(true);
       setTurmasProposta([]);
       return;
     }
@@ -357,10 +280,10 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       if (resposta.sucesso && resposta.dados) {
         if (resposta.dados.turmas && resposta.dados.turmas.length > 0) {
           setTurmasProposta(resposta.dados.turmas);
-          setTurmaDisabilitada(false);
+          setTurmaDesabilitada(false);
         } else {
           setTurmasProposta([]);
-          setTurmaDisabilitada(true);
+          setTurmaDesabilitada(true);
         }
         form.setFieldsValue({
           turmaId: undefined
@@ -370,12 +293,12 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
           turmaId: undefined,
         });
         setTurmasProposta([]);
-        setTurmaDisabilitada(true);        
+        setTurmaDesabilitada(true);        
       }
     } catch (error) {
       console.error('Erro ao obter detalhes da proposta:', error);
       setTurmasProposta([]);
-      setTurmaDisabilitada(true);
+      setTurmaDesabilitada(true);
       notification.error({
         message: 'Erro',
         description: 'Erro ao obter detalhes da proposta',
@@ -387,7 +310,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     setPaginaCorrente(1);    
     setTotalRegistrosApi(0);
     setFiltroUtilizado(false);
-    setTurmaDisabilitada(true);
+    setTurmaDesabilitada(true);
     setTurmasProposta([]);
     setDados([]);
     form.resetFields();
@@ -415,72 +338,19 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
 
   return (
     <Col>
-      <Modal
-        title={
-          <span
-            style={{
-              fontWeight: 700,
-              fontSize: '20px',
-              lineHeight: '100%',
-              letterSpacing: '0%',
-            }}
-          >
-            Atenção!
-          </span>
-        }
-        open={modalVisivel}
-        onCancel={() => setModalVisivel(false)}
-        centered
-        width={600}
-        footer={[
-          <Button
-            key='inscricoes'
-            onClick={onClickIrParaInscricoes}
-            style={{
-              borderColor: '#ff6b35',
-              color: '#ff6b35',
-              fontWeight: 500,
-            }}
-          >
-            Ir para tela de inscrições
-          </Button>,
-          <Button key='continuar' type='primary' onClick={onClickContinuarRegistro}>
-            Continuar registro
-          </Button>,
-        ]}
-      >
-        <br></br>
-        <p>
-          Antes de iniciar o registro CODAF, verifique se todos os cursistas estão inscritos na
-          formação. Caso necessário, você pode realizar o cadastro pela tela de inscrições.
-        </p>
-        <br></br>
-      </Modal>
-      <HeaderPage title='CODAF não homologado'>
-        <Col span={24}>
-          <Row gutter={[8, 8]}>
-            <Col>
-              <ButtonVoltar
-                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
-                id={CF_BUTTON_VOLTAR}
-              />
-            </Col>
-            <Col>
-              <Button
-                block
-                type='primary'
-                htmlType='submit'
-                id={CF_BUTTON_NOVO}
-                disabled={!permissao.podeIncluir}
-                onClick={() => onClickNovo()}
-                style={{ fontWeight: 700 }}
-              >
-                Novo registro
-              </Button>
-            </Col>
-          </Row>
-        </Col>
-      </HeaderPage>
+      <ModalAvisoNovoRegistroCodaf
+        visivel={modalVisivel}
+        onClose={() => setModalVisivel(false)}
+        onClickInscricoes={() => { setModalVisivel(false); navigate(ROUTES.FORMACAOES_INSCRICOES); }}
+        onClickContinuar={() => { setModalVisivel(false); navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_NOVO); }}
+      />
+
+      <HeaderListagemCodaf
+        titulo="CODAF não homologado"
+        podeIncluir={permissao.podeIncluir ?? false}
+        onClickNovo={() => setModalVisivel(true)}
+      />
+      
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
           <Row gutter={[16, 8]}>
