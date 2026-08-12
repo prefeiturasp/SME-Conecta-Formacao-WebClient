@@ -25,11 +25,11 @@ export const criarColunasCodafHomologado = (
     render: (freq, record) => (
       <Input
         disabled={bloqueado}
-        value={freq !== null ? `${freq}%` : ''}
+        value={freq === null ? '' : `${freq}%`}
         placeholder='%'
         onChange={(e) => {
-          const numericValue = e.target.value.replace(/\D/g, '');
-          const numValue = numericValue ? Math.min(parseInt(numericValue, 10), 100) : null;
+          const numericValue = e.target.value.replaceAll(/\D/g, '');
+          const numValue = numericValue ? Math.min(Number.parseInt(numericValue, 10), 100) : null;
           onChangeCampo(record.id, 'frequencia', numValue);
         }}
         style={{ width: '100%' }}
@@ -83,22 +83,26 @@ export const criarColunasCodafHomologado = (
     title: 'Aprovado',
     dataIndex: 'aprovado',
     width: 120,
-    render: (aprovado, record) => (
-      <Select
-        disabled={bloqueado}
-        value={aprovado !== null ? (aprovado ? 'S' : 'N') : null}
-        placeholder='Selecione'
-        onChange={(value) =>
-          onChangeCampo(record.id, 'aprovado', value ? value === 'S' : null)
-        }
-        style={{ width: '100%' }}
-        options={[
-          { label: 'Sim', value: 'S' },
-          { label: 'Não', value: 'N' },
-        ]}
-        allowClear
-      />
-    ),
+    render: (aprovado, record) => {
+      const valorAprovado = aprovado === null ? null : aprovado ? 'S' : 'N';
+
+      return (
+        <Select
+          disabled={bloqueado}
+          value={valorAprovado}
+          placeholder='Selecione'
+          onChange={(value) =>
+            onChangeCampo(record.id, 'aprovado', value ? value === 'S' : null)
+          }
+          style={{ width: '100%' }}
+          options={[
+            { label: 'Sim', value: 'S' },
+            { label: 'Não', value: 'N' },
+          ]}
+          allowClear
+        />
+      );
+    },
   },
 ];
 

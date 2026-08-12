@@ -6,7 +6,6 @@ import {
   Dropdown,
   Form,
   MenuProps,
-  Modal,
   Row,
   Select,
   Table,
@@ -25,13 +24,10 @@ import { useNavigate } from 'react-router-dom';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
-import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
-import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
-import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
   CF_INPUT_CODIGO_FORMACAO,
   CF_INPUT_NOME_FORMACAO,
@@ -49,7 +45,6 @@ import {
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
-import { onClickVoltar } from '~/core/utils/form';
 import { downloadBlob } from '~/core/utils/functions';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
@@ -129,20 +124,6 @@ const ListaPresencaCodaf: React.FC = () => {
 
   const wasGenerated = (id: number): boolean => {
     return !!getGeneratedMap()[id];
-  };
-
-  const onClickNovo = () => {
-    setModalVisible(true);
-  };
-
-  const onClickIrParaInscricoes = () => {
-    setModalVisible(false);
-    navigate(ROUTES.FORMACAOES_INSCRICOES);
-  };
-
-  const onClickContinuarRegistro = () => {
-    setModalVisible(false);
-    navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO);
   };
 
   const onClickEmitirCertificado = async (record: CodafListaPresencaDTO) => {
@@ -301,17 +282,17 @@ const ListaPresencaCodaf: React.FC = () => {
     items.push({
       key: 'baixar-relatorio-codaf',
       disabled: !isCertificacaoConcluida,
-      label: !isCertificacaoConcluida ? (
+      label: isCertificacaoConcluida ? (
+        <Tooltip title='Clique para exportar arquivo CODAF desta turma'>
+          <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
+        </Tooltip>
+      ) : (
         <span style={{ display: 'block' }}>
           Baixar Relatório CODAF &nbsp;
           <Tooltip title='Gere os certificados para baixar o relatório CODAF.'>
             <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }} />
           </Tooltip>
         </span>
-      ) : (
-        <Tooltip title='Clique para exportar arquivo CODAF desta turma'>
-          <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
-        </Tooltip>
       ),
       onClick: (e: any) => {
         e.domEvent.stopPropagation();
