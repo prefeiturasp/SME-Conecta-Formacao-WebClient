@@ -9,8 +9,8 @@ import MeusCertificados from './certificados-usuario';
 import {
   obterCertificadosUsuario,
   downloadCertificado,
-} from '../../../../core/services/codaf-lista-presenca-service';
-import { notification } from '../../../../components/lib/notification';
+} from '../../../../../core/services/codaf-lista-presenca-service';
+import { notification } from '../../../../../components/lib/notification';
 
 jest.mock('~/core/services/codaf-lista-presenca-service');
 jest.mock('~/components/lib/notification', () => ({

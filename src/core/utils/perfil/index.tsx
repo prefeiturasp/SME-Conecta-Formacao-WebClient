@@ -6,7 +6,7 @@ import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import { RetornoPerfilUsuarioDTO } from '~/core/dto/retorno-perfil-usuario-dto';
 import { setPerfilSelecionado, setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
 
-import { RolesMenu, menus } from '~/components/main/sider/menus';
+import { MenuItemConectaProps, RolesMenu, menus } from '~/components/main/sider/menus';
 import { PermissaoMenusAcoesDTO } from '~/core/dto/permissao-menu-acoes-dto';
 import { PermissaoPorMenuDTO } from '~/core/dto/permissao-por-menu-dto';
 import { RolesDTO } from '~/core/dto/roles-menu-dto';
@@ -40,62 +40,72 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles'], perfilNome?: string) 
   if (menus?.length) {
     const permissaoMenus: PermissaoPorMenuDTO[] = [];
 
+    const processarSubMenus = (menuList: MenuItemConectaProps[]) => {
+      menuList.forEach((subMenu) => {
+        let permissao: PermissaoMenusAcoesDTO = {
+          podeConsultar: true,
+          podeIncluir: true,
+          podeExcluir: true,
+          podeAlterar: true,
+          somenteConsulta: false,
+        };
+
+        let exibir = true;
+
+        let permissaoMenu: PermissaoPorMenuDTO = {
+          key: subMenu.key,
+          permissao,
+          exibir,
+        };
+
+        switch (subMenu.key) {
+          case MenuEnum.MeusDados:
+            permissaoMenus[subMenu.key] = permissaoMenu;
+            break;
+          case MenuEnum.Certificados:
+            if (ehCursista) {
+              permissaoMenus[subMenu.key] = permissaoMenu;
+            }
+            break;
+          case MenuEnum.CertificadosPesquisa:
+            if (ehAdmin) {
+              permissaoMenus[subMenu.key] = permissaoMenu;
+            }
+            break;
+          default:
+            if (subMenu.roles) {
+              permissao = {
+                podeConsultar: roles.includes(subMenu.roles.podeConsultar),
+                podeIncluir: roles.includes(subMenu.roles.podeIncluir),
+                podeExcluir: roles.includes(subMenu.roles.podeExcluir),
+                podeAlterar: roles.includes(subMenu.roles.podeAlterar),
+                customRoles: subMenu.roles.customRoles,
+              };
+
+              exibir = menuTemPermissao(permissao);
+              permissao.somenteConsulta = verificaSomenteConsulta(permissao);
+
+              permissaoMenu = {
+                key: subMenu.key,
+                permissao,
+                exibir,
+              };
+              permissaoMenus[subMenu.key] = permissaoMenu;
+            } else if (subMenu.children?.length) {
+              permissaoMenus[subMenu.key] = permissaoMenu;
+            }
+            break;
+        }
+
+        if (subMenu.children?.length) {
+          processarSubMenus(subMenu.children);
+        }
+      });
+    };
+
     menus.forEach((menu) => {
       if (menu.children?.length) {
-        menu.children.forEach((subMenu) => {
-          let permissao: PermissaoMenusAcoesDTO = {
-            podeConsultar: true,
-            podeIncluir: true,
-            podeExcluir: true,
-            podeAlterar: true,
-            somenteConsulta: false,
-          };
-
-          let exibir = true;
-
-          let permissaoMenu: PermissaoPorMenuDTO = {
-            key: subMenu.key,
-            permissao,
-            exibir,
-          };
-
-          switch (subMenu.key) {
-            case MenuEnum.MeusDados:
-              permissaoMenus[subMenu.key] = permissaoMenu;
-              break;
-            case MenuEnum.Certificados:
-              if (ehCursista) {
-                permissaoMenus[subMenu.key] = permissaoMenu;
-              }
-              break;
-            case MenuEnum.CertificadosPesquisa:
-              if (ehAdmin) {
-                permissaoMenus[subMenu.key] = permissaoMenu;
-              }
-              break;
-            default:
-              if (subMenu.roles) {
-                permissao = {
-                  podeConsultar: roles.includes(subMenu.roles.podeConsultar),
-                  podeIncluir: roles.includes(subMenu.roles.podeIncluir),
-                  podeExcluir: roles.includes(subMenu.roles.podeExcluir),
-                  podeAlterar: roles.includes(subMenu.roles.podeAlterar),
-                  customRoles: subMenu.roles.customRoles,
-                };
-
-                exibir = menuTemPermissao(permissao);
-                permissao.somenteConsulta = verificaSomenteConsulta(permissao);
-
-                permissaoMenu = {
-                  key: subMenu.key,
-                  permissao,
-                  exibir,
-                };
-                permissaoMenus[subMenu.key] = permissaoMenu;
-              }
-              break;
-          }
-        });
+        processarSubMenus(menu.children);
       }
     });
 
