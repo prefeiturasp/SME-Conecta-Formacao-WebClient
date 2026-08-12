@@ -1,6 +1,5 @@
-import { Col, Form, Input, Row, Select } from 'antd';
+import { Col, Form, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import React, { useCallback, useState } from 'react';
