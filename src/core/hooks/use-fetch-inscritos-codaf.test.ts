@@ -5,6 +5,9 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useFetchInscritosCodaf } from './use-fetch-inscritos-codaf';
 import { notification } from '~/components/lib/notification';
 
+if (typeof global.structuredClone === 'undefined') {
+  global.structuredClone = (val: any) => JSON.parse(JSON.stringify(val));
+}
 jest.mock('~/components/lib/notification', () => ({
   notification: { success: jest.fn(), error: jest.fn(), warning: jest.fn() }
 }));
