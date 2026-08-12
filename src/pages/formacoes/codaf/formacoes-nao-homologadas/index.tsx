@@ -1,5 +1,4 @@
 import {
-  AutoComplete,
   Button,
   Col,
   DatePicker,
@@ -39,8 +38,7 @@ import {
 } from '~/core/constants/ids/input';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
-import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
-import { obterTurmasInscricao } from '~/core/services/inscricao-service';
+import { obterDetalhesPropostaComTurmasPorId } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
@@ -55,6 +53,24 @@ const HEADER_TEXT_STYLE = {
   alignItems: 'center',
 };
 
+type DropdownMenuContentProps = {
+  menu: React.ReactNode;
+};
+
+const DropdownMenuContent: React.FC<DropdownMenuContentProps> = ({ menu }) => (
+  <div
+    style={{
+      backgroundColor: '#FFFFFF',
+      borderRadius: 4,
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+    }}
+  >
+    {React.cloneElement(menu as React.ReactElement, {
+      style: { boxShadow: 'none' },
+    })}
+  </div>
+);
+
 const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
@@ -62,94 +78,52 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
   const [dados, setDados] = useState<CodafNaoHomologadoListagemDTO[]>([]);
-  //const [dadosOriginais, setDadosOriginais] = useState<CodafListaPresencaDTO[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [totalRegistros, setTotalRegistros] = useState(0);
-  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
-  const [filtroAplicado, setFiltroAplicado] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
-  const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
-  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
-    null,
-  );
-  const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
-  const [turmaDisabled, setTurmaDisabled] = useState(true);
-  const [, forceUpdate] = useState(0);
+  const [carregando, setCarregando] = useState(false);
+  const [totalRegistrosApi, setTotalRegistrosApi] = useState(0);
+  const [paginaCorrente, setPaginaCorrente] = useState(1);
+  const [registrosApiPorPagina, setRegistrosApiPorPagina] = useState(10);
+  const [filtroUtilizado, setFiltroUtilizado] = useState(false);
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [turmasProposta, setTurmasProposta] = useState<RetornoListagemDTO[]>([]);
+  const [turmaDesabilitada, setTurmaDisabilitada] = useState(true);
 
-  const ehPerfilAdminDf = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
   const ocultarColunas = ehPerfilDF || ehPerfilEMFORPEF;
 
-  const situacoes = [
+  const status = [
     { id: 1, descricao: 'Iniciado' },
     { id: 2, descricao: 'Aguardando finalização' },
     { id: 3, descricao: 'Finalizado' },
   ];
   
   React.useEffect(() => {    
-    buscarDados(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    carregarDadosCodaf(1);
   }, []);
 
   const onClickNovo = () => {
-    setModalVisible(true);
+    setModalVisivel(true);
   };
 
   const onClickIrParaInscricoes = () => {
-    setModalVisible(false);
+    setModalVisivel(false);
     navigate(ROUTES.FORMACAOES_INSCRICOES);
   };
 
   const onClickContinuarRegistro = () => {
-    setModalVisible(false);
+    setModalVisivel(false);
     navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_NOVO);
   };
 
-  const getMenuAcoes = (record: CodafNaoHomologadoListagemDTO): MenuProps => {
-    const isAguardando = record.status === 2;
-    const isFinalizado = record.status === 3;
-    const podeGerarComoComum = isAguardando;
-    const podeGerarComoAdmin = isFinalizado && ehPerfilAdminDf;
-    const podeGerarTxtEol = podeGerarComoComum || podeGerarComoAdmin;
-
-    const getTooltipMessage = () => {
-      if (podeGerarTxtEol) {
-        return 'Clique para gerar TXT EOL';
-      }
-      if (isAguardando) {
-        return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
-      }
-      return 'Função ativa apenas para a situação Aguardando DF ou para o perfil Admin DF quando a situação for Finalizado.';
-       
-    };
-
+  const getMenuAcoes = (): MenuProps => {
     const items = [];
 
     if (!ocultarColunas) {
       items.push({
         key: 'exportar-lista-inscritos',
-        disabled: !podeGerarTxtEol,
-        label: !podeGerarTxtEol ? (
-          <span style={{ display: 'block' }}>
-            Exportar Lista de inscritos &nbsp;
-            <Tooltip title={getTooltipMessage()}>
-              <QuestionCircleOutlined
-                style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
-              />
-            </Tooltip>
-          </span>
-        ) : (
-          <Tooltip title='Clique para gerar TXT EOL'>
-            <span style={{ display: 'block' }}>Gerar TXT EOL</span>
-          </Tooltip>
-        ),
+        label: 'Exportar Lista de inscritos',
         onClick: (e: any) => {
           e.domEvent.stopPropagation();
-          if (podeGerarTxtEol) {
-          }
         },
       });
     }
@@ -168,33 +142,19 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     return { items };
   };
 
-  const obterSituacaoTexto = (status: number): string => {
-    const situacao = situacoes.find((s) => s.id === status);
+  const obterSituacaoTexto = (idStatus: number): string => {
+    const situacao = status.find((s) => s.id === idStatus);
     return situacao?.descricao || 'Desconhecido';
   };
 
-  const getDeclaracaoButtonState = (record: CodafNaoHomologadoListagemDTO, loading: boolean) => {
+  const getDeclaracaoButtonState = () => {
     const status = 0; 
 
-    if (status === 0) {
-      return { text: 'Sem declaração', disabled: true };
-    }
-
-    if (status === 1) {
-      return { text: 'Não emitidas', disabled: true };
-    }
-
-    if (status === 2) {
-      return { text: 'Emitir declarações', disabled: false };
-    }
-
-    if (status === 3) {
-      return { text: 'Emitindo declarações', disabled: true };
-    }
-
-    if (status === 4) {
-      return { text: 'Declarações emitidas', disabled: true };
-    }
+    if (status === 0) return { text: 'Sem declaração', disabled: true };
+    if (status === 1) return { text: 'Não emitidas', disabled: true };
+    if (status === 2) return { text: 'Emitir declarações', disabled: false };
+    if (status === 3) return { text: 'Emitindo declarações', disabled: true };
+    if (status === 4) return { text: 'Declarações emitidas', disabled: true };
 
     return { text: '—', disabled: true };
   };
@@ -216,8 +176,6 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       key: 'nomeFormacao',
       title: 'Nome da formação',
       dataIndex: 'nomeFormacao',
-      /*ellipsis: true,
-      width: ocultarColunas ? undefined : 'auto',*/
       ellipsis: {
         showTitle: false,
       },
@@ -272,14 +230,14 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         </span>
       ),
       width: 220,
-      render: (_: any, record: CodafNaoHomologadoListagemDTO) => {
-        const { text, disabled } = getDeclaracaoButtonState(record, loading);
+      render: (_: any) => {
+        const { text, disabled } = getDeclaracaoButtonState();
 
         return (
           <Button
             type='default'
             icon={<FiPrinter />}
-            loading={loading && text === 'Emitindo declarações'}
+            loading={carregando && text === 'Emitindo declarações'}
             disabled={disabled}
             onClick={(e) => {
               e.stopPropagation();
@@ -305,24 +263,12 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       title: 'Ações',
       width: 80,
       align: 'center',
-      render: (_: any, record: CodafNaoHomologadoListagemDTO) => (
+      render: (_: any) => (
         <Dropdown
-          menu={getMenuAcoes(record)}
+          menu={getMenuAcoes()}
           trigger={['click']}
           placement='bottomRight'
-          dropdownRender={(menu) => (
-            <div
-              style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: 4,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-              }}
-            >
-              {React.cloneElement(menu as React.ReactElement, {
-                style: { boxShadow: 'none' },
-              })}
-            </div>
-          )}
+          dropdownRender={(menu) => <DropdownMenuContent menu={menu} />}
         >
           <Button
             type='default'
@@ -342,8 +288,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     ? [...colunasBase, ...colunaAcoes]
     : [...colunasBase, ...colunasAdicionais, ...colunaAcoes];
 
-  const buscarDados = async (pagina = 1) => {
-    setLoading(true);
+  const carregarDadosCodaf = async (pagina = 1) => {
+    setCarregando(true);
     try {
       const dataFinalizacao = form.getFieldValue('dataFinalizacao');
       const dataFinalizacaoDf = dataFinalizacao ? dayjs(dataFinalizacao).format('YYYY-MM-DD') : undefined;
@@ -359,127 +305,113 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         Status: form.getFieldValue('situacao'),
         DataFinalizacao: dataFinalizacaoDf,
         NumeroPagina: pagina,
-        NumeroRegistros: registrosPorPagina,
+        NumeroRegistros: registrosApiPorPagina,
       };
 
       const response = await obterListaCodafNaoHomologado(filtros);
 
       if (response.sucesso && response.dados) {
-        const dadosFiltrados = response.dados.items || [];
         const totalRegistrosAPI = response.dados.totalRegistros || 0;
+        const dadosFiltrados = response.dados.items || [];
 
+        setTotalRegistrosApi(totalRegistrosAPI);
+        setPaginaCorrente(pagina);
         setDados(dadosFiltrados);
-        setTotalRegistros(totalRegistrosAPI);
-        setPaginaAtual(pagina);
       } else {
+        setTotalRegistrosApi(0);
         notification.error({
           message: 'Erro',
           description: 'Erro ao buscar dados da lista do CODAF Não Homologado',
         });
         setDados([]);
-        setTotalRegistros(0);
       }
     } catch (error) {
+      setDados([]);
       notification.error({
         message: 'Erro',
         description: 'Erro ao buscar dados da lista do CODAF Não Homologado',
       });
-      setDados([]);
-      setTotalRegistros(0);
+      setTotalRegistrosApi(0);
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   };
 
-  const onSearchFormacao = async (searchText: string) => {
-    if (!searchText || searchText.length < 0) {
-      setOpcoesFormacao([]);
+  const aoMudarCodigoProposta = () => {    
+    setTurmaDisabilitada(true);
+    setTurmasProposta([]);
+  }
+
+  const aoSairDoCampoCodigoProposta = async (_valor: string) => {
+    const value = Number(_valor.trim().replaceAll(/\D/g, ''));
+
+    if (value === 0) {
+      setTurmaDisabilitada(true);
+      setTurmasProposta([]);
       return;
     }
 
-    setLoadingAutocomplete(true);
     try {
-      const response = await autocompletarFormacao(searchText);
-      if (response.sucesso && response.dados && response.dados.items) {
-        setOpcoesFormacao(response.dados.items);
+      const resposta = await obterDetalhesPropostaComTurmasPorId(value, false);
+
+      if (resposta.sucesso && resposta.dados) {
+        if (resposta.dados.turmas && resposta.dados.turmas.length > 0) {
+          setTurmasProposta(resposta.dados.turmas);
+          setTurmaDisabilitada(false);
+        } else {
+          setTurmasProposta([]);
+          setTurmaDisabilitada(true);
+        }
+        form.setFieldsValue({
+          turmaId: undefined
+        });
       } else {
-        setOpcoesFormacao([]);
+        form.setFieldsValue({
+          turmaId: undefined,
+        });
+        setTurmasProposta([]);
+        setTurmaDisabilitada(true);        
       }
     } catch (error) {
-      console.error('Erro ao buscar formações:', error);
-      setOpcoesFormacao([]);
-    } finally {
-      setLoadingAutocomplete(false);
-    }
-  };
-
-  const onSelectFormacao = async (_value: string, option: any) => {
-    const proposta = opcoesFormacao.find((p) => p.numeroHomologacao === option.numeroHomologacao);
-    if (proposta) {
-      setPropostaSelecionada(proposta);
-      form.setFieldsValue({
-        turmaId: undefined,
+      console.error('Erro ao obter detalhes da proposta:', error);
+      setTurmasProposta([]);
+      setTurmaDisabilitada(true);
+      notification.error({
+        message: 'Erro',
+        description: 'Erro ao obter detalhes da proposta',
       });
-      console.log(propostaSelecionada);
-
-      // Buscar turmas da proposta selecionada
-      try {
-        const response = await obterTurmasInscricao(proposta.propostaId);
-        if (response.sucesso && response.dados) {
-          setTurmasAPI(response.dados);
-          setTurmaDisabled(false);
-        } else {
-          setTurmasAPI([]);
-          setTurmaDisabled(true);
-          notification.warning({
-            message: 'Atenção',
-            description: 'Nenhuma turma encontrada para esta formação',
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao buscar turmas:', error);
-        setTurmasAPI([]);
-        setTurmaDisabled(true);
-        notification.error({
-          message: 'Erro',
-          description: 'Erro ao buscar turmas da formação',
-        });
-      }
     }
   };
 
-  const onClickFiltrar = () => {
-    setFiltroAplicado(true);
-    buscarDados(1);
-  };
-
-  const onClickLimpar = () => {
-    form.resetFields();
+  const aoClicarEmLimpar = () => {
+    setPaginaCorrente(1);    
+    setTotalRegistrosApi(0);
+    setFiltroUtilizado(false);
+    setTurmaDisabilitada(true);
+    setTurmasProposta([]);
     setDados([]);
-    setTotalRegistros(0);
-    setPaginaAtual(1);
-    setFiltroAplicado(false);
-    setPropostaSelecionada(null);
-    setOpcoesFormacao([]);
-    setTurmasAPI([]);
-    setTurmaDisabled(true);
+    form.resetFields();
   };
 
-  const handleTableChange = (pagination: any) => {
-    if (pagination.pageSize !== registrosPorPagina) {
-      setRegistrosPorPagina(pagination.pageSize);
-      setPaginaAtual(1);
-    } else {
-      buscarDados(pagination.current);
+  const aoClicarEmFiltrar = () => {    
+    carregarDadosCodaf(1);
+    setFiltroUtilizado(true);
+  };
+
+  const lidarComAlteracoesDaTabela = (paginacao: any) => {
+    if (paginacao.pageSize !== registrosApiPorPagina) {
+      setPaginaCorrente(1);
+      setRegistrosApiPorPagina(paginacao.pageSize);
+      return;
     }
+    carregarDadosCodaf(paginacao.current);
   };
 
   React.useEffect(() => {
-    if (filtroAplicado) {
-      buscarDados(1);
+    if (filtroUtilizado) {
+      carregarDadosCodaf(1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [registrosPorPagina]);
+  }, [registrosApiPorPagina]);
 
   return (
     <Col>
@@ -496,8 +428,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
             Atenção!
           </span>
         }
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        open={modalVisivel}
+        onCancel={() => setModalVisivel(false)}
         centered
         width={600}
         footer={[
@@ -555,8 +487,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
             <Col span={24}>
               <div style={HEADER_TEXT_STYLE}>
                 <div>
-                  Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de
-                  salvar.
+                  Aqui você confere todos os CODAFs não homologados registrados no sistema. Use os campos abaixo para refinar a sua busca.
                 </div>
               </div>
             </Col>
@@ -570,8 +501,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
                   }}
                   inputProps={{
                     id: CF_INPUT_NOME_FORMACAO,
-                    placeholder: 'Nome da formação',
-                    maxLength: 100,
+                    placeholder: 'Digite o nome da formação',
+                    maxLength: 200,
                   }}
                 />
               </b>
@@ -583,6 +514,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
                 <SelectAreaPromotora
                   formItemProps={{ name: 'areaPromotoraId' }}
                   selectProps={{ disabled: false }}
+                  placeholder='Selecione'
                 />
               </b>
             </Col>
@@ -596,31 +528,29 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
                   }}
                   inputProps={{
                     id: CF_INPUT_CODIGO_FORMACAO,
-                    placeholder: 'Código da formação',
-                    maxLength: 100,
+                    placeholder: 'Digite o código da formação',
+                    maxLength: 19,
+                    onChange: aoMudarCodigoProposta,
+                    onBlur: (e) => aoSairDoCampoCodigoProposta(e.target.value),
                   }}
                 />
               </b>
             </Col>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
-                <Form.Item label='Número de homologação' name='numeroHomologacao'>
-                  <AutoComplete
-                    id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                    placeholder='Digite para buscar formação'
-                    onSearch={onSearchFormacao}
-                    onSelect={onSelectFormacao}
-                    options={opcoesFormacao.map((opcao) => ({
-                      value: opcao.numeroHomologacao.toString(),
-                      label: opcao.numeroHomologacao.toString(),
-                      numeroHomologacao: opcao.numeroHomologacao,
-                    }))}
-                    filterOption={false}
-                    notFoundContent={
-                      loadingAutocomplete ? 'Buscando...' : 'Nenhuma formação encontrada'
-                    }
-                  />
-                </Form.Item>
+                <InputNumero
+                  formItemProps={{
+                    label: 'Número de homologação',
+                    name: 'numeroHomologacao',
+                    rules: [{ required: false }],
+                  }}
+                  inputProps={{
+                    id: CF_INPUT_NUMERO_HOMOLOGACAO,
+                    placeholder: '00000',
+                    maxLength: 20,
+                    disabled: false,
+                  }}
+                />
               </b>
             </Col>
           </Row>
@@ -629,12 +559,12 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
               <b>
                 <Form.Item label='Turma' name='turmaId' rules={[{ required: false }]}>
                   <Select
-                    placeholder='Selecione a turma'
-                    options={turmasAPI.map((turma) => ({
+                    placeholder='Selecione'
+                    options={turmasProposta.map((turma) => ({
                       label: turma.descricao,
                       value: turma.id,
                     }))}
-                    disabled={turmaDisabled}
+                    disabled={turmaDesabilitada}
                     allowClear
                   />
                 </Form.Item>
@@ -644,7 +574,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
               <b>
                 <Form.Item label='Data de envio para finalização' name='dataEnvio'>
                   <DatePicker
-                    placeholder='Selecione a data'
+                    placeholder='00/00/0000'
                     format='DD/MM/YYYY'
                     style={{ width: '100%' }}
                     locale={locale}
@@ -656,8 +586,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
               <b>
                 <Form.Item label='Situação' name='situacao' rules={[{ required: false }]}>
                   <Select
-                    placeholder='Selecione a situação'
-                    options={situacoes.map((s) => ({ label: s.descricao, value: s.id }))}
+                    placeholder='Selecione'
+                    options={status.map((s) => ({ label: s.descricao, value: s.id }))}
                     allowClear
                   />
                 </Form.Item>
@@ -668,7 +598,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
             <Col>
               <Button
                 type='default'
-                onClick={onClickLimpar}
+                onClick={aoClicarEmLimpar}
                 style={{
                   fontWeight: 700,
                   borderColor: '#ff6b35',
@@ -681,8 +611,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
             <Col>
               <Button
                 type='primary'
-                onClick={onClickFiltrar}
-                loading={loading}
+                onClick={aoClicarEmFiltrar}
+                loading={carregando}
                 style={{ fontWeight: 700 }}
               >
                 Filtrar
@@ -696,16 +626,16 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
                   columns={columns}
                   dataSource={dados}
                   rowKey='id'
-                  loading={loading}
+                  loading={carregando}
                   pagination={{
-                    current: paginaAtual,
-                    pageSize: registrosPorPagina,
-                    total: totalRegistros,
+                    current: paginaCorrente,
+                    pageSize: registrosApiPorPagina,
+                    total: totalRegistrosApi,
                     showSizeChanger: true,
                     pageSizeOptions: [10, 20, 30, 50, 100],
                     locale: { items_per_page: '' },
                   }}
-                  onChange={handleTableChange}
+                  onChange={lidarComAlteracoesDaTabela}
                   onRow={(record) => ({
                     onClick: () =>
                       navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),

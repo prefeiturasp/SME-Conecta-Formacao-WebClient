@@ -36,21 +36,21 @@ export type CodafNaoHomologadoInscritoDTO = {
 };
 
 export const montarParametrosFiltroCodafNaoHomologado = (
-  filtros: CodafNaoHomologadoListagemFiltroDTO,
+  crivos: CodafNaoHomologadoListagemFiltroDTO,
   incluirDataFinalizacao = false,
 ) => {
   const params: Record<string, string | number> = {
-    NumeroPagina: filtros.NumeroPagina || 1,
-    NumeroRegistros: filtros.NumeroRegistros || 10,
+    NumeroRegistros: crivos.NumeroRegistros || 10,
+    NumeroPagina: crivos.NumeroPagina || 1,
   };
 
-  if (filtros.NomeFormacao) params.NomeFormacao = filtros.NomeFormacao;
-  if (filtros.CodigoFormacao) params.CodigoFormacao = filtros.CodigoFormacao;
-  if (filtros.NumeroHomologacao) params.NumeroHomologacao = filtros.NumeroHomologacao;
-  if (filtros.PropostaTurmaId) params.PropostaTurmaId = filtros.PropostaTurmaId;
-  if (filtros.AreaPromotoraId) params.AreaPromotoraId = filtros.AreaPromotoraId;
-  if (filtros.Status !== null && filtros.Status !== undefined) params.Status = filtros.Status;
-  if (incluirDataFinalizacao && filtros.DataFinalizacao) params.DataFinalizacao = filtros.DataFinalizacao;
+  if (crivos.PropostaTurmaId) params.PropostaTurmaId = crivos.PropostaTurmaId;
+  if (crivos.CodigoFormacao) params.CodigoFormacao = crivos.CodigoFormacao;
+  if (crivos.NomeFormacao) params.NomeFormacao = crivos.NomeFormacao;
+  if (crivos.AreaPromotoraId) params.AreaPromotoraId = crivos.AreaPromotoraId;
+  if (crivos.NumeroHomologacao) params.NumeroHomologacao = crivos.NumeroHomologacao;
+  if (incluirDataFinalizacao && crivos.DataFinalizacao) params.DataFinalizacao = crivos.DataFinalizacao;
+  if (crivos.Status !== null && crivos.Status !== undefined) params.Status = crivos.Status;
 
   return params;
 };

@@ -1,6 +1,5 @@
-import { Col, Form, Row, Select } from 'antd';
+import { Col, Form, Row } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
-import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import React, { useCallback, useState } from 'react';
@@ -51,7 +50,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [loading, setLoading] = useState(false);
+  const [carregando, setCarregando] = useState(false);
     
   const { perfil, ehAreaPromotora, ehAreaPromotoraEAdmin } = usePerfilCodaf();
   const { mapearAnexosParaFormulario, onBaixarModelo, onDownloadAnexo, exibirErroSalvar } = useCodafComum();
@@ -156,7 +155,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
 
     const carregarDados = async () => {
       if (!id) return;
-      setLoading(true);
+      setCarregando(true);
 
       try {
         const response = await obterCodafNaoHomologadoPorId(Number(id));
@@ -179,7 +178,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         await carregarTurmas(dados);
 
         setTimeout(() => {
-          formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
+          formOriginal.current = structuredClone(form.getFieldsValue());
         }, 100);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -189,67 +188,66 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         });
         navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO);
       } finally {
-        setLoading(false);
+        setCarregando(false);
       }
     };
 
     carregarDados();
   }, [id, form, navigate]);
 
-  const buscarInscritos = async () => {
+  const carregarDadosDosInscritosDaTurma = async () => {
     if (!turmaId) {
-      setCursistas([]);
       setTotalRegistrosInscritos(0);
+      setCursistas([]);
       setPaginaAtualInscritos(1);
       return;
     }
 
-    setLoading(true);
+    setCarregando(true);
     try {
-      const response = await obterInscritosTurma(turmaId, 1, 99999);
-      if (response.sucesso && response.dados) {
-        const inscritosFormatados = response.dados.items.map((inscrito) => ({
-          id: inscrito.id,
-          rfOuCpf: inscrito.documento,
+      const resposta = await obterInscritosTurma(turmaId, 1, 99999);
+      if (resposta.sucesso && resposta.dados) {
+        const inscritosFormatados = resposta.dados.items.map((inscrito) => ({
           nomeCursista: inscrito.nome,
+          id: inscrito.id,
           participou: inscrito.participou ?? null,
+          rfOuCpf: inscrito.documento,
         }));
-        setCursistas(inscritosFormatados);
-        setTotalRegistrosInscritos(response.dados.totalRegistros || 0);
+        setTotalRegistrosInscritos(resposta.dados.totalRegistros || 0);
         setPaginaAtualInscritos(1);
+        setCursistas(inscritosFormatados);
         setTimeout(() => {
-          cursistasOriginais.current = JSON.parse(JSON.stringify(inscritosFormatados));
+          cursistasOriginais.current = structuredClone(inscritosFormatados);
         }, 100);
       } else {
-        setCursistas([]);
         setTotalRegistrosInscritos(0);
+        setCursistas([]);
         notification.warning({
           message: 'Atenção',
           description: 'Nenhum inscrito encontrado para esta turma',
         });
       }
     } catch (error) {
-      console.error('Erro ao buscar inscritos:', error);
-      setCursistas([]);
       setTotalRegistrosInscritos(0);
       notification.error({
         message: 'Erro',
         description: 'Erro ao buscar inscritos da turma',
       });
+      setCursistas([]);
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   };
 
   React.useEffect(() => {
-    buscarInscritos();
-  }, [turmaId]);
+    if (turmaId) {
+      carregarDadosDosInscritosDaTurma();
+    }
+  }, [registrosPorPaginaInscritos]);
 
   React.useEffect(() => {
-    if (turmaId) {
-      buscarInscritos();
-    }
-  }, [registrosPorPaginaInscritos]);  
+    carregarDadosDosInscritosDaTurma();
+  }, [turmaId]);
   
   const onChangeParticipou = useCallback((id: number, valor: boolean) => {
     setCursistas(prev => prev.map(c => c.id === id ? { ...c, participou: valor } : c));
@@ -278,7 +276,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   }
 
   const onBlurCodigoFormacao = async (_value: string) => {
-    const valor = _value.replace(/\D/g, '');
+    const valor = _value.replaceAll(/\D/g, '');
 
     if (valor.length < 1) {
       setTurmasFiltradas([]);
@@ -337,8 +335,8 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
 
   const tratarRespostaSalvar = (response: any) => {
     if (response.sucesso) {
-      formOriginal.current = JSON.parse(JSON.stringify(form.getFieldsValue()));
-      cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
+      formOriginal.current = structuredClone(form.getFieldsValue());
+      cursistasOriginais.current = structuredClone(cursistas);
       notification.success({
         message: 'Sucesso',
         description: modoEdicao
@@ -392,7 +390,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]): Promise<boolean> => {
     try {
       const values = await form.validateFields();
-      setLoading(true);
+      setCarregando(true);
 
       const dados = montarPayloadSalvar(values, inscritosOverride);
 
@@ -421,7 +419,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
       exibirErroSalvar(error, modoEdicao);
       return false;
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   };
 
@@ -435,7 +433,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         <Col span={24}>
           <BotoesAcaoCodaf
             bloqueiosBotoes={bloqueios.botoes}
-            loading={loading}
+            loading={carregando}
             onClickVoltar={onClickCancelar}
             onClickExcluir={onClickExcluir}
             onClickCancelar={onClickCancelar}
@@ -498,7 +496,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         visible={modalExcluirVisible}
         onConfirm={() => confirmarExclusao(registroId)}
         onCancel={cancelarExclusao}
-        loading={loading || loadingExclusao}
+        loading={carregando || loadingExclusao}
       />
     </Col>
   );

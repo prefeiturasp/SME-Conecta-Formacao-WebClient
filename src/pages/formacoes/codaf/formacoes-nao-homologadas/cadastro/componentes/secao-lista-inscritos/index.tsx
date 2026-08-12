@@ -47,29 +47,29 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
         <Col span={24}>
           <div className='table-pagination-center'>
             <Table
-              columns={colunasCursistas}
-              dataSource={cursistas}
-              rowKey='id'
               rowSelection={rowSelection}
+              columns={colunasCursistas}
+              rowKey='id'
+              dataSource={cursistas}
+              locale={{
+                emptyText: 'Nenhum cursista cadastrado',
+              }}
               pagination={{
-                current: paginaAtualInscritos,
-                pageSize: registrosPorPaginaInscritos,
                 total: totalRegistrosInscritos,
+                current: paginaAtualInscritos,
                 showSizeChanger: true,
+                pageSize: registrosPorPaginaInscritos,
                 pageSizeOptions: [10, 20, 30, 50, 100],
                 locale: { items_per_page: '' },
               }}
               onChange={handleTableChangeInscritos}
-              locale={{
-                emptyText: 'Nenhum cursista cadastrado',
-              }}
               scroll={{ x: 'max-content' }}
             />
           </div>
           <style>{`
                 .table-pagination-center .ant-pagination {
-                  display: flex;
                   justify-content: center;
+                  display: flex;
                 }
               `}</style>
         </Col>

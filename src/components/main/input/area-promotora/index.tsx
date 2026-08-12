@@ -16,6 +16,7 @@ type SelectAreaPromotoraProps = {
   formItemProps?: FormItemProps;
   areaPublica?: boolean;
   usuarioRedeParceria?: boolean;
+  placeholder?: string;
 };
 
 const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
@@ -23,6 +24,7 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
   formItemProps,
   areaPublica,
   usuarioRedeParceria,
+  placeholder,
 }) => {
   const form = Form.useFormInstance();
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
@@ -71,7 +73,7 @@ const SelectAreaPromotora: React.FC<SelectAreaPromotoraProps> = ({
     >
       <Select
         options={options}
-        placeholder='Área promotora'
+        placeholder={placeholder || 'Área promotora'}
         id={CF_SELECT_AREA_PROMOTORA}
         disabled={disabledSelect}
         {...selectProps}
