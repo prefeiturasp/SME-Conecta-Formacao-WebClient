@@ -1,90 +1,103 @@
-import { describe, test, expect, beforeEach } from '@jest/globals';
+﻿import { describe, test, expect, beforeEach } from '@jest/globals';
 
-const localStorageMock = (function () {
+const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
-    getItem(key: string) {
-      return store[key] || null;
-    },
-    setItem(key: string, value: string) {
-      store[key] = value.toString();
-    },
-    clear() {
-      store = {};
-    },
-    removeItem(key: string) {
-      delete store[key];
-    },
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => { store[key] = value.toString(); },
+    clear: () => { store = {}; },
+    removeItem: (key: string) => { delete store[key]; },
   };
 })();
+Object.defineProperty(global, 'localStorage', { value: localStorageMock });
 
-Object.defineProperty(global, 'localStorage', {
-  value: localStorageMock,
-});
+/* ---- helpers replicando lógica do componente ---- */
+const STATUS_LISTA = [
+  { id: 1, descricao: 'Iniciado' },
+  { id: 2, descricao: 'Aguardando finalização' },
+  { id: 3, descricao: 'Finalizado' },
+];
 
-describe('FormacoesNaoHomologadas - Regras de Negócio', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+const obterSituacaoTexto = (idStatus: number): string =>
+  STATUS_LISTA.find((s) => s.id === idStatus)?.descricao || 'Desconhecido';
+
+const sanitizarNumero = (valor: string): number =>
+  Number(valor.trim().replaceAll(/\D/g, ''));
+
+const lidarComAlteracoesDaTabela = (
+  paginacao: { pageSize: number; current: number },
+  registrosApiPorPagina: number,
+) => {
+  if (paginacao.pageSize !== registrosApiPorPagina) {
+    return { paginaCorrente: 1, registrosApiPorPagina: paginacao.pageSize, deveBuscar: false };
+  }
+  return { paginaCorrente: paginacao.current, registrosApiPorPagina, deveBuscar: true };
+};
+
+/* ===================== TESTS ===================== */
+
+describe('FormacoesNaoHomologadas', () => {
+  beforeEach(() => localStorage.clear());
 
   describe('obterSituacaoTexto', () => {
-    const situacoes = [
-      { id: 1, descricao: 'Iniciado' },
-      { id: 2, descricao: 'Aguardando DF' },
-      { id: 3, descricao: 'Devolvido pelo DF' },
-      { id: 4, descricao: 'Finalizado' },
-    ];
-
-    const obterSituacaoTexto = (status: number): string => {
-      const situacao = situacoes.find((s) => s.id === status);
-      return situacao?.descricao || 'Desconhecido';
-    };
-
-    test('deve retornar descrição correta para status válido', () => {
+    test('DadoStatusValido_QuandoObterSituacaoTexto_EntaoRetornaDescricaoCorreta', () => {
+      // Arrange / Act / Assert
       expect(obterSituacaoTexto(1)).toBe('Iniciado');
-      expect(obterSituacaoTexto(2)).toBe('Aguardando DF');
-      expect(obterSituacaoTexto(3)).toBe('Devolvido pelo DF');
-      expect(obterSituacaoTexto(4)).toBe('Finalizado');
+      expect(obterSituacaoTexto(2)).toBe('Aguardando finalização');
+      expect(obterSituacaoTexto(3)).toBe('Finalizado');
     });
 
-    test('deve retornar "Desconhecido" para status inválido', () => {
+    test('DadoStatusInvalido_QuandoObterSituacaoTexto_EntaoRetornaDesconhecido', () => {
+      // Arrange / Act / Assert
       expect(obterSituacaoTexto(0)).toBe('Desconhecido');
       expect(obterSituacaoTexto(999)).toBe('Desconhecido');
+      expect(obterSituacaoTexto(-1)).toBe('Desconhecido');
     });
   });
 
-  describe('getDeclaracaoButtonState - Lógica de Botões', () => {
-    const getDeclaracaoButtonState = (status: number) => {
-      if (status === 0) return { text: 'Sem declaração', disabled: true };
-      if (status === 1) return { text: 'Não emitidas', disabled: true };
-      if (status === 2) return { text: 'Emitir declarações', disabled: false };
-      if (status === 3) return { text: 'Emitindo declarações', disabled: true };
-      if (status === 4) return { text: 'Declarações emitidas', disabled: true };
-      return { text: '—', disabled: true };
-    };
+  describe('lidarComAlteracoesDaTabela', () => {
+    test('DadoPageSizeIgualAoAtual_QuandoAlterarTabela_EntaoAtualizaApenasPaginaAtual', () => {
+      // Arrange
+      const paginacaoAtual = { pageSize: 10, current: 3 };
 
-    test('Status 0: Deve exibir "Sem declaração" e estar desabilitado', () => {
-      expect(getDeclaracaoButtonState(0)).toEqual({ text: 'Sem declaração', disabled: true });
+      // Act
+      const resultado = lidarComAlteracoesDaTabela(paginacaoAtual, 10);
+
+      // Assert
+      expect(resultado.paginaCorrente).toBe(3);
+      expect(resultado.registrosApiPorPagina).toBe(10);
+      expect(resultado.deveBuscar).toBe(true);
     });
 
-    test('Status 1: Deve exibir "Não emitidas" e estar desabilitado', () => {
-      expect(getDeclaracaoButtonState(1)).toEqual({ text: 'Não emitidas', disabled: true });
+    test('DadoPageSizeDiferente_QuandoAlterarTabela_EntaoRedefineParaPaginaUm', () => {
+      // Arrange
+      const paginacaoNova = { pageSize: 20, current: 2 };
+
+      // Act
+      const resultado = lidarComAlteracoesDaTabela(paginacaoNova, 10);
+
+      // Assert
+      expect(resultado.paginaCorrente).toBe(1);
+      expect(resultado.registrosApiPorPagina).toBe(20);
+      expect(resultado.deveBuscar).toBe(false);
+    });
+  });
+
+  describe('aoSairDoCampoCodigoProposta - sanitização', () => {
+    test('DadoValorVazio_QuandoSanitizar_EntaoRetornaZero', () => {
+      expect(sanitizarNumero('')).toBe(0);
     });
 
-    test('Status 2: Deve exibir "Emitir declarações" e estar habilitado', () => {
-      expect(getDeclaracaoButtonState(2)).toEqual({ text: 'Emitir declarações', disabled: false });
+    test('DadoApenasCaracteresNaoNumericos_QuandoSanitizar_EntaoRetornaZero', () => {
+      expect(sanitizarNumero('abc!@#')).toBe(0);
     });
 
-    test('Status 3: Deve exibir "Emitindo declarações" e estar desabilitado', () => {
-      expect(getDeclaracaoButtonState(3)).toEqual({ text: 'Emitindo declarações', disabled: true });
+    test('DadoValorNumerico_QuandoSanitizar_EntaoRetornaNumero', () => {
+      expect(sanitizarNumero('12345')).toBe(12345);
     });
 
-    test('Status 4: Deve exibir "Declarações emitidas" e estar desabilitado', () => {
-      expect(getDeclaracaoButtonState(4)).toEqual({ text: 'Declarações emitidas', disabled: true });
-    });
-
-    test('Status inválido: Deve exibir "—" e estar desabilitado', () => {
-      expect(getDeclaracaoButtonState(999)).toEqual({ text: '—', disabled: true });
+    test('DadoValorMistoComEspacos_QuandoSanitizar_EntaoExtaiApenasDigitos', () => {
+      expect(sanitizarNumero('  AB 123 ')).toBe(123);
     });
   });
 });

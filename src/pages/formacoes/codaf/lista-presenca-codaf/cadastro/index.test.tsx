@@ -14,7 +14,7 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
           anexo?.arquivoCodigo !== '0',
       );
 
-    test('deve manter apenas anexos com uid válido', () => {
+    test('DadoAnexosMistos_QuandoFiltrar_EntaoRetornaApenasCodigosValidos', () => {
       const anexos = [
         { arquivoCodigo: '123' },
         { arquivoCodigo: null },
@@ -33,7 +33,6 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
   });
 
   describe('Conversores de Dados (Atividade Obrigatória)', () => {
-    // Simulando as funções utilitárias puras do topo do arquivo
     const atividadeObrigatorioParaLetra = (valor: boolean | null | undefined): 'S' | 'N' | null => {
       if (valor === null || valor === undefined) return null;
       return valor ? 'S' : 'N';
@@ -45,14 +44,16 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
       return null;
     };
 
-    test('atividadeObrigatorioParaLetra: deve converter booleano para "S" ou "N"', () => {
+    test('DadoBooleanVerdadeiro_QuandoConverterParaLetra_EntaoRetornaS', () => {
+      // Arrange / Act / Assert
       expect(atividadeObrigatorioParaLetra(true)).toBe('S');
       expect(atividadeObrigatorioParaLetra(false)).toBe('N');
       expect(atividadeObrigatorioParaLetra(null)).toBeNull();
       expect(atividadeObrigatorioParaLetra(undefined)).toBeNull();
     });
 
-    test('letraParaAtividadeObrigatorio: deve converter "S" ou "N" para booleano', () => {
+    test('DadoLetraS_QuandoConverterParaBooleano_EntaoRetornaVerdadeiro', () => {
+      // Arrange / Act / Assert
       expect(letraParaAtividadeObrigatorio('S')).toBe(true);
       expect(letraParaAtividadeObrigatorio('N')).toBe(false);
       expect(letraParaAtividadeObrigatorio(null)).toBeNull();
@@ -61,7 +62,6 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
   });
 
   describe('Lógica de Snapshot do Delta (Prevenção de Condição de Corrida)', () => {
-    // Simulando a função interna deltasSaoIguais
     const deltasSaoIguais = (d1: DeltaInscritosDTO | null, d2: DeltaInscritosDTO | null) => {
       if (!d1 && !d2) return true;
       if (!d1 || !d2) return false;
@@ -85,42 +85,54 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
       inscritosRemovidos: idsRemovidos.map(id => ({ id, nome: 'A', documento: '1' })),
     });
 
-    test('deve retornar true se ambos os deltas forem nulos', () => {
+    test('DadoAmbosOsDeltasNulos_QuandoComparar_EntaoSaoIguais', () => {
+      // Arrange / Act / Assert
       expect(deltasSaoIguais(null, null)).toBe(true);
     });
 
-    test('deve retornar false se apenas um delta for nulo', () => {
+    test('DadoApenasDeltaUmNulo_QuandoComparar_EntaoSaoDiferentes', () => {
+      // Arrange / Act / Assert
       expect(deltasSaoIguais(mockDelta([1], []), null)).toBe(false);
       expect(deltasSaoIguais(null, mockDelta([1], []))).toBe(false);
     });
 
-    test('deve retornar true para deltas com exatamente os mesmos IDs (mesmo em ordens diferentes)', () => {
+    test('DadoDeltasComMesmosIdsEmOrdensDiferentes_QuandoComparar_EntaoSaoIguais', () => {
+      // Arrange
       const d1 = mockDelta([1, 2], [3]);
-      const d2 = mockDelta([2, 1], [3]); // Ordem invertida nos novos
+      const d2 = mockDelta([2, 1], [3]);
+
+      // Act / Assert
       expect(deltasSaoIguais(d1, d2)).toBe(true);
     });
 
-    test('deve retornar false se houver um ID novo diferente (Condição de Corrida detectada)', () => {
+    test('DadoDeltaComIdNovoAdicional_QuandoComparar_EntaoDetectaCondicaoDeCorrida', () => {
+      // Arrange
       const d1 = mockDelta([1, 2], []);
-      const d2 = mockDelta([1, 2, 3], []); // Usuário 3 foi adicionado remotamente
+      const d2 = mockDelta([1, 2, 3], []);
+
+      // Act / Assert
       expect(deltasSaoIguais(d1, d2)).toBe(false);
     });
 
-    test('deve retornar false se houver um ID removido diferente', () => {
+    test('DadoDeltaComIdRemovidoDiferente_QuandoComparar_EntaoSaoDiferentes', () => {
+      // Arrange
       const d1 = mockDelta([], [10]);
       const d2 = mockDelta([], [10, 11]);
+
+      // Act / Assert
       expect(deltasSaoIguais(d1, d2)).toBe(false);
     });
   });
 
   describe('Máquina de Estados: Permissões, Visibilidade e Bloqueios', () => {
-    // Fábrica para simular o comportamento exato do objeto `bloqueios` do seu componente
+    type PerfilNome = 'DF' | 'EMFORPEF' | 'Admin DF' | 'Cursista';
+
     const simularEstadoUI = (
-      perfilNome: 'DF' | 'EMFORPEF' | 'Admin DF' | 'Cursista',
+      perfilNome: PerfilNome,
       status: number | null,
       modoEdicao: boolean,
       mostrarDivergencia: boolean,
-      formValido: boolean
+      formValido: boolean,
     ) => {
       const perfil = {
         df: perfilNome === 'DF',
@@ -128,7 +140,7 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
         admin: perfilNome === 'Admin DF',
         cursista: perfilNome === 'Cursista',
       };
-      
+
       const ehAreaPromotora = !perfil.cursista && !perfil.admin;
 
       const situacao = {
@@ -153,75 +165,127 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
         devolver: {
           visivel: situacao.aguardandoDF && perfil.admin,
           bloqueado: !formValido || situacao.finalizado,
-        }
+        },
       };
     };
 
     describe('Regras do Botão "Salvar"', () => {
-      test('Deve ficar VISÍVEL para Área Promotora se status for Iniciado (1)', () => {
+      test('DadoPerfilAreaPromotoraStatusIniciado_QuandoCalcularBloqueios_EntaoSalvarVisivel', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('EMFORPEF', 1, true, false, true);
+
+        // Assert
         expect(ui.salvar.visivel).toBe(true);
       });
 
-      test('NÃO deve ficar visível para Área Promotora se status for Aguardando DF (2)', () => {
+      test('DadoPerfilAreaPromotoraStatusAguardandoDF_QuandoCalcularBloqueios_EntaoSalvarOculto', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('EMFORPEF', 2, true, false, true);
+
+        // Assert
         expect(ui.salvar.visivel).toBe(false);
       });
 
-      test('Deve ficar VISÍVEL para Admin se status for Aguardando DF (2)', () => {
+      test('DadoPerfilAdminStatusAguardandoDF_QuandoCalcularBloqueios_EntaoSalvarVisivel', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('Admin DF', 2, true, false, true);
+
+        // Assert
         expect(ui.salvar.visivel).toBe(true);
       });
 
-      test('Deve ficar BLOQUEADO se a turma estiver Finalizada (4)', () => {
+      test('DadoStatusFinalizado_QuandoCalcularBloqueios_EntaoSalvarBloqueado', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('DF', 4, true, false, true);
-        expect(ui.salvar.visivel).toBe(false); // Já não fica visível
+
+        // Assert
+        expect(ui.salvar.visivel).toBe(false);
         expect(ui.salvar.bloqueado).toBe(true);
       });
 
-      test('Deve ficar BLOQUEADO se houver divergência ativa em edição', () => {
+      test('DadoDivergenciaAtivaNaEdicao_QuandoCalcularBloqueios_EntaoSalvarBloqueado', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('EMFORPEF', 1, true, true, true);
+
+        // Assert
         expect(ui.salvar.bloqueado).toBe(true);
       });
     });
 
     describe('Regras do Botão "Enviar para DF"', () => {
-      test('Deve ficar VISÍVEL para Área Promotora se status for Iniciado (1)', () => {
+      test('DadoPerfilAreaPromotoraStatusIniciado_QuandoCalcularBloqueios_EntaoEnviarDFVisivel', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('EMFORPEF', 1, true, false, true);
+
+        // Assert
         expect(ui.enviarDF.visivel).toBe(true);
       });
 
-      test('Deve ficar VISÍVEL para Área Promotora se status for Devolvido (3)', () => {
+      test('DadoPerfilAreaPromotoraStatusDevolvido_QuandoCalcularBloqueios_EntaoEnviarDFVisivel', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('EMFORPEF', 3, true, false, true);
+
+        // Assert
         expect(ui.enviarDF.visivel).toBe(true);
       });
 
-      test('NÃO deve ficar visível para Admin DF (Ação exclusiva de área promotora)', () => {
+      test('DadoPerfilAdminDF_QuandoCalcularBloqueios_EntaoEnviarDFOculto', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('Admin DF', 1, true, false, true);
+
+        // Assert
         expect(ui.enviarDF.visivel).toBe(false);
       });
 
-      test('Deve ficar BLOQUEADO se houver divergência ativa', () => {
-        const ui = simularEstadoUI('EMFORPEF', 1, true, true, true); // mostrarDivergencia = true
+      test('DadoDivergenciaAtiva_QuandoCalcularBloqueios_EntaoEnviarDFBloqueado', () => {
+        // Arrange / Act
+        const ui = simularEstadoUI('EMFORPEF', 1, true, true, true);
+
+        // Assert
         expect(ui.enviarDF.bloqueado).toBe(true);
+      });
+
+      test('DadoPerfilDFStatusIniciado_QuandoCalcularBloqueios_EntaoEnviarDFVisivel', () => {
+        // Arrange / Act
+        const ui = simularEstadoUI('DF', 1, true, false, true);
+
+        // Assert
+        expect(ui.enviarDF.visivel).toBe(true);
+      });
+
+      test('DadoStatusNulo_QuandoCalcularBloqueios_EntaoEnviarDFVisivel', () => {
+        // Arrange / Act
+        const ui = simularEstadoUI('EMFORPEF', null, true, false, true);
+
+        // Assert
+        expect(ui.enviarDF.visivel).toBe(true);
       });
     });
 
     describe('Regras do Botão "Devolver" (Correção)', () => {
-      test('Deve ficar VISÍVEL e HABILITADO apenas para Admin se status for Aguardando DF (2) com formulário válido', () => {
+      test('DadoPerfilAdminStatusAguardandoDFFormValido_QuandoCalcularBloqueios_EntaoDevolverVisivelEHabilitado', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('Admin DF', 2, true, false, true);
+
+        // Assert
         expect(ui.devolver.visivel).toBe(true);
         expect(ui.devolver.bloqueado).toBe(false);
       });
 
-      test('Deve ficar BLOQUEADO se formulário estiver inválido', () => {
+      test('DadoPerfilAdminFormInvalido_QuandoCalcularBloqueios_EntaoDevolverBloqueado', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('Admin DF', 2, true, false, false);
+
+        // Assert
         expect(ui.devolver.visivel).toBe(true);
         expect(ui.devolver.bloqueado).toBe(true);
       });
 
-      test('NÃO deve ficar visível para Área Promotora', () => {
+      test('DadoPerfilAreaPromotora_QuandoCalcularBloqueios_EntaoDevolverOculto', () => {
+        // Arrange / Act
         const ui = simularEstadoUI('EMFORPEF', 2, true, false, true);
+
+        // Assert
         expect(ui.devolver.visivel).toBe(false);
       });
     });
