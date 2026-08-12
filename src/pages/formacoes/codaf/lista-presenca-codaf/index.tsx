@@ -6,7 +6,6 @@ import {
   Dropdown,
   Form,
   MenuProps,
-  Modal,
   Row,
   Select,
   Table,
@@ -25,13 +24,10 @@ import { useNavigate } from 'react-router-dom';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
-import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
-import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
-import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
   CF_INPUT_CODIGO_FORMACAO,
   CF_INPUT_NOME_FORMACAO,
@@ -49,27 +45,29 @@ import {
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
-import { onClickVoltar } from '~/core/utils/form';
 import { downloadBlob } from '~/core/utils/functions';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { TipoCodaf } from '~/core/enum/tipo-codaf';
+import { criarColunasBaseListagemCodaf } from '../shared/componentes/codaf-colunas-factory';
+import { HeaderListagemCodaf } from '../shared/componentes/header-listagem-codaf';
+import { ModalAvisoNovoRegistroCodaf } from '../shared/componentes/modal-aviso-novo-registro-codaf';
 
 const ListaPresencaCodaf: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
-  const permissao = obterPermissaoPorMenu(MenuEnum.ListaPresencaCodaf);
+  const permissao = obterPermissaoPorMenu(MenuEnum.CodafFormacoesHomologadas);
   const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
   const [dados, setDados] = useState<CodafListaPresencaDTO[]>([]);
-  //const [dadosOriginais, setDadosOriginais] = useState<CodafListaPresencaDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalRegistros, setTotalRegistros] = useState(0);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [filtroAplicado, setFiltroAplicado] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
   const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
   const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
   const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
@@ -92,7 +90,11 @@ const ListaPresencaCodaf: React.FC = () => {
   ];
 
   const LOCAL_STORAGE_KEY = 'codaf_emitir_certificados_clicked';
+  const EOL_STORAGE_KEY = 'eol_txt_generated';
 
+  React.useEffect(() => {
+    buscarDados(1);
+  }, []);
   const getEmitidos = (): number[] => {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
@@ -110,8 +112,6 @@ const ListaPresencaCodaf: React.FC = () => {
     return getEmitidos().includes(id);
   };
 
-  const EOL_STORAGE_KEY = 'eol_txt_generated';
-
   const getGeneratedMap = (): Record<number, boolean> => {
     return JSON.parse(localStorage.getItem(EOL_STORAGE_KEY) || '{}');
   };
@@ -126,25 +126,9 @@ const ListaPresencaCodaf: React.FC = () => {
     return !!getGeneratedMap()[id];
   };
 
-  const onClickNovo = () => {
-    setModalVisible(true);
-  };
-
-  const onClickIrParaInscricoes = () => {
-    setModalVisible(false);
-    navigate(ROUTES.FORMACAOES_INSCRICOES);
-  };
-
-  const onClickContinuarRegistro = () => {
-    setModalVisible(false);
-    navigate(ROUTES.LISTA_PRESENCA_CODAF_NOVO);
-  };
-
   const onClickEmitirCertificado = async (record: CodafListaPresencaDTO) => {
     try {
       setLoading(true);
-
-      // 👇 SAVE immediately so refresh keeps state
       saveEmitido(record.id);
 
       const response = await emitirCertificadosCodaf(record.id, TipoCodaf.ListaPresenca);
@@ -264,7 +248,6 @@ const ListaPresencaCodaf: React.FC = () => {
         return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
       }
       return 'Função ativa apenas para a situação Aguardando DF com valor de Cod. Curso EOL informado';
-       
     };
 
     const items = [];
@@ -299,21 +282,18 @@ const ListaPresencaCodaf: React.FC = () => {
     items.push({
       key: 'baixar-relatorio-codaf',
       disabled: !isCertificacaoConcluida,
-      label:
-        !isCertificacaoConcluida ? (
-          <span style={{ display: 'block' }}>
-            Baixar Relatório CODAF &nbsp;
-            <Tooltip title='Gere os certificados para baixar o relatório CODAF.'>
-              <QuestionCircleOutlined
-                style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
-              />
-            </Tooltip>
-          </span>
-        ) : (
-          <Tooltip title='Clique para exportar arquivo CODAF desta turma'>
-            <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
+      label: isCertificacaoConcluida ? (
+        <Tooltip title='Clique para exportar arquivo CODAF desta turma'>
+          <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
+        </Tooltip>
+      ) : (
+        <span style={{ display: 'block' }}>
+          Baixar Relatório CODAF &nbsp;
+          <Tooltip title='Gere os certificados para baixar o relatório CODAF.'>
+            <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }} />
           </Tooltip>
-        ),
+        </span>
+      ),
       onClick: (e: any) => {
         e.domEvent.stopPropagation();
         if (isCertificacaoConcluida) {
@@ -360,66 +340,10 @@ const ListaPresencaCodaf: React.FC = () => {
     return { text: '—', disabled: true };
   };
 
-  const colunasBase: ColumnsType<CodafListaPresencaDTO> = [
-    {
-      key: 'codigoFormacao',
-      title: 'Código da formação',
-      dataIndex: 'codigoFormacao',
-      width: ocultarColunas ? 100 : 80,
-    },
-    {
-      key: 'numeroHomologacao',
-      title: 'Número de homologação',
-      dataIndex: 'numeroHomologacao',
-      width: ocultarColunas ? 100 : 80,
-    },
-    {
-      key: 'nomeFormacao',
-      title: 'Nome da formação',
-      dataIndex: 'nomeFormacao',
-      /*ellipsis: true,
-      width: ocultarColunas ? undefined : 'auto',*/
-      ellipsis: {
-        showTitle: false,
-      },
-      width: 300,
-      render: (text: string) => (
-        <Tooltip title={text}>
-          <div
-            style={{
-              maxWidth: 300,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {text}
-          </div>
-        </Tooltip>
-      ),
-    },
-    {
-      key: 'nomeAreaPromotora',
-      title: 'Área promotora',
-      dataIndex: 'nomeAreaPromotora',
-      width: ocultarColunas ? 200 : 150,
-      ellipsis: true,
-    },
-    {
-      key: 'nomeTurma',
-      title: 'Turma',
-      dataIndex: 'nomeTurma',
-      width: ocultarColunas ? 150 : 120,
-      ellipsis: true,
-    },
-    {
-      key: 'status',
-      title: 'Situação',
-      dataIndex: 'status',
-      width: ocultarColunas ? 150 : 100,
-      render: (status: number) => obterSituacaoTexto(status),
-    },
-  ];
+  const colunasBase = criarColunasBaseListagemCodaf<CodafListaPresencaDTO>(
+    ocultarColunas,
+    obterSituacaoTexto,
+  );
 
   const colunasAdicionais: ColumnsType<CodafListaPresencaDTO> = [
     {
@@ -584,7 +508,6 @@ const ListaPresencaCodaf: React.FC = () => {
       });
       console.log(propostaSelecionada);
 
-      // Buscar turmas da proposta selecionada
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados) {
@@ -631,13 +554,11 @@ const ListaPresencaCodaf: React.FC = () => {
     if (pagination.pageSize !== registrosPorPagina) {
       setRegistrosPorPagina(pagination.pageSize);
       setPaginaAtual(1);
-      // A busca será feita pelo useEffect
     } else {
       buscarDados(pagination.current);
     }
   };
 
-  // Recarrega os dados quando o tamanho da página muda
   React.useEffect(() => {
     if (filtroAplicado) {
       buscarDados(1);
@@ -647,72 +568,24 @@ const ListaPresencaCodaf: React.FC = () => {
 
   return (
     <Col>
-      <Modal
-        title={
-          <span
-            style={{
-              fontWeight: 700,
-              fontSize: '20px',
-              lineHeight: '100%',
-              letterSpacing: '0%',
-            }}
-          >
-            Atenção!
-          </span>
-        }
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        centered
-        width={600}
-        footer={[
-          <Button
-            key='inscricoes'
-            onClick={onClickIrParaInscricoes}
-            style={{
-              borderColor: '#ff6b35',
-              color: '#ff6b35',
-              fontWeight: 500,
-            }}
-          >
-            Ir para tela de inscrições
-          </Button>,
-          <Button key='continuar' type='primary' onClick={onClickContinuarRegistro}>
-            Continuar registro
-          </Button>,
-        ]}
-      >
-        <br></br>
-        <p>
-          Antes de iniciar o registro CODAF, verifique se todos os cursistas estão inscritos na
-          formação. Caso necessário, você pode realizar o cadastro pela tela de inscrições.
-        </p>
-        <br></br>
-      </Modal>
-      <HeaderPage title='Lista Presença Codaf'>
-        <Col span={24}>
-          <Row gutter={[8, 8]}>
-            <Col>
-              <ButtonVoltar
-                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
-                id={CF_BUTTON_VOLTAR}
-              />
-            </Col>
-            <Col>
-              <Button
-                block
-                type='primary'
-                htmlType='submit'
-                id={CF_BUTTON_NOVO}
-                disabled={!permissao.podeIncluir}
-                onClick={() => onClickNovo()}
-                style={{ fontWeight: 700 }}
-              >
-                Novo registro
-              </Button>
-            </Col>
-          </Row>
-        </Col>
-      </HeaderPage>
+      <ModalAvisoNovoRegistroCodaf
+        visivel={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onClickInscricoes={() => {
+          setModalVisible(false);
+          navigate(ROUTES.FORMACAOES_INSCRICOES);
+        }}
+        onClickContinuar={() => {
+          setModalVisible(false);
+          navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO);
+        }}
+      />
+
+      <HeaderListagemCodaf
+        titulo='Lista Presença Codaf'
+        podeIncluir={permissao?.podeIncluir ?? false}
+        onClickNovo={() => setModalVisible(true)}
+      />
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
           <Row gutter={[16, 8]}>
@@ -845,36 +718,40 @@ const ListaPresencaCodaf: React.FC = () => {
               </Button>
             </Col>
           </Row>
-          {filtroAplicado && (
-            <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
-              <Col span={24}>
-                <div className='table-pagination-center'>
-                  <Table
-                    columns={columns}
-                    dataSource={dados}
-                    rowKey='id'
-                    loading={loading}
-                    pagination={{
-                      current: paginaAtual,
-                      pageSize: registrosPorPagina,
-                      total: totalRegistros,
-                      showSizeChanger: true,
-                      pageSizeOptions: [10, 20, 30, 50, 100],
-                      locale: { items_per_page: '' },
-                    }}
-                    onChange={handleTableChange}
-                    onRow={(record) => ({
-                      onClick: () =>
-                        navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
-                      style: { cursor: 'pointer' },
-                    })}
-                    scroll={{ x: 'max-content' }}
-                    locale={{
-                      emptyText: 'Não encontramos registros para os filtros aplicados',
-                    }}
-                  />
-                </div>
-                <style>{`
+          <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
+            <Col span={24}>
+              <div className='table-pagination-center'>
+                <Table
+                  columns={columns}
+                  dataSource={dados}
+                  rowKey='id'
+                  loading={loading}
+                  pagination={{
+                    current: paginaAtual,
+                    pageSize: registrosPorPagina,
+                    total: totalRegistros,
+                    showSizeChanger: true,
+                    pageSizeOptions: [10, 20, 30, 50, 100],
+                    locale: { items_per_page: '' },
+                  }}
+                  onChange={handleTableChange}
+                  onRow={(record) => ({
+                    onClick: () =>
+                      navigate(
+                        ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(
+                          ':id',
+                          String(record.id),
+                        ),
+                      ),
+                    style: { cursor: 'pointer' },
+                  })}
+                  scroll={{ x: 'max-content' }}
+                  locale={{
+                    emptyText: 'Não encontramos registros para os filtros aplicados',
+                  }}
+                />
+              </div>
+              <style>{`
                   .table-pagination-center .ant-pagination {
                     display: flex;
                     justify-content: center;
@@ -890,9 +767,8 @@ const ListaPresencaCodaf: React.FC = () => {
                     color: #42474A;
                   }
                 `}</style>
-              </Col>
-            </Row>
-          )}
+            </Col>
+          </Row>
         </CardContent>
       </Form>
     </Col>

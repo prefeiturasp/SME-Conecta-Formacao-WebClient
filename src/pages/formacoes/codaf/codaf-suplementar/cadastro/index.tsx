@@ -898,8 +898,7 @@ const CadastroCodafSuplementar: React.FC = () => {
             <Col span={24}>
               <div style={HEADER_TEXT_STYLE}>
                 <div>
-                  Aqui você cria um novo CODAF Suplementar. Preencha todas as informações antes de
-                  salvar.
+                  Aqui você confere todos os CODAFs não homologados registrados no sistema. Use os campos abaixo para refinar a sua busca.
                 </div>
               </div>
             </Col>

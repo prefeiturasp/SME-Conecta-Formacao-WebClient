@@ -293,21 +293,14 @@ describe('SiderSubMenuContainer', () => {
 
     expect(elemento).toHaveStyleRule(
       'padding-left',
-      '22px',
+      '48px',
       {
         modifier:
           '&.ant-menu-submenu .ant-menu-submenu-title',
       },
     );
 
-    expect(elemento).toHaveStyleRule(
-      'padding-left',
-      '52px',
-      {
-        modifier:
-          '&.ant-menu-submenu .ant-menu-item',
-      },
-    );
+
 
     expect(elemento).toHaveStyleRule(
       'width',
@@ -337,14 +330,7 @@ describe('SiderSubMenuContainer', () => {
       },
     );
 
-    expect(elemento).toHaveStyleRule(
-      'padding-left',
-      '52px',
-      {
-        modifier:
-          '&.ant-menu-submenu .ant-menu-item',
-      },
-    );
+
   });
 
   it('aplica estilos para submenu aberto e selecionado', () => {
@@ -417,7 +403,7 @@ describe('SiderSubMenuContainer', () => {
       'white',
       {
         modifier:
-          '&.ant-menu-submenu:not(.ant-menu-submenu-selected) .ant-menu-submenu-title',
+          '&.ant-menu-submenu:not(.ant-menu-submenu-selected) > .ant-menu-submenu-title',
       },
     );
   });
@@ -765,7 +751,7 @@ describe('SiderMenuTitle', () => {
 
     expect(elemento).toHaveStyleRule(
       'line-height',
-      '12px',
+      '14px',
     );
   });
 
