@@ -234,6 +234,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         description: 'Erro ao buscar inscritos da turma',
       });
       setCursistas([]);
+      console.log('Erro ao buscar inscritos da turma:', error);
     } finally {
       setCarregando(false);
     }

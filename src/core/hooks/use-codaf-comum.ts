@@ -46,8 +46,8 @@ export const useCodafComum = () => {
 
         if (contentDisposition) {
           const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-          if (fileNameMatch && fileNameMatch[1]) {
-            fileName = fileNameMatch[1].replace(/['"]/g, '');
+          if (fileNameMatch?.[1]) {
+            fileName = fileNameMatch[1].replaceAll(/['"]/g, '');
           }
         }
 

@@ -24,7 +24,7 @@ const SiderConectaFormacao: React.FC = () => {
             const temPermissao = !!permissaoMenu?.exibir;
 
             // Se for um menu de agrupamento (tem array children, mas ficou vazio após validarExibicaoMenus)
-            if (subMenu.children && subMenu.children.length === 0) {
+            if (subMenu.children?.length === 0) {
               return false;
             }
 

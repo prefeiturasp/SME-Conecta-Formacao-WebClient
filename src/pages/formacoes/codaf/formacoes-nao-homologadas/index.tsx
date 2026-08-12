@@ -51,11 +51,7 @@ const HEADER_TEXT_STYLE = {
   alignItems: 'center',
 };
 
-type DropdownMenuContentProps = {
-  menu: React.ReactNode;
-};
-
-const DropdownMenuContent: React.FC<DropdownMenuContentProps> = ({ menu }) => (
+const renderDropdownMenu = (menu: React.ReactNode) => (
   <div
     style={{
       backgroundColor: '#FFFFFF',
@@ -100,26 +96,25 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   }, []);
 
   const getMenuAcoes = (): MenuProps => {
-    const items = [];
-
-    items.push({
-      key: 'exportar-lista-inscritos',
-      label: 'Exportar Lista de inscritos',
-      onClick: (e: any) => {
-        e.domEvent.stopPropagation();
+    const items = [
+      {
+        key: 'exportar-lista-inscritos',
+        label: 'Exportar Lista de inscritos',
+        onClick: (e: any) => {
+          e.domEvent.stopPropagation();
+        },
       },
-    });
-
-    items.push({
-      key: 'baixar-relatorio-codaf',
-      label:
+      {
+        key: 'baixar-relatorio-codaf',
+        label:
           <Tooltip title='Gere as declarações para baixar o relatório CODAF.'>
             <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
           </Tooltip>,
-      onClick: (e: any) => {
-        e.domEvent.stopPropagation();
+        onClick: (e: any) => {
+          e.domEvent.stopPropagation();
+        },
       },
-    });
+    ];
 
     return { items };
   };
@@ -190,7 +185,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
           menu={getMenuAcoes()}
           trigger={['click']}
           placement='bottomRight'
-          dropdownRender={(menu) => <DropdownMenuContent menu={menu} />}
+          dropdownRender={renderDropdownMenu}
         >
           <Button
             type='default'

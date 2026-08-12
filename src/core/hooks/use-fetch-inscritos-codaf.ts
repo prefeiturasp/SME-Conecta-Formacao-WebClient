@@ -31,7 +31,7 @@ export const useFetchInscritosCodaf = <TCursista>(
         setPaginaAtualInscritos(1);
         
         setTimeout(() => {
-          cursistasOriginais.current = JSON.parse(JSON.stringify(formatados));
+          cursistasOriginais.current = structuredClone(formatados);
         }, 100);
       } else {
         setCursistas([]);
