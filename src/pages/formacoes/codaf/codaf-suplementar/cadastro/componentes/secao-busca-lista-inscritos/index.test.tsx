@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { StatusCodafSuplementar } from '../../../../../../core/enum/status-codaf-suplementar';
+import { StatusCodafSuplementar } from '../../../../../../../core/enum/status-codaf-suplementar';
 
 describe('SecaoBuscaEListaInscritos - Regras de Negócio', () => {
   const removeNonDigits = (value: string) => value.replace(/\D/g, '');

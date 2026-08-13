@@ -4,6 +4,7 @@
 
 import '@testing-library/jest-dom';
 import { act, render, fireEvent, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import Sider, { getItemMenu } from './index';
 
@@ -119,10 +120,12 @@ describe('Sider', () => {
 
   it('deve renderizar menu', () => {
     render(
-      <Sider
-        items={itens}
-        onClick={jest.fn()}
-      />
+      <MemoryRouter>
+        <Sider
+          items={itens}
+          onClick={jest.fn()}
+        />
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('menu')).toBeInTheDocument();
@@ -130,10 +133,12 @@ describe('Sider', () => {
 
   it('não deve renderizar menu quando items for vazio', () => {
     render(
-      <Sider
-        items={[]}
-        onClick={jest.fn()}
-      />
+      <MemoryRouter>
+        <Sider
+          items={[]}
+          onClick={jest.fn()}
+        />
+      </MemoryRouter>
     );
 
     expect(screen.queryByTestId('menu')).not.toBeInTheDocument();
@@ -143,10 +148,12 @@ describe('Sider', () => {
     const onClick = jest.fn();
 
     render(
-      <Sider
-        items={itens}
-        onClick={onClick}
-      />
+      <MemoryRouter>
+        <Sider
+          items={itens}
+          onClick={onClick}
+        />
+      </MemoryRouter>
     );
 
     fireEvent.click(
@@ -165,13 +172,15 @@ describe('Sider', () => {
     const onClickMenuButtonToggle = jest.fn();
 
     render(
-      <Sider
-        items={itens}
-        onClick={jest.fn()}
-        onClickMenuButtonToggle={
-          onClickMenuButtonToggle
-        }
-      />
+      <MemoryRouter>
+        <Sider
+          items={itens}
+          onClick={jest.fn()}
+          onClickMenuButtonToggle={
+            onClickMenuButtonToggle
+          }
+        />
+      </MemoryRouter>
     );
 
     fireEvent.click(
@@ -185,15 +194,17 @@ describe('Sider', () => {
 
   it('deve renderizar logoMenu', () => {
     render(
-      <Sider
-        items={itens}
-        onClick={jest.fn()}
-        logoMenu={
-          <div data-testid="logo">
-            LOGO
-          </div>
-        }
-      />
+      <MemoryRouter>
+        <Sider
+          items={itens}
+          onClick={jest.fn()}
+          logoMenu={
+            <div data-testid="logo">
+              LOGO
+            </div>
+          }
+        />
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('toggle-button')).toBeInTheDocument();
@@ -203,13 +214,15 @@ describe('Sider', () => {
     const onOpenChange = jest.fn();
 
     render(
-      <Sider
-        items={itens}
-        onClick={jest.fn()}
-        menuProps={{
-          onOpenChange,
-        }}
-      />
+      <MemoryRouter>
+        <Sider
+          items={itens}
+          onClick={jest.fn()}
+          menuProps={{
+            onOpenChange,
+          }}
+        />
+      </MemoryRouter>
     );
 
     const props = menuMock.mock.calls[0][0];
