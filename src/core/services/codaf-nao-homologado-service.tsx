@@ -22,6 +22,7 @@ export type CodafNaoHomologadoListagemDTO = {
   nomeTurma: string;
   nomeAreaPromotora: string;
   status: number;
+  statusDeclaracaoTurma: number;
 };
 
 export type CodafNaoHomologadoListagemRetornoDTO<TItem extends CodafNaoHomologadoListagemDTO> = {
@@ -160,4 +161,10 @@ export const excluirCodafNaoHomologado = (
   codafNaoHomologadoId: number,
 ): Promise<ApiResult<any>> => {
   return deletarRegistro(`${URL_API_CODAF_CURSO_NAO_HOMOLOGADO}/${codafNaoHomologadoId}`);
+};
+
+export const emitirDeclaracaoCodafNaoHomologado = (
+  codafNaoHomologadoId: number,
+): Promise<ApiResult<any>> => {
+  return api.post(`v1/CodafDeclaracao/${codafNaoHomologadoId}/emitir`);
 };

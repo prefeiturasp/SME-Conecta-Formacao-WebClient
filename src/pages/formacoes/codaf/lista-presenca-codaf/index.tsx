@@ -20,7 +20,7 @@ import 'dayjs/locale/pt-br';
 import React, { useState } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiPrinter } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -92,9 +92,55 @@ const ListaPresencaCodaf: React.FC = () => {
   const LOCAL_STORAGE_KEY = 'codaf_emitir_certificados_clicked';
   const EOL_STORAGE_KEY = 'eol_txt_generated';
 
+  const location = useLocation();
+
   React.useEffect(() => {
-    buscarDados(1);
+    const carregarEstadoEBuscar = async () => {
+      if (location.state) {
+        const state = location.state as any;
+        let turmas = [];
+        let turmaDesab = true;
+        let opcoes = [];
+        
+        if (state.propostaSelecionada) {
+           setPropostaSelecionada(state.propostaSelecionada);
+           opcoes = [state.propostaSelecionada];
+           
+           try {
+             const response = await obterTurmasInscricao(state.propostaSelecionada.propostaId);
+             if (response.sucesso && response.dados) {
+                turmas = response.dados;
+                turmaDesab = false;
+             }
+           } catch (e) {}
+        }
+        
+        setOpcoesFormacao(opcoes);
+        setTurmasAPI(turmas);
+        setTurmaDisabled(turmaDesab);
+        
+        form.setFieldsValue(state.formValues);
+        if (state.paginaAtual) setPaginaAtual(state.paginaAtual);
+        if (state.registrosPorPagina) setRegistrosPorPagina(state.registrosPorPagina);
+        if (state.filtroAplicado) setFiltroAplicado(state.filtroAplicado);
+        
+        buscarDados(state.paginaAtual || 1);
+      } else {
+        buscarDados(1);
+      }
+    };
+    
+    carregarEstadoEBuscar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getStateToSave = () => ({
+    formValues: form.getFieldsValue(),
+    paginaAtual,
+    registrosPorPagina,
+    filtroAplicado,
+    propostaSelecionada,
+  });
   const getEmitidos = (): number[] => {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
@@ -577,7 +623,7 @@ const ListaPresencaCodaf: React.FC = () => {
         }}
         onClickContinuar={() => {
           setModalVisible(false);
-          navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO);
+          navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO, { state: getStateToSave() });
         }}
       />
 
@@ -742,6 +788,7 @@ const ListaPresencaCodaf: React.FC = () => {
                           ':id',
                           String(record.id),
                         ),
+                        { state: getStateToSave() }
                       ),
                     style: { cursor: 'pointer' },
                   })}
