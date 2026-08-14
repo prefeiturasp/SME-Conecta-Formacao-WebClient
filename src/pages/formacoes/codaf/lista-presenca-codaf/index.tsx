@@ -75,7 +75,7 @@ const ListaPresencaCodaf: React.FC = () => {
   );
   const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
-  const [, forceUpdate] = useState(0);
+  const [_update, forceUpdate] = useState(0);
 
   const ehPerfilAdminDf = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -94,43 +94,66 @@ const ListaPresencaCodaf: React.FC = () => {
 
   const location = useLocation();
 
+  interface IStateLocationListaPresenca {
+    propostaSelecionada?: PropostaAutocompletarDTO;
+    formValues?: Record<string, any>;
+    paginaAtual?: number;
+    registrosPorPagina?: number;
+    filtroAplicado?: boolean;
+  }
+
   React.useEffect(() => {
-    const carregarEstadoEBuscar = async () => {
-      if (location.state) {
-        const state = location.state as any;
-        let turmas = [];
-        let turmaDesab = true;
-        let opcoes = [];
+    const resolverTurmasDaProposta = async (propostaId?: number) => {
+      if (!propostaId) return { turmas: [] as RetornoListagemDTO[], desabilitado: true };
+
+      try {
+        const { sucesso, dados } = await obterTurmasInscricao(propostaId);
+        const possuiTurmas = sucesso && (dados?.length ?? 0) > 0;
         
-        if (state.propostaSelecionada) {
-           setPropostaSelecionada(state.propostaSelecionada);
-           opcoes = [state.propostaSelecionada];
-           
-           try {
-             const response = await obterTurmasInscricao(state.propostaSelecionada.propostaId);
-             if (response.sucesso && response.dados) {
-                turmas = response.dados;
-                turmaDesab = false;
-             }
-           } catch (e) {}
-        }
-        
-        setOpcoesFormacao(opcoes);
-        setTurmasAPI(turmas);
-        setTurmaDisabled(turmaDesab);
-        
-        form.setFieldsValue(state.formValues);
-        if (state.paginaAtual) setPaginaAtual(state.paginaAtual);
-        if (state.registrosPorPagina) setRegistrosPorPagina(state.registrosPorPagina);
-        if (state.filtroAplicado) setFiltroAplicado(state.filtroAplicado);
-        
-        buscarDados(state.paginaAtual || 1);
+        return {
+          turmas: possuiTurmas ? dados! : [],
+          desabilitado: !possuiTurmas
+        };
+      } catch (e) {
+        console.error(e);
+        return { turmas: [] as RetornoListagemDTO[], desabilitado: true };
+      }
+    };
+
+    const restaurarEstadoLocal = async (estado: IStateLocationListaPresenca) => {
+      const proposta = estado.propostaSelecionada;
+      
+      if (proposta) {
+        setPropostaSelecionada(proposta);
+        setOpcoesFormacao([proposta]); 
+      } else {
+        setOpcoesFormacao([] as PropostaAutocompletarDTO[]);
+      }
+
+      const { turmas, desabilitado } = await resolverTurmasDaProposta(proposta?.propostaId);
+      
+      setTurmasAPI(turmas);
+      setTurmaDisabled(desabilitado);
+
+      if (estado.formValues) form.setFieldsValue(estado.formValues);
+      if (estado.paginaAtual) setPaginaAtual(estado.paginaAtual);
+      if (estado.registrosPorPagina) setRegistrosPorPagina(estado.registrosPorPagina);
+      if (estado.filtroAplicado) setFiltroAplicado(estado.filtroAplicado);
+
+      buscarDados(estado.paginaAtual ?? 1);
+    };
+
+    const inicializarArvoreDeEstado = async () => {
+      const state = location.state as IStateLocationListaPresenca | null;
+
+      if (state) {
+        await restaurarEstadoLocal(state);
       } else {
         buscarDados(1);
       }
     };
-    
-    carregarEstadoEBuscar();
+
+    inicializarArvoreDeEstado();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

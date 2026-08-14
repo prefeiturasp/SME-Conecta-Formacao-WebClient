@@ -80,7 +80,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [turmasProposta, setTurmasProposta] = useState<RetornoListagemDTO[]>([]);
   const [turmaDesabilitada, setTurmaDesabilitada] = useState(true);
-  const [, forcarAtualizacao] = useState(0);
+  const [_atualizacao, forcarAtualizacao] = useState(0);
 
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
@@ -94,43 +94,57 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   
   const location = useLocation();
 
+  interface IStateLocationCodaf {
+    formValues?: Record<string, any>;
+    paginaCorrente?: number;
+    registrosApiPorPagina?: number;
+    filtroUtilizado?: boolean;
+  }
   React.useEffect(() => {
-    const carregarEstadoEBuscar = async () => {
-      if (location.state) {
-        const state = location.state as any;
-        let turmas: RetornoListagemDTO[] = [];
-        let turmaDesab = true;
+    const resolverTurmasProposta = async (codigoFormacao?: string) => {
+      const valorLimpo = Number(String(codigoFormacao || '').replace(/\D/g, ''));
+      
+      if (valorLimpo <= 0) return { turmas: [], desabilitado: true };
+
+      try {
+        const { sucesso, dados } = await obterDetalhesPropostaComTurmasPorId(valorLimpo, false);
+        const possuiTurmas = sucesso && (dados?.turmas?.length ?? 0) > 0;
         
-        if (state.formValues?.codigoFormacao) {
-           const value = Number(String(state.formValues.codigoFormacao).trim().replaceAll(/\D/g, ''));
-           if (value > 0) {
-              try {
-                const resposta = await obterDetalhesPropostaComTurmasPorId(value, false);
-                if (resposta.sucesso && resposta.dados?.turmas && resposta.dados.turmas.length > 0) {
-                   turmas = resposta.dados.turmas;
-                   turmaDesab = false;
-                }
-              } catch (e) {
-                console.error(e);
-              }
-           }
-        }
-        
-        setTurmasProposta(turmas);
-        setTurmaDesabilitada(turmaDesab);
-        
-        form.setFieldsValue(state.formValues);
-        if (state.paginaCorrente) setPaginaCorrente(state.paginaCorrente);
-        if (state.registrosApiPorPagina) setRegistrosApiPorPagina(state.registrosApiPorPagina);
-        if (state.filtroUtilizado) setFiltroUtilizado(state.filtroUtilizado);
-        
-        carregarDadosCodaf(state.paginaCorrente || 1);
+        return {
+          turmas: possuiTurmas ? dados!.turmas : [],
+          desabilitado: !possuiTurmas
+        };
+      } catch (e) {
+        console.error(e);
+        return { turmas: [], desabilitado: true };
+      }
+    };
+
+    const restaurarEstadoLocal = async (estado: IStateLocationCodaf) => {
+      const { turmas, desabilitado } = await resolverTurmasProposta(estado.formValues?.codigoFormacao);
+      
+      setTurmasProposta(turmas);
+      setTurmaDesabilitada(desabilitado);
+      
+      if (estado.formValues) form.setFieldsValue(estado.formValues);
+      if (estado.paginaCorrente) setPaginaCorrente(estado.paginaCorrente);
+      if (estado.registrosApiPorPagina) setRegistrosApiPorPagina(estado.registrosApiPorPagina);
+      if (estado.filtroUtilizado) setFiltroUtilizado(estado.filtroUtilizado);
+      
+      carregarDadosCodaf(estado.paginaCorrente ?? 1);
+    };
+
+    const inicializar = async () => {
+      const state = location.state as IStateLocationCodaf | null;
+
+      if (state) {
+        await restaurarEstadoLocal(state);
       } else {
         carregarDadosCodaf(1);
       }
     };
-    
-    carregarEstadoEBuscar();
+
+    inicializar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
