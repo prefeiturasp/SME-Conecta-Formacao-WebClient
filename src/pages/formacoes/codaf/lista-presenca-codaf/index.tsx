@@ -343,9 +343,9 @@ const ListaPresencaCodaf: React.FC = () => {
             Baixar Relatório CODAF &nbsp;
             <Tooltip
               title={
-                !record.possuiAprovacoes
-                  ? 'Este CODAF não possui aprovações.'
-                  : 'Gere os certificados para baixar o relatório CODAF.'
+                record.possuiAprovacoes
+                  ? 'Gere os certificados para baixar o relatório CODAF.'
+                  : 'Este CODAF não possui aprovações.'
               }
             >
               <QuestionCircleOutlined
