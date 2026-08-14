@@ -252,7 +252,7 @@ const ListaPresencaCodaf: React.FC = () => {
       if (response.status === 204) {
         notification.success({
           message: 'Sucesso',
-          description: 'CODAF finalizado com sucesso.',
+          description: 'O registro foi finalizado.',
         });
         setModalFinalizarVisible(false);
         setRegistroParaFinalizar(null);
