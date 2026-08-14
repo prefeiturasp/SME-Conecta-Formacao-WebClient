@@ -3,7 +3,7 @@ import { useForm } from 'antd/lib/form/Form';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import React, { useCallback, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { SecaoListaInscritos } from './componentes/secao-lista-inscritos';
 import { SecaoFormulario } from './componentes/secao-formulario';
 import { TableRowSelection } from 'antd/lib/table/interface';
@@ -18,7 +18,6 @@ import {
   obterAnexoCodafParaDownload,
 } from '~/core/services/codaf-lista-presenca-service';
 import { obterDetalhesPropostaComTurmasPorId, PropostaTurmaDTO } from '~/core/services/proposta-service';
-import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { onClickVoltar } from '~/core/utils/form';
 import {
   atualizarCodafNaoHomologado,
@@ -50,6 +49,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const [carregando, setCarregando] = useState(false);
     
   const { perfil, ehAreaPromotora, ehAreaPromotoraEAdmin } = usePerfilCodaf();
@@ -93,22 +93,19 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
     campos: {
       secaoFormulario: {
         numeroHomologacao: situacao.finalizado,
-        turma: situacao.finalizado,
+        codigoFormacao: !!modoEdicao,
+        turma: !!modoEdicao,
       },
-
       listaInscritos: situacao.finalizado,
-
       informacoesAdicionais: situacao.finalizado && ehAreaPromotora,
     },
-
     anexos: {
       areaPromotora: situacao.finalizado && !perfil.cursista && !perfil.admin,
     },
 
     botoes: {
       excluir: {
-        visivel: modoEdicao && situacao.iniciado,
-
+        visivel: modoEdicao,
         bloqueado: situacao.finalizado,
       },
 
@@ -117,7 +114,6 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           (!situacao.aguardandoFinalizacao ||
             (situacao.aguardandoFinalizacao && ehAreaPromotoraEAdmin)) &&
           !situacao.finalizado,
-
         bloqueado: situacao.finalizado,
       },
     },
@@ -144,12 +140,28 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
 
     const carregarTurmas = async (dados: CodafNaoHomologadoDetalheDTO) => {
       try {
-        const turmasResponse = await obterTurmasInscricao(dados.propostaId);
+        const turmasResponse = await obterDetalhesPropostaComTurmasPorId(dados.propostaId, false);
         if (!turmasResponse.sucesso || !turmasResponse.dados) return;
 
-        setTurmaDisabled(!!dados.propostaTurmaId);
+        if (turmasResponse.dados.turmas && turmasResponse.dados.turmas.length > 0) {
+            setTurmasFiltradas(turmasResponse.dados.turmas);
+            setTurmaDisabled(false);
+        } else {
+            setTurmasFiltradas([]);
+            setTurmaDisabled(true);
+            notification.warning({
+                message: 'Atenção',
+                description: 'Nenhuma turma encontrada para esta formação',
+            });
+        }
       } catch (error) {
         console.error('Erro ao buscar turmas:', error);
+        setTurmasFiltradas([]);
+        setTurmaDisabled(true);
+        notification.warning({
+            message: 'Atenção',
+            description: 'Erro ao buscar detalhes da formação',
+        });
       }
     };
 
@@ -273,6 +285,11 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
 
   const onChangeCodigoFormacao = () => {
     setTurmasFiltradas([]);
+    form.setFieldsValue({
+        nomeFormacao: '',
+        numeroHomologacao: '',
+        turmaId: undefined,
+    });
     setTurmaDisabled(true);
   }
 
@@ -285,8 +302,19 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
       return;
     }
 
+    if (Number(valor) === form.getFieldValue('codigoFormacao')) {
+      return;
+    }
+
     try {
         const response = await obterDetalhesPropostaComTurmasPorId(Number(valor), false);
+        setTurmasFiltradas([]);
+        form.setFieldsValue({
+              nomeFormacao: '',
+              numeroHomologacao: '',
+              turmaId: undefined,
+          });
+
         if (response.sucesso && response.dados) {
             form.setFieldsValue({
                 nomeFormacao: response.dados.nomeFormacao,
@@ -311,11 +339,6 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
             notification.info({
                 message: 'Informação',
                 description: 'Formação não encontrada',
-            });
-            form.setFieldsValue({
-                nomeFormacao: '',
-                numeroHomologacao: '',
-                turmaId: undefined,
             });
         }
       } catch (error) {
@@ -344,9 +367,8 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           ? 'Registro atualizado com sucesso!'
           : 'Registro salvo com sucesso!',
       });
-      if (!id) {
-        navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO);
-      }
+      
+      navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO, { state: location.state });
     } else {
       const mensagensErro = response.mensagens ?? [];
       const mensagemPadrao = modoEdicao
@@ -425,7 +447,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   };
 
   const onClickCancelar = () => {
-    onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO });
+    onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO, paramsRoute: { state: location.state } });
   };
 
   return (

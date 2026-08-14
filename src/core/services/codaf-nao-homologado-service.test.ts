@@ -14,6 +14,8 @@ import {
   obterCodafNaoHomologadoPorId,
   obterInscritosTurma,
   obterListaCodafNaoHomologado,
+  emitirDeclaracaoCodafNaoHomologado,
+  montarParametrosFiltroCodafNaoHomologado,
   URL_API_CODAF_CURSO_NAO_HOMOLOGADO,
 } from './codaf-nao-homologado-service';
 
@@ -21,6 +23,7 @@ jest.mock('./api', () => ({
   __esModule: true,
   default: {
     get: jest.fn(),
+    post: jest.fn(),
   },
   alterarRegistro: jest.fn(),
   deletarRegistro: jest.fn(),
@@ -132,6 +135,22 @@ describe('codaf-nao-homologado-service', () => {
         }
       );
     });
+
+    it('deve obter inscritos com parametros customizados', async () => {
+      (obterRegistro as jest.Mock).mockResolvedValue({});
+
+      await obterInscritosTurma(10, 2, 50);
+
+      expect(obterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_CURSO_NAO_HOMOLOGADO}/inscritos-turma/10`,
+        {
+          params: {
+            numeroPagina: 2,
+            numeroRegistros: 50,
+          },
+        }
+      );
+    });
   });
 
   describe('baixarModeloTermoResponsabilidade', () => {
@@ -187,6 +206,66 @@ describe('codaf-nao-homologado-service', () => {
       await excluirCodafNaoHomologado(5);
 
       expect(deletarRegistro).toHaveBeenCalledWith(`${URL_API_CODAF_CURSO_NAO_HOMOLOGADO}/5`);
+    });
+  });
+
+  describe('emitirDeclaracaoCodafNaoHomologado', () => {
+    it('deve chamar api.post para emitir declaracao', async () => {
+      (api.post as jest.Mock).mockResolvedValue({});
+
+      await emitirDeclaracaoCodafNaoHomologado(5);
+
+      expect(api.post).toHaveBeenCalledWith(`v1/CodafDeclaracao/5/emitir`);
+    });
+  });
+
+  describe('montarParametrosFiltroCodafNaoHomologado', () => {
+    it('deve montar os parametros corretos quando incluirDataFinalizacao for falso', () => {
+      const crivos = {
+        NumeroPagina: 2,
+        NumeroRegistros: 20,
+        DataFinalizacao: '2026-08-10',
+        Status: 0,
+      };
+
+      const params = montarParametrosFiltroCodafNaoHomologado(crivos, false);
+
+      expect(params).toEqual({
+        NumeroPagina: 2,
+        NumeroRegistros: 20,
+        Status: 0,
+      });
+    });
+
+    it('deve montar os parametros corretos quando incluirDataFinalizacao for verdadeiro', () => {
+      const crivos = {
+        NumeroPagina: 1,
+        NumeroRegistros: 10,
+        DataFinalizacao: '2026-08-10',
+      };
+
+      const params = montarParametrosFiltroCodafNaoHomologado(crivos, true);
+
+      expect(params).toEqual({
+        NumeroPagina: 1,
+        NumeroRegistros: 10,
+        DataFinalizacao: '2026-08-10',
+      });
+    });
+
+    it('deve montar os parametros corretos usando o valor padrao (false) de incluirDataFinalizacao', () => {
+      const crivos = {
+        NumeroPagina: 3,
+        NumeroRegistros: 15,
+        DataFinalizacao: '2026-08-10',
+      };
+
+      const params = montarParametrosFiltroCodafNaoHomologado(crivos);
+
+      expect(params).toEqual({
+        NumeroPagina: 3,
+        NumeroRegistros: 15,
+      });
     });
   });
 });
