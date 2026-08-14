@@ -19,7 +19,7 @@ import 'dayjs/locale/pt-br';
 import React, { useState } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiPrinter } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -39,7 +39,7 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-import { CodafNaoHomologadoListagemDTO, obterListaCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
+import { CodafNaoHomologadoListagemDTO, emitirDeclaracaoCodafNaoHomologado, obterListaCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
 import { criarColunasBaseListagemCodaf } from '../shared/componentes/codaf-colunas-factory';
 import { ModalAvisoNovoRegistroCodaf } from '../shared/componentes/modal-aviso-novo-registro-codaf';
 import { HeaderListagemCodaf } from '../shared/componentes/header-listagem-codaf';
@@ -80,6 +80,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [turmasProposta, setTurmasProposta] = useState<RetornoListagemDTO[]>([]);
   const [turmaDesabilitada, setTurmaDesabilitada] = useState(true);
+  const [_atualizacao, forcarAtualizacao] = useState(0);
 
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
@@ -91,9 +92,68 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     { id: 3, descricao: 'Finalizado' },
   ];
   
-  React.useEffect(() => {    
-    carregarDadosCodaf(1);
+  const location = useLocation();
+
+  interface IStateLocationCodaf {
+    formValues?: Record<string, any>;
+    paginaCorrente?: number;
+    registrosApiPorPagina?: number;
+    filtroUtilizado?: boolean;
+  }
+  React.useEffect(() => {
+    const resolverTurmasProposta = async (codigoFormacao?: string) => {
+      const valorLimpo = Number(String(codigoFormacao || '').replace(/\D/g, ''));
+      
+      if (valorLimpo <= 0) return { turmas: [], desabilitado: true };
+
+      try {
+        const { sucesso, dados } = await obterDetalhesPropostaComTurmasPorId(valorLimpo, false);
+        const possuiTurmas = sucesso && (dados?.turmas?.length ?? 0) > 0;
+        
+        return {
+          turmas: possuiTurmas ? dados!.turmas : [],
+          desabilitado: !possuiTurmas
+        };
+      } catch (e) {
+        console.error(e);
+        return { turmas: [], desabilitado: true };
+      }
+    };
+
+    const restaurarEstadoLocal = async (estado: IStateLocationCodaf) => {
+      const { turmas, desabilitado } = await resolverTurmasProposta(estado.formValues?.codigoFormacao);
+      
+      setTurmasProposta(turmas);
+      setTurmaDesabilitada(desabilitado);
+      
+      if (estado.formValues) form.setFieldsValue(estado.formValues);
+      if (estado.paginaCorrente) setPaginaCorrente(estado.paginaCorrente);
+      if (estado.registrosApiPorPagina) setRegistrosApiPorPagina(estado.registrosApiPorPagina);
+      if (estado.filtroUtilizado) setFiltroUtilizado(estado.filtroUtilizado);
+      
+      carregarDadosCodaf(estado.paginaCorrente ?? 1);
+    };
+
+    const inicializar = async () => {
+      const state = location.state as IStateLocationCodaf | null;
+
+      if (state) {
+        await restaurarEstadoLocal(state);
+      } else {
+        carregarDadosCodaf(1);
+      }
+    };
+
+    inicializar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getStateToSave = () => ({
+    formValues: form.getFieldsValue(),
+    paginaCorrente,
+    registrosApiPorPagina,
+    filtroUtilizado,
+  });
 
   const getMenuAcoes = (): MenuProps => {
     const items = [
@@ -121,8 +181,39 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
 
   const obterSituacaoTexto = (idStatus: number): string => status.find((s) => s.id === idStatus)?.descricao || 'Desconhecido';
 
-  const getDeclaracaoButtonState = () => {
-    const status = 0; 
+  const aoClicarEmEmitirDeclaracoes = async (record: CodafNaoHomologadoListagemDTO) => {
+    try {
+      setCarregando(true);
+
+      const resposta = await emitirDeclaracaoCodafNaoHomologado(record.id);
+      forcarAtualizacao((prev) => prev + 1);
+      if (resposta.sucesso) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'Emissão das declarações foi solicitada com sucesso.',
+        });
+
+        carregarDadosCodaf(paginaCorrente);
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao emitir as declarações.',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao emitir declarações:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Ocorreu um erro ao emitir as declarações.',
+      });
+    }
+    finally {
+      setCarregando(false);
+    }
+  };
+
+  const getDeclaracaoButtonState = (record: CodafNaoHomologadoListagemDTO) => {
+    const status = record.statusDeclaracaoTurma;
 
     if (status === 0) return { text: 'Sem declaração', disabled: true };
     if (status === 1) return { text: 'Não emitidas', disabled: true };
@@ -147,8 +238,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         </span>
       ),
       width: 220,
-      render: (_: any) => {
-        const { text, disabled } = getDeclaracaoButtonState();
+      render: (_: any, record: CodafNaoHomologadoListagemDTO) => {
+        const { text, disabled } = getDeclaracaoButtonState(record);
 
         return (
           <Button
@@ -158,6 +249,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
             disabled={disabled}
             onClick={(e) => {
               e.stopPropagation();
+              aoClicarEmEmitirDeclaracoes(record);
             }}
             style={{
               width: '100%',
@@ -276,6 +368,9 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         if (resposta.dados.turmas && resposta.dados.turmas.length > 0) {
           setTurmasProposta(resposta.dados.turmas);
           setTurmaDesabilitada(false);
+          form.setFieldsValue({
+            numeroHomologacao: resposta.dados.numeroFormacao || undefined,
+          });
         } else {
           setTurmasProposta([]);
           setTurmaDesabilitada(true);
@@ -337,7 +432,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         visivel={modalVisivel}
         onClose={() => setModalVisivel(false)}
         onClickInscricoes={() => { setModalVisivel(false); navigate(ROUTES.FORMACAOES_INSCRICOES); }}
-        onClickContinuar={() => { setModalVisivel(false); navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_NOVO); }}
+        onClickContinuar={() => { setModalVisivel(false); navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_NOVO, { state: getStateToSave() }); }}
       />
 
       <HeaderListagemCodaf
@@ -503,7 +598,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
                   onChange={lidarComAlteracoesDaTabela}
                   onRow={(record) => ({
                     onClick: () =>
-                      navigate(`/formacoes/lista-presenca-codaf/editar/${record.id}`),
+                      navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_EDITAR.replace(':id', String(record.id)), { state: getStateToSave() }),
                     style: { cursor: 'pointer' },
                   })}
                   scroll={{ x: 'max-content' }}

@@ -20,7 +20,7 @@ import 'dayjs/locale/pt-br';
 import React, { useState } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiPrinter } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -75,7 +75,7 @@ const ListaPresencaCodaf: React.FC = () => {
   );
   const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
-  const [, forceUpdate] = useState(0);
+  const [_update, forceUpdate] = useState(0);
 
   const ehPerfilAdminDf = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -92,9 +92,78 @@ const ListaPresencaCodaf: React.FC = () => {
   const LOCAL_STORAGE_KEY = 'codaf_emitir_certificados_clicked';
   const EOL_STORAGE_KEY = 'eol_txt_generated';
 
+  const location = useLocation();
+
+  interface IStateLocationListaPresenca {
+    propostaSelecionada?: PropostaAutocompletarDTO;
+    formValues?: Record<string, any>;
+    paginaAtual?: number;
+    registrosPorPagina?: number;
+    filtroAplicado?: boolean;
+  }
+
   React.useEffect(() => {
-    buscarDados(1);
+    const resolverTurmasDaProposta = async (propostaId?: number) => {
+      if (!propostaId) return { turmas: [] as RetornoListagemDTO[], desabilitado: true };
+
+      try {
+        const { sucesso, dados } = await obterTurmasInscricao(propostaId);
+        const possuiTurmas = sucesso && (dados?.length ?? 0) > 0;
+        
+        return {
+          turmas: possuiTurmas ? dados! : [],
+          desabilitado: !possuiTurmas
+        };
+      } catch (e) {
+        console.error(e);
+        return { turmas: [] as RetornoListagemDTO[], desabilitado: true };
+      }
+    };
+
+    const restaurarEstadoLocal = async (estado: IStateLocationListaPresenca) => {
+      const proposta = estado.propostaSelecionada;
+      
+      if (proposta) {
+        setPropostaSelecionada(proposta);
+        setOpcoesFormacao([proposta]); 
+      } else {
+        setOpcoesFormacao([] as PropostaAutocompletarDTO[]);
+      }
+
+      const { turmas, desabilitado } = await resolverTurmasDaProposta(proposta?.propostaId);
+      
+      setTurmasAPI(turmas);
+      setTurmaDisabled(desabilitado);
+
+      if (estado.formValues) form.setFieldsValue(estado.formValues);
+      if (estado.paginaAtual) setPaginaAtual(estado.paginaAtual);
+      if (estado.registrosPorPagina) setRegistrosPorPagina(estado.registrosPorPagina);
+      if (estado.filtroAplicado) setFiltroAplicado(estado.filtroAplicado);
+
+      buscarDados(estado.paginaAtual ?? 1);
+    };
+
+    const inicializarArvoreDeEstado = async () => {
+      const state = location.state as IStateLocationListaPresenca | null;
+
+      if (state) {
+        await restaurarEstadoLocal(state);
+      } else {
+        buscarDados(1);
+      }
+    };
+
+    inicializarArvoreDeEstado();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getStateToSave = () => ({
+    formValues: form.getFieldsValue(),
+    paginaAtual,
+    registrosPorPagina,
+    filtroAplicado,
+    propostaSelecionada,
+  });
   const getEmitidos = (): number[] => {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
@@ -577,7 +646,7 @@ const ListaPresencaCodaf: React.FC = () => {
         }}
         onClickContinuar={() => {
           setModalVisible(false);
-          navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO);
+          navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO, { state: getStateToSave() });
         }}
       />
 
@@ -742,6 +811,7 @@ const ListaPresencaCodaf: React.FC = () => {
                           ':id',
                           String(record.id),
                         ),
+                        { state: getStateToSave() }
                       ),
                     style: { cursor: 'pointer' },
                   })}
