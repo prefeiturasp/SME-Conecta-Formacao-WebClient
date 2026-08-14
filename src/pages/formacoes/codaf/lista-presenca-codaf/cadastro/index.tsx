@@ -3,7 +3,7 @@ import { useForm } from 'antd/es/form/Form';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import React, { useCallback, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ModalEnviarDF from './componentes/modal-enviar-df/modal-enviar-df';
 import ModalDevolverDF from './componentes/modal-devolver-df/modal-devolver-df';
 import ModalExcluir from './componentes/modal-excluir/modal-excluir';
@@ -86,6 +86,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
   const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
@@ -651,7 +652,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         description: modoEdicao ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
       });
       if (!id) {
-        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', response.dados.id));
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', response.dados.id), { state: location.state });
       }
     } else {
       const mensagensErro = response.mensagens ?? [];
@@ -783,7 +784,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   };
 
   const onClickCancelar = () => {
-    onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO });
+    onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO, paramsRoute: { state: location.state } });
   };
 
   const sanitizarDadosParaComparacao = (dados: any) => {

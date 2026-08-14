@@ -11,6 +11,7 @@ interface SecaoFormularioProps {
   turmaDisabled: boolean;
   camposBloqueados: {
     numeroHomologacao: boolean;
+    codigoFormacao: boolean;
     turma: boolean;
   };
 }
@@ -56,7 +57,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                 id: CF_INPUT_CODIGO_FORMACAO,
                 placeholder: 'Código da formação',
                 maxLength: 19,
-                disabled: false,
+                disabled: camposBloqueados.codigoFormacao,
                 onChange: (e) => onChangeCodigoFormacao(e.target.value),
                 onBlur: (e) => onBlurCodigoFormacao(e.target.value),
               }}

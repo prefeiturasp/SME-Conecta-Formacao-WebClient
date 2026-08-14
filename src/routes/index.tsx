@@ -221,7 +221,7 @@ const RoutesConfig = () => {
                 <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesNaoHomologadas} />}>
                   <Route
                     path={ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_EDITAR}
-                    element={<CadastroListaPresencaCodaf />}
+                    element={<CadastroCodafFormacoesNaoHomologadas />}
                   />
                 </Route>
               </Route>
