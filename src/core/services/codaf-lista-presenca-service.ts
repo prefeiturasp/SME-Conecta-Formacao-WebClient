@@ -24,7 +24,9 @@ export const URL_API_CERTIFICADO = 'v1/CodafCertificado';
 
 export type CodafListaPresencaFiltroDTO = CodafListagemFiltroBaseDTO;
 
-export type CodafListaPresencaDTO = CodafListagemBaseDTO;
+export type CodafListaPresencaDTO = CodafListagemBaseDTO & {
+  possuiAprovacoes: boolean;
+};
 
 export type CodafListaPresencaRetornoDTO = CodafListagemRetornoBaseDTO<CodafListaPresencaDTO>;
 
@@ -135,6 +137,10 @@ export const atualizarCodafListaPresenca = (
 
 export const deletarRetificacao = (id: string | number): Promise<ApiResult<boolean>> =>
   deletarRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/retificacoes/${id}`);
+
+export const finalizarCodaf = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
+  return api.patch(`${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/finalizar`);
+};
 
 export type InscritoTurmaDTO = {
   id: number;
