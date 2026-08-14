@@ -6,6 +6,7 @@ import {
   Dropdown,
   Form,
   MenuProps,
+  Modal,
   Row,
   Select,
   Table,
@@ -41,6 +42,7 @@ import {
   obterListaPresencaCodaf,
   emitirCertificadosCodaf,
   imprimirRelatorioCodaf,
+  finalizarCodaf,
 } from '~/core/services/codaf-lista-presenca-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
@@ -76,6 +78,12 @@ const ListaPresencaCodaf: React.FC = () => {
   const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [_update, forceUpdate] = useState(0);
+
+  const [modalFinalizarVisible, setModalFinalizarVisible] = useState(false);
+  const [registroParaFinalizar, setRegistroParaFinalizar] = useState<CodafListaPresencaDTO | null>(
+    null,
+  );
+  const [finalizandoCodaf, setFinalizandoCodaf] = useState(false);
 
   const ehPerfilAdminDf = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
@@ -164,6 +172,7 @@ const ListaPresencaCodaf: React.FC = () => {
     filtroAplicado,
     propostaSelecionada,
   });
+
   const getEmitidos = (): number[] => {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
@@ -177,10 +186,6 @@ const ListaPresencaCodaf: React.FC = () => {
     }
   };
 
-  const wasEmitido = (id: number): boolean => {
-    return getEmitidos().includes(id);
-  };
-
   const getGeneratedMap = (): Record<number, boolean> => {
     return JSON.parse(localStorage.getItem(EOL_STORAGE_KEY) || '{}');
   };
@@ -189,10 +194,6 @@ const ListaPresencaCodaf: React.FC = () => {
     const map = getGeneratedMap();
     map[id] = true;
     localStorage.setItem(EOL_STORAGE_KEY, JSON.stringify(map));
-  };
-
-  const wasGenerated = (id: number): boolean => {
-    return !!getGeneratedMap()[id];
   };
 
   const onClickEmitirCertificado = async (record: CodafListaPresencaDTO) => {
@@ -300,6 +301,53 @@ const ListaPresencaCodaf: React.FC = () => {
     }
   };
 
+  const handleFinalizarCodaf = (record: CodafListaPresencaDTO) => {
+    setRegistroParaFinalizar(record);
+    setModalFinalizarVisible(true);
+  };
+
+  const onCancelarFinalizarCodaf = () => {
+    setModalFinalizarVisible(false);
+    setRegistroParaFinalizar(null);
+  };
+
+  const onConfirmarFinalizarCodaf = async () => {
+    if (!registroParaFinalizar) return;
+
+    try {
+      setFinalizandoCodaf(true);
+      const response = await finalizarCodaf(registroParaFinalizar.id);
+
+      if (response.status === 204) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'O registro foi finalizado.',
+        });
+        setModalFinalizarVisible(false);
+        setRegistroParaFinalizar(null);
+        buscarDados(paginaAtual);
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao finalizar CODAF.',
+        });
+      }
+    } catch (error: any) {
+      // Erro 400 do backend traz a mensagem de negócio em error.response.data
+      const mensagemErro =
+        error?.response?.data?.mensagens?.[0] ??
+        error?.response?.data?.MensagensErro?.[0] ??
+        'Não conseguimos finalizar seu registro CODAF. Tente novamente.';
+
+      notification.error({
+        message: 'Erro',
+        description: mensagemErro,
+      });
+    } finally {
+      setFinalizandoCodaf(false);
+    }
+  };
+
   const getMenuAcoes = (record: CodafListaPresencaDTO): MenuProps => {
     const hasCodigoCursoEol = record.codigoCursoEol != null;
     const isAguardandoDF = record.status === 2;
@@ -307,11 +355,14 @@ const ListaPresencaCodaf: React.FC = () => {
     const isCertificacaoConcluida = record.statusCertificacaoTurma === 4;
     const podeGerarComoComum = isAguardandoDF && hasCodigoCursoEol;
     const podeGerarComoAdmin = isFinalizado && ehPerfilAdminDf;
-    const podeGerarTxtEol = podeGerarComoComum || podeGerarComoAdmin;
+    const podeGerarTxtEol = (podeGerarComoComum || podeGerarComoAdmin) && record.possuiAprovacoes;
 
     const getTooltipMessage = () => {
       if (podeGerarTxtEol) {
         return 'Clique para gerar TXT EOL';
+      }
+      if (!record.possuiAprovacoes) {
+        return 'Este CODAF não possui aprovações.';
       }
       if (isAguardandoDF && !hasCodigoCursoEol) {
         return 'Informe o valor de Cód. curso EOL para gerar o arquivo.';
@@ -350,26 +401,46 @@ const ListaPresencaCodaf: React.FC = () => {
 
     items.push({
       key: 'baixar-relatorio-codaf',
-      disabled: !isCertificacaoConcluida,
-      label: isCertificacaoConcluida ? (
-        <Tooltip title='Clique para exportar arquivo CODAF desta turma'>
-          <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
-        </Tooltip>
-      ) : (
-        <span style={{ display: 'block' }}>
-          Baixar Relatório CODAF &nbsp;
-          <Tooltip title='Gere os certificados para baixar o relatório CODAF.'>
-            <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }} />
+      disabled: !isCertificacaoConcluida || !record.possuiAprovacoes,
+      label:
+        isCertificacaoConcluida && record.possuiAprovacoes ? (
+          <Tooltip title='Clique para exportar arquivo CODAF desta turma'>
+            <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
           </Tooltip>
-        </span>
-      ),
+        ) : (
+          <span style={{ display: 'block' }}>
+            Baixar Relatório CODAF &nbsp;
+            <Tooltip
+              title={
+                record.possuiAprovacoes
+                  ? 'Gere os certificados para baixar o relatório CODAF.'
+                  : 'Este CODAF não possui aprovações.'
+              }
+            >
+              <QuestionCircleOutlined
+                style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
+              />
+            </Tooltip>
+          </span>
+        ),
       onClick: (e: any) => {
         e.domEvent.stopPropagation();
-        if (isCertificacaoConcluida) {
+        if (isCertificacaoConcluida && record.possuiAprovacoes) {
           onClickBaixarRelatorioCodaf(record);
         }
       },
     });
+
+    if (!record.possuiAprovacoes && !isFinalizado && ehPerfilAdminDf) {
+      items.push({
+        key: 'finalizar',
+        label: <span style={{ display: 'block' }}>Finalizar</span>,
+        onClick: (e: any) => {
+          e.domEvent.stopPropagation();
+          handleFinalizarCodaf(record);
+        },
+      });
+    }
 
     return { items };
   };
@@ -379,12 +450,12 @@ const ListaPresencaCodaf: React.FC = () => {
     return situacao?.descricao || 'Desconhecido';
   };
 
-  const getCertificadoButtonState = (record: CodafListaPresencaDTO, loading: boolean) => {
-    const gerado = wasGenerated(record.id);
-    const emitido = wasEmitido(record.id);
-    console.log(emitido, gerado);
+  const getCertificadoButtonState = (record: CodafListaPresencaDTO) => {
+    if (!record.possuiAprovacoes) {
+      return { text: 'Sem aprovações', disabled: true };
+    }
+
     const status = record.statusCertificacaoTurma;
-    console.log(loading);
 
     if (status === 0) {
       return { text: 'Sem certificado', disabled: true };
@@ -427,7 +498,7 @@ const ListaPresencaCodaf: React.FC = () => {
       ),
       width: 220,
       render: (_: any, record: CodafListaPresencaDTO) => {
-        const { text, disabled } = getCertificadoButtonState(record, loading);
+        const { text, disabled } = getCertificadoButtonState(record);
 
         return (
           <Button
@@ -575,7 +646,6 @@ const ListaPresencaCodaf: React.FC = () => {
       form.setFieldsValue({
         turmaId: undefined,
       });
-      console.log(propostaSelecionada);
 
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
@@ -649,6 +719,84 @@ const ListaPresencaCodaf: React.FC = () => {
           navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO, { state: getStateToSave() });
         }}
       />
+
+      <Modal
+        title={
+          <span
+            style={{
+              fontFamily: 'Roboto',
+              fontWeight: 700,
+              fontStyle: 'normal',
+              fontSize: 20,
+              lineHeight: '100%',
+              letterSpacing: '0%',
+            }}
+          >
+            Finalização de CODAF
+          </span>
+        }
+        open={modalFinalizarVisible}
+        onCancel={onCancelarFinalizarCodaf}
+        width={672}
+        styles={{
+          content: {
+            padding: 24,
+            borderRadius: 4,
+          },
+          header: {
+            marginBottom: 32,
+          },
+          body: {
+            display: 'flex',
+            flexDirection: 'column',
+          },
+        }}
+        footer={[
+          <Button
+            key='cancelar'
+            onClick={onCancelarFinalizarCodaf}
+            disabled={finalizandoCodaf}
+            style={{
+              fontWeight: 700,
+              color: '#ff9a52',
+              borderColor: '#ff9a52',
+              backgroundColor: '#FFFFFF',
+            }}
+          >
+            Cancelar
+          </Button>,
+          <Button
+            key='finalizar'
+            type='primary'
+            onClick={onConfirmarFinalizarCodaf}
+            loading={finalizandoCodaf}
+            style={{
+              fontWeight: 700,
+              backgroundColor: '#ff9a52',
+              borderColor: '#ff9a52',
+            }}
+          >
+            Finalizar registro CODAF
+          </Button>,
+        ]}
+      >
+        <p
+          style={{
+            fontFamily: 'Roboto',
+            fontWeight: 400,
+            fontStyle: 'normal',
+            fontSize: 14,
+            lineHeight: '100%',
+            letterSpacing: '0%',
+            margin: 0,
+          }}
+        >
+          Este registro não possui aprovações. Após a finalização ele não poderá ser editado nem
+          excluído.
+          <br />
+          Verifique o CODAF antes de finalizar.
+        </p>
+      </Modal>
 
       <HeaderListagemCodaf
         titulo='Lista Presença Codaf'
