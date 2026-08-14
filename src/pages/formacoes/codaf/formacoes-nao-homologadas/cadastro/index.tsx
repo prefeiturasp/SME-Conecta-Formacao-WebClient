@@ -18,7 +18,6 @@ import {
   obterAnexoCodafParaDownload,
 } from '~/core/services/codaf-lista-presenca-service';
 import { obterDetalhesPropostaComTurmasPorId, PropostaTurmaDTO } from '~/core/services/proposta-service';
-import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { onClickVoltar } from '~/core/utils/form';
 import {
   atualizarCodafNaoHomologado,
