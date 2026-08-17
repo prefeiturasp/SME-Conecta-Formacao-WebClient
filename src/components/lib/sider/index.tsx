@@ -102,6 +102,8 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
         if (!collapsed) {
           setOpenKeys((prev) => Array.from(new Set([...prev, ...result.openKeysToSet])));
         }
+      } else {
+        setSelectedKeys([]);
       }
     }
   }, [items, location.pathname, collapsed, setOpenKeys, setSelectedKeys]);
