@@ -78,6 +78,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const [status, setStatus] = useState<number | null>(null);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
+  const [declaracaoEmitida, setDeclaracaoEmitida] = useState(false);
 
   const modoEdicao = !!id;
 
@@ -96,7 +97,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         codigoFormacao: !!modoEdicao,
         turma: !!modoEdicao,
       },
-      listaInscritos: situacao.finalizado,
+      listaInscritos: situacao.finalizado || declaracaoEmitida,
       informacoesAdicionais: situacao.finalizado && ehAreaPromotora,
     },
     anexos: {
@@ -106,7 +107,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
     botoes: {
       excluir: {
         visivel: modoEdicao,
-        bloqueado: situacao.finalizado,
+        bloqueado: situacao.finalizado || declaracaoEmitida,
       },
 
       salvar: {
@@ -114,7 +115,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           (!situacao.aguardandoFinalizacao ||
             (situacao.aguardandoFinalizacao && ehAreaPromotoraEAdmin)) &&
           !situacao.finalizado,
-        bloqueado: situacao.finalizado,
+        bloqueado: situacao.finalizado || declaracaoEmitida,
       },
     },
   };
@@ -182,6 +183,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         }
 
         const dados = response.dados;
+        setDeclaracaoEmitida(dados.declaracaoEmitida ?? false);
         setRegistroId(dados.id);
         setStatus(dados.status);
 

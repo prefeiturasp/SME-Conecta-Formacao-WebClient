@@ -80,6 +80,7 @@ export type CodafNaoHomologadoDetalheDTO = {
   criadoPor: string;
   criadoLogin: string;
   anexos?: AnexoCodafDetalheDTO[];
+  declaracaoEmitida: boolean;
 };
 
 export const URL_API_CODAF_CURSO_NAO_HOMOLOGADO = 'v1/CodafCursoNaoHomologado';
@@ -166,5 +167,5 @@ export const excluirCodafNaoHomologado = (
 export const emitirDeclaracaoCodafNaoHomologado = (
   codafNaoHomologadoId: number,
 ): Promise<ApiResult<any>> => {
-  return api.post(`v1/CodafDeclaracao/${codafNaoHomologadoId}/emitir`);
+  return inserirRegistro(`v1/CodafDeclaracao/${codafNaoHomologadoId}/emitir`);
 };
