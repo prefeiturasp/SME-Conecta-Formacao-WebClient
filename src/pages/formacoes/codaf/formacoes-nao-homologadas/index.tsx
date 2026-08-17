@@ -402,8 +402,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     setFiltroUtilizado(false);
     setTurmaDesabilitada(true);
     setTurmasProposta([]);
-    setDados([]);
     form.resetFields();
+    carregarDadosCodaf(1);
   };
 
   const aoClicarEmFiltrar = () => {    
