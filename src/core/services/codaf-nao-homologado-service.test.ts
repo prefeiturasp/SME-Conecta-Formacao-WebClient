@@ -210,12 +210,12 @@ describe('codaf-nao-homologado-service', () => {
   });
 
   describe('emitirDeclaracaoCodafNaoHomologado', () => {
-    it('deve chamar api.post para emitir declaracao', async () => {
-      (api.post as jest.Mock).mockResolvedValue({});
+    it('deve chamar inserirRegistro para emitir declaracao', async () => {
+      (inserirRegistro as jest.Mock).mockResolvedValue({});
 
       await emitirDeclaracaoCodafNaoHomologado(5);
 
-      expect(api.post).toHaveBeenCalledWith(`v1/CodafDeclaracao/5/emitir`);
+      expect(inserirRegistro).toHaveBeenCalledWith(`v1/CodafDeclaracao/5/emitir`);
     });
   });
 
