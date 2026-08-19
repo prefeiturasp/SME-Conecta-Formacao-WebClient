@@ -27,6 +27,7 @@ import ButtonVoltar from '~/components/main/button/voltar';
 import SelectAreaPromotora from '~/components/main/input/area-promotora';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
+import ModalFinalizarCodaf from '~/components/main/modal/modal-finalizar-codaf';
 import { CF_BUTTON_NOVO, CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
   CF_INPUT_CODIGO_FORMACAO,
@@ -38,14 +39,13 @@ import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
-import {
-  emitirCertificadosCodaf
-} from '~/core/services/codaf-lista-presenca-service';
+import { emitirCertificadosCodaf } from '~/core/services/codaf-lista-presenca-service';
 import {
   baixarArquivoRemessaEol,
   CodafSuplementarDTO,
   imprimirRelatorioCodafSuplementar,
   obterCodafSuplementar,
+  finalizarCodafSuplementar,
 } from '~/core/services/codaf-suplementar-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import {
@@ -316,6 +316,12 @@ const CodafSuplementar: React.FC = () => {
   const isDfAdmin = selectedProfile === TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
   const mustHideRestrictedColumns = hiddenColumnsProfileNames.has(selectedProfile);
 
+  const [modalFinalizarVisible, setModalFinalizarVisible] = useState(false);
+  const [registroParaFinalizar, setRegistroParaFinalizar] = useState<CodafSuplementarDTO | null>(
+    null,
+  );
+  const [finalizandoCodaf, setFinalizandoCodaf] = useState(false);
+
   const openCreationNotice = useCallback(() => {
     setIsNoticeOpen(true);
   }, []);
@@ -379,6 +385,10 @@ const CodafSuplementar: React.FC = () => {
   const requestCertificateIssue = useCallback(
     async (record: CodafSuplementarDTO) => {
       try {
+        if (!record.possuiAprovacoes) {
+          return { text: 'Sem aprovações', disabled: true };
+        }
+
         setBusy(true);
         const response = await emitirCertificadosCodaf(record.id, TipoCodaf.Suplementar);
 
@@ -459,6 +469,53 @@ const CodafSuplementar: React.FC = () => {
     [loadRows],
   );
 
+  const handleFinalizarCodaf = (record: CodafSuplementarDTO) => {
+    setRegistroParaFinalizar(record);
+    setModalFinalizarVisible(true);
+  };
+
+  const onCancelarFinalizarCodaf = () => {
+    setModalFinalizarVisible(false);
+    setRegistroParaFinalizar(null);
+  };
+
+  const onConfirmarFinalizarCodaf = async () => {
+    if (!registroParaFinalizar) return;
+
+    try {
+      setFinalizandoCodaf(true);
+      const response = await finalizarCodafSuplementar(registroParaFinalizar.id);
+
+      if (response.status === 204) {
+        notification.success({
+          message: 'Sucesso',
+          description: 'CODAF Suplementar finalizado com sucesso.',
+        });
+        setModalFinalizarVisible(false);
+        setRegistroParaFinalizar(null);
+        await loadRows(currentPage);
+      } else {
+        notification.error({
+          message: 'Erro',
+          description: 'Erro ao finalizar CODAF Suplementar.',
+        });
+      }
+    } catch (error: any) {
+      // Erro 400 do backend traz a mensagem de negócio em error.response.data
+      const mensagemErro =
+        error?.response?.data?.mensagens?.[0] ??
+        error?.response?.data?.MensagensErro?.[0] ??
+        'Não conseguimos finalizar seu registro CODAF. Tente novamente.';
+
+      notification.error({
+        message: 'Erro',
+        description: mensagemErro,
+      });
+    } finally {
+      setFinalizandoCodaf(false);
+    }
+  };
+
   const buildActionsMenu = useCallback(
     (record: CodafSuplementarDTO): MenuProps => {
       const hasEolCourseCode = record.codigoCursoEol != null;
@@ -468,11 +525,15 @@ const CodafSuplementar: React.FC = () => {
       const certificatesReady = record.statusCertificacaoTurma === CERTIFICADO_STATUS.EMITIDOS;
       const commonTxtAllowed = waitingForFinalization && hasEolCourseCode;
       const adminTxtAllowed = finished && isDfAdmin;
-      const txtAllowed = commonTxtAllowed || adminTxtAllowed;
+      const txtAllowed = (commonTxtAllowed || adminTxtAllowed) && record.possuiAprovacoes;
 
       const txtTooltip = (() => {
         if (txtAllowed) {
           return 'Clique para gerar TXT EOL';
+        }
+
+        if (!record.possuiAprovacoes) {
+          return 'Este CODAF Suplementarnão possui aprovações.';
         }
 
         if (waitingForFinalization && !hasEolCourseCode) {
@@ -504,26 +565,46 @@ const CodafSuplementar: React.FC = () => {
 
       items.push({
         key: 'download-codaf-report',
-        disabled: !certificatesReady,
-        label: (
-          <ActionMenuText
-            tooltip={
-              certificatesReady
-                ? 'Clique para exportar arquivo CODAF desta turma'
-                : 'Gere os certificados para baixar o relatório CODAF.'
-            }
-            blocked={!certificatesReady}
-          >
-            Baixar Relatório CODAF
-          </ActionMenuText>
-        ),
+        disabled: !certificatesReady || !record.possuiAprovacoes,
+        label:
+          certificatesReady && record.possuiAprovacoes ? (
+            <Tooltip title='Clique para exportar arquivo CODAF desta turma'>
+              <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
+            </Tooltip>
+          ) : (
+            <span style={{ display: 'block' }}>
+              Baixar Relatório CODAF &nbsp;
+              <Tooltip
+                title={
+                  record.possuiAprovacoes
+                    ? 'Gere os certificados para baixar o relatório CODAF.'
+                    : 'Este CODAF não possui aprovações.'
+                }
+              >
+                <QuestionCircleOutlined
+                  style={{ color: '#ff6b35', cursor: 'help', marginRight: 4 }}
+                />
+              </Tooltip>
+            </span>
+          ),
         onClick: (event) => {
           event.domEvent.stopPropagation();
-          if (certificatesReady) {
+          if (certificatesReady && record.possuiAprovacoes) {
             downloadCodafReport(record);
           }
         },
       });
+
+      if (!record.possuiAprovacoes && !finished && isDfAdmin) {
+        items.push({
+          key: 'finalizar',
+          label: <span style={{ display: 'block' }}>Finalizar</span>,
+          onClick: (e: any) => {
+            e.domEvent.stopPropagation();
+            handleFinalizarCodaf(record);
+          },
+        });
+      }
 
       return { items };
     },
@@ -576,7 +657,7 @@ const CodafSuplementar: React.FC = () => {
     ],
     [mustHideRestrictedColumns],
   );
-  
+
   const certificateColumn = useMemo<ColumnsType<CodafSuplementarDTO>>(
     () => [
       {
@@ -593,14 +674,12 @@ const CodafSuplementar: React.FC = () => {
         render: (_value, record) => {
           const certificate = buildCertificateState(record.statusCertificacaoTurma);
 
-          const isFeatureAvailable = true; 
-          
+          const isFeatureAvailable = true;
+
           const isButtonDisabled = certificate.disabled;
 
           return (
-            <Tooltip 
-              title={!isFeatureAvailable ? 'Funcionalidade ainda não disponível' : null}
-            >
+            <Tooltip title={isFeatureAvailable ? null : 'Funcionalidade ainda não disponível'}>
               <span style={{ display: 'block', width: '100%' }}>
                 <Button
                   type='default'
@@ -786,7 +865,6 @@ const CodafSuplementar: React.FC = () => {
     [],
   );
 
-
   return (
     <Col>
       <Modal
@@ -811,6 +889,13 @@ const CodafSuplementar: React.FC = () => {
         </p>
         <br />
       </Modal>
+
+      <ModalFinalizarCodaf
+        modalFinalizarVisible={modalFinalizarVisible}
+        onCancelarFinalizarCodaf={onCancelarFinalizarCodaf}
+        finalizandoCodaf={finalizandoCodaf}
+        onConfirmarFinalizarCodaf={onConfirmarFinalizarCodaf}
+      />
 
       <HeaderPage title='CODAF Suplementar'>
         <Col span={24}>
