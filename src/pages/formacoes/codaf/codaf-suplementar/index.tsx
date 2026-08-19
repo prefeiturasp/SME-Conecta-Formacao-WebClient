@@ -39,10 +39,7 @@ import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
-import {
-  CodafListaPresencaDTO,
-  emitirCertificadosCodaf,
-} from '~/core/services/codaf-lista-presenca-service';
+import { emitirCertificadosCodaf } from '~/core/services/codaf-lista-presenca-service';
 import {
   baixarArquivoRemessaEol,
   CodafSuplementarDTO,
@@ -388,10 +385,9 @@ const CodafSuplementar: React.FC = () => {
   const requestCertificateIssue = useCallback(
     async (record: CodafSuplementarDTO) => {
       try {
-
-          if (!record.possuiAprovacoes) {
+        if (!record.possuiAprovacoes) {
           return { text: 'Sem aprovações', disabled: true };
-          }
+        }
 
         setBusy(true);
         const response = await emitirCertificadosCodaf(record.id, TipoCodaf.Suplementar);
@@ -580,9 +576,9 @@ const CodafSuplementar: React.FC = () => {
               Baixar Relatório CODAF &nbsp;
               <Tooltip
                 title={
-                  !record.possuiAprovacoes
-                    ? 'Este CODAF não possui aprovações.'
-                    : 'Gere os certificados para baixar o relatório CODAF.'
+                  record.possuiAprovacoes
+                    ? 'Gere os certificados para baixar o relatório CODAF.'
+                    : 'Este CODAF não possui aprovações.'
                 }
               >
                 <QuestionCircleOutlined
@@ -600,15 +596,15 @@ const CodafSuplementar: React.FC = () => {
       });
 
       if (!record.possuiAprovacoes && !finished && isDfAdmin) {
-      items.push({
-        key: 'finalizar',
-        label: <span style={{ display: 'block' }}>Finalizar</span>,
-        onClick: (e: any) => {
-          e.domEvent.stopPropagation();
-          handleFinalizarCodaf(record);
-        },
-      });
-    }
+        items.push({
+          key: 'finalizar',
+          label: <span style={{ display: 'block' }}>Finalizar</span>,
+          onClick: (e: any) => {
+            e.domEvent.stopPropagation();
+            handleFinalizarCodaf(record);
+          },
+        });
+      }
 
       return { items };
     },
@@ -683,7 +679,7 @@ const CodafSuplementar: React.FC = () => {
           const isButtonDisabled = certificate.disabled;
 
           return (
-            <Tooltip title={!isFeatureAvailable ? 'Funcionalidade ainda não disponível' : null}>
+            <Tooltip title={isFeatureAvailable ? null : 'Funcionalidade ainda não disponível'}>
               <span style={{ display: 'block', width: '100%' }}>
                 <Button
                   type='default'
