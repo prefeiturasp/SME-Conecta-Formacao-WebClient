@@ -14,6 +14,10 @@ import {
 
 export const URL_API_CODAF_SUPLEMENTAR = 'v1/CodafSuplementar';
 
+export type CodafSuplementarResumoDTO = CodafListagemBaseDTO & {
+  possuiAprovacoes: boolean;
+};
+
 export type InscritoDetalheDTO = {
   id: number;
   inscricaoId: number;
@@ -118,6 +122,10 @@ export const alterarCodafSuplementar = (
   dados: AlterarCodafSuplementarDTO,
 ): Promise<ApiResult<any>> => {
   return alterarRegistro(`${URL_API_CODAF_SUPLEMENTAR}/${id}`, dados);
+};
+
+export const finalizarCodafSuplementar = (codafSuplementarId: number): Promise<ApiResult<any>> => {
+  return api.patch(`${URL_API_CODAF_SUPLEMENTAR}/${codafSuplementarId}/finalizar`);
 };
 
 export const excluirCodafSuplementar = (
