@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
-import BreadcrumbCDEP from './index';
+import BreadcrumbConecta from './index';
 
 // Mock do ícone
 jest.mock('@ant-design/icons', () => ({
@@ -28,9 +28,9 @@ jest.mock('antd', () => ({
   ),
 }));
 
-describe('BreadcrumbCDEP', () => {
+describe('BreadcrumbConecta', () => {
   it('deve renderizar breadcrumb com valores padrão', () => {
-    render(<BreadcrumbCDEP urlMainPage="/home" />);
+    render(<BreadcrumbConecta urlMainPage="/home" />);
 
     expect(screen.getByTestId('breadcrumb')).toBeInTheDocument();
 
@@ -45,7 +45,7 @@ describe('BreadcrumbCDEP', () => {
 
   it('deve renderizar breadcrumb com props customizadas', () => {
     render(
-      <BreadcrumbCDEP
+      <BreadcrumbConecta
         menu="Gestão"
         mainPage="Dashboard"
         urlMainPage="/dashboard"
@@ -60,19 +60,19 @@ describe('BreadcrumbCDEP', () => {
   });
 
   it('deve conter o ícone HomeOutlined', () => {
-    render(<BreadcrumbCDEP urlMainPage="/home" />);
+    render(<BreadcrumbConecta urlMainPage="/home" />);
 
     expect(screen.getByTestId('home-icon')).toBeInTheDocument();
   });
 
   it('deve sempre renderizar o title mesmo sendo padrão', () => {
-    render(<BreadcrumbCDEP urlMainPage="/home" />);
+    render(<BreadcrumbConecta urlMainPage="/home" />);
 
     expect(screen.getByTestId('title-3')).toHaveTextContent('Nome da Página');
   });
 
   it('deve renderizar title customizado quando informado', () => {
-    render(<BreadcrumbCDEP urlMainPage="/home" title="Tela X" />);
+    render(<BreadcrumbConecta urlMainPage="/home" title="Tela X" />);
 
     expect(screen.getByTestId('title-3')).toHaveTextContent('Tela X');
   });
