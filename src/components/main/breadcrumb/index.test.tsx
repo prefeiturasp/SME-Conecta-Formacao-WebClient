@@ -3,77 +3,158 @@
  */
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import BreadcrumbConecta from './index';
 
-// Mock do ícone
+// Mock the icons to verify their presence
 jest.mock('@ant-design/icons', () => ({
   HomeOutlined: () => <span data-testid="home-icon" />,
 }));
 
-// Mock do Ant Design Breadcrumb
-jest.mock('antd', () => ({
-  Breadcrumb: ({ items }: any) => (
-    <div data-testid="breadcrumb">
-      {items.map((item: any, index: number) => (
-        <div key={index} data-testid={`breadcrumb-item-${index}`}>
-          <span data-testid={`title-${index}`}>
-            {item.title}
-          </span>
-          <span data-testid={`href-${index}`}>
-            {item.href}
-          </span>
-        </div>
-      ))}
-    </div>
-  ),
-}));
+// Mock the menus to test the findTrail algorithm without depending on the real menus file
+jest.mock('~/components/main/sider/menus', () => {
+  return {
+    menus: [
+      {
+        title: 'Menu Pai',
+        url: '/pai',
+        children: [
+          {
+            title: 'Menu Filho',
+            url: '/pai/filho',
+            children: [
+              {
+                title: 'Neto',
+                url: '/pai/filho/neto',
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Simples',
+        url: '/simples',
+      }
+    ]
+  };
+});
 
 describe('BreadcrumbConecta', () => {
-  it('deve renderizar breadcrumb com valores padrão', () => {
-    render(<BreadcrumbConecta urlMainPage="/home" />);
-
-    expect(screen.getByTestId('breadcrumb')).toBeInTheDocument();
-
-    expect(screen.getByTestId('home-icon')).toBeInTheDocument();
-
-    expect(screen.getByText('Inicio')).toBeInTheDocument();
-    expect(screen.getByText('Menu')).toBeInTheDocument();
-    expect(screen.getByText('Nome da Página')).toBeInTheDocument();
-
-    expect(screen.getByTestId('href-2')).toHaveTextContent('/home');
-  });
-
-  it('deve renderizar breadcrumb com props customizadas', () => {
+  it('deve renderizar breadcrumb com props explicitas ignorando a rota', () => {
     render(
-      <BreadcrumbConecta
-        menu="Gestão"
-        mainPage="Dashboard"
-        urlMainPage="/dashboard"
-        title="Relatório"
-      />
+      <MemoryRouter initialEntries={['/alguma-rota']}>
+        <BreadcrumbConecta urlMainPage="/home" menu="MenuTeste" mainPage="MainTeste" title="TituloTeste" />
+      </MemoryRouter>
     );
-
-    expect(screen.getByTestId('title-1')).toHaveTextContent('Gestão');
-    expect(screen.getByTestId('title-2')).toHaveTextContent('Dashboard');
-    expect(screen.getByTestId('href-2')).toHaveTextContent('/dashboard');
-    expect(screen.getByTestId('title-3')).toHaveTextContent('Relatório');
+    expect(screen.getByText('Início')).toBeInTheDocument();
+    expect(screen.getByText('MenuTeste')).toBeInTheDocument();
+    expect(screen.getByText('MainTeste')).toBeInTheDocument();
+    expect(screen.getByText('TituloTeste')).toBeInTheDocument();
   });
 
-  it('deve conter o ícone HomeOutlined', () => {
-    render(<BreadcrumbConecta urlMainPage="/home" />);
-
-    expect(screen.getByTestId('home-icon')).toBeInTheDocument();
+  it('não deve renderizar Menu se props forem omitidas mas urlMainPage existir', () => {
+    render(
+      <MemoryRouter initialEntries={['/alguma-rota']}>
+        <BreadcrumbConecta urlMainPage="/home" />
+      </MemoryRouter>
+    );
+    expect(screen.queryByText('Menu')).not.toBeInTheDocument();
   });
 
-  it('deve sempre renderizar o title mesmo sendo padrão', () => {
-    render(<BreadcrumbConecta urlMainPage="/home" />);
-
-    expect(screen.getByTestId('title-3')).toHaveTextContent('Nome da Página');
+  it('deve calcular o breadcrumb a partir da rota simples (1 nivel)', () => {
+    render(
+      <MemoryRouter initialEntries={['/simples']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Simples')).toBeInTheDocument();
   });
 
-  it('deve renderizar title customizado quando informado', () => {
-    render(<BreadcrumbConecta urlMainPage="/home" title="Tela X" />);
+  it('deve calcular o breadcrumb a partir da rota aninhada (2 niveis)', () => {
+    render(
+      <MemoryRouter initialEntries={['/pai/filho']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Menu Pai')).toBeInTheDocument();
+    expect(screen.getByText('Menu Filho')).toBeInTheDocument();
+  });
 
-    expect(screen.getByTestId('title-3')).toHaveTextContent('Tela X');
+  it('deve calcular o breadcrumb a partir da rota aninhada (3 niveis)', () => {
+    render(
+      <MemoryRouter initialEntries={['/pai/filho/neto']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Menu Pai')).toBeInTheDocument();
+    expect(screen.getByText('Neto')).toBeInTheDocument();
+  });
+
+  it('deve identificar sufixos como editar, novo, etc.', () => {
+    render(
+      <MemoryRouter initialEntries={['/pai/filho/editar/123']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Menu Pai')).toBeInTheDocument();
+    expect(screen.getByText('Menu Filho')).toBeInTheDocument();
+    expect(screen.getByText('Editar')).toBeInTheDocument();
+  });
+
+  it('deve identificar sufixo novo', () => {
+    render(
+      <MemoryRouter initialEntries={['/pai/filho/novo']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Novo')).toBeInTheDocument();
+  });
+
+  it('deve identificar sufixo visualizar', () => {
+    render(
+      <MemoryRouter initialEntries={['/pai/filho/visualizar/123']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Visualizar')).toBeInTheDocument();
+  });
+
+  it('deve identificar sufixo arquivo', () => {
+    render(
+      <MemoryRouter initialEntries={['/pai/filho/arquivo/123']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Arquivo')).toBeInTheDocument();
+  });
+
+  it('deve identificar sufixo detalhes', () => {
+    render(
+      <MemoryRouter initialEntries={['/pai/filho/detalhes/123']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Detalhes')).toBeInTheDocument();
+  });
+
+  it('nao deve encontrar menu se a rota for apenas raiz', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <BreadcrumbConecta />
+      </MemoryRouter>
+    );
+    // Deve exibir apenas inicio
+    expect(screen.getByText('Início')).toBeInTheDocument();
+    expect(screen.queryByText('Menu Pai')).not.toBeInTheDocument();
+  });
+
+  it('deve aplicar title passado por prop mesmo ao usar route parsing', () => {
+    render(
+      <MemoryRouter initialEntries={['/pai/filho']}>
+        <BreadcrumbConecta title="TituloSobrescrito" />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Menu Pai')).toBeInTheDocument();
+    expect(screen.getByText('TituloSobrescrito')).toBeInTheDocument();
   });
 });
