@@ -116,10 +116,15 @@ const BreadcrumbConecta: React.FC<BreadcrumbCDEPProps> = (props) => {
 
     const path = location.pathname;
 
-    const findTrail = (menuList: any[], currentTrail: any[]) => {
-      let bestMatch: any[] | null = null;
+    type BreadcrumbTrailItem = {
+      title?: React.ReactNode;
+      url?: string;
+    };
+
+    const findTrail = (menuList: any[], currentTrail: BreadcrumbTrailItem[]): BreadcrumbTrailItem[] | null => {
+      let bestMatch: BreadcrumbTrailItem[] | null = null;
       for (const m of menuList) {
-        const newTrail = [...currentTrail, { title: m.title, url: m.url }];
+        const newTrail: BreadcrumbTrailItem[] = [...currentTrail, { title: m.title, url: m.url }];
         
         if (m.url && m.url !== '/' && path.startsWith(m.url)) {
           if (!bestMatch || (bestMatch[bestMatch.length - 1].url?.length || 0) < m.url.length) {
@@ -141,17 +146,17 @@ const BreadcrumbConecta: React.FC<BreadcrumbCDEPProps> = (props) => {
 
     const trail = findTrail(menus, []) || [];
 
-    trail.forEach((t, index) => {
+    trail.forEach((t: BreadcrumbTrailItem, index: number) => {
        items.push({
           href: index === trail.length - 1 ? t.url || '' : '',
           title: <TitleSpan>{t.title}</TitleSpan>,
        });
     });
 
-    const lastWithUrl = trail.slice().reverse().find(t => t.url);
+    const lastWithUrl = trail.slice().reverse().find((t: BreadcrumbTrailItem) => t.url);
     let foundTitle = props.title || '';
 
-    if (lastWithUrl && !foundTitle) {
+    if (lastWithUrl && !foundTitle && lastWithUrl.url) {
       const rest = path.replace(lastWithUrl.url, '');
       if (rest.includes('/editar')) foundTitle = 'Editar';
       else if (rest.includes('/novo')) foundTitle = 'Novo';
