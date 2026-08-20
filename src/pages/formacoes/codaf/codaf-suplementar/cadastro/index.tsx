@@ -4,7 +4,7 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
@@ -334,11 +334,12 @@ function ActionButtons({
   salvarDesabilitado,
   formLocks,
 }: ActionButtonsProps) {
+  const location = useLocation();
   return (
     <Row gutter={[8, 8]}>
       <Col>
         <ButtonVoltar
-          onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR })}
+          onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR, paramsRoute: { state: location?.state } })}
           id={CF_BUTTON_VOLTAR}
         />
       </Col>
@@ -360,7 +361,7 @@ function ActionButtons({
           <Button
             disabled={formLocks.actions.salvar.locked}
             type='default'
-            onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR })}
+            onClick={() => onClickVoltar({ navigate, route: ROUTES.CODAF_SUPLEMENTAR, paramsRoute: { state: location?.state } })}
             id={CF_BUTTON_CANCELAR}
             style={{ fontWeight: 700 }}
           >
@@ -390,6 +391,7 @@ const CadastroCodafSuplementar: React.FC = () => {
   const [form] = Form.useForm<CodafFormValues>();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [cursistas, setCursistas] = useState<CursistaDTO[]>([]);
@@ -751,7 +753,7 @@ const CadastroCodafSuplementar: React.FC = () => {
         description: isEditing ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
       });
 
-      navigate(ROUTES.CODAF_SUPLEMENTAR);
+      navigate(ROUTES.CODAF_SUPLEMENTAR, { state: location.state });
     } else {
       const msgStr = getSaveErrorMessage(response, isEditing);
       console.error('Erro da API:', response.mensagens ?? []);
