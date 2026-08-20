@@ -389,9 +389,9 @@ const CodafSuplementar: React.FC = () => {
     const carregarEstadoEBuscar = async () => {
       if (location.state) {
         const state = location.state as any;
-        let turmas = [];
+        let turmas: RetornoListagemDTO[] = [];
         let turmaDesab = true;
-        let opcoes = [];
+        let opcoes: PropostaAutocompletarDTO[] = [];
         
         if (state.propostaSelecionada) {
            setPropostaSelecionada(state.propostaSelecionada);
