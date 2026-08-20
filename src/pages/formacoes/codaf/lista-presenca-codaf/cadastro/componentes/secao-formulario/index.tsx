@@ -29,6 +29,8 @@ interface SecaoFormularioProps {
   ehPerfilEMFORPEF: boolean;
   camposBloqueados: {
     numeroHomologacao: boolean;
+    nomeFormacao?: boolean;
+    codigoFormacao?: boolean;
     turma: boolean;
   };
 }
@@ -88,7 +90,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                 id: CF_INPUT_NOME_FORMACAO,
                 placeholder: 'Nome da formação',
                 maxLength: 200,
-                disabled: true,
+                disabled: camposBloqueados.nomeFormacao ?? true,
               }}
             />
           </b>
@@ -107,7 +109,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                 id: CF_INPUT_CODIGO_FORMACAO,
                 placeholder: 'Código da formação',
                 maxLength: 20,
-                disabled: true,
+                disabled: camposBloqueados.codigoFormacao ?? true,
               }}
             />
           </b>

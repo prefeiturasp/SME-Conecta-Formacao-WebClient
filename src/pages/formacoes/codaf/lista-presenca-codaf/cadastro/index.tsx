@@ -47,6 +47,7 @@ import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
 import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import { deveBloquearEdicaoCodaf, deveDesabilitarSalvarCodaf } from '~/core/utils/codaf-salvar';
 import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
 import { useCodafComum } from '~/core/hooks/use-codaf-comum';
 import { usePerfilCodaf } from '~/core/hooks/use-perfil-codaf';
@@ -55,6 +56,7 @@ import { SecaoInformacoesAdicionais } from '../../shared/componentes/secao-infor
 import { useExclusaoCodaf } from '~/core/hooks/use-exclusao-codaf';
 import { BotoesAcaoCodaf } from '../../shared/componentes/botoes-acao-codaf';
 import { criarColunasCodafHomologado } from '../../shared/componentes/codaf-colunas-factory';
+import { obterCertificadosCodaf } from '~/core/services/codaf-certificado-service';
 
 interface CursistaDTO {
   id: number;
@@ -116,6 +118,13 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
   const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
   const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
+  const [status, setStatus] = useState<number | null>(null);
+  const [certificadoEmitido, setCertificadoEmitido] = useState(false);
+
+  const bloqueadoPorStatusOuCertificado = deveBloquearEdicaoCodaf(
+    status === 4,
+    certificadoEmitido,
+  );
 
   const cursistasSelecionados = cursistas.filter((c) => cursistasSelecionadosIds.includes(c.id));
 
@@ -125,8 +134,10 @@ const CadastroListaPresencaCodaf: React.FC = () => {
 
   const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 2;
 
-  const registrarDadosDesabilitado = !quantidadeMinimaSelecionada || algumSelecionadoComDados;
-  const editarDadosDesabilitado = !quantidadeMinimaSelecionada || !algumSelecionadoComDados;
+  const registrarDadosDesabilitado =
+    bloqueadoPorStatusOuCertificado || !quantidadeMinimaSelecionada || algumSelecionadoComDados;
+  const editarDadosDesabilitado =
+    bloqueadoPorStatusOuCertificado || !quantidadeMinimaSelecionada || !algumSelecionadoComDados;
 
   const onClickRegistrarDados = () => {
     setDrawerLoteModo('registrar');
@@ -163,7 +174,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [formValido, setFormValido] = useState(false);
   const [registroId, setRegistroId] = useState<number | null>(null);
-  const [status, setStatus] = useState<number | null>(null);
   const [tooltipAberto, setTooltipAberto] = useState(false);
   const [todasTurmasPossuemLista, setTodasTurmasPossuemLista] = useState(false);
   const [retificacoes, setRetificacoes] = useState<number[]>([1]);
@@ -217,9 +227,33 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     finalizado: status === 4,
   };
 
+  const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
+  const nomeFormacao = Form.useWatch('nomeFormacao', form);
+  const codigoFormacao = Form.useWatch('codigoFormacao', form);
+  const turmaId = Form.useWatch('turmaId', form);
+  const numeroComunicado = Form.useWatch('numeroComunicado', form);
+  const paginaComunicado = Form.useWatch('paginaComunicado', form);
+  const codigoCursoEol = Form.useWatch('codigoCursoEol', form);
+  const codigoNivel = Form.useWatch('codigoNivel', form);
+  const dataPublicacao = Form.useWatch('dataPublicacao', form);
+  const dataPublicacaoDiarioOficial = Form.useWatch('dataPublicacaoDiarioOficial', form);
+  const anexos = Form.useWatch('anexos', form);
+
+  const salvarDesabilitadoPorCamposObrigatorios = deveDesabilitarSalvarCodaf(
+    certificadoEmitido,
+    {
+      numeroComunicado,
+      dataPublicacao,
+      paginaComunicado,
+      dataPublicacaoDiarioOficial,
+      codigoCursoEol,
+      anexos,
+    },
+  );
+
   const bloqueioDivergenciaSalvar =
     modoEdicao &&
-    (situacao.iniciado || situacao.aguardandoDF) &&
+    (situacao.iniciado) &&
     mostrarDivergencia;
 
   const bloqueioDivergenciaEnviarDF =
@@ -230,11 +264,13 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
     campos: {
       secaoFormulario: {
-        numeroHomologacao: situacao.finalizado,
-        turma: situacao.finalizado,
+        numeroHomologacao: bloqueadoPorStatusOuCertificado,
+        nomeFormacao: situacao.finalizado,
+        codigoFormacao: situacao.finalizado,
+        turma: bloqueadoPorStatusOuCertificado,
       },
 
-      listaInscritos: situacao.finalizado,
+      listaInscritos: bloqueadoPorStatusOuCertificado,
 
       retificacoes:
         situacao.finalizado && ehAreaPromotora,
@@ -254,7 +290,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           situacao.iniciado,
 
         bloqueado:
-          situacao.finalizado,
+          bloqueadoPorStatusOuCertificado,
       },
 
       enviarDF: {
@@ -289,21 +325,11 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           ) && !situacao.finalizado,
 
         bloqueado: (!modoEdicao && todasTurmasPossuemLista) ||
-          situacao.finalizado || bloqueioDivergenciaSalvar,
+          bloqueioDivergenciaSalvar ||
+          salvarDesabilitadoPorCamposObrigatorios,
       },
     },
   };
-
-  const numeroHomologacao = Form.useWatch('numeroHomologacao', form);
-  const nomeFormacao = Form.useWatch('nomeFormacao', form);
-  const codigoFormacao = Form.useWatch('codigoFormacao', form);
-  const turmaId = Form.useWatch('turmaId', form);
-  const numeroComunicado = Form.useWatch('numeroComunicado', form);
-  const paginaComunicado = Form.useWatch('paginaComunicado', form);
-  const codigoCursoEol = Form.useWatch('codigoCursoEol', form);
-  const codigoNivel = Form.useWatch('codigoNivel', form);
-  const dataPublicacao = Form.useWatch('dataPublicacao', form);
-  const dataPublicacaoDiarioOficial = Form.useWatch('dataPublicacaoDiarioOficial', form);
 
   React.useEffect(() => {
     const camposBasicosPreenchidos =
@@ -418,6 +444,25 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         const dados = response.dados;
         setRegistroId(dados.id);
         setStatus(dados.status);
+        let possuiCertificadosEmitidos = false;
+
+        try {
+          const certificadosResponse = await obterCertificadosCodaf({
+            PropostaTurmaId: dados.propostaTurmaId,
+            NumeroRegistros: 1,
+          });
+          possuiCertificadosEmitidos =
+            certificadosResponse.sucesso &&
+            ((certificadosResponse.dados?.totalRegistros ?? 0) > 0 ||
+              (certificadosResponse.dados?.items.length ?? 0) > 0);
+        } catch (error) {
+          console.error('Erro ao verificar certificados emitidos:', error);
+        }
+
+        setCertificadoEmitido(
+          !!dados.certificadoEmitido ||
+            possuiCertificadosEmitidos,
+        );
         setRegrasAprovacao(dados.regrasAprovacao);
 
         if (dados.comentario) {
