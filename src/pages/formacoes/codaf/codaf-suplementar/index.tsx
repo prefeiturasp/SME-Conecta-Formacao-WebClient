@@ -19,7 +19,7 @@ import 'dayjs/locale/pt-br';
 import React, { useCallback, useMemo, useState } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiPrinter } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
@@ -321,6 +321,9 @@ const CodafSuplementar: React.FC = () => {
     null,
   );
   const [finalizandoCodaf, setFinalizandoCodaf] = useState(false);
+  
+  const location = useLocation();
+  const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(null);
 
   const openCreationNotice = useCallback(() => {
     setIsNoticeOpen(true);
@@ -335,10 +338,10 @@ const CodafSuplementar: React.FC = () => {
     navigate(ROUTES.FORMACAOES_INSCRICOES);
   }, [navigate]);
 
-  const goToCreationForm = useCallback(() => {
+  const goToCreationForm = () => {
     setIsNoticeOpen(false);
-    navigate(ROUTES.CODAF_SUPLEMENTAR_NOVO);
-  }, [navigate]);
+    navigate(ROUTES.CODAF_SUPLEMENTAR_NOVO, { state: getStateToSave() });
+  };
 
   const loadRows = useCallback(
     async (page = 1, recordsPerPage = pageSize) => {
@@ -381,6 +384,54 @@ const CodafSuplementar: React.FC = () => {
     },
     [form, pageSize],
   );
+
+  React.useEffect(() => {
+    const carregarEstadoEBuscar = async () => {
+      if (location.state) {
+        const state = location.state as any;
+        let turmas: RetornoListagemDTO[] = [];
+        let turmaDesab = true;
+        let opcoes: PropostaAutocompletarDTO[] = [];
+        
+        if (state.propostaSelecionada) {
+           setPropostaSelecionada(state.propostaSelecionada);
+           opcoes = [state.propostaSelecionada];
+           
+           try {
+             const response = await obterTurmasInscricao(state.propostaSelecionada.propostaId);
+             if (response.sucesso && response.dados) {
+                turmas = response.dados;
+                turmaDesab = false;
+             }
+           } catch (e) {}
+        }
+        
+        setFormationOptions(opcoes);
+        setClassOptions(turmas);
+        setIsClassBlocked(turmaDesab);
+        
+        form.setFieldsValue(state.formValues);
+        if (state.currentPage) setCurrentPage(state.currentPage);
+        if (state.pageSize) setPageSize(state.pageSize);
+        if (state.hasFilter) setHasFilter(state.hasFilter);
+        
+        loadRows(state.currentPage || 1, state.pageSize || 10);
+      } else {
+        loadRows(1, 10);
+      }
+    };
+    
+    carregarEstadoEBuscar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getStateToSave = () => ({
+    formValues: form.getFieldsValue(),
+    currentPage,
+    pageSize,
+    hasFilter,
+    propostaSelecionada,
+  });
 
   const requestCertificateIssue = useCallback(
     async (record: CodafSuplementarDTO) => {
@@ -1015,7 +1066,7 @@ const CodafSuplementar: React.FC = () => {
             </Col>
           </Row>
 
-          {hasFilter && !failed && (
+          {!failed && (
             <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
               <Col span={24}>
                 {!busy && rows.length === 0 ? (
@@ -1039,7 +1090,7 @@ const CodafSuplementar: React.FC = () => {
                       }}
                       onChange={changeTable}
                       onRow={(record) => ({
-                        onClick: () => navigate(`/formacoes/codaf-suplementar/editar/${record.id}`),
+                        onClick: () => navigate(`/formacoes/codaf-suplementar/editar/${record.id}`, { state: getStateToSave() }),
                         style: { cursor: 'pointer' },
                       })}
                       scroll={{ x: 'max-content' }}
