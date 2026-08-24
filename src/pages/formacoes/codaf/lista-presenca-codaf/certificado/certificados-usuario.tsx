@@ -13,10 +13,8 @@ import { notification } from '~/components/lib/notification';
 
 import {
   obterCertificadosUsuario,
-  CertificadoUsuarioDTO,
   downloadCertificado,
   obterDeclaracoesUsuario,
-  DeclaracaoUsuarioDTO,
   downloadDeclaracao,
 } from '~/core/services/codaf-lista-presenca-service';
 
@@ -52,6 +50,9 @@ const MeusCertificados: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [filtroAplicado, setFiltroAplicado] = useState(false);
 
+  const isCertificado = abaAtiva === 'certificados';
+  const labelTipo = isCertificado ? 'certificado' : 'declaração';
+
   const mapTipoParticipacao = (tipo: number) => {
     switch (tipo) {
       case 1:
@@ -63,54 +64,33 @@ const MeusCertificados: React.FC = () => {
     }
   };
 
-  const onClickVisualizarCertificado = async (record: CertificadoUsuarioDTO) => {
+  const onClickVisualizar = async (record: any) => {
     try {
       setLoadingDownload(record.id);
-      const response = await downloadCertificado(record.id);
+      const action = isCertificado ? downloadCertificado : downloadDeclaracao;
+      const response = await action(record.id);
       if (response.sucesso && response.dados?.urlDownload) {
         window.open(response.dados.urlDownload, '_blank');
       } else {
         notification.error({
           message: 'Erro',
-          description: 'Erro ao obter certificado para download',
+          description: `Erro ao obter ${labelTipo} para download`,
         });
       }
     } catch {
       notification.error({
         message: 'Erro',
-        description: 'Erro ao obter certificado para download',
+        description: `Erro ao obter ${labelTipo} para download`,
       });
     } finally {
       setLoadingDownload(null);
     }
   };
 
-  const onClickVisualizarDeclaracao = async (record: DeclaracaoUsuarioDTO) => {
-    try {
-      setLoadingDownload(record.id);
-      const response = await downloadDeclaracao(record.id);
-      if (response.sucesso && response.dados?.urlDownload) {
-        window.open(response.dados.urlDownload, '_blank');
-      } else {
-        notification.error({
-          message: 'Erro',
-          description: 'Erro ao obter declaração para download',
-        });
-      }
-    } catch {
-      notification.error({
-        message: 'Erro',
-        description: 'Erro ao obter declaração para download',
-      });
-    } finally {
-      setLoadingDownload(null);
-    }
-  };
-
-  const colunasCertificados: ColumnsType<any> = [
+  const colunasDocumentos: ColumnsType<any> = [
     {
-      title: 'Código do certificado',
-      dataIndex: 'codigoCertificado',
+      title: `Código d${isCertificado ? 'o certificado' : 'a declaração'}`,
+      dataIndex: isCertificado ? 'codigoCertificado' : 'codigoDeclaracao',
       render: (v: number) => String(v).padStart(5, '0'),
     },
     {
@@ -118,8 +98,8 @@ const MeusCertificados: React.FC = () => {
       dataIndex: 'nomeFormacao',
     },
     {
-      title: 'Código de homologação',
-      dataIndex: 'numeroHomologacao',
+      title: isCertificado ? 'Código de homologação' : 'Código da formação',
+      dataIndex: isCertificado ? 'numeroHomologacao' : 'codigoFormacao',
     },
     {
       title: 'Data de emissão',
@@ -127,19 +107,19 @@ const MeusCertificados: React.FC = () => {
       render: (v: string) => dayjs(v).format('DD/MM/YYYY'),
     },
     {
-      title: 'Tipo de certificado',
+      title: `Tipo de ${labelTipo}`,
       dataIndex: 'tipoParticipacao',
       render: (v: number) => mapTipoParticipacao(v),
     },
     {
       title: 'Ações',
       width: 200,
-      render: (_: any, record: CertificadoUsuarioDTO) => (
+      render: (_: any, record: any) => (
         <Button
           type='default'
           icon={<FiDownload />}
           loading={loadingDownload === record.id}
-          onClick={() => onClickVisualizarCertificado(record)}
+          onClick={() => onClickVisualizar(record)}
           style={{
             width: 190,
             borderColor: '#ff6b35',
@@ -147,100 +127,38 @@ const MeusCertificados: React.FC = () => {
             fontWeight: 500,
           }}
         >
-          Baixar certificado
+          Baixar {labelTipo}
         </Button>
       ),
     },
   ];
-
-  const colunasDeclaracoes: ColumnsType<any> = [
-    {
-      title: 'Código da declaração',
-      dataIndex: 'codigoDeclaracao',
-      render: (v: number) => String(v).padStart(5, '0'),
-    },
-    {
-      title: 'Nome da formação',
-      dataIndex: 'nomeFormacao',
-    },
-    {
-      title: 'Código da formação',
-      dataIndex: 'codigoFormacao',
-    },
-    {
-      title: 'Data de emissão',
-      dataIndex: 'dataEmissao',
-      render: (v: string) => dayjs(v).format('DD/MM/YYYY'),
-    },
-    {
-      title: 'Tipo de declaração',
-      dataIndex: 'tipoParticipacao',
-      render: (v: number) => mapTipoParticipacao(v),
-    },
-    {
-      title: 'Ações',
-      width: 200,
-      render: (_: any, record: DeclaracaoUsuarioDTO) => (
-        <Button
-          type='default'
-          icon={<FiDownload />}
-          loading={loadingDownload === record.id}
-          onClick={() => onClickVisualizarDeclaracao(record)}
-          style={{
-            width: 190,
-            borderColor: '#ff6b35',
-            color: '#ff6b35',
-            fontWeight: 500,
-          }}
-        >
-          Baixar declaração
-        </Button>
-      ),
-    },
-  ];
-
-  const buscarCertificados = async (pagina: number, tamanhoPagina: number) => {
-    const range = form.getFieldValue('dataEmissao');
-    const filtros = {
-      NumeroHomologacao: form.getFieldValue('numeroHomologacao'),
-      NomeFormacao: form.getFieldValue('nomeFormacao'),
-      CodigoCertificado: form.getFieldValue('codigoCertificado'),
-      TipoParticipacao: form.getFieldValue('tipoCertificado'),
-      DataEmissaoInicio: range?.[0] ? dayjs(range[0]).format('YYYY-MM-DD') : undefined,
-      DataEmissaoFim: range?.[1] ? dayjs(range[1]).format('YYYY-MM-DD') : undefined,
-      NumeroPagina: pagina,
-      NumeroRegistros: tamanhoPagina,
-    };
-    const resp = await obterCertificadosUsuario(filtros);
-    return resp;
-  };
-
-  const buscarDeclaracoes = async (pagina: number, tamanhoPagina: number) => {
-    const range = form.getFieldValue('dataEmissao');
-    const filtros = {
-      CodigoFormacao: form.getFieldValue('codigoFormacao'),
-      NomeFormacao: form.getFieldValue('nomeFormacao'),
-      CodigoDeclaracao: form.getFieldValue('codigoDeclaracao'),
-      TipoParticipacao: form.getFieldValue('tipoDeclaracao'),
-      DataEmissaoInicio: range?.[0] ? dayjs(range[0]).format('YYYY-MM-DD') : undefined,
-      DataEmissaoFim: range?.[1] ? dayjs(range[1]).format('YYYY-MM-DD') : undefined,
-      NumeroPagina: pagina,
-      NumeroRegistros: tamanhoPagina,
-    };
-    const resp = await obterDeclaracoesUsuario(filtros);
-    return resp;
-  };
 
   const buscar = async (pagina = 1, tamanhoPagina = pageSize, aba: AbaType = abaAtiva) => {
     try {
       setLoading(true);
       setDados([]);
-      let resp: any;
-      if (aba === 'certificados') {
-        resp = await buscarCertificados(pagina, tamanhoPagina);
+      const range = form.getFieldValue('dataEmissao');
+      const isCert = aba === 'certificados';
+      
+      const filtros: any = {
+        NomeFormacao: form.getFieldValue('nomeFormacao'),
+        TipoParticipacao: form.getFieldValue(isCert ? 'tipoCertificado' : 'tipoDeclaracao'),
+        DataEmissaoInicio: range?.[0] ? dayjs(range[0]).format('YYYY-MM-DD') : undefined,
+        DataEmissaoFim: range?.[1] ? dayjs(range[1]).format('YYYY-MM-DD') : undefined,
+        NumeroPagina: pagina,
+        NumeroRegistros: tamanhoPagina,
+      };
+
+      if (isCert) {
+        filtros.NumeroHomologacao = form.getFieldValue('numeroHomologacao');
+        filtros.CodigoCertificado = form.getFieldValue('codigoCertificado');
       } else {
-        resp = await buscarDeclaracoes(pagina, tamanhoPagina);
+        filtros.CodigoFormacao = form.getFieldValue('codigoFormacao');
+        filtros.CodigoDeclaracao = form.getFieldValue('codigoDeclaracao');
       }
+
+      const action = isCert ? obterCertificadosUsuario : obterDeclaracoesUsuario;
+      const resp = await action(filtros);
 
       if (resp.sucesso && resp.dados) {
         setDados(resp.dados.items);
@@ -284,18 +202,13 @@ const MeusCertificados: React.FC = () => {
   const renderFiltros = () => (
     <Form form={form} layout='vertical'>
       <Row gutter={[16, 8]}>
-        <Col md={8} style={{ display: abaAtiva === 'certificados' ? 'block' : 'none' }}>
+        <Col md={8}>
           <b>
             <InputNumero
-              formItemProps={{ label: 'Código do certificado', name: 'codigoCertificado' }}
-              inputProps={{ placeholder: 'Exemplo: 1234567' }}
-            />
-          </b>
-        </Col>
-        <Col md={8} style={{ display: abaAtiva === 'declaracoes' ? 'block' : 'none' }}>
-          <b>
-            <InputNumero
-              formItemProps={{ label: 'Código da declaração', name: 'codigoDeclaracao' }}
+              formItemProps={{
+                label: `Código d${isCertificado ? 'o certificado' : 'a declaração'}`,
+                name: isCertificado ? 'codigoCertificado' : 'codigoDeclaracao'
+              }}
               inputProps={{ placeholder: 'Exemplo: 1234567' }}
             />
           </b>
@@ -310,18 +223,13 @@ const MeusCertificados: React.FC = () => {
           </b>
         </Col>
         
-        <Col md={8} style={{ display: abaAtiva === 'certificados' ? 'block' : 'none' }}>
+        <Col md={8}>
           <b>
             <InputNumero
-              formItemProps={{ label: 'Código de homologação', name: 'numeroHomologacao' }}
-              inputProps={{ placeholder: 'Exemplo: 00000000' }}
-            />
-          </b>
-        </Col>
-        <Col md={8} style={{ display: abaAtiva === 'declaracoes' ? 'block' : 'none' }}>
-          <b>
-            <InputNumero
-              formItemProps={{ label: 'Código da formação', name: 'codigoFormacao' }}
+              formItemProps={{
+                label: isCertificado ? 'Código de homologação' : 'Código da formação',
+                name: isCertificado ? 'numeroHomologacao' : 'codigoFormacao'
+              }}
               inputProps={{ placeholder: 'Exemplo: 00000000' }}
             />
           </b>
@@ -337,23 +245,12 @@ const MeusCertificados: React.FC = () => {
           </b>
         </Col>
 
-        <Col md={12} style={{ display: abaAtiva === 'certificados' ? 'block' : 'none' }}>
+        <Col md={12}>
           <b>
-            <Form.Item label='Tipo de certificado' name='tipoCertificado'>
-              <Select
-                allowClear
-                placeholder='Selecione'
-                options={[
-                  { label: 'Cursista', value: 1 },
-                  { label: 'Regente', value: 2 },
-                ]}
-              />
-            </Form.Item>
-          </b>
-        </Col>
-        <Col md={12} style={{ display: abaAtiva === 'declaracoes' ? 'block' : 'none' }}>
-          <b>
-            <Form.Item label='Tipo de declaração' name='tipoDeclaracao'>
+            <Form.Item
+              label={`Tipo de ${labelTipo}`}
+              name={isCertificado ? 'tipoCertificado' : 'tipoDeclaracao'}
+            >
               <Select
                 allowClear
                 placeholder='Selecione'
@@ -372,11 +269,13 @@ const MeusCertificados: React.FC = () => {
           <Button
             style={{ borderColor: '#ff6b35', color: '#ff6b35' }}
             onClick={() => {
-              if (abaAtiva === 'certificados') {
-                 form.resetFields(['codigoCertificado', 'numeroHomologacao', 'tipoCertificado', 'nomeFormacao', 'dataEmissao']);
-              } else {
-                 form.resetFields(['codigoDeclaracao', 'codigoFormacao', 'tipoDeclaracao', 'nomeFormacao', 'dataEmissao']);
-              }
+              const baseFields = ['nomeFormacao', 'dataEmissao'];
+              const customFields = isCertificado 
+                ? ['codigoCertificado', 'numeroHomologacao', 'tipoCertificado']
+                : ['codigoDeclaracao', 'codigoFormacao', 'tipoDeclaracao'];
+              
+              form.resetFields([...baseFields, ...customFields]);
+              
               setTotal(0);
               setPaginaAtual(1);
               setFiltroAplicado(false);
@@ -464,7 +363,7 @@ const MeusCertificados: React.FC = () => {
                   <div className='codaf-supplementary-result'>
                     <Table
                       rowKey='id'
-                      columns={abaAtiva === 'certificados' ? colunasCertificados : colunasDeclaracoes}
+                      columns={colunasDocumentos}
                       dataSource={dados}
                       style={{ marginTop: 24 }}
                       loading={loading}
