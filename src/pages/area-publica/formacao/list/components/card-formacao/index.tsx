@@ -1,12 +1,13 @@
 import { Button, Card, Col, Row } from 'antd';
 import React from 'react';
-import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaGraduationCap, FaMapMarkerAlt, FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { SAIBA_MAIS } from '~/core/constants/mensagens';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { ImgFormacao } from '../img-formacao';
 import { Info, Label, TagTipoFormacaoFormato, Titulo, Value, ValueDuplo } from './styles';
+import { HiBadgeCheck } from 'react-icons/hi';
 
 type CardFormacaoProps = {
   formacao: FormacaoDTO;
@@ -43,7 +44,15 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
       </Info>
 
       <Info>
-        <Row gutter={10} wrap={false}>
+        <Row
+          style={{
+            marginTop: 0,
+            marginBottom: 10,
+            flexWrap: 'wrap',
+            rowGap: 8,
+            columnGap: 8,
+          }}
+        >
           <Col>
             <TagTipoFormacaoFormato icon={<FaGraduationCap size={16} />}>
               {formacao.tipoFormacaoDescricao}
@@ -55,6 +64,22 @@ export const CardFormacao: React.FC<CardFormacaoProps> = ({ formacao }) => {
               {formacao.formatoDescricao}
             </TagTipoFormacaoFormato>
           </Col>
+
+          {formacao.cursoComCertificado && (
+            <Col>
+              <TagTipoFormacaoFormato icon={<HiBadgeCheck size={16} />}>
+                Evolução funcional
+              </TagTipoFormacaoFormato>
+            </Col>
+          )}
+
+          {!!formacao.codigoEventoSigpec && (
+            <Col>
+              <TagTipoFormacaoFormato icon={<FaStar size={16} />}>
+                Evolução por merecimento
+              </TagTipoFormacaoFormato>
+            </Col>
+          )}
         </Row>
       </Info>
 
