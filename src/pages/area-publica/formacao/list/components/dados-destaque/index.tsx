@@ -1,6 +1,7 @@
 import { Button, Col, Flex, Row, Tag, Typography } from 'antd';
 import React from 'react';
-import { FaGraduationCap, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaGraduationCap, FaMapMarkerAlt, FaStar } from 'react-icons/fa';
+import { HiBadgeCheck } from 'react-icons/hi';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import imagemFormacao from '~/assets/conecta-formacao-logo.svg';
@@ -120,6 +121,18 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({ dadosFormacao, propostaId
               <FaMapMarkerAlt size={16} />
               <TagPersonalizada>{dadosInscricao?.formatoDescricao}</TagPersonalizada>
             </TagTipoFormacaoFormato>
+            {dadosInscricao?.cursoComCertificado && (
+              <TagTipoFormacaoFormato>
+                <HiBadgeCheck size={16} />
+                <TagPersonalizada>Evolução funcional</TagPersonalizada>
+              </TagTipoFormacaoFormato>
+            )}
+            {!!dadosInscricao?.codigoEventoSigpec && (
+              <TagTipoFormacaoFormato>
+                <FaStar size={16} />
+                <TagPersonalizada>Evolução por merecimento</TagPersonalizada>
+              </TagTipoFormacaoFormato>
+            )}
           </Row>
 
           <Typography.Text className='texto-periodo'>
