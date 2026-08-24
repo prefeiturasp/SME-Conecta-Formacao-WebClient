@@ -21,6 +21,13 @@ import {
   InscritoDTO,
   RetificacaoDTO,
   AnexoTemporarioDTO,
+  obterDeclaracoesUsuario,
+  downloadDeclaracao,
+  finalizarCodaf,
+  enviarCodafParaDF,
+  devolverCodafParaCorrecao,
+  obterCertificadosUsuario,
+  downloadCertificado,
 } from './codaf-lista-presenca-service';
 
 jest.mock('./api', () => ({
@@ -1269,6 +1276,131 @@ describe('CodafListaPresencaService', () => {
         {},
       );
       expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('obterDeclaracoesUsuario', () => {
+    test('should build params and call endpoint', async () => {
+      // Arrange
+      const mockResponse = { sucesso: true, dados: { items: [], totalPaginas: 1, totalRegistros: 0 } };
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+      
+      const filtros = {
+        NumeroPagina: 2,
+        NumeroRegistros: 20,
+        CodigoFormacao: 123,
+        NomeFormacao: 'Formacao X',
+        CodigoDeclaracao: 456,
+        TipoParticipacao: 1,
+        DataEmissaoInicio: '2023-01-01',
+        DataEmissaoFim: '2023-12-31'
+      };
+
+      // Act
+      const result = await obterDeclaracoesUsuario(filtros);
+
+      // Assert
+      expect(mockObterRegistro).toHaveBeenCalledWith('v1/CodafDeclaracao/minhas', {
+        params: {
+          NumeroPagina: 2,
+          NumeroRegistros: 20,
+          CodigoFormacao: 123,
+          NomeFormacao: 'Formacao X',
+          CodigoDeclaracao: 456,
+          TipoParticipacao: 1,
+          DataEmissaoInicio: '2023-01-01',
+          DataEmissaoFim: '2023-12-31'
+        }
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('should use default pagination values', async () => {
+      // Arrange
+      mockObterRegistro.mockResolvedValueOnce({} as any);
+      
+      // Act
+      await obterDeclaracoesUsuario({});
+
+      // Assert
+      expect(mockObterRegistro).toHaveBeenCalledWith('v1/CodafDeclaracao/minhas', {
+        params: {
+          NumeroPagina: 1,
+          NumeroRegistros: 10
+        }
+      });
+    });
+  });
+
+  describe('downloadDeclaracao', () => {
+    test('should call download endpoint with id', async () => {
+      // Arrange
+      const mockResponse = { sucesso: true, dados: { urlDownload: 'http://test' } };
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+      
+      // Act
+      const result = await downloadDeclaracao(123);
+
+      // Assert
+      expect(mockObterRegistro).toHaveBeenCalledWith('v1/CodafDeclaracao/123/download');
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('Missing functions coverage', () => {
+    test('obterCodafListaPresencaPorId nested dados', async () => {
+      // Arrange
+      const mockResponse = { sucesso: true, dados: { dados: 'inner' } };
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+      // Act
+      const result = await obterCodafListaPresencaPorId(1);
+      // Assert
+      expect(result.dados).toBe('inner');
+    });
+
+    test('finalizarCodaf', async () => {
+      mockApiPost.mockResolvedValueOnce({} as any); // fallback for patch, wait, they use patch but mocked api is just post?
+      // Wait, api doesn't have patch mock, let me just mock api.patch
+      api.patch = jest.fn().mockResolvedValueOnce('patched');
+      const res = await finalizarCodaf(1);
+      expect(api.patch).toHaveBeenCalledWith('v1/CodafListaPresenca/1/finalizar');
+      expect(res).toBe('patched');
+    });
+
+    test('enviarCodafParaDF', async () => {
+      api.patch = jest.fn().mockResolvedValueOnce('patched');
+      const res = await enviarCodafParaDF(1);
+      expect(api.patch).toHaveBeenCalledWith('v1/CodafListaPresenca/1/enviar-para-df');
+      expect(res).toBe('patched');
+    });
+
+    test('devolverCodafParaCorrecao', async () => {
+      api.patch = jest.fn().mockResolvedValueOnce('patched');
+      const res = await devolverCodafParaCorrecao(1, 'justificativa');
+      expect(api.patch).toHaveBeenCalledWith('v1/CodafListaPresenca/1/devolver-para-correcao', 'justificativa', { headers: { 'Content-Type': 'application/json' } });
+      expect(res).toBe('patched');
+    });
+
+    test('obterCertificadosUsuario', async () => {
+      mockObterRegistro.mockResolvedValueOnce('certs' as any);
+      const filtros = {
+        NumeroPagina: 2,
+        NumeroRegistros: 20,
+        NumeroHomologacao: 1,
+        NomeFormacao: 'Formacao X',
+        CodigoCertificado: 456,
+        TipoParticipacao: 1,
+        DataEmissaoInicio: '2023-01-01',
+        DataEmissaoFim: '2023-12-31'
+      };
+      const result = await obterCertificadosUsuario(filtros);
+      expect(result).toBe('certs');
+    });
+
+    test('downloadCertificado', async () => {
+      mockObterRegistro.mockResolvedValueOnce('dl' as any);
+      const result = await downloadCertificado(1);
+      expect(result).toBe('dl');
     });
   });
 });
