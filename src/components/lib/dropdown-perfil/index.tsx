@@ -83,7 +83,7 @@ const DropdownPerfil: React.FC = () => {
           }}
         >
           <Texto style={{ fontWeight: 700 }}>{`${tipoLogin}: ${auth.usuarioLogin}`}</Texto>
-          <Texto>{auth?.usuarioNome}</Texto>
+          <Texto>{auth?.nomeSocial ?? auth?.usuarioNome}</Texto>
           <Texto>{perfil?.perfilSelecionado?.perfilNome}</Texto>
         </div>
         <div

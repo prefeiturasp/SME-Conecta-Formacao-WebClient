@@ -10,7 +10,7 @@ export const MENU_MEUS_CERTIFICADOS: MenuItemConectaProps = {
   children: [
     {
       key: MenuEnum.Certificados,
-      title: 'Meus Certificados',
+      title: 'Certificados e declarações',
       url: ROUTES.CERTIFICADOS,
     },
   ],
