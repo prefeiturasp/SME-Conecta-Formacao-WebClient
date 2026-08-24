@@ -48,7 +48,6 @@ const MeusCertificados: React.FC = () => {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [total, setTotal] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [filtroAplicado, setFiltroAplicado] = useState(false);
 
   const isCertificado = abaAtiva === 'certificados';
   const labelTipo = isCertificado ? 'certificado' : 'declaração';
@@ -278,7 +277,6 @@ const MeusCertificados: React.FC = () => {
               
               setTotal(0);
               setPaginaAtual(1);
-              setFiltroAplicado(false);
               buscar(1);
             }}
           >
@@ -291,7 +289,6 @@ const MeusCertificados: React.FC = () => {
             loading={loading}
             style={{ backgroundColor: '#ff6b35', borderColor: '#ff6b35' }}
             onClick={() => {
-              setFiltroAplicado(true);
               setPaginaAtual(1);
               buscar(1);
             }}
