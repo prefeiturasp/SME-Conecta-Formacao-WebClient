@@ -27,6 +27,8 @@ export type RetornoDetalheFormacaoDto = {
   turmas: RetornoTurmaDetalheDto[];
   linkParaInscricoesExterna?: string;
   usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDto | null;
+  cursoComCertificado?: boolean;  
+  codigoEventoSigpec?: number | null;
 };
 export type DataEncontroNovoDto = {
   dataInicial: string;
