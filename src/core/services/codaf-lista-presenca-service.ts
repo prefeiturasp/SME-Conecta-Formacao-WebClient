@@ -312,6 +312,64 @@ export const downloadCertificado = (
   return obterRegistro(`${URL_API_CERTIFICADO}/${certificadoCodafId}/download`);
 };
 
+export type DeclaracaoUsuarioFiltroDTO = {
+  CodigoFormacao?: number;
+  NomeFormacao?: string;
+  CodigoDeclaracao?: number;
+  TipoParticipacao?: number;
+  DataEmissaoInicio?: string;
+  DataEmissaoFim?: string;
+  NumeroPagina?: number;
+  NumeroRegistros?: number;
+};
+
+export type DeclaracaoUsuarioDTO = {
+  id: number;
+  codigoFormacao: number;
+  nomeFormacao: string;
+  codigoDeclaracao: number;
+  tipoParticipacao: number;
+  dataEmissao: string;
+};
+
+export type DeclaracaoUsuarioRetornoDTO = {
+  items: DeclaracaoUsuarioDTO[];
+  totalPaginas: number;
+  totalRegistros: number;
+};
+
+export const obterDeclaracoesUsuario = (
+  filtros: DeclaracaoUsuarioFiltroDTO,
+): Promise<ApiResult<DeclaracaoUsuarioRetornoDTO>> => {
+  const params: any = {
+    NumeroPagina: filtros.NumeroPagina || 1,
+    NumeroRegistros: filtros.NumeroRegistros || 10,
+  };
+
+  if (filtros.CodigoFormacao) params.CodigoFormacao = filtros.CodigoFormacao;
+  if (filtros.NomeFormacao) params.NomeFormacao = filtros.NomeFormacao;
+  if (filtros.CodigoDeclaracao) params.CodigoDeclaracao = filtros.CodigoDeclaracao;
+  if (filtros.TipoParticipacao) params.TipoParticipacao = filtros.TipoParticipacao;
+  if (filtros.DataEmissaoInicio) params.DataEmissaoInicio = filtros.DataEmissaoInicio;
+  if (filtros.DataEmissaoFim) params.DataEmissaoFim = filtros.DataEmissaoFim;
+
+  return obterRegistro(`v1/CodafDeclaracao/minhas`, { params });
+};
+
+export type DeclaracaoDownloadDTO = {
+  id: number;
+  codigoDeclaracao: number;
+  urlDownload: string;
+  nomeCompleto: string;
+  nomeFormacao: string;
+};
+
+export const downloadDeclaracao = (
+  declaracaoId: number,
+): Promise<ApiResult<DeclaracaoDownloadDTO>> => {
+  return obterRegistro(`v1/CodafDeclaracao/${declaracaoId}/download`);
+};
+
 export type PropostaTurmaComCodafDTO = {
   id: number;
   codafId: number;
