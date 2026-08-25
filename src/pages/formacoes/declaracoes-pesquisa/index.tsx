@@ -42,8 +42,7 @@ import {
   downloadDeclaracoesLote,
 } from '~/core/services/codaf-declaracao-service';
 import { downloadDeclaracao } from '~/core/services/codaf-lista-presenca-service';
-import { obterTurmasInscricao } from '~/core/services/inscricao-service';
-import { autocompletarFormacao, PropostaAutocompletarDTO, obterDetalhesPropostaComTurmasPorId } from '~/core/services/proposta-service';
+import { obterDetalhesPropostaComTurmasPorId } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { TipoEmissorEnum } from '~/core/enum/tipo-emissor';
 
@@ -58,8 +57,6 @@ const DeclaracoesPesquisa: React.FC = () => {
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [filtroAplicado, setFiltroAplicado] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
-  const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [turmasProposta, setTurmasProposta] = useState<RetornoListagemDTO[]>([]);
 
@@ -136,47 +133,7 @@ const DeclaracoesPesquisa: React.FC = () => {
         }}
       />
     ),
-  };
-
-  const onSearchFormacao = async (searchText: string) => {
-    if (!searchText) {
-      setOpcoesFormacao([]);
-      return;
-    }
-    setLoadingAutocomplete(true);
-    try {
-      const response = await autocompletarFormacao(searchText);
-      if (response.sucesso && response.dados && response.dados.items) {
-        setOpcoesFormacao(response.dados.items);
-      } else {
-        setOpcoesFormacao([]);
-      }
-    } catch {
-      setOpcoesFormacao([]);
-    } finally {
-      setLoadingAutocomplete(false);
-    }
-  };
-
-  const onSelectFormacao = async (_value: string, option: any) => {
-    const proposta = opcoesFormacao.find((p) => p.numeroHomologacao === option.numeroHomologacao);
-    if (proposta) {
-      form.setFieldsValue({ turmaId: undefined });
-      try {
-        const response = await obterTurmasInscricao(proposta.propostaId);
-        if (response.sucesso && response.dados) {
-          setTurmasProposta(response.dados);
-          setTurmaDisabled(false);
-        } else {
-          setTurmasProposta([]);
-          setTurmaDisabled(true);
-        }
-      } catch {
-        setTurmasProposta([]);
-        setTurmaDisabled(true);
-      }
-    }
-  };
+  }; 
 
   const buscarDados = async (pagina = 1) => {
     setLoading(true);
