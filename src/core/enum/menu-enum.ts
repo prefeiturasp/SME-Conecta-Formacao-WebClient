@@ -12,6 +12,7 @@ export enum MenuEnum {
   CodafFormacoesNaoHomologadas,
   Certificados,
   CertificadosPesquisa,
+  DeclaracoesPesquisa,
   Relatorios,
   RelatorioInscritosPorFormacao,
   Coordenadoria,

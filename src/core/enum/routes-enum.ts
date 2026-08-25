@@ -36,6 +36,7 @@ export enum ROUTES {
   LISTA_PRESENCA_CODAF_HOMOLOGADO = '/formacoes/lista-presenca-codaf/homologado',
   CERTIFICADOS = '/certificados',
   CERTIFICADOS_PESQUISA = '/certificados-pesquisa',
+  DECLARACOES_PESQUISA = '/declaracoes-pesquisa',
   LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO = '/formacoes/lista-presenca-codaf/homologado/novo',
   LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR = '/formacoes/lista-presenca-codaf/homologado/editar/:id',
   RELATORIO_INSCRITOS_POR_FORMACAO = '/relatorios/inscritos-por-formacao',

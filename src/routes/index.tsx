@@ -39,6 +39,7 @@ import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
 import MeusCertificados from '~/pages/formacoes/codaf/lista-presenca-codaf/certificado/certificados-usuario';
 import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
+import DeclaracoesPesquisa from '~/pages/formacoes/declaracoes-pesquisa';
 import RelatorioInscritosPorFormacao from '~/pages/relatorios/inscritos-por-formacao';
 import ListCoordenadoria from '~/pages/cadastros/coordenadoria';
 import CodafSuplementar from '~/pages/formacoes/codaf/codaf-suplementar';
@@ -247,6 +248,10 @@ const RoutesConfig = () => {
 
               <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
                 <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
+              </Route>
+
+               <Route element={<GuardPermissao menuKey={MenuEnum.DeclaracoesPesquisa} />}>
+                <Route path={ROUTES.DECLARACOES_PESQUISA} element={<DeclaracoesPesquisa />} />
               </Route>
 
               <Route
