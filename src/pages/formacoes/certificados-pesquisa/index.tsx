@@ -7,7 +7,6 @@ import {
   Form,
   Row,
   Select,
-  Tooltip,
 } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
@@ -19,22 +18,17 @@ import { useNavigate } from 'react-router-dom';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
-import HeaderPage from '~/components/lib/header-page';
 import { notification } from '~/components/lib/notification';
-import ButtonVoltar from '~/components/main/button/voltar';
 import { SelectDRE } from '~/components/main/input/dre';
 import InputNumero from '~/components/main/numero';
 import InputTexto from '~/components/main/text/input-text';
-import { CF_BUTTON_VOLTAR } from '~/core/constants/ids/button/intex';
 import {
   CF_INPUT_CODIGO_FORMACAO,
   CF_INPUT_NOME_FORMACAO,
   CF_INPUT_NUMERO_HOMOLOGACAO,
   CF_INPUT_RF,
 } from '~/core/constants/ids/input';
-import { ROUTES } from '~/core/enum/routes-enum';
 import { TipoCertificado, TipoCertificadoDescricao } from '~/core/enum/tipo-certificado';
-import { onClickVoltar } from '~/core/utils/form';
 import {
   CodafCertificadoDTO,
   obterCertificadosCodaf,
@@ -45,6 +39,7 @@ import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import TabelaPesquisaDocumentos from '../components/tabela-pesquisa-documentos';
+import CabecalhoPesquisaDocumentos from '../components/cabecalho-pesquisa-documentos';
 
 const CertificadosPesquisa: React.FC = () => {
   const [form] = useForm();
@@ -320,37 +315,14 @@ const CertificadosPesquisa: React.FC = () => {
 
   return (
     <Col>
-      <HeaderPage title='Pesquisar certificados'>
-        <Col span={24}>
-          <Row gutter={[8, 8]}>
-            <Col>
-              <ButtonVoltar
-                onClick={() => onClickVoltar({ navigate, route: ROUTES.PRINCIPAL })}
-                id={CF_BUTTON_VOLTAR}
-              />
-            </Col>
-            <Col>
-              <Tooltip
-                title={
-                  selectedRowKeys.length === 0
-                    ? 'Selecione um ou mais registros para baixar os certificados.'
-                    : undefined
-                }
-              >
-                <Button
-                  block
-                  type='primary'
-                  onClick={onClickBaixarCertificado}
-                  disabled={selectedRowKeys.length === 0}
-                  style={{ fontWeight: 700 }}
-                >
-                  Baixar certificado
-                </Button>
-              </Tooltip>
-            </Col>
-          </Row>
-        </Col>
-      </HeaderPage>
+      <CabecalhoPesquisaDocumentos
+        title='Pesquisar certificados'
+        actionLabel='Baixar certificado'
+        emptySelectionMessage='Selecione um ou mais registros para baixar os certificados.'
+        navigate={navigate}
+        onDownload={onClickBaixarCertificado}
+        selectedCount={selectedRowKeys.length}
+      />
 
       <style>{`
         .certificados-pesquisa-form .ant-form-item-label > label {
