@@ -3,6 +3,7 @@
  */
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import * as ReactRouterDom from 'react-router-dom';
 import RoutesConfig from './index';
 import { useAppSelector } from '../core/hooks/use-redux';
 import { scrollNoInicio } from '../core/utils/functions';
@@ -16,7 +17,6 @@ jest.mock('~/core/utils/functions', () => ({
 }));
 
 jest.mock('./config/guard/autenticacao', () => {
-  const ReactRouterDom = require('react-router-dom');
   return {
     __esModule: true,
     default: () => <ReactRouterDom.Outlet />,
@@ -24,7 +24,6 @@ jest.mock('./config/guard/autenticacao', () => {
 });
 
 jest.mock('./config/guard/permissao', () => {
-  const ReactRouterDom = require('react-router-dom');
   return {
     __esModule: true,
     default: () => <ReactRouterDom.Outlet />,
@@ -32,7 +31,6 @@ jest.mock('./config/guard/permissao', () => {
 });
 
 jest.mock('~/pages/home', () => {
-  const ReactRouterDom = require('react-router-dom');
   return {
     __esModule: true,
     default: () => (
@@ -45,7 +43,6 @@ jest.mock('~/pages/home', () => {
 });
 
 jest.mock('~/pages/principal/index', () => {
-  const ReactRouterDom = require('react-router-dom');
   return {
     __esModule: true,
     default: () => (
@@ -58,7 +55,6 @@ jest.mock('~/pages/principal/index', () => {
 });
 
 jest.mock('~/pages/area-publica', () => {
-  const ReactRouterDom = require('react-router-dom');
   return {
     __esModule: true,
     default: () => (
@@ -81,8 +77,11 @@ jest.mock('~/pages/formacoes/codaf/lista-presenca-codaf', () => ({ __esModule: t
 jest.mock('~/pages/formacoes/codaf/lista-presenca-codaf/cadastro', () => ({ __esModule: true, default: () => <div>page-cadastro-lista</div> }));
 jest.mock('~/pages/formacoes/codaf/codaf-suplementar', () => ({ __esModule: true, default: () => <div>page-codaf-suplementar</div> }));
 jest.mock('~/pages/formacoes/codaf/codaf-suplementar/cadastro', () => ({ __esModule: true, default: () => <div>page-cadastro-codaf-suplementar</div> }));
+jest.mock('~/pages/formacoes/codaf/formacoes-nao-homologadas', () => ({ __esModule: true, default: () => <div>page-codaf-nao-homologadas</div> }));
+jest.mock('~/pages/formacoes/codaf/formacoes-nao-homologadas/cadastro', () => ({ __esModule: true, default: () => <div>page-cadastro-codaf-nao-homologadas</div> }));
 jest.mock('~/pages/formacoes/codaf/lista-presenca-codaf/certificado/certificados-usuario', () => ({ __esModule: true, default: () => <div>page-meus-certificados</div> }));
 jest.mock('~/pages/formacoes/certificados-pesquisa', () => ({ __esModule: true, default: () => <div>page-certificados-pesquisa</div> }));
+jest.mock('~/pages/formacoes/declaracoes-pesquisa', () => ({ __esModule: true, default: () => <div>page-declaracoes-pesquisa</div> }));
 jest.mock('~/pages/relatorios/inscritos-por-formacao', () => ({ __esModule: true, default: () => <div>page-relatorio</div> }));
 jest.mock('~/pages/cadastros/coordenadoria', () => ({ __esModule: true, default: () => <div>page-coordenadoria</div> }));
 
