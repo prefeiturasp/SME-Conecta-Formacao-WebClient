@@ -20,6 +20,38 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 });
 
+jest.mock('antd', () => {
+  const antd = jest.requireActual('antd');
+
+  return {
+    ...antd,
+    Select: ({ options = [], ...props }: any) => (
+      <select {...props}>
+        {options.map((option: any) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    ),
+    DatePicker: (props: any) => <input {...props} />,
+    Table: ({ columns, dataSource }: any) => (
+      <table>
+        <tbody>
+          {dataSource.map((record: any) => (
+            <tr key={record.id}>
+              {columns.map((column: any) => {
+                const value = record[column.dataIndex];
+                const content = column.render ? column.render(value, record) : value;
+
+                return <td key={column.key}>{content}</td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ),
+  };
+});
+
 jest.mock('antd/es/date-picker/locale/pt_BR', () => ({
   __esModule: true,
   default: {},
