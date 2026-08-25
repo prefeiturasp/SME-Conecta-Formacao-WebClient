@@ -4,11 +4,9 @@ import {
   Checkbox,
   Col,
   DatePicker,
-  Empty,
   Form,
   Row,
   Select,
-  Table,
   Tooltip,
 } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
@@ -46,6 +44,7 @@ import { downloadCertificado } from '~/core/services/codaf-lista-presenca-servic
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
+import TabelaPesquisaDocumentos from '../components/tabela-pesquisa-documentos';
 
 const CertificadosPesquisa: React.FC = () => {
   const [form] = useForm();
@@ -566,68 +565,17 @@ const CertificadosPesquisa: React.FC = () => {
             </Col>
           </Row>
 
-          {/* Tabela */}
-          {filtroAplicado && (
-            <Row gutter={[16, 8]} style={{ marginTop: 24 }}>
-              <Col span={24}>
-                {!loading && dados.length === 0 ? (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '30vh',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Empty description='Sem dados' />
-                  </div>
-                ) : (
-                  <div className='table-pagination-center'>
-                    <Table
-                      rowSelection={rowSelection}
-                      columns={columns}
-                      dataSource={dados}
-                      rowKey='id'
-                      loading={loading}
-                      pagination={{
-                        current: paginaAtual,
-                        pageSize: registrosPorPagina,
-                        total: totalRegistros,
-                        showSizeChanger: true,
-                        pageSizeOptions: [10, 20, 30, 50, 100],
-                        locale: { items_per_page: '' },
-                      }}
-                      onChange={handleTableChange}
-                      scroll={{ x: 'max-content' }}
-                    />
-                  </div>
-                )}
-                <style>{`
-                  .table-pagination-center .ant-pagination {
-                    display: flex;
-                    justify-content: center;
-                  }
-                  .table-pagination-center .ant-dropdown-menu {
-                    background-color: #FFFFFF;
-                  }
-                  .table-pagination-center .ant-dropdown-menu-item {
-                    color: #42474A;
-                  }
-                  .table-pagination-center .ant-dropdown-menu-item:hover {
-                    background-color: #f5f5f5;
-                    color: #42474A;
-                  }
-                  .table-pagination-center .ant-table-tbody > tr.ant-table-row-selected > td {
-                    background: #fff !important;
-                  }
-                  .table-pagination-center .ant-table-tbody > tr.ant-table-row-selected:hover > td {
-                    background: #fafafa !important;
-                  }
-                `}</style>
-              </Col>
-            </Row>
-          )}
+          <TabelaPesquisaDocumentos
+            columns={columns}
+            dados={dados}
+            filtroAplicado={filtroAplicado}
+            loading={loading}
+            paginaAtual={paginaAtual}
+            registrosPorPagina={registrosPorPagina}
+            rowSelection={rowSelection}
+            totalRegistros={totalRegistros}
+            onChange={handleTableChange}
+          />
         </CardContent>
       </Form>
     </Col>
