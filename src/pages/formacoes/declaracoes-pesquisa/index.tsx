@@ -39,7 +39,7 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { TipoEmissorEnum } from '~/core/enum/tipo-emissor';
 import TabelaPesquisaDocumentos from '../components/tabela-pesquisa-documentos';
 import CabecalhoPesquisaDocumentos from '../components/cabecalho-pesquisa-documentos';
-
+import FiltrosPesquisaDocumentos from '../components/filtros-pesquisa-documentos';
 import { usePesquisaDocumentos } from '../components/use-pesquisa-documentos';
 
 const DeclaracoesPesquisa: React.FC = () => {
@@ -292,201 +292,18 @@ const DeclaracoesPesquisa: React.FC = () => {
       `}</style>
       <Form form={form} layout='vertical' autoComplete='off' className='declaracaos-pesquisa-form'>
         <CardContent>
-          {/* Linha 1 */}
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-              <InputTexto
-                formItemProps={{
-                  label: 'Nome da formação',
-                  name: 'nomeFormacao',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  id: CF_INPUT_NOME_FORMACAO,
-                  placeholder: 'Nome da formação...',
-                  maxLength: 200,
-                  allowClear: true,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-              <Form.Item label='Tipo de declaração' name='tipoDeclaracao'>
-                <Select
-                  placeholder='Selecione...'
-                  options={Object.values(TipoDeclaracao)
-                    .filter((v): v is TipoDeclaracao => typeof v === 'number')
-                    .map((t) => ({
-                      label: TipoDeclaracaoDescricao[t],
-                      value: t,
-                    }))}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          {/* Linha 2 */}
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputNumero
-                  formItemProps={{
-                    label: 'Código da formação',
-                    name: 'codigoFormacao',
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_CODIGO_FORMACAO,
-                    placeholder: 'Código da formação...',
-                    maxLength: 19,
-                    onChange: aoMudarCodigoProposta,
-                    onBlur: (e) => aoSairDoCampoCodigoProposta(e.target.value),
-                  }}
-                />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputTexto
-                formItemProps={{
-                  label: 'Número de homologação da formação',
-                  name: 'numeroHomologacao',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  id: CF_INPUT_NUMERO_HOMOLOGACAO,
-                  placeholder: 'Digite para buscar a formação...',
-                  maxLength: 100,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Form.Item label='Turma' name='turmaId' rules={[{ required: false }]}>
-                <Select
-                  placeholder='Selecione...'
-                  options={turmasProposta.map((turma) => ({
-                    label: turma.descricao,
-                    value: turma.id,
-                  }))}
-                  disabled={turmaDisabled}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          {/* Linha 3 */}
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputNumero
-                formItemProps={{
-                  label: 'Código da declaração',
-                  name: 'codigoDeclaracao',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  placeholder: 'Código da declaração...',
-                  maxLength: 100,
-                  allowClear: true,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputTexto
-                formItemProps={{
-                  label: 'RF ou CPF do cursista',
-                  name: 'rfOuCpfCursista',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  id: CF_INPUT_RF,
-                  placeholder: '000.000.000-00',
-                  maxLength: 20,
-                  allowClear: true,
-                  disabled: rfCursistaDisabled,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputTexto
-                formItemProps={{
-                  label: 'RF ou CPF do regente',
-                  name: 'rfRegente',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  placeholder: '000.000.000-00',
-                  maxLength: 20,
-                  allowClear: true,
-                  disabled: rfRegenteDisabled,
-                }}
-              />
-            </Col>
-          </Row>
-
-          {/* Linha 4 */}
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputTexto
-                formItemProps={{
-                  label: 'Nome do cursista',
-                  name: 'nomeCursista',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  placeholder: 'Ex: João da Silva',
-                  maxLength: 200,
-                  allowClear: true,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Form.Item label='Data de emissão da declaração' name='dataEmissao'>
-                <DatePicker
-                  placeholder='Selecione a data...'
-                  format='DD/MM/YYYY'
-                  style={{ width: '100%' }}
-                  locale={locale}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <SelectDRE
-                formItemProps={{
-                  label: 'Diretoria Regional de Educação',
-                  name: 'emissorId',
-                  rules: [{ required: false }],
-                }}
-                exibirApenasDREsUsuarioLogado
-                selectProps={{ mode: undefined, allowClear: true }}
-                exibirOpcaoTodos
-              />
-            </Col>
-          </Row>
-
-          {/* Botões de ação */}
-          <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
-           <Col>
-              <Button
-                type='default'
-                onClick={onClickLimpar}
-                style={{
-                  fontWeight: 700,
-                  borderColor: '#FF9A52',
-                  color: '#FF9A52',
-                }}
-              >
-                Limpar filtros
-              </Button>
-            </Col>
-            <Col>
-              <Button
-                type='primary'
-                onClick={onClickFiltrar}
-                loading={loading}
-                style={{ fontWeight: 700 }}
-              >
-                Filtrar
-              </Button>
-            </Col>
-          </Row>
+          <FiltrosPesquisaDocumentos
+            tipo="declaracoes"
+            rfCursistaDisabled={rfCursistaDisabled}
+            rfRegenteDisabled={rfRegenteDisabled}
+            turmaDisabled={turmaDisabled}
+            turmas={turmasProposta}
+            loading={loading}
+            onClickFiltrar={onClickFiltrar}
+            onClickLimpar={onClickLimpar}
+            aoMudarCodigoProposta={aoMudarCodigoProposta}
+            aoSairDoCampoCodigoProposta={aoSairDoCampoCodigoProposta}
+          />
 
           <TabelaPesquisaDocumentos
             columns={columns}

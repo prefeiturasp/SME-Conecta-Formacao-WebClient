@@ -39,7 +39,7 @@ import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import TabelaPesquisaDocumentos from '../components/tabela-pesquisa-documentos';
 import CabecalhoPesquisaDocumentos from '../components/cabecalho-pesquisa-documentos';
-
+import FiltrosPesquisaDocumentos from '../components/filtros-pesquisa-documentos';
 import { usePesquisaDocumentos } from '../components/use-pesquisa-documentos';
 
 const CertificadosPesquisa: React.FC = () => {
@@ -261,197 +261,19 @@ const CertificadosPesquisa: React.FC = () => {
       `}</style>
       <Form form={form} layout='vertical' autoComplete='off' className='certificados-pesquisa-form'>
         <CardContent>
-          {/* Linha 1 */}
-          <Row gutter={[16, 8]}>
-            <p>
-              Consulte os certificados emitidos para cursistas e regentes em formações já
-              concluídas. Use os filtros para encontrar o que precisa com mais facilidade.
-            </p>
-
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-              <InputTexto
-                formItemProps={{
-                  label: 'Nome da formação',
-                  name: 'nomeFormacao',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  id: CF_INPUT_NOME_FORMACAO,
-                  placeholder: 'Nome da formação',
-                  maxLength: 200,
-                  allowClear: true,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-              <Form.Item label='Tipo de certificado' name='tipoCertificado'>
-                <Select
-                  placeholder='Selecione o tipo de certificado'
-                  options={Object.values(TipoCertificado)
-                    .filter((v): v is TipoCertificado => typeof v === 'number')
-                    .map((t) => ({
-                      label: TipoCertificadoDescricao[t],
-                      value: t,
-                    }))}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          {/* Linha 2 */}
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputNumero
-                formItemProps={{
-                  label: 'Código da formação',
-                  name: 'codigoFormacao',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  id: CF_INPUT_CODIGO_FORMACAO,
-                  placeholder: 'Código da formação',
-                  maxLength: 20,
-                  allowClear: true,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Form.Item label='Número de homologação da formação' name='numeroHomologacao'>
-                <AutoComplete
-                  id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                  placeholder='Digite para buscar formação'
-                  allowClear
-                  onSearch={onSearchFormacao}
-                  onSelect={onSelectFormacao}
-                  options={opcoesFormacao.map((opcao) => ({
-                    value: opcao.numeroHomologacao.toString(),
-                    label: opcao.numeroHomologacao.toString(),
-                    numeroHomologacao: opcao.numeroHomologacao,
-                  }))}
-                  filterOption={false}
-                  notFoundContent={
-                    loadingAutocomplete ? 'Buscando...' : 'Nenhuma formação encontrada'
-                  }
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Form.Item label='Turma' name='turmaId' rules={[{ required: false }]}>
-                <Select
-                  placeholder='Selecione a turma'
-                  options={turmasAPI.map((turma) => ({
-                    label: turma.descricao,
-                    value: turma.id,
-                  }))}
-                  disabled={turmaDisabled}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          {/* Linha 3 */}
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputNumero
-                formItemProps={{
-                  label: 'Código do certificado',
-                  name: 'codigoCertificado',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  placeholder: 'Código do certificado',
-                  maxLength: 100,
-                  allowClear: true,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputTexto
-                formItemProps={{
-                  label: 'RF ou CPF do cursista',
-                  name: 'rfOuCpfCursista',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  id: CF_INPUT_RF,
-                  placeholder: 'RF ou CPF do cursista',
-                  maxLength: 20,
-                  allowClear: true,
-                  disabled: rfCursistaDisabled,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputTexto
-                formItemProps={{
-                  label: 'RF do regente',
-                  name: 'rfRegente',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  placeholder: 'RF do regente',
-                  maxLength: 20,
-                  allowClear: true,
-                  disabled: rfRegenteDisabled,
-                }}
-              />
-            </Col>
-          </Row>
-
-          {/* Linha 4 */}
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <InputTexto
-                formItemProps={{
-                  label: 'Nome do cursista',
-                  name: 'nomeCursista',
-                  rules: [{ required: false }],
-                }}
-                inputProps={{
-                  placeholder: 'Nome do cursista',
-                  maxLength: 200,
-                  allowClear: true,
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Form.Item label='Data de emissão do certificado' name='dataEmissao'>
-                <DatePicker
-                  placeholder='Selecione a data'
-                  format='DD/MM/YYYY'
-                  style={{ width: '100%' }}
-                  locale={locale}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <SelectDRE
-                formItemProps={{
-                  label: 'Diretoria Regional de Educação',
-                  name: 'dreId',
-                  rules: [{ required: false }],
-                }}
-                selectProps={{ mode: undefined, allowClear: true }}
-                exibirOpcaoTodos
-              />
-            </Col>
-          </Row>
-
-          {/* Botões de ação */}
-          <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
-            <Col>
-              <Button
-                type='primary'
-                onClick={onClickFiltrar}
-                loading={loading}
-                style={{ fontWeight: 700 }}
-              >
-                Filtrar
-              </Button>
-            </Col>
-          </Row>
+          <FiltrosPesquisaDocumentos
+            tipo="certificados"
+            rfCursistaDisabled={rfCursistaDisabled}
+            rfRegenteDisabled={rfRegenteDisabled}
+            turmaDisabled={turmaDisabled}
+            turmas={turmasAPI}
+            loading={loading}
+            onClickFiltrar={onClickFiltrar}
+            onSearchFormacao={onSearchFormacao}
+            onSelectFormacao={onSelectFormacao}
+            opcoesFormacao={opcoesFormacao}
+            loadingAutocomplete={loadingAutocomplete}
+          />
 
           <TabelaPesquisaDocumentos
             columns={columns}
