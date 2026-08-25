@@ -1,7 +1,6 @@
 import {
   AutoComplete,
   Button,
-  Checkbox,
   Col,
   DatePicker,
   Form,
@@ -143,9 +142,7 @@ const CertificadosPesquisa: React.FC = () => {
     paginaAtual,
     totalRegistros,
     registrosPorPagina,
-    filtroAplicado,
     selectedRowKeys,
-    buscarDados,
     onClickFiltrar,
     handleTableChange,
     rowSelection,
@@ -190,18 +187,6 @@ const CertificadosPesquisa: React.FC = () => {
       }
     }
   };
-
-  /* const onClickLimpar = () => {
-    form.resetFields();
-    setDados([]);
-    setTotalRegistros(0);
-    setPaginaAtual(1);
-    setFiltroAplicado(false);
-    setSelectedRowKeys([]);
-    setOpcoesFormacao([]);
-    setTurmasAPI([]);
-    setTurmaDisabled(true);
-  }; */
 
   const onClickBaixarCertificado = async () => {
     if (selectedRowKeys.length === 1) {
@@ -456,20 +441,6 @@ const CertificadosPesquisa: React.FC = () => {
 
           {/* Botões de ação */}
           <Row gutter={[16, 8]} style={{ marginTop: 16 }} justify='end'>
-            {/* <Col>
-              <Button
-                type='default'
-                onClick={onClickLimpar}
-                style={{
-                  fontWeight: 700,
-                  backgroundColor: '#ff6b35',
-                  borderColor: '#ff6b35',
-                  color: '#ffffff',
-                }}
-              >
-                Limpar
-              </Button>
-            </Col> */}
             <Col>
               <Button
                 type='primary'
@@ -485,7 +456,6 @@ const CertificadosPesquisa: React.FC = () => {
           <TabelaPesquisaDocumentos
             columns={columns}
             dados={dados}
-            filtroAplicado={filtroAplicado}
             loading={loading}
             paginaAtual={paginaAtual}
             registrosPorPagina={registrosPorPagina}

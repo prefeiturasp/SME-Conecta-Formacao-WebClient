@@ -9,7 +9,6 @@ type RegistroPesquisaDocumento = {
 type TabelaPesquisaDocumentosProps<T extends RegistroPesquisaDocumento> = {
   columns: ColumnsType<T>;
   dados: T[];
-  filtroAplicado: boolean;
   loading: boolean;
   paginaAtual: number;
   registrosPorPagina: number;
@@ -21,7 +20,6 @@ type TabelaPesquisaDocumentosProps<T extends RegistroPesquisaDocumento> = {
 const TabelaPesquisaDocumentos = <T extends RegistroPesquisaDocumento>({
   columns,
   dados,
-  filtroAplicado,
   loading,
   paginaAtual,
   registrosPorPagina,
@@ -29,7 +27,6 @@ const TabelaPesquisaDocumentos = <T extends RegistroPesquisaDocumento>({
   totalRegistros,
   onChange,
 }: TabelaPesquisaDocumentosProps<T>) => {
-  if (!filtroAplicado) return null;
 
   return (
     <Row gutter={[16, 8]} style={{ marginTop: 24 }}>

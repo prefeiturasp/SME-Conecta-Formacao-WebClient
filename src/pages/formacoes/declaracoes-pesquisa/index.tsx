@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   Col,
   DatePicker,
   Form,
@@ -146,10 +145,8 @@ const DeclaracoesPesquisa: React.FC = () => {
     paginaAtual,
     totalRegistros,
     registrosPorPagina,
-    filtroAplicado,
     setFiltroAplicado,
     selectedRowKeys,
-    buscarDados,
     onClickFiltrar,
     handleTableChange,
     rowSelection,
@@ -494,7 +491,6 @@ const DeclaracoesPesquisa: React.FC = () => {
           <TabelaPesquisaDocumentos
             columns={columns}
             dados={dados}
-            filtroAplicado={filtroAplicado}
             loading={loading}
             paginaAtual={paginaAtual}
             registrosPorPagina={registrosPorPagina}

@@ -157,7 +157,9 @@ describe('DeclaracoesPesquisa', () => {
     fireEvent.change(document.querySelector('#CF_INPUT_RF') as HTMLInputElement, {
       target: { value: '801.267.9' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Filtrar' }));
+
+    const btnFiltrar = await screen.findByRole('button', { name: 'Filtrar' });
+    fireEvent.click(btnFiltrar);
 
     await waitFor(() => {
       expect(obterDeclaracoesCodafMock).toHaveBeenCalledWith(expect.objectContaining({
@@ -180,12 +182,15 @@ describe('DeclaracoesPesquisa', () => {
 
     render(<DeclaracoesPesquisa />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filtrar' }));
+    const btnFiltrar = await screen.findByRole('button', { name: 'Filtrar' });
+    fireEvent.click(btnFiltrar);
 
     expect(await screen.findByText(declaracao.nomeFormacao)).toBeInTheDocument();
     expect(screen.getByText(declaracao.nomeRegente)).toBeInTheDocument();
     expect(screen.getByText('25/08/2026')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Baixar declaração' })).toBeEnabled();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Baixar declaração' })).toBeEnabled();
+    });
   });
 
   it('mostra estado vazio quando a busca não retorna declarações', async () => {
@@ -196,7 +201,8 @@ describe('DeclaracoesPesquisa', () => {
 
     render(<DeclaracoesPesquisa />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Filtrar' }));
+    const btnFiltrar = await screen.findByRole('button', { name: 'Filtrar' });
+    fireEvent.click(btnFiltrar);
 
     expect(await screen.findByText('Sem dados')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Baixar declaração' })).toBeDisabled();
