@@ -41,17 +41,12 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import TabelaPesquisaDocumentos from '../components/tabela-pesquisa-documentos';
 import CabecalhoPesquisaDocumentos from '../components/cabecalho-pesquisa-documentos';
 
+import { usePesquisaDocumentos } from '../components/use-pesquisa-documentos';
+
 const CertificadosPesquisa: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
 
-  const [dados, setDados] = useState<CodafCertificadoDTO[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [totalRegistros, setTotalRegistros] = useState(0);
-  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
-  const [filtroAplicado, setFiltroAplicado] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [opcoesFormacao, setOpcoesFormacao] = useState<PropostaAutocompletarDTO[]>([]);
   const [loadingAutocomplete, setLoadingAutocomplete] = useState(false);
   const [turmasAPI, setTurmasAPI] = useState<RetornoListagemDTO[]>([]);
@@ -111,23 +106,50 @@ const CertificadosPesquisa: React.FC = () => {
     },
   ];
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
-    columnTitle: (
-      <Checkbox
-        checked={dados.length > 0 && selectedRowKeys.length === dados.length}
-        //indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < dados.length}
-        onChange={(e) => {
-          if (e.target.checked) {
-            setSelectedRowKeys(dados.map((item) => item.id));
-          } else {
-            setSelectedRowKeys([]);
-          }
-        }}
-      />
-    ),
+  const apiCall = async (pagina: number, registrosPorPaginaArg: number) => {
+    const dataEmissao = form.getFieldValue('dataEmissao');
+    const dataEmissaoFormatada = dataEmissao
+      ? dayjs(dataEmissao).format('YYYY-MM-DD')
+      : undefined;
+
+    const filtros = {
+      NomeFormacao: form.getFieldValue('nomeFormacao') || undefined,
+      TipoCertificado: form.getFieldValue('tipoCertificado') ?? undefined,
+      CodigoFormacao: form.getFieldValue('codigoFormacao')
+        ? Number(form.getFieldValue('codigoFormacao'))
+        : undefined,
+      NumeroHomologacao: form.getFieldValue('numeroHomologacao')
+        ? Number(form.getFieldValue('numeroHomologacao'))
+        : undefined,
+      CodigoCertificado: form.getFieldValue('codigoCertificado')
+        ? Number(form.getFieldValue('codigoCertificado'))
+        : undefined,
+      DocumentoCursista: form.getFieldValue('rfOuCpfCursista') || undefined,
+      DocumentoRegente: form.getFieldValue('rfRegente') || undefined,
+      NomeCursista: form.getFieldValue('nomeCursista') || undefined,
+      DataEmissao: dataEmissaoFormatada,
+      DreId: form.getFieldValue('dreId')?.id || undefined,
+      PropostaTurmaId: form.getFieldValue('turmaId') || undefined,
+      NumeroPagina: pagina,
+      NumeroRegistros: registrosPorPaginaArg,
+    };
+
+    return obterCertificadosCodaf(filtros);
   };
+
+  const {
+    dados,
+    loading,
+    paginaAtual,
+    totalRegistros,
+    registrosPorPagina,
+    filtroAplicado,
+    selectedRowKeys,
+    buscarDados,
+    onClickFiltrar,
+    handleTableChange,
+    rowSelection,
+  } = usePesquisaDocumentos<CodafCertificadoDTO>(apiCall, 'Erro ao buscar certificados');
 
   const onSearchFormacao = async (searchText: string) => {
     if (!searchText) {
@@ -167,70 +189,6 @@ const CertificadosPesquisa: React.FC = () => {
         setTurmaDisabled(true);
       }
     }
-  };
-
-  const buscarDados = async (pagina = 1) => {
-    setLoading(true);
-    try {
-      const dataEmissao = form.getFieldValue('dataEmissao');
-      const dataEmissaoFormatada = dataEmissao
-        ? dayjs(dataEmissao).format('YYYY-MM-DD')
-        : undefined;
-
-      const filtros = {
-        NomeFormacao: form.getFieldValue('nomeFormacao') || undefined,
-        TipoCertificado: form.getFieldValue('tipoCertificado') ?? undefined,
-        CodigoFormacao: form.getFieldValue('codigoFormacao')
-          ? Number(form.getFieldValue('codigoFormacao'))
-          : undefined,
-        NumeroHomologacao: form.getFieldValue('numeroHomologacao')
-          ? Number(form.getFieldValue('numeroHomologacao'))
-          : undefined,
-        CodigoCertificado: form.getFieldValue('codigoCertificado')
-          ? Number(form.getFieldValue('codigoCertificado'))
-          : undefined,
-        DocumentoCursista: form.getFieldValue('rfOuCpfCursista') || undefined,
-        DocumentoRegente: form.getFieldValue('rfRegente') || undefined,
-        NomeCursista: form.getFieldValue('nomeCursista') || undefined,
-        DataEmissao: dataEmissaoFormatada,
-        DreId: form.getFieldValue('dreId')?.id || undefined,
-        PropostaTurmaId: form.getFieldValue('turmaId') || undefined,
-        NumeroPagina: pagina,
-        NumeroRegistros: registrosPorPagina,
-      };
-
-      const response = await obterCertificadosCodaf(filtros);
-
-      if (response.sucesso && response.dados) {
-        setDados(response.dados.items);
-        setTotalRegistros(response.dados.totalRegistros);
-        if (response.dados.items.length === 1) {
-          setSelectedRowKeys([response.dados.items[0].id]);
-        } else {
-          setSelectedRowKeys([]);
-        }
-      } else {
-        setDados([]);
-        setTotalRegistros(0);
-        setSelectedRowKeys([]);
-      }
-      setPaginaAtual(pagina);
-    } catch {
-      notification.error({
-        message: 'Erro',
-        description: 'Erro ao buscar certificados',
-      });
-      setDados([]);
-      setTotalRegistros(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onClickFiltrar = () => {
-    setFiltroAplicado(true);
-    setSelectedRowKeys([]);
-    buscarDados(1);
   };
 
   /* const onClickLimpar = () => {
@@ -297,21 +255,8 @@ const CertificadosPesquisa: React.FC = () => {
     }
   };
 
-  const handleTableChange = (pagination: any) => {
-    if (pagination.pageSize !== registrosPorPagina) {
-      setRegistrosPorPagina(pagination.pageSize);
-      setPaginaAtual(1);
-    } else {
-      buscarDados(pagination.current);
-    }
-  };
 
-  React.useEffect(() => {
-    if (filtroAplicado) {
-      buscarDados(1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [registrosPorPagina]);
+
 
   return (
     <Col>

@@ -10,6 +10,10 @@ jest.mock('./api', () => ({
   obterRegistro: jest.fn(),
 }));
 
+jest.mock('./codaf-service-shared', () => ({
+  downloadDocumentosLote: jest.fn(),
+}));
+
 const obterRegistroMock = obterRegistro as jest.MockedFunction<typeof obterRegistro>;
 const postMock = api.post as jest.Mock;
 
@@ -75,39 +79,17 @@ describe('codaf-declaracao-service', () => {
     });
   });
 
-  it('retorna o blob ao baixar declarações em lote', async () => {
-    const blob = new Blob(['arquivo zip']);
-    postMock.mockResolvedValue({ data: blob });
+  it('deve chamar downloadDocumentosLote com parametros corretos', async () => {
+    const { downloadDocumentosLote } = require('./codaf-service-shared');
+    (downloadDocumentosLote as jest.Mock).mockResolvedValue({ sucesso: true, blob: new Blob() });
 
     const resultado = await downloadDeclaracoesLote([1, 2]);
 
-    expect(postMock).toHaveBeenCalledWith('v1/CodafDeclaracao/download-lote', [1, 2], {
-      responseType: 'blob',
-    });
-    expect(resultado).toEqual({ sucesso: true, blob });
-  });
-
-  it('retorna as mensagens de erro presentes no blob da API', async () => {
-    const blobErro = { text: jest.fn().mockResolvedValue('{"mensagensErro":["Declaração indisponível"]}') };
-    postMock.mockRejectedValue({ response: { data: blobErro } });
-
-    const resultado = await downloadDeclaracoesLote([1]);
-
-    expect(resultado).toEqual({
-      sucesso: false,
-      mensagensErro: ['Declaração indisponível'],
-    });
-  });
-
-  it('retorna mensagem padrão quando o erro não contém JSON válido', async () => {
-    const blobErro = { text: jest.fn().mockResolvedValue('erro inesperado') };
-    postMock.mockRejectedValue({ response: { data: blobErro } });
-
-    const resultado = await downloadDeclaracoesLote([1]);
-
-    expect(resultado).toEqual({
-      sucesso: false,
-      mensagensErro: ['Erro ao baixar as declarações.'],
-    });
+    expect(downloadDocumentosLote).toHaveBeenCalledWith(
+      'v1/CodafDeclaracao/download-lote',
+      [1, 2],
+      'Erro ao baixar as declarações.'
+    );
+    expect(resultado.sucesso).toBe(true);
   });
 });

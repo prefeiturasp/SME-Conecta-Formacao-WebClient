@@ -27,6 +27,7 @@ import {
   CF_INPUT_NUMERO_HOMOLOGACAO,
   CF_INPUT_RF,
 } from '~/core/constants/ids/input';
+import { CF_SELECT_DRE } from '~/core/constants/ids/select';
 import { TipoDeclaracao, TipoDeclaracaoDescricao } from '~/core/enum/tipo-declaracao';
 import {
   CodafDeclaracaoDTO,
@@ -40,17 +41,12 @@ import { TipoEmissorEnum } from '~/core/enum/tipo-emissor';
 import TabelaPesquisaDocumentos from '../components/tabela-pesquisa-documentos';
 import CabecalhoPesquisaDocumentos from '../components/cabecalho-pesquisa-documentos';
 
+import { usePesquisaDocumentos } from '../components/use-pesquisa-documentos';
+
 const DeclaracoesPesquisa: React.FC = () => {
   const [form] = useForm();
   const navigate = useNavigate();
 
-  const [dados, setDados] = useState<CodafDeclaracaoDTO[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [totalRegistros, setTotalRegistros] = useState(0);
-  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
-  const [filtroAplicado, setFiltroAplicado] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
   const [turmasProposta, setTurmasProposta] = useState<RetornoListagemDTO[]>([]);
 
@@ -112,95 +108,69 @@ const DeclaracoesPesquisa: React.FC = () => {
     },
   ];
 
-  const rowSelection = {
+  const apiCall = async (pagina: number, registrosPorPaginaArg: number) => {
+    const dataEmissao = form.getFieldValue('dataEmissao');
+    const dataEmissaoFormatada = dataEmissao
+      ? dayjs(dataEmissao).format('YYYY-MM-DD')
+      : undefined;
+
+    const filtros = {
+      NomeFormacao: form.getFieldValue('nomeFormacao') || undefined,
+      TipoDeclaracao: form.getFieldValue('tipoDeclaracao') ?? undefined,
+      CodigoFormacao: form.getFieldValue('codigoFormacao')
+        ? Number(form.getFieldValue('codigoFormacao'))
+        : undefined,
+      NumeroHomologacao: form.getFieldValue('numeroHomologacao')
+        ? Number(form.getFieldValue('numeroHomologacao'))
+        : undefined,
+      CodigoDeclaracao: form.getFieldValue('codigoDeclaracao')
+        ? Number(form.getFieldValue('codigoDeclaracao'))
+        : undefined,
+      DocumentoCursista: form.getFieldValue('rfOuCpfCursista') || undefined,
+      DocumentoRegente: form.getFieldValue('rfRegente') || undefined,
+      NomeCursista: form.getFieldValue('nomeCursista') || undefined,
+      DataEmissao: dataEmissaoFormatada,
+      TipoEmissor: TipoEmissorEnum.DRE,
+      EmissorId: form.getFieldValue('emissorId')?.id || undefined,
+      TurmaId: form.getFieldValue('turmaId') || undefined,
+      Pagina: pagina,
+      TamanhoPagina: registrosPorPaginaArg,
+    };
+
+    return obterDeclaracoesCodaf(filtros);
+  };
+
+  const {
+    dados,
+    loading,
+    paginaAtual,
+    totalRegistros,
+    registrosPorPagina,
+    filtroAplicado,
+    setFiltroAplicado,
     selectedRowKeys,
-    onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
-    columnTitle: (
-      <Checkbox
-        checked={dados.length > 0 && selectedRowKeys.length === dados.length}
-        onChange={(e) => {
-          if (e.target.checked) {
-            setSelectedRowKeys(dados.map((item) => item.id));
-          } else {
-            setSelectedRowKeys([]);
-          }
-        }}
-      />
-    ),
-  }; 
-
-  const buscarDados = async (pagina = 1) => {
-    setLoading(true);
-    try {
-      const dataEmissao = form.getFieldValue('dataEmissao');
-      const dataEmissaoFormatada = dataEmissao
-        ? dayjs(dataEmissao).format('YYYY-MM-DD')
-        : undefined;
-
-      const filtros = {
-        NomeFormacao: form.getFieldValue('nomeFormacao') || undefined,
-        TipoDeclaracao: form.getFieldValue('tipoDeclaracao') ?? undefined,
-        CodigoFormacao: form.getFieldValue('codigoFormacao')
-          ? Number(form.getFieldValue('codigoFormacao'))
-          : undefined,
-        NumeroHomologacao: form.getFieldValue('numeroHomologacao')
-          ? Number(form.getFieldValue('numeroHomologacao'))
-          : undefined,
-        CodigoDeclaracao: form.getFieldValue('codigoDeclaracao')
-          ? Number(form.getFieldValue('codigoDeclaracao'))
-          : undefined,
-        DocumentoCursista: form.getFieldValue('rfOuCpfCursista') || undefined,
-        DocumentoRegente: form.getFieldValue('rfRegente') || undefined,
-        NomeCursista: form.getFieldValue('nomeCursista') || undefined,
-        DataEmissao: dataEmissaoFormatada,
-        TipoEmissor: TipoEmissorEnum.DRE,
-        EmissorId: form.getFieldValue('emissorId')?.id || undefined,
-        TurmaId: form.getFieldValue('turmaId') || undefined,
-        Pagina: pagina,
-        TamanhoPagina: registrosPorPagina,
-      };
-
-      const response = await obterDeclaracoesCodaf(filtros);
-
-      if (response.sucesso && response.dados) {
-        setDados(response.dados.items);
-        setTotalRegistros(response.dados.totalRegistros);
-        if (response.dados.items.length === 1) {
-          setSelectedRowKeys([response.dados.items[0].id]);
-        } else {
-          setSelectedRowKeys([]);
-        }
-      } else {
-        setDados([]);
-        setTotalRegistros(0);
-        setSelectedRowKeys([]);
-      }
-      setPaginaAtual(pagina);
-    } catch {
-      notification.error({
-        message: 'Erro',
-        description: 'Erro ao buscar declarações',
-      });
-      setDados([]);
-      setTotalRegistros(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onClickFiltrar = () => {
-    setFiltroAplicado(true);
-    setSelectedRowKeys([]);
-    buscarDados(1);
-  };
+    buscarDados,
+    onClickFiltrar,
+    handleTableChange,
+    rowSelection,
+    setPaginaAtual,
+    setTotalRegistros,
+  } = usePesquisaDocumentos<CodafDeclaracaoDTO>(apiCall, 'Erro ao buscar declarações');
 
   const onClickLimpar = () => {
+    const emissorId = form.getFieldValue('emissorId');
+    const isDreDisabled = document.getElementById(CF_SELECT_DRE)?.closest('.ant-select-disabled') !== null;
+
     setPaginaAtual(1);    
     setTotalRegistros(0);
     setFiltroAplicado(false);
     setTurmaDisabled(false);
     setTurmasProposta([]);
     form.resetFields();
+
+    if (isDreDisabled) {
+      form.setFieldValue('emissorId', emissorId);
+    }
   };
 
   const onClickBaixarDeclaracao = async () => {
@@ -255,15 +225,7 @@ const DeclaracoesPesquisa: React.FC = () => {
     }
   };
 
-  const handleTableChange = (pagination: any) => {
-    if (pagination.pageSize === registrosPorPagina) {
-      buscarDados(pagination.current);
-      return;
-    }
 
-    setRegistrosPorPagina(pagination.pageSize);
-    setPaginaAtual(1);
-  };
 
    const aoMudarCodigoProposta = () => {    
     setTurmaDisabled(true);
@@ -314,11 +276,6 @@ const DeclaracoesPesquisa: React.FC = () => {
       }
     };
 
-  React.useEffect(() => {
-    if (filtroAplicado) {
-      buscarDados(1);
-    }
-  }, [registrosPorPagina]);
 
   return (
     <Col>
