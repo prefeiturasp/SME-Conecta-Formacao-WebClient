@@ -216,15 +216,15 @@ const DeclaracoesPesquisa: React.FC = () => {
 
       if (resultado.sucesso && resultado.dados?.urlDownload) {
         const { nomeFormacao, nomeCompleto, urlDownload } = resultado.dados;
-        const sanitize = (s: string) => s.replace(/[/\\:*?"<>|]/g, '_').trim();
+        const sanitize = (s: string) => s.replaceAll(/[/\\:*?"<>|]/g, '_').trim();
         const nomePdf = `DECLARACAO_${sanitize(nomeFormacao)}_${sanitize(nomeCompleto)}.PDF`;
         const blob = await fetch(urlDownload).then((r) => r.blob());
-        const url = window.URL.createObjectURL(blob);
+        const url = globalThis.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = nomePdf;
         link.click();
-        window.URL.revokeObjectURL(url);
+        globalThis.URL.revokeObjectURL(url);
         notification.success({
           message: 'Sucesso',
           description: 'A declaração foi baixada com sucesso.',
@@ -242,13 +242,13 @@ const DeclaracoesPesquisa: React.FC = () => {
     const resultado = await downloadDeclaracoesLote(ids);
 
     if (resultado.sucesso && resultado.blob) {
-      const url = window.URL.createObjectURL(resultado.blob);
+      const url = globalThis.URL.createObjectURL(resultado.blob);
       const link = document.createElement('a');
       link.href = url;
       const now = dayjs();
       link.download = `DECLARACOES_${now.format('DDMMYYYY')}_${now.format('HHmmss')}.zip`;
       link.click();
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
       notification.success({
         message: 'Sucesso',
         description: 'As declarações selecionadas foram baixadas com sucesso.',
