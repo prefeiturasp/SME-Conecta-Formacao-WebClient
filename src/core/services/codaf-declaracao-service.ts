@@ -1,4 +1,4 @@
-import api, { ApiResult, obterRegistro } from './api';
+import { ApiResult, obterRegistro } from './api';
 
 const URL_DEFAULT = 'v1/CodafDeclaracao';
 

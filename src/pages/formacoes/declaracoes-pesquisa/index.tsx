@@ -1,12 +1,7 @@
 import {
-  Button,
   Col,
-  DatePicker,
   Form,
-  Row,
-  Select,
 } from 'antd';
-import locale from 'antd/es/date-picker/locale/pt_BR';
 import { useForm } from 'antd/es/form/Form';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -17,15 +12,6 @@ import { useNavigate } from 'react-router-dom';
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
 import { notification } from '~/components/lib/notification';
-import { SelectDRE } from '~/components/main/input/dre';
-import InputNumero from '~/components/main/numero';
-import InputTexto from '~/components/main/text/input-text';
-import {
-  CF_INPUT_CODIGO_FORMACAO,
-  CF_INPUT_NOME_FORMACAO,
-  CF_INPUT_NUMERO_HOMOLOGACAO,
-  CF_INPUT_RF,
-} from '~/core/constants/ids/input';
 import { CF_SELECT_DRE } from '~/core/constants/ids/select';
 import { TipoDeclaracao, TipoDeclaracaoDescricao } from '~/core/enum/tipo-declaracao';
 import {

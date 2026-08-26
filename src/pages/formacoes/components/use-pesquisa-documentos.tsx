@@ -52,12 +52,13 @@ export function usePesquisaDocumentos<T extends { id: number }>(
   };
 
   const handleTableChange = (pagination: any) => {
-    if (pagination.pageSize !== registrosPorPagina) {
-      setRegistrosPorPagina(pagination.pageSize);
-      setPaginaAtual(1);
-    } else {
+    if (pagination.pageSize === registrosPorPagina) {
       buscarDados(pagination.current);
+      return;
     }
+
+    setRegistrosPorPagina(pagination.pageSize);
+    setPaginaAtual(1);
   };
 
   const rowSelection = {

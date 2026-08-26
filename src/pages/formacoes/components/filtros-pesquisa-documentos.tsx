@@ -52,7 +52,48 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
   opcoesFormacao = [],
   loadingAutocomplete,
 }) => {
-  const isDeclaracoes = tipo === 'declaracoes';
+    const isDeclaracoes = tipo === 'declaracoes';
+  const configuracao = isDeclaracoes
+    ? {
+        codigoDocumentoLabel: 'Código da declaração',
+        codigoDocumentoName: 'codigoDeclaracao',
+        dataEmissaoLabel: 'Data de emissão da declaração',
+        dataPlaceholder: 'Selecione a data...',
+        dreName: 'emissorId',
+        nomeFormacaoPlaceholder: 'Nome da formação...',
+        nomeCursistaPlaceholder: 'Ex: João da Silva',
+        regenteLabel: 'RF ou CPF do regente',
+        regentePlaceholder: '000.000.000-00',
+        rfCursistaPlaceholder: '000.000.000-00',
+        tamanhoCodigoFormacao: 19,
+        tipoLabel: 'Tipo de declaração',
+        tipoName: 'tipoDeclaracao',
+        tipoOptions: Object.values(TipoDeclaracao)
+          .filter((value): value is TipoDeclaracao => typeof value === 'number')
+          .map((value) => ({ label: TipoDeclaracaoDescricao[value], value: Number(value) })),
+        turmaPlaceholder: 'Selecione...',
+        usuarioLogado: true,
+      }
+    : {
+        codigoDocumentoLabel: 'Código do certificado',
+        codigoDocumentoName: 'codigoCertificado',
+        dataEmissaoLabel: 'Data de emissão do certificado',
+        dataPlaceholder: 'Selecione a data',
+        dreName: 'dreId',
+        nomeFormacaoPlaceholder: 'Nome da formação',
+        nomeCursistaPlaceholder: 'Nome do cursista',
+        regenteLabel: 'RF do regente',
+        regentePlaceholder: 'RF do regente',
+        rfCursistaPlaceholder: 'RF ou CPF do cursista',
+        tamanhoCodigoFormacao: 20,
+        tipoLabel: 'Tipo de certificado',
+        tipoName: 'tipoCertificado',
+        tipoOptions: Object.values(TipoCertificado)
+          .filter((value): value is TipoCertificado => typeof value === 'number')
+          .map((value) => ({ label: TipoCertificadoDescricao[value], value: Number(value) })),
+        turmaPlaceholder: 'Selecione a turma',
+        usuarioLogado: false,
+      };
 
   return (
     <>
@@ -73,7 +114,7 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
             }}
             inputProps={{
               id: CF_INPUT_NOME_FORMACAO,
-              placeholder: isDeclaracoes ? 'Nome da formação...' : 'Nome da formação',
+              placeholder: configuracao.nomeFormacaoPlaceholder,
               maxLength: 200,
               allowClear: true,
             }}
@@ -81,19 +122,12 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
         </Col>
         <Col xs={24} sm={12} md={12} lg={12} xl={12}>
           <Form.Item
-            label={isDeclaracoes ? 'Tipo de declaração' : 'Tipo de certificado'}
-            name={isDeclaracoes ? 'tipoDeclaracao' : 'tipoCertificado'}
+            label={configuracao.tipoLabel}
+            name={configuracao.tipoName}
           >
             <Select
-              placeholder={isDeclaracoes ? 'Selecione...' : 'Selecione o tipo de certificado'}
-              options={Object.values(isDeclaracoes ? TipoDeclaracao : TipoCertificado)
-                .filter((v): v is number => typeof v === 'number')
-                .map((t) => ({
-                  label: isDeclaracoes
-                    ? TipoDeclaracaoDescricao[t as TipoDeclaracao]
-                    : TipoCertificadoDescricao[t as TipoCertificado],
-                  value: t,
-                }))}
+              placeholder='Selecione...'
+              options={configuracao.tipoOptions}
               allowClear
             />
           </Form.Item>
@@ -112,12 +146,12 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
             inputProps={{
               id: CF_INPUT_CODIGO_FORMACAO,
               placeholder: isDeclaracoes ? 'Código da formação...' : 'Código da formação',
-              maxLength: isDeclaracoes ? 19 : 20,
+              maxLength: configuracao.tamanhoCodigoFormacao,
               allowClear: true,
               onChange: isDeclaracoes ? aoMudarCodigoProposta : undefined,
               onBlur: isDeclaracoes
-                ? (e: React.FocusEvent<HTMLInputElement>) =>
-                    aoSairDoCampoCodigoProposta?.(e.target.value)
+                ? (event: React.FocusEvent<HTMLInputElement>) =>
+                    aoSairDoCampoCodigoProposta?.(event.target.value)
                 : undefined,
             }}
           />
@@ -160,7 +194,7 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <Form.Item label='Turma' name='turmaId' rules={[{ required: false }]}>
             <Select
-              placeholder={isDeclaracoes ? 'Selecione...' : 'Selecione a turma'}
+              placeholder={configuracao.turmaPlaceholder}
               options={turmas.map((turma) => ({
                 label: turma.descricao,
                 value: turma.id,
@@ -177,12 +211,12 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <InputNumero
             formItemProps={{
-              label: isDeclaracoes ? 'Código da declaração' : 'Código do certificado',
-              name: isDeclaracoes ? 'codigoDeclaracao' : 'codigoCertificado',
+              label: configuracao.codigoDocumentoLabel,
+              name: configuracao.codigoDocumentoName,
               rules: [{ required: false }],
             }}
             inputProps={{
-              placeholder: isDeclaracoes ? 'Código da declaração...' : 'Código do certificado',
+              placeholder: `${configuracao.codigoDocumentoLabel}...`,
               maxLength: 100,
               allowClear: true,
             }}
@@ -197,7 +231,7 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
             }}
             inputProps={{
               id: CF_INPUT_RF,
-              placeholder: isDeclaracoes ? '000.000.000-00' : 'RF ou CPF do cursista',
+              placeholder: configuracao.rfCursistaPlaceholder,
               maxLength: 20,
               allowClear: true,
               disabled: rfCursistaDisabled,
@@ -207,12 +241,12 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <InputTexto
             formItemProps={{
-              label: isDeclaracoes ? 'RF ou CPF do regente' : 'RF do regente',
+              label: configuracao.regenteLabel,
               name: 'rfRegente',
               rules: [{ required: false }],
             }}
             inputProps={{
-              placeholder: isDeclaracoes ? '000.000.000-00' : 'RF do regente',
+              placeholder: configuracao.regentePlaceholder,
               maxLength: 20,
               allowClear: true,
               disabled: rfRegenteDisabled,
@@ -231,7 +265,7 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
               rules: [{ required: false }],
             }}
             inputProps={{
-              placeholder: isDeclaracoes ? 'Ex: João da Silva' : 'Nome do cursista',
+              placeholder: configuracao.nomeCursistaPlaceholder,
               maxLength: 200,
               allowClear: true,
             }}
@@ -239,11 +273,11 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
         </Col>
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <Form.Item
-            label={isDeclaracoes ? 'Data de emissão da declaração' : 'Data de emissão do certificado'}
+            label={configuracao.dataEmissaoLabel}
             name='dataEmissao'
           >
             <DatePicker
-              placeholder={isDeclaracoes ? 'Selecione a data...' : 'Selecione a data'}
+              placeholder={configuracao.dataPlaceholder}
               format='DD/MM/YYYY'
               style={{ width: '100%' }}
               locale={locale}
@@ -254,10 +288,10 @@ const FiltrosPesquisaDocumentos: React.FC<FiltrosPesquisaDocumentosProps> = ({
           <SelectDRE
             formItemProps={{
               label: 'Diretoria Regional de Educação',
-              name: isDeclaracoes ? 'emissorId' : 'dreId',
+              name: configuracao.dreName,
               rules: [{ required: false }],
             }}
-            exibirApenasDREsUsuarioLogado={isDeclaracoes}
+            exibirApenasDREsUsuarioLogado={configuracao.usuarioLogado}
             selectProps={{ mode: undefined, allowClear: true }}
             exibirOpcaoTodos
           />
