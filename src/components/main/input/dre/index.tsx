@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_DRE } from '~/core/constants/ids/select';
 import { PROPOSTA_DRE_NAO_INFORMADA } from '~/core/constants/mensagens';
-import { obterDREs } from '~/core/services/dre-service';
+import { obterDREs, obterDREsUsuarioLogado } from '~/core/services/dre-service';
 import {
   onchangeMultiSelectLabelInValueOpcaoTodos,
   onchangeMultiSelectOpcaoTodos,
@@ -14,6 +14,7 @@ interface SelectDREProps {
   formItemProps?: FormItemProps;
   selectProps?: SelectProps;
   exibirOpcaoTodos?: boolean;
+  exibirApenasDREsUsuarioLogado?: boolean;
   carregarDadosAutomaticamente?: boolean;
 }
 
@@ -21,12 +22,15 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
   formItemProps,
   selectProps,
   exibirOpcaoTodos,
+  exibirApenasDREsUsuarioLogado,
   carregarDadosAutomaticamente = true,
 }) => {
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
+  const form = Form.useFormInstance();
+  const nomeCampo = formItemProps?.name ?? 'dreId';
 
   const obterDRE = async () => {
-    const resposta = await obterDREs(exibirOpcaoTodos);
+    const resposta = exibirApenasDREsUsuarioLogado ? await obterDREsUsuarioLogado() : await obterDREs(exibirOpcaoTodos);
 
     if (resposta.sucesso) {
       const newOptions = resposta.dados.map((item) => ({
@@ -36,6 +40,10 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
       }));
 
       setOptions(newOptions);
+
+      if (newOptions.length === 1 && selectProps?.mode !== 'multiple') {
+        form.setFieldValue(nomeCampo, newOptions[0]);
+      }
     }
   };
 
@@ -87,7 +95,13 @@ export const SelectDRE: React.FC<SelectDREProps> = ({
       }}
       {...formItemProps}
     >
-      <Select options={options} id={CF_SELECT_DRE} placeholder='Selecione a DRE' {...selectProps} />
+      <Select
+        options={options}
+        id={CF_SELECT_DRE}
+        placeholder='Selecione a DRE'
+        {...selectProps}
+        disabled={selectProps?.disabled || options.length === 1}
+      />
     </Form.Item>
   );
 };

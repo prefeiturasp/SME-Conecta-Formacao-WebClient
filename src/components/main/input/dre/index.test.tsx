@@ -103,6 +103,19 @@ describe('SelectDRE', () => {
     expect(select).toBeInTheDocument();
   });
 
+  it('deve selecionar e desabilitar o campo quando houver apenas uma DRE', async () => {
+    obterDREsMock.mockResolvedValue({
+      sucesso: true,
+      dados: [{ id: 1, descricao: 'DRE única' }],
+    });
+
+    const { container } = renderComponent();
+
+    await waitFor(() => {
+      expect(container.querySelector('.ant-select-disabled')).toBeInTheDocument();
+    });
+  });
+
   it('não deve atualizar options quando API falha', async () => {
     obterDREsMock.mockResolvedValue({
       sucesso: false,
