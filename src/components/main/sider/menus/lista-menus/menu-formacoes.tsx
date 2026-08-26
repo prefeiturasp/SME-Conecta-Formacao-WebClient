@@ -88,5 +88,16 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
         podeAlterar: PermissaoEnum.Inscricao_A,
       },
     },
+    {
+      key: MenuEnum.DeclaracoesPesquisa,
+      title: 'Pesquisar declarações',
+      url: ROUTES.DECLARACOES_PESQUISA,
+      roles: {
+        podeConsultar: PermissaoEnum.Proposta_C,
+        podeIncluir: PermissaoEnum.Proposta_I,
+        podeExcluir: PermissaoEnum.Proposta_E,
+        podeAlterar: PermissaoEnum.Proposta_A,
+      },
+    },
   ],
 };

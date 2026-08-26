@@ -1,4 +1,4 @@
-import { obterDREs } from './dre-service';
+import { obterDREs, obterDREsUsuarioLogado } from './dre-service';
 import { DreDTO } from '../dto/retorno-listagem-dto';
 
 jest.mock('./api', () => ({
@@ -243,6 +243,23 @@ describe('DreService', () => {
 
       expect(result.sucesso).toBe(false);
       expect(result.status).toBe(504);
+    });
+  });
+
+  describe('obterDREsUsuarioLogado', () => {
+    test('deve obter somente as DREs disponíveis para o usuário logado', async () => {
+      const mockResponse = {
+        sucesso: true,
+        dados: [{ codigo: 'DRE-001', descricao: 'DRE do usuário' }] as DreDTO[],
+        mensagens: [],
+        status: 200,
+      };
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await obterDREsUsuarioLogado();
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_DEFAULT}/usuario-logado`);
+      expect(result).toEqual(mockResponse);
     });
   });
 });

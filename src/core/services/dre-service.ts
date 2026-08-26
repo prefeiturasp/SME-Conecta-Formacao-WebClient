@@ -7,3 +7,9 @@ const obterDREs = (exibirOpcaoTodos?: boolean) =>
   obterRegistro<DreDTO[]>(URL_DEFAULT, { params: { exibirOpcaoTodos } });
 
 export { obterDREs };
+
+
+const obterDREsUsuarioLogado = () =>
+  obterRegistro<DreDTO[]>(URL_DEFAULT + '/usuario-logado');
+
+export { obterDREsUsuarioLogado };
