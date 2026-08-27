@@ -25,7 +25,11 @@ describe('CodafSuplementar - Regras de Negócio', () => {
     return labelsByStatus[status] ?? 'Desconhecido';
   };
 
-  const buildCertificateState = (status?: number) => {
+  const buildCertificateState = (status?: number, possuiAprovacoes?: boolean) => {
+    if (!possuiAprovacoes) {
+      return { label: 'Sem aprovações', disabled: true };
+    }
+
     const stateByStatus: Record<number, { label: string; disabled: boolean }> = {
       [CERTIFICADO_STATUS.SEM_CERTIFICADO]: { label: 'Sem certificado', disabled: true },
       [CERTIFICADO_STATUS.NAO_EMITIDOS]: { label: 'Não emitidos', disabled: true },
@@ -80,11 +84,17 @@ describe('CodafSuplementar - Regras de Negócio', () => {
   });
 
   test('deve montar estado do certificado para cada status', () => {
-    expect(buildCertificateState(0)).toEqual({ label: 'Sem certificado', disabled: true });
-    expect(buildCertificateState(1)).toEqual({ label: 'Não emitidos', disabled: true });
-    expect(buildCertificateState(2)).toEqual({ label: 'Emitir certificados', disabled: false });
-    expect(buildCertificateState(3)).toEqual({ label: 'Emitindo certificado', disabled: true });
-    expect(buildCertificateState(4)).toEqual({ label: 'Certificados emitidos', disabled: true });
+    expect(buildCertificateState(0, true)).toEqual({ label: 'Sem certificado', disabled: true });
+    expect(buildCertificateState(1, true)).toEqual({ label: 'Não emitidos', disabled: true });
+    expect(buildCertificateState(2, true)).toEqual({ label: 'Emitir certificados', disabled: false });
+    expect(buildCertificateState(3, true)).toEqual({ label: 'Emitindo certificado', disabled: true });
+    expect(buildCertificateState(4, true)).toEqual({ label: 'Certificados emitidos', disabled: true });
+  });
+
+  test('deve exibir Sem aprovações quando o registro não possuir aprovações, independente do status do certificado', () => {
+    expect(buildCertificateState(2, false)).toEqual({ label: 'Sem aprovações', disabled: true });
+    expect(buildCertificateState(4, false)).toEqual({ label: 'Sem aprovações', disabled: true });
+    expect(buildCertificateState(undefined, false)).toEqual({ label: 'Sem aprovações', disabled: true });
   });
 
   test('deve montar nome do relatório trocando todos os espaços', () => {
