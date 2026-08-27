@@ -226,7 +226,11 @@ function getTrainingStatusLabel(status: number): string {
   return statusTextByValue.get(status) ?? 'Desconhecido';
 }
 
-function buildCertificateState(status?: number): CertificatePresentation {
+function buildCertificateState(status?: number, possuiAprovacoes?: boolean): CertificatePresentation {
+  if (!possuiAprovacoes) {
+    return { label: 'Sem aprovações', disabled: true };
+  }
+
   const stateByStatus: Record<number, CertificatePresentation> = {
     [CERTIFICADO_STATUS.SEM_CERTIFICADO]: { label: 'Sem certificado', disabled: true },
     [CERTIFICADO_STATUS.NAO_EMITIDOS]: { label: 'Não emitidos', disabled: true },
@@ -723,7 +727,7 @@ const CodafSuplementar: React.FC = () => {
         ),
         width: 220,
         render: (_value, record) => {
-          const certificate = buildCertificateState(record.statusCertificacaoTurma);
+          const certificate = buildCertificateState(record.statusCertificacaoTurma, record.possuiAprovacoes);
 
           const isFeatureAvailable = true;
 
