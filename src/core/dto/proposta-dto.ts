@@ -51,6 +51,7 @@ export type PropostaDTO = {
   cargaHorariaTotalOutra?: string;
   justificativa?: string;
   objetivos?: string;
+  sobreEsteCurso?: string;
   referencia?: string;
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;
@@ -137,6 +138,7 @@ export type PropostaFormDTO = {
   cargaHorariaTotalOutra?: string;
   justificativa?: string;
   objetivos?: string;
+  sobreEsteCurso?: string;
   referencia?: string;
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;

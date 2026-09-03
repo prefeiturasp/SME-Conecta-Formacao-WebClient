@@ -445,6 +445,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       criterioCertificacao: [],
       cursoComCertificado: false,
       acaoInformativa: false,
+      sobreEsteCurso: '',
       nomeSituacao: SituacaoPropostaTagDisplay[SituacaoProposta.Rascunho],
       desativarAnoEhComponente: false,
     };
@@ -628,6 +629,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       procedimentoMetadologico: clonedValues.procedimentoMetadologico,
       conteudoProgramatico: clonedValues.conteudoProgramatico,
       objetivos: clonedValues.objetivos,
+      sobreEsteCurso: clonedValues?.sobreEsteCurso,
       outrosCriterios: clonedValues?.outrosCriterios || '',
       cursoComCertificado: !!clonedValues.cursoComCertificado,
       tipoEmissor:
