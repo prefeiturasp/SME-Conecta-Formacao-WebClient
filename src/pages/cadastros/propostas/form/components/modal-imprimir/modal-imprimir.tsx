@@ -4,10 +4,8 @@ import React from 'react';
 import Modal from '~/components/lib/modal';
 import { notification } from '~/components/lib/notification';
 import { RadioRelatorioLauda } from '~/components/main/input/imprimir-lauda';
-import {
-  obterRelatorioLaudaCompleta,
-  obterRelatorioLaudaPublicacao,
-} from '~/core/services/proposta-service';
+import { obterRelatorioLaudaPublicacao } from '~/core/services/proposta-service';
+import { obterRelatorioLaudaCompletaDocx } from '~/core/services/relatorio-service';
 
 type ModalImprimirProps = {
   propostaId: number;
@@ -18,7 +16,19 @@ export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFech
   const form = useFormInstance();
   const relatorioLaudaWatch = useWatch('relatorioLauda', form);
 
-  const downloadBlob = (url: string) => {
+  const downloadFile = (blob: Blob, filename: string) => {
+    const urlBlob = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.setAttribute('style', 'display: none');
+    a.href = urlBlob;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(urlBlob);
+    document.body.removeChild(a);
+  };
+
+  const downloadUrlAsBlob = (url: string, filename: string) => {
     fetch(url)
       .then((response) => {
         if (response.ok) {
@@ -27,38 +37,34 @@ export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFech
       })
       .then((blob) => {
         if (!blob) return;
-
-        const urlBlob = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        document.body.appendChild(a);
-        a.setAttribute('style', 'display: none');
-        a.href = urlBlob;
-        a.download = relatorioLaudaWatch
-          ? 'Relatório Lauda de publicação.doc'
-          : 'Relatório Lauda completa.pdf';
-        a.click();
-        window.URL.revokeObjectURL(urlBlob);
-        document.body.removeChild(a);
+        downloadFile(blob, filename);
       });
   };
 
   const handleImprimir = () => {
-    const endpoint = relatorioLaudaWatch
-      ? obterRelatorioLaudaPublicacao
-      : obterRelatorioLaudaCompleta;
-
-    endpoint(propostaId).then((resposta) => {
-      if (resposta.sucesso) {
-        const url = resposta.dados;
-        notification.success({
-          message: 'Sucesso',
-          description: 'Seu relatório foi gerado com sucesso!',
-        });
-
-        downloadBlob(url);
-        onFecharButton();
-      }
-    });
+    if (relatorioLaudaWatch) {
+      obterRelatorioLaudaPublicacao(propostaId).then((resposta) => {
+        if (resposta.sucesso) {
+          notification.success({
+            message: 'Sucesso',
+            description: 'Seu relatório foi gerado com sucesso!',
+          });
+          downloadUrlAsBlob(resposta.dados, 'Relatório Lauda de publicação.doc');
+          onFecharButton();
+        }
+      });
+    } else {
+      obterRelatorioLaudaCompletaDocx(propostaId).then((resposta) => {
+        if (resposta.sucesso) {
+          notification.success({
+            message: 'Sucesso',
+            description: 'Seu relatório foi gerado com sucesso!',
+          });
+          downloadFile(resposta.dados as Blob, 'Relatório Lauda completa.docx');
+          onFecharButton();
+        }
+      });
+    }
   };
 
   const handleFechar = () => {
