@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import CollapsePanelSME from '~/components/lib/collapse';
-import { SOBRE_ESTE_CURSO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
 import {
@@ -10,6 +9,7 @@ import {
   OBJETIVO_NAO_INFORMADO,
   PROCEDIMENTOS_METODOLOGICOS_NAO_INFORMADO,
   REFERENCIA_NAO_INFORMADA,
+  SOBRE_ESTE_CURSO_NAO_INFORMADO,
 } from '~/core/constants/mensagens';
 import {
   CampoConsideracaoEnum,
