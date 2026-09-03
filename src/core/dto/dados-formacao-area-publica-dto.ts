@@ -19,7 +19,7 @@ export type RetornoDetalheFormacaoDto = {
   formatoDescricao?: string;
   periodo?: string;
   periodoInscricao?: string;
-  justificativa?: string;
+  sobreEsteCurso?: string;
   publicosAlvo?: string[];
   palavrasChaves?: string[];
   inscricaoEncerrada: boolean;

@@ -68,7 +68,7 @@ const VisualizarFormacao: FC = () => {
 
             <Typography
               style={typographyStyles.textoJustificativa}
-              dangerouslySetInnerHTML={{ __html: dadosFormacao?.justificativa ?? '' }}
+              dangerouslySetInnerHTML={{ __html: dadosFormacao?.sobreEsteCurso ?? '' }}
             />
           </Col>
 
