@@ -17,15 +17,15 @@ export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFech
   const relatorioLaudaWatch = useWatch('relatorioLauda', form);
 
   const downloadFile = (blob: Blob, filename: string) => {
-    const urlBlob = window.URL.createObjectURL(blob);
+    const urlBlob = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     document.body.appendChild(a);
     a.setAttribute('style', 'display: none');
     a.href = urlBlob;
     a.download = filename;
     a.click();
-    window.URL.revokeObjectURL(urlBlob);
-    document.body.removeChild(a);
+    globalThis.URL.revokeObjectURL(urlBlob);
+    a.remove();
   };
 
   const downloadUrlAsBlob = (url: string, filename: string) => {
@@ -60,7 +60,7 @@ export const ModalImprimir: React.FC<ModalImprimirProps> = ({ propostaId, onFech
             message: 'Sucesso',
             description: 'Seu relatório foi gerado com sucesso!',
           });
-          downloadFile(resposta.dados as Blob, 'Relatório Lauda completa.docx');
+          downloadFile(resposta.dados, 'Relatório Lauda completa.docx');
           onFecharButton();
         }
       });
