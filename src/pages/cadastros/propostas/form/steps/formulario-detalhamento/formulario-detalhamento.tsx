@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import CollapsePanelSME from '~/components/lib/collapse';
+import { SOBRE_ESTE_CURSO_NAO_INFORMADO } from '~/core/constants/mensagens';
 import EditorTexto from '~/components/main/input/editor-texto';
 import SelectPalavrasChaves from '~/components/main/input/palavras-chave';
 import {
@@ -25,6 +26,14 @@ type FormularioDetalhamentoProps = {
 
 const FormularioDetalhamento: React.FC<FormularioDetalhamentoProps> = ({ revalidacao }) => {
   const { desabilitarCampos } = useContext(PermissaoContext);
+
+  const sobreEsteCurso = {
+    key: CampoConsideracaoEnum.sobreEsteCurso,
+    header: 'Sobre este curso',
+    messageError: SOBRE_ESTE_CURSO_NAO_INFORMADO,
+    textoTooltip:
+      'Esta informação será exibida para o cursista/regente na tela de detalhamento da formação.',
+  };
 
   const collapsesComEditorDeTexto = [
     {
@@ -67,6 +76,21 @@ const FormularioDetalhamento: React.FC<FormularioDetalhamentoProps> = ({ revalid
 
   return (
     <>
+      <CollapsePanelSME
+        panelProps={{ header: sobreEsteCurso.header, key: CamposParecerNomeEnumDisplay[sobreEsteCurso.key] }}
+        exibirTooltip={true}
+        titleToolTip={sobreEsteCurso.textoTooltip}
+        collapseProps={{ defaultActiveKey: CamposParecerNomeEnumDisplay[sobreEsteCurso.key] }}
+      >
+        <EditorTexto
+          nome={CamposParecerNomeEnumDisplay[sobreEsteCurso.key]}
+          mensagemErro={sobreEsteCurso.messageError}
+          disabled={desabilitarCampos}
+          formItemProps={{ style: { marginBottom: 0 } }}
+        />
+        <ButtonParecer campo={sobreEsteCurso.key} />
+      </CollapsePanelSME>
+
       <CollapsePanelSME
         panelProps={{ header: 'Carga horária', key: 'cargaHoraria' }}
         collapseProps={{ defaultActiveKey: 'cargaHoraria' }}
