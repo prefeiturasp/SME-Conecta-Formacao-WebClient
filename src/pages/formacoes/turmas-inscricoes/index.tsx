@@ -46,8 +46,6 @@ export const TurmasInscricoes = () => {
   const params = useParams();
   const id = params.id ? parseInt(params?.id) : 0;
 
-  const nomeFormacao = location?.state?.nomeFormacao;
-  const temTipoInscricaoManual = location?.state?.tiposInscricoes?.includes(TipoInscricao.Manual);
 
   const paramsRoute = {
     state: location.state,
@@ -58,10 +56,14 @@ export const TurmasInscricoes = () => {
   const DADO_PADRAO_PODE_INSCREVER: PodeInscreverMensagemDTO = {
     mensagem: '',
     podeInscrever: true,
+    tiposInscricao: [],
+    nomeFormacao: '',
   };
   const [dadosInscricao, setDadosInscricao] = useState<PodeInscreverMensagemDTO>(
     DADO_PADRAO_PODE_INSCREVER,
   );
+  const temTipoInscricaoManual = dadosInscricao?.tiposInscricao?.includes(TipoInscricao.Manual);
+  const nomeFormacao = dadosInscricao?.nomeFormacao;
 
   const [filters, setFilters] = useState<FiltroTurmaInscricoesProps>({
     cpf: null,
