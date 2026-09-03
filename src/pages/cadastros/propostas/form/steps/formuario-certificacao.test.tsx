@@ -81,8 +81,8 @@ jest.mock(
 
 jest.mock(
   '../components/select-tipo-emissor',
-  () => () => (
-    <div data-testid="tipo-emissor" />
+  () => (props: any) => (
+    <div data-testid="tipo-emissor" data-requerido={props.campoRequerido} />
   ),
 );
 
@@ -291,84 +291,6 @@ describe('FormularioCertificacao', () => {
     });
   }); 
 
-  it('deve renderizar Select vazio quando tipo emissor não existir', async () => {
-    mockGetFieldValue.mockImplementation((campo) => {
-      if (campo === 'cursoComCertificado')
-        return true;
-
-      if (campo === 'criterioCertificacao')
-        return [];
-
-      return undefined;
-    });
-
-    renderComponent();
-
-    act(() => {
-      jest.advanceTimersByTime(2000);
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId('select-vazio'),
-      ).toBeDisabled();
-    });
-  });
-
-  it('deve renderizar SelectDRE', async () => {
-    watchValue = 1;
-
-    mockGetFieldValue.mockImplementation((campo) => {
-      if (campo === 'cursoComCertificado')
-        return true;
-
-      if (campo === 'criterioCertificacao')
-        return [];
-
-      return undefined;
-    });
-
-    renderComponent();
-
-    act(() => {
-      jest.advanceTimersByTime(2000);
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId('select-dre'),
-      ).toBeInTheDocument();
-    });
-  });
-
-  it('deve renderizar SelectCoordenadoria', async () => {
-    watchValue = 2;
-
-    mockGetFieldValue.mockImplementation((campo) => {
-      if (campo === 'cursoComCertificado')
-        return true;
-
-      if (campo === 'criterioCertificacao')
-        return [];
-
-      return undefined;
-    });
-
-    renderComponent();
-
-    act(() => {
-      jest.advanceTimersByTime(2000);
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(
-          'select-coordenadoria',
-        ),
-      ).toBeInTheDocument();
-    });
-  });
-
   it('deve desabilitar editor conforme contexto', () => {
     render(
       <PermissaoContext.Provider
@@ -404,5 +326,100 @@ describe('FormularioCertificacao', () => {
     expect(
       mockSetFields,
     ).not.toHaveBeenCalled();
+  });
+
+  it('deve renderizar Tipo de emissor como obrigatório', async () => {
+    renderComponent();
+
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('tipo-emissor'),
+      ).toHaveAttribute(
+        'data-requerido',
+        'true',
+      );
+    });
+  });
+
+  it('deve renderizar Select vazio com validação obrigatória quando tipo emissor não existir', async () => {
+    mockGetFieldValue.mockImplementation((campo) => {
+      if (campo === 'cursoComCertificado')
+        return true;
+
+      if (campo === 'criterioCertificacao')
+        return [];
+
+      return undefined;
+    });
+
+    renderComponent();
+
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('select-vazio'),
+      ).toBeDisabled();
+    });
+  });
+
+  it('deve renderizar SelectDRE com validação obrigatória', async () => {
+    watchValue = 1;
+
+    mockGetFieldValue.mockImplementation((campo) => {
+      if (campo === 'cursoComCertificado')
+        return true;
+
+      if (campo === 'criterioCertificacao')
+        return [];
+
+      return undefined;
+    });
+
+    renderComponent();
+
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('select-dre'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('deve renderizar SelectCoordenadoria com validação obrigatória', async () => {
+    watchValue = 2;
+
+    mockGetFieldValue.mockImplementation((campo) => {
+      if (campo === 'cursoComCertificado')
+        return true;
+
+      if (campo === 'criterioCertificacao')
+        return [];
+
+      return undefined;
+    });
+
+    renderComponent();
+
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(
+          'select-coordenadoria',
+        ),
+      ).toBeInTheDocument();
+    });
   });
 });

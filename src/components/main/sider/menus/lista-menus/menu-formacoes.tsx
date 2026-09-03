@@ -24,14 +24,43 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
     },
     {
       key: MenuEnum.ListaPresencaCodaf,
-      title: 'Lista de Presença CODAF',
-      url: ROUTES.LISTA_PRESENCA_CODAF,
-      roles: {
-        podeConsultar: PermissaoEnum.Inscricao_C,
-        podeIncluir: PermissaoEnum.Inscricao_I,
-        podeExcluir: PermissaoEnum.Inscricao_E,
-        podeAlterar: PermissaoEnum.Inscricao_A,
-      },
+      title: (
+        <>
+          Lista de Presença <br /> CODAF
+        </>
+      ),
+      children: [
+        {
+          key: MenuEnum.CodafFormacoesHomologadas,
+          title: (
+            <>
+              Formações <br /> homologadas
+            </>
+          ),
+          url: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO,
+          roles: {
+            podeConsultar: PermissaoEnum.Inscricao_C,
+            podeIncluir: PermissaoEnum.Inscricao_I,
+            podeExcluir: PermissaoEnum.Inscricao_E,
+            podeAlterar: PermissaoEnum.Inscricao_A,
+          },
+        },
+        {
+          key: MenuEnum.CodafFormacoesNaoHomologadas,
+          title: (
+            <>
+              Formações não <br /> homologadas
+            </>
+          ),
+          url: ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO,
+          roles: {
+            podeConsultar: PermissaoEnum.Inscricao_C,
+            podeIncluir: PermissaoEnum.Inscricao_I,
+            podeExcluir: PermissaoEnum.Inscricao_E,
+            podeAlterar: PermissaoEnum.Inscricao_A,
+          },
+        },
+      ],
     },
     ...(isCodafSuplementarEnabled
       ? [
@@ -57,6 +86,17 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
         podeIncluir: PermissaoEnum.Inscricao_I,
         podeExcluir: PermissaoEnum.Inscricao_E,
         podeAlterar: PermissaoEnum.Inscricao_A,
+      },
+    },
+    {
+      key: MenuEnum.DeclaracoesPesquisa,
+      title: 'Pesquisar declarações',
+      url: ROUTES.DECLARACOES_PESQUISA,
+      roles: {
+        podeConsultar: PermissaoEnum.Proposta_C,
+        podeIncluir: PermissaoEnum.Proposta_I,
+        podeExcluir: PermissaoEnum.Proposta_E,
+        podeAlterar: PermissaoEnum.Proposta_A,
       },
     },
   ],

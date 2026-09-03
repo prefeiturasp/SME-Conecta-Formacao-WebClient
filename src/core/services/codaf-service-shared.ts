@@ -21,6 +21,7 @@ export type CodafListagemBaseDTO = {
   statusCertificacaoTurma: number;
   codigoCursoEol: number | null;
   codigoNivel: number | null;
+  possuiAprovacoes?: boolean;
 };
 
 export type CodafListagemRetornoBaseDTO<TItem extends CodafListagemBaseDTO> = {
@@ -76,4 +77,31 @@ export const montarParametrosFiltroCodaf = (
   if (incluirDataEnvioDf && filtros.DataEnvioDf) params.DataEnvioDf = filtros.DataEnvioDf;
 
   return params;
+};
+
+import api from './api';
+
+export const downloadDocumentosLote = async (
+  endpoint: string,
+  ids: number[],
+  mensagemErroDefault: string
+): Promise<{ sucesso: boolean; blob?: Blob; mensagensErro?: string[] }> => {
+  try {
+    const response = await api.post(endpoint, ids, {
+      responseType: 'blob',
+    });
+    return { sucesso: true, blob: response.data as Blob };
+  } catch (error: any) {
+    const responseBlob: Blob = error?.response?.data;
+    if (responseBlob) {
+      const text = await responseBlob.text();
+      try {
+        const json = JSON.parse(text);
+        return { sucesso: false, mensagensErro: json.mensagensErro ?? [] };
+      } catch {
+        // ignorar erro de parse
+      }
+    }
+    return { sucesso: false, mensagensErro: [mensagemErroDefault] };
+  }
 };

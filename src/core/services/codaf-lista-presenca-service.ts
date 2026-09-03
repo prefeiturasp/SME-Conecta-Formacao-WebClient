@@ -24,7 +24,9 @@ export const URL_API_CERTIFICADO = 'v1/CodafCertificado';
 
 export type CodafListaPresencaFiltroDTO = CodafListagemFiltroBaseDTO;
 
-export type CodafListaPresencaDTO = CodafListagemBaseDTO;
+export type CodafListaPresencaDTO = CodafListagemBaseDTO & {
+  possuiAprovacoes: boolean;
+};
 
 export type CodafListaPresencaRetornoDTO = CodafListagemRetornoBaseDTO<CodafListaPresencaDTO>;
 
@@ -135,6 +137,10 @@ export const atualizarCodafListaPresenca = (
 
 export const deletarRetificacao = (id: string | number): Promise<ApiResult<boolean>> =>
   deletarRegistro(`${URL_API_CODAF_LISTA_PRESENCA}/retificacoes/${id}`);
+
+export const finalizarCodaf = (codafListaPresencaId: number): Promise<ApiResult<any>> => {
+  return api.patch(`${URL_API_CODAF_LISTA_PRESENCA}/${codafListaPresencaId}/finalizar`);
+};
 
 export type InscritoTurmaDTO = {
   id: number;
@@ -304,6 +310,64 @@ export const downloadCertificado = (
   certificadoCodafId: number,
 ): Promise<ApiResult<CertificadoDownloadDTO>> => {
   return obterRegistro(`${URL_API_CERTIFICADO}/${certificadoCodafId}/download`);
+};
+
+export type DeclaracaoUsuarioFiltroDTO = {
+  CodigoFormacao?: number;
+  NomeFormacao?: string;
+  CodigoDeclaracao?: number;
+  TipoParticipacao?: number;
+  DataEmissaoInicio?: string;
+  DataEmissaoFim?: string;
+  NumeroPagina?: number;
+  NumeroRegistros?: number;
+};
+
+export type DeclaracaoUsuarioDTO = {
+  id: number;
+  codigoFormacao: number;
+  nomeFormacao: string;
+  codigoDeclaracao: number;
+  tipoParticipacao: number;
+  dataEmissao: string;
+};
+
+export type DeclaracaoUsuarioRetornoDTO = {
+  items: DeclaracaoUsuarioDTO[];
+  totalPaginas: number;
+  totalRegistros: number;
+};
+
+export const obterDeclaracoesUsuario = (
+  filtros: DeclaracaoUsuarioFiltroDTO,
+): Promise<ApiResult<DeclaracaoUsuarioRetornoDTO>> => {
+  const params: any = {
+    NumeroPagina: filtros.NumeroPagina || 1,
+    NumeroRegistros: filtros.NumeroRegistros || 10,
+  };
+
+  if (filtros.CodigoFormacao) params.CodigoFormacao = filtros.CodigoFormacao;
+  if (filtros.NomeFormacao) params.NomeFormacao = filtros.NomeFormacao;
+  if (filtros.CodigoDeclaracao) params.CodigoDeclaracao = filtros.CodigoDeclaracao;
+  if (filtros.TipoParticipacao) params.TipoParticipacao = filtros.TipoParticipacao;
+  if (filtros.DataEmissaoInicio) params.DataEmissaoInicio = filtros.DataEmissaoInicio;
+  if (filtros.DataEmissaoFim) params.DataEmissaoFim = filtros.DataEmissaoFim;
+
+  return obterRegistro(`v1/CodafDeclaracao/minhas`, { params });
+};
+
+export type DeclaracaoDownloadDTO = {
+  id: number;
+  codigoDeclaracao: number;
+  urlDownload: string;
+  nomeCompleto: string;
+  nomeFormacao: string;
+};
+
+export const downloadDeclaracao = (
+  declaracaoId: number,
+): Promise<ApiResult<DeclaracaoDownloadDTO>> => {
+  return obterRegistro(`v1/CodafDeclaracao/${declaracaoId}/download`);
 };
 
 export type PropostaTurmaComCodafDTO = {

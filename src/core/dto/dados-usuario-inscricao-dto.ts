@@ -12,6 +12,7 @@ export type DadosInscricaoCargoEolDTO = {
 
 export type DadosInscricaoDTO = {
   usuarioNome: string;
+  usuarioNomeSocial: string;
   usuarioRf: string;
   usuarioCpf: string;
   usuarioTelefone?: string;

@@ -44,6 +44,8 @@ const ChildrenContainer = styled.div`
   align-items: center;
 `;
 
+import BreadcrumbConecta from '~/components/main/breadcrumb';
+
 type HeaderPage = {
   title: string;
 } & PropsWithChildren;
@@ -54,6 +56,9 @@ const HeaderPage: React.FC<HeaderPage> = ({ title, children }) => {
       <Affix offsetTop={70}>
         <HeaderContainer>
           <HeaderContentContainer>
+            <div style={{ width: '100%', marginBottom: '8px' }}>
+              <BreadcrumbConecta />
+            </div>
             <Title>{title}</Title>
             <ChildrenContainer>{children}</ChildrenContainer>
           </HeaderContentContainer>

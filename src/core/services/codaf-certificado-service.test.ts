@@ -12,6 +12,10 @@ jest.mock('./api', () => ({
   obterRegistro: jest.fn(),
 }));
 
+jest.mock('./codaf-service-shared', () => ({
+  downloadDocumentosLote: jest.fn(),
+}));
+
 describe('codaf-certificado-service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -124,79 +128,18 @@ describe('codaf-certificado-service', () => {
   });
 
   describe('downloadCertificadosLote', () => {
-    it('deve baixar certificados com sucesso', async () => {
-      const blob = new Blob(['arquivo']);
-
-      (api.post as jest.Mock).mockResolvedValue({
-        data: blob,
-      });
+    it('deve chamar downloadDocumentosLote com parametros corretos', async () => {
+      const { downloadDocumentosLote } = require('./codaf-service-shared');
+      (downloadDocumentosLote as jest.Mock).mockResolvedValue({ sucesso: true, blob: new Blob() });
 
       const resultado = await downloadCertificadosLote([1, 2]);
 
-      expect(api.post).toHaveBeenCalledWith(
+      expect(downloadDocumentosLote).toHaveBeenCalledWith(
         'v1/CodafCertificado/download-lote',
         [1, 2],
-        {
-          responseType: 'blob',
-        }
+        'Erro ao baixar os certificados.'
       );
-
-      expect(resultado).toEqual({
-        sucesso: true,
-        blob,
-      });
-    });
-
-    it('deve retornar mensagens de erro vindas da api', async () => {
-      const blob = new Blob(
-        [
-          JSON.stringify({
-            mensagensErro: ['Erro 1', 'Erro 2'],
-          }),
-        ],
-        { type: 'application/json' }
-      );
-
-      (api.post as jest.Mock).mockRejectedValue({
-        response: {
-          data: blob,
-        },
-      });
-
-      const resultado = await downloadCertificadosLote([1]);
-
-      expect(resultado).toEqual({
-        sucesso: false,
-        mensagensErro: ['Erro 1', 'Erro 2'],
-      });
-    });
-
-    it('deve retornar erro padrão quando blob não for json', async () => {
-      const blob = new Blob(['texto inválido']);
-
-      (api.post as jest.Mock).mockRejectedValue({
-        response: {
-          data: blob,
-        },
-      });
-
-      const resultado = await downloadCertificadosLote([1]);
-
-      expect(resultado).toEqual({
-        sucesso: false,
-        mensagensErro: ['Erro ao baixar os certificados.'],
-      });
-    });
-
-    it('deve retornar erro padrão quando não existir response', async () => {
-      (api.post as jest.Mock).mockRejectedValue({});
-
-      const resultado = await downloadCertificadosLote([1]);
-
-      expect(resultado).toEqual({
-        sucesso: false,
-        mensagensErro: ['Erro ao baixar os certificados.'],
-      });
+      expect(resultado.sucesso).toBe(true);
     });
   });
 });

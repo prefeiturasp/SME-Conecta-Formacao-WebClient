@@ -30,6 +30,7 @@ import { useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import { inserirInscricao, obterDadosInscricaoProposta } from '~/core/services/inscricao-service';
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
+import usuarioService from '~/core/services/usuario-service';
 import { onClickCancelar, onClickVoltar } from '~/core/utils/form';
 import SelectFuncaoAtividade from './components/funcao-atividade';
 import { ModalInscricao } from './components/modal';
@@ -51,19 +52,33 @@ export const Inscricao = () => {
   const [initialValues, setFormInitialValues] = useState<DadosInscricaoPropostaDto>();
   const [vagaRemanescente, setVagaRemanescente] = useState<boolean>(false);
   const [abrirModalListaDeEspera, setAbrirModalListaDeEspera] = useState<boolean>(false);
-  const [abrirModalInscricaoNaListaDeEspera, setAbrirModalInscricaoNaListaDeEspera] =
-    useState<boolean>(false);
+  const [abrirModalInscricaoNaListaDeEspera, setAbrirModalInscricaoNaListaDeEspera] = useState<boolean>(false);
   const [pessoaComDeficiencia, setPessoaComDeficiencia] = useState<string | undefined>(undefined);
   const [precisaDeAdaptacao, setPrecisaDeAdaptacao] = useState<string | undefined>(undefined);
   const [abrirModalAcessibilidade, setAbrirModalAcessibilidade] = useState<boolean>(false);
+  const [confirmacaoInscricao, setConfirmacaoInscricao] = useState<string>('');
   const acessibilidadeValuesRef = useRef<Record<string, unknown> | null>(null);
   const salvarAcessibilidadeRef = useRef<boolean>(false);
 
   const ehServidorTemRF = !!perfil.usuarioLogin;
-
   const formacaoNome = formacaoState?.titulo ? `- ${formacaoState?.titulo}` : '';
 
-  const [confirmacaoInscricao, setConfirmacaoInscricao] = useState<string>('');
+  const [abrirModalNomeSocial, setAbrirModalNomeSocial] = useState<boolean>(false);
+  const [nomeSocialTemp, setNomeSocialTemp] = useState<string>('');
+  const [salvandoNomeSocial, setSalvandoNomeSocial] = useState<boolean>(false);
+
+  const confirmarAlteracaoNomeSocial = async () => {
+  setSalvandoNomeSocial(true);
+  try {
+    const response = await usuarioService.alterarNomeSocial(perfil.usuarioLogin, nomeSocialTemp);
+    if (response.data) {
+      form.setFieldValue('usuarioNomeSocial', nomeSocialTemp);
+      setAbrirModalNomeSocial(false);
+    }
+  } finally {
+    setSalvandoNomeSocial(false);
+  }
+};
 
   const formatarTelefone = (valor: string) => {
     const numeros = valor.replace(/\D/g, '').slice(0, 11);
@@ -125,6 +140,7 @@ export const Inscricao = () => {
 
       const valoresIniciais = {
         usuarioNome: dados.usuarioNome,
+        usuarioNomeSocial: dados.usuarioNomeSocial,
         usuarioRf: ehServidorTemRF ? dados.usuarioRf : '',
         usuarioCpf: dados.usuarioCpf,
         usuarioCargos,
@@ -361,7 +377,7 @@ export const Inscricao = () => {
         <CardContent>
           <Col span={24}>
             <Row gutter={[16, 8]}>
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={12}>
                 <Form.Item label='Nome' key='usuarioNome' name='usuarioNome'>
                   <Input
                     disabled
@@ -371,6 +387,33 @@ export const Inscricao = () => {
                     placeholder='Nome'
                   />
                 </Form.Item>
+              </Col>
+
+              <Col xs={24} sm={12}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                  <Form.Item
+                    label='Nome social'
+                    name='usuarioNomeSocial'
+                    style={{ flex: 1, marginBottom: 0 }}
+                  >
+                    <Input disabled type='text' maxLength={50} placeholder='Nome social' />
+                  </Form.Item>
+                  <Button
+                    style={{
+                      fontWeight: 700,
+                      color: '#ff9a52',
+                      borderColor: '#ff9a52',
+                      backgroundColor: '#FFFFFF',
+                      flexShrink: 0,
+                    }}
+                    onClick={() => {
+                      setNomeSocialTemp(form.getFieldValue('usuarioNomeSocial') ?? '');
+                      setAbrirModalNomeSocial(true);
+                    }}
+                  >
+                    Alterar
+                  </Button>
+                </div>
               </Col>
 
               <Col xs={24} sm={8}>
@@ -654,6 +697,52 @@ export const Inscricao = () => {
             mensagem={confirmacaoInscricao}
           />
         )}
+
+        {abrirModalNomeSocial && (
+          <Modal
+            open={abrirModalNomeSocial}
+            title={<span style={{ fontWeight: 700, fontSize: '16px' }}>Alterar nome social</span>}
+            centered
+            destroyOnClose
+            closable
+            footer={null}
+            onCancel={() => setAbrirModalNomeSocial(false)}
+          >
+            <div style={{ borderTop: '1px solid #E8E8E8', margin: '8px 0 16px 0' }} />
+
+            <Typography.Text style={{ fontSize: 12, fontWeight: 700 }}>
+              Nome social
+            </Typography.Text>
+            <Input
+              value={nomeSocialTemp}
+              maxLength={50}
+              placeholder='Nome social'
+              onChange={(e) => setNomeSocialTemp(e.target.value)}
+              style={{ marginTop: 8 }}
+            />
+
+            <div style={{ borderTop: '1px solid #E8E8E8', margin: '16px 0' }} />
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <Button type='text' onClick={() => setAbrirModalNomeSocial(false)}>
+                Cancelar
+              </Button>
+              <Button
+                loading={salvandoNomeSocial}
+                style={{
+                  fontWeight: 700,
+                  color: '#FF7A00',
+                  borderColor: '#FF7A00',
+                  backgroundColor: '#FFFFFF',
+                }}
+                onClick={confirmarAlteracaoNomeSocial}
+              >
+                Alterar
+              </Button>
+            </div>
+          </Modal>
+        )}
+
       </Form>
     </Col>
   );

@@ -20,8 +20,8 @@ import { UsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria';
 import { FormUsuarioRedeParceria } from '~/pages/cadastros/usuario-rede-parceria/form-usuario';
 import { Inscricao } from '~/pages/formacao-cursista/inscricao';
 import { Inscricoes } from '~/pages/formacoes/inscricoes';
-import ListaPresencaCodaf from '~/pages/formacoes/lista-presenca-codaf';
-import CadastroListaPresencaCodaf from '~/pages/formacoes/lista-presenca-codaf/cadastro';
+import ListaPresencaCodaf from '~/pages/formacoes/codaf/lista-presenca-codaf';
+import CadastroListaPresencaCodaf from '~/pages/formacoes/codaf/lista-presenca-codaf/cadastro';
 import { TurmasInscricoes } from '~/pages/formacoes/turmas-inscricoes';
 import { FormCadastrosInscricoesManuais } from '~/pages/formacoes/turmas-inscricoes/form';
 import { InscricoesPorArquivoListagem } from '~/pages/formacoes/turmas-inscricoes/listagem-arquivos';
@@ -37,12 +37,15 @@ import RedefinirSenha from '~/pages/redefinir-senha';
 import RedefinirSenhaToken from '~/pages/redefinir-senha-token';
 import GuardAutenticacao from './config/guard/autenticacao';
 import GuardPermissao from './config/guard/permissao';
-import MeusCertificados from '~/pages/formacoes/lista-presenca-codaf/certificado/certificados-usuario';
+import MeusCertificados from '~/pages/formacoes/codaf/lista-presenca-codaf/certificado/certificados-usuario';
 import CertificadosPesquisa from '~/pages/formacoes/certificados-pesquisa';
+import DeclaracoesPesquisa from '~/pages/formacoes/declaracoes-pesquisa';
 import RelatorioInscritosPorFormacao from '~/pages/relatorios/inscritos-por-formacao';
 import ListCoordenadoria from '~/pages/cadastros/coordenadoria';
-import CodafSuplementar from '~/pages/formacoes/codaf-suplementar';
-import CadastroCodafSuplementar from '~/pages/formacoes/codaf-suplementar/cadastro';
+import CodafSuplementar from '~/pages/formacoes/codaf/codaf-suplementar';
+import CadastroCodafSuplementar from '~/pages/formacoes/codaf/codaf-suplementar/cadastro';
+import CodafFormacoesNaoHomologadas from '~/pages/formacoes/codaf/formacoes-nao-homologadas';
+import CadastroCodafFormacoesNaoHomologadas from '~/pages/formacoes/codaf/formacoes-nao-homologadas/cadastro';
 
 const isCodafSuplementarEnabled: boolean = true;
 
@@ -188,20 +191,38 @@ const RoutesConfig = () => {
                 </Route>
               </Route>
 
-              <Route path={ROUTES.LISTA_PRESENCA_CODAF}>
-                <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+              <Route path={ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesHomologadas} />}>
                   <Route path='' element={<ListaPresencaCodaf />} />
                 </Route>
-                <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesHomologadas} />}>
                   <Route
-                    path={ROUTES.LISTA_PRESENCA_CODAF_NOVO}
+                    path={ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_NOVO}
                     element={<CadastroListaPresencaCodaf />}
                   />
                 </Route>
-                <Route element={<GuardPermissao menuKey={MenuEnum.ListaPresencaCodaf} />}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesHomologadas} />}>
                   <Route
-                    path={ROUTES.LISTA_PRESENCA_CODAF_EDITAR}
+                    path={ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR}
                     element={<CadastroListaPresencaCodaf />}
+                  />
+                </Route>
+              </Route>
+
+              <Route path={ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO}>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesNaoHomologadas} />}>
+                  <Route path='' element={<CodafFormacoesNaoHomologadas />} />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesNaoHomologadas} />}>
+                  <Route
+                    path={ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_NOVO}
+                    element={<CadastroCodafFormacoesNaoHomologadas />}
+                  />
+                </Route>
+                <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesNaoHomologadas} />}>
+                  <Route
+                    path={ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_EDITAR}
+                    element={<CadastroCodafFormacoesNaoHomologadas />}
                   />
                 </Route>
               </Route>
@@ -227,6 +248,10 @@ const RoutesConfig = () => {
 
               <Route element={<GuardPermissao menuKey={MenuEnum.CertificadosPesquisa} />}>
                 <Route path={ROUTES.CERTIFICADOS_PESQUISA} element={<CertificadosPesquisa />} />
+              </Route>
+
+               <Route element={<GuardPermissao menuKey={MenuEnum.DeclaracoesPesquisa} />}>
+                <Route path={ROUTES.DECLARACOES_PESQUISA} element={<DeclaracoesPesquisa />} />
               </Route>
 
               <Route

@@ -1,5 +1,5 @@
 import { Button, Menu, MenuProps } from 'antd';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { CSSProperties } from 'styled-components';
 
@@ -61,6 +61,7 @@ export type MenuSMEProps = {
   onClickMenuButtonToggle?: (collapsed: boolean) => void;
   routePathname?: string;
 };
+import { useLocation } from 'react-router-dom';
 
 const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
   items,
@@ -72,6 +73,40 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
 }) => {
   const { collapsed, setCollapsed, setOpenKeys, openKeys, selectedKeys, setSelectedKeys } =
     useContext(MenuContext);
+  const location = useLocation();
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+
+    const findActiveMenu = (
+      menuItems: MenuItemSMEProps[],
+      parentKeys: string[],
+    ): { found: boolean; selectedKey?: string; openKeysToSet: string[] } => {
+      for (const item of menuItems) {
+        if (item.url && item.url === currentPath) {
+          return { found: true, selectedKey: item.key?.toString(), openKeysToSet: parentKeys };
+        }
+        if (item.children?.length) {
+          const result = findActiveMenu(item.children, [...parentKeys, item.key?.toString() || '']);
+          if (result.found) return result;
+        }
+      }
+      return { found: false, openKeysToSet: [] };
+    };
+
+    if (items?.length && currentPath) {
+      const result = findActiveMenu(items, []);
+      if (result.found && result.selectedKey) {
+        setSelectedKeys([result.selectedKey]);
+        // Se estiver colapsado, não abrimos os submenus para não quebrar o layout
+        if (!collapsed) {
+          setOpenKeys((prev) => Array.from(new Set([...prev, ...result.openKeysToSet])));
+        }
+      } else {
+        setSelectedKeys([]);
+      }
+    }
+  }, [items, location.pathname, collapsed, setOpenKeys, setSelectedKeys]);
 
   const montarMenuItem = (item: MenuItemSMEProps) => {
     return (
@@ -99,7 +134,9 @@ const SiderChildrenProvider: React.FC<MenuSMEProps> = ({
       key={menuItem?.key}
       title={
         <SiderMenuGroup collapsed={collapsed}>
-          <SiderIconContainer collapsed={collapsed}>{menuItem?.icon}</SiderIconContainer>
+          {menuItem?.icon && (
+            <SiderIconContainer collapsed={collapsed}>{menuItem?.icon}</SiderIconContainer>
+          )}
           <SiderMenuTitle collapsed={collapsed}>{menuItem?.title}</SiderMenuTitle>
           {collapsed && (
             <FaStream size={10} opacity={0.5} style={{ top: 6, right: 6, position: 'absolute' }} />

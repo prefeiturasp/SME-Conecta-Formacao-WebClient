@@ -14,4 +14,6 @@ export type FormacaoDTO = {
   inscricaoEncerrada?: boolean;
   imagemUrl?: string;
   linkParaInscricoesExterna?:string;
+  cursoComCertificado?: boolean; 
+  codigoEventoSigpec?: number | null;
 };
