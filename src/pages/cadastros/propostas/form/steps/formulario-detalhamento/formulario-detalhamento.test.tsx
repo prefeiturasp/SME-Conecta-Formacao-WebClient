@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { Form } from 'antd';
 import FormularioDetalhamento from './formulario-detalhamento';
-import { SOBRE_ESTE_CURSO_NAO_INFORMADO } from '../../../../../../core/constants/mensagens';
+import { SOBRE_ESTE_CURSO_NAO_INFORMADO } from '~/core/constants/mensagens';
 
 jest.mock('~/components/lib/collapse', () => (props: any) => (
   <section data-testid={`collapse-${props.panelProps.key}`}>
