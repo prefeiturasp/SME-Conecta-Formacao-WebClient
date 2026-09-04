@@ -23,6 +23,8 @@ import { DrawerEdicaoLoteCursistas, DadosLoteCursistas } from './componentes/dra
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
+import Auditoria from '~/components/main/text/auditoria';
+import { AuditoriaDTO } from '~/core/dto/auditoria-dto';
 import { notification } from '~/components/lib/notification';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
@@ -119,6 +121,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
   const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
   const [status, setStatus] = useState<number | null>(null);
+  const [auditoriaDados, setAuditoriaDados] = useState<AuditoriaDTO>();
   const [certificadoEmitido, setCertificadoEmitido] = useState(false);
 
   const bloqueadoPorStatusOuCertificado = deveBloquearEdicaoCodaf(
@@ -444,6 +447,18 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         const dados = response.dados;
         setRegistroId(dados.id);
         setStatus(dados.status);
+        setAuditoriaDados({
+          id: dados.id,
+          criadoEm: dados.criadoEm,
+          criadoPor: dados.criadoPor,
+          criadoLogin: dados.criadoLogin,
+          alteradoEm: dados.alteradoEm || '',
+          alteradoPor: dados.alteradoPor || '',
+          alteradoLogin: dados.alteradoLogin || '',
+          enviadoParaDfPor: dados.enviadoParaDfPor,
+          enviadoParaDfLogin: dados.enviadoParaDfLogin,
+          enviadoParaDfEm: dados.enviadoParaDfEm,
+        });
         let possuiCertificadosEmitidos = false;
 
         try {
@@ -1341,6 +1356,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           <BannerDownloadTermo onBaixarModelo={onBaixarModelo} />
 
           <SecaoInformacoesAdicionais disabled={bloqueios.campos.informacoesAdicionais} />
+          <Auditoria dados={auditoriaDados} />
         </CardContent>
       </Form>
 

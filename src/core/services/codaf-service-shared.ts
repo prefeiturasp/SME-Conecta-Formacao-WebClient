@@ -22,6 +22,7 @@ export type CodafListagemBaseDTO = {
   codigoCursoEol: number | null;
   codigoNivel: number | null;
   possuiAprovacoes?: boolean;
+  criadoEm?: string;
 };
 
 export type CodafListagemRetornoBaseDTO<TItem extends CodafListagemBaseDTO> = {
