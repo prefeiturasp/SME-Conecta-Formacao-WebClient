@@ -466,7 +466,7 @@ const ListaPresencaCodaf: React.FC = () => {
     }
 
     if (status === 2) {
-      return { text: 'Emitir certificados', disabled: false };
+      return { text: 'Emitir certificados', disabled: !ehPerfilAdminDf };
     }
 
     if (status === 3) {
