@@ -17,7 +17,6 @@ interface DrawerEdicaoLoteCursistasProps {
 export const DrawerEdicaoLoteCursistas: React.FC<DrawerEdicaoLoteCursistasProps> = ({
   open,
   modo,
-  quantidadeSelecionados,
   loading,
   onClose,
   onConfirmar,
@@ -35,10 +34,7 @@ export const DrawerEdicaoLoteCursistas: React.FC<DrawerEdicaoLoteCursistasProps>
   const titulo = modo === 'registrar' ? 'Registrar dados' : 'Editar dados';
   const textoBotao = modo === 'registrar' ? 'Registrar' : 'Salvar alterações';
 
-  const textoAplicacaoValores =
-    modo === 'editar'
-      ? 'Os valores informados serão aplicados a todos os cursistas selecionados, independentemente de possuírem ou não informações já preenchidas. Campos existentes serão substituídos pelos novos valores.'
-      : `Os valores informados serão aplicados a todos os ${quantidadeSelecionados} cursistas selecionados.`;
+  const textoAplicacaoValores = 'Os valores informados serão aplicados a todos os cursistas selecionados.';
 
   const handleFinish = async (values: { participou: boolean }) => {
     await onConfirmar({ participou: values.participou });
@@ -82,23 +78,7 @@ export const DrawerEdicaoLoteCursistas: React.FC<DrawerEdicaoLoteCursistasProps>
             ]}
           />
         </Form.Item>
-      </Form>
-
-      {modo === 'editar' && (
-        <div
-          style={{
-            backgroundColor: '#ff9a52',
-            color: '#fff',
-            borderRadius: 4,
-            padding: '12px 16px',
-            marginBottom: 24,
-            fontSize: 14,
-          }}
-        >
-          Atenção! Os valores informados substituirão as informações atuais dos cursistas
-          selecionados.
-        </div>
-      )}
+      </Form>      
     </Drawer>
   );
 };
