@@ -113,26 +113,15 @@ const ModalFinalizarCodaf = ({
             style={{ fontFamily: 'Roboto', fontSize: 14 }}
           >
             Confirmo que todos os dados inseridos no{' '}
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={(e) => {
+            <button type="button" onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (onVisualizarCodaf) onVisualizarCodaf();
               }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (onVisualizarCodaf) onVisualizarCodaf();
-                }
-              }}
-              style={{ color: '#ff6b35', cursor: 'pointer', fontWeight: 600 }}
-            >
+              style={{ color: '#ff6b35', cursor: 'pointer', fontWeight: 600, background: 'none', border: 'none', padding: 0, font: 'inherit' }}>
               Registro CODAF
-            </span>{' '}
-            estÃ£o corretos.
+            </button>{' '}
+            estão corretos.
           </Checkbox>
         </div>
       )}
@@ -141,6 +130,8 @@ const ModalFinalizarCodaf = ({
 };
 
 export default ModalFinalizarCodaf;
+
+
 
 
 
