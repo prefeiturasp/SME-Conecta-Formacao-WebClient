@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Modal, Button, Checkbox } from 'antd';
 
 type ModalFinalizarCodafProps = {
@@ -102,11 +102,7 @@ const ModalFinalizarCodaf = ({
         Este registro não possui aprovações. Após a finalização ele não poderá ser editado nem
         excluído.
         <br />
-        {exibirConfirmacaoCiencia && onVisualizarCodaf ? (
-          <>Verifique o CODAF antes de finalizar.</>
-        ) : (
-          <>Verifique o CODAF antes de finalizar.</>
-        )}
+        Verifique o CODAF antes de finalizar.
       </p>
 
       {exibirConfirmacaoCiencia && (
@@ -118,16 +114,25 @@ const ModalFinalizarCodaf = ({
           >
             Confirmo que todos os dados inseridos no{' '}
             <span
+              role="button"
+              tabIndex={0}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (onVisualizarCodaf) onVisualizarCodaf();
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (onVisualizarCodaf) onVisualizarCodaf();
+                }
+              }}
               style={{ color: '#ff6b35', cursor: 'pointer', fontWeight: 600 }}
             >
               Registro CODAF
             </span>{' '}
-            estão corretos.
+            estÃ£o corretos.
           </Checkbox>
         </div>
       )}
@@ -136,4 +141,6 @@ const ModalFinalizarCodaf = ({
 };
 
 export default ModalFinalizarCodaf;
+
+
 

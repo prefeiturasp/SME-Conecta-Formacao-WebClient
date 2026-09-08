@@ -1,4 +1,4 @@
-import {
+﻿import {
   Button,
   Col,
   DatePicker,
@@ -101,10 +101,11 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         notification.success({ message: 'Sucesso!', description: 'O registro foi finalizado.' });
         carregarDadosCodaf(paginaCorrente);
       } else {
-        notification.error({ message: 'Erro', description: 'N�o conseguimos finalizar seu registro CODAF. Tente novamente.' });
+        notification.error({ message: 'Erro', description: 'Não conseguimos finalizar seu registro CODAF. Tente novamente.' });
       }
     } catch (error) {
-      notification.error({ message: 'Erro', description: 'N�o conseguimos finalizar seu registro CODAF. Tente novamente.' });
+      console.error(error);
+      notification.error({ message: 'Erro', description: 'Não conseguimos finalizar seu registro CODAF. Tente novamente.' });
     } finally {
       setFinalizandoCodaf(false);
       setModalFinalizarVisible(false);
@@ -187,27 +188,20 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
 
     const getMenuAcoes = (record: CodafNaoHomologadoListagemDTO): MenuProps => {
     const semAprovacoes = !record.possuiAprovacoes;
-    const semCertificados = record.statusDeclaracaoTurma !== 4; // 4 = Emitido
+    const semDeclaracoes = record.statusDeclaracaoTurma !== 4; // 4 = Emitido
     
     let relatorioTooltip = '';
-    if (semAprovacoes && semCertificados) {
-      relatorioTooltip = 'Esta função fica disponóvel apenas para registros com certificados gerados e tenham pelo menos um cursista aprovado.';
-    } else if (semCertificados) {
-      relatorioTooltip = 'Gere os certificados para baixar o relatório CODAF.';
+    if (semAprovacoes && semDeclaracoes) {
+      relatorioTooltip = 'Esta função fica disponível apenas para registros com declarações geradas e tenham pelo menos um cursista aprovado.';
+    } else if (semDeclaracoes) {
+      relatorioTooltip = 'Gere as declarações para baixar o relatório CODAF.';
     } else if (semAprovacoes) {
       relatorioTooltip = 'Função ativa apenas para registros que possuam cursistas aprovados.';
     }
 
-    const relatorioDesabilitado = semAprovacoes || semCertificados;
+    const relatorioDesabilitado = semAprovacoes || semDeclaracoes;
 
     const items: any = [
-      {
-        key: 'exportar-lista-inscritos',
-        label: 'Exportar Lista de inscritos',
-        onClick: (e: any) => {
-          e.domEvent.stopPropagation();
-        },
-      },
       {
         key: 'baixar-relatorio-codaf',
         disabled: relatorioDesabilitado,
@@ -300,7 +294,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       title: (
         <span>
           Declaração{' '}
-          <Tooltip title='Ao emitir declaração, a conclusão do curso é gerada tanto para cursistas quanto para regentes.'>
+          <Tooltip title='Ao emitir declarações, a conclusão do curso é gerada tanto para cursistas quanto para regentes.'>
             <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
           </Tooltip>
         </span>
@@ -403,6 +397,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         setDados([]);
       }
     } catch (error) {
+      console.error(error);
       setDados([]);
       notification.error({
         message: 'Erro',
@@ -714,6 +709,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
 };
 
 export default CodafFormacoesNaoHomologadas;
+
 
 
 
