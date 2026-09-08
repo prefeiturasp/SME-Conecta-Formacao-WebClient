@@ -1,4 +1,4 @@
-import {
+﻿import {
   Button,
   Col,
   DatePicker,
@@ -10,7 +10,7 @@ import {
   Table,
   Tooltip,
 } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import locale from 'antd/lib/date-picker/locale/pt_BR';
 import { useForm } from 'antd/lib/form/Form';
 import { ColumnsType } from 'antd/lib/table';
@@ -39,7 +39,8 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-import { CodafNaoHomologadoListagemDTO, emitirDeclaracaoCodafNaoHomologado, obterListaCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
+import { CodafNaoHomologadoListagemDTO, emitirDeclaracaoCodafNaoHomologado, obterListaCodafNaoHomologado, finalizarCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
+import ModalFinalizarCodaf from '~/components/main/modal/modal-finalizar-codaf';
 import { criarColunasBaseListagemCodaf } from '../shared/componentes/codaf-colunas-factory';
 import { ModalAvisoNovoRegistroCodaf } from '../shared/componentes/modal-aviso-novo-registro-codaf';
 import { HeaderListagemCodaf } from '../shared/componentes/header-listagem-codaf';
@@ -81,6 +82,36 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [turmasProposta, setTurmasProposta] = useState<RetornoListagemDTO[]>([]);
   const [turmaDesabilitada, setTurmaDesabilitada] = useState(true);
   const [_atualizacao, forcarAtualizacao] = useState(0);
+
+  const [modalFinalizarVisible, setModalFinalizarVisible] = useState(false);
+  const [finalizandoCodaf, setFinalizandoCodaf] = useState(false);
+  const [registroParaFinalizar, setRegistroParaFinalizar] = useState<CodafNaoHomologadoListagemDTO | null>(null);
+
+  const onCancelarFinalizarCodaf = () => {
+    setModalFinalizarVisible(false);
+    setRegistroParaFinalizar(null);
+  };
+
+  const onConfirmarFinalizarCodaf = async () => {
+    if (!registroParaFinalizar) return;
+    setFinalizandoCodaf(true);
+    try {
+      const response = await finalizarCodafNaoHomologado(registroParaFinalizar.id, true);
+      if (response.sucesso) {
+        notification.success({ message: 'Sucesso!', description: 'O registro foi finalizado.' });
+        carregarDadosCodaf(paginaCorrente);
+      } else {
+        notification.error({ message: 'Erro', description: 'Não conseguimos finalizar seu registro CODAF. Tente novamente.' });
+      }
+    } catch (error) {
+      console.error(error);
+      notification.error({ message: 'Erro', description: 'Não conseguimos finalizar seu registro CODAF. Tente novamente.' });
+    } finally {
+      setFinalizandoCodaf(false);
+      setModalFinalizarVisible(false);
+      setRegistroParaFinalizar(null);
+    }
+  };
 
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
@@ -155,26 +186,55 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     filtroUtilizado,
   });
 
-  const getMenuAcoes = (): MenuProps => {
-    const items = [
-      {
-        key: 'exportar-lista-inscritos',
-        label: 'Exportar Lista de inscritos',
-        onClick: (e: any) => {
-          e.domEvent.stopPropagation();
-        },
-      },
+    const getMenuAcoes = (record: CodafNaoHomologadoListagemDTO): MenuProps => {
+    const semAprovacoes = !record.possuiAprovacoes;
+    const semDeclaracoes = record.statusDeclaracaoTurma !== 4; // 4 = Emitido
+    
+    let relatorioTooltip = '';
+    if (semAprovacoes && semDeclaracoes) {
+      relatorioTooltip = 'Esta função fica disponível apenas para registros com declarações geradas e tenham pelo menos um cursista aprovado.';
+    } else if (semDeclaracoes) {
+      relatorioTooltip = 'Gere as declarações para baixar o relatório CODAF.';
+    } else if (semAprovacoes) {
+      relatorioTooltip = 'Função ativa apenas para registros que possuam cursistas aprovados.';
+    }
+
+    const relatorioDesabilitado = semAprovacoes || semDeclaracoes;
+
+    const items: any = [
       {
         key: 'baixar-relatorio-codaf',
-        label:
-          <Tooltip title='Gere as declarações para baixar o relatório CODAF.'>
-            <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
-          </Tooltip>,
+        disabled: relatorioDesabilitado,
+        label: (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>Baixar Relatório CODAF</span>
+            {relatorioDesabilitado && (
+              <Tooltip title={relatorioTooltip}>
+                <span style={{ marginLeft: 8, color: '#ff6b35', cursor: 'help' }}>
+                  <InfoCircleOutlined />
+                </span>
+              </Tooltip>
+            )}
+          </div>
+        ),
         onClick: (e: any) => {
           e.domEvent.stopPropagation();
         },
       },
     ];
+
+    if (semAprovacoes && (record.status === 2 || record.status === 3)) {
+      items.push({
+        key: 'finalizar-codaf',
+        label: 'Finalizar registro CODAF',
+        disabled: record.status === 3,
+        onClick: (e: any) => {
+          e.domEvent.stopPropagation();
+          setRegistroParaFinalizar(record);
+          setModalFinalizarVisible(true);
+        },
+      });
+    }
 
     return { items };
   };
@@ -213,6 +273,8 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   };
 
   const getDeclaracaoButtonState = (record: CodafNaoHomologadoListagemDTO) => {
+    if (!record.possuiAprovacoes) return { text: 'Sem aprovações', disabled: true };
+
     const status = record.statusDeclaracaoTurma;
 
     if (status === 0) return { text: 'Sem declaração', disabled: true };
@@ -232,7 +294,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       title: (
         <span>
           Declaração{' '}
-          <Tooltip title='Ao emitir declaração, a conclusão do curso é gerada tanto para cursistas quanto para regentes.'>
+          <Tooltip title='Ao emitir declarações, a conclusão do curso é gerada tanto para cursistas quanto para regentes.'>
             <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
           </Tooltip>
         </span>
@@ -272,9 +334,9 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       title: 'Ações',
       width: 80,
       align: 'center',
-      render: (_: any) => (
+      render: (_: any, record: CodafNaoHomologadoListagemDTO) => (
         <Dropdown
-          menu={getMenuAcoes()}
+          menu={getMenuAcoes(record)}
           trigger={['click']}
           placement='bottomRight'
           dropdownRender={renderDropdownMenu}
@@ -335,6 +397,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         setDados([]);
       }
     } catch (error) {
+      console.error(error);
       setDados([]);
       notification.error({
         message: 'Erro',
@@ -428,6 +491,20 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
 
   return (
     <Col>
+      <ModalFinalizarCodaf
+        modalFinalizarVisible={modalFinalizarVisible}
+        onCancelarFinalizarCodaf={onCancelarFinalizarCodaf}
+        finalizandoCodaf={finalizandoCodaf}
+        onConfirmarFinalizarCodaf={onConfirmarFinalizarCodaf}
+        exibirConfirmacaoCiencia={true}
+        onVisualizarCodaf={() => {
+          if (registroParaFinalizar) {
+            navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_EDITAR.replace(':id', String(registroParaFinalizar.id)), {
+              state: getStateToSave(),
+            });
+          }
+        }}
+      />
       <ModalAvisoNovoRegistroCodaf
         visivel={modalVisivel}
         onClose={() => setModalVisivel(false)}
@@ -632,3 +709,9 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
 };
 
 export default CodafFormacoesNaoHomologadas;
+
+
+
+
+
+

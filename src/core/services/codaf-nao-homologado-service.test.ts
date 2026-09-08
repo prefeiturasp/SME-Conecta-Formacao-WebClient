@@ -1,5 +1,6 @@
-import api, {
+﻿import api, {
   alterarRegistro,
+  alterarRegistroParcial,
   deletarRegistro,
   inserirRegistro,
   obterRegistro,
@@ -16,6 +17,7 @@ import {
   obterListaCodafNaoHomologado,
   emitirDeclaracaoCodafNaoHomologado,
   montarParametrosFiltroCodafNaoHomologado,
+  finalizarCodafNaoHomologado,
   URL_API_CODAF_CURSO_NAO_HOMOLOGADO,
 } from './codaf-nao-homologado-service';
 
@@ -26,6 +28,7 @@ jest.mock('./api', () => ({
     post: jest.fn(),
   },
   alterarRegistro: jest.fn(),
+  alterarRegistroParcial: jest.fn(),
   deletarRegistro: jest.fn(),
   inserirRegistro: jest.fn(),
   obterRegistro: jest.fn(),
@@ -267,5 +270,19 @@ describe('codaf-nao-homologado-service', () => {
         NumeroRegistros: 15,
       });
     });
+    describe('finalizarCodafNaoHomologado', () => {
+    it('deve chamar alterarRegistroParcial para finalizar', async () => {
+      (alterarRegistroParcial as jest.Mock).mockResolvedValue({});
+
+      await finalizarCodafNaoHomologado(123, true);
+
+      expect(alterarRegistroParcial).toHaveBeenCalledWith('v1/CodafCursoNaoHomologado/123/finalizar', { confirmacaoCiencia: true }
+      );
+    });
   });
 });
+
+
+
+});
+
