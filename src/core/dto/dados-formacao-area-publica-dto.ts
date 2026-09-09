@@ -29,6 +29,8 @@ export type RetornoDetalheFormacaoDto = {
   usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDto | null;
   cursoComCertificado?: boolean;  
   codigoEventoSigpec?: number | null;
+  formacaoAnteriorId?: number;
+  formacaoPosteriorId?: number;
 };
 export type DataEncontroNovoDto = {
   dataInicial: string;
