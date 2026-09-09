@@ -36,6 +36,10 @@ jest.mock('./components/modal-aprovar-recusar/modal-aprovar-recusar-button', () 
 }));
 jest.mock('./components/modal-devolver/modal-devolver-button', () => () => null);
 jest.mock('./components/modal-imprimir/modal-imprimir-button', () => () => null);
+jest.mock('./components/modal-editar-numero-homologacao/modal-editar-numero-homologacao', () => ({
+  ModalEditarNumeroHomologacao: (props: any) =>
+    props.open ? <div data-testid='modal-editar-numero-homologacao'>ModalEditarNumeroHomologacao</div> : null,
+}));
 
 // ─── ANT DESIGN ───────────────────────────────────────────────────────────────
 jest.mock('antd', () => {
@@ -93,6 +97,7 @@ jest.mock('antd/es/select', () => ({}));
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 jest.mock('@ant-design/icons', () => ({
   WarningFilled: () => <span>icon</span>,
+  EditOutlined: () => <span>edit-icon</span>,
 }));
 
 // ─── ROUTER ───────────────────────────────────────────────────────────────────
@@ -170,13 +175,15 @@ jest.mock('~/routes/config/guard/permissao/provider', () => {
   };
 });
 
+const mockPropostaContextValue: any = {
+  formInitialValues: { podeEnviar: true, formacaoHomologada: 1 },
+  setFormInitialValues: jest.fn(),
+};
+
 jest.mock('./provider', () => {
   const React = jest.requireActual('react');
   return {
-    PropostaContext: React.createContext({
-      formInitialValues: { podeEnviar: true },
-      setFormInitialValues: jest.fn(),
-    }),
+    PropostaContext: React.createContext(mockPropostaContextValue),
   };
 });
 
@@ -190,6 +197,7 @@ import type { Dayjs } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { useParams } from 'react-router-dom';
+import { useAppSelector } from '~/core/hooks/use-redux';
 import {
   enviarPropostaAnalise,
   inserirProposta,
@@ -261,6 +269,107 @@ describe('FormCadastroDePropostas (coverage)', () => {
     await waitFor(() => {
       expect(enviarPropostaAnalise).toHaveBeenCalled();
     });
+  });
+
+  it('should render edit button for numeroHomologacao when user is AdminDF and proposal is loaded', async () => {
+    (useParams as jest.Mock).mockReturnValue({ id: '1' });
+    (useAppSelector as jest.Mock).mockImplementation((selector: any) =>
+      selector({
+        auth: { token: 'fake-token', usuarioLogin: 'user' },
+        perfil: { perfilSelecionado: { perfilNome: 'Admin DF', perfil: 1 } },
+      }),
+    );
+    mockPropostaContextValue.formInitialValues = {
+      podeEnviar: true,
+      formacaoHomologada: 1,
+      numeroHomologacao: 25086,
+      situacao: 1,
+    };
+    (obterPropostaPorId as jest.Mock).mockResolvedValueOnce({
+      sucesso: true,
+      dados: {
+        id: 1,
+        formacaoHomologada: 1,
+        numeroHomologacao: 25086,
+        situacao: 1,
+      },
+    });
+
+    const { container } = render(<FormCadastroDePropostas />);
+
+    await waitFor(() => {
+      const btnEditar = container.querySelector('#btn-abrir-modal-editar-numero-homologacao');
+      expect(btnEditar).toBeInTheDocument();
+    });
+  });
+
+  it('should open modal when edit button is clicked', async () => {
+    (useParams as jest.Mock).mockReturnValue({ id: '1' });
+    (useAppSelector as jest.Mock).mockImplementation((selector: any) =>
+      selector({
+        auth: { token: 'fake-token', usuarioLogin: 'user' },
+        perfil: { perfilSelecionado: { perfilNome: 'Admin DF', perfil: 1 } },
+      }),
+    );
+    mockPropostaContextValue.formInitialValues = {
+      podeEnviar: true,
+      formacaoHomologada: 1,
+      numeroHomologacao: 25086,
+      situacao: 1,
+    };
+    (obterPropostaPorId as jest.Mock).mockResolvedValueOnce({
+      sucesso: true,
+      dados: {
+        id: 1,
+        formacaoHomologada: 1,
+        numeroHomologacao: 25086,
+        situacao: 1,
+      },
+    });
+
+    const { container } = render(<FormCadastroDePropostas />);
+
+    await waitFor(() => {
+      const btnEditar = container.querySelector('#btn-abrir-modal-editar-numero-homologacao');
+      expect(btnEditar).toBeInTheDocument();
+      fireEvent.click(btnEditar!);
+    });
+
+    expect(screen.getByTestId('modal-editar-numero-homologacao')).toBeInTheDocument();
+  });
+
+  it('should not render edit button when user is not AdminDF', async () => {
+    (useParams as jest.Mock).mockReturnValue({ id: '1' });
+    (useAppSelector as jest.Mock).mockImplementation((selector: any) =>
+      selector({
+        auth: { token: 'fake-token', usuarioLogin: 'user' },
+        perfil: { perfilSelecionado: { perfilNome: 'DF', perfil: 2 } },
+      }),
+    );
+    mockPropostaContextValue.formInitialValues = {
+      podeEnviar: true,
+      formacaoHomologada: 1,
+      numeroHomologacao: 25086,
+      situacao: 1,
+    };
+    (obterPropostaPorId as jest.Mock).mockResolvedValueOnce({
+      sucesso: true,
+      dados: {
+        id: 1,
+        formacaoHomologada: 1,
+        numeroHomologacao: 25086,
+        situacao: 1,
+      },
+    });
+
+    const { container } = render(<FormCadastroDePropostas />);
+
+    await waitFor(() => {
+      expect(obterPropostaPorId).toHaveBeenCalledWith(1);
+    });
+
+    const btnEditar = container.querySelector('#btn-abrir-modal-editar-numero-homologacao');
+    expect(btnEditar).not.toBeInTheDocument();
   });
 });
 
