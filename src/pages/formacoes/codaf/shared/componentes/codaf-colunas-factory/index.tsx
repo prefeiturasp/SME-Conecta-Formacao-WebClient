@@ -91,9 +91,7 @@ export const criarColunasCodafHomologado = (
           disabled={bloqueado}
           value={valorAprovado}
           placeholder='Selecione'
-          onChange={(value) =>
-            onChangeCampo(record.id, 'aprovado', value ? value === 'S' : null)
-          }
+          onChange={(value) => onChangeCampo(record.id, 'aprovado', value ? value === 'S' : null)}
           style={{ width: '100%' }}
           options={[
             { label: 'Sim', value: 'S' },
@@ -119,13 +117,13 @@ export const criarColunasCodafNaoHomologado = (
     align: 'center',
     render: (_, __, index) => (paginaAtual - 1) * registrosPorPagina + index + 1,
   },
-  { key: 'rfOuCpf', title: 'Funcional (RF) ou CPF', dataIndex: 'rfOuCpf', width: 180 },
+  { key: 'rfOuCpf', title: 'Registro Funcional (RF) ou CPF', dataIndex: 'rfOuCpf', width: 280 },
   { key: 'nomeCursista', title: 'Nome do Cursista', dataIndex: 'nomeCursista', ellipsis: true },
   {
     key: 'participou',
-    title: 'Participou',
+    title: 'Participação',
     dataIndex: 'participou',
-    width: 480,
+    width: 500,
     render: (participou, record) => (
       <Select
         disabled={bloqueado}
@@ -144,7 +142,7 @@ export const criarColunasCodafNaoHomologado = (
 
 export const criarColunasBaseListagemCodaf = <T extends object>(
   ocultarColunas: boolean,
-  obterSituacaoTexto: (status: number) => string
+  obterSituacaoTexto: (status: number) => string,
 ): ColumnsType<T> => [
   {
     key: 'codigoFormacao',
@@ -166,7 +164,14 @@ export const criarColunasBaseListagemCodaf = <T extends object>(
     width: 300,
     render: (text: string) => (
       <Tooltip title={text}>
-        <div style={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div
+          style={{
+            maxWidth: 300,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {text}
         </div>
       </Tooltip>

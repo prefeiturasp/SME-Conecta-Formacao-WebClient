@@ -1302,6 +1302,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             camposBloqueados={bloqueios.campos.secaoFormulario}
           />
           <SecaoListaInscritos
+            modoEdicao={modoEdicao}
             mostrarDivergencia={mostrarDivergencia}
             deltaInscritos={deltaInscritos}
             nomeFormacao={nomeFormacao}
