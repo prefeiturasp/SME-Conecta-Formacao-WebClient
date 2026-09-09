@@ -11,6 +11,8 @@ import { TableRowSelection } from 'antd/lib/table/interface';
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
+import Auditoria from '~/components/main/text/auditoria';
+import { AuditoriaDTO } from '~/core/dto/auditoria-dto';
 import { notification } from '~/components/lib/notification';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {  
@@ -79,6 +81,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
   const [declaracaoEmitida, setDeclaracaoEmitida] = useState(false);
+  const [auditoriaDados, setAuditoriaDados] = useState<AuditoriaDTO>();
 
   const modoEdicao = !!id;
 
@@ -185,6 +188,15 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         const dados = response.dados;
         setDeclaracaoEmitida(dados.declaracaoEmitida ?? false);
         setRegistroId(dados.id);
+        setAuditoriaDados({
+          id: dados.id,
+          criadoEm: dados.criadoEm,
+          criadoPor: dados.criadoPor,
+          criadoLogin: dados.criadoLogin,
+          alteradoEm: dados.alteradoEm || '',
+          alteradoPor: dados.alteradoPor || '',
+          alteradoLogin: dados.alteradoLogin || '',
+        });
         setStatus(dados.status);
 
         aplicarCamposFormulario(dados);
@@ -514,6 +526,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           <BannerDownloadTermo onBaixarModelo={onBaixarModelo} />
           
           <SecaoInformacoesAdicionais disabled={bloqueios.campos.informacoesAdicionais} />
+          <Auditoria dados={auditoriaDados} />
         </CardContent>
       </Form>
 
