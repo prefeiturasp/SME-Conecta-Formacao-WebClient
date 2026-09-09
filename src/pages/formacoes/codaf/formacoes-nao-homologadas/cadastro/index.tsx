@@ -563,7 +563,6 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           <DrawerEdicaoLoteCursistas
             open={drawerLoteAberto}
             modo={drawerLoteModo}
-            quantidadeSelecionados={cursistasSelecionadosIds.length}
             loading={carregando}
             onClose={() => setDrawerLoteAberto(false)}
             onConfirmar={onConfirmarDadosLote}

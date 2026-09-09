@@ -8,7 +8,6 @@ export interface DadosLoteCursistas {
 interface DrawerEdicaoLoteCursistasProps {
   open: boolean;
   modo: 'registrar' | 'editar';
-  quantidadeSelecionados: number;
   loading: boolean;
   onClose: () => void;
   onConfirmar: (dados: DadosLoteCursistas) => void | Promise<void>;
