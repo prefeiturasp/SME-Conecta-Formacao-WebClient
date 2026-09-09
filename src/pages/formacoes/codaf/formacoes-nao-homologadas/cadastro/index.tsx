@@ -15,11 +15,14 @@ import Auditoria from '~/components/main/text/auditoria';
 import { AuditoriaDTO } from '~/core/dto/auditoria-dto';
 import { notification } from '~/components/lib/notification';
 import { ROUTES } from '~/core/enum/routes-enum';
-import {  
+import {
   fazerUploadAnexoCodaf,
   obterAnexoCodafParaDownload,
 } from '~/core/services/codaf-lista-presenca-service';
-import { obterDetalhesPropostaComTurmasPorId, PropostaTurmaDTO } from '~/core/services/proposta-service';
+import {
+  obterDetalhesPropostaComTurmasPorId,
+  PropostaTurmaDTO,
+} from '~/core/services/proposta-service';
 import { onClickVoltar } from '~/core/utils/form';
 import {
   atualizarCodafNaoHomologado,
@@ -39,6 +42,10 @@ import { SecaoInformacoesAdicionais } from '../../shared/componentes/secao-infor
 import { useExclusaoCodaf } from '~/core/hooks/use-exclusao-codaf';
 import { BotoesAcaoCodaf } from '../../shared/componentes/botoes-acao-codaf';
 import { criarColunasCodafNaoHomologado } from '../../shared/componentes/codaf-colunas-factory';
+import {
+  DrawerEdicaoLoteCursistas,
+  DadosLoteCursistas,
+} from './componentes/drawer-edicao-lote-cursistas';
 
 interface CursistaDTO {
   id: number;
@@ -53,24 +60,28 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const [carregando, setCarregando] = useState(false);
-    
+
   const { perfil, ehAreaPromotora, ehAreaPromotoraEAdmin } = usePerfilCodaf();
-  const { mapearAnexosParaFormulario, onBaixarModelo, onDownloadAnexo, exibirErroSalvar } = useCodafComum();
-    const {
+  const { mapearAnexosParaFormulario, onBaixarModelo, onDownloadAnexo, exibirErroSalvar } =
+    useCodafComum();
+  const {
     modalExcluirVisible,
     loadingExclusao,
     onClickExcluir,
     cancelarExclusao,
     confirmarExclusao,
   } = useExclusaoCodaf(excluirCodafNaoHomologado, ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO);
-  
 
   const {
-    cursistas, setCursistas,
-    cursistasSelecionadosIds, setCursistasSelecionadosIds,
-    paginaAtualInscritos, setPaginaAtualInscritos,
+    cursistas,
+    setCursistas,
+    cursistasSelecionadosIds,
+    setCursistasSelecionadosIds,
+    paginaAtualInscritos,
+    setPaginaAtualInscritos,
     registrosPorPaginaInscritos,
-    totalRegistrosInscritos, setTotalRegistrosInscritos,
+    totalRegistrosInscritos,
+    setTotalRegistrosInscritos,
     handleTableChangeInscritos,
   } = useTabelaInscritos<CursistaDTO>();
 
@@ -82,6 +93,8 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
   const [declaracaoEmitida, setDeclaracaoEmitida] = useState(false);
   const [auditoriaDados, setAuditoriaDados] = useState<AuditoriaDTO>();
+  const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
+  const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
 
   const modoEdicao = !!id;
 
@@ -124,6 +137,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   };
 
   const turmaId = Form.useWatch('turmaId', form);
+  const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 1;
 
   React.useEffect(() => {
     const aplicarCamposFormulario = (dados: CodafNaoHomologadoDetalheDTO) => {
@@ -148,23 +162,23 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         if (!turmasResponse.sucesso || !turmasResponse.dados) return;
 
         if (turmasResponse.dados.turmas && turmasResponse.dados.turmas.length > 0) {
-            setTurmasFiltradas(turmasResponse.dados.turmas);
-            setTurmaDisabled(false);
+          setTurmasFiltradas(turmasResponse.dados.turmas);
+          setTurmaDisabled(false);
         } else {
-            setTurmasFiltradas([]);
-            setTurmaDisabled(true);
-            notification.warning({
-                message: 'Atenção',
-                description: 'Nenhuma turma encontrada para esta formação',
-            });
+          setTurmasFiltradas([]);
+          setTurmaDisabled(true);
+          notification.warning({
+            message: 'Atenção',
+            description: 'Nenhuma turma encontrada para esta formação',
+          });
         }
       } catch (error) {
         console.error('Erro ao buscar turmas:', error);
         setTurmasFiltradas([]);
         setTurmaDisabled(true);
         notification.warning({
-            message: 'Atenção',
-            description: 'Erro ao buscar detalhes da formação',
+          message: 'Atenção',
+          description: 'Erro ao buscar detalhes da formação',
         });
       }
     };
@@ -275,15 +289,49 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   React.useEffect(() => {
     carregarDadosDosInscritosDaTurma();
   }, [turmaId]);
-  
-  const onChangeParticipou = useCallback((id: number, valor: boolean) => {
-    setCursistas(prev => prev.map(c => c.id === id ? { ...c, participou: valor } : c));
-  }, [setCursistas]);
+
+  const registrarDadosDesabilitado = !!modoEdicao || !quantidadeMinimaSelecionada;
+  const editarDadosDesabilitado = !modoEdicao || !quantidadeMinimaSelecionada;
+
+  const onClickRegistrarDados = () => {
+    setDrawerLoteModo('registrar');
+    setDrawerLoteAberto(true);
+  };
+
+  const onClickEditarDados = () => {
+    setDrawerLoteModo('editar');
+    setDrawerLoteAberto(true);
+  };
+
+  const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
+    const novaListaCursistas = cursistas.map((cursista) =>
+      cursistasSelecionadosIds.includes(cursista.id)
+        ? {
+            ...cursista,
+            participou: dados.participou,
+          }
+        : cursista,
+    );
+
+    const sucesso = await onClickSalvar(novaListaCursistas);
+
+    if (sucesso) {
+      setDrawerLoteAberto(false);
+      setCursistasSelecionadosIds([]);
+    }
+  };
+
+  const onChangeParticipou = useCallback(
+    (id: number, valor: boolean) => {
+      setCursistas((prev) => prev.map((c) => (c.id === id ? { ...c, participou: valor } : c)));
+    },
+    [setCursistas],
+  );
   const colunasCursistas = criarColunasCodafNaoHomologado(
-    paginaAtualInscritos, 
-    registrosPorPaginaInscritos, 
-    bloqueios.campos.listaInscritos, 
-    onChangeParticipou
+    paginaAtualInscritos,
+    registrosPorPaginaInscritos,
+    bloqueios.campos.listaInscritos,
+    onChangeParticipou,
   );
 
   const rowSelection: TableRowSelection<CursistaDTO> = {
@@ -300,12 +348,12 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   const onChangeCodigoFormacao = () => {
     setTurmasFiltradas([]);
     form.setFieldsValue({
-        nomeFormacao: '',
-        numeroHomologacao: '',
-        turmaId: undefined,
+      nomeFormacao: '',
+      numeroHomologacao: '',
+      turmaId: undefined,
     });
     setTurmaDisabled(true);
-  }
+  };
 
   const onBlurCodigoFormacao = async (_value: string) => {
     const valor = _value.replaceAll(/\D/g, '');
@@ -321,54 +369,54 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
     }
 
     try {
-        const response = await obterDetalhesPropostaComTurmasPorId(Number(valor), false);
-        setTurmasFiltradas([]);
+      const response = await obterDetalhesPropostaComTurmasPorId(Number(valor), false);
+      setTurmasFiltradas([]);
+      form.setFieldsValue({
+        nomeFormacao: '',
+        numeroHomologacao: '',
+        turmaId: undefined,
+      });
+
+      if (response.sucesso && response.dados) {
         form.setFieldsValue({
-              nomeFormacao: '',
-              numeroHomologacao: '',
-              turmaId: undefined,
-          });
+          nomeFormacao: response.dados.nomeFormacao,
+          codigoFormacao: response.dados.id,
+          numeroHomologacao: response.dados.numeroFormacao,
+        });
 
-        if (response.sucesso && response.dados) {
-            form.setFieldsValue({
-                nomeFormacao: response.dados.nomeFormacao,
-                codigoFormacao: response.dados.id,
-                numeroHomologacao: response.dados.numeroFormacao,
-            });
-
-            if (response.dados.turmas && response.dados.turmas.length > 0) {
-                setTurmasFiltradas(response.dados.turmas);
-                setTurmaDisabled(false);
-            } else {
-            setTurmasFiltradas([]);
-            setTurmaDisabled(true);
-            notification.warning({
-                message: 'Atenção',
-                description: 'Nenhuma turma encontrada para esta formação',
-            });
-            }
+        if (response.dados.turmas && response.dados.turmas.length > 0) {
+          setTurmasFiltradas(response.dados.turmas);
+          setTurmaDisabled(false);
         } else {
-            setTurmasFiltradas([]);
-            setTurmaDisabled(true);
-            notification.info({
-                message: 'Informação',
-                description: 'Formação não encontrada',
-            });
+          setTurmasFiltradas([]);
+          setTurmaDisabled(true);
+          notification.warning({
+            message: 'Atenção',
+            description: 'Nenhuma turma encontrada para esta formação',
+          });
         }
-      } catch (error) {
-        console.error('Erro ao buscar turmas:', error);
+      } else {
         setTurmasFiltradas([]);
         setTurmaDisabled(true);
-        notification.warning({
-            message: 'Atenção',
-            description: 'Erro ao buscar detalhes da formação',
-        });
-        form.setFieldsValue({
-            nomeFormacao: '',
-            numeroHomologacao: '',
-            turmaId: undefined,
+        notification.info({
+          message: 'Informação',
+          description: 'Formação não encontrada',
         });
       }
+    } catch (error) {
+      console.error('Erro ao buscar turmas:', error);
+      setTurmasFiltradas([]);
+      setTurmaDisabled(true);
+      notification.warning({
+        message: 'Atenção',
+        description: 'Erro ao buscar detalhes da formação',
+      });
+      form.setFieldsValue({
+        nomeFormacao: '',
+        numeroHomologacao: '',
+        turmaId: undefined,
+      });
+    }
   };
 
   const tratarRespostaSalvar = (response: any) => {
@@ -381,7 +429,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           ? 'Registro atualizado com sucesso!'
           : 'Registro salvo com sucesso!',
       });
-      
+
       navigate(ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO, { state: location.state });
     } else {
       const mensagensErro = response.mensagens ?? [];
@@ -461,7 +509,11 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
   };
 
   const onClickCancelar = () => {
-    onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO, paramsRoute: { state: location.state } });
+    onClickVoltar({
+      navigate,
+      route: ROUTES.LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO,
+      paramsRoute: { state: location.state },
+    });
   };
 
   return (
@@ -513,7 +565,20 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
             totalRegistrosInscritos={totalRegistrosInscritos}
             handleTableChangeInscritos={handleTableChangeInscritos}
             rowSelection={rowSelection}
-          />          
+            quantidadeSelecionados={cursistasSelecionadosIds.length}
+            onClickRegistrarDados={onClickRegistrarDados}
+            onClickEditarDados={onClickEditarDados}
+            registrarDadosDesabilitado={registrarDadosDesabilitado}
+            editarDadosDesabilitado={editarDadosDesabilitado}
+            modoEdicao={modoEdicao}
+          />
+          <DrawerEdicaoLoteCursistas
+            open={drawerLoteAberto}
+            modo={drawerLoteModo}
+            loading={carregando}
+            onClose={() => setDrawerLoteAberto(false)}
+            onConfirmar={onConfirmarDadosLote}
+          />
           <SecaoAnexos
             form={form}
             podeGerenciarAnexos={!perfil.cursista}
@@ -524,7 +589,7 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           />
 
           <BannerDownloadTermo onBaixarModelo={onBaixarModelo} />
-          
+
           <SecaoInformacoesAdicionais disabled={bloqueios.campos.informacoesAdicionais} />
           <Auditoria dados={auditoriaDados} />
         </CardContent>
