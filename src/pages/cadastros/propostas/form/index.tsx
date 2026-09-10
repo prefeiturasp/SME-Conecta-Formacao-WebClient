@@ -1,5 +1,5 @@
 import { Badge, Button, Col, Divider, Form, Row, StepProps } from 'antd';
-import { WarningFilled  } from '@ant-design/icons';
+import { WarningFilled, EditOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/es/form/Form';
 import jwt_decode from 'jwt-decode';
 import { cloneDeep } from 'lodash';
@@ -82,6 +82,7 @@ import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { ModalAprovarRecusarButton } from './components/modal-aprovar-recusar/modal-aprovar-recusar-button';
 import ModalDevolverButton from './components/modal-devolver/modal-devolver-button';
 import ModalImprimirButton from './components/modal-imprimir/modal-imprimir-button';
+import { ModalEditarNumeroHomologacao } from './components/modal-editar-numero-homologacao/modal-editar-numero-homologacao';
 import { PropostaContext } from './provider';
 import FormInformacoesGerais from './steps//formulario-informacoes-gerais/informacoes-gerais';
 import FormularioCertificacao from './steps/formulario-certificacao';
@@ -318,13 +319,18 @@ export const FormCadastroDePropostas: React.FC = () => {
 
   const ehFomacaoHomologada = formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
 
+  const [openModalEditarNumeroHomologacao, setOpenModalEditarNumeroHomologacao] =
+    useState<boolean>(false);
+
   const exibirBotaoDevolver = situacaoAguardandoAnaliseDf && ehFomacaoHomologada;
 
   const exibirBotaoEnviarConsideracoes = formInitialValues?.podeEnviarConsideracoes;
 
   const exibirInputNumeroHomologacao =
-    formInitialValues?.situacao === SituacaoProposta.Aprovada ||
-    formInitialValues?.situacao === SituacaoProposta.Publicada;
+    ehFomacaoHomologada &&
+    ((ehPerfilAdminDf && !!id) ||
+      formInitialValues?.situacao === SituacaoProposta.Aprovada ||
+      formInitialValues?.situacao === SituacaoProposta.Publicada);
 
   const exibirBotaoSalvar =
     currentStep === StepPropostaEnum.Certificacao ||
@@ -1149,18 +1155,44 @@ export const FormCadastroDePropostas: React.FC = () => {
                   </Col>
                   {exibirInputNumeroHomologacao && (
                     <Col xs={24} sm={12} md={14} lg={12}>
-                      <InputNumero
-                        formItemProps={{
-                          name: 'numeroHomologacao',
-                          label: 'Número de homologação',
-                        }}
-                        inputProps={{
-                          maxLength: 15,
-                          id: CF_INPUT_NUMERO_HOMOLOGACAO,
-                          placeholder: 'Número de homologação',
-                          disabled: !podeEditarNumeroHomologacao,
-                        }}
-                      />
+                      <Row gutter={8} align='bottom'>
+                        <Col flex='auto'>
+                          <InputNumero
+                            formItemProps={{
+                              name: 'numeroHomologacao',
+                              label: 'Número de homologação',
+                            }}
+                            inputProps={{
+                              maxLength: 15,
+                              id: CF_INPUT_NUMERO_HOMOLOGACAO,
+                              placeholder: 'Número de homologação',
+                              readOnly: ehPerfilAdminDf && !!id,
+                              disabled: !ehPerfilAdminDf && !podeEditarNumeroHomologacao,
+                            }}
+                          />
+                        </Col>
+                        {ehPerfilAdminDf && !!id && (
+                          <Col flex='none' style={{ marginBottom: 24 }}>
+                            <Button
+                              id='btn-abrir-modal-editar-numero-homologacao'
+                              type='default'
+                              onClick={() => setOpenModalEditarNumeroHomologacao(true)}
+                              icon={<EditOutlined style={{ color: '#FF9A52', fontSize: 16 }} />}
+                              style={{
+                                width: 32,
+                                height: 32,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderColor: '#FF9A52',
+                                borderRadius: 4,
+                                background: 'white',
+                                padding: 0,
+                              }}
+                            />
+                          </Col>
+                        )}
+                      </Row>
                     </Col>
                   )}
                 </Row>
@@ -1224,6 +1256,22 @@ export const FormCadastroDePropostas: React.FC = () => {
         </Form>
         {openModalErros && (
           <ModalErroProposta closeModal={() => setOpenModalErros(false)} erros={listaErros} />
+        )}
+        {openModalEditarNumeroHomologacao && (
+          <ModalEditarNumeroHomologacao
+            open={openModalEditarNumeroHomologacao}
+            onClose={() => setOpenModalEditarNumeroHomologacao(false)}
+            propostaId={id}
+            numeroHomologacaoAtual={formInitialValues?.numeroHomologacao}
+            possuiCodaf={formInitialValues?.possuiCodaf}
+            onSucesso={(novoNumero) => {
+              form.setFieldValue('numeroHomologacao', novoNumero);
+              setFormInitialValues((prev) => ({
+                ...prev,
+                numeroHomologacao: novoNumero,
+              }));
+            }}
+          />
         )}
       </Spin>
     </Col>

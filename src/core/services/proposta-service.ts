@@ -119,6 +119,12 @@ const enviarPropostaAnalise = (
 ): Promise<ApiResult<number>> =>
   alterarRegistroParcial<number>(`${URL_API_PROPOSTA}/${id}/enviar`, params);
 
+const salvarNumeroHomologacao = (
+  id: string | number,
+  numeroHomologacao?: number | null,
+): Promise<ApiResult<boolean>> =>
+  alterarRegistroParcial<boolean>(`${URL_API_PROPOSTA}/${id}/numero-homologacao`, { numeroHomologacao });
+
 const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}`);
 
@@ -309,6 +315,7 @@ export {
   removerParecer,
   removerPropostaEncontro,
   salvarParecer,
+  salvarNumeroHomologacao,
   salvarPropostaEncontro,
   salvarPropostaProfissionalRegente,
   salvarPropostaProfissionalTutor,
