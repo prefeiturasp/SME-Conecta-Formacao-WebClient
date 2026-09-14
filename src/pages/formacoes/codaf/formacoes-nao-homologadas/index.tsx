@@ -205,10 +205,10 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     const items: any = [
       {
         key: 'baixar-relatorio-codaf',
-        disabled: relatorioDesabilitado,
+        disabled: relatorioDesabilitado || exportandoCodaf,
         label: (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>Baixar Relatório CODAF</span>
+            <span>{exportandoCodaf ? 'Gerando relatório...' : 'Baixar Relatório CODAF'}</span>
             {relatorioDesabilitado && (
               <Tooltip title={relatorioTooltip}>
                 <span style={{ marginLeft: 8, color: '#ff6b35', cursor: 'help' }}>
@@ -220,6 +220,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         ),
         onClick: (e: any) => {
           e.domEvent.stopPropagation();
+          aoClicarEmBaixarRelatorioCodaf(record);
         },
       },
     ];
@@ -275,7 +276,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
 
   const extrairNomeArquivoDoHeader = (contentDisposition?: string): string | null => {
     if (!contentDisposition) return null;
-    const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(contentDisposition);
     return match ? decodeURIComponent(match[1]) : null;
   };
   
@@ -289,14 +290,14 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
         `CODAF_${record.numeroHomologacao}_${record.nomeTurma}.xlsx`;
 
       const blob = new Blob([resposta.data], { type: resposta.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
+      const url = globalThis.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = nomeArquivo;
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
 
       notification.success({
         message: 'Sucesso',
