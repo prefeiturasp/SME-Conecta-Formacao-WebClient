@@ -170,6 +170,17 @@ export const emitirDeclaracaoCodafNaoHomologado = (
 ): Promise<ApiResult<any>> => {
   return inserirRegistro(`v1/CodafDeclaracao/${codafNaoHomologadoId}/emitir`);
 };
+
+export const exportarRelatorioCodafNaoHomologado = (
+  codafNaoHomologadoId: number,
+) => {
+  return api.post(
+    `${URL_API_CODAF_CURSO_NAO_HOMOLOGADO}/${codafNaoHomologadoId}/relatorio`,
+    {},
+    { responseType: 'blob' },
+  );
+};
+
 export const finalizarCodafNaoHomologado = (
   id: number,
   confirmacaoCiencia: boolean,
@@ -178,5 +189,4 @@ export const finalizarCodafNaoHomologado = (
     confirmacaoCiencia,
   });
 };
-
 
