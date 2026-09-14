@@ -39,7 +39,7 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
-import { CodafNaoHomologadoListagemDTO, emitirDeclaracaoCodafNaoHomologado, obterListaCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
+import { CodafNaoHomologadoListagemDTO, emitirDeclaracaoCodafNaoHomologado, exportarRelatorioCodafNaoHomologado, obterListaCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
 import { criarColunasBaseListagemCodaf } from '../shared/componentes/codaf-colunas-factory';
 import { ModalAvisoNovoRegistroCodaf } from '../shared/componentes/modal-aviso-novo-registro-codaf';
 import { HeaderListagemCodaf } from '../shared/componentes/header-listagem-codaf';
@@ -81,6 +81,7 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
   const [turmasProposta, setTurmasProposta] = useState<RetornoListagemDTO[]>([]);
   const [turmaDesabilitada, setTurmaDesabilitada] = useState(true);
   const [_atualizacao, forcarAtualizacao] = useState(0);
+  const [exportandoCodaf, setExportandoCodaf] = useState(false);
 
   const ehPerfilDF = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.DF];
   const ehPerfilEMFORPEF = perfilSelecionado === 'EMFORPEF';
@@ -155,29 +156,35 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     filtroUtilizado,
   });
 
-  const getMenuAcoes = (): MenuProps => {
-    const items = [
-      {
-        key: 'exportar-lista-inscritos',
-        label: 'Exportar Lista de inscritos',
-        onClick: (e: any) => {
-          e.domEvent.stopPropagation();
-        },
-      },
-      {
-        key: 'baixar-relatorio-codaf',
-        label:
-          <Tooltip title='Gere as declarações para baixar o relatório CODAF.'>
-            <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
-          </Tooltip>,
-        onClick: (e: any) => {
-          e.domEvent.stopPropagation();
-        },
-      },
-    ];
+const getMenuAcoes = (record: CodafNaoHomologadoListagemDTO): MenuProps => {
+  const declaracoesEmitidas = record.statusDeclaracaoTurma === 4;
 
-    return { items };
-  };
+  const items = [
+    {
+      key: 'baixar-relatorio-codaf',
+      label: (
+        <Tooltip
+          title={
+            declaracoesEmitidas
+              ? 'Clique para exportar arquivo CODAF desta turma'
+              : 'Documento disponível após geração das declarações'
+          }
+        >
+          <span style={{ display: 'block' }}>Baixar Relatório CODAF</span>
+        </Tooltip>
+      ),
+      disabled: !declaracoesEmitidas,
+      onClick: (e: any) => {
+        e.domEvent.stopPropagation();
+        if (declaracoesEmitidas) {
+          aoClicarEmBaixarRelatorioCodaf(record);
+        }
+      },
+    },
+  ];
+
+  return { items };
+};
 
   const obterSituacaoTexto = (idStatus: number): string => status.find((s) => s.id === idStatus)?.descricao || 'Desconhecido';
 
@@ -209,6 +216,48 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
     }
     finally {
       setCarregando(false);
+    }
+  };
+
+  const extrairNomeArquivoDoHeader = (contentDisposition?: string): string | null => {
+    if (!contentDisposition) return null;
+    const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+    return match ? decodeURIComponent(match[1]) : null;
+  };
+  
+  const aoClicarEmBaixarRelatorioCodaf = async (record: CodafNaoHomologadoListagemDTO) => {
+    try {
+      setExportandoCodaf(true);
+      const resposta = await exportarRelatorioCodafNaoHomologado(record.id);
+
+      const nomeArquivo =
+        extrairNomeArquivoDoHeader(resposta.headers['content-disposition']) ??
+        `CODAF_${record.numeroHomologacao}_${record.nomeTurma}.xlsx`;
+
+      const blob = new Blob([resposta.data], { type: resposta.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nomeArquivo;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      notification.success({
+        message: 'Sucesso',
+        description: `O arquivo CODAF para a turma ${record.nomeTurma} foi gerado com sucesso!`,
+      });
+
+      carregarDadosCodaf(paginaCorrente); // atualiza a lista: status pode ter virado "Finalizado" (CA04)
+    } catch (error) {
+      console.error('Erro ao exportar CODAF:', error);
+      notification.error({
+        message: 'Erro',
+        description: 'Ocorreu um erro ao gerar o arquivo CODAF.',
+      });
+    } finally {
+      setExportandoCodaf(false);
     }
   };
 
@@ -272,9 +321,9 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       title: 'Ações',
       width: 80,
       align: 'center',
-      render: (_: any) => (
+      render: (_: any, record: CodafNaoHomologadoListagemDTO) => (
         <Dropdown
-          menu={getMenuAcoes()}
+          menu={getMenuAcoes(record)}
           trigger={['click']}
           placement='bottomRight'
           dropdownRender={renderDropdownMenu}
@@ -282,17 +331,14 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
           <Button
             type='default'
             icon={<BsThreeDotsVertical />}
-            style={{
-              borderColor: '#ff6b35',
-              color: '#ff6b35',
-            }}
+            style={{ borderColor: '#ff6b35', color: '#ff6b35' }}
             onClick={(e) => e.stopPropagation()}
           />
         </Dropdown>
       ),
     },
   ];
-
+  
   const columns = ocultarColunas
     ? [...colunasBase, ...colunaAcoes]
     : [...colunasBase, ...colunasAdicionais, ...colunaAcoes];
@@ -632,3 +678,4 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
 };
 
 export default CodafFormacoesNaoHomologadas;
+
