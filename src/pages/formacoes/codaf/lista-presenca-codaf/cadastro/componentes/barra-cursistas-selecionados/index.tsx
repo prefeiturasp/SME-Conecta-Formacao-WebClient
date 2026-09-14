@@ -8,6 +8,7 @@ interface BarraCursistasSelecionadosProps {
   onClickEditarDados: () => void;
   registrarDadosDesabilitado: boolean;
   editarDadosDesabilitado: boolean;
+  modoEdicao: boolean;
 }
 
 export const BarraCursistasSelecionados: React.FC<BarraCursistasSelecionadosProps> = ({
@@ -16,6 +17,7 @@ export const BarraCursistasSelecionados: React.FC<BarraCursistasSelecionadosProp
   onClickEditarDados,
   registrarDadosDesabilitado,
   editarDadosDesabilitado,
+  modoEdicao,
 }) => {
   return (
     <Row gutter={[16, 8]} style={{ marginBottom: 16 }}>
@@ -35,35 +37,37 @@ export const BarraCursistasSelecionados: React.FC<BarraCursistasSelecionadosProp
           </span>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Button
-              type='text'
-              icon={<PlusOutlined style={{ color: '#fff' }} />}
-              onClick={onClickRegistrarDados}
-              disabled={registrarDadosDesabilitado}
-              style={{
-                color: '#fff',
-                fontWeight: 600,
-                opacity: registrarDadosDesabilitado ? 0.5 : 1,
-              }}
-            >
-              Registrar dados
-            </Button>
+            {!modoEdicao && (
+              <Button
+                type='text'
+                icon={<PlusOutlined style={{ color: '#fff' }} />}
+                onClick={onClickRegistrarDados}
+                disabled={registrarDadosDesabilitado}
+                style={{
+                  color: '#fff',
+                  fontWeight: 600,
+                  opacity: registrarDadosDesabilitado ? 0.5 : 1,
+                }}
+              >
+                Registrar dados
+              </Button>
+            )}
 
-            <div style={{ width: 1, height: 20, backgroundColor: '#fff', opacity: 0.5 }} />
-
-            <Button
-              type='text'
-              icon={<EditOutlined style={{ color: '#fff' }} />}
-              onClick={onClickEditarDados}
-              disabled={editarDadosDesabilitado}
-              style={{
-                color: '#fff',
-                fontWeight: 600,
-                opacity: editarDadosDesabilitado ? 0.5 : 1,
-              }}
-            >
-              Editar dados
-            </Button>
+            {modoEdicao && (
+              <Button
+                type='text'
+                icon={<EditOutlined style={{ color: '#fff' }} />}
+                onClick={onClickEditarDados}
+                disabled={editarDadosDesabilitado}
+                style={{
+                  color: '#fff',
+                  fontWeight: 600,
+                  opacity: editarDadosDesabilitado ? 0.5 : 1,
+                }}
+              >
+                Editar dados
+              </Button>
+            )}
           </div>
         </div>
       </Col>

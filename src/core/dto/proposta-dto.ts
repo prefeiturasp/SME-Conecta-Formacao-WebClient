@@ -94,6 +94,7 @@ export type PropostaDTO = {
   ehParecerista?: boolean;
   ehAdminDF?: boolean;
   ehAreaPromotora?: boolean;
+  possuiCodaf?: boolean;
 };
 
 export type TipoInscricaoType = {
@@ -184,6 +185,7 @@ export type PropostaFormDTO = {
   ehParecerista?: boolean;
   ehAdminDF?: boolean;
   ehAreaPromotora?: boolean;
+  possuiCodaf?: boolean;
 };
 
 export type PropostaPalavraChaveDTO = {
