@@ -22,15 +22,6 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-const originalGetComputedStyle = window.getComputedStyle.bind(window);
-window.getComputedStyle = (elt: Element, _pseudoElt?: string | null) => {
-  try {
-    return originalGetComputedStyle(elt);
-  } catch {
-    return elt instanceof HTMLElement ? elt.style : ({} as CSSStyleDeclaration);
-  }
-};
-
 jest.mock('antd/es/date-picker/locale/pt_BR', () => ({}));
 
 jest.mock('~/core/services/dre-service', () => ({
@@ -40,13 +31,13 @@ jest.mock('~/core/services/dre-service', () => ({
 
 // jsdom/nwsapi não consegue interpretar um seletor gerado internamente pelo antd rc-select
 // (bug conhecido de compatibilidade); evita que isso derrube o cálculo de getComputedStyle
-const originalGetComputedStyle = window.getComputedStyle;
+const originalGetComputedStyle = window.getComputedStyle.bind(window);
 beforeAll(() => {
-  window.getComputedStyle = (element, pseudoElt) => {
+  window.getComputedStyle = (elt: Element, _pseudoElt?: string | null) => {
     try {
-      return originalGetComputedStyle(element, pseudoElt);
+      return originalGetComputedStyle(elt);
     } catch {
-      return {} as CSSStyleDeclaration;
+      return elt instanceof HTMLElement ? elt.style : ({} as CSSStyleDeclaration);
     }
   };
 });
