@@ -3,7 +3,7 @@
  */
 
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Form } from 'antd';
 
 import FiltrosPesquisaDocumentos, { FiltrosPesquisaDocumentosProps } from './filtros-pesquisa-documentos';
@@ -37,7 +37,7 @@ describe('FiltrosPesquisaDocumentos', () => {
     jest.clearAllMocks();
   });
 
-  const renderizar = (props: Partial<FiltrosPesquisaDocumentosProps> = {}) => {
+  const renderizar = async (props: Partial<FiltrosPesquisaDocumentosProps> = {}) => {
     const Wrapper = () => {
       const [form] = Form.useForm();
 
@@ -58,73 +58,78 @@ describe('FiltrosPesquisaDocumentos', () => {
       );
     };
 
-    return render(<Wrapper />);
+    const utils = render(<Wrapper />);
+    // aguarda a resolução do fetch mockado de DREs para não vazar setState para o próximo teste
+    await act(async () => {
+      await Promise.resolve();
+    });
+    return utils;
   };
 
-  it('exibe os rótulos específicos para certificados', () => {
-    renderizar({ tipo: 'certificados' });
+  it('exibe os rótulos específicos para certificados', async () => {
+    await renderizar({ tipo: 'certificados' });
 
     expect(screen.getByText('Tipo de certificado')).toBeInTheDocument();
     expect(screen.getByText('Código do certificado')).toBeInTheDocument();
     expect(screen.getByText('RF do regente')).toBeInTheDocument();
   });
 
-  it('exibe os rótulos específicos para declarações', () => {
-    renderizar({ tipo: 'declaracoes' });
+  it('exibe os rótulos específicos para declarações', async () => {
+    await renderizar({ tipo: 'declaracoes' });
 
     expect(screen.getByText('Tipo de declaração')).toBeInTheDocument();
     expect(screen.getByText('Código da declaração')).toBeInTheDocument();
     expect(screen.getByText('RF ou CPF do regente')).toBeInTheDocument();
   });
 
-  it('chama onClickFiltrar ao clicar em Filtrar', () => {
-    renderizar();
+  it('chama onClickFiltrar ao clicar em Filtrar', async () => {
+    await renderizar();
 
     fireEvent.click(screen.getByRole('button', { name: 'Filtrar' }));
 
     expect(onClickFiltrar).toHaveBeenCalledTimes(1);
   });
 
-  it('chama onClickLimpar ao clicar em Limpar filtros', () => {
-    renderizar();
+  it('chama onClickLimpar ao clicar em Limpar filtros', async () => {
+    await renderizar();
 
     fireEvent.click(screen.getByRole('button', { name: 'Limpar filtros' }));
 
     expect(onClickLimpar).toHaveBeenCalledTimes(1);
   });
 
-  it('não exibe o botão Limpar filtros quando onClickLimpar não é informado', () => {
-    renderizar({ onClickLimpar: undefined });
+  it('não exibe o botão Limpar filtros quando onClickLimpar não é informado', async () => {
+    await renderizar({ onClickLimpar: undefined });
 
     expect(screen.queryByRole('button', { name: 'Limpar filtros' })).not.toBeInTheDocument();
   });
 
-  it('desabilita o campo RF ou CPF do cursista quando rfCursistaDisabled é true', () => {
-    renderizar({ rfCursistaDisabled: true });
+  it('desabilita o campo RF ou CPF do cursista quando rfCursistaDisabled é true', async () => {
+    await renderizar({ rfCursistaDisabled: true });
 
     expect(screen.getByPlaceholderText('RF ou CPF do cursista')).toBeDisabled();
   });
 
-  it('desabilita o campo do regente quando rfRegenteDisabled é true', () => {
-    renderizar({ rfRegenteDisabled: true });
+  it('desabilita o campo do regente quando rfRegenteDisabled é true', async () => {
+    await renderizar({ rfRegenteDisabled: true });
 
     expect(screen.getByPlaceholderText('RF do regente')).toBeDisabled();
   });
 
-  it('desabilita o select de turma quando turmaDisabled é true', () => {
-    renderizar({ turmaDisabled: true });
+  it('desabilita o select de turma quando turmaDisabled é true', async () => {
+    await renderizar({ turmaDisabled: true });
 
     expect(screen.getAllByRole('combobox').find((el) => el.getAttribute('disabled') !== null)).toBeTruthy();
   });
 
-  it('exibe o botão Filtrar em estado de loading', () => {
-    renderizar({ loading: true });
+  it('exibe o botão Filtrar em estado de loading', async () => {
+    await renderizar({ loading: true });
 
     expect(screen.getByRole('button', { name: /Filtrar/i })).toHaveClass('ant-btn-loading');
   });
 
-  it('lista as opções de turma informadas', () => {
-    renderizar({
+  it('lista as opções de turma informadas', async () => {
+    await renderizar({
       turmas: [{ id: 1, descricao: 'Turma A' } as any],
     });
 
