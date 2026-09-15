@@ -131,6 +131,7 @@ export type PropostaFormDTO = {
   arquivos?: any[];
   periodoRealizacao?: Dayjs[];
   periodoInscricao?: Dayjs[];
+  horaInscricao?: Dayjs[];
   cargaHorariaPresencial?: string;
   cargaHorariaNaoPresencial?: string;
   cargaHorariaSincrona?: string;

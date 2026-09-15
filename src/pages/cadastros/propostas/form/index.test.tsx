@@ -38,7 +38,9 @@ jest.mock('./components/modal-devolver/modal-devolver-button', () => () => null)
 jest.mock('./components/modal-imprimir/modal-imprimir-button', () => () => null);
 jest.mock('./components/modal-editar-numero-homologacao/modal-editar-numero-homologacao', () => ({
   ModalEditarNumeroHomologacao: (props: any) =>
-    props.open ? <div data-testid='modal-editar-numero-homologacao'>ModalEditarNumeroHomologacao</div> : null,
+    props.open ? (
+      <div data-testid='modal-editar-numero-homologacao'>ModalEditarNumeroHomologacao</div>
+    ) : null,
 }));
 
 // ─── ANT DESIGN ───────────────────────────────────────────────────────────────
@@ -190,7 +192,12 @@ jest.mock('./provider', () => {
 // ─── IMPORTS ──────────────────────────────────────────────────────────────────
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { FormCadastroDePropostas } from './index';
+import {
+  FormCadastroDePropostas,
+  mapearHoraPeriodo,
+  formatarDataInscricao,
+  extrairDatasFormatadas,
+} from './index';
 import cloneDeep from 'lodash/cloneDeep';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
@@ -436,9 +443,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
 
     it('should return empty array when dresDados is empty', () => {
       const dresDados: any[] = [];
-      const listaDres = [
-        { id: 1, descricao: 'DRE A', value: 1, label: 'DRE A' },
-      ];
+      const listaDres = [{ id: 1, descricao: 'DRE A', value: 1, label: 'DRE A' }];
 
       const ids = dresDados.map((item) => item.dreId);
       const result = cloneDeep(listaDres).filter((item) => ids.includes(item.id));
@@ -448,9 +453,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
 
     it('should return empty array when dresDados is undefined', () => {
       const dresDados: { dreId: number }[] | undefined = undefined;
-      const listaDres = [
-        { id: 1, descricao: 'DRE A', value: 1, label: 'DRE A' },
-      ];
+      const listaDres = [{ id: 1, descricao: 'DRE A', value: 1, label: 'DRE A' }];
 
       const ids = (dresDados ?? []).map((item: { dreId: number }) => item.dreId);
       const result = cloneDeep(listaDres).filter((item) => ids.includes(item.id));
@@ -573,19 +576,19 @@ describe('FormCadastroDePropostas Helper Functions', () => {
     it('should handle undefined pareceristas', () => {
       const pareceristas = undefined;
 
-      const result = (pareceristas ?? []).map((p: { id: number; nomeParecerista: string; registroFuncional: string }) => ({
-        id: p.id,
-        label: p.nomeParecerista,
-        value: p.registroFuncional,
-      }));
+      const result = (pareceristas ?? []).map(
+        (p: { id: number; nomeParecerista: string; registroFuncional: string }) => ({
+          id: p.id,
+          label: p.nomeParecerista,
+          value: p.registroFuncional,
+        }),
+      );
 
       expect(result).toEqual([]);
     });
 
     it('should map single parecerista', () => {
-      const pareceristas = [
-        { id: 1, nomeParecerista: 'Único', registroFuncional: 'RF001' },
-      ];
+      const pareceristas = [{ id: 1, nomeParecerista: 'Único', registroFuncional: 'RF001' }];
 
       const result = (pareceristas ?? []).map((p) => ({
         id: p.id,
@@ -603,8 +606,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const inicio = '2024-01-01';
       const fim = '2024-12-31';
 
-      const result =
-        inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
+      const result = inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
 
       expect(result).toHaveLength(2);
       expect(result[0].format('YYYY-MM-DD')).toBe('2024-01-01');
@@ -615,8 +617,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const inicio = undefined;
       const fim = '2024-12-31';
 
-      const result =
-        inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
+      const result = inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
 
       expect(result).toEqual([]);
     });
@@ -625,8 +626,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const inicio = '2024-01-01';
       const fim = undefined;
 
-      const result =
-        inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
+      const result = inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
 
       expect(result).toEqual([]);
     });
@@ -635,8 +635,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const inicio = undefined;
       const fim = undefined;
 
-      const result =
-        inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
+      const result = inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
 
       expect(result).toEqual([]);
     });
@@ -645,8 +644,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const inicio = '2024-01-01';
       const fim = '2024-01-01';
 
-      const result =
-        inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
+      const result = inicio && fim ? [dayjs.tz(inicio), dayjs.tz(fim)] : [];
 
       expect(result).toHaveLength(2);
       expect(result[0].isSame(result[1])).toBe(true);
@@ -667,9 +665,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const result = (grupos ?? []).map((g) => ({
         id: g.id,
         periodo:
-          g.dataInicio && g.dataFim
-            ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)]
-            : undefined,
+          g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
         propostaTurmasIds: g.propostaTurmasIds,
       }));
 
@@ -685,9 +681,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const result = (grupos ?? []).map((g) => ({
         id: g.id,
         periodo:
-          g.dataInicio && g.dataFim
-            ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)]
-            : undefined,
+          g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
         propostaTurmasIds: g.propostaTurmasIds,
       }));
 
@@ -697,14 +691,14 @@ describe('FormCadastroDePropostas Helper Functions', () => {
     it('should handle undefined grupos', () => {
       const grupos = undefined;
 
-      const result = (grupos ?? []).map((g: { id: number; dataInicio: string; dataFim: string; propostaTurmasIds: number[] }) => ({
-        id: g.id,
-        periodo:
-          g.dataInicio && g.dataFim
-            ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)]
-            : undefined,
-        propostaTurmasIds: g.propostaTurmasIds,
-      }));
+      const result = (grupos ?? []).map(
+        (g: { id: number; dataInicio: string; dataFim: string; propostaTurmasIds: number[] }) => ({
+          id: g.id,
+          periodo:
+            g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
+          propostaTurmasIds: g.propostaTurmasIds,
+        }),
+      );
 
       expect(result).toEqual([]);
     });
@@ -722,9 +716,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const result = (grupos ?? []).map((g) => ({
         id: g.id,
         periodo:
-          g.dataInicio && g.dataFim
-            ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)]
-            : undefined,
+          g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
         propostaTurmasIds: g.propostaTurmasIds,
       }));
 
@@ -899,23 +891,31 @@ describe('FormCadastroDePropostas Helper Functions', () => {
   });
 
   describe('extrairDatasFormatadas', () => {
-    it('should extract formatted dates correctly', () => {
-      const values = {
+    it('should extract formatted dates correctly with and without horaInscricao', () => {
+      const valuesSemHora = {
         periodoRealizacao: [dayjs('2024-01-01'), dayjs('2024-12-31')],
         periodoInscricao: [dayjs('2024-01-01'), dayjs('2024-02-28')],
       };
 
-      const result = {
-        dataRealizacaoInicio: values?.periodoRealizacao?.[0]?.format('YYYY-MM-DD'),
-        dataRealizacaoFim: values?.periodoRealizacao?.[1]?.format('YYYY-MM-DD'),
-        dataInscricaoInicio: values?.periodoInscricao?.[0]?.format('YYYY-MM-DD'),
-        dataInscricaoFim: values?.periodoInscricao?.[1]?.format('YYYY-MM-DD'),
+      const resultSemHora = extrairDatasFormatadas(valuesSemHora);
+
+      expect(resultSemHora.dataRealizacaoInicio).toBe('2024-01-01');
+      expect(resultSemHora.dataRealizacaoFim).toBe('2024-12-31');
+      expect(resultSemHora.dataInscricaoInicio).toBe('2024-01-01T00:00:00');
+      expect(resultSemHora.dataInscricaoFim).toBe('2024-02-28T00:00:00');
+    });
+
+    it('should extract formatted dates with explicit horaInscricao', () => {
+      const valuesComHora = {
+        periodoRealizacao: [dayjs('2026-08-17'), dayjs('2026-12-04')],
+        periodoInscricao: [dayjs('2026-08-17'), dayjs('2026-12-04')],
+        horaInscricao: [dayjs('12:32', 'HH:mm'), dayjs('19:47', 'HH:mm')],
       };
 
-      expect(result.dataRealizacaoInicio).toBe('2024-01-01');
-      expect(result.dataRealizacaoFim).toBe('2024-12-31');
-      expect(result.dataInscricaoInicio).toBe('2024-01-01');
-      expect(result.dataInscricaoFim).toBe('2024-02-28');
+      const resultComHora = extrairDatasFormatadas(valuesComHora);
+
+      expect(resultComHora.dataInscricaoInicio).toBe('2026-08-17T12:32:00');
+      expect(resultComHora.dataInscricaoFim).toBe('2026-12-04T19:47:00');
     });
 
     it('should handle undefined periodoRealizacao', () => {
@@ -924,16 +924,12 @@ describe('FormCadastroDePropostas Helper Functions', () => {
         periodoInscricao: [dayjs('2024-01-01'), dayjs('2024-02-28')],
       };
 
-      const result = {
-        dataRealizacaoInicio: values?.periodoRealizacao?.[0]?.format('YYYY-MM-DD'),
-        dataRealizacaoFim: values?.periodoRealizacao?.[1]?.format('YYYY-MM-DD'),
-        dataInscricaoInicio: values?.periodoInscricao?.[0]?.format('YYYY-MM-DD'),
-        dataInscricaoFim: values?.periodoInscricao?.[1]?.format('YYYY-MM-DD'),
-      };
+      const result = extrairDatasFormatadas(values);
 
       expect(result.dataRealizacaoInicio).toBeUndefined();
       expect(result.dataRealizacaoFim).toBeUndefined();
-      expect(result.dataInscricaoInicio).toBe('2024-01-01');
+      expect(result.dataInscricaoInicio).toBe('2024-01-01T00:00:00');
+      expect(result.dataInscricaoFim).toBe('2024-02-28T00:00:00');
     });
 
     it('should handle all undefined dates', () => {
@@ -942,17 +938,36 @@ describe('FormCadastroDePropostas Helper Functions', () => {
         periodoInscricao: undefined as [Dayjs, Dayjs] | undefined,
       };
 
-      const result = {
-        dataRealizacaoInicio: values?.periodoRealizacao?.[0]?.format('YYYY-MM-DD'),
-        dataRealizacaoFim: values?.periodoRealizacao?.[1]?.format('YYYY-MM-DD'),
-        dataInscricaoInicio: values?.periodoInscricao?.[0]?.format('YYYY-MM-DD'),
-        dataInscricaoFim: values?.periodoInscricao?.[1]?.format('YYYY-MM-DD'),
-      };
+      const result = extrairDatasFormatadas(values);
 
       expect(result.dataRealizacaoInicio).toBeUndefined();
       expect(result.dataRealizacaoFim).toBeUndefined();
       expect(result.dataInscricaoInicio).toBeUndefined();
       expect(result.dataInscricaoFim).toBeUndefined();
+    });
+  });
+
+  describe('mapearHoraPeriodo', () => {
+    it('should map hours when they are different from 00:00:00', () => {
+      const result = mapearHoraPeriodo('2026-08-17T12:32:00', '2026-12-04T19:47:00');
+      expect(result).toBeDefined();
+      expect(result?.[0].format('HH:mm')).toBe('12:32');
+      expect(result?.[1].format('HH:mm')).toBe('19:47');
+    });
+
+    it('should return undefined when both hours are 00:00:00', () => {
+      const result = mapearHoraPeriodo('2026-08-17T00:00:00', '2026-12-04T00:00:00');
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when inicio or fim is missing', () => {
+      expect(mapearHoraPeriodo(undefined, '2026-12-04T19:47:00')).toBeUndefined();
+      expect(mapearHoraPeriodo('2026-08-17T12:32:00', undefined)).toBeUndefined();
+      expect(mapearHoraPeriodo(undefined, undefined)).toBeUndefined();
+    });
+
+    it('should return undefined when date string is invalid', () => {
+      expect(mapearHoraPeriodo('invalid-date', '2026-12-04T19:47:00')).toBeUndefined();
     });
   });
 
@@ -1016,15 +1031,17 @@ describe('FormCadastroDePropostas Helper Functions', () => {
         },
       ];
 
-      const result = (turmas ?? []).map((item: { nome: string; id?: number; dres: { value: number; todos?: boolean }[] }) => {
-        const dresIds =
-          item.dres?.length && item.dres.length > 1
-            ? item.dres.filter((dre: any) => !dre.todos).map((d: any) => d.value)
-            : (item.dres ?? []).map((dre: any) => dre.value);
-        const turma: any = { nome: item.nome, dresIds };
-        if (item.id) turma.id = item.id;
-        return turma;
-      });
+      const result = (turmas ?? []).map(
+        (item: { nome: string; id?: number; dres: { value: number; todos?: boolean }[] }) => {
+          const dresIds =
+            item.dres?.length && item.dres.length > 1
+              ? item.dres.filter((dre: any) => !dre.todos).map((d: any) => d.value)
+              : (item.dres ?? []).map((dre: any) => dre.value);
+          const turma: any = { nome: item.nome, dresIds };
+          if (item.id) turma.id = item.id;
+          return turma;
+        },
+      );
 
       expect(result[0]).not.toHaveProperty('id');
     });
@@ -1066,7 +1083,9 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       const result = (turmas ?? []).map((item) => {
         const dresIds =
           item.dres?.length && item.dres.length > 1
-            ? item.dres.filter((dre: { todos?: boolean }) => !dre.todos).map((d: { value: number }) => d.value)
+            ? item.dres
+                .filter((dre: { todos?: boolean }) => !dre.todos)
+                .map((d: { value: number }) => d.value)
             : (item.dres ?? []).map((dre: { value: number }) => dre.value);
         const turma: any = { nome: item.nome, dresIds };
         if (item.id) turma.id = item.id;
@@ -1079,12 +1098,8 @@ describe('FormCadastroDePropostas Helper Functions', () => {
 
   describe('mapearPareceristasSalvar', () => {
     it('should map pareceristas for saving correctly', () => {
-      const pareceristas = [
-        { id: 1, label: 'Parecerista A', value: 'RF001' },
-      ];
-      const salvos = [
-        { id: 1, label: 'Parecerista A', value: 'RF001' },
-      ];
+      const pareceristas = [{ id: 1, label: 'Parecerista A', value: 'RF001' }];
+      const salvos = [{ id: 1, label: 'Parecerista A', value: 'RF001' }];
 
       const result = (pareceristas ?? []).map((item) => {
         const existente = salvos?.find((p: { value: string }) => p.value === item.value);
@@ -1102,9 +1117,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
     });
 
     it('should handle new pareceristas', () => {
-      const pareceristas = [
-        { id: 0, label: 'Novo Parecerista', value: 'RF003' },
-      ];
+      const pareceristas = [{ id: 0, label: 'Novo Parecerista', value: 'RF003' }];
       const salvos: any[] = [];
 
       const result = (pareceristas ?? []).map((item) => {
@@ -1122,9 +1135,8 @@ describe('FormCadastroDePropostas Helper Functions', () => {
     });
 
     it('should handle undefined pareceristas', () => {
-      const pareceristas:
-        | Array<{ id: number; label: string; value: string }>
-        | undefined = undefined;
+      const pareceristas: Array<{ id: number; label: string; value: string }> | undefined =
+        undefined;
       const salvos: any[] = [];
 
       const result = (pareceristas ?? []).map((item: any) => {
@@ -1144,9 +1156,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
         { id: 1, label: 'Parecerista A', value: 'RF001' },
         { id: 0, label: 'Novo', value: 'RF999' },
       ];
-      const salvos = [
-        { id: 1, label: 'Parecerista A', value: 'RF001' },
-      ];
+      const salvos = [{ id: 1, label: 'Parecerista A', value: 'RF001' }];
 
       const result = (pareceristas ?? []).map((item) => {
         const existente = salvos?.find((p) => p.value === item.value);
@@ -1291,7 +1301,11 @@ describe('FormCadastroDePropostas Helper Functions', () => {
         { id: 2, descricao: 'DRE B' },
       ];
 
-      const mappedDres = originalDres.map((dre) => ({ ...dre, value: dre.id, label: dre.descricao }));
+      const mappedDres = originalDres.map((dre) => ({
+        ...dre,
+        value: dre.id,
+        label: dre.descricao,
+      }));
       const selected = mappedDres.filter((d) => d.id === 1);
 
       expect(selected).toHaveLength(1);
@@ -1299,9 +1313,7 @@ describe('FormCadastroDePropostas Helper Functions', () => {
     });
 
     it('should maintain data integrity through multiple transformations', () => {
-      const turmas = [
-        { nome: 'Turma A', dres: [{ value: 1 }, { value: 2 }] },
-      ];
+      const turmas = [{ nome: 'Turma A', dres: [{ value: 1 }, { value: 2 }] }];
 
       const mapped = (turmas ?? []).map((t, i) => ({ ...t, key: i }));
       const cloned = cloneDeep(mapped);
