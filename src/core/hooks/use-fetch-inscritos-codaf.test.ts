@@ -3,7 +3,7 @@
  */
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useFetchInscritosCodaf } from './use-fetch-inscritos-codaf';
-import { notification } from '~/components/lib/notification';
+import { notification } from '../../components/lib/notification';
 
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (val: any) => JSON.parse(JSON.stringify(val));
