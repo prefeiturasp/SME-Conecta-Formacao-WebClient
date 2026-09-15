@@ -22,6 +22,15 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+const originalGetComputedStyle = window.getComputedStyle.bind(window);
+window.getComputedStyle = (elt: Element, _pseudoElt?: string | null) => {
+  try {
+    return originalGetComputedStyle(elt);
+  } catch {
+    return elt instanceof HTMLElement ? elt.style : ({} as CSSStyleDeclaration);
+  }
+};
+
 jest.mock('antd/es/date-picker/locale/pt_BR', () => ({}));
 
 jest.mock('~/core/services/dre-service', () => ({

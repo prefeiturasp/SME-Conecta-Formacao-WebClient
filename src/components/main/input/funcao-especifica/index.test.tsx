@@ -23,6 +23,15 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 });
 
+const originalGetComputedStyle = window.getComputedStyle.bind(window);
+window.getComputedStyle = (elt: Element, _pseudoElt?: string | null) => {
+  try {
+    return originalGetComputedStyle(elt);
+  } catch {
+    return elt instanceof HTMLElement ? elt.style : ({} as CSSStyleDeclaration);
+  }
+};
+
 jest.mock('~/core/services/cargo-funcao-service', () => ({
   obterFuncaoEspecifica: jest.fn(),
 }));
