@@ -48,6 +48,7 @@ jest.mock('~/components/lib/inputs/select', () => (props: any) => {
 describe('SelectModalidade', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (obterModalidades as jest.Mock).mockResolvedValue({ sucesso: false, dados: [] });
   });
 
   it('deve carregar modalidades com sucesso', async () => {
@@ -104,15 +105,17 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve configurar Form.Item corretamente', () => {
-    render(
-      <SelectModalidade
-        campoRequerido
-        formItemProps={{
-          required: true,
-        }}
-      />
-    );
+  it('deve configurar Form.Item corretamente', async () => {
+    await act(async () => {
+      render(
+        <SelectModalidade
+          campoRequerido
+          formItemProps={{
+            required: true,
+          }}
+        />
+      );
+    });
 
     expect(formItemMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -129,15 +132,17 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve repassar selectProps', () => {
-    render(
-      <SelectModalidade
-        selectProps={{
-          disabled: true,
-          mode: 'multiple',
-        }}
-      />
-    );
+  it('deve repassar selectProps', async () => {
+    await act(async () => {
+      render(
+        <SelectModalidade
+          selectProps={{
+            disabled: true,
+            mode: 'multiple',
+          }}
+        />
+      );
+    });
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -147,8 +152,10 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve configurar propriedades padrão do Select', () => {
-    render(<SelectModalidade />);
+  it('deve configurar propriedades padrão do Select', async () => {
+    await act(async () => {
+      render(<SelectModalidade />);
+    });
 
     expect(selectMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -159,8 +166,10 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve limpar anosTurmas e componentesCurriculares ao alterar modalidade', () => {
-    render(<SelectModalidade />);
+  it('deve limpar anosTurmas e componentesCurriculares ao alterar modalidade', async () => {
+    await act(async () => {
+      render(<SelectModalidade />);
+    });
 
     const props = selectMock.mock.calls[0][0];
 
@@ -181,8 +190,10 @@ describe('SelectModalidade', () => {
     );
   });
 
-  it('deve configurar campo não obrigatório por padrão', () => {
-    render(<SelectModalidade />);
+  it('deve configurar campo não obrigatório por padrão', async () => {
+    await act(async () => {
+      render(<SelectModalidade />);
+    });
 
     expect(formItemMock).toHaveBeenCalledWith(
       expect.objectContaining({
