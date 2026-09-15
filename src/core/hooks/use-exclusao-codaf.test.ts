@@ -3,7 +3,7 @@
  */
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useExclusaoCodaf } from './use-exclusao-codaf';
-import { notification } from '~/components/lib/notification';
+import { notification } from '../../components/lib/notification';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({ useNavigate: () => mockNavigate }));
