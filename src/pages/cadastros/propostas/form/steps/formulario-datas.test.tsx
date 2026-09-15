@@ -33,9 +33,7 @@ jest.mock('~/components/lib/notification', () => ({
   },
 }));
 
-jest.mock('~/components/lib/drawer/drawer-form-encontro-turmas', () => () => (
-  <div>DrawerMock</div>
-));
+jest.mock('~/components/lib/drawer/drawer-form-encontro-turmas', () => () => <div>DrawerMock</div>);
 
 jest.mock('~/components/lib/card-table-encontros', () => {
   const R = require('react');
@@ -57,8 +55,25 @@ jest.mock('~/components/main/input/date-range', () => ({
   DatePickerPeriodo: () => <div />,
 }));
 
+jest.mock('~/components/main/input/time-range', () => ({
+  TimePickerPeriodo: (props: any) => (
+    <div data-testid='time-picker-periodo'>
+      {typeof props.formItemProps?.label === 'string'
+        ? props.formItemProps.label
+        : props.formItemProps?.label}
+    </div>
+  ),
+}));
+
 jest.mock('~/core/styles/colors', () => ({
-  Colors: { SystemSME: { ConectaFormacao: { PRIMARY: '#003d92' } } },
+  Colors: {
+    SystemSME: { ConectaFormacao: { PRIMARY: '#003d92' } },
+    Suporte: {
+      Primary: {
+        INFO: '#086397',
+      },
+    },
+  },
 }));
 
 jest.mock('styled-components', () => ({
@@ -102,6 +117,12 @@ describe('FormularioDatas', () => {
   it('renderiza seção de inscrição', () => {
     renderComForm(<FormularioDatas recarregarTurmas={false as any} />);
     expect(screen.getByText('Inscrição')).toBeInTheDocument();
+  });
+
+  it('renderiza campo hora de início e fim de inscrição', () => {
+    renderComForm(<FormularioDatas recarregarTurmas={false as any} />);
+    expect(screen.getByTestId('time-picker-periodo')).toBeInTheDocument();
+    expect(screen.getByText(/Hora de início e fim/i)).toBeInTheDocument();
   });
 
   it('renderiza listagem de encontros', () => {

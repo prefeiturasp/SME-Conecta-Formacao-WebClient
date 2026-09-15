@@ -1,4 +1,4 @@
-import { Button, Col, Form, Row, Select, Table } from 'antd';
+import { Button, Col, Form, Row, Select, Table, Tooltip } from 'antd';
 import { FormListFieldData } from 'antd/es/form';
 import { FlattenOptionData } from 'rc-select/lib/interface';
 import { BaseOptionType } from 'antd/es/select';
@@ -15,6 +15,7 @@ import DataTableEncontros from '~/components/lib/card-table-encontros';
 import DrawerFormularioEncontroTurmas from '~/components/lib/drawer/drawer-form-encontro-turmas';
 import { notification } from '~/components/lib/notification';
 import { DatePickerPeriodo } from '~/components/main/input/date-range';
+import { TimePickerPeriodo } from '~/components/main/input/time-range';
 import { CF_BUTTON_NOVO } from '~/core/constants/ids/button/intex';
 import {
   PERIODO_INSCRICAO_NAO_INFORMADO,
@@ -365,7 +366,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                 lineHeight: '100%',
                 width: '100%',
                 margin: '4px 0 8px 0',
-                paddingTop:'8px'
+                paddingTop: '8px',
               }}
             >
               Defina o intervalo do início da primeira turma até o término da última.
@@ -448,7 +449,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                 );
               }}
             </Form.List>
-            
+
             <div
               style={{
                 border: '1px solid #F1F1F1',
@@ -464,7 +465,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
               <InfoCircleFilled
                 style={{ color: '#086397', fontSize: 20, flexShrink: 0, marginRight: 5 }}
               />
-              
+
               <span style={{ fontSize: 14, color: '#42474A' }}>
                 Selecione uma ou mais turmas e atribua datas de início e fim da formação. Para
                 turmas com datas diferentes, adicione uma nova linha e defina um período específico.
@@ -525,7 +526,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
           <Col xs={24} sm={14} md={24} style={contentStyle}>
             Inscrição
           </Col>
-          <Col sm={24} md={12} lg={8}>
+          <Col xs={24} md={12} lg={8}>
             <ButtonParecer campo={CampoConsideracaoEnum.periodoInscricao}>
               <b>
                 <DatePickerPeriodo
@@ -537,6 +538,21 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                 />
               </b>
             </ButtonParecer>
+          </Col>
+          <Col xs={24} md={12} lg={8}>
+            <TimePickerPeriodo
+              formItemProps={{
+                label: (
+                  <span>
+                    Hora de início e fim{' '}
+                    <Tooltip title='Se nenhum horário for informado, o período de inscrição começará e terminará às 00h das datas selecionadas.'>
+                      <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
+                    </Tooltip>
+                  </span>
+                ),
+                name: 'horaInscricao',
+              }}
+            />
           </Col>
         </Row>
       </Col>

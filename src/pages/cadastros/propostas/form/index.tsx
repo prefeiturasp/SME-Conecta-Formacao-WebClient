@@ -90,12 +90,7 @@ import FormularioDatas from './steps/formulario-datas';
 import FormularioDetalhamento from './steps/formulario-detalhamento/formulario-detalhamento';
 import FormularioProfissionais from './steps/formulario-profissionais';
 import InputNumero from '~/components/main/numero';
-import { 
-  AlertaContainer, 
-  AlertaIconInner, 
-  AlertaIconWrapper, 
-  AlertaTexto 
-} from './styles';
+import { AlertaContainer, AlertaIconInner, AlertaIconWrapper, AlertaTexto } from './styles';
 
 const stylesButtons = {
   fontWeight: 700,
@@ -138,11 +133,25 @@ const mapearPeriodo = (inicio?: string, fim?: string): Dayjs[] => {
   return [dayjs.tz(inicio), dayjs.tz(fim)];
 };
 
+const mapearHoraPeriodo = (inicio?: string, fim?: string): Dayjs[] | undefined => {
+  if (!inicio || !fim) return undefined;
+  try {
+    const dInicio = dayjs.tz(inicio);
+    const dFim = dayjs.tz(fim);
+    if (!dInicio.isValid() || !dFim.isValid()) return undefined;
+    const temHoraInicio = dInicio.hour() !== 0 || dInicio.minute() !== 0;
+    const temHoraFim = dFim.hour() !== 0 || dFim.minute() !== 0;
+    if (!temHoraInicio && !temHoraFim) return undefined;
+    return [dInicio, dFim];
+  } catch {
+    return undefined;
+  }
+};
+
 const mapearGruposPeriodos = (grupos?: GrupoPeriodoDTO[]): GrupoPeriodoFormDTO[] =>
   (grupos ?? []).map((g) => ({
     id: g.id,
-    periodo:
-      g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
+    periodo: g.dataInicio && g.dataFim ? [dayjs.tz(g.dataInicio), dayjs.tz(g.dataFim)] : undefined,
     propostaTurmasIds: g.propostaTurmasIds,
   }));
 
@@ -171,11 +180,23 @@ const resolverSituacao = (
   return situacao;
 };
 
+const formatarDataInscricao = (data?: Dayjs, hora?: Dayjs) => {
+  if (!data) return undefined;
+  const horaFormatada = hora ? hora.format('HH:mm:00') : '00:00:00';
+  return `${data.format('YYYY-MM-DD')}T${horaFormatada}`;
+};
+
 const extrairDatasFormatadas = (values: PropostaFormDTO) => ({
   dataRealizacaoInicio: values?.periodoRealizacao?.[0]?.format('YYYY-MM-DD'),
   dataRealizacaoFim: values?.periodoRealizacao?.[1]?.format('YYYY-MM-DD'),
-  dataInscricaoInicio: values?.periodoInscricao?.[0]?.format('YYYY-MM-DD'),
-  dataInscricaoFim: values?.periodoInscricao?.[1]?.format('YYYY-MM-DD'),
+  dataInscricaoInicio: formatarDataInscricao(
+    values?.periodoInscricao?.[0],
+    values?.horaInscricao?.[0],
+  ),
+  dataInscricaoFim: formatarDataInscricao(
+    values?.periodoInscricao?.[1],
+    values?.horaInscricao?.[1],
+  ),
 });
 
 const mapearTurmasSalvar = (turmas?: PropostaTurmaFormDTO[]): PropostaTurmaDTO[] =>
@@ -218,15 +239,12 @@ type AlertaEdicaoProps = {
   criadoLogin?: string;
 };
 
-const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({
-  criadoPor,
-  criadoLogin,
-}) => {
+const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({ criadoPor, criadoLogin }) => {
   return (
     <AlertaContainer>
       <AlertaIconWrapper>
         <AlertaIconInner>
-        <WarningFilled />
+          <WarningFilled />
         </AlertaIconInner>
       </AlertaIconWrapper>
 
@@ -235,7 +253,8 @@ const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({
         usuário que realizou o cadastro:{' '}
         <strong>
           {criadoPor} - {criadoLogin}
-        </strong>.
+        </strong>
+        .
       </AlertaTexto>
     </AlertaContainer>
   );
@@ -314,7 +333,8 @@ export const FormCadastroDePropostas: React.FC = () => {
   const situacaoAguardandoAnaliseDf =
     formInitialValues?.situacao === SituacaoProposta.AguardandoAnaliseDf;
 
-  const ehAdminDfESituacaoAguardandoAnalisePeloParecerista = ehPerfilAdminDf &&
+  const ehAdminDfESituacaoAguardandoAnalisePeloParecerista =
+    ehPerfilAdminDf &&
     formInitialValues.situacao === SituacaoProposta.AguardandoAnalisePeloParecerista;
 
   const ehFomacaoHomologada = formInitialValues?.formacaoHomologada === FormacaoHomologada.Sim;
@@ -373,10 +393,12 @@ export const FormCadastroDePropostas: React.FC = () => {
   const exibirCard = ehFomacaoHomologada && (podeExibirCard || exibirInputNumeroHomologacao);
 
   const podeImprimir =
-    ((formInitialValues?.situacao === SituacaoProposta.Publicada) || (formInitialValues?.situacao === SituacaoProposta.Aprovada)) &&
+    (formInitialValues?.situacao === SituacaoProposta.Publicada ||
+      formInitialValues?.situacao === SituacaoProposta.Aprovada) &&
     ehFomacaoHomologada;
 
-  const podeEditarNumeroHomologacao = id && ehFomacaoHomologada && formInitialValues?.situacao === SituacaoProposta.Aprovada;
+  const podeEditarNumeroHomologacao =
+    id && ehFomacaoHomologada && formInitialValues?.situacao === SituacaoProposta.Aprovada;
 
   const stepsProposta: StepProps[] = [
     {
@@ -461,7 +483,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     setFormInitialValues(valoresIniciais);
     setLoading(false);
   };
-  
+
   const aplicarPermissao = (dados?: PropostaCompletoDTO) => {
     if (typeof dados?.podeEditar === 'boolean') {
       setPodeEditar(dados.podeEditar);
@@ -482,7 +504,9 @@ export const FormCadastroDePropostas: React.FC = () => {
       const publicosAlvo = (dados?.publicosAlvo ?? []).map((item) => item.cargoFuncaoId);
       if (publicosAlvo.length) setExistePublicoAlvo(true);
 
-      const funcoesEspecificas = (dados?.funcoesEspecificas ?? []).map((item) => item.cargoFuncaoId);
+      const funcoesEspecificas = (dados?.funcoesEspecificas ?? []).map(
+        (item) => item.cargoFuncaoId,
+      );
       if (funcoesEspecificas.length) setFuncaoEspecifica(true);
 
       const gruposPeriodosRaw = mapearGruposPeriodos(dados?.gruposPeriodos);
@@ -515,6 +539,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         arquivos: mapearArquivoImagem(dados?.arquivoImagemDivulgacao),
         periodoRealizacao: mapearPeriodo(dados?.dataRealizacaoInicio, dados?.dataRealizacaoFim),
         periodoInscricao: mapearPeriodo(dados?.dataInscricaoInicio, dados?.dataInscricaoFim),
+        horaInscricao: mapearHoraPeriodo(dados?.dataInscricaoInicio, dados?.dataInscricaoFim),
         quantidadeTurmasOriginal: dados?.quantidadeTurmas,
         desativarAnoEhComponente: dados?.desativarAnoEhComponente,
         revalidacao: revalidacaoString,
@@ -550,7 +575,10 @@ export const FormCadastroDePropostas: React.FC = () => {
   }, [rfResponsavelDfWatch]);
 
   useEffect(() => {
-    setExibirBotaoEnviar(formInitialValues?.podeEnviar || (!(ehPerfilAdminDf && !pareceristaWatch) && form.isFieldsTouched()));
+    setExibirBotaoEnviar(
+      formInitialValues?.podeEnviar ||
+        (!(ehPerfilAdminDf && !pareceristaWatch) && form.isFieldsTouched()),
+    );
   }, [carregarDados, id, formInitialValues]);
 
   const tratarRespostaSalvar = (response: any) => {
@@ -639,13 +667,9 @@ export const FormCadastroDePropostas: React.FC = () => {
       outrosCriterios: clonedValues?.outrosCriterios || '',
       cursoComCertificado: !!clonedValues.cursoComCertificado,
       tipoEmissor:
-        tipoEmissorNumero !== null && !Number.isNaN(tipoEmissorNumero)
-          ? tipoEmissorNumero
-          : null,
+        tipoEmissorNumero !== null && !Number.isNaN(tipoEmissorNumero) ? tipoEmissorNumero : null,
       idEmissor:
-        idEmissorNumero !== null && !Number.isNaN(idEmissorNumero)
-          ? idEmissorNumero
-          : null,
+        idEmissorNumero !== null && !Number.isNaN(idEmissorNumero) ? idEmissorNumero : null,
       acaoInformativa: !!clonedValues.acaoInformativa,
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
@@ -858,12 +882,11 @@ export const FormCadastroDePropostas: React.FC = () => {
         await salvar(false).then((resposta) => {
           if (resposta.sucesso) {
             confirmacao({
-              content:
-                mensagemConfirmacao,
+              content: mensagemConfirmacao,
               onOk() {
                 finalizarEnvioProposta();
-              }
-            })
+              },
+            });
           }
         });
       };
@@ -926,10 +949,10 @@ export const FormCadastroDePropostas: React.FC = () => {
       },
     });
   };
-  
+
   return (
     <Col>
-      <Spin spinning={loading}>        
+      <Spin spinning={loading}>
         <Form
           form={form}
           layout='vertical'
@@ -1214,7 +1237,7 @@ export const FormCadastroDePropostas: React.FC = () => {
               <Auditoria dados={formInitialValues?.auditoria} />
             </CardContent>
           </Badge.Ribbon>
-          
+
           {exibirJustificativaDevolucao && (
             <Col span={24} style={{ marginTop: 16 }}>
               <CardContent>
@@ -1277,3 +1300,5 @@ export const FormCadastroDePropostas: React.FC = () => {
     </Col>
   );
 };
+
+export { mapearHoraPeriodo, formatarDataInscricao, extrairDatasFormatadas };
