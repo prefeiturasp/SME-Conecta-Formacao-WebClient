@@ -38,6 +38,23 @@ jest.mock('~/core/services/dre-service', () => ({
   obterDREsUsuarioLogado: jest.fn().mockResolvedValue({ sucesso: true, dados: [] }),
 }));
 
+// jsdom/nwsapi não consegue interpretar um seletor gerado internamente pelo antd rc-select
+// (bug conhecido de compatibilidade); evita que isso derrube o cálculo de getComputedStyle
+const originalGetComputedStyle = window.getComputedStyle;
+beforeAll(() => {
+  window.getComputedStyle = (element, pseudoElt) => {
+    try {
+      return originalGetComputedStyle(element, pseudoElt);
+    } catch {
+      return {} as CSSStyleDeclaration;
+    }
+  };
+});
+
+afterAll(() => {
+  window.getComputedStyle = originalGetComputedStyle;
+});
+
 describe('FiltrosPesquisaDocumentos', () => {
   const onClickFiltrar = jest.fn();
   const onClickLimpar = jest.fn();
