@@ -23,6 +23,9 @@ export interface CodafBaseDetalheDTO {
   criadoEm: string;
   criadoPor: string;
   criadoLogin: string;
+  enviadoParaDfPor?: string;
+  enviadoParaDfLogin?: string;
+  enviadoParaDfEm?: string;
   retificacoes?: RetificacaoDTO[];
   anexos?: AnexoCodafDetalheDTO[];
 }

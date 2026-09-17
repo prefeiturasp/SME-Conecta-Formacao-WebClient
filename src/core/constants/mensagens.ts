@@ -56,6 +56,7 @@ export const CARGA_HORARIA_SINCRONA_NAO_INFORMADA =
   'É necessário informar a carga horária síncrona';
 export const CARGA_HORARIA_DISTANCIA_NAO_INFORMADA =
   'É necessário informar a carga horária a distância';
+export const SOBRE_ESTE_CURSO_NAO_INFORMADO = 'É necessário informar sobre este curso';
 export const JUSTIFICATIVA_NAO_INFORMADA = 'É necessário informar a justificativa';
 export const PARECER_NAO_INFORMADO = 'É necessário informar o parecer';
 export const OBJETIVO_NAO_INFORMADO = 'É necessário informar os objetivos';

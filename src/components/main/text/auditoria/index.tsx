@@ -44,6 +44,16 @@ const Auditoria: FC<AuditoriaProps> = ({ dados }) => {
           />
         </Col>
       )}
+      {dados.enviadoParaDfPor && (
+        <Col span={24}>
+          <InfoAuditoria
+            label='ENVIADO PARA DF'
+            autor={dados.enviadoParaDfPor}
+            rf={dados.enviadoParaDfLogin!}
+            data={dados.enviadoParaDfEm!}
+          />
+        </Col>
+      )}
     </Row>
   );
 };

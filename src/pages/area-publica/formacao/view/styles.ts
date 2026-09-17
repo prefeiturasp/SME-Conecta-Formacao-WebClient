@@ -20,7 +20,7 @@ export const typographyStyles = {
     fontWeight: 400,
     fontStyle: 'normal',
     fontSize: 14,
-    lineHeight: '100%',
+    lineHeight: '150%',
     letterSpacing: '0%',
     color: '#58616A',
   },

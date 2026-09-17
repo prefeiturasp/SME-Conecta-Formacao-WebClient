@@ -1,4 +1,4 @@
-import api, { alterarRegistro, ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from "./api";
+import api, { alterarRegistro, alterarRegistroParcial, ApiResult, deletarRegistro, inserirRegistro, obterRegistro } from "./api";
 import { CodafAnexoDTO, CodafAnexoTemporarioDTO } from "./codaf-service-shared";
 import { AnexoCodafDetalheDTO } from "./codaf-suplementar-service";
 
@@ -23,6 +23,7 @@ export type CodafNaoHomologadoListagemDTO = {
   nomeAreaPromotora: string;
   status: number;
   statusDeclaracaoTurma: number;
+  possuiAprovacoes: boolean;
 };
 
 export type CodafNaoHomologadoListagemRetornoDTO<TItem extends CodafNaoHomologadoListagemDTO> = {
@@ -169,3 +170,23 @@ export const emitirDeclaracaoCodafNaoHomologado = (
 ): Promise<ApiResult<any>> => {
   return inserirRegistro(`v1/CodafDeclaracao/${codafNaoHomologadoId}/emitir`);
 };
+
+export const exportarRelatorioCodafNaoHomologado = (
+  codafNaoHomologadoId: number,
+) => {
+  return api.post(
+    `${URL_API_CODAF_CURSO_NAO_HOMOLOGADO}/${codafNaoHomologadoId}/relatorio`,
+    {},
+    { responseType: 'blob' },
+  );
+};
+
+export const finalizarCodafNaoHomologado = (
+  id: number,
+  confirmacaoCiencia: boolean,
+): Promise<ApiResult<any>> => {
+  return alterarRegistroParcial(`${URL_API_CODAF_CURSO_NAO_HOMOLOGADO}/${id}/finalizar`, {
+    confirmacaoCiencia,
+  });
+};
+

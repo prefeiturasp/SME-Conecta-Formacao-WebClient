@@ -7,6 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
+import Auditoria from '~/components/main/text/auditoria';
+import { AuditoriaDTO } from '~/core/dto/auditoria-dto';
 import { notification } from '~/components/lib/notification';
 import ButtonVoltar from '~/components/main/button/voltar';
 import {
@@ -416,6 +418,7 @@ const CadastroCodafSuplementar: React.FC = () => {
     Map<number, { id: number; dataRetificacao: string | null; paginaRetificacaoDom: number }>
   >(new Map());
   const [regrasAprovacao, setRegrasAprovacao] = useState<RegrasAprovacaoCursistaCodafDto>();
+  const [auditoriaDados, setAuditoriaDados] = useState<AuditoriaDTO>();
 
   const viewState = {
     isStarted: currentStatus === StatusCodafSuplementar.Iniciado,
@@ -476,6 +479,15 @@ const CadastroCodafSuplementar: React.FC = () => {
         setRegrasAprovacao(dados.regrasAprovacao);
         setCertificadoEmitido(Boolean(dados.certificadoEmitido));
         setTurmas(dados.turma ? [dados.turma] : []);
+        setAuditoriaDados({
+          id: dados.id,
+          criadoEm: dados.criadoEm,
+          criadoPor: dados.criadoPor,
+          criadoLogin: dados.criadoLogin,
+          alteradoEm: dados.alteradoEm || '',
+          alteradoPor: dados.alteradoPor || '',
+          alteradoLogin: dados.alteradoLogin || '',
+        });
 
         preencherFormularioComDetalhes(form, dados);
 
@@ -972,6 +984,7 @@ const CadastroCodafSuplementar: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+          <Auditoria dados={auditoriaDados} />
         </CardContent>
       </Form>
 

@@ -703,6 +703,13 @@ const CodafSuplementar: React.FC = () => {
         ellipsis: true,
       },
       {
+        key: 'criadoEm',
+        title: 'Data de criação',
+        dataIndex: 'criadoEm',
+        width: mustHideRestrictedColumns ? 150 : 120,
+        render: (value: string | undefined) => (value ? dayjs(value).format('DD/MM/YYYY- HH:mm') : '-'),
+      },
+      {
         key: 'status',
         title: 'Situação',
         dataIndex: 'status',

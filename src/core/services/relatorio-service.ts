@@ -1,4 +1,4 @@
-import { inserirRegistro } from './api';
+import { inserirRegistro, obterRegistro } from './api';
 
 const URL_DEFAULT = 'v1/relatorio';
 
@@ -29,4 +29,9 @@ export type RelatorioInscritosPorFormacaoFiltrosDTO = {
 const gerarRelatorioInscritosPorFormacao = (params: RelatorioInscritosPorFormacaoFiltrosDTO) =>
   inserirRegistro(`${URL_DEFAULT}/inscritos-por-formacao`, params);
 
-export { gerarRelatorioInscritosPorFormacao };
+const obterRelatorioLaudaCompletaDocx = (propostaId: number) =>
+  obterRegistro<Blob>(`${URL_DEFAULT}/propostas/${propostaId}/lauda-completa/docx`, {
+    responseType: 'blob',
+  });
+
+export { gerarRelatorioInscritosPorFormacao, obterRelatorioLaudaCompletaDocx };

@@ -19,7 +19,7 @@ export type RetornoDetalheFormacaoDto = {
   formatoDescricao?: string;
   periodo?: string;
   periodoInscricao?: string;
-  justificativa?: string;
+  sobreEsteCurso?: string;
   publicosAlvo?: string[];
   palavrasChaves?: string[];
   inscricaoEncerrada: boolean;
@@ -29,6 +29,8 @@ export type RetornoDetalheFormacaoDto = {
   usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDto | null;
   cursoComCertificado?: boolean;  
   codigoEventoSigpec?: number | null;
+  formacaoAnteriorId?: number;
+  formacaoPosteriorId?: number;
 };
 export type DataEncontroNovoDto = {
   dataInicial: string;

@@ -24,6 +24,7 @@ interface SecaoListaInscritosProps {
   onClickEditarDados: () => void;
   registrarDadosDesabilitado: boolean;
   editarDadosDesabilitado: boolean;
+  modoEdicao: boolean;
 }
 
 const getBannerText = (
@@ -78,6 +79,7 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
   onClickEditarDados,
   registrarDadosDesabilitado,
   editarDadosDesabilitado,
+  modoEdicao,
 }) => {
   const bannerText = getBannerText(deltaInscritos, nomeFormacao);
   const mostrarListaCancelados =
@@ -112,6 +114,7 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
           onClickEditarDados={onClickEditarDados}
           registrarDadosDesabilitado={registrarDadosDesabilitado}
           editarDadosDesabilitado={editarDadosDesabilitado}
+          modoEdicao={modoEdicao}
         />
       )}
       {mostrarDivergencia && (

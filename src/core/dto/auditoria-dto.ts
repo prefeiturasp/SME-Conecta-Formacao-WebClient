@@ -6,4 +6,7 @@ export type AuditoriaDTO = {
   alteradoPor: string;
   criadoLogin: string;
   alteradoLogin: string;
+  enviadoParaDfPor?: string;
+  enviadoParaDfLogin?: string;
+  enviadoParaDfEm?: string;
 };

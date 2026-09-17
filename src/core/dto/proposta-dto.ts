@@ -51,6 +51,7 @@ export type PropostaDTO = {
   cargaHorariaTotalOutra?: string;
   justificativa?: string;
   objetivos?: string;
+  sobreEsteCurso?: string;
   referencia?: string;
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;
@@ -93,6 +94,7 @@ export type PropostaDTO = {
   ehParecerista?: boolean;
   ehAdminDF?: boolean;
   ehAreaPromotora?: boolean;
+  possuiCodaf?: boolean;
 };
 
 export type TipoInscricaoType = {
@@ -129,6 +131,7 @@ export type PropostaFormDTO = {
   arquivos?: any[];
   periodoRealizacao?: Dayjs[];
   periodoInscricao?: Dayjs[];
+  horaInscricao?: Dayjs[];
   cargaHorariaPresencial?: string;
   cargaHorariaNaoPresencial?: string;
   cargaHorariaSincrona?: string;
@@ -137,6 +140,7 @@ export type PropostaFormDTO = {
   cargaHorariaTotalOutra?: string;
   justificativa?: string;
   objetivos?: string;
+  sobreEsteCurso?: string;
   referencia?: string;
   procedimentoMetadologico?: string;
   conteudoProgramatico?: string;
@@ -182,6 +186,7 @@ export type PropostaFormDTO = {
   ehParecerista?: boolean;
   ehAdminDF?: boolean;
   ehAreaPromotora?: boolean;
+  possuiCodaf?: boolean;
 };
 
 export type PropostaPalavraChaveDTO = {

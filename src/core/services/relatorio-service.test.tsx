@@ -1,13 +1,15 @@
 import {
   gerarRelatorioInscritosPorFormacao,
   RelatorioInscritosPorFormacaoFiltrosDTO,
+  obterRelatorioLaudaCompletaDocx,
 } from './relatorio-service';
 
 jest.mock('~/core/services/api', () => ({
   inserirRegistro: jest.fn(),
+  obterRegistro: jest.fn(),
 }));
 
-import { inserirRegistro } from '~/core/services/api';
+import { inserirRegistro, obterRegistro } from '~/core/services/api';
 
 describe('relatorio-service', () => {
   beforeEach(() => {
@@ -49,6 +51,24 @@ describe('relatorio-service', () => {
       gerarRelatorioInscritosPorFormacao({ propostaId: 1 });
       gerarRelatorioInscritosPorFormacao({ propostaId: 2 });
       expect(inserirRegistro).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('obterRelatorioLaudaCompletaDocx', () => {
+    it('calls obterRegistro with correct URL and responseType', () => {
+      const propostaId = 123;
+      obterRelatorioLaudaCompletaDocx(propostaId);
+      expect(obterRegistro).toHaveBeenCalledWith(
+        `v1/relatorio/propostas/${propostaId}/lauda-completa/docx`,
+        { responseType: 'blob' }
+      );
+    });
+
+    it('returns the result of obterRegistro', () => {
+      const mockResult = Promise.resolve({ sucesso: true, dados: new Blob() });
+      (obterRegistro as jest.Mock).mockReturnValue(mockResult);
+      const result = obterRelatorioLaudaCompletaDocx(123);
+      expect(result).toBe(mockResult);
     });
   });
 });

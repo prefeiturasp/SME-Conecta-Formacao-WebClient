@@ -107,9 +107,12 @@ describe('criarColunasCodafHomologado', () => {
 });
 
 describe('criarColunasCodafNaoHomologado', () => {
+  const criarColunas = (paginaAtual = 1, registrosPorPagina = 10, bloqueado = false) =>
+    criarColunasCodafNaoHomologado(paginaAtual, registrosPorPagina, bloqueado, mockOnChangeParticipou);
+
   test('DadoColunasCodafNaoHomologado_QuandoCriadas_EntaoRetorna4Colunas', () => {
     // Arrange / Act
-    const colunas = criarColunasCodafNaoHomologado(1, 10, false, mockOnChangeParticipou);
+    const colunas = criarColunas();
 
     // Assert
     expect(colunas).toHaveLength(4);
@@ -117,7 +120,7 @@ describe('criarColunasCodafNaoHomologado', () => {
 
   test('DadoColunasCodafNaoHomologado_QuandoCriadas_EntaoChavesCorretas', () => {
     // Arrange / Act
-    const colunas = criarColunasCodafNaoHomologado(1, 10, false, mockOnChangeParticipou);
+    const colunas = criarColunas();
     const keys = colunas.map((c: any) => c.key);
 
     // Assert
@@ -126,7 +129,7 @@ describe('criarColunasCodafNaoHomologado', () => {
 
   test('DadoPagina2Tamanho10_QuandoRenderizaIndice_EntaoRetorna11ParaPrimeiroItem', () => {
     // Arrange
-    const colunas = criarColunasCodafNaoHomologado(2, 10, false, mockOnChangeParticipou);
+    const colunas = criarColunas(2, 10, false);
     const colunaIndice: any = colunas[0];
 
     // Act
@@ -138,7 +141,7 @@ describe('criarColunasCodafNaoHomologado', () => {
 
   test('DadoColunasNaoHomologado_QuandoRenderizaParticipou_EntaoRetornaSelectComValor', () => {
     // Arrange
-    const colunas = criarColunasCodafNaoHomologado(1, 10, false, mockOnChangeParticipou);
+    const colunas = criarColunas();
     const colunaParticipou: any = colunas[3];
 
     // Act
@@ -151,7 +154,7 @@ describe('criarColunasCodafNaoHomologado', () => {
 
   test('DadoColunasNaoHomologado_QuandoBloqueadoTrue_EntaoParticipouDisabled', () => {
     // Arrange
-    const colunas = criarColunasCodafNaoHomologado(1, 10, true, mockOnChangeParticipou);
+    const colunas = criarColunas(1, 10, true);
     const colunaParticipou: any = colunas[3];
 
     // Act

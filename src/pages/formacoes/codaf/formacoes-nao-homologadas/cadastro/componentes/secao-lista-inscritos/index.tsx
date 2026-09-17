@@ -2,6 +2,7 @@ import { Col, Row, Table } from 'antd';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { TableRowSelection } from 'antd/es/table/interface';
 import React from 'react';
+import { BarraCursistasSelecionados } from '../../../../lista-presenca-codaf/cadastro/componentes/barra-cursistas-selecionados';
 
 interface SecaoListaInscritosProps {
   colunasCursistas: ColumnsType<any>;
@@ -11,6 +12,12 @@ interface SecaoListaInscritosProps {
   totalRegistrosInscritos: number;
   handleTableChangeInscritos: (pagination: TablePaginationConfig) => void;
   rowSelection?: TableRowSelection<any>;
+  quantidadeSelecionados: number;
+  onClickRegistrarDados: () => void;
+  onClickEditarDados: () => void;
+  registrarDadosDesabilitado: boolean;
+  editarDadosDesabilitado: boolean;
+  modoEdicao: boolean;
 }
 
 export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
@@ -21,6 +28,12 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
   totalRegistrosInscritos,
   handleTableChangeInscritos,
   rowSelection,
+  quantidadeSelecionados,
+  onClickRegistrarDados,
+  onClickEditarDados,
+  registrarDadosDesabilitado,
+  editarDadosDesabilitado,
+  modoEdicao,
 }) => {
 
   return (
@@ -43,6 +56,14 @@ export const SecaoListaInscritos: React.FC<SecaoListaInscritosProps> = ({
           </p>
         </Col>
       </Row>
+      <BarraCursistasSelecionados
+        quantidadeSelecionados={quantidadeSelecionados}
+        onClickRegistrarDados={onClickRegistrarDados}
+        onClickEditarDados={onClickEditarDados}
+        registrarDadosDesabilitado={registrarDadosDesabilitado}
+        editarDadosDesabilitado={editarDadosDesabilitado}
+        modoEdicao={modoEdicao}
+      />
       <Row gutter={[16, 8]}>
         <Col span={24}>
           <div className='table-pagination-center'>
