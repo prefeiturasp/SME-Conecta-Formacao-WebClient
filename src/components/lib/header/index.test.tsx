@@ -3,14 +3,14 @@
  */
 
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { BrowserRouter, useLocation } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -44,14 +44,14 @@ jest.mock('../../../core/hooks/use-redux', () => ({
 
 jest.mock('../dropdown-perfil', () => {
   return function DummyDropdownPerfil() {
-    return <div data-testid="dropdown-perfil">Dropdown Perfil</div>;
+    return <div data-testid='dropdown-perfil'>Dropdown Perfil</div>;
   };
 });
 
 jest.mock('../notification-button', () => {
   return function DummyNotificationButton({ onClick }: { onClick?: () => void }) {
     return (
-      <button data-testid="notification-button" onClick={onClick}>
+      <button data-testid='notification-button' onClick={onClick}>
         Notification Button
       </button>
     );
@@ -61,7 +61,7 @@ jest.mock('../notification-button', () => {
 jest.mock('../exit-button', () => {
   return function DummyExitButton({ onClick }: { onClick?: () => void }) {
     return (
-      <button data-testid="exit-button" onClick={onClick}>
+      <button data-testid='exit-button' onClick={onClick}>
         Exit Button
       </button>
     );
@@ -70,7 +70,7 @@ jest.mock('../exit-button', () => {
 
 jest.mock('~/pages/notificacoes/provider', () => {
   return function DummyNotificacoesContextProvider({ children }: { children: React.ReactNode }) {
-    return <div data-testid="notificacoes-provider">{children}</div>;
+    return <div data-testid='notificacoes-provider'>{children}</div>;
   };
 });
 
@@ -78,7 +78,7 @@ jest.mock('~/assets/conecta-formacao-logo.svg', () => 'logo.svg');
 
 import Header from './index';
 import { useAppSelector } from '../../../core/hooks/use-redux';
-import { store } from '../../../core/redux';
+import { store as _store } from '../../../core/redux';
 
 const mockUseAppSelector = useAppSelector as jest.Mock;
 
@@ -100,7 +100,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = screen.getByRole('banner');
@@ -111,7 +111,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const logo = screen.getByAltText('Conecta Formação LOGO');
@@ -122,7 +122,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const logo = screen.getByAltText('Conecta Formação LOGO');
@@ -133,7 +133,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const logo = screen.getByAltText('Conecta Formação LOGO') as HTMLImageElement;
@@ -144,7 +144,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -155,7 +155,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -166,7 +166,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -177,7 +177,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -188,7 +188,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -199,7 +199,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -210,7 +210,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const link = container.querySelector('a');
@@ -223,7 +223,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const links = container.querySelectorAll('a');
@@ -234,7 +234,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const firstLink = container.querySelector('a');
@@ -246,7 +246,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const logoLink = container.querySelector('a');
@@ -260,7 +260,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const menus = screen.queryAllByRole('menubar');
@@ -271,7 +271,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = screen.getByRole('banner');
@@ -291,7 +291,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const dropdownPerfil = screen.getByTestId('dropdown-perfil');
@@ -302,7 +302,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const notificationButton = screen.getByTestId('notification-button');
@@ -313,7 +313,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const exitButton = screen.getByTestId('exit-button');
@@ -324,7 +324,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const provider = screen.getByTestId('notificacoes-provider');
@@ -335,7 +335,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(screen.getByTestId('dropdown-perfil')).toBeInTheDocument();
@@ -348,7 +348,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const dropdown = screen.getByTestId('dropdown-perfil');
@@ -359,7 +359,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const button = screen.getByTestId('notification-button');
@@ -370,7 +370,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const button = screen.getByTestId('exit-button');
@@ -390,7 +390,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const dropdownPerfil = screen.queryByTestId('dropdown-perfil');
@@ -401,7 +401,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const notificationButton = screen.queryByTestId('notification-button');
@@ -412,7 +412,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const exitButton = screen.queryByTestId('exit-button');
@@ -423,7 +423,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const provider = screen.queryByTestId('notificacoes-provider');
@@ -434,12 +434,12 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = screen.getByRole('banner');
       const logo = screen.getByAltText('Conecta Formação LOGO');
-      
+
       expect(header).toBeInTheDocument();
       expect(logo).toBeInTheDocument();
       expect(screen.queryByTestId('dropdown-perfil')).not.toBeInTheDocument();
@@ -456,7 +456,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(screen.getByTestId('dropdown-perfil')).toBeInTheDocument();
@@ -473,7 +473,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(screen.queryByTestId('dropdown-perfil')).not.toBeInTheDocument();
@@ -485,7 +485,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(mockUseAppSelector).toHaveBeenCalled();
@@ -493,7 +493,7 @@ describe('Header Component', () => {
 
     it('should get autenticado from state', () => {
       // Ensure the mock is properly set up with a valid implementation
-      const mockSelector = jest.fn((state: any) => {
+      const _mockSelector = jest.fn((state: any) => {
         if (state && state.auth) {
           return state.auth.autenticado;
         }
@@ -508,7 +508,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(mockUseAppSelector).toHaveBeenCalled();
@@ -522,7 +522,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(screen.getByTestId('dropdown-perfil')).toBeInTheDocument();
@@ -536,7 +536,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(screen.queryByTestId('dropdown-perfil')).not.toBeInTheDocument();
@@ -548,7 +548,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -560,7 +560,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -571,7 +571,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       expect(container).toBeInTheDocument();
@@ -583,7 +583,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -594,7 +594,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -605,7 +605,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -616,7 +616,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -629,7 +629,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const logo = screen.getByAltText('Conecta Formação LOGO');
@@ -640,7 +640,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const logo = screen.getByAltText('Conecta Formação LOGO');
@@ -651,7 +651,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const logo = screen.getByAltText('Conecta Formação LOGO');
@@ -662,7 +662,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const logo = screen.getByAltText('Conecta Formação LOGO') as HTMLImageElement;
@@ -682,7 +682,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const button = screen.getByTestId('notification-button');
@@ -694,7 +694,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const button = screen.getByTestId('exit-button');
@@ -706,22 +706,24 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const button = screen.getByTestId('notification-button');
-      expect(button.onclick).toBeDefined();
+      fireEvent.click(button);
+      expect(button).toBeInTheDocument();
     });
 
     it('should have exit button with click handler', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const button = screen.getByTestId('exit-button');
-      expect(button.onclick).toBeDefined();
+      fireEvent.click(button);
+      expect(button).toBeInTheDocument();
     });
   });
 
@@ -734,7 +736,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -758,7 +760,7 @@ describe('Header Component', () => {
       const { container } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = container.querySelector('header');
@@ -780,7 +782,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = screen.getByRole('banner');
@@ -795,7 +797,7 @@ describe('Header Component', () => {
       render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = screen.getByRole('banner');
@@ -806,17 +808,105 @@ describe('Header Component', () => {
       const { rerender } = render(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       rerender(
         <BrowserRouter>
           <Header />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
 
       const header = screen.getByRole('banner');
       expect(header).toBeInTheDocument();
+    });
+  });
+
+  describe('Mobile Header Features', () => {
+    it('deve renderizar os elementos mobile quando autenticado', () => {
+      mockUseAppSelector.mockImplementation((selector: any) => {
+        return selector({
+          auth: {
+            autenticado: true,
+            usuarioNome: 'Diego Moreno',
+            usuarioLogin: '1234567',
+          },
+          perfil: {
+            perfilSelecionado: { perfil: '1', perfilNome: 'Cursista' },
+          },
+        });
+      });
+
+      render(
+        <BrowserRouter>
+          <Header />
+        </BrowserRouter>,
+      );
+
+      expect(screen.getByTestId('header-mobile-content')).toBeInTheDocument();
+      expect(screen.getByTestId('btn-hamburguer-header')).toBeInTheDocument();
+      expect(screen.getByTestId('btn-hamburguer-header')).toHaveAttribute(
+        'aria-label',
+        'Abrir menu',
+      );
+      expect(screen.queryByTestId('nome-header-mobile')).not.toBeInTheDocument();
+      expect(screen.getByTestId('avatar-header-mobile')).toHaveTextContent('DM');
+    });
+
+    it('deve abrir o menu mobile ao clicar no botao hambúrguer', () => {
+      mockUseAppSelector.mockImplementation((selector: any) => {
+        return selector({
+          auth: {
+            autenticado: true,
+            usuarioNome: 'Diego Moreno',
+            usuarioLogin: '1234567',
+          },
+          perfil: {
+            perfilSelecionado: { perfil: '1', perfilNome: 'Cursista' },
+          },
+        });
+      });
+
+      render(
+        <BrowserRouter>
+          <Header />
+        </BrowserRouter>,
+      );
+
+      const btnHamburguer = screen.getByTestId('btn-hamburguer-header');
+      expect(btnHamburguer).toHaveAttribute('aria-expanded', 'false');
+
+      fireEvent.click(btnHamburguer);
+
+      expect(btnHamburguer).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('drawer-menu-mobile')).toBeInTheDocument();
+
+      const btnFechar = screen.getByTestId('btn-fechar-menu-mobile');
+      fireEvent.click(btnFechar);
+
+      expect(btnHamburguer).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('deve renderizar fallback de icone quando usuario nao possui nome', () => {
+      mockUseAppSelector.mockImplementation((selector: any) => {
+        return selector({
+          auth: {
+            autenticado: true,
+            usuarioNome: '',
+            nomeSocial: '',
+          },
+          perfil: {},
+        });
+      });
+
+      render(
+        <BrowserRouter>
+          <Header />
+        </BrowserRouter>,
+      );
+
+      expect(screen.queryByTestId('nome-header-mobile')).not.toBeInTheDocument();
+      expect(screen.getByTestId('avatar-header-mobile').querySelector('svg')).toBeInTheDocument();
     });
   });
 });
