@@ -8,6 +8,7 @@ import {
   formatterCPFMask,
   maskTelefone,
   mostrarQtdParecer,
+  obterIniciaisNome,
   onchangeMultiSelectLabelInValueOpcaoTodos,
   onchangeMultiSelectOpcaoTodos,
   removeAcentos,
@@ -29,7 +30,7 @@ describe('utils functions', () => {
   // ---------------- BASIC UTILS ----------------
 
   it('should scroll to top', () => {
-    const spy = jest.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    const spy = jest.spyOn(window, 'scrollTo').mockImplementation(jest.fn());
     scrollNoInicio();
     expect(spy).toHaveBeenCalledWith(0, 0);
   });
@@ -64,19 +65,13 @@ describe('utils functions', () => {
   // ---------------- MULTI SELECT ----------------
 
   it('should handle "Outros" selection (add)', () => {
-    const result = validarOnChangeMultiSelectOutros(
-      [OpcaoListagem.Outros],
-      []
-    );
+    const result = validarOnChangeMultiSelectOutros([OpcaoListagem.Outros], []);
 
     expect(result).toEqual([OpcaoListagem.Outros]);
   });
 
   it('should remove other values when Outros already selected', () => {
-    const result = validarOnChangeMultiSelectOutros(
-      [1, 2],
-      [OpcaoListagem.Outros]
-    );
+    const result = validarOnChangeMultiSelectOutros([1, 2], [OpcaoListagem.Outros]);
 
     expect(result).toEqual([1, 2]);
   });
@@ -100,28 +95,19 @@ describe('utils functions', () => {
   });
 
   it('should handle opcao todos (add)', () => {
-    const result = onchangeMultiSelectOpcaoTodos(
-      [OpcaoListagem.Todos],
-      []
-    );
+    const result = onchangeMultiSelectOpcaoTodos([OpcaoListagem.Todos], []);
 
     expect(result).toEqual([OpcaoListagem.Todos]);
   });
 
   it('should remove todos when already selected', () => {
-    const result = onchangeMultiSelectOpcaoTodos(
-      [1, 2],
-      [OpcaoListagem.Todos]
-    );
+    const result = onchangeMultiSelectOpcaoTodos([1, 2], [OpcaoListagem.Todos]);
 
     expect(result).toEqual([1, 2]);
   });
 
   it('should handle labelInValue opcao todos', () => {
-    const result = onchangeMultiSelectLabelInValueOpcaoTodos(
-      [{ value: OpcaoListagem.Todos }],
-      []
-    );
+    const result = onchangeMultiSelectLabelInValueOpcaoTodos([{ value: OpcaoListagem.Todos }], []);
 
     expect(result).toEqual([{ value: OpcaoListagem.Todos }]);
   });
@@ -129,23 +115,15 @@ describe('utils functions', () => {
   // ---------------- DOMAIN LOGIC ----------------
 
   it('should return quantidade de parecer', () => {
-    const data = [
-      { campo: CampoConsideracaoEnum.Justificativa, quantidade: 5 },
-    ];
+    const data = [{ campo: CampoConsideracaoEnum.Justificativa, quantidade: 5 }];
 
-    const result = mostrarQtdParecer(
-      CampoConsideracaoEnum.Justificativa,
-      data as any
-    );
+    const result = mostrarQtdParecer(CampoConsideracaoEnum.Justificativa, data as any);
 
     expect(result).toBe(5);
   });
 
   it('should return 0 when no parecer found', () => {
-    const result = mostrarQtdParecer(
-      CampoConsideracaoEnum.Justificativa,
-      []
-    );
+    const result = mostrarQtdParecer(CampoConsideracaoEnum.Justificativa, []);
 
     expect(result).toBe(0);
   });
@@ -162,7 +140,7 @@ describe('utils functions', () => {
         value: 'John',
         form: formMock,
         nameField: 'name',
-      })
+      }),
     ).rejects.toBeTruthy();
   });
 
@@ -178,7 +156,7 @@ describe('utils functions', () => {
         value: 'John 123 Doe',
         form: formMock,
         nameField: 'name',
-      })
+      }),
     ).resolves.toBeUndefined();
 
     expect(setFieldValue).toHaveBeenCalledWith('name', 'John  Doe');
@@ -188,8 +166,12 @@ describe('utils functions', () => {
 
   it('should trigger downloadBlob', () => {
     const createElementSpy = jest.spyOn(document, 'createElement');
-    const appendSpy = jest.spyOn(document.body, 'appendChild').mockImplementation(() => ({} as any));
-    const removeSpy = jest.spyOn(document.body, 'removeChild').mockImplementation(() => ({} as any));
+    const appendSpy = jest
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation(() => ({} as any));
+    const removeSpy = jest
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation(() => ({} as any));
 
     const clickMock = jest.fn();
 
@@ -201,7 +183,7 @@ describe('utils functions', () => {
     URL.createObjectURL = jest.fn();
     URL.revokeObjectURL = jest.fn();
     const urlSpy = jest.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
-    const revokeSpy = jest.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    const revokeSpy = jest.spyOn(URL, 'revokeObjectURL').mockImplementation(jest.fn());
 
     downloadBlob('data', 'file.txt');
 
@@ -210,5 +192,26 @@ describe('utils functions', () => {
     expect(revokeSpy).toHaveBeenCalled();
     expect(appendSpy).toHaveBeenCalled();
     expect(removeSpy).toHaveBeenCalled();
+  });
+
+  // ---------------- OBTER INICIAIS NOME ----------------
+
+  it('should return initials correctly for composed names', () => {
+    expect(obterIniciaisNome('Diego Moreno')).toBe('DM');
+    expect(obterIniciaisNome('Diego da Silva Moreno')).toBe('DM');
+    expect(obterIniciaisNome('  maria   silva  ')).toBe('MS');
+  });
+
+  it('should return single initial for single name', () => {
+    expect(obterIniciaisNome('Diego')).toBe('D');
+    expect(obterIniciaisNome('maria')).toBe('M');
+  });
+
+  it('should return empty string for empty or invalid input', () => {
+    expect(obterIniciaisNome('')).toBe('');
+    expect(obterIniciaisNome('   ')).toBe('');
+    expect(obterIniciaisNome(undefined)).toBe('');
+    expect(obterIniciaisNome(null as any)).toBe('');
+    expect(obterIniciaisNome(123 as any)).toBe('');
   });
 });
