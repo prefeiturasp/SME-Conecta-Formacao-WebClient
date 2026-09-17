@@ -2,15 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { CloseOutlined } from '@ant-design/icons';
 import { InscricaoProps } from '../../listagem';
-import { getStatusConfig } from '../card-inscricao-mobile';
+import { getStatusConfig, getSituacaoAprovacaoConfig } from '../card-inscricao-mobile';
 import ModalEditCargoFuncaoButton from '../modal-edit-cargo-funcao/modal-edit-cargo-funcao-button';
 
 export interface ModalDetalhesInscricaoProps {
   open: boolean;
-  record?: (InscricaoProps & { origem?: string; dataInscricao?: string }) | null;
+  record: InscricaoProps | null;
   onClose: () => void;
   onCancelar?: (record: InscricaoProps) => void;
   mostrarCancelar?: boolean;
+  aba?: 'andamento' | 'finalizadas';
 }
 
 const Overlay = styled.div`
@@ -107,6 +108,8 @@ const Content = styled.div`
 const StatusWrapper = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 `;
 
 const StatusBadge = styled.div<{ $color: string; $bg: string }>`
@@ -219,12 +222,17 @@ export const ModalDetalhesInscricao: React.FC<ModalDetalhesInscricaoProps> = ({
   onClose,
   onCancelar,
   mostrarCancelar = true,
+  aba = 'andamento',
 }) => {
   if (!open || !record) {
     return null;
   }
 
   const status = getStatusConfig(record.situacao);
+  const statusAprovacao = getSituacaoAprovacaoConfig(
+    record.situacaoAprovacao,
+    aba === 'finalizadas',
+  );
 
   return (
     <>
@@ -248,14 +256,24 @@ export const ModalDetalhesInscricao: React.FC<ModalDetalhesInscricaoProps> = ({
         </Header>
 
         <Content data-testid='modal-detalhes-content'>
+          <FormacaoTitle>{record.nomeFormacao}</FormacaoTitle>
+
           <StatusWrapper>
             <StatusBadge $color={status.color} $bg={status.bg} data-testid='modal-detalhes-status'>
               {status.icon}
               <span>{status.label}</span>
             </StatusBadge>
+            {statusAprovacao && (
+              <StatusBadge
+                $color={statusAprovacao.color}
+                $bg={statusAprovacao.bg}
+                data-testid='modal-detalhes-status-aprovacao'
+              >
+                {statusAprovacao.icon}
+                <span>{statusAprovacao.label}</span>
+              </StatusBadge>
+            )}
           </StatusWrapper>
-
-          <FormacaoTitle>{record.nomeFormacao}</FormacaoTitle>
 
           <FieldItem>
             <FieldLabel>Código da formação</FieldLabel>

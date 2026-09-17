@@ -17,7 +17,58 @@ export interface CardInscricaoMobileProps {
   onExibirDetalhes: (record: InscricaoProps) => void;
   onCancelarInscricao?: (record: InscricaoProps) => void;
   mostrarCancelar?: boolean;
+  aba?: 'andamento' | 'finalizadas';
 }
+
+export const getSituacaoAprovacaoConfig = (
+  situacaoAprovacao?: string | number,
+  isFinalizadas = false,
+) => {
+  const val =
+    situacaoAprovacao !== undefined && situacaoAprovacao !== null
+      ? situacaoAprovacao
+      : isFinalizadas
+      ? 1
+      : undefined;
+
+  if (val === undefined || val === null) return null;
+
+  const str = String(val).toLowerCase().trim();
+
+  if (val === 1 || str === '1' || str.includes('aprovad')) {
+    return {
+      color: '#039D03',
+      bg: 'rgba(3, 157, 3, 0.1)',
+      label: 'Aprovado',
+      icon: <FaCheckCircle size={12} />,
+    };
+  }
+
+  if (val === 2 || str === '2' || str.includes('reprovad')) {
+    return {
+      color: '#B40C02',
+      bg: 'rgba(180, 12, 2, 0.1)',
+      label: 'Reprovado',
+      icon: <CloseCircleFilled style={{ fontSize: 13 }} />,
+    };
+  }
+
+  if (val === 3 || str === '3' || str.includes('inscrito')) {
+    return {
+      color: '#797979',
+      bg: 'rgba(121, 121, 121, 0.1)',
+      label: 'Não inscrito',
+      icon: <ClockCircleOutlined style={{ fontSize: 13 }} />,
+    };
+  }
+
+  return {
+    color: '#797979',
+    bg: 'rgba(121, 121, 121, 0.1)',
+    label: String(val),
+    icon: <ClockCircleOutlined style={{ fontSize: 13 }} />,
+  };
+};
 
 export const getStatusConfig = (situacao?: string) => {
   const normalized = (situacao || '').toLowerCase().trim();
@@ -96,19 +147,11 @@ const CardContainer = styled.div`
   width: 100%;
 `;
 
-const HeaderRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-`;
-
-const HeaderInfo = styled.div`
+const HeaderBlock = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
+  gap: 6px;
+  width: 100%;
 `;
 
 const CodigoFormacao = styled.span`
@@ -124,6 +167,14 @@ const NomeFormacao = styled.h3`
   color: #42474a;
   line-height: 1.3;
   word-break: break-word;
+`;
+
+const BadgesContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  align-items: center;
 `;
 
 const StatusBadge = styled.div<{ $color: string; $bg: string }>`
@@ -217,25 +268,40 @@ export const CardInscricaoMobile: React.FC<CardInscricaoMobileProps> = ({
   onExibirDetalhes,
   onCancelarInscricao,
   mostrarCancelar = true,
+  aba = 'andamento',
 }) => {
   const status = getStatusConfig(record.situacao);
+  const statusAprovacao = getSituacaoAprovacaoConfig(
+    record.situacaoAprovacao,
+    aba === 'finalizadas',
+  );
 
   return (
     <CardContainer data-testid={`card-inscricao-${record.id}`}>
-      <HeaderRow>
-        <HeaderInfo>
-          <CodigoFormacao>Cód. {record.codigoFormacao}</CodigoFormacao>
-          <NomeFormacao>{record.nomeFormacao}</NomeFormacao>
-        </HeaderInfo>
-        <StatusBadge
-          $color={status.color}
-          $bg={status.bg}
-          data-testid={`status-badge-${record.id}`}
-        >
-          {status.icon}
-          <span>{status.label}</span>
-        </StatusBadge>
-      </HeaderRow>
+      <HeaderBlock>
+        <CodigoFormacao>Cód. {record.codigoFormacao}</CodigoFormacao>
+        <NomeFormacao>{record.nomeFormacao}</NomeFormacao>
+        <BadgesContainer data-testid={`badges-container-${record.id}`}>
+          <StatusBadge
+            $color={status.color}
+            $bg={status.bg}
+            data-testid={`status-badge-${record.id}`}
+          >
+            {status.icon}
+            <span>{status.label}</span>
+          </StatusBadge>
+          {statusAprovacao && (
+            <StatusBadge
+              $color={statusAprovacao.color}
+              $bg={statusAprovacao.bg}
+              data-testid={`status-aprovacao-badge-${record.id}`}
+            >
+              {statusAprovacao.icon}
+              <span>{statusAprovacao.label}</span>
+            </StatusBadge>
+          )}
+        </BadgesContainer>
+      </HeaderBlock>
 
       {record.datas && (
         <InfoRow>

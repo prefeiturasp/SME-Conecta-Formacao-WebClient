@@ -25,6 +25,8 @@ import MinhasInscricoesFiltrosMobile, {
   contarFiltrosAplicados,
 } from '../filtros-mobile';
 import ModalDetalhesInscricao from '../modal-detalhes-inscricao';
+import BreadcrumbConecta from '~/components/main/breadcrumb';
+import VoltarAoTopoButton from '~/components/main/button/voltar-topo';
 
 export interface MinhasInscricoesMobileProps {
   ehCursista?: boolean;
@@ -260,7 +262,7 @@ const ExibirMaisButton = styled.button`
   width: 100%;
   height: 40px;
   background-color: #ff9a52;
-  border: none;
+  border: 1px solid #ff9a52;
   border-radius: 8px;
   color: #ffffff;
   font-size: 14px;
@@ -270,15 +272,18 @@ const ExibirMaisButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 
   &:hover:not(:disabled),
   &:focus-visible:not(:disabled) {
     background-color: #f28a3e;
+    border-color: #f28a3e;
   }
 
   &:disabled {
-    opacity: 0.7;
+    background-color: #f5f5f5;
+    border: 1px solid #dadada;
+    color: #bfbfc2;
     cursor: not-allowed;
   }
 `;
@@ -373,6 +378,9 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
           if (filtros.SituacaoInscricao) {
             params.append('SituacaoInscricao', String(filtros.SituacaoInscricao));
           }
+          if (filtros.SituacaoAprovacao) {
+            params.append('SituacaoAprovacao', String(filtros.SituacaoAprovacao));
+          }
         }
 
         if (filtros.DataInicial) {
@@ -393,8 +401,31 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
         });
 
         if (response?.data) {
-          const novosItens = response.data.items || [];
-          const total = response.data.totalRegistros || 0;
+          let novosItens = response.data.items || [];
+          let total = response.data.totalRegistros || 0;
+
+          if (aba === 'finalizadas' && filtros.SituacaoAprovacao) {
+            const filtroVal = Number(filtros.SituacaoAprovacao);
+            const temCampoAprovacao = novosItens.some(
+              (it) => it.situacaoAprovacao !== undefined && it.situacaoAprovacao !== null,
+            );
+            if (temCampoAprovacao) {
+              novosItens = novosItens.filter((item) => {
+                const sit = item.situacaoAprovacao;
+                if (filtroVal === 1) {
+                  return sit === 1 || sit === '1' || String(sit).toLowerCase().includes('aprovad');
+                }
+                if (filtroVal === 2) {
+                  return sit === 2 || sit === '2' || String(sit).toLowerCase().includes('reprovad');
+                }
+                if (filtroVal === 3) {
+                  return sit === 3 || sit === '3' || String(sit).toLowerCase().includes('inscrito');
+                }
+                return false;
+              });
+              total = novosItens.length;
+            }
+          }
 
           setTotalRegistros(total);
 
@@ -424,8 +455,10 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
     buscarInscricoes(1, abaAtiva, buscaRapida, filtrosAvancados, false);
   }, [abaAtiva, buscaRapida, filtrosAvancados, buscarInscricoes]);
 
+  const temMaisPaginas = inscricoes.length < totalRegistros;
+
   const handleExibirMais = () => {
-    if (loadingMais || loading) return;
+    if (loadingMais || loading || !temMaisPaginas) return;
     const proximaPagina = paginaAtual + 1;
     setPaginaAtual(proximaPagina);
     buscarInscricoes(proximaPagina, abaAtiva, buscaRapida, filtrosAvancados, true);
@@ -488,6 +521,10 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
 
   return (
     <Container data-testid='minhas-inscricoes-mobile'>
+      <div data-testid='mobile-breadcrumb-wrapper'>
+        <BreadcrumbConecta />
+      </div>
+
       <HeaderSection>
         <PageTitle>Minhas inscrições</PageTitle>
         <ExplorarButton
@@ -586,6 +623,7 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
               <CardInscricaoMobile
                 key={item.id}
                 record={item}
+                aba={abaAtiva}
                 onExibirDetalhes={(rec) => setDetalhesRecord(rec)}
                 onCancelarInscricao={handleCancelarInscricao}
                 mostrarCancelar={abaAtiva === 'andamento'}
@@ -594,23 +632,21 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
           </CardsList>
 
           <PaginationSection>
-            {inscricoes.length < totalRegistros && (
-              <ExibirMaisButton
-                type='button'
-                disabled={loadingMais}
-                onClick={handleExibirMais}
-                data-testid='btn-exibir-mais'
-              >
-                {loadingMais ? (
-                  <LoadingOutlined />
-                ) : (
-                  <>
-                    <span>Exibir mais</span>
-                    <DownOutlined style={{ fontSize: 12 }} />
-                  </>
-                )}
-              </ExibirMaisButton>
-            )}
+            <ExibirMaisButton
+              type='button'
+              disabled={loadingMais || !temMaisPaginas}
+              onClick={handleExibirMais}
+              data-testid='btn-exibir-mais'
+            >
+              {loadingMais ? (
+                <LoadingOutlined />
+              ) : (
+                <>
+                  <span>Exibir mais</span>
+                  <DownOutlined style={{ fontSize: 12 }} />
+                </>
+              )}
+            </ExibirMaisButton>
 
             <ContadorInscricoes data-testid='contador-inscricoes'>
               Exibindo {inscricoes.length} de {totalRegistros} inscrições
@@ -631,10 +667,13 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
       <ModalDetalhesInscricao
         open={Boolean(detalhesRecord)}
         record={detalhesRecord}
+        aba={abaAtiva}
         onClose={() => setDetalhesRecord(null)}
         onCancelar={handleCancelarInscricao}
         mostrarCancelar={abaAtiva === 'andamento'}
       />
+
+      {!painelFiltrosAberto && <VoltarAoTopoButton sempreVisivel />}
     </Container>
   );
 };

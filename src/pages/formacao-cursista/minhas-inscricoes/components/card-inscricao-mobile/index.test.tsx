@@ -4,7 +4,7 @@
 
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import CardInscricaoMobile, { getStatusConfig } from './index';
+import CardInscricaoMobile, { getStatusConfig, getSituacaoAprovacaoConfig } from './index';
 import { InscricaoProps } from '../../listagem';
 
 describe('CardInscricaoMobile', () => {
@@ -141,5 +141,42 @@ describe('CardInscricaoMobile', () => {
       const configVazio = getStatusConfig('');
       expect(configVazio.label).toBe('Pendente');
     });
+  });
+
+  describe('getSituacaoAprovacaoConfig', () => {
+    it('deve mapear status Aprovado', () => {
+      expect(getSituacaoAprovacaoConfig(1)?.label).toBe('Aprovado');
+      expect(getSituacaoAprovacaoConfig('Aprovado')?.label).toBe('Aprovado');
+      expect(getSituacaoAprovacaoConfig(undefined, true)?.label).toBe('Aprovado');
+    });
+
+    it('deve mapear status Reprovado', () => {
+      expect(getSituacaoAprovacaoConfig(2)?.label).toBe('Reprovado');
+      expect(getSituacaoAprovacaoConfig('Reprovado')?.label).toBe('Reprovado');
+    });
+
+    it('deve mapear status Não inscrito', () => {
+      expect(getSituacaoAprovacaoConfig(3)?.label).toBe('Não inscrito');
+      expect(getSituacaoAprovacaoConfig('Não inscrito')?.label).toBe('Não inscrito');
+    });
+
+    it('deve retornar string customizada ou null quando indefinido sem ser finalizadas', () => {
+      expect(getSituacaoAprovacaoConfig('Em análise')?.label).toBe('Em análise');
+      expect(getSituacaoAprovacaoConfig(undefined, false)).toBeNull();
+    });
+  });
+
+  it('deve renderizar os dois status abaixo do título na aba finalizadas', () => {
+    render(
+      <CardInscricaoMobile
+        {...defaultProps}
+        aba='finalizadas'
+        record={{ ...mockRecord, situacaoAprovacao: 1 }}
+      />,
+    );
+
+    expect(screen.getByTestId('status-badge-1')).toHaveTextContent('Confirmada');
+    expect(screen.getByTestId('status-aprovacao-badge-1')).toHaveTextContent('Aprovado');
+    expect(screen.getByTestId('badges-container-1')).toBeInTheDocument();
   });
 });

@@ -22,6 +22,8 @@ jest.mock('../modal-edit-cargo-funcao/modal-edit-cargo-funcao-button', () => {
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  useLocation: () => ({ pathname: '/formacao-cursista/minhas-inscricoes' }),
+  Link: ({ children, to }: any) => <a href={to}>{children}</a>,
 }));
 
 jest.mock('~/core/services/api', () => ({
@@ -262,14 +264,21 @@ describe('MinhasInscricoesMobile', () => {
     });
 
     const btnExibirMais = screen.getByTestId('btn-exibir-mais');
+    expect(btnExibirMais).toBeEnabled();
     fireEvent.click(btnExibirMais);
 
     await waitFor(() => {
       expect(screen.getByTestId('contador-inscricoes')).toHaveTextContent(
         'Exibindo 2 de 2 inscrições',
       );
-      expect(screen.queryByTestId('btn-exibir-mais')).not.toBeInTheDocument();
+      const btnMais = screen.getByTestId('btn-exibir-mais');
+      expect(btnMais).toBeInTheDocument();
+      expect(btnMais).toBeDisabled();
     });
+
+    // Clicar no botão desabilitado não deve fazer nova busca
+    fireEvent.click(screen.getByTestId('btn-exibir-mais'));
+    expect(api.get).toHaveBeenCalledTimes(2);
   });
 
   it('deve abrir o modal de detalhes da inscrição e fechá-lo', async () => {
@@ -487,7 +496,7 @@ describe('MinhasInscricoesMobile', () => {
     });
 
     fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
-    const comboboxFin = screen.getByRole('combobox');
+    const comboboxFin = screen.getAllByRole('combobox')[0];
     fireEvent.mouseDown(comboboxFin);
     const optionFin = screen.getByTitle('Transferida');
     fireEvent.click(optionFin);
@@ -550,6 +559,117 @@ describe('MinhasInscricoesMobile', () => {
     ][0];
     await act(async () => {
       await lastCall.onOk();
+    });
+  });
+
+  it('deve renderizar breadcrumb na versão mobile', async () => {
+    render(<MinhasInscricoesMobile />);
+
+    expect(screen.getByTestId('mobile-breadcrumb-wrapper')).toBeInTheDocument();
+  });
+
+  it('deve renderizar o botão Voltar ao Topo quando o painel de filtros estiver fechado e ocultá-lo quando aberto', async () => {
+    render(<MinhasInscricoesMobile />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('btn-voltar-ao-topo')).toBeInTheDocument();
+    });
+
+    // Abrir o painel de filtros
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+    await waitFor(() => {
+      expect(screen.getByTestId('mobile-filter-panel')).toBeInTheDocument();
+    });
+
+    // Botão voltar ao topo não deve ficar visível com o painel aberto
+    expect(screen.queryByTestId('btn-voltar-ao-topo')).not.toBeInTheDocument();
+
+    // Fechar o painel
+    fireEvent.click(screen.getByTestId('mobile-filter-panel-close-btn'));
+    await waitFor(() => {
+      expect(screen.getByTestId('btn-voltar-ao-topo')).toBeInTheDocument();
+    });
+  });
+
+  it('deve renderizar badges de situação da inscrição e de aprovação na aba finalizadas e permitir filtrar por situação de aprovação', async () => {
+    const finalizadasItens: InscricaoProps[] = [
+      {
+        ...mockInscricoes[0],
+        id: 10,
+        situacao: 'Concluída',
+        situacaoAprovacao: 1, // Aprovado
+      },
+      {
+        ...mockInscricoes[1],
+        id: 11,
+        situacao: 'Concluída',
+        situacaoAprovacao: 2, // Reprovado
+      },
+      {
+        ...mockInscricoes[1],
+        id: 12,
+        situacao: 'Cancelada',
+        situacaoAprovacao: 3, // Não inscrito
+      },
+    ];
+
+    (api.get as jest.Mock).mockImplementation((url: string) => {
+      if (url.includes('finalizadas')) {
+        return Promise.resolve({
+          data: {
+            items: finalizadasItens,
+            totalRegistros: 3,
+            sucesso: true,
+          },
+        });
+      }
+      return Promise.resolve({
+        data: {
+          items: mockInscricoes,
+          totalRegistros: 2,
+          sucesso: true,
+        },
+      });
+    });
+
+    render(<MinhasInscricoesMobile />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('cards-list')).toBeInTheDocument();
+    });
+
+    // Troca para finalizadas
+    fireEvent.click(screen.getByTestId('tab-finalizadas'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status-badge-10')).toBeInTheDocument();
+      expect(screen.getByTestId('status-aprovacao-badge-10')).toHaveTextContent('Aprovado');
+      expect(screen.getByTestId('status-aprovacao-badge-11')).toHaveTextContent('Reprovado');
+      expect(screen.getByTestId('status-aprovacao-badge-12')).toHaveTextContent('Não inscrito');
+    });
+
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+    await waitFor(() => {
+      expect(screen.getByTestId('mobile-filter-panel')).toBeInTheDocument();
+    });
+
+    const selects = screen.getAllByRole('combobox');
+    // Situação de aprovação é o segundo select no painel de finalizadas
+    fireEvent.mouseDown(selects[1]);
+    const optionAprovado = screen.getByTitle('Aprovado');
+    fireEvent.click(optionAprovado);
+
+    fireEvent.click(screen.getByTestId('mobile-filter-panel-apply-btn'));
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith(
+        expect.stringContaining('SituacaoAprovacao=1'),
+        expect.any(Object),
+      );
+      // Filtragem client-side deve manter apenas o aprovado
+      expect(screen.getByTestId('status-aprovacao-badge-10')).toBeInTheDocument();
+      expect(screen.queryByTestId('status-aprovacao-badge-11')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('status-aprovacao-badge-12')).not.toBeInTheDocument();
     });
   });
 });

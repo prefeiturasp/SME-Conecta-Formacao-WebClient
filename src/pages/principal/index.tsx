@@ -18,7 +18,10 @@ const SiderWrapper = styled.div`
 const LayoutWrapper = styled.div`
   width: 100%;
   min-height: 100vh;
-  overflow-x: hidden;
+
+  @media (max-width: 768px) {
+    overflow-x: hidden;
+  }
 
   .conecta-layout-interno {
     min-height: 100vh;

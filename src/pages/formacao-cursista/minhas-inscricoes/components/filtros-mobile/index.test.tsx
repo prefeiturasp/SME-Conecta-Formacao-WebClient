@@ -37,7 +37,11 @@ afterAll(() => {
   window.getComputedStyle = originalGetComputedStyle;
 });
 
-import MinhasInscricoesFiltrosMobile, { contarFiltrosAplicados, situacoesOptions } from './index';
+import MinhasInscricoesFiltrosMobile, {
+  contarFiltrosAplicados,
+  situacoesOptions,
+  situacaoAprovacaoOptions,
+} from './index';
 
 describe('MinhasInscricoesFiltrosMobile', () => {
   const defaultProps = {
@@ -165,7 +169,7 @@ describe('MinhasInscricoesFiltrosMobile', () => {
   it('deve selecionar uma opção no select de situação da aba finalizadas', () => {
     render(<MinhasInscricoesFiltrosMobile {...defaultProps} abaAtiva='finalizadas' />);
 
-    const combobox = screen.getByRole('combobox');
+    const combobox = screen.getAllByRole('combobox')[0];
     fireEvent.mouseDown(combobox);
     const option = screen.getByTitle('Transferida');
     fireEvent.click(option);
@@ -250,17 +254,20 @@ describe('MinhasInscricoesFiltrosMobile', () => {
 
       expect(contarFiltrosAplicados({ DataInicial: dayjs() }, 'finalizadas')).toBe(1);
 
+      expect(contarFiltrosAplicados({ SituacaoAprovacao: 1 }, 'finalizadas')).toBe(1);
+
       expect(
         contarFiltrosAplicados(
           {
             NomeFormacao: 'Concluído',
             SituacaoInscricao: 1,
+            SituacaoAprovacao: 2,
             DataInicial: dayjs(),
             DataFinal: dayjs(),
           },
           'finalizadas',
         ),
-      ).toBe(3);
+      ).toBe(4);
     });
   });
 
@@ -274,5 +281,33 @@ describe('MinhasInscricoesFiltrosMobile', () => {
       'Em espera',
       'Transferida',
     ]);
+  });
+
+  it('deve ter as 3 opções de situação de aprovação com os valores corretos', () => {
+    expect(situacaoAprovacaoOptions).toHaveLength(3);
+    expect(situacaoAprovacaoOptions).toEqual([
+      { label: 'Aprovado', value: 1 },
+      { label: 'Reprovado', value: 2 },
+      { label: 'Não inscrito', value: 3 },
+    ]);
+  });
+
+  it('deve selecionar uma opção no select de situação de aprovação na aba finalizadas', () => {
+    render(<MinhasInscricoesFiltrosMobile {...defaultProps} abaAtiva='finalizadas' />);
+
+    const comboboxes = screen.getAllByRole('combobox');
+    // comboboxes[0] é situacao-finalizadas, comboboxes[1] é situacao-aprovacao-finalizadas
+    fireEvent.mouseDown(comboboxes[1]);
+    const option = screen.getByTitle('Aprovado');
+    fireEvent.click(option);
+
+    const btnBuscar = screen.getByTestId('mobile-filter-panel-apply-btn');
+    fireEvent.click(btnBuscar);
+
+    expect(defaultProps.onApply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        SituacaoAprovacao: 1,
+      }),
+    );
   });
 });

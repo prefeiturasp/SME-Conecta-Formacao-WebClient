@@ -15,6 +15,7 @@ export interface FiltrosMinhasInscricoesValues {
   DataFinal?: Dayjs | null;
   Situacao?: number;
   SituacaoInscricao?: number;
+  SituacaoAprovacao?: number;
 }
 
 export interface MinhasInscricoesFiltrosMobileProps {
@@ -112,6 +113,12 @@ export const situacoesOptions = [
   { label: 'Transferida', value: 6 },
 ];
 
+export const situacaoAprovacaoOptions = [
+  { label: 'Aprovado', value: 1 },
+  { label: 'Reprovado', value: 2 },
+  { label: 'Não inscrito', value: 3 },
+];
+
 export const contarFiltrosAplicados = (
   filtros: FiltrosMinhasInscricoesValues,
   abaAtiva: 'andamento' | 'finalizadas',
@@ -158,6 +165,9 @@ export const contarFiltrosAplicados = (
       count += 1;
     }
     if (filtros.SituacaoInscricao !== undefined && filtros.SituacaoInscricao !== null) {
+      count += 1;
+    }
+    if (filtros.SituacaoAprovacao !== undefined && filtros.SituacaoAprovacao !== null) {
       count += 1;
     }
     if (filtros.DataInicial || filtros.DataFinal) {
@@ -325,6 +335,21 @@ export const MinhasInscricoesFiltrosMobile: React.FC<MinhasInscricoesFiltrosMobi
               onChange={(val) => handleChange('SituacaoInscricao', val)}
               allowClear
               data-testid='filtro-situacao-finalizadas'
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <FormLabel htmlFor='mobile-filtro-situacao-aprovacao-finalizadas'>
+              Situação de aprovação
+            </FormLabel>
+            <StyledSelect
+              id='mobile-filtro-situacao-aprovacao-finalizadas'
+              placeholder='Selecione'
+              options={situacaoAprovacaoOptions}
+              value={draftFiltros.SituacaoAprovacao}
+              onChange={(val) => handleChange('SituacaoAprovacao', val)}
+              allowClear
+              data-testid='filtro-situacao-aprovacao-finalizadas'
             />
           </FormGroup>
 

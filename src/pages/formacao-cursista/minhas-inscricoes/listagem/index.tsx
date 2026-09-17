@@ -1,14 +1,4 @@
-import {
-  Button,
-  Col,
-  Empty,
-  Row,
-  Tabs,
-  Form,
-  Input,
-  Select,
-  DatePicker,
-} from 'antd';
+import { Button, Col, Empty, Row, Tabs, Form, Input, Select, DatePicker } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useContext, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,16 +13,10 @@ import {
   DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA,
   DESEJA_CANCELAR_INSCRICAO_CURSISTA,
 } from '~/core/constants/mensagens';
-import {
-  TipoPerfilEnum,
-  TipoPerfilTagDisplay,
-} from '~/core/enum/tipo-perfil';
+import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { confirmacao } from '~/core/services/alerta-service';
-import {
-  URL_INSCRICAO,
-  cancelarInscricao,
-} from '~/core/services/inscricao-service';
+import { URL_INSCRICAO, cancelarInscricao } from '~/core/services/inscricao-service';
 import ModalEditCargoFuncaoButton from '../components/modal-edit-cargo-funcao/modal-edit-cargo-funcao-button';
 import ptBR from 'antd/es/date-picker/locale/pt_BR';
 import 'dayjs/locale/pt-br';
@@ -53,6 +37,9 @@ export interface InscricaoProps {
   podeCancelar: boolean;
   integrarNoSga: boolean;
   iniciado: boolean;
+  situacaoAprovacao?: string | number;
+  dataInscricao?: string;
+  origem?: string;
 }
 
 type AbaType = 'andamento' | 'finalizadas';
@@ -61,13 +48,9 @@ export const MinhasInscricoesListaPaginada = () => {
   const { tableState } = useContext(DataTableContext);
   const navigate = useNavigate();
 
-  const perfilSelecionado = useAppSelector(
-    (store) => store.perfil.perfilSelecionado?.perfilNome,
-  );
+  const perfilSelecionado = useAppSelector((store) => store.perfil.perfilSelecionado?.perfilNome);
 
-  const ehCursista =
-    perfilSelecionado ===
-    TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
+  const ehCursista = perfilSelecionado === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
 
   const [form] = Form.useForm();
   const [abaAtiva, setAbaAtiva] = useState<AbaType>('andamento');
@@ -85,7 +68,7 @@ export const MinhasInscricoesListaPaginada = () => {
       }
     >
       <Button
-        type="primary"
+        type='primary'
         onClick={() => navigate(ROUTES.AREA_PUBLICA)}
         style={{ backgroundColor: '#FF9A52', borderColor: '#FF9A52' }}
       >
@@ -94,18 +77,20 @@ export const MinhasInscricoesListaPaginada = () => {
     </Empty>
   );
 
-  const mensagemConfirmacao = (record: InscricaoProps) => {
-    if (record.integrarNoSga && record.iniciado && ehCursista)
-      return DESEJA_CANCELAR_INSCRICAO_CURSISTA;
+  const mensagemConfirmacao = useCallback(
+    (record: InscricaoProps) => {
+      if (record.integrarNoSga && record.iniciado && ehCursista)
+        return DESEJA_CANCELAR_INSCRICAO_CURSISTA;
 
-    if (record.integrarNoSga && record.iniciado && !ehCursista)
-      return DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA;
+      if (record.integrarNoSga && record.iniciado && !ehCursista)
+        return DESEJA_CANCELAR_INSCRICAO_AREA_PROMOTORA;
 
-    if (!record.integrarNoSga && !record.iniciado && !ehCursista)
-      return CANCELAR_INSCRICAO;
+      if (!record.integrarNoSga && !record.iniciado && !ehCursista) return CANCELAR_INSCRICAO;
 
-    return DESEJA_CANCELAR_INSCRICAO;
-  };
+      return DESEJA_CANCELAR_INSCRICAO;
+    },
+    [ehCursista],
+  );
 
   const handleCancelar = useCallback(
     async (record: InscricaoProps) => {
@@ -125,7 +110,7 @@ export const MinhasInscricoesListaPaginada = () => {
         },
       });
     },
-    [tableState],
+    [tableState, mensagemConfirmacao],
   );
 
   const handleFiltroChange = (_: any, allValues: any) => {
@@ -142,9 +127,7 @@ export const MinhasInscricoesListaPaginada = () => {
     }
 
     if (allValues.DataInscricao) {
-      novosFiltros.DataInscricao = dayjs(
-        allValues.DataInscricao,
-      ).format('YYYY-MM-DD');
+      novosFiltros.DataInscricao = dayjs(allValues.DataInscricao).format('YYYY-MM-DD');
     }
 
     delete novosFiltros.periodo;
@@ -154,9 +137,7 @@ export const MinhasInscricoesListaPaginada = () => {
 
   const url = useMemo(() => {
     const base =
-      abaAtiva === 'andamento'
-        ? `${URL_INSCRICAO}/proximas`
-        : `${URL_INSCRICAO}/finalizadas`;
+      abaAtiva === 'andamento' ? `${URL_INSCRICAO}/proximas` : `${URL_INSCRICAO}/finalizadas`;
 
     const params = new URLSearchParams();
 
@@ -197,9 +178,7 @@ export const MinhasInscricoesListaPaginada = () => {
       render: (_, record) => (
         <>
           {record.cargoFuncao}
-          {record.cargoFuncao && (
-            <ModalEditCargoFuncaoButton record={record} />
-          )}
+          {record.cargoFuncao && <ModalEditCargoFuncaoButton record={record} />}
         </>
       ),
     },
@@ -211,11 +190,7 @@ export const MinhasInscricoesListaPaginada = () => {
     {
       title: 'Ações',
       render: (_, record) => (
-        <Button
-          size="small"
-          disabled={!record.podeCancelar}
-          onClick={() => handleCancelar(record)}
-        >
+        <Button size='small' disabled={!record.podeCancelar} onClick={() => handleCancelar(record)}>
           Cancelar inscrição
         </Button>
       ),
@@ -237,31 +212,39 @@ export const MinhasInscricoesListaPaginada = () => {
   ];
 
   const renderFiltros = () => (
-    <Form
-      layout="vertical"
-      form={form}
-      onValuesChange={handleFiltroChange}
-    >
+    <Form layout='vertical' form={form} onValuesChange={handleFiltroChange}>
       <Row gutter={[16, 16]}>
         {abaAtiva === 'andamento' && (
           <>
             <Col xs={24} md={12} lg={8}>
-              <Form.Item name="CodigoFormacao" label="Código da formação" labelCol={{ style: { fontWeight: 600 } }}>
+              <Form.Item
+                name='CodigoFormacao'
+                label='Código da formação'
+                labelCol={{ style: { fontWeight: 600 } }}
+              >
                 <Input allowClear />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12} lg={8}>
-              <Form.Item name="NomeFormacao" label="Nome da formação" labelCol={{ style: { fontWeight: 600 } }}>
+              <Form.Item
+                name='NomeFormacao'
+                label='Nome da formação'
+                labelCol={{ style: { fontWeight: 600 } }}
+              >
                 <Input allowClear />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12} lg={8}>
-              <Form.Item name="DataInscricao" label="Data da inscrição" labelCol={{ style: { fontWeight: 600 } }}>
+              <Form.Item
+                name='DataInscricao'
+                label='Data da inscrição'
+                labelCol={{ style: { fontWeight: 600 } }}
+              >
                 <DatePicker
                   style={{ width: '100%' }}
-                  format="DD/MM/YYYY"
+                  format='DD/MM/YYYY'
                   locale={ptBR}
                   allowClear
                 />
@@ -269,19 +252,20 @@ export const MinhasInscricoesListaPaginada = () => {
             </Col>
 
             <Col xs={24} md={12} lg={8}>
-              <Form.Item name="NomeTurma" label="Turma" labelCol={{ style: { fontWeight: 600 } }}>
+              <Form.Item name='NomeTurma' label='Turma' labelCol={{ style: { fontWeight: 600 } }}>
                 <Input allowClear />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12} lg={8}>
               <Form.Item
-                name="periodo"
-                label="Período de realização da formação"
-                labelCol={{ style: { fontWeight: 600 } }}>
+                name='periodo'
+                label='Período de realização da formação'
+                labelCol={{ style: { fontWeight: 600 } }}
+              >
                 <RangePicker
                   style={{ width: '100%' }}
-                  format="DD/MM/YYYY"
+                  format='DD/MM/YYYY'
                   locale={ptBR}
                   allowEmpty={[true, true]}
                   allowClear
@@ -290,9 +274,8 @@ export const MinhasInscricoesListaPaginada = () => {
             </Col>
 
             <Col xs={24} md={12} lg={8}>
-              <Form.Item name="Situacao" label="Situação" labelCol={{ style: { fontWeight: 600 } }}>
-                <Select options={situacoesOptions}
-                  allowClear />
+              <Form.Item name='Situacao' label='Situação' labelCol={{ style: { fontWeight: 600 } }}>
+                <Select options={situacoesOptions} allowClear />
               </Form.Item>
             </Col>
           </>
@@ -301,21 +284,25 @@ export const MinhasInscricoesListaPaginada = () => {
         {abaAtiva === 'finalizadas' && (
           <>
             <Col xs={24} md={12}>
-              <Form.Item name="NomeFormacao" label="Nome da formação" labelCol={{ style: { fontWeight: 600 } }}>
+              <Form.Item
+                name='NomeFormacao'
+                label='Nome da formação'
+                labelCol={{ style: { fontWeight: 600 } }}
+              >
                 <Input allowClear />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                name="SituacaoInscricao"
-                label="Situação da inscrição"
-                labelCol={{ style: { fontWeight: 600 } }}>
-                <Select options={situacoesOptions} 
-                  allowClear />
+                name='SituacaoInscricao'
+                label='Situação da inscrição'
+                labelCol={{ style: { fontWeight: 600 } }}
+              >
+                <Select options={situacoesOptions} allowClear />
               </Form.Item>
             </Col>
-{/* 
+            {/*
             <Col xs={24} md={12}>
               <Form.Item
                 name="SituacaoAprovacao"
@@ -326,10 +313,14 @@ export const MinhasInscricoesListaPaginada = () => {
             </Col> */}
 
             <Col xs={24} md={12}>
-              <Form.Item name="periodo" label="Período da formação" labelCol={{ style: { fontWeight: 600 } }}>
+              <Form.Item
+                name='periodo'
+                label='Período da formação'
+                labelCol={{ style: { fontWeight: 600 } }}
+              >
                 <RangePicker
                   style={{ width: '100%' }}
-                  format="DD/MM/YYYY"
+                  format='DD/MM/YYYY'
                   locale={ptBR}
                   allowEmpty={[true, true]}
                   allowClear
@@ -341,11 +332,11 @@ export const MinhasInscricoesListaPaginada = () => {
       </Row>
     </Form>
   );
-      
+
   return (
-  <>
-    <style>
-      {`
+    <>
+      <style>
+        {`
         .abas-inscricoes .ant-tabs-nav {
           width: 100%;
         }
@@ -390,64 +381,66 @@ export const MinhasInscricoesListaPaginada = () => {
           margin-bottom: 16px;
         }
       `}
-    </style>
+      </style>
 
-    <Tabs
-      className="abas-inscricoes"
-      type="card"
-      activeKey={abaAtiva}
-      onChange={(key) => {
-        setAbaAtiva(key as AbaType);
-        form.resetFields();
-        setFiltros({});
-      }}
-      items={[
-        {
-          key: 'andamento',
-          label: 'Formações em andamento',
-          children: (
-            <>
-              <div className="tabs-mensagem">
-                Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar os cursos que ainda vão acontecer e aqueles que já foram concluídos.
-              </div>
+      <Tabs
+        className='abas-inscricoes'
+        type='card'
+        activeKey={abaAtiva}
+        onChange={(key) => {
+          setAbaAtiva(key as AbaType);
+          form.resetFields();
+          setFiltros({});
+        }}
+        items={[
+          {
+            key: 'andamento',
+            label: 'Formações em andamento',
+            children: (
+              <>
+                <div className='tabs-mensagem'>
+                  Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar
+                  os cursos que ainda vão acontecer e aqueles que já foram concluídos.
+                </div>
 
-              <div className="tabs-linha" style={{ margin: '35px 0' }} />
+                <div className='tabs-linha' style={{ margin: '35px 0' }} />
 
-              {renderFiltros()}
+                {renderFiltros()}
 
-              <DataTable
-                url={url}
-                columns={columnsAndamento}
-                locale={{ emptyText: emptyState }}
-                hideHeaderOnEmpty
-              />
-            </>
-          ),
-        },
-        {
-          key: 'finalizadas',
-          label: 'Formações finalizadas',
-          children: (
-            <>
-              <div className="tabs-mensagem">
-                Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar os cursos que ainda vão acontecer e aqueles que já foram concluídos.
-              </div>
+                <DataTable
+                  url={url}
+                  columns={columnsAndamento}
+                  locale={{ emptyText: emptyState }}
+                  hideHeaderOnEmpty
+                />
+              </>
+            ),
+          },
+          {
+            key: 'finalizadas',
+            label: 'Formações finalizadas',
+            children: (
+              <>
+                <div className='tabs-mensagem'>
+                  Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar
+                  os cursos que ainda vão acontecer e aqueles que já foram concluídos.
+                </div>
 
-              <div className="tabs-linha" style={{ margin: '35px 0' }} />
+                <div className='tabs-linha' style={{ margin: '35px 0' }} />
 
-              {renderFiltros()}
+                {renderFiltros()}
 
-              <DataTable
-                url={url}
-                columns={columnsFinalizadas}
-                locale={{ emptyText: emptyState }}
-                hideHeaderOnEmpty
-              />
-            </>
-          ),
-        },
-      ]}
-    />
-  </>
+                <DataTable
+                  url={url}
+                  columns={columnsFinalizadas}
+                  locale={{ emptyText: emptyState }}
+                  hideHeaderOnEmpty
+                />
+              </>
+            ),
+          },
+        ]}
+      />
+    </>
   );
 };

@@ -131,4 +131,17 @@ describe('ModalDetalhesInscricao', () => {
     expect(screen.queryByText('SGP')).not.toBeInTheDocument();
     expect(screen.queryByTestId('mock-edit-cargo-btn')).not.toBeInTheDocument();
   });
+
+  it('deve renderizar a badge de situação de aprovação na aba finalizadas', () => {
+    render(
+      <ModalDetalhesInscricao
+        {...defaultProps}
+        aba='finalizadas'
+        record={{ ...mockRecord, situacaoAprovacao: 1 }}
+      />,
+    );
+
+    expect(screen.getByTestId('modal-detalhes-status')).toHaveTextContent('Confirmada');
+    expect(screen.getByTestId('modal-detalhes-status-aprovacao')).toHaveTextContent('Aprovado');
+  });
 });
