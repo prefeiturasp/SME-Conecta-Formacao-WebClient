@@ -117,4 +117,11 @@ describe('VoltarAoTopoButton', () => {
     fireEvent.scroll(window);
     expect(screen.getByTestId('btn-voltar-ao-topo')).toBeInTheDocument();
   });
+
+  it('deve renderizar o botao imediatamente quando sempreVisivel for true', () => {
+    Object.defineProperty(window, 'scrollY', { value: 0 });
+    render(<VoltarAoTopoButton sempreVisivel />);
+
+    expect(screen.getByTestId('btn-voltar-ao-topo')).toBeInTheDocument();
+  });
 });

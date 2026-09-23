@@ -1,4 +1,4 @@
-import { UpOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Colors } from '~/core/styles/colors';
@@ -38,8 +38,9 @@ const BotaoTopoContainer = styled.button`
   }
 `;
 
-interface VoltarAoTopoButtonProps {
+export interface VoltarAoTopoButtonProps {
   limiteScroll?: number;
+  sempreVisivel?: boolean;
 }
 
 export const obterPosicaoScroll = (): number => {
@@ -57,10 +58,18 @@ export const obterPosicaoScroll = (): number => {
   return 0;
 };
 
-const VoltarAoTopoButton: React.FC<VoltarAoTopoButtonProps> = ({ limiteScroll = 250 }) => {
-  const [visivel, setVisivel] = useState(false);
+const VoltarAoTopoButton: React.FC<VoltarAoTopoButtonProps> = ({
+  limiteScroll = 250,
+  sempreVisivel = false,
+}) => {
+  const [visivel, setVisivel] = useState(sempreVisivel);
 
   useEffect(() => {
+    if (sempreVisivel) {
+      setVisivel(true);
+      return;
+    }
+
     const handleScroll = () => {
       const scrollAtual = obterPosicaoScroll();
       setVisivel(scrollAtual > limiteScroll);
@@ -72,7 +81,7 @@ const VoltarAoTopoButton: React.FC<VoltarAoTopoButtonProps> = ({ limiteScroll = 
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [limiteScroll]);
+  }, [limiteScroll, sempreVisivel]);
 
   const rolarParaTopo = () => {
     window.scrollTo({
@@ -93,7 +102,7 @@ const VoltarAoTopoButton: React.FC<VoltarAoTopoButtonProps> = ({ limiteScroll = 
       title='Voltar ao topo'
       data-testid='btn-voltar-ao-topo'
     >
-      <UpOutlined style={{ fontSize: 18 }} />
+      <ArrowUpOutlined style={{ fontSize: 20, color: '#FFFFFF' }} />
     </BotaoTopoContainer>
   );
 };
