@@ -118,18 +118,18 @@ const ContextDescription = styled.p`
   line-height: 1.4;
 `;
 
-const SearchFilterRow = styled.div`
+const SearchFilterSection = styled.div`
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 12px;
   width: 100%;
 `;
 
 const SearchInputWrapper = styled.div`
-  flex: 1;
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 `;
 
 const SearchInput = styled.input`
@@ -163,11 +163,8 @@ const SearchIconWrapper = styled.div`
   align-items: center;
 `;
 
-const FilterButtonWrapper = styled.div`
-  position: relative;
-`;
-
 const FilterButton = styled.button`
+  width: 100%;
   height: 40px;
   background-color: #ffffff;
   border: 1px solid #ff9a52;
@@ -178,10 +175,12 @@ const FilterButton = styled.button`
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 14px;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  position: relative;
   transition: all 0.2s ease;
-  white-space: nowrap;
+  box-sizing: border-box;
 
   &:hover,
   &:focus-visible {
@@ -191,19 +190,21 @@ const FilterButton = styled.button`
 
 const FilterBadge = styled.span`
   position: absolute;
-  top: -6px;
-  right: -6px;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   background-color: #ff9a52;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
 `;
 
 const CardsList = styled.div`
@@ -481,6 +482,15 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
     setPainelFiltrosAberto(false);
   };
 
+  const handleBotaoFiltrosClick = () => {
+    if (quantidadeFiltros > 0) {
+      setFiltrosAvancados({});
+      setPaginaAtual(1);
+    } else {
+      setPainelFiltrosAberto(true);
+    }
+  };
+
   const mensagemConfirmacao = (record: InscricaoProps) => {
     if (record.integrarNoSga && record.iniciado && ehCursista) {
       return DESEJA_CANCELAR_INSCRICAO_CURSISTA;
@@ -566,7 +576,7 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
           : 'Confira aqui todas as formações em que você se inscreveu. Use as abas para acessar os cursos que ainda vão acontecer e aqueles que já foram concluídos.'}
       </ContextDescription>
 
-      <SearchFilterRow>
+      <SearchFilterSection data-testid='search-filter-section'>
         <SearchInputWrapper>
           <SearchInput
             type='text'
@@ -580,20 +590,21 @@ export const MinhasInscricoesMobile: React.FC<MinhasInscricoesMobileProps> = ({
           </SearchIconWrapper>
         </SearchInputWrapper>
 
-        <FilterButtonWrapper>
-          <FilterButton
-            type='button'
-            onClick={() => setPainelFiltrosAberto(true)}
-            data-testid='btn-abrir-filtros'
-          >
-            <SlidersIcon />
-            <span>Filtros</span>
-          </FilterButton>
+        <FilterButton
+          type='button'
+          onClick={handleBotaoFiltrosClick}
+          data-testid='btn-abrir-filtros'
+          aria-label={quantidadeFiltros > 0 ? 'Limpar filtros' : 'Filtros'}
+        >
+          <SlidersIcon />
+          <span>{quantidadeFiltros > 0 ? 'Limpar filtros' : 'Filtros'}</span>
           {quantidadeFiltros > 0 && (
-            <FilterBadge data-testid='badge-filtros'>{quantidadeFiltros}</FilterBadge>
+            <FilterBadge data-testid='badge-filtros'>
+              {quantidadeFiltros < 10 ? `0${quantidadeFiltros}` : quantidadeFiltros}
+            </FilterBadge>
           )}
-        </FilterButtonWrapper>
-      </SearchFilterRow>
+        </FilterButton>
+      </SearchFilterSection>
 
       {loading ? (
         <div

@@ -203,17 +203,26 @@ describe('MinhasInscricoesMobile', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('badge-filtros')).toHaveTextContent('1');
+      expect(screen.getByTestId('btn-abrir-filtros')).toHaveTextContent('Limpar filtros');
     });
 
-    // Reabrir e limpar filtros
+    // Clicar no botão "Limpar filtros" limpa os filtros diretamente sem abrir o painel
     fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
-    await waitFor(() => {
-      expect(screen.getByTestId('mobile-filter-panel-clear-btn')).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByTestId('mobile-filter-panel-clear-btn'));
 
     await waitFor(() => {
       expect(screen.queryByTestId('badge-filtros')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('mobile-filter-panel')).not.toBeInTheDocument();
+      expect(screen.getByTestId('btn-abrir-filtros')).toHaveTextContent('Filtros');
+    });
+
+    // Abrir painel e testar botão de limpar interno do painel (handleClearFiltros)
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+    await waitFor(() => {
+      expect(screen.getByTestId('mobile-filter-panel')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId('mobile-filter-panel-clear-btn'));
+    await waitFor(() => {
+      expect(screen.queryByTestId('mobile-filter-panel')).not.toBeInTheDocument();
     });
   });
 
@@ -671,5 +680,114 @@ describe('MinhasInscricoesMobile', () => {
       expect(screen.queryByTestId('status-aprovacao-badge-11')).not.toBeInTheDocument();
       expect(screen.queryByTestId('status-aprovacao-badge-12')).not.toBeInTheDocument();
     });
+
+    // Limpar filtros clicando no botão Limpar filtros
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+    await waitFor(() => {
+      expect(screen.getByTestId('btn-abrir-filtros')).toHaveTextContent('Filtros');
+    });
+
+    // Reabrir e filtrar por Reprovado (2)
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+    await waitFor(() => {
+      expect(screen.getByTestId('mobile-filter-panel')).toBeInTheDocument();
+    });
+
+    const selects2 = screen.getAllByRole('combobox');
+    fireEvent.mouseDown(selects2[1]);
+    const optionReprovado = screen.getByTitle('Reprovado');
+    fireEvent.click(optionReprovado);
+    fireEvent.click(screen.getByTestId('mobile-filter-panel-apply-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status-aprovacao-badge-11')).toBeInTheDocument();
+      expect(screen.queryByTestId('status-aprovacao-badge-10')).not.toBeInTheDocument();
+    });
+
+    // Limpar filtros e filtrar por Não inscrito (3)
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+    await waitFor(() => {
+      expect(screen.getByTestId('btn-abrir-filtros')).toHaveTextContent('Filtros');
+    });
+
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+    await waitFor(() => {
+      expect(screen.getByTestId('mobile-filter-panel')).toBeInTheDocument();
+    });
+
+    const selects3 = screen.getAllByRole('combobox');
+    fireEvent.mouseDown(selects3[1]);
+    const optionNaoInscrito = screen.getByTitle('Não inscrito');
+    fireEvent.click(optionNaoInscrito);
+    fireEvent.click(screen.getByTestId('mobile-filter-panel-apply-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status-aprovacao-badge-12')).toBeInTheDocument();
+      expect(screen.queryByTestId('status-aprovacao-badge-10')).not.toBeInTheDocument();
+    });
+  });
+
+  it('deve alternar entre os estados Filtros e Limpar filtros no botão e controlar o painel e limpeza', async () => {
+    render(<MinhasInscricoesMobile />);
+
+    // 1. Sem filtros: label "Filtros", badge ausente, clique abre painel
+    const btnFiltros = screen.getByTestId('btn-abrir-filtros');
+    expect(btnFiltros).toHaveTextContent('Filtros');
+    expect(screen.queryByTestId('badge-filtros')).not.toBeInTheDocument();
+
+    fireEvent.click(btnFiltros);
+    await waitFor(() => {
+      expect(screen.getByTestId('mobile-filter-panel')).toBeInTheDocument();
+    });
+
+    // Preenche campo de busca e 2 filtros avançados
+    fireEvent.change(screen.getByTestId('input-busca-rapida'), {
+      target: { value: 'Robótica' },
+    });
+    fireEvent.change(screen.getByTestId('filtro-codigo-formacao'), {
+      target: { value: '102' },
+    });
+    fireEvent.change(screen.getByTestId('filtro-turma'), {
+      target: { value: 'Turma R1' },
+    });
+
+    fireEvent.click(screen.getByTestId('mobile-filter-panel-apply-btn'));
+
+    // 2. Com filtros aplicados: label "Limpar filtros", badge presente com valor "02"
+    await waitFor(() => {
+      expect(screen.getByTestId('badge-filtros')).toHaveTextContent('02');
+      expect(screen.getByTestId('btn-abrir-filtros')).toHaveTextContent('Limpar filtros');
+    });
+
+    // Clique NÃO abre o painel e limpa os filtros avançados, preservando busca rápida
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('mobile-filter-panel')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('badge-filtros')).not.toBeInTheDocument();
+      // 3. Label volta para "Filtros"
+      expect(screen.getByTestId('btn-abrir-filtros')).toHaveTextContent('Filtros');
+      // Busca rápida foi preservada
+      expect(screen.getByTestId('input-busca-rapida')).toHaveValue('Robótica');
+    });
+
+    // Botão volta a abrir painel
+    fireEvent.click(screen.getByTestId('btn-abrir-filtros'));
+    await waitFor(() => {
+      expect(screen.getByTestId('mobile-filter-panel')).toBeInTheDocument();
+    });
+  });
+
+  it('deve renderizar a busca em linha própria e o botão de filtros abaixo da busca no layout mobile', () => {
+    render(<MinhasInscricoesMobile />);
+
+    const searchFilterSection = screen.getByTestId('search-filter-section');
+    expect(searchFilterSection).toBeInTheDocument();
+
+    const inputBusca = screen.getByTestId('input-busca-rapida');
+    const btnFiltros = screen.getByTestId('btn-abrir-filtros');
+
+    expect(searchFilterSection).toContainElement(inputBusca);
+    expect(searchFilterSection).toContainElement(btnFiltros);
   });
 });
