@@ -39,7 +39,18 @@ jest.mock('~/components/main/sider/menus', () => ({
   menus: [
     {
       key: 6,
-      children: [{ key: 11 }, { key: 13 }],
+      children: [
+        { key: 11 },
+        {
+          key: 13,
+          roles: {
+            podeConsultar: '307',
+            podeIncluir: '308',
+            podeExcluir: '309',
+            podeAlterar: '310',
+          },
+        },
+      ],
     },
   ],
   RolesMenu: {},
@@ -418,13 +429,13 @@ describe('Perfil Utils', () => {
       expect(mockStore.dispatch).toHaveBeenCalled();
     });
    
-    test('deve exibir pesquisar certificados apenas para Admin DF', () => {
+    test('deve exibir pesquisar certificados quando usuário possui permissão', () => {
       const mockData = {
         token: 'mock-token',
         perfilUsuario: [
           {
             perfil: '1',
-            perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF],
+            perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.DF],
           },
         ],
         usuarioNome: 'Teste',
@@ -436,7 +447,7 @@ describe('Perfil Utils', () => {
 
       const mockDecoded = {
         perfil: '1',
-        roles: [PermissaoEnum.Inscricao_C],
+        roles: [PermissaoEnum.PesquisaCertificados_C],
       };
 
       jwt_decode.mockReturnValue(mockDecoded);
@@ -447,11 +458,10 @@ describe('Perfil Utils', () => {
         .map(([action]) => action)
         .find((action) => action.type === typeSetPermissaoPorMenu);
 
-      expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]).toBeDefined();
+      expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]?.exibir).toBe(true);
     });
 
-
-    test('não deve exibir pesquisar certificados para outros tipos de usuários', () => {
+    test('não deve exibir pesquisar certificados quando usuário não tem permissão', () => {
       const mockData = {
         token: 'mock-token',
         perfilUsuario: [
@@ -463,7 +473,7 @@ describe('Perfil Utils', () => {
             perfil: '2',
             perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.Cursista],
           },
-            {
+          {
             perfil: '3',
             perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.Parecerista],
           },
@@ -488,7 +498,7 @@ describe('Perfil Utils', () => {
         .map(([action]) => action)
         .find((action) => action.type === typeSetPermissaoPorMenu);
 
-      expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]).toBeUndefined();
+      expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]?.exibir).toBe(false);
     });
   });
 });

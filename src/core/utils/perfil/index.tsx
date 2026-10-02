@@ -35,7 +35,6 @@ const menuTemPermissao = (permissao: PermissaoMenusAcoesDTO) =>
 
 const carregarMenusEPermissao = (roles: RolesDTO['roles'], perfilNome?: string) => {
   const ehCursista = perfilNome === TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
-  const ehAdmin = perfilNome == TipoPerfilTagDisplay[TipoPerfilEnum.AdminDF];
 
   if (menus?.length) {
     const permissaoMenus: PermissaoPorMenuDTO[] = [];
@@ -64,11 +63,6 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles'], perfilNome?: string) 
             break;
           case MenuEnum.Certificados:
             if (ehCursista) {
-              permissaoMenus[subMenu.key] = permissaoMenu;
-            }
-            break;
-          case MenuEnum.CertificadosPesquisa:
-            if (ehAdmin) {
               permissaoMenus[subMenu.key] = permissaoMenu;
             }
             break;
