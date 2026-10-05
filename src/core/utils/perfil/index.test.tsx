@@ -418,7 +418,7 @@ describe('Perfil Utils', () => {
       expect(mockStore.dispatch).toHaveBeenCalled();
     });
    
-    test('deve exibir pesquisar certificados apenas para Admin DF', () => {
+    test('deve exibir pesquisar certificados para Admin DF', () => {
       const mockData = {
         token: 'mock-token',
         perfilUsuario: [
@@ -436,7 +436,7 @@ describe('Perfil Utils', () => {
 
       const mockDecoded = {
         perfil: '1',
-        roles: [PermissaoEnum.Inscricao_C],
+        roles: [PermissaoEnum.PesquisaCertificados_C],
       };
 
       jwt_decode.mockReturnValue(mockDecoded);
@@ -450,8 +450,39 @@ describe('Perfil Utils', () => {
       expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]).toBeDefined();
     });
 
+    test('deve exibir pesquisar certificados para DC NEER', () => {
+      const mockData = {
+        token: 'mock-token',
+        perfilUsuario: [
+          {
+            perfil: '2',
+            perfilNome: 'DC NEER',
+          },
+        ],
+        usuarioNome: 'Teste',
+        usuarioLogin: 'teste',
+        dataHoraExpiracao: '2025-12-31',
+        email: 'teste@teste.com',
+        autenticado: true,
+      } as any;
 
-    test('não deve exibir pesquisar certificados para outros tipos de usuários', () => {
+      const mockDecoded = {
+        perfil: '2',
+        roles: [PermissaoEnum.PesquisaCertificados_C],
+      };
+
+      jwt_decode.mockReturnValue(mockDecoded);
+
+      validarAutenticacao(mockData);
+
+      const permissaoPorMenuAction = mockStore.dispatch.mock.calls
+        .map(([action]) => action)
+        .find((action) => action.type === typeSetPermissaoPorMenu);
+
+      expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]).toBeDefined();
+    });
+
+    test('não deve exibir pesquisar certificados para outros tipos de usuários sem a permissão', () => {
       const mockData = {
         token: 'mock-token',
         perfilUsuario: [
@@ -463,7 +494,7 @@ describe('Perfil Utils', () => {
             perfil: '2',
             perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.Cursista],
           },
-            {
+          {
             perfil: '3',
             perfilNome: TipoPerfilTagDisplay[TipoPerfilEnum.Parecerista],
           },
