@@ -18,11 +18,6 @@ export enum PermissaoEnum {
   RedeParceria_I = '304',
   RedeParceria_E = '305',
   RedeParceria_A = '306',
-
- // ListaPresencaCodaf_C = '307',
- // ListaPresencaCodaf_I = '308',
- // ListaPresencaCodaf_E = '309',
- // ListaPresencaCodaf_A = '310',
   
   PesquisaCertificados_C = '307',
   PesquisaCertificados_I = '308',
