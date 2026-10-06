@@ -82,10 +82,10 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
       title: 'Pesquisar certificados',
       url: ROUTES.CERTIFICADOS_PESQUISA,
       roles: {
-        podeConsultar: PermissaoEnum.Inscricao_C,
-        podeIncluir: PermissaoEnum.Inscricao_I,
-        podeExcluir: PermissaoEnum.Inscricao_E,
-        podeAlterar: PermissaoEnum.Inscricao_A,
+        podeConsultar: PermissaoEnum.PesquisaCertificados_C,
+        podeIncluir: PermissaoEnum.PesquisaCertificados_I,
+        podeExcluir: PermissaoEnum.PesquisaCertificados_E,
+        podeAlterar: PermissaoEnum.PesquisaCertificados_A
       },
     },
     {
