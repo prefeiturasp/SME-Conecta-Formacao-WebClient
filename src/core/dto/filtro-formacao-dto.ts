@@ -6,4 +6,7 @@ export type FiltroFormacaoDTO = {
   dataFinal?: string;
   formatosIds?: number[];
   palavrasChavesIds?: number[];
+  codigoFormacao?: string;
+  codigoHomologacao?: string;
 };
+

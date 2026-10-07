@@ -3,15 +3,27 @@ import { useForm } from 'antd/es/form/Form';
 import { PaginationConfig } from 'antd/es/pagination';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import BreadcrumbConecta from '~/components/main/breadcrumb';
+import VoltarAoTopoButton from '~/components/main/button/voltar-topo';
 import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
 import { FiltroFormacaoFormDTO } from '~/core/dto/filtro-formacao-form-dto';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
+import { ROUTES } from '~/core/enum/routes-enum';
 import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { CardFiltroFormacao } from './components/card-filtro-formacao';
 import { CardFormacao } from './components/card-formacao';
 
 const { Title, Text } = Typography;
+
+const BreadcrumbWrapper = styled.div`
+  margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 12px;
+  }
+`;
 
 type ListParams = {
   pagination?: PaginationConfig;
@@ -43,16 +55,23 @@ export const ListFormacao: React.FC = () => {
     );
 
     const filtro: FiltroFormacaoDTO = {
-      areasPromotorasIds: values.areasPromotorasIds,
+      areasPromotorasIds: values?.areasPromotorasIds,
       dataInicial,
       dataFinal,
-      formatosIds: values.formatosIds,
-      palavrasChavesIds: values.palavrasChavesIds,
-      publicosAlvosIds: values.publicosAlvosIds,
-      titulo: values.titulo,
+      formatosIds: values?.formatosIds,
+      palavrasChavesIds: values?.palavrasChavesIds,
+      publicosAlvosIds: values?.publicosAlvosIds,
+      titulo: values?.titulo,
+      codigoFormacao: values?.codigoFormacao,
+      codigoHomologacao: values?.codigoHomologacao,
     };
 
     setFiltroFormacao(filtro);
+  };
+
+  const limparFiltros = () => {
+    formAreaPublica.resetFields();
+    setFiltroFormacao({});
   };
 
   const carregarDados = (listParams: ListParams, filtroFormacao: FiltroFormacaoDTO) => {
@@ -99,6 +118,15 @@ export const ListFormacao: React.FC = () => {
 
   return (
     <>
+      <BreadcrumbWrapper>
+        <BreadcrumbConecta
+          menu='Minhas inscrições'
+          mainPage='Minhas inscrições'
+          urlMainPage={ROUTES.MINHAS_INSCRICOES}
+          title='Explorar formações'
+        />
+      </BreadcrumbWrapper>
+
       <Form
         form={formAreaPublica}
         layout='vertical'
@@ -106,39 +134,36 @@ export const ListFormacao: React.FC = () => {
         style={{ width: '100%' }}
         onFinish={buscarInformacoes}
       >
-        <CardFiltroFormacao />
+        <CardFiltroFormacao form={formAreaPublica} onLimpar={limparFiltros} />
       </Form>
 
       <div style={{ marginTop: 24, marginBottom: 24 }}>
         <Title
           level={3}
           style={{
-            marginBottom: 12,
-            fontFamily: "Roboto",
+            marginBottom: 8,
+            fontFamily: 'Roboto',
             fontWeight: 700,
-            fontSize: "20px",
-            lineHeight: "100%",
-            letterSpacing: "0%",
+            fontSize: '20px',
+            lineHeight: '1.2',
+            color: '#42474A',
           }}
         >
           Próximas formações
         </Title>
-          <></>
         <Text
-          type="secondary"
+          type='secondary'
           style={{
-            color: "#2e2d2d",
-            fontFamily: "Roboto",
+            color: '#58616A',
+            fontFamily: 'Roboto',
             fontWeight: 400,
-            fontSize: "14px",
-            lineHeight: "100%",
-            letterSpacing: "0%",
+            fontSize: '14px',
+            lineHeight: '1.4',
           }}
         >
           Estas são as próximas formações planejadas. Antes de se inscrever, confira as restrições que podem haver para o seu perfil.
         </Text>
       </div>
-      
 
       <List
         grid={{ gutter: 16, xs: 1, sm: 2, md: 2, lg: 4, xl: 4, xxl: 4 }}
@@ -152,6 +177,9 @@ export const ListFormacao: React.FC = () => {
           </List.Item>
         )}
       />
+
+      <VoltarAoTopoButton />
     </>
   );
 };
+
