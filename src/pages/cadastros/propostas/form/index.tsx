@@ -140,7 +140,10 @@ const mapearHoraPeriodo = (inicio?: string, fim?: string): Dayjs[] | undefined =
     const dFim = dayjs.tz(fim);
     if (!dInicio.isValid() || !dFim.isValid()) return undefined;
     const temHoraInicio = dInicio.hour() !== 0 || dInicio.minute() !== 0;
-    const temHoraFim = dFim.hour() !== 0 || dFim.minute() !== 0;
+    const ehHoraFimPadrao =
+      (dFim.hour() === 0 && dFim.minute() === 0) ||
+      (dFim.hour() === 23 && dFim.minute() === 59);
+    const temHoraFim = !ehHoraFimPadrao;
     if (!temHoraInicio && !temHoraFim) return undefined;
     return [dInicio, dFim];
   } catch {
@@ -180,9 +183,10 @@ const resolverSituacao = (
   return situacao;
 };
 
-const formatarDataInscricao = (data?: Dayjs, hora?: Dayjs) => {
+const formatarDataInscricao = (data?: Dayjs, hora?: Dayjs, ehFim = false) => {
   if (!data) return undefined;
-  const horaFormatada = hora ? hora.format('HH:mm:00') : '00:00:00';
+  const horaPadrao = ehFim ? '23:59:59.999' : '00:00:00.000';
+  const horaFormatada = hora ? hora.format('HH:mm:00') : horaPadrao;
   return `${data.format('YYYY-MM-DD')}T${horaFormatada}`;
 };
 
@@ -192,10 +196,12 @@ const extrairDatasFormatadas = (values: PropostaFormDTO) => ({
   dataInscricaoInicio: formatarDataInscricao(
     values?.periodoInscricao?.[0],
     values?.horaInscricao?.[0],
+    false,
   ),
   dataInscricaoFim: formatarDataInscricao(
     values?.periodoInscricao?.[1],
     values?.horaInscricao?.[1],
+    true,
   ),
 });
 
@@ -614,6 +620,17 @@ export const FormCadastroDePropostas: React.FC = () => {
     const values: PropostaFormDTO = form.getFieldsValue(true);
     const clonedValues: PropostaFormDTO = cloneDeep(values);
     const datas = extrairDatasFormatadas(values);
+    if (
+      datas.dataInscricaoInicio &&
+      datas.dataInscricaoFim &&
+      datas.dataInscricaoInicio > datas.dataInscricaoFim
+    ) {
+      notification.warning({
+        message: 'Atenção',
+        description: 'A data de início da inscrição não pode ser posterior à data final',
+      });
+      return { sucesso: false };
+    }
     const toNumeroOuNull = (valor: unknown): number | null => {
       const valorFinal = (valor as { value?: unknown })?.value ?? valor;
 
@@ -821,7 +838,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         }
 
         salvar(false, situacao).then((response) => {
-          if (response.sucesso) {
+          if (response?.sucesso) {
             if (ehAreaPromotora) {
               carregarDados();
             } else if (confirmarAntesDeEnviarProposta) {
@@ -880,7 +897,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     if (ehPerfilAdminDf) {
       const salvarComConfirmacao = async (mensagemConfirmacao: string) => {
         await salvar(false).then((resposta) => {
-          if (resposta.sucesso) {
+          if (resposta?.sucesso) {
             confirmacao({
               content: mensagemConfirmacao,
               onOk() {

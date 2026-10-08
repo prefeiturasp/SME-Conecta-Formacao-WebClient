@@ -134,4 +134,10 @@ describe('FormularioDatas', () => {
     renderComForm(<FormularioDatas recarregarTurmas={false as any} />);
     expect(screen.getByText('TabelaMock')).toBeInTheDocument();
   });
+
+  it('deve conter o texto de tooltip atualizado com 23h59', () => {
+    renderComForm(<FormularioDatas recarregarTurmas={false as any} />);
+    const timePickerElement = screen.getByTestId('time-picker-periodo');
+    expect(timePickerElement.textContent).toContain('Hora de início e fim');
+  });
 });
