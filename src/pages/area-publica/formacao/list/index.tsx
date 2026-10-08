@@ -154,9 +154,8 @@ export const ListFormacao: React.FC = () => {
     <>
       <BreadcrumbWrapper>
         <BreadcrumbConecta
-          menu='Minhas inscrições'
           mainPage='Minhas inscrições'
-          urlMainPage={ROUTES.MINHAS_INSCRICOES}
+          urlMainPage={ROUTES.PRINCIPAL}
           title='Explorar formações'
         />
       </BreadcrumbWrapper>

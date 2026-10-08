@@ -117,14 +117,16 @@ export const FiltroFormacaoMobilePanel: FC<FiltroFormacaoMobilePanelProps> = ({
     onClose();
   };
 
-  const onChangeDataInicial = (val: Dayjs | null) => {
+  const onChangeDataInicial = (date: unknown) => {
+    const val = (date as Dayjs) || null;
     setDataInicial(val);
     if (form) {
       form.setFieldsValue({ data: val && dataFinal ? [val, dataFinal] : undefined });
     }
   };
 
-  const onChangeDataFinal = (val: Dayjs | null) => {
+  const onChangeDataFinal = (date: unknown) => {
+    const val = (date as Dayjs) || null;
     setDataFinal(val);
     if (form) {
       form.setFieldsValue({ data: dataInicial && val ? [dataInicial, val] : undefined });

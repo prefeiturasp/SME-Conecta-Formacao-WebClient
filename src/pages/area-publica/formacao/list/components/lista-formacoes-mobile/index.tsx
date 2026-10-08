@@ -72,14 +72,6 @@ const ContadorInscricoes = styled.span`
   text-align: center;
 `;
 
-const EmptyStateText = styled.div`
-  font-family: 'Roboto', sans-serif;
-  text-align: center;
-  padding: 40px 16px;
-  color: #929494;
-  font-size: 14px;
-`;
-
 const formatarNumero = (valor: number): string => (valor < 10 ? `0${valor}` : `${valor}`);
 
 export const mesclarFormacoes = (anteriores: FormacaoDTO[], novas: FormacaoDTO[]): FormacaoDTO[] => {
