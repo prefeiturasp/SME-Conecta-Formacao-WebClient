@@ -11,11 +11,16 @@ export const filterOptionInsensitive = (
 ): boolean => {
   if (!input) return true;
 
-  const normalizeText = (text: unknown) =>
-    String(text ?? '')
+  const normalizeText = (text: unknown): string => {
+    if (typeof text !== 'string' && typeof text !== 'number') {
+      return '';
+    }
+
+    return String(text)
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+      .replaceAll(/[\u0300-\u036f]/g, '');
+  };
 
   const search = normalizeText(input);
   const label = normalizeText(option?.label);

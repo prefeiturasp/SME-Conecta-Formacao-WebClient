@@ -88,6 +88,15 @@ describe('CardFiltroFormacao', () => {
       const option = { label: 'Qualquer opção', value: 5 };
       expect(filterOptionInsensitive('', option)).toBe(true);
     });
+
+    test('lida com opções com label/value numéricos ou indefinidos sem quebrar', () => {
+      const option = { label: undefined, value: 123 };
+      expect(filterOptionInsensitive('123', option)).toBe(true);
+      expect(filterOptionInsensitive('456', option)).toBe(false);
+
+      const optionComObjeto = { label: { id: 1 }, value: null };
+      expect(filterOptionInsensitive('teste', optionComObjeto)).toBe(false);
+    });
   });
 });
 
