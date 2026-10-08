@@ -95,7 +95,7 @@ export const ListFormacao: React.FC = () => {
   };
 
   const carregarDados = (listParams: ListParams, filtroFormacao: FiltroFormacaoDTO) => {
-    if (typeof globalThis.window !== 'undefined' && globalThis.window.innerWidth <= 768) {
+    if (globalThis.window !== undefined && globalThis.window.innerWidth <= 768) {
       return;
     }
 
@@ -125,7 +125,7 @@ export const ListFormacao: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (typeof globalThis.window !== 'undefined' && globalThis.window.innerWidth > 768 && formacoes.length === 0) {
+      if (globalThis.window !== undefined && globalThis.window.innerWidth > 768 && formacoes.length === 0) {
         carregarDados(listParams, filtroFormacao);
       }
     };
