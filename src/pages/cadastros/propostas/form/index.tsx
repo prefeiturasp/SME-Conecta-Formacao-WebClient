@@ -629,7 +629,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         message: 'Atenção',
         description: 'A data de início da inscrição não pode ser posterior à data final',
       });
-      return;
+      return { sucesso: false };
     }
     const toNumeroOuNull = (valor: unknown): number | null => {
       const valorFinal = (valor as { value?: unknown })?.value ?? valor;
@@ -838,7 +838,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         }
 
         salvar(false, situacao).then((response) => {
-          if (response.sucesso) {
+          if (response?.sucesso) {
             if (ehAreaPromotora) {
               carregarDados();
             } else if (confirmarAntesDeEnviarProposta) {
@@ -897,7 +897,7 @@ export const FormCadastroDePropostas: React.FC = () => {
     if (ehPerfilAdminDf) {
       const salvarComConfirmacao = async (mensagemConfirmacao: string) => {
         await salvar(false).then((resposta) => {
-          if (resposta.sucesso) {
+          if (resposta?.sucesso) {
             confirmacao({
               content: mensagemConfirmacao,
               onOk() {
