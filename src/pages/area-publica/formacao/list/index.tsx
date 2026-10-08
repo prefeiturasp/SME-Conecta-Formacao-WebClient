@@ -14,6 +14,7 @@ import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { CardFiltroFormacao } from './components/card-filtro-formacao';
 import { CardFormacao } from './components/card-formacao';
+import { ListaFormacoesMobile } from './components/lista-formacoes-mobile';
 
 const { Title, Text } = Typography;
 
@@ -22,6 +23,24 @@ const BreadcrumbWrapper = styled.div`
 
   @media (max-width: 768px) {
     margin-bottom: 12px;
+  }
+`;
+
+const DesktopListWrapper = styled.div`
+  display: block;
+
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+`;
+
+const MobileListWrapper = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex !important;
+    flex-direction: column;
+    width: 100%;
   }
 `;
 
@@ -75,6 +94,10 @@ export const ListFormacao: React.FC = () => {
   };
 
   const carregarDados = (listParams: ListParams, filtroFormacao: FiltroFormacaoDTO) => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      return;
+    }
+
     const numeroPagina = listParams.pagination?.current;
     const numeroRegistros = listParams.pagination?.pageSize;
 
@@ -98,6 +121,16 @@ export const ListFormacao: React.FC = () => {
   useEffect(() => {
     carregarDados(listParams, filtroFormacao);
   }, [filtroFormacao]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== 'undefined' && window.innerWidth > 768 && formacoes.length === 0) {
+        carregarDados(listParams, filtroFormacao);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [formacoes.length, listParams, filtroFormacao]);
 
   const onListChange = (current: number, pageSize: number) => {
     const newListParams = {
@@ -165,18 +198,24 @@ export const ListFormacao: React.FC = () => {
         </Text>
       </div>
 
-      <List
-        grid={{ gutter: 16, xs: 1, sm: 2, md: 2, lg: 4, xl: 4, xxl: 4 }}
-        pagination={{ ...listParams.pagination, onChange: onListChange }}
-        dataSource={formacoes}
-        loading={loading}
-        locale={{ emptyText: 'Nenhuma formação encontrada' }}
-        renderItem={(item) => (
-          <List.Item>
-            <CardFormacao formacao={item} />
-          </List.Item>
-        )}
-      />
+      <DesktopListWrapper>
+        <List
+          grid={{ gutter: 16, xs: 1, sm: 2, md: 2, lg: 4, xl: 4, xxl: 4 }}
+          pagination={{ ...listParams.pagination, onChange: onListChange }}
+          dataSource={formacoes}
+          loading={loading}
+          locale={{ emptyText: 'Nenhuma formação encontrada' }}
+          renderItem={(item) => (
+            <List.Item>
+              <CardFormacao formacao={item} />
+            </List.Item>
+          )}
+        />
+      </DesktopListWrapper>
+
+      <MobileListWrapper>
+        <ListaFormacoesMobile filtroFormacao={filtroFormacao} />
+      </MobileListWrapper>
 
       <VoltarAoTopoButton />
     </>
