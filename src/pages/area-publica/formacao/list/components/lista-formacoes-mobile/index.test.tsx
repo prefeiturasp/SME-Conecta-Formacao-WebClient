@@ -7,7 +7,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
-import { ListaFormacoesMobile } from './index';
+import { ListaFormacoesMobile, mesclarFormacoes } from './index';
 
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
@@ -158,6 +158,16 @@ describe('ListaFormacoesMobile', () => {
       expect(
         screen.getByText('Experimente buscar com um novo nome.'),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('mesclarFormacoes', () => {
+    test('deve mesclar listas evitando IDs duplicados', () => {
+      const anteriores = [{ id: 1, titulo: 'A' }, { id: 2, titulo: 'B' }] as any;
+      const novas = [{ id: 2, titulo: 'B duplicado' }, { id: 3, titulo: 'C' }] as any;
+      const resultado = mesclarFormacoes(anteriores, novas);
+      expect(resultado).toHaveLength(3);
+      expect(resultado.map((r) => r.id)).toEqual([1, 2, 3]);
     });
   });
 });

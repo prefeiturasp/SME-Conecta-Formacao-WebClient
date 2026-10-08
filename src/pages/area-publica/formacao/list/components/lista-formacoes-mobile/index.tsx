@@ -82,6 +82,12 @@ const EmptyStateText = styled.div`
 
 const formatarNumero = (valor: number): string => (valor < 10 ? `0${valor}` : `${valor}`);
 
+export const mesclarFormacoes = (anteriores: FormacaoDTO[], novas: FormacaoDTO[]): FormacaoDTO[] => {
+  const existingIds = new Set(anteriores.map((item) => item.id));
+  const filtrados = novas.filter((item) => !existingIds.has(item.id));
+  return [...anteriores, ...filtrados];
+};
+
 export const ListaFormacoesMobile: React.FC<ListaFormacoesMobileProps> = ({ filtroFormacao }) => {
   const [formacoes, setFormacoes] = useState<FormacaoDTO[]>([]);
   const [totalRegistros, setTotalRegistros] = useState<number>(0);
@@ -112,26 +118,23 @@ export const ListaFormacoesMobile: React.FC<ListaFormacoesMobileProps> = ({ filt
 
   const temMaisPaginas = formacoes.length < totalRegistros;
 
-  const handleExibirMais = () => {
+  const handleExibirMais = async () => {
     if (loadingMais || loading || !temMaisPaginas) return;
 
     const proximaPagina = paginaAtual + 1;
     setLoadingMais(true);
 
-    obterFormacaoPaginada(filtroFormacao, proximaPagina, 10)
-      .then((response) => {
-        if (response?.sucesso && response?.dados) {
-          const novosItens = response.dados.items || [];
-          setPaginaAtual(proximaPagina);
-          setTotalRegistros(response.dados.totalRegistros || 0);
-          setFormacoes((prev) => {
-            const existingIds = new Set(prev.map((item) => item.id));
-            const filtrados = novosItens.filter((item) => !existingIds.has(item.id));
-            return [...prev, ...filtrados];
-          });
-        }
-      })
-      .finally(() => setLoadingMais(false));
+    try {
+      const response = await obterFormacaoPaginada(filtroFormacao, proximaPagina, 10);
+      if (response?.sucesso && response?.dados) {
+        const novosItens = response.dados.items || [];
+        setPaginaAtual(proximaPagina);
+        setTotalRegistros(response.dados.totalRegistros || 0);
+        setFormacoes((prev) => mesclarFormacoes(prev, novosItens));
+      }
+    } finally {
+      setLoadingMais(false);
+    }
   };
 
   if (loading) {
