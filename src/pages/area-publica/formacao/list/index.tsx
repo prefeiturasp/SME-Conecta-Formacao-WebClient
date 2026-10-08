@@ -14,6 +14,7 @@ import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
 import { scrollNoInicio } from '~/core/utils/functions';
 import { CardFiltroFormacao } from './components/card-filtro-formacao';
 import { CardFormacao } from './components/card-formacao';
+import { EmptyCard } from './components/empty-card';
 import { ListaFormacoesMobile } from './components/lista-formacoes-mobile';
 
 const { Title, Text } = Typography;
@@ -204,7 +205,7 @@ export const ListFormacao: React.FC = () => {
           pagination={{ ...listParams.pagination, onChange: onListChange }}
           dataSource={formacoes}
           loading={loading}
-          locale={{ emptyText: 'Nenhuma formação encontrada' }}
+          locale={{ emptyText: <EmptyCard /> }}
           renderItem={(item) => (
             <List.Item>
               <CardFormacao formacao={item} />

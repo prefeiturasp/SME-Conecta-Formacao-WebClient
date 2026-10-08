@@ -6,6 +6,7 @@ import { FiltroFormacaoDTO } from '~/core/dto/filtro-formacao-dto';
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { obterFormacaoPaginada } from '~/core/services/area-publica-service';
 import { CardFormacao } from '../card-formacao';
+import { EmptyCard } from '../empty-card';
 
 export interface ListaFormacoesMobileProps {
   filtroFormacao: FiltroFormacaoDTO;
@@ -145,7 +146,7 @@ export const ListaFormacoesMobile: React.FC<ListaFormacoesMobileProps> = ({ filt
   }
 
   if (formacoes.length === 0) {
-    return <EmptyStateText>Nenhuma formação encontrada</EmptyStateText>;
+    return <EmptyCard />;
   }
 
   return (

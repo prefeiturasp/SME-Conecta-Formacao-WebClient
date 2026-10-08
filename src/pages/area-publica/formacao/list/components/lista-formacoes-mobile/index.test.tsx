@@ -140,7 +140,7 @@ describe('ListaFormacoesMobile', () => {
     });
   });
 
-  test('deve exibir mensagem de estado vazio quando não houver formações', async () => {
+  test('deve exibir card de estado vazio quando não houver formações', async () => {
     mockObterFormacaoPaginada.mockResolvedValueOnce({
       sucesso: true,
       dados: {
@@ -152,7 +152,12 @@ describe('ListaFormacoesMobile', () => {
     renderComRouter(<ListaFormacoesMobile filtroFormacao={{}} />);
 
     await waitFor(() => {
-      expect(screen.getByText('Nenhuma formação encontrada')).toBeInTheDocument();
+      expect(
+        screen.getByText('Não encontramos dados para essa busca!'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Experimente buscar com um novo nome.'),
+      ).toBeInTheDocument();
     });
   });
 });
