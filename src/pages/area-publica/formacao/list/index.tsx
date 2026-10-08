@@ -95,7 +95,7 @@ export const ListFormacao: React.FC = () => {
   };
 
   const carregarDados = (listParams: ListParams, filtroFormacao: FiltroFormacaoDTO) => {
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+    if (typeof globalThis.window !== 'undefined' && globalThis.window.innerWidth <= 768) {
       return;
     }
 
@@ -125,12 +125,12 @@ export const ListFormacao: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (typeof globalThis.window !== 'undefined' && window.innerWidth > 768 && formacoes.length === 0) {
+      if (typeof globalThis.window !== 'undefined' && globalThis.window.innerWidth > 768 && formacoes.length === 0) {
         carregarDados(listParams, filtroFormacao);
       }
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    globalThis.window.addEventListener('resize', handleResize);
+    return () => globalThis.window.removeEventListener('resize', handleResize);
   }, [formacoes.length, listParams, filtroFormacao]);
 
   const onListChange = (current: number, pageSize: number) => {
