@@ -125,7 +125,7 @@ export const ListFormacao: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (typeof window !== 'undefined' && window.innerWidth > 768 && formacoes.length === 0) {
+      if (typeof globalThis.window !== 'undefined' && window.innerWidth > 768 && formacoes.length === 0) {
         carregarDados(listParams, filtroFormacao);
       }
     };
