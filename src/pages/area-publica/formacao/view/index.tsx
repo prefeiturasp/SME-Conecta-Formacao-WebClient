@@ -66,15 +66,15 @@ const VisualizarFormacao: FC = () => {
         </Col>
       </Row>
 
-      <Row justify='space-between' align='middle' style={{ width: '100%', padding: '8px 0' }}>
-        <Col>
+      <Row justify='space-between' align='middle' style={{ width: '100%', padding: '8px 0' }} gutter={[12, 12]}>
+        <Col xs={24} sm={10}>
           <Typography.Title level={3} style={{ margin: 0 }}>
             Detalhes da formação
           </Typography.Title>
         </Col>
 
-        <Col>
-          <Row gutter={8} wrap={false}>
+        <Col xs={24} sm={14} style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <Row gutter={[8, 8]} wrap={true}>
             <Col>
               <Button
                 type='default'
@@ -107,14 +107,14 @@ const VisualizarFormacao: FC = () => {
         </Col>
       </Row>
 
-      <div style={{ background: '#fff', minHeight: '100vh', padding: 24 }}>
+      <div style={{ background: '#fff', minHeight: '100vh', padding: '16px 20px', borderRadius: 8 }}>
 
         <DadosDestaque dadosFormacao={dadosFormacao} propostaId={id} />
 
         <CustomDivider />
 
-        <Row gutter={32}>
-          <Col span={12}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} md={12}>
             <Typography.Title level={3} style={typographyStyles.tituloNivel3}>
               {SOBRE_ESTE_CURSO}
             </Typography.Title>
@@ -126,7 +126,7 @@ const VisualizarFormacao: FC = () => {
           </Col>
 
           {dadosFormacao?.publicosAlvo?.length ? (
-            <Col span={6}>
+            <Col xs={24} sm={12} md={6}>
               <Typography.Title level={3} style={typographyStyles.tituloPublicoAlvo}>
                 {PUBLICO_ALVO}
               </Typography.Title>
@@ -138,7 +138,7 @@ const VisualizarFormacao: FC = () => {
             </Col>
           ) : null}
 
-          <Col span={6}>
+          <Col xs={24} sm={12} md={6}>
             <Typography.Title level={3} style={typographyStyles.tituloPublicoAlvo}>
               {PUBLICO_ALVO_VAGAS_REMANESCENTES}
             </Typography.Title>
