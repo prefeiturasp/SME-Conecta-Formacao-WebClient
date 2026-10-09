@@ -78,8 +78,8 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({ dadosFormacao, propostaId
     return false;
   };
   return (
-    <Row>
-      <Col span={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <Row gutter={[16, 16]}>
+      <Col xs={24} sm={8} md={6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         {dadosInscricao?.imagemUrl ? (
           <img
             src={dadosInscricao.imagemUrl}
@@ -94,8 +94,8 @@ const DadosDestaque: React.FC<DadosDestaqueProps> = ({ dadosFormacao, propostaId
           />
         )}
       </Col>
-      <Col span={18}>
-        <Flex gap={5} vertical justify='space-between' style={{ padding: '15px' }}>
+      <Col xs={24} sm={16} md={18}>
+        <Flex gap={5} vertical justify='space-between' style={{ padding: '8px' }}>
           <Typography.Title
             level={2}
             style={{

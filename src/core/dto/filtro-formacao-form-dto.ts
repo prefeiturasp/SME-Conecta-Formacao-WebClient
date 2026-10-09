@@ -7,4 +7,7 @@ export type FiltroFormacaoFormDTO = {
   data?: Dayjs[];
   formatosIds?: number[];
   palavrasChavesIds?: number[];
+  codigoFormacao?: string;
+  codigoHomologacao?: string;
 };
+
