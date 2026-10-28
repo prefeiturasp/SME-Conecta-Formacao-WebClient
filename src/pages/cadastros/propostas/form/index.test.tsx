@@ -901,8 +901,8 @@ describe('FormCadastroDePropostas Helper Functions', () => {
 
       expect(resultSemHora.dataRealizacaoInicio).toBe('2024-01-01');
       expect(resultSemHora.dataRealizacaoFim).toBe('2024-12-31');
-      expect(resultSemHora.dataInscricaoInicio).toBe('2024-01-01T00:00:00');
-      expect(resultSemHora.dataInscricaoFim).toBe('2024-02-28T00:00:00');
+      expect(resultSemHora.dataInscricaoInicio).toBe('2024-01-01T00:00:00.000');
+      expect(resultSemHora.dataInscricaoFim).toBe('2024-02-28T23:59:59.999');
     });
 
     it('should extract formatted dates with explicit horaInscricao', () => {
@@ -918,6 +918,30 @@ describe('FormCadastroDePropostas Helper Functions', () => {
       expect(resultComHora.dataInscricaoFim).toBe('2026-12-04T19:47:00');
     });
 
+    it('should default end date to 23:59:59.999 when only horaInscricao inicio is provided', () => {
+      const values = {
+        periodoInscricao: [dayjs('2026-10-13'), dayjs('2026-10-13')],
+        horaInscricao: [dayjs('10:00', 'HH:mm'), undefined as any],
+      };
+
+      const result = extrairDatasFormatadas(values as any);
+
+      expect(result.dataInscricaoInicio).toBe('2026-10-13T10:00:00');
+      expect(result.dataInscricaoFim).toBe('2026-10-13T23:59:59.999');
+    });
+
+    it('should default start date to 00:00:00.000 when only horaInscricao fim is provided', () => {
+      const values = {
+        periodoInscricao: [dayjs('2026-10-13'), dayjs('2026-10-13')],
+        horaInscricao: [undefined as any, dayjs('18:00', 'HH:mm')],
+      };
+
+      const result = extrairDatasFormatadas(values as any);
+
+      expect(result.dataInscricaoInicio).toBe('2026-10-13T00:00:00.000');
+      expect(result.dataInscricaoFim).toBe('2026-10-13T18:00:00');
+    });
+
     it('should handle undefined periodoRealizacao', () => {
       const values = {
         periodoRealizacao: undefined as [Dayjs, Dayjs] | undefined,
@@ -928,8 +952,8 @@ describe('FormCadastroDePropostas Helper Functions', () => {
 
       expect(result.dataRealizacaoInicio).toBeUndefined();
       expect(result.dataRealizacaoFim).toBeUndefined();
-      expect(result.dataInscricaoInicio).toBe('2024-01-01T00:00:00');
-      expect(result.dataInscricaoFim).toBe('2024-02-28T00:00:00');
+      expect(result.dataInscricaoInicio).toBe('2024-01-01T00:00:00.000');
+      expect(result.dataInscricaoFim).toBe('2024-02-28T23:59:59.999');
     });
 
     it('should handle all undefined dates', () => {
@@ -948,15 +972,20 @@ describe('FormCadastroDePropostas Helper Functions', () => {
   });
 
   describe('mapearHoraPeriodo', () => {
-    it('should map hours when they are different from 00:00:00', () => {
+    it('should map hours when they are different from default', () => {
       const result = mapearHoraPeriodo('2026-08-17T12:32:00', '2026-12-04T19:47:00');
       expect(result).toBeDefined();
       expect(result?.[0].format('HH:mm')).toBe('12:32');
       expect(result?.[1].format('HH:mm')).toBe('19:47');
     });
 
-    it('should return undefined when both hours are 00:00:00', () => {
+    it('should return undefined when both hours are 00:00:00 (legacy default)', () => {
       const result = mapearHoraPeriodo('2026-08-17T00:00:00', '2026-12-04T00:00:00');
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when hours are default 00:00 and 23:59:59.999', () => {
+      const result = mapearHoraPeriodo('2026-10-13T00:00:00.000', '2026-10-13T23:59:59.999');
       expect(result).toBeUndefined();
     });
 

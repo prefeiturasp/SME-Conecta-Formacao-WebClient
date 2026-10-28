@@ -533,7 +533,17 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                   formItemProps={{
                     label: 'Período de inscrição',
                     name: 'periodoInscricao',
-                    rules: [{ required: true, message: PERIODO_INSCRICAO_NAO_INFORMADO }],
+                    rules: [
+                      { required: true, message: PERIODO_INSCRICAO_NAO_INFORMADO },
+                      {
+                        validator: (_, value) => {
+                          if (!value || (value[0] && value[1])) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(new Error(PERIODO_INSCRICAO_NAO_INFORMADO));
+                        },
+                      },
+                    ],
                   }}
                 />
               </b>
@@ -545,12 +555,38 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
                 label: (
                   <span>
                     Hora de início e fim{' '}
-                    <Tooltip title='Se nenhum horário for informado, o período de inscrição começará e terminará às 00h das datas selecionadas.'>
+                    <Tooltip title='Se nenhum horário for informado, o período de inscrição começará às 00h e terminará às 23h59 das datas selecionadas.'>
                       <InfoCircleFilled style={{ color: Colors.Suporte.Primary.INFO }} />
                     </Tooltip>
                   </span>
                 ),
                 name: 'horaInscricao',
+                rules: [
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || value.length === 0) return Promise.resolve();
+                      const [horaInicio, horaFim] = value;
+                      if ((horaInicio && !horaFim) || (!horaInicio && horaFim)) {
+                        return Promise.reject(
+                          new Error('Informe a hora inicial e final ou deixe ambas em branco'),
+                        );
+                      }
+                      if (horaInicio && horaFim) {
+                        const periodo = getFieldValue('periodoInscricao');
+                        const dataInicio = periodo?.[0];
+                        const dataFim = periodo?.[1];
+                        if (dataInicio && dataFim && dataInicio.isSame(dataFim, 'day')) {
+                          if (horaInicio.isAfter(horaFim)) {
+                            return Promise.reject(
+                              new Error('A hora inicial não pode ser posterior à hora final'),
+                            );
+                          }
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ],
               }}
             />
           </Col>
