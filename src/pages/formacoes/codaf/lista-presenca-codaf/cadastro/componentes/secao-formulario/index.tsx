@@ -28,6 +28,8 @@ interface SecaoFormularioProps {
   ehPerfilDF: boolean;
   ehPerfilEMFORPEF: boolean;
   ehPerfilDRE?: boolean;
+  onChangeCodigoFormacao?: (value: string) => void;
+  onBlurCodigoFormacao?: (value: string) => void;
   camposBloqueados: {
     numeroHomologacao: boolean;
     nomeFormacao?: boolean;
@@ -48,6 +50,8 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
   ehPerfilDF,
   ehPerfilEMFORPEF,
   ehPerfilDRE,
+  onChangeCodigoFormacao,
+  onBlurCodigoFormacao,
   camposBloqueados
 }) => {
   const campoNumeroHomologacaoAutoComplete = (
@@ -133,7 +137,10 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
             id: CF_INPUT_CODIGO_FORMACAO,
             placeholder: 'Código da formação',
             maxLength: 20,
-            disabled: camposBloqueados.codigoFormacao ?? true,
+            disabled: camposBloqueados.codigoFormacao ?? (ehPerfilDRE ? false : true),
+            onChange: (e) => onChangeCodigoFormacao?.(e.target.value),
+            onBlur: (e) => onBlurCodigoFormacao?.(e.target.value),
+            onPressEnter: (e) => onBlurCodigoFormacao?.(e.currentTarget.value),
           }}
         />
       </b>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Form } from 'antd';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, expect, jest, test } from '@jest/globals';
 import { SecaoFormulario } from './index';
 import { PropostaAutocompletarDTO } from '~/core/services/proposta-service';
@@ -10,8 +10,19 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 
 jest.mock('~/components/main/numero', () => ({
   __esModule: true,
-  default: ({ formItemProps }: { formItemProps?: { label?: React.ReactNode } }) => (
-    <div data-testid='input-numero'>{formItemProps?.label}</div>
+  default: ({ formItemProps, inputProps }: { formItemProps?: { label?: React.ReactNode }; inputProps?: any }) => (
+    <div data-testid='input-numero'>
+      <span>{formItemProps?.label}</span>
+      <input
+        data-testid={inputProps?.id || 'input-numero-field'}
+        disabled={inputProps?.disabled}
+        onChange={inputProps?.onChange}
+        onBlur={inputProps?.onBlur}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') inputProps?.onPressEnter?.(e);
+        }}
+      />
+    </div>
   ),
 }));
 
@@ -140,5 +151,25 @@ describe('SecaoFormulario behavior', () => {
       camposBloqueados: {} as any,
     });
     expect(screen.getByText('Código da formação')).not.toBeNull();
+  });
+  test('aciona onChange, onBlur e onPressEnter no campo Código da formação', () => {
+    const onChangeMock = jest.fn();
+    const onBlurMock = jest.fn();
+
+    renderComponent({
+      ehPerfilDRE: true,
+      onChangeCodigoFormacao: onChangeMock,
+      onBlurCodigoFormacao: onBlurMock,
+    });
+
+    const inputCodigo = screen.getByTestId('CF_INPUT_CODIGO_FORMACAO');
+    fireEvent.change(inputCodigo, { target: { value: '12345' } });
+    expect(onChangeMock).toHaveBeenCalledWith('12345');
+
+    fireEvent.blur(inputCodigo, { target: { value: '12345' } });
+    expect(onBlurMock).toHaveBeenCalledWith('12345');
+
+    fireEvent.keyDown(inputCodigo, { key: 'Enter', currentTarget: { value: '12345' } });
+    expect(onBlurMock).toHaveBeenCalled();
   });
 });

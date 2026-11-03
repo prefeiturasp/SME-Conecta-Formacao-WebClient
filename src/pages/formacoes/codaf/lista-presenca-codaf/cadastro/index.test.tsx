@@ -262,6 +262,45 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
       });
     });
 
+    describe('Regras de Bloqueio dos Campos para Perfil DRE vs Outros Perfis', () => {
+      const calcularBloqueiosSecaoFormulario = (
+        ehPerfilDre: boolean,
+        modoEdicao: boolean,
+        bloqueadoPorStatusOuCertificado: boolean,
+        situacaoFinalizado: boolean,
+      ) => {
+        return {
+          numeroHomologacao: ehPerfilDre ? true : bloqueadoPorStatusOuCertificado,
+          nomeFormacao: situacaoFinalizado,
+          codigoFormacao: ehPerfilDre ? (modoEdicao || bloqueadoPorStatusOuCertificado) : situacaoFinalizado,
+          turma: bloqueadoPorStatusOuCertificado,
+        };
+      };
+
+      test('DadoPerfilDRE_ModoCriacao_EntaoCodigoFormacaoHabilitadoENumeroHomologacaoDesabilitado', () => {
+        const bloqueios = calcularBloqueiosSecaoFormulario(true, false, false, false);
+        expect(bloqueios.codigoFormacao).toBe(false);
+        expect(bloqueios.numeroHomologacao).toBe(true);
+      });
+
+      test('DadoPerfilDRE_ModoEdicao_EntaoCodigoFormacaoDesabilitadoENumeroHomologacaoDesabilitado', () => {
+        const bloqueios = calcularBloqueiosSecaoFormulario(true, true, false, false);
+        expect(bloqueios.codigoFormacao).toBe(true);
+        expect(bloqueios.numeroHomologacao).toBe(true);
+      });
+
+      test('DadoPerfilNaoDRE_ModoCriacao_EntaoCodigoFormacaoESituacaoFinalizadoENumeroHomologacaoHabilitado', () => {
+        const bloqueios = calcularBloqueiosSecaoFormulario(false, false, false, false);
+        expect(bloqueios.codigoFormacao).toBe(false);
+        expect(bloqueios.numeroHomologacao).toBe(false);
+      });
+
+      test('DadoPerfilNaoDRE_StatusBloqueado_EntaoNumeroHomologacaoBloqueado', () => {
+        const bloqueios = calcularBloqueiosSecaoFormulario(false, false, true, false);
+        expect(bloqueios.numeroHomologacao).toBe(true);
+      });
+    });
+
     describe('Regras do Botão "Devolver" (Correção)', () => {
       test('DadoPerfilAdminStatusAguardandoDFFormValido_QuandoCalcularBloqueios_EntaoDevolverVisivelEHabilitado', () => {
         // Arrange / Act

@@ -265,10 +265,10 @@ export type PropostaComTurmasDTO = {
 
 export const obterDetalhesPropostaComTurmasPorId = (
   propostaId: number, 
-  formacoesHomologas: boolean
+  formacoesHomologadas: boolean
 ): Promise<ApiResult<PropostaComTurmasDTO>> => {
   const params = {
-    formacoesHomologas,
+    formacoesHomologadas,
   };
   return obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/detalhes-com-turmas`, { params });
 };

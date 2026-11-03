@@ -44,7 +44,7 @@ import {
   obterDeltaInscritosSilencioso,
   deletarRetificacao
 } from '~/core/services/codaf-lista-presenca-service';
-import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
+import { autocompletarFormacao, obterDetalhesPropostaComTurmasPorId, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
@@ -267,9 +267,9 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
     campos: {
       secaoFormulario: {
-        numeroHomologacao: bloqueadoPorStatusOuCertificado,
+        numeroHomologacao: perfil.dre ? true : bloqueadoPorStatusOuCertificado,
         nomeFormacao: situacao.finalizado,
-        codigoFormacao: situacao.finalizado,
+        codigoFormacao: perfil.dre ? (modoEdicao || bloqueadoPorStatusOuCertificado) : situacao.finalizado,
         turma: bloqueadoPorStatusOuCertificado,
       },
 
@@ -700,6 +700,133 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           description: 'Erro ao buscar turmas da formação',
         });
       }
+    }
+  };
+
+  const onChangeCodigoFormacao = (valor: string) => {
+    if (!valor || valor.trim().length === 0) {
+      form.setFieldsValue({
+        nomeFormacao: '',
+        numeroHomologacao: '',
+        turmaId: undefined,
+      });
+      setTurmasFiltradas([]);
+      setTurmaDisabled(true);
+      setPropostaSelecionada(null);
+      setRegrasAprovacao(undefined);
+      setTodasTurmasPossuemLista(false);
+      setTooltipAberto(false);
+    }
+  };
+
+  const onBlurCodigoFormacao = async (_value: string) => {
+    const valor = (_value || '').replace(/\D/g, '');
+    if (valor.length === 0) {
+      setTurmasFiltradas([]);
+      setTurmaDisabled(true);
+      setPropostaSelecionada(null);
+      setRegrasAprovacao(undefined);
+      form.setFieldsValue({
+        nomeFormacao: '',
+        numeroHomologacao: '',
+        turmaId: undefined,
+      });
+      return;
+    }
+
+    if (propostaSelecionada && Number(valor) === propostaSelecionada.propostaId) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await obterDetalhesPropostaComTurmasPorId(Number(valor), true);
+
+      if (response.sucesso && response.dados) {
+        const dados = response.dados;
+        setPropostaSelecionada({
+          propostaId: dados.id,
+          numeroHomologacao: Number(dados.numeroFormacao),
+          nomeFormacao: dados.nomeFormacao,
+          codigoFormacao: dados.id,
+        });
+
+        form.setFieldsValue({
+          codigoFormacao: dados.id,
+          nomeFormacao: dados.nomeFormacao,
+          numeroHomologacao: dados.numeroFormacao,
+          turmaId: undefined,
+        });
+
+        setTodasTurmasPossuemLista(false);
+
+        const turmas = dados.turmas || [];
+        if (turmas.length > 0) {
+          const turmasDisponiveis: RetornoListagemDTO[] = [];
+          for (const turma of turmas) {
+            try {
+              const possuiLista = await verificarTurmaPossuiLista(turma.id, 0);
+              if (possuiLista.sucesso && possuiLista.dados === false) {
+                turmasDisponiveis.push({ id: turma.id, descricao: turma.descricao });
+              }
+            } catch (error) {
+              console.error(`Erro ao verificar turma ${turma.id}:`, error);
+            }
+          }
+
+          if (turmasDisponiveis.length === 0) {
+            const primeiraTurma = turmas[0];
+            setTurmasFiltradas([{ id: primeiraTurma.id, descricao: primeiraTurma.descricao }]);
+            form.setFieldValue('turmaId', primeiraTurma.id);
+            setTurmaDisabled(true);
+            setTooltipAberto(true);
+            setTodasTurmasPossuemLista(true);
+          } else {
+            setTurmasFiltradas(turmasDisponiveis);
+            setTurmaDisabled(false);
+            setTooltipAberto(false);
+            setTodasTurmasPossuemLista(false);
+          }
+        } else {
+          setTurmasFiltradas([]);
+          setTurmaDisabled(true);
+          notification.warning({
+            message: 'Atenção',
+            description: 'Nenhuma turma encontrada para esta formação',
+          });
+        }
+      } else {
+        setTurmasFiltradas([]);
+        setTurmaDisabled(true);
+        setPropostaSelecionada(null);
+        setRegrasAprovacao(undefined);
+        form.setFieldsValue({
+          nomeFormacao: '',
+          numeroHomologacao: '',
+          turmaId: undefined,
+        });
+        notification.info({
+          message: 'Informação',
+          description: 'Formação não encontrada',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao buscar detalhes da formação:', error);
+      setTurmasFiltradas([]);
+      setTurmaDisabled(true);
+      setPropostaSelecionada(null);
+      setRegrasAprovacao(undefined);
+      form.setFieldsValue({
+        nomeFormacao: '',
+        numeroHomologacao: '',
+        turmaId: undefined,
+      });
+      notification.warning({
+        message: 'Atenção',
+        description: 'Erro ao buscar detalhes da formação',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1300,6 +1427,8 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             ehPerfilDF={perfil.df}
             ehPerfilEMFORPEF={perfil.emforpef}
             ehPerfilDRE={perfil.dre}
+            onChangeCodigoFormacao={onChangeCodigoFormacao}
+            onBlurCodigoFormacao={onBlurCodigoFormacao}
             camposBloqueados={bloqueios.campos.secaoFormulario}
           />
           <SecaoListaInscritos
