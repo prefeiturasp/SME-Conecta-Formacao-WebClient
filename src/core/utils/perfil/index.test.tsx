@@ -1,5 +1,6 @@
 import {
   verificaSomenteConsulta,
+  ehPerfilDre,
   verificaSeTemPermissao,
   obterPermissaoPorMenu,
   validarAutenticacao,
@@ -520,6 +521,27 @@ describe('Perfil Utils', () => {
         .find((action) => action.type === typeSetPermissaoPorMenu);
 
       expect(permissaoPorMenuAction?.payload?.[MenuEnum.CertificadosPesquisa]).toBeUndefined();
+    });
+  });
+
+  describe('ehPerfilDre', () => {
+    test('deve retornar true quando houver dres preenchidas', () => {
+      expect(ehPerfilDre(null, ['108900'])).toBe(true);
+      expect(ehPerfilDre({ perfil: '1', perfilNome: 'Outro' }, ['108900'])).toBe(true);
+    });
+
+    test('deve retornar true quando perfil contiver (DRE), DICEU ou DIPED', () => {
+      expect(ehPerfilDre({ perfil: '1', perfilNome: 'DICEU (DRE)' })).toBe(true);
+      expect(ehPerfilDre('DIPED (DRE)')).toBe(true);
+      expect(ehPerfilDre('DICEU')).toBe(true);
+      expect(ehPerfilDre('DIPED')).toBe(true);
+    });
+
+    test('deve retornar false quando perfil nao for DRE nem tiver dres', () => {
+      expect(ehPerfilDre(null, null)).toBe(false);
+      expect(ehPerfilDre(undefined, [])).toBe(false);
+      expect(ehPerfilDre({ perfil: '1', perfilNome: 'Admin DF' }, [])).toBe(false);
+      expect(ehPerfilDre('Cursista')).toBe(false);
     });
   });
 });
