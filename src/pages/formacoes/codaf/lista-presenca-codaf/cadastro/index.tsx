@@ -1299,6 +1299,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
             tooltipAberto={tooltipAberto}
             ehPerfilDF={perfil.df}
             ehPerfilEMFORPEF={perfil.emforpef}
+            ehPerfilDRE={perfil.dre}
             camposBloqueados={bloqueios.campos.secaoFormulario}
           />
           <SecaoListaInscritos

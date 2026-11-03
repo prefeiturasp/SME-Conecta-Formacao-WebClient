@@ -88,4 +88,57 @@ describe('SecaoFormulario behavior', () => {
     expect(screen.getByText('Turma')).not.toBeNull();
     expect(screen.queryByTestId('turma-tooltip-icon')).toBeNull();
   });
+
+  test('renderiza layout para perfil DRE com Código da Formação exibido primeiro', () => {
+    const { container } = renderComponent({ ehPerfilDRE: true });
+
+    const inputNumeros = screen.getAllByTestId('input-numero');
+    expect(inputNumeros.length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText('Código da formação')).not.toBeNull();
+    expect(screen.getByText('Número de homologação')).not.toBeNull();
+
+    const textContent = container.textContent || '';
+    const posCodigo = textContent.indexOf('Código da formação');
+    const posHomologacao = textContent.indexOf('Número de homologação');
+    expect(posCodigo).toBeLessThan(posHomologacao);
+  });
+
+  test('renderiza layout padrão para perfis não-DRE com Número de homologação exibido primeiro', () => {
+    const { container } = renderComponent({ ehPerfilDRE: false });
+
+    expect(screen.getByText('Código da formação')).not.toBeNull();
+    expect(screen.getByText('Número de homologação')).not.toBeNull();
+
+    const textContent = container.textContent || '';
+    const posHomologacao = textContent.indexOf('Número de homologação');
+    const posCodigo = textContent.indexOf('Código da formação');
+    expect(posHomologacao).toBeLessThan(posCodigo);
+  });
+
+  test('renderiza com loadingAutocomplete true', () => {
+    renderComponent({ loadingAutocomplete: true });
+    expect(screen.getByText('Número de homologação')).not.toBeNull();
+  });
+
+  test('renderiza com camposBloqueados parciais e perfis especiais', () => {
+    renderComponent({
+      ehPerfilDF: true,
+      ehPerfilEMFORPEF: true,
+      camposBloqueados: {
+        numeroHomologacao: true,
+        turma: true,
+        nomeFormacao: true,
+        codigoFormacao: true,
+      },
+    });
+    expect(screen.getByText('Número de homologação')).not.toBeNull();
+  });
+
+  test('renderiza com camposBloqueados indefinidos', () => {
+    renderComponent({
+      ehPerfilDRE: true,
+      camposBloqueados: {} as any,
+    });
+    expect(screen.getByText('Código da formação')).not.toBeNull();
+  });
 });
