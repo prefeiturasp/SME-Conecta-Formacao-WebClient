@@ -245,6 +245,19 @@ type AlertaEdicaoProps = {
   criadoLogin?: string;
 };
 
+const handleFormValuesChange = (
+  changedValues: any,
+  form: { setFieldValue?: (name: string, value: any) => void; setFieldsValue?: (values: any) => void },
+) => {
+  if (changedValues?.formacaoHomologada === FormacaoHomologada.Sim) {
+    if (form?.setFieldValue) {
+      form.setFieldValue('cursoComCertificado', true);
+    } else if (form?.setFieldsValue) {
+      form.setFieldsValue({ cursoComCertificado: true });
+    }
+  }
+};
+
 const AlertaEdicao: React.FC<AlertaEdicaoProps> = ({ criadoPor, criadoLogin }) => {
   return (
     <AlertaContainer>
@@ -980,6 +993,7 @@ export const FormCadastroDePropostas: React.FC = () => {
           initialValues={formInitialValues}
           validateMessages={validateMessages}
           disabled={desabilitarCampos}
+          onValuesChange={(changedValues) => handleFormValuesChange(changedValues, form)}
         >
           <HeaderPage title='Cadastro de Propostas'>
             <Col span={24}>
@@ -1321,4 +1335,4 @@ export const FormCadastroDePropostas: React.FC = () => {
   );
 };
 
-export { mapearHoraPeriodo, formatarDataInscricao, extrairDatasFormatadas };
+export { mapearHoraPeriodo, formatarDataInscricao, extrairDatasFormatadas, handleFormValuesChange };
