@@ -54,8 +54,22 @@ const cancelarInscricao = (id: number) => {
 const obterTurmasInscricao = (
   propostaId: number,
   codigoDre?: string,
+  apenasPeriodoInscricaoVigente?: boolean,
 ): Promise<ApiResult<RetornoListagemDTO[]>> =>
-  obterRegistro(`${URL_INSCRICAO}/turmas/${propostaId}`, { params: { codigoDre } });
+  obterRegistro(`${URL_INSCRICAO}/turmas/${propostaId}`, {
+    params: {
+      codigoDre,
+      ...(apenasPeriodoInscricaoVigente !== undefined
+        ? { apenasPeriodoInscricaoVigente }
+        : {}),
+    },
+  });
+
+const obterTurmasEmInscricao = (
+  propostaId: number,
+  codigoDre?: string,
+): Promise<ApiResult<RetornoListagemDTO[]>> =>
+  obterRegistro(`${URL_INSCRICAO}/turmas-em-inscricao/${propostaId}`, { params: { codigoDre } });
 
 const obterTiposInscricao = (): Promise<ApiResult<RetornoListagemDTO[]>> =>
   obterRegistro(`${URL_INSCRICAO}/tipos`);
@@ -111,6 +125,7 @@ export {
   obterSeInscricaoEstaAberta,
   obterTiposInscricao,
   obterTurmasInscricao,
+  obterTurmasEmInscricao,
   sortearInscricao,
   reativarInscricao,
   obterInscricoesProximas,
