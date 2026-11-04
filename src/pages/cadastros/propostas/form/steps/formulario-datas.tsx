@@ -621,11 +621,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
               <b>
                 <DatePickerPeriodo
                   formItemProps={{
-                    label: (
-                      <span>
-                        <span style={{ color: '#b40c02' }}>*</span>Período geral da formação
-                      </span>
-                    ),
+                    label: 'Período geral da formação',
                     name: 'periodoInscricao',
                     rules: [
                       { required: true, message: PERIODO_INSCRICAO_NAO_INFORMADO },
