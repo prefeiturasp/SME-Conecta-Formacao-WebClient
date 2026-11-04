@@ -516,6 +516,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       if (funcoesEspecificas.length) setFuncaoEspecifica(true);
 
       const gruposPeriodosRaw = mapearGruposPeriodos(dados?.gruposPeriodos);
+      const gruposPeriodosInscricaoRaw = mapearGruposPeriodos(dados?.gruposPeriodosInscricao);
       const revalidacaoString =
         dados?.revalidacao === true ? 'true' : dados?.revalidacao === false ? 'false' : undefined;
 
@@ -531,6 +532,7 @@ export const FormCadastroDePropostas: React.FC = () => {
         tiposInscricao: (dados?.tiposInscricao ?? []).map((item) => item.tipoInscricao),
         turmas: mapearTurmas(dados?.turmas ?? [], listaDres),
         gruposPeriodos: gruposPeriodosRaw.length ? gruposPeriodosRaw : [{}],
+        gruposPeriodosInscricao: gruposPeriodosInscricaoRaw.length ? gruposPeriodosInscricaoRaw : [{}],
         pareceristas: mapearPareceristas(dados?.pareceristas),
         publicosAlvo,
         funcoesEspecificas,
@@ -730,6 +732,7 @@ export const FormCadastroDePropostas: React.FC = () => {
       ),
       turmas: mapearTurmasSalvar(clonedValues?.turmas),
       gruposPeriodos: mapearGruposPeriodosSalvar(clonedValues?.gruposPeriodos),
+      gruposPeriodosInscricao: mapearGruposPeriodosSalvar(clonedValues?.gruposPeriodosInscricao),
       pareceristas: mapearPareceristasSalvar(
         clonedValues?.pareceristas,
         formInitialValues?.pareceristas,
