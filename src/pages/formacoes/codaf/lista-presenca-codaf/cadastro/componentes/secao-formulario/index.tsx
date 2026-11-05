@@ -15,6 +15,7 @@ import {
 } from '~/core/constants/ids/input';
 import { PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
+import { deveDesabilitarCamposEol } from '~/core/utils/codaf-salvar';
 
 interface SecaoFormularioProps {
   opcoesFormacao: PropostaAutocompletarDTO[];
@@ -25,8 +26,9 @@ interface SecaoFormularioProps {
   turmaDisabled: boolean;
   tooltipAberto: boolean;
   exibirTooltipTurma?: boolean;
-  ehPerfilDF: boolean;
-  ehPerfilEMFORPEF: boolean;
+  ehPerfilDF?: boolean;
+  ehPerfilAdminDF?: boolean;
+  ehPerfilEMFORPEF?: boolean;
   ehPerfilDRE?: boolean;
   onChangeCodigoFormacao?: (value: string) => void;
   onBlurCodigoFormacao?: (value: string) => void;
@@ -35,6 +37,8 @@ interface SecaoFormularioProps {
     nomeFormacao?: boolean;
     codigoFormacao?: boolean;
     turma: boolean;
+    codigoCursoEol?: boolean;
+    codigoNivel?: boolean;
   };
 }
 
@@ -48,12 +52,18 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
   tooltipAberto,
   exibirTooltipTurma = true,
   ehPerfilDF,
+  ehPerfilAdminDF,
   ehPerfilEMFORPEF,
   ehPerfilDRE,
   onChangeCodigoFormacao,
   onBlurCodigoFormacao,
-  camposBloqueados
+  camposBloqueados,
 }) => {
+  const desabilitarCamposEolPadrao = deveDesabilitarCamposEol({
+    admin: ehPerfilAdminDF,
+    df: ehPerfilDF,
+  });
+
   const campoNumeroHomologacaoAutoComplete = (
     <Col xs={24} sm={12} md={12} lg={12} xl={12}>
       <b>
@@ -75,9 +85,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
               propostaId: opcao.propostaId,
             }))}
             filterOption={false}
-            notFoundContent={
-              loadingAutocomplete ? 'Buscando...' : 'Nenhuma formação encontrada'
-            }
+            notFoundContent={loadingAutocomplete ? 'Buscando...' : 'Nenhuma formação encontrada'}
           />
         </Form.Item>
       </b>
@@ -173,7 +181,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
               label: turma.descricao,
               value: turma.id,
             }))}
-            disabled={(camposBloqueados.turma ?? turmaDisabled)}
+            disabled={camposBloqueados.turma ?? turmaDisabled}
             allowClear
           />
         </Form.Item>
@@ -277,7 +285,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                 id: CF_INPUT_CODIGO_CURSO_EOL,
                 placeholder: 'Código do curso no EOL',
                 maxLength: 9,
-                disabled: ehPerfilDF || ehPerfilEMFORPEF,
+                disabled: camposBloqueados?.codigoCursoEol ?? desabilitarCamposEolPadrao,
               }}
             />
           </b>
@@ -293,7 +301,7 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
                 id: CF_INPUT_CODIGO_NIVEL,
                 placeholder: 'Código do nível',
                 maxLength: 9,
-                disabled: ehPerfilDF || ehPerfilEMFORPEF,
+                disabled: camposBloqueados?.codigoNivel ?? desabilitarCamposEolPadrao,
               }}
             />
           </b>

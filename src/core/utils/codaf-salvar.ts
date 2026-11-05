@@ -28,6 +28,25 @@ export const deveBloquearEdicaoCodaf = (
   certificadoEmitido: boolean,
 ): boolean => finalizado || certificadoEmitido;
 
+export interface PerfilEdicaoCamposEol {
+  admin?: boolean;
+  df?: boolean;
+}
+
+export const podeEditarCamposEolCodaf = (perfil?: PerfilEdicaoCamposEol): boolean => {
+  return Boolean(perfil?.admin || perfil?.df);
+};
+
+export const deveDesabilitarCamposEol = (
+  perfil?: PerfilEdicaoCamposEol,
+  finalizado?: boolean,
+): boolean => {
+  if (finalizado) {
+    return true;
+  }
+  return !podeEditarCamposEolCodaf(perfil);
+};
+
 export const deveDesabilitarSalvarCodaf = (
   certificadoEmitido: boolean,
   campos?: CamposBloqueioSalvarCodaf,

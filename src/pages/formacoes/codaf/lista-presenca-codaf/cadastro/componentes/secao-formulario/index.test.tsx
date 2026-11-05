@@ -1,6 +1,7 @@
 import { describe, test, expect, jest } from '@jest/globals';
 import { PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
+import { deveDesabilitarCamposEol } from '~/core/utils/codaf-salvar';
 
 describe('SecaoFormulario', () => {
   describe('Props interface', () => {
@@ -73,6 +74,14 @@ describe('SecaoFormulario', () => {
 
       expect(typeof ehPerfilDFTrue).toBe('boolean');
       expect(typeof ehPerfilDFFalse).toBe('boolean');
+    });
+
+    test('deve aceitar ehPerfilAdminDF como boolean', () => {
+      const ehPerfilAdminDFTrue = true;
+      const ehPerfilAdminDFFalse = false;
+
+      expect(typeof ehPerfilAdminDFTrue).toBe('boolean');
+      expect(typeof ehPerfilAdminDFFalse).toBe('boolean');
     });
 
     test('deve aceitar ehPerfilEMFORPEF como boolean', () => {
@@ -342,30 +351,30 @@ describe('SecaoFormulario', () => {
       expect(placeholder).toBe('Código do curso no EOL');
     });
 
-    test('deve ter maxLength de 50', () => {
-      const maxLength = 50;
-      expect(maxLength).toBe(50);
+    test('deve ter maxLength de 9', () => {
+      const maxLength = 9;
+      expect(maxLength).toBe(9);
     });
 
-    test('deve estar desabilitado quando ehPerfilDF é true', () => {
-      const ehPerfilDF = true;
-      const ehPerfilEMFORPEF = false;
-      const disabled = ehPerfilDF || ehPerfilEMFORPEF;
-      expect(disabled).toBe(true);
-    });
-
-    test('deve estar desabilitado quando ehPerfilEMFORPEF é true', () => {
+    test('deve estar habilitado quando ehPerfilAdminDF é true', () => {
+      const ehPerfilAdminDF = true;
       const ehPerfilDF = false;
-      const ehPerfilEMFORPEF = true;
-      const disabled = ehPerfilDF || ehPerfilEMFORPEF;
-      expect(disabled).toBe(true);
-    });
-
-    test('deve estar habilitado quando nenhum perfil especial', () => {
-      const ehPerfilDF = false;
-      const ehPerfilEMFORPEF = false;
-      const disabled = ehPerfilDF || ehPerfilEMFORPEF;
+      const disabled = deveDesabilitarCamposEol({ admin: ehPerfilAdminDF, df: ehPerfilDF });
       expect(disabled).toBe(false);
+    });
+
+    test('deve estar habilitado quando ehPerfilDF é true', () => {
+      const ehPerfilAdminDF = false;
+      const ehPerfilDF = true;
+      const disabled = deveDesabilitarCamposEol({ admin: ehPerfilAdminDF, df: ehPerfilDF });
+      expect(disabled).toBe(false);
+    });
+
+    test('deve estar desabilitado para outros perfis como ehPerfilEMFORPEF', () => {
+      const ehPerfilAdminDF = false;
+      const ehPerfilDF = false;
+      const disabled = deveDesabilitarCamposEol({ admin: ehPerfilAdminDF, df: ehPerfilDF });
+      expect(disabled).toBe(true);
     });
   });
 
@@ -380,22 +389,29 @@ describe('SecaoFormulario', () => {
       expect(placeholder).toBe('Código do nível');
     });
 
-    test('deve ter maxLength de 50', () => {
-      const maxLength = 50;
-      expect(maxLength).toBe(50);
+    test('deve ter maxLength de 9', () => {
+      const maxLength = 9;
+      expect(maxLength).toBe(9);
     });
 
-    test('deve estar desabilitado quando ehPerfilDF é true', () => {
-      const ehPerfilDF = true;
-      const ehPerfilEMFORPEF = false;
-      const disabled = ehPerfilDF || ehPerfilEMFORPEF;
-      expect(disabled).toBe(true);
-    });
-
-    test('deve estar desabilitado quando ehPerfilEMFORPEF é true', () => {
+    test('deve estar habilitado quando ehPerfilAdminDF é true', () => {
+      const ehPerfilAdminDF = true;
       const ehPerfilDF = false;
-      const ehPerfilEMFORPEF = true;
-      const disabled = ehPerfilDF || ehPerfilEMFORPEF;
+      const disabled = deveDesabilitarCamposEol({ admin: ehPerfilAdminDF, df: ehPerfilDF });
+      expect(disabled).toBe(false);
+    });
+
+    test('deve estar habilitado quando ehPerfilDF é true', () => {
+      const ehPerfilAdminDF = false;
+      const ehPerfilDF = true;
+      const disabled = deveDesabilitarCamposEol({ admin: ehPerfilAdminDF, df: ehPerfilDF });
+      expect(disabled).toBe(false);
+    });
+
+    test('deve estar desabilitado para outros perfis como ehPerfilEMFORPEF', () => {
+      const ehPerfilAdminDF = false;
+      const ehPerfilDF = false;
+      const disabled = deveDesabilitarCamposEol({ admin: ehPerfilAdminDF, df: ehPerfilDF });
       expect(disabled).toBe(true);
     });
   });

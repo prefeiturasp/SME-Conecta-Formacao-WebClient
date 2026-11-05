@@ -1,6 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
 import { DeltaInscritosDTO } from '../../../../../core/services/codaf-lista-presenca-service';
 import { calcularAprovacao } from '../../../../../core/utils/codaf-utils';
+import { deveDesabilitarCamposEol } from '../../../../../core/utils/codaf-salvar';
 import type { RegrasAprovacaoCursistaCodafDto } from '../../../../../core/dto/cursista-dto';
 
 describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados', () => {
@@ -308,6 +309,45 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
       test('DadoPerfilNaoDRE_StatusBloqueado_EntaoNumeroHomologacaoBloqueado', () => {
         const bloqueios = calcularBloqueiosSecaoFormulario(false, false, true, false);
         expect(bloqueios.numeroHomologacao).toBe(true);
+      });
+    });
+
+    describe('Regras de Bloqueio dos Campos Código do curso no EOL e Código de Nível', () => {
+      const calcularBloqueiosEol = (
+        perfil: { admin?: boolean; df?: boolean },
+        situacaoFinalizado: boolean,
+      ) => {
+        return {
+          codigoCursoEol: deveDesabilitarCamposEol(perfil, situacaoFinalizado),
+          codigoNivel: deveDesabilitarCamposEol(perfil, situacaoFinalizado),
+        };
+      };
+
+      test('DadoPerfilAdminDF_NaoFinalizado_EntaoCamposEolHabilitados', () => {
+        const bloqueios = calcularBloqueiosEol({ admin: true, df: false }, false);
+        expect(bloqueios.codigoCursoEol).toBe(false);
+        expect(bloqueios.codigoNivel).toBe(false);
+      });
+
+      test('DadoPerfilDF_NaoFinalizado_EntaoCamposEolHabilitados', () => {
+        const bloqueios = calcularBloqueiosEol({ admin: false, df: true }, false);
+        expect(bloqueios.codigoCursoEol).toBe(false);
+        expect(bloqueios.codigoNivel).toBe(false);
+      });
+
+      test('DadoPerfilOutro_NaoFinalizado_EntaoCamposEolDesabilitados', () => {
+        const bloqueios = calcularBloqueiosEol({ admin: false, df: false }, false);
+        expect(bloqueios.codigoCursoEol).toBe(true);
+        expect(bloqueios.codigoNivel).toBe(true);
+      });
+
+      test('DadoPerfilAdminDFOuDF_SituacaoFinalizado_EntaoCamposEolDesabilitados', () => {
+        const bloqueiosAdmin = calcularBloqueiosEol({ admin: true, df: false }, true);
+        const bloqueiosDF = calcularBloqueiosEol({ admin: false, df: true }, true);
+        expect(bloqueiosAdmin.codigoCursoEol).toBe(true);
+        expect(bloqueiosAdmin.codigoNivel).toBe(true);
+        expect(bloqueiosDF.codigoCursoEol).toBe(true);
+        expect(bloqueiosDF.codigoNivel).toBe(true);
       });
     });
 

@@ -10,7 +10,13 @@ import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 
 jest.mock('~/components/main/numero', () => ({
   __esModule: true,
-  default: ({ formItemProps, inputProps }: { formItemProps?: { label?: React.ReactNode }; inputProps?: any }) => (
+  default: ({
+    formItemProps,
+    inputProps,
+  }: {
+    formItemProps?: { label?: React.ReactNode };
+    inputProps?: any;
+  }) => (
     <div data-testid='input-numero'>
       <span>{formItemProps?.label}</span>
       <input
@@ -28,8 +34,17 @@ jest.mock('~/components/main/numero', () => ({
 
 jest.mock('~/components/main/text/input-text', () => ({
   __esModule: true,
-  default: ({ formItemProps }: { formItemProps?: { label?: React.ReactNode } }) => (
-    <div data-testid='input-text'>{formItemProps?.label}</div>
+  default: ({
+    formItemProps,
+    inputProps,
+  }: {
+    formItemProps?: { label?: React.ReactNode };
+    inputProps?: any;
+  }) => (
+    <div data-testid='input-text'>
+      <span>{formItemProps?.label}</span>
+      <input data-testid={inputProps?.id || 'input-text-field'} disabled={inputProps?.disabled} />
+    </div>
   ),
 }));
 
@@ -171,5 +186,56 @@ describe('SecaoFormulario behavior', () => {
 
     fireEvent.keyDown(inputCodigo, { key: 'Enter', currentTarget: { value: '12345' } });
     expect(onBlurMock).toHaveBeenCalled();
+  });
+
+  describe('Permissões de edição dos campos Código do curso no EOL e Código do nível', () => {
+    test('habilita campos para perfil Admin DF', () => {
+      renderComponent({ ehPerfilAdminDF: true, ehPerfilDF: false });
+
+      const inputCursoEol = screen.getByTestId('CF_INPUT_CODIGO_CURSO_EOL') as HTMLInputElement;
+      const inputNivel = screen.getByTestId('CF_INPUT_CODIGO_NIVEL') as HTMLInputElement;
+
+      expect(inputCursoEol.disabled).toBe(false);
+      expect(inputNivel.disabled).toBe(false);
+    });
+
+    test('habilita campos para perfil DF', () => {
+      renderComponent({ ehPerfilAdminDF: false, ehPerfilDF: true });
+
+      const inputCursoEol = screen.getByTestId('CF_INPUT_CODIGO_CURSO_EOL') as HTMLInputElement;
+      const inputNivel = screen.getByTestId('CF_INPUT_CODIGO_NIVEL') as HTMLInputElement;
+
+      expect(inputCursoEol.disabled).toBe(false);
+      expect(inputNivel.disabled).toBe(false);
+    });
+
+    test('desabilita campos para outros perfis quando não for Admin DF nem DF', () => {
+      renderComponent({ ehPerfilAdminDF: false, ehPerfilDF: false, ehPerfilEMFORPEF: true });
+
+      const inputCursoEol = screen.getByTestId('CF_INPUT_CODIGO_CURSO_EOL') as HTMLInputElement;
+      const inputNivel = screen.getByTestId('CF_INPUT_CODIGO_NIVEL') as HTMLInputElement;
+
+      expect(inputCursoEol.disabled).toBe(true);
+      expect(inputNivel.disabled).toBe(true);
+    });
+
+    test('respeita bloqueio explicito via camposBloqueados mesmo para Admin DF', () => {
+      renderComponent({
+        ehPerfilAdminDF: true,
+        ehPerfilDF: false,
+        camposBloqueados: {
+          numeroHomologacao: false,
+          turma: false,
+          codigoCursoEol: true,
+          codigoNivel: true,
+        },
+      });
+
+      const inputCursoEol = screen.getByTestId('CF_INPUT_CODIGO_CURSO_EOL') as HTMLInputElement;
+      const inputNivel = screen.getByTestId('CF_INPUT_CODIGO_NIVEL') as HTMLInputElement;
+
+      expect(inputCursoEol.disabled).toBe(true);
+      expect(inputNivel.disabled).toBe(true);
+    });
   });
 });

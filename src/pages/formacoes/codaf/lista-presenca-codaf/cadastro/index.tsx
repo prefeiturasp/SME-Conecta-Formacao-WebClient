@@ -59,7 +59,11 @@ import {
   extractRetificacoesPayload,
   hydrateRetificacoesForm,
 } from '~/core/utils/codaf-utils';
-import { deveBloquearEdicaoCodaf, deveDesabilitarSalvarCodaf } from '~/core/utils/codaf-salvar';
+import {
+  deveBloquearEdicaoCodaf,
+  deveDesabilitarCamposEol,
+  deveDesabilitarSalvarCodaf,
+} from '~/core/utils/codaf-salvar';
 import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
 import { useCodafComum } from '~/core/hooks/use-codaf-comum';
 import { usePerfilCodaf } from '~/core/hooks/use-perfil-codaf';
@@ -281,6 +285,8 @@ const CadastroListaPresencaCodaf: React.FC = () => {
           ? modoEdicao || bloqueadoPorStatusOuCertificado
           : situacao.finalizado,
         turma: bloqueadoPorStatusOuCertificado,
+        codigoCursoEol: deveDesabilitarCamposEol(perfil, situacao.finalizado),
+        codigoNivel: deveDesabilitarCamposEol(perfil, situacao.finalizado),
       },
 
       listaInscritos: bloqueadoPorStatusOuCertificado,
@@ -1438,6 +1444,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
             turmaDisabled={turmaDisabled}
             tooltipAberto={tooltipAberto}
             ehPerfilDF={perfil.df}
+            ehPerfilAdminDF={perfil.admin}
             ehPerfilEMFORPEF={perfil.emforpef}
             ehPerfilDRE={perfil.dre}
             onChangeCodigoFormacao={onChangeCodigoFormacao}
