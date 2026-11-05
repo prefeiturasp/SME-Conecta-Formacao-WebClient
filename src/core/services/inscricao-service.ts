@@ -1,7 +1,11 @@
 import { InscricaoProps } from '~/pages/formacao-cursista/minhas-inscricoes/listagem';
 import { CursistaDTO } from '../dto/cursista-dto';
 import { DadosListagemInscricaoDTO } from '../dto/dados-listagem-inscricao-dto';
-import { DadosInscricaoDTO, DadosVinculoInscricaoDTO, DadosInscricaoPropostaDto } from '../dto/dados-usuario-inscricao-dto';
+import {
+  DadosInscricaoDTO,
+  DadosVinculoInscricaoDTO,
+  DadosInscricaoPropostaDto,
+} from '../dto/dados-usuario-inscricao-dto';
 import { InscricaoDTO } from '../dto/inscricao-dto';
 import { InscricaoManualDTO } from '../dto/inscricao-manual-dto';
 import { InscricaoMotivoCancelamentoDTO } from '../dto/inscricao-motivo-cancelamento-dto';
@@ -9,6 +13,7 @@ import { PaginacaoResultadoDTO } from '../dto/paginacao-resultado-dto';
 import { PodeInscreverMensagemDTO } from '../dto/pode-inscrever-mensagem-dto';
 import { RetornoDTO } from '../dto/retorno-dto';
 import { RetornoListagemDTO } from '../dto/retorno-listagem-dto';
+import { PropostaTurmaInscricaoDTO } from '../dto/proposta-turma-inscricao-dto';
 import { ApiResult, alterarRegistro, inserirRegistro, obterRegistro } from './api';
 import { InscricaoProximaFiltro } from '../dto/InscricaoProximaFiltro';
 import { InscricaoFinalizadaFiltro } from '../dto/InscricaoFinalizadaFiltro';
@@ -28,8 +33,10 @@ const obterDadosInscricao = () => {
 };
 
 const obterDadosInscricaoProposta = (propostaId: number) => {
-  return obterRegistro<DadosInscricaoPropostaDto>(`${URL_INSCRICAO}/dados-inscricao-proposta/${propostaId}`);
-}
+  return obterRegistro<DadosInscricaoPropostaDto>(
+    `${URL_INSCRICAO}/dados-inscricao-proposta/${propostaId}`,
+  );
+};
 
 const obterRfCpf = (rfCpf: string) => {
   const params = rfCpf && rfCpf.length > 7 ? { cpf: rfCpf } : { registroFuncional: rfCpf };
@@ -55,7 +62,7 @@ const obterTurmasInscricao = (
   propostaId: number,
   codigoDre?: string,
   apenasPeriodoInscricaoVigente?: boolean,
-): Promise<ApiResult<RetornoListagemDTO[]>> =>
+): Promise<ApiResult<PropostaTurmaInscricaoDTO[]>> =>
   obterRegistro(`${URL_INSCRICAO}/turmas/${propostaId}`, {
     params: {
       codigoDre,
@@ -98,16 +105,12 @@ const sortearInscricao = (propostaId: number) =>
   alterarRegistro<RetornoDTO>(`${URL_INSCRICAO}/sortear/${propostaId}`);
 
 const obterInscricoesProximas = (params?: InscricaoProximaFiltro) =>
-  obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(
-    `${URL_INSCRICAO}/proximas`,
-    { params },
-  );
+  obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(`${URL_INSCRICAO}/proximas`, { params });
 
 const obterInscricoesFinalizadas = (params?: InscricaoFinalizadaFiltro) =>
-  obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(
-    `${URL_INSCRICAO}/finalizadas`,
-    { params },
-  );
+  obterRegistro<PaginacaoResultadoDTO<InscricaoProps[]>>(`${URL_INSCRICAO}/finalizadas`, {
+    params,
+  });
 
 export {
   alterarVinculo,
@@ -131,3 +134,4 @@ export {
   obterInscricoesProximas,
   obterInscricoesFinalizadas,
 };
+export type { PropostaTurmaInscricaoDTO };
