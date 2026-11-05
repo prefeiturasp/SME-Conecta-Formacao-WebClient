@@ -18,7 +18,10 @@ import { BannerComentarios } from './componentes/banner-comentarios';
 import DrawerAtualizacaoInscritos from '~/components/lib/drawer/atualizacao-inscritos/drawer-atualizacao-inscritos';
 import { InscritoAtualizacaoDTO } from '~/core/dto/atualizacao-inscritos-dto';
 import { TableRowSelection } from 'antd/es/table/interface';
-import { DrawerEdicaoLoteCursistas, DadosLoteCursistas } from './componentes/drawer-edicao-lote-cursistas';
+import {
+  DrawerEdicaoLoteCursistas,
+  DadosLoteCursistas,
+} from './componentes/drawer-edicao-lote-cursistas';
 
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
@@ -40,15 +43,22 @@ import {
   obterAnexoCodafParaDownload,
   obterCodafListaPresencaPorId,
   obterInscritosTurma,
-  verificarTurmaPossuiLista,
   obterDeltaInscritosSilencioso,
-  deletarRetificacao
+  deletarRetificacao,
 } from '~/core/services/codaf-lista-presenca-service';
-import { autocompletarFormacao, obterDetalhesPropostaComTurmasPorId, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
+import {
+  autocompletarFormacao,
+  obterDetalhesPropostaComTurmasPorId,
+  PropostaAutocompletarDTO,
+} from '~/core/services/proposta-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { onClickVoltar } from '~/core/utils/form';
-import { calcularAprovacao, extractRetificacoesPayload, hydrateRetificacoesForm } from '~/core/utils/codaf-utils';
+import {
+  calcularAprovacao,
+  extractRetificacoesPayload,
+  hydrateRetificacoesForm,
+} from '~/core/utils/codaf-utils';
 import { deveBloquearEdicaoCodaf, deveDesabilitarSalvarCodaf } from '~/core/utils/codaf-salvar';
 import { RegrasAprovacaoCursistaCodafDto } from '~/core/dto/cursista-dto';
 import { useCodafComum } from '~/core/hooks/use-codaf-comum';
@@ -97,23 +107,28 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [propostaSelecionada, setPropostaSelecionada] = useState<PropostaAutocompletarDTO | null>(
     null,
   );
-  
+
   const { perfil, ehAreaPromotora, ehAreaPromotoraEAdmin } = usePerfilCodaf();
-  const { mapearAnexosParaFormulario, onBaixarModelo, onDownloadAnexo, exibirErroSalvar } = useCodafComum();
+  const { mapearAnexosParaFormulario, onBaixarModelo, onDownloadAnexo, exibirErroSalvar } =
+    useCodafComum();
   const {
-  modalExcluirVisible,
-  loadingExclusao,
-  onClickExcluir,
-  cancelarExclusao,
-  confirmarExclusao,
-} = useExclusaoCodaf(excluirCodafListaPresenca, ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO);
+    modalExcluirVisible,
+    loadingExclusao,
+    onClickExcluir,
+    cancelarExclusao,
+    confirmarExclusao,
+  } = useExclusaoCodaf(excluirCodafListaPresenca, ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO);
 
   const {
-    cursistas, setCursistas,
-    cursistasSelecionadosIds, setCursistasSelecionadosIds,
-    paginaAtualInscritos, setPaginaAtualInscritos,
+    cursistas,
+    setCursistas,
+    cursistasSelecionadosIds,
+    setCursistasSelecionadosIds,
+    paginaAtualInscritos,
+    setPaginaAtualInscritos,
     registrosPorPaginaInscritos,
-    totalRegistrosInscritos, setTotalRegistrosInscritos,
+    totalRegistrosInscritos,
+    setTotalRegistrosInscritos,
     handleTableChangeInscritos,
   } = useTabelaInscritos<CursistaDTO>();
 
@@ -124,15 +139,16 @@ const CadastroListaPresencaCodaf: React.FC = () => {
   const [auditoriaDados, setAuditoriaDados] = useState<AuditoriaDTO>();
   const [certificadoEmitido, setCertificadoEmitido] = useState(false);
 
-  const bloqueadoPorStatusOuCertificado = deveBloquearEdicaoCodaf(
-    status === 4,
-    certificadoEmitido,
-  );
+  const bloqueadoPorStatusOuCertificado = deveBloquearEdicaoCodaf(status === 4, certificadoEmitido);
 
   const cursistasSelecionados = cursistas.filter((c) => cursistasSelecionadosIds.includes(c.id));
 
   const algumSelecionadoComDados = cursistasSelecionados.some(
-    (c) => c.frequencia !== null || c.atividade !== null || c.conceitoFinal !== null || c.aprovado !== null,
+    (c) =>
+      c.frequencia !== null ||
+      c.atividade !== null ||
+      c.conceitoFinal !== null ||
+      c.aprovado !== null,
   );
 
   const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 2;
@@ -152,7 +168,7 @@ const CadastroListaPresencaCodaf: React.FC = () => {
     setDrawerLoteAberto(true);
   };
 
-const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
+  const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     const novaListaCursistas = cursistas.map((cursista) =>
       cursistasSelecionadosIds.includes(cursista.id)
         ? {
@@ -194,7 +210,8 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   const [modalComentarioVisible, setModalComentarioVisible] = useState(false);
   const [modalDrawerInscritosVisible, setModalDrawerInscritosVisible] = useState(false);
   const [novosInscritosDrawer, setNovosInscritosDrawer] = useState<InscritoAtualizacaoDTO[]>([]);
-  const [deltaResolvidoLocalmente, setDeltaResolvidoLocalmente] = useState<DeltaInscritosDTO | null>(null);
+  const [deltaResolvidoLocalmente, setDeltaResolvidoLocalmente] =
+    useState<DeltaInscritosDTO | null>(null);
   const formOriginal = React.useRef<any>(null);
   const cursistasOriginais = React.useRef<CursistaDTO[]>([]);
   const situacoes = [
@@ -219,7 +236,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   };
 
   const modoEdicao = !!id;
-  
+
   const situacao = {
     iniciado: status === 1,
 
@@ -242,44 +259,35 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   const dataPublicacaoDiarioOficial = Form.useWatch('dataPublicacaoDiarioOficial', form);
   const anexos = Form.useWatch('anexos', form);
 
-  const salvarDesabilitadoPorCamposObrigatorios = deveDesabilitarSalvarCodaf(
-    certificadoEmitido,
-    {
-      numeroComunicado,
-      dataPublicacao,
-      paginaComunicado,
-      dataPublicacaoDiarioOficial,
-      codigoCursoEol,
-      anexos,
-    },
-  );
+  const salvarDesabilitadoPorCamposObrigatorios = deveDesabilitarSalvarCodaf(certificadoEmitido, {
+    numeroComunicado,
+    dataPublicacao,
+    paginaComunicado,
+    dataPublicacaoDiarioOficial,
+    codigoCursoEol,
+    anexos,
+  });
 
-  const bloqueioDivergenciaSalvar =
-    modoEdicao &&
-    (situacao.iniciado) &&
-    mostrarDivergencia;
+  const bloqueioDivergenciaSalvar = modoEdicao && situacao.iniciado && mostrarDivergencia;
 
-  const bloqueioDivergenciaEnviarDF =
-    modoEdicao &&
-    mostrarDivergencia;
+  const bloqueioDivergenciaEnviarDF = modoEdicao && mostrarDivergencia;
 
   const bloqueios = {
-
     campos: {
       secaoFormulario: {
         numeroHomologacao: perfil.dre ? true : bloqueadoPorStatusOuCertificado,
         nomeFormacao: situacao.finalizado,
-        codigoFormacao: perfil.dre ? (modoEdicao || bloqueadoPorStatusOuCertificado) : situacao.finalizado,
+        codigoFormacao: perfil.dre
+          ? modoEdicao || bloqueadoPorStatusOuCertificado
+          : situacao.finalizado,
         turma: bloqueadoPorStatusOuCertificado,
       },
 
       listaInscritos: bloqueadoPorStatusOuCertificado,
 
-      retificacoes:
-        situacao.finalizado && ehAreaPromotora,
+      retificacoes: situacao.finalizado && ehAreaPromotora,
 
-      informacoesAdicionais:
-        situacao.finalizado && ehAreaPromotora,
+      informacoesAdicionais: situacao.finalizado && ehAreaPromotora,
     },
 
     anexos: {
@@ -288,46 +296,30 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
     botoes: {
       excluir: {
-        visivel:
-          modoEdicao &&
-          situacao.iniciado,
+        visivel: modoEdicao && situacao.iniciado,
 
-        bloqueado:
-          bloqueadoPorStatusOuCertificado,
+        bloqueado: bloqueadoPorStatusOuCertificado,
       },
 
       enviarDF: {
-        visivel:
-          (
-            situacao.iniciado ||
-            status === null ||
-            situacao.devolvidoDF
-          ) &&
-          ehAreaPromotora,
+        visivel: (situacao.iniciado || status === null || situacao.devolvidoDF) && ehAreaPromotora,
 
-        bloqueado:
-          situacao.finalizado || bloqueioDivergenciaEnviarDF,
+        bloqueado: situacao.finalizado || bloqueioDivergenciaEnviarDF,
       },
 
       devolver: {
-        visivel:
-          situacao.aguardandoDF &&
-          perfil.admin,
+        visivel: situacao.aguardandoDF && perfil.admin,
 
-        bloqueado:
-          !formValido ||
-          situacao.finalizado,
+        bloqueado: !formValido || situacao.finalizado,
       },
 
       salvar: {
         visivel:
-          (
-            !situacao.aguardandoDF ||
-            situacao.aguardandoDF &&
-            perfil.admin
-          ) && !situacao.finalizado,
+          (!situacao.aguardandoDF || (situacao.aguardandoDF && perfil.admin)) &&
+          !situacao.finalizado,
 
-        bloqueado: (!modoEdicao && todasTurmasPossuemLista) ||
+        bloqueado:
+          (!modoEdicao && todasTurmasPossuemLista) ||
           bloqueioDivergenciaSalvar ||
           salvarDesabilitadoPorCamposObrigatorios,
       },
@@ -411,12 +403,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
         for (const turma of turmasResponse.dados) {
           if (turma.id === dados.propostaTurmaId) continue;
-          try {
-            const possuiLista = await verificarTurmaPossuiLista(turma.id, dados.id || 0);
-            if (possuiLista.sucesso && possuiLista.dados === false) turmasDisponiveis.push(turma);
-          } catch (error) {
-            console.error(`Erro ao verificar turma ${turma.id}:`, error);
-          }
+          if (!turma.possuiCodafListaPresenca) turmasDisponiveis.push(turma);
         }
 
         setTurmasFiltradas(turmasDisponiveis);
@@ -474,10 +461,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
           console.error('Erro ao verificar certificados emitidos:', error);
         }
 
-        setCertificadoEmitido(
-          !!dados.certificadoEmitido ||
-            possuiCertificadosEmitidos,
-        );
+        setCertificadoEmitido(!!dados.certificadoEmitido || possuiCertificadosEmitidos);
         setRegrasAprovacao(dados.regrasAprovacao);
 
         if (dados.comentario) {
@@ -520,7 +504,6 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
     carregarDados();
   }, [id, form, navigate]);
-
 
   const buscarInscritos = async () => {
     if (!turmaId) {
@@ -580,23 +563,33 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     }
   }, [registrosPorPaginaInscritos]);
 
-  const handleCursistaChange = useCallback((id: number, field: string, value: any) => {
-    setCursistas(prev => prev.map(c => {
-      if (c.id !== id) return c;
-      const att = { ...c, [field]: value };
-      if (['frequencia', 'atividade', 'conceitoFinal'].includes(field)) {
-        const auto = calcularAprovacao(att.frequencia, att.conceitoFinal, att.atividade, regrasAprovacao);
-        if (auto !== null) att.aprovado = auto;
-      }
-      return att;
-    }));
-  }, [regrasAprovacao, setCursistas]);
+  const handleCursistaChange = useCallback(
+    (id: number, field: string, value: any) => {
+      setCursistas((prev) =>
+        prev.map((c) => {
+          if (c.id !== id) return c;
+          const att = { ...c, [field]: value };
+          if (['frequencia', 'atividade', 'conceitoFinal'].includes(field)) {
+            const auto = calcularAprovacao(
+              att.frequencia,
+              att.conceitoFinal,
+              att.atividade,
+              regrasAprovacao,
+            );
+            if (auto !== null) att.aprovado = auto;
+          }
+          return att;
+        }),
+      );
+    },
+    [regrasAprovacao, setCursistas],
+  );
 
   const colunasCursistas = criarColunasCodafHomologado(
-    paginaAtualInscritos, 
-    registrosPorPaginaInscritos, 
-    bloqueios.campos.listaInscritos, 
-    handleCursistaChange
+    paginaAtualInscritos,
+    registrosPorPaginaInscritos,
+    bloqueios.campos.listaInscritos,
+    handleCursistaChange,
   );
 
   const rowSelection: TableRowSelection<CursistaDTO> = {
@@ -651,18 +644,9 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       try {
         const response = await obterTurmasInscricao(proposta.propostaId);
         if (response.sucesso && response.dados) {
-
-          const turmasDisponiveis: RetornoListagemDTO[] = [];
-          for (const turma of response.dados) {
-            try {
-              const possuiLista = await verificarTurmaPossuiLista(turma.id, 0);
-              if (possuiLista.sucesso && possuiLista.dados === false) {
-                turmasDisponiveis.push(turma);
-              }
-            } catch (error) {
-              console.error(`Erro ao verificar turma ${turma.id}:`, error);
-            }
-          }
+          const turmasDisponiveis: RetornoListagemDTO[] = response.dados.filter(
+            (turma) => !turma.possuiCodafListaPresenca,
+          );
 
           if (turmasDisponiveis.length === 0) {
             // Se não sobrar nenhuma turma, deixe apenas a primeira e desabilite
@@ -762,17 +746,13 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
         const turmas = dados.turmas || [];
         if (turmas.length > 0) {
-          const turmasDisponiveis: RetornoListagemDTO[] = [];
-          for (const turma of turmas) {
-            try {
-              const possuiLista = await verificarTurmaPossuiLista(turma.id, 0);
-              if (possuiLista.sucesso && possuiLista.dados === false) {
-                turmasDisponiveis.push({ id: turma.id, descricao: turma.descricao });
-              }
-            } catch (error) {
-              console.error(`Erro ao verificar turma ${turma.id}:`, error);
-            }
-          }
+          const turmasDisponiveis: RetornoListagemDTO[] = turmas
+            .filter((turma) => !turma.possuiCodafListaPresenca)
+            .map((turma) => ({
+              id: turma.id,
+              descricao: turma.descricao,
+              possuiCodafListaPresenca: turma.possuiCodafListaPresenca,
+            }));
 
           if (turmasDisponiveis.length === 0) {
             const primeiraTurma = turmas[0];
@@ -836,10 +816,14 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       cursistasOriginais.current = JSON.parse(JSON.stringify(cursistas));
       notification.success({
         message: 'Sucesso',
-        description: modoEdicao ? 'Registro atualizado com sucesso!' : 'Registro salvo com sucesso!',
+        description: modoEdicao
+          ? 'Registro atualizado com sucesso!'
+          : 'Registro salvo com sucesso!',
       });
       if (!id) {
-        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', response.dados.id), { state: location.state });
+        navigate(ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO_EDITAR.replace(':id', response.dados.id), {
+          state: location.state,
+        });
       }
     } else {
       const mensagensErro = response.mensagens ?? [];
@@ -881,17 +865,18 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   };
 
   const montarPayloadSalvar = (values: any, inscritosOverride?: CursistaDTO[]) => {
-    const anexosMapeados = values.anexos?.map((arquivo: any) => ({
-      arquivoCodigo: arquivo.response?.codigo ?? arquivo.arquivoCodigo,
-      nomeArquivo: arquivo.name || arquivo.nomeArquivo,
-      tipoAnexoId: 3,
-    })) ?? [];
+    const anexosMapeados =
+      values.anexos?.map((arquivo: any) => ({
+        arquivoCodigo: arquivo.response?.codigo ?? arquivo.arquivoCodigo,
+        nomeArquivo: arquivo.name || arquivo.nomeArquivo,
+        tipoAnexoId: 3,
+      })) ?? [];
 
     const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
     const retificacoesPayload = extractRetificacoesPayload(
-      values, 
-      retificacoes, 
-      modoEdicao ? retificacoesOriginais : undefined
+      values,
+      retificacoes,
+      modoEdicao ? retificacoesOriginais : undefined,
     );
 
     return {
@@ -930,7 +915,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
   const onClickSalvar = async (inscritosOverride?: CursistaDTO[]): Promise<boolean> => {
     try {
-      if (registroId && await houveAlteracaoInscritosAoSalvar(registroId)) {
+      if (registroId && (await houveAlteracaoInscritosAoSalvar(registroId))) {
         return false;
       }
 
@@ -942,7 +927,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       const response = modoEdicao
         ? await atualizarCodafListaPresenca(registroId ?? 0, dados)
         : await criarCodafListaPresenca(dados);
-        
+
       tratarRespostaSalvar(response);
 
       if (response.sucesso) {
@@ -971,7 +956,11 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
   };
 
   const onClickCancelar = () => {
-    onClickVoltar({ navigate, route: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO, paramsRoute: { state: location.state } });
+    onClickVoltar({
+      navigate,
+      route: ROUTES.LISTA_PRESENCA_CODAF_HOMOLOGADO,
+      paramsRoute: { state: location.state },
+    });
   };
 
   const sanitizarDadosParaComparacao = (dados: any) => {
@@ -984,24 +973,24 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     if (copia.anexos && Array.isArray(copia.anexos)) {
       copia.anexos = copia.anexos.map((anexo: any) => ({
         arquivoCodigo: anexo.arquivoCodigo || anexo.response?.codigo || anexo.uid,
-        nomeArquivo: anexo.nomeArquivo || anexo.name
+        nomeArquivo: anexo.nomeArquivo || anexo.name,
       }));
 
-      copia.anexos.sort((a: any, b: any) => 
-        (a.arquivoCodigo || '').localeCompare(b.arquivoCodigo || '')
+      copia.anexos.sort((a: any, b: any) =>
+        (a.arquivoCodigo || '').localeCompare(b.arquivoCodigo || ''),
       );
 
       console.log('Sanitização de anexos concluída:', copia.anexos);
     }
 
     return copia;
-  }
+  };
 
   const verificarAlteracoes = () => {
     if (!modoEdicao || !formOriginal.current) return false;
 
     const formAtual = form.getFieldsValue();
-    
+
     const formOriginalSanitizado = sanitizarDadosParaComparacao(formOriginal.current);
     const formAtualSanitizado = sanitizarDadosParaComparacao(formAtual);
 
@@ -1015,17 +1004,26 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
 
   const validarParaEnvio = (): boolean => {
     if (!registroId) {
-      notification.warning({ message: 'Atenção', description: 'É necessário salvar o registro antes de enviar para DF' });
+      notification.warning({
+        message: 'Atenção',
+        description: 'É necessário salvar o registro antes de enviar para DF',
+      });
       return false;
     }
 
     if (verificarAlteracoes()) {
-      notification.warning({ message: 'Atenção', description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.' });
+      notification.warning({
+        message: 'Atenção',
+        description: 'Você possui alterações não salvas. Por favor, salve antes de enviar.',
+      });
       return false;
     }
 
     if (!form.getFieldValue('anexos')?.length) {
-      notification.warning({ message: 'Atenção', description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF' });
+      notification.warning({
+        message: 'Atenção',
+        description: 'É necessário anexar pelo menos um arquivo antes de enviar para DF',
+      });
       return false;
     }
 
@@ -1046,24 +1044,30 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     if (camposVazios.length > 0) {
       notification.warning({
         message: 'Atenção',
-        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(', ')})`,
+        description: `Os seguintes campos não possuem valores validos: (${camposVazios.join(
+          ', ',
+        )})`,
       });
       return false;
     }
 
     if (cursistas.length === 0) {
-      notification.warning({ message: 'Atenção', description: 'Não é possível enviar para DF sem inscritos na lista de presença' });
+      notification.warning({
+        message: 'Atenção',
+        description: 'Não é possível enviar para DF sem inscritos na lista de presença',
+      });
       return false;
     }
 
     const possuiCursistaIncompleto = cursistas.some(
-      (c) => c.frequencia === null || c.conceitoFinal === null || c.aprovado === null
+      (c) => c.frequencia === null || c.conceitoFinal === null || c.aprovado === null,
     );
 
     if (possuiCursistaIncompleto) {
       notification.warning({
         message: 'Atenção',
-        description: 'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
+        description:
+          'Você precisa preencher a Frequência, Conceito Final e Aprovado em todos os inscritos para prosseguir',
       });
       return false;
     }
@@ -1254,7 +1258,9 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     const inscritosMapeadosParaDrawer: InscritoAtualizacaoDTO[] = novos.map((novo) => {
       const salvoLocal = cursistas.find((c) => c.id === novo.id);
 
-      let freq = salvoLocal?.frequencia?.toString() ?? (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
+      let freq =
+        salvoLocal?.frequencia?.toString() ??
+        (novo.percentualFrequencia !== null ? novo.percentualFrequencia.toString() : undefined);
 
       let ativ: 'Sim' | 'Não' | undefined = undefined;
       if (salvoLocal?.atividade === 'S') ativ = 'Sim';
@@ -1290,13 +1296,17 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
       const idsRemovidos = deltaInscritos?.inscritosRemovidos?.map((r) => r.id) ?? [];
       const idsNovos = novosInscritosPreenchidos.map((i) => i.id);
 
-      const cursistasAtuaisFiltrados = cursistas.filter((c) => !idsRemovidos.includes(c.id) && !idsNovos.includes(c.id));
+      const cursistasAtuaisFiltrados = cursistas.filter(
+        (c) => !idsRemovidos.includes(c.id) && !idsNovos.includes(c.id),
+      );
 
       const novosCursistas: CursistaDTO[] = novosInscritosPreenchidos.map((inscrito) => ({
         id: inscrito.id,
         rfOuCpf: inscrito.documento,
         nomeCursista: inscrito.nome,
-        frequencia: inscrito.frequencia ? parseInt(inscrito.frequencia.replace(/\D/g, ''), 10) : null,
+        frequencia: inscrito.frequencia
+          ? parseInt(inscrito.frequencia.replace(/\D/g, ''), 10)
+          : null,
         atividade: inscrito.atividadeObrigatoria ?? null,
         conceitoFinal: inscrito.conceitoFinal ?? null,
         aprovado: inscrito.aprovado === 'Sim',
@@ -1344,14 +1354,16 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
     if (!mostrarDivergencia || !deltaInscritos) return true;
 
     const isNovo = deltaInscritos.inscritosNovos?.some((novo) => novo.id === cursista.id);
-    const isRemovido = deltaInscritos.inscritosRemovidos?.some((removido) => removido.id === cursista.id);
+    const isRemovido = deltaInscritos.inscritosRemovidos?.some(
+      (removido) => removido.id === cursista.id,
+    );
 
     return !isNovo && !isRemovido;
   });
 
   const aoDeletarRetificacao = async (retificacaoKey: number) => {
     return await deletarRetificacao(retificacaoKey);
-  }
+  };
 
   return (
     <Col>
@@ -1409,7 +1421,8 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
                       marginLeft: 16,
                     }}
                   >
-                    <b>Situação:</b> {situacoes.find((s) => s.id === status)?.descricao || 'Desconhecido'}
+                    <b>Situação:</b>{' '}
+                    {situacoes.find((s) => s.id === status)?.descricao || 'Desconhecido'}
                   </div>
                 )}
               </div>
@@ -1517,7 +1530,7 @@ const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
         visible={modalExcluirVisible}
         onConfirm={() => confirmarExclusao(registroId)}
         onCancel={cancelarExclusao}
-        loading={loading|| loadingExclusao}
+        loading={loading || loadingExclusao}
       />
 
       <ModalComentario
