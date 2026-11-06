@@ -1,6 +1,6 @@
 import { Input, Select, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React from 'react';
+import dayjs from 'dayjs';
 
 export const criarColunasCodafHomologado = (
   paginaAtual: number,
@@ -176,6 +176,23 @@ export const criarColunasBaseListagemCodaf = <T extends object>(
         </div>
       </Tooltip>
     ),
+  },
+  {
+    key: 'dataPrimeiroEnvioDf',
+    title: 'Primeiro envio para DF',
+    dataIndex: 'dataPrimeiroEnvioDf' as any,
+    width: ocultarColunas ? 200 : 150,
+    render: (data?: string) => {
+      if (!data) return '-';
+      const dataFormatada = dayjs(data);
+      if (!dataFormatada.isValid()) return '-';
+      return (
+        <div>
+          <div>{dataFormatada.format('DD/MM/YYYY')}</div>
+          <div>{dataFormatada.format('[às] HH:mm[h]')}</div>
+        </div>
+      );
+    },
   },
   {
     key: 'nomeAreaPromotora',
