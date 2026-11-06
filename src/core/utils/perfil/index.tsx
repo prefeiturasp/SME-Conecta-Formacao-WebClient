@@ -4,7 +4,8 @@ import { setDadosLogin } from '~/core/redux/modules/auth/actions';
 import jwt_decode from 'jwt-decode';
 import { JWTDecodeDTO } from '~/core/dto/jwt-decode-dto';
 import { RetornoPerfilUsuarioDTO } from '~/core/dto/retorno-perfil-usuario-dto';
-import { setPerfilSelecionado, setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
+import { PerfilUsuarioDTO } from '~/core/dto/perfil-usuario-dto';
+import { setDres, setPerfilSelecionado, setPerfilUsuario } from '~/core/redux/modules/perfil/actions';
 
 import { MenuItemConectaProps, RolesMenu, menus } from '~/components/main/sider/menus';
 import { PermissaoMenusAcoesDTO } from '~/core/dto/permissao-menu-acoes-dto';
@@ -112,6 +113,17 @@ const carregarMenusEPermissao = (roles: RolesDTO['roles'], perfilNome?: string) 
   }
 };
 
+export const ehPerfilDre = (
+  perfil?: PerfilUsuarioDTO | string | null,
+  dres?: string[] | null,
+): boolean => {
+  if (dres && dres.length > 0) return true;
+  const nome = typeof perfil === 'string' ? perfil : perfil?.perfilNome;
+  if (!nome) return false;
+  const upper = nome.toUpperCase();
+  return upper.includes('(DRE)') || upper.includes('DICEU') || upper.includes('DIPED');
+};
+
 export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
   const decodeObject: JWTDecodeDTO = jwt_decode(data.token);
 
@@ -121,6 +133,7 @@ export const validarAutenticacao = (data: RetornoPerfilUsuarioDTO) => {
 
   store.dispatch(setDadosLogin(data));
   store.dispatch(setPerfilUsuario(data.perfilUsuario));
+  store.dispatch(setDres(decodeObject?.dres || []));
 
   if (perfilSelecionado) {
     store.dispatch(setPerfilSelecionado(perfilSelecionado));

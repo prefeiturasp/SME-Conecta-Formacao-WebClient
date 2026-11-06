@@ -27,6 +27,9 @@ interface SecaoFormularioProps {
   exibirTooltipTurma?: boolean;
   ehPerfilDF: boolean;
   ehPerfilEMFORPEF: boolean;
+  ehPerfilDRE?: boolean;
+  onChangeCodigoFormacao?: (value: string) => void;
+  onBlurCodigoFormacao?: (value: string) => void;
   camposBloqueados: {
     numeroHomologacao: boolean;
     nomeFormacao?: boolean;
@@ -46,106 +49,163 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
   exibirTooltipTurma = true,
   ehPerfilDF,
   ehPerfilEMFORPEF,
+  ehPerfilDRE,
+  onChangeCodigoFormacao,
+  onBlurCodigoFormacao,
   camposBloqueados
 }) => {
+  const campoNumeroHomologacaoAutoComplete = (
+    <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+      <b>
+        <Form.Item
+          label='Número de homologação'
+          name='numeroHomologacao'
+          rules={[{ required: true, message: 'Campo obrigatório' }]}
+        >
+          <AutoComplete
+            id={CF_INPUT_NUMERO_HOMOLOGACAO}
+            disabled={camposBloqueados.numeroHomologacao}
+            placeholder='Digite para buscar formação'
+            onSearch={onSearchFormacao}
+            onSelect={onSelectFormacao}
+            options={opcoesFormacao.map((opcao) => ({
+              value: `${opcao.numeroHomologacao}-${opcao.propostaId}`,
+              label: opcao.numeroHomologacao.toString(),
+              numeroHomologacao: opcao.numeroHomologacao,
+              propostaId: opcao.propostaId,
+            }))}
+            filterOption={false}
+            notFoundContent={
+              loadingAutocomplete ? 'Buscando...' : 'Nenhuma formação encontrada'
+            }
+          />
+        </Form.Item>
+      </b>
+    </Col>
+  );
+
+  const campoNumeroHomologacaoInput = (
+    <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+      <b>
+        <InputNumero
+          formItemProps={{
+            label: 'Número de homologação',
+            name: 'numeroHomologacao',
+            rules: [{ required: true, message: 'Campo obrigatório' }],
+          }}
+          inputProps={{
+            id: CF_INPUT_NUMERO_HOMOLOGACAO,
+            placeholder: 'Número de homologação',
+            maxLength: 20,
+            disabled: camposBloqueados.numeroHomologacao ?? true,
+          }}
+        />
+      </b>
+    </Col>
+  );
+
+  const campoNomeFormacao = (
+    <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+      <b>
+        <InputTexto
+          formItemProps={{
+            label: 'Nome da formação',
+            name: 'nomeFormacao',
+            rules: [{ required: true, message: 'Campo obrigatório' }],
+          }}
+          inputProps={{
+            id: CF_INPUT_NOME_FORMACAO,
+            placeholder: 'Nome da formação',
+            maxLength: 200,
+            disabled: camposBloqueados.nomeFormacao ?? true,
+          }}
+        />
+      </b>
+    </Col>
+  );
+
+  const campoCodigoFormacao = (
+    <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+      <b>
+        <InputNumero
+          formItemProps={{
+            label: 'Código da formação',
+            name: 'codigoFormacao',
+            rules: [{ required: true, message: 'Campo obrigatório' }],
+          }}
+          inputProps={{
+            id: CF_INPUT_CODIGO_FORMACAO,
+            placeholder: 'Código da formação',
+            maxLength: 20,
+            disabled: camposBloqueados.codigoFormacao ?? (ehPerfilDRE ? false : true),
+            onChange: (e) => onChangeCodigoFormacao?.(e.target.value),
+            onBlur: (e) => onBlurCodigoFormacao?.(e.target.value),
+            onPressEnter: (e) => onBlurCodigoFormacao?.(e.currentTarget.value),
+          }}
+        />
+      </b>
+    </Col>
+  );
+
+  const campoTurma = (
+    <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+      <b>
+        <Form.Item
+          label={
+            <span>
+              Turma{' '}
+              {exibirTooltipTurma && (
+                <Tooltip
+                  title='Não é possível selecionar uma turma já inserida em um CODAF'
+                  open={tooltipAberto || undefined}
+                >
+                  <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
+                </Tooltip>
+              )}
+            </span>
+          }
+          name='turmaId'
+          rules={[{ required: true, message: 'Campo obrigatório' }]}
+        >
+          <Select
+            placeholder='Selecione a turma'
+            options={turmasFiltradas.map((turma) => ({
+              label: turma.descricao,
+              value: turma.id,
+            }))}
+            disabled={(camposBloqueados.turma ?? turmaDisabled)}
+            allowClear
+          />
+        </Form.Item>
+      </b>
+    </Col>
+  );
+
   return (
     <div>
-      <Row gutter={[16, 8]}>
-        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-          <b>
-            <Form.Item
-              label='Número de homologação'
-              name='numeroHomologacao'
-              rules={[{ required: true, message: 'Campo obrigatório' }]}
-            >
-              <AutoComplete
-                id={CF_INPUT_NUMERO_HOMOLOGACAO}
-                disabled={camposBloqueados.numeroHomologacao}
-                placeholder='Digite para buscar formação'
-                onSearch={onSearchFormacao}
-                onSelect={onSelectFormacao}
-                options={opcoesFormacao.map((opcao) => ({
-                  value: `${opcao.numeroHomologacao}-${opcao.propostaId}`,
-                  label: opcao.numeroHomologacao.toString(),
-                  numeroHomologacao: opcao.numeroHomologacao,
-                  propostaId: opcao.propostaId,
-                }))}
-                filterOption={false}
-                notFoundContent={
-                  loadingAutocomplete ? 'Buscando...' : 'Nenhuma formação encontrada'
-                }
-              />
-            </Form.Item>
-          </b>
-        </Col>
-        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-          <b>
-            <InputTexto
-              formItemProps={{
-                label: 'Nome da formação',
-                name: 'nomeFormacao',
-                rules: [{ required: true, message: 'Campo obrigatório' }],
-              }}
-              inputProps={{
-                id: CF_INPUT_NOME_FORMACAO,
-                placeholder: 'Nome da formação',
-                maxLength: 200,
-                disabled: camposBloqueados.nomeFormacao ?? true,
-              }}
-            />
-          </b>
-        </Col>
-      </Row>
-      <Row gutter={[16, 8]}>
-        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-          <b>
-            <InputNumero
-              formItemProps={{
-                label: 'Código da formação',
-                name: 'codigoFormacao',
-                rules: [{ required: true, message: 'Campo obrigatório' }],
-              }}
-              inputProps={{
-                id: CF_INPUT_CODIGO_FORMACAO,
-                placeholder: 'Código da formação',
-                maxLength: 20,
-                disabled: camposBloqueados.codigoFormacao ?? true,
-              }}
-            />
-          </b>
-        </Col>
-        <Col xs={24} sm={12} md={12} lg={12} xl={12}>
-          <b>
-            <Form.Item
-              label={
-                <span>
-                  Turma{' '}
-                  {exibirTooltipTurma && (
-                    <Tooltip
-                      title='Não é possível selecionar uma turma já inserida em um CODAF'
-                      open={tooltipAberto || undefined}
-                    >
-                      <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
-                    </Tooltip>
-                  )}
-                </span>
-              }
-              name='turmaId'
-              rules={[{ required: true, message: 'Campo obrigatório' }]}
-            >
-              <Select
-                placeholder='Selecione a turma'
-                options={turmasFiltradas.map((turma) => ({
-                  label: turma.descricao,
-                  value: turma.id,
-                }))}
-                disabled={(camposBloqueados.turma ?? turmaDisabled)}
-                allowClear
-              />
-            </Form.Item>
-          </b>
-        </Col>
-      </Row>
+      {ehPerfilDRE ? (
+        <>
+          <Row gutter={[16, 8]}>
+            {campoCodigoFormacao}
+            {campoNomeFormacao}
+          </Row>
+          <Row gutter={[16, 8]}>
+            {campoNumeroHomologacaoInput}
+            {campoTurma}
+          </Row>
+        </>
+      ) : (
+        <>
+          <Row gutter={[16, 8]}>
+            {campoNumeroHomologacaoAutoComplete}
+            {campoNomeFormacao}
+          </Row>
+          <Row gutter={[16, 8]}>
+            {campoCodigoFormacao}
+            {campoTurma}
+          </Row>
+        </>
+      )}
       <Row gutter={[16, 8]}>
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <b>

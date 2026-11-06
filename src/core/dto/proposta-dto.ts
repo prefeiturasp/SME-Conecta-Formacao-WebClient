@@ -67,6 +67,7 @@ export type PropostaDTO = {
   descricaoDaAtividade?: string;
   turmas?: PropostaTurmaDTO[];
   gruposPeriodos?: GrupoPeriodoDTO[];
+  gruposPeriodosInscricao?: GrupoPeriodoDTO[];
   dres?: PropostaDresDTO[];
   modalidades?: PropostaModalidadeDTO[];
   anosTurmas?: PropostaAnoTurmaDTO[];
@@ -156,6 +157,7 @@ export type PropostaFormDTO = {
   acaoFormativaLink?: string;
   turmas?: PropostaTurmaFormDTO[];
   gruposPeriodos?: GrupoPeriodoFormDTO[];
+  gruposPeriodosInscricao?: GrupoPeriodoFormDTO[];
   dres?: DreDTO[];
   modalidade?: number;
   anosTurmas?: number[];
