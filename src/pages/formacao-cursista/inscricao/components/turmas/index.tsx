@@ -4,7 +4,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select';
 import React, { useCallback, useEffect, useState } from 'react';
 import Select from '~/components/lib/inputs/select';
 import { CF_SELECT_TURMA_INSCRICAO } from '~/core/constants/ids/select';
-import { obterTurmasInscricao } from '~/core/services/inscricao-service';
+import { obterTurmasEmInscricao } from '~/core/services/inscricao-service';
 
 type SelectTurmaProps = {
   selectProps?: SelectProps;
@@ -18,7 +18,7 @@ const SelectTurma: React.FC<SelectTurmaProps> = ({ selectProps, formItemProps, p
 
   const obterDados = useCallback(async () => {
     if (propostaId) {
-      const resposta = await obterTurmasInscricao(propostaId, codigoDre);
+      const resposta = await obterTurmasEmInscricao(propostaId, codigoDre);
 
       if (resposta.sucesso) {
         const newOptions = resposta.dados.map((item) => ({
