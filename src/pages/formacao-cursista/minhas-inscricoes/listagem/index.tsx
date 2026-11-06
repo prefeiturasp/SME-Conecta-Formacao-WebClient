@@ -160,16 +160,41 @@ export const MinhasInscricoesListaPaginada = () => {
     { label: 'Transferida', value: 6 },
   ];
 
-  /* const situacaoAprovacaoOptions = [
+  const situacaoAprovacaoOptions = [
     { label: 'Aprovado', value: 1 },
     { label: 'Reprovado', value: 2 },
-    { label: 'Não inscrito', value: 3 },
-  ]; */
+    { label: 'Aguardando resultado', value: 3 },
+  ];
+
+  const renderSituacaoAprovacao = (record: InscricaoProps) => {
+    const val = record.situacaoAprovacao;
+    if (val === 1 || val === '1') return 'Aprovado';
+    if (val === 2 || val === '2') return 'Reprovado';
+    if (val === 3 || val === '3') return 'Aguardando resultado';
+
+    if (typeof val === 'string' && val.trim() !== '') {
+      const lower = val.toLowerCase();
+      if (lower.includes('aprovad')) return 'Aprovado';
+      if (lower.includes('reprovad')) return 'Reprovado';
+      if (lower.includes('aguardand') || lower.includes('resultado')) return 'Aguardando resultado';
+      return val;
+    }
+
+    const situacao = (record.situacao || '').toLowerCase();
+    if (situacao.includes('cancelad')) {
+      return 'Reprovado';
+    }
+    if (situacao.includes('confirmad')) {
+      return 'Aguardando resultado';
+    }
+
+    return '-';
+  };
 
   const columnsBase: ColumnsType<InscricaoProps> = [
     { title: 'Código da formação', dataIndex: 'codigoFormacao' },
     { title: 'Nome da formação', dataIndex: 'nomeFormacao' },
-    { title: 'Data/hora da Inscrição', dataIndex: 'dataInscricao' },
+    { title: 'Data/hora da inscrição', dataIndex: 'dataInscricao' },
     { title: 'Turma', dataIndex: 'nomeTurma' },
     { title: 'Período', dataIndex: 'datas' },
     {
@@ -182,11 +207,11 @@ export const MinhasInscricoesListaPaginada = () => {
         </>
       ),
     },
-    { title: 'Situação', dataIndex: 'situacao' },
   ];
 
   const columnsAndamento: ColumnsType<InscricaoProps> = [
     ...columnsBase,
+    { title: 'Situação', dataIndex: 'situacao' },
     {
       title: 'Ações',
       render: (_, record) => (
@@ -204,11 +229,16 @@ export const MinhasInscricoesListaPaginada = () => {
       dataIndex: 'origem',
       render: (value) => value || '-',
     },
-    // {
-    //   title: 'Situação da Aprovação',
-    //   dataIndex: 'situacaoAprovacao',
-    //   render: () => 'Oculto',
-    // },
+    {
+      title: 'Situação da inscrição',
+      dataIndex: 'situacao',
+      render: (value) => value || '-',
+    },
+    {
+      title: 'Situação da aprovação',
+      dataIndex: 'situacaoAprovacao',
+      render: (_, record) => renderSituacaoAprovacao(record),
+    },
   ];
 
   const renderFiltros = () => (
@@ -289,7 +319,7 @@ export const MinhasInscricoesListaPaginada = () => {
                 label='Nome da formação'
                 labelCol={{ style: { fontWeight: 600 } }}
               >
-                <Input allowClear />
+                <Input placeholder='Digite o nome da formação' allowClear />
               </Form.Item>
             </Col>
 
@@ -299,18 +329,18 @@ export const MinhasInscricoesListaPaginada = () => {
                 label='Situação da inscrição'
                 labelCol={{ style: { fontWeight: 600 } }}
               >
-                <Select options={situacoesOptions} allowClear />
+                <Select placeholder='Selecione' options={situacoesOptions} allowClear />
               </Form.Item>
             </Col>
-            {/*
+            
             <Col xs={24} md={12}>
               <Form.Item
                 name="SituacaoAprovacao"
                 label="Situação de aprovação"
                 labelCol={{ style: { fontWeight: 600 } }}>
-                <Select options={situacaoAprovacaoOptions} />
+                <Select placeholder='Selecione' options={situacaoAprovacaoOptions} allowClear />
               </Form.Item>
-            </Col> */}
+            </Col> 
 
             <Col xs={24} md={12}>
               <Form.Item
@@ -320,6 +350,7 @@ export const MinhasInscricoesListaPaginada = () => {
               >
                 <RangePicker
                   style={{ width: '100%' }}
+                  placeholder={['Data inicial', 'Data final']}
                   format='DD/MM/YYYY'
                   locale={ptBR}
                   allowEmpty={[true, true]}
