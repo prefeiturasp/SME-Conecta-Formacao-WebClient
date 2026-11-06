@@ -24,6 +24,7 @@ export type RelatorioInscritosPorFormacaoFiltrosDTO = {
   email?: string;
   pcd?: boolean;
   necessitaAdaptacao?: boolean;
+  situacaoAprovacao?: number;
 };
 
 const gerarRelatorioInscritosPorFormacao = (params: RelatorioInscritosPorFormacaoFiltrosDTO) =>
