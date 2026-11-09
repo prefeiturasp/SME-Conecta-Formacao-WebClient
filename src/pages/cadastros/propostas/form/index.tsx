@@ -517,6 +517,9 @@ export const FormCadastroDePropostas: React.FC = () => {
 
     if (resposta.sucesso) {
       aplicarPermissao(dados);
+      if (dados?.areaPromotora?.tipo) {
+        setTipoInstituicao(dados.areaPromotora.tipo);
+      }
       const retornolistaDres = await obterDREs(true);
       const listaDres = mapearListaDres(retornolistaDres.dados);
 
@@ -706,7 +709,10 @@ export const FormCadastroDePropostas: React.FC = () => {
       acaoFormativaTexto: clonedValues?.acaoFormativaTexto || '',
       acaoFormativaLink: clonedValues?.acaoFormativaLink || '',
       descricaoDaAtividade: clonedValues.descricaoDaAtividade,
-      integrarNoSGA: clonedValues?.integrarNoSGA,
+      integrarNoSGA:
+        clonedValues?.integrarNoSGA !== undefined && clonedValues?.integrarNoSGA !== null
+          ? clonedValues.integrarNoSGA
+          : formInitialValues?.integrarNoSGA,
       desativarAnoEhComponente: clonedValues?.desativarAnoEhComponente,
       rfResponsavelDf: clonedValues?.rfResponsavelDf,
       movimentacao: clonedValues?.movimentacao,
