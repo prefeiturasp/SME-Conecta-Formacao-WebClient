@@ -31,7 +31,6 @@ import {
   Divisor,
   Secao,
   TituloSecao,
-  FaixaTitulo,
   Texto,
   Tags,
   TagEscura,
@@ -67,8 +66,6 @@ const VisualizarFormacaoMobile: React.FC<Props> = ({
     window.scrollTo(0, 0);
   }, [propostaId]);
 
-  const temEvolucao = !!dadosFormacao?.cursoComCertificado || !!dadosFormacao?.codigoEventoSigpec;
-
   return (
     <Container data-testid='visualizar-formacao-mobile'>
       <Trilha>
@@ -97,6 +94,8 @@ const VisualizarFormacaoMobile: React.FC<Props> = ({
         <Conteudo>
           <Titulo>{dadosFormacao?.titulo}</Titulo>
 
+          <Espaco $altura={2} />
+          
           <Badges>
             {dadosFormacao?.tipoFormacaoDescricao && (
               <Badge>
@@ -108,7 +107,19 @@ const VisualizarFormacaoMobile: React.FC<Props> = ({
                 <FaMapMarkerAlt /> {dadosFormacao.formatoDescricao}
               </Badge>
             )}
+            {dadosFormacao?.cursoComCertificado && (
+              <Badge>
+                <HiBadgeCheck /> Evolução funcional
+              </Badge>
+              )}
+              {!!dadosFormacao?.codigoEventoSigpec && (
+                <Badge>
+                  <FaStar /> Evolução por merecimento
+                </Badge>
+            )}
           </Badges>
+
+          <Espaco $altura={2} />
 
           <Info>
             <strong>Período de realização:</strong>{' '}
@@ -172,7 +183,6 @@ const VisualizarFormacaoMobile: React.FC<Props> = ({
               <Secao>
                 <Espaco $altura={2} />
                 <TituloSecao>Turmas</TituloSecao>
-                {dadosFormacao.sobreEsteCurso && <Texto>{dadosFormacao.sobreEsteCurso}</Texto>}
                 <Espaco $altura={2} />
                 <ListaTurmas>
                   {dadosFormacao.turmas.map((turma, i) => (
@@ -180,40 +190,6 @@ const VisualizarFormacaoMobile: React.FC<Props> = ({
                   ))}
                 </ListaTurmas>
               </Secao>
-            </>
-          )}
-
-          {(dadosFormacao?.sobreEsteCurso || temEvolucao) && (
-            <>
-              <Espaco $altura={2} />
-              <FaixaTitulo>Informações da área promotora</FaixaTitulo>
-              <Espaco $altura={2} />
-
-              {dadosFormacao?.sobreEsteCurso && (
-                <Secao>
-                  <TituloSecao>Justificativa</TituloSecao>
-                  <Texto>{dadosFormacao.sobreEsteCurso}</Texto>
-                  <Espaco $altura={2} />
-                </Secao>
-              )}
-
-              {temEvolucao && (
-                <Secao>
-                  <TituloSecao>Tipo de evolução</TituloSecao>
-                  <Tags>
-                    {dadosFormacao?.cursoComCertificado && (
-                      <TagEscura>
-                        <HiBadgeCheck size={14} /> Evolução funcional
-                      </TagEscura>
-                    )}
-                    {!!dadosFormacao?.codigoEventoSigpec && (
-                      <TagEscura>
-                        <FaStar size={12} /> Evolução por merecimento
-                      </TagEscura>
-                    )}
-                  </Tags>
-                </Secao>
-              )}
             </>
           )}
         </Conteudo>

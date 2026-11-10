@@ -131,16 +131,6 @@ export const TituloSecao = styled.h3`
   color: #42474a;
 `;
 
-export const FaixaTitulo = styled.h3`
-  margin: 8px 0 0;
-  padding: 8px 12px;
-  background: #f5f5f5;
-  border-radius: 4px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #42474a;
-`;
-
 export const Texto = styled.p`
   margin: 0;
   font-size: 14px;
