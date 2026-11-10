@@ -15,11 +15,27 @@ import {
 import { HomeFilled } from '@ant-design/icons';
 import { FaArrowLeft } from 'react-icons/fa';
 import { CustomDivider, TurmasTitulo, typographyStyles, PalavrasTag } from './styles';
+import styled from 'styled-components';
+import VisualizarFormacaoMobile from './components/visualizar-formacao-mobile';
 
 const botaoNavegacaoStyle = {
   color: '#ff9a52',
   borderColor: '#ff9a52',
 };
+
+const DesktopContainer = styled.div`
+  display: block;
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+`;
+
+const MobileContainer = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: block !important;
+  }
+`;
 
 const VisualizarFormacao: FC = () => {
   const paramsRoute = useParams();
@@ -47,7 +63,7 @@ const VisualizarFormacao: FC = () => {
   }, [carregarDados, id]);
 
   return (
-    <>
+    <><DesktopContainer>
       <Row style={{ width: '100%', padding: '16px 0 0' }}>
         <Col>
           <Typography.Link
@@ -164,7 +180,17 @@ const VisualizarFormacao: FC = () => {
         </Row>
 
       </div>
-    </>
+      </DesktopContainer>
+        <MobileContainer>
+          <VisualizarFormacaoMobile
+            dadosFormacao={dadosFormacao}
+            propostaId={id}
+            onClickVoltar={onClickVoltar}
+            onClickFormacaoAnterior={onClickFormacaoAnterior}
+            onClickProximaFormacao={onClickProximaFormacao}
+          />
+        </MobileContainer>
+      </>
   );
 };
 
