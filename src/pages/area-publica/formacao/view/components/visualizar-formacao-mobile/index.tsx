@@ -127,7 +127,7 @@ const VisualizarFormacaoMobile: React.FC<Props> = ({
           </Info>
           <Info>
             <strong>Período de inscrição:</strong>{' '}
-            {dadosFormacao?.periodoInscricao?.replace(/\s\d{2}:\d{2}/g, '')}
+            {dadosFormacao?.periodoInscricao?.replaceAll(/\s\d{2}:\d{2}/g, '')}
           </Info>
           <Info>
             <strong>Área promotora:</strong> {dadosFormacao?.areaPromotora}
