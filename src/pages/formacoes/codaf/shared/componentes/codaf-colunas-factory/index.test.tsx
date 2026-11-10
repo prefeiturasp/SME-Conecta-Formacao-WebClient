@@ -29,7 +29,15 @@ describe('criarColunasCodafHomologado', () => {
     const keys = colunas.map((c: any) => c.key);
 
     // Assert
-    expect(keys).toEqual(['indice', 'rfOuCpf', 'nomeCursista', 'frequencia', 'atividade', 'conceitoFinal', 'aprovado']);
+    expect(keys).toEqual([
+      'indice',
+      'rfOuCpf',
+      'nomeCursista',
+      'frequencia',
+      'atividade',
+      'conceitoFinal',
+      'aprovado',
+    ]);
   });
 
   test('DadoPagina2Tamanho10_QuandoRenderizaIndice_EntaoRetorna11ParaPrimeiroItem', () => {
@@ -108,7 +116,12 @@ describe('criarColunasCodafHomologado', () => {
 
 describe('criarColunasCodafNaoHomologado', () => {
   const criarColunas = (paginaAtual = 1, registrosPorPagina = 10, bloqueado = false) =>
-    criarColunasCodafNaoHomologado(paginaAtual, registrosPorPagina, bloqueado, mockOnChangeParticipou);
+    criarColunasCodafNaoHomologado(
+      paginaAtual,
+      registrosPorPagina,
+      bloqueado,
+      mockOnChangeParticipou,
+    );
 
   test('DadoColunasCodafNaoHomologado_QuandoCriadas_EntaoRetorna4Colunas', () => {
     // Arrange / Act
@@ -166,12 +179,12 @@ describe('criarColunasCodafNaoHomologado', () => {
 });
 
 describe('criarColunasBaseListagemCodaf', () => {
-  test('DadoColunasBaseListagem_QuandoCriadas_EntaoRetorna6Colunas', () => {
+  test('DadoColunasBaseListagem_QuandoCriadas_EntaoRetorna7Colunas', () => {
     // Arrange / Act
     const colunas = criarColunasBaseListagemCodaf(false, mockObterSituacaoTexto);
 
     // Assert
-    expect(colunas).toHaveLength(6);
+    expect(colunas).toHaveLength(7);
   });
 
   test('DadoColunasBaseListagem_QuandoCriadas_EntaoChavesCorretas', () => {
@@ -184,16 +197,42 @@ describe('criarColunasBaseListagemCodaf', () => {
       'codigoFormacao',
       'numeroHomologacao',
       'nomeFormacao',
+      'dataPrimeiroEnvioDf',
       'nomeAreaPromotora',
       'nomeTurma',
       'status',
     ]);
   });
 
+  test('DadoColunasBaseListagem_QuandoRenderizaDataPrimeiroEnvioDfValida_EntaoRetornaDataEHoraFormatadas', () => {
+    // Arrange
+    const colunas = criarColunasBaseListagemCodaf(false, mockObterSituacaoTexto);
+    const colunaDataPrimeiroEnvio: any = colunas[3];
+
+    // Act
+    const elemento = colunaDataPrimeiroEnvio.render('2026-10-20T15:18:00');
+
+    // Assert
+    expect(elemento).toBeTruthy();
+    expect(elemento.props.children[0].props.children).toBe('20/10/2026');
+    expect(elemento.props.children[1].props.children).toBe('às 15:18h');
+  });
+
+  test('DadoColunasBaseListagem_QuandoRenderizaDataPrimeiroEnvioDfInvalidaOuVazia_EntaoRetornaTraco', () => {
+    // Arrange
+    const colunas = criarColunasBaseListagemCodaf(false, mockObterSituacaoTexto);
+    const colunaDataPrimeiroEnvio: any = colunas[3];
+
+    // Act & Assert
+    expect(colunaDataPrimeiroEnvio.render(null)).toBe('-');
+    expect(colunaDataPrimeiroEnvio.render('')).toBe('-');
+    expect(colunaDataPrimeiroEnvio.render('data-invalida')).toBe('-');
+  });
+
   test('DadoColunasBaseListagem_QuandoRenderizaStatus_EntaoChamaObterSituacaoTexto', () => {
     // Arrange
     const colunas = criarColunasBaseListagemCodaf(false, mockObterSituacaoTexto);
-    const colunaStatus: any = colunas[5];
+    const colunaStatus: any = colunas[6];
 
     // Act
     const resultado = colunaStatus.render(3);
@@ -221,10 +260,28 @@ describe('criarColunasBaseListagemCodaf', () => {
     expect(colunaCodigo.width).toBe(80);
   });
 
+  test('DadoOcultarColunasTrue_QuandoCriadas_EntaoDataPrimeiroEnvioDfWidthEh200', () => {
+    // Arrange / Act
+    const colunas = criarColunasBaseListagemCodaf(true, mockObterSituacaoTexto);
+    const colunaData: any = colunas[3];
+
+    // Assert
+    expect(colunaData.width).toBe(200);
+  });
+
+  test('DadoOcultarColunasFalse_QuandoCriadas_EntaoDataPrimeiroEnvioDfWidthEh150', () => {
+    // Arrange / Act
+    const colunas = criarColunasBaseListagemCodaf(false, mockObterSituacaoTexto);
+    const colunaData: any = colunas[3];
+
+    // Assert
+    expect(colunaData.width).toBe(150);
+  });
+
   test('DadoOcultarColunasTrue_QuandoCriadas_EntaoAreaPromotoraWidthEh200', () => {
     // Arrange / Act
     const colunas = criarColunasBaseListagemCodaf(true, mockObterSituacaoTexto);
-    const colunaArea: any = colunas[3];
+    const colunaArea: any = colunas[4];
 
     // Assert
     expect(colunaArea.width).toBe(200);
@@ -233,7 +290,7 @@ describe('criarColunasBaseListagemCodaf', () => {
   test('DadoOcultarColunasFalse_QuandoCriadas_EntaoAreaPromotoraWidthEh150', () => {
     // Arrange / Act
     const colunas = criarColunasBaseListagemCodaf(false, mockObterSituacaoTexto);
-    const colunaArea: any = colunas[3];
+    const colunaArea: any = colunas[4];
 
     // Assert
     expect(colunaArea.width).toBe(150);

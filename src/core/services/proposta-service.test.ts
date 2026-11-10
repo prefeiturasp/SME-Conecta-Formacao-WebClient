@@ -1118,9 +1118,9 @@ describe('PropostaService', () => {
   });
 
   describe('obterDetalhesPropostaComTurmasPorId', () => {
-    test('deve obter detalhes da proposta com turmas com formacoesHomologas true', async () => {
+    test('deve obter detalhes da proposta com turmas com formacoesHomologadas true', async () => {
       const propostaId = 12;
-      const formacoesHomologas = true;
+      const formacoesHomologadas = true;
       const mockResponse = {
         sucesso: true,
         dados: { id: 12, nomeFormacao: 'Formação X', numeroFormacao: 100, turmas: [] },
@@ -1132,19 +1132,19 @@ describe('PropostaService', () => {
 
       const result = await propostaService.obterDetalhesPropostaComTurmasPorId(
         propostaId,
-        formacoesHomologas,
+        formacoesHomologadas,
       );
 
       expect(mockObterRegistro).toHaveBeenCalledWith(
         `${URL_API_PROPOSTA}/${propostaId}/detalhes-com-turmas`,
-        { params: { formacoesHomologas } },
+        { params: { formacoesHomologadas } },
       );
       expect(result).toEqual(mockResponse);
     });
 
-    test('deve obter detalhes da proposta com turmas com formacoesHomologas false', async () => {
+    test('deve obter detalhes da proposta com turmas com formacoesHomologadas false', async () => {
       const propostaId = 13;
-      const formacoesHomologas = false;
+      const formacoesHomologadas = false;
       const mockResponse = {
         sucesso: true,
         dados: { id: 13, nomeFormacao: 'Formação Y', numeroFormacao: null, turmas: [] },
@@ -1156,12 +1156,12 @@ describe('PropostaService', () => {
 
       const result = await propostaService.obterDetalhesPropostaComTurmasPorId(
         propostaId,
-        formacoesHomologas,
+        formacoesHomologadas,
       );
 
       expect(mockObterRegistro).toHaveBeenCalledWith(
         `${URL_API_PROPOSTA}/${propostaId}/detalhes-com-turmas`,
-        { params: { formacoesHomologas } },
+        { params: { formacoesHomologadas } },
       );
       expect(result).toEqual(mockResponse);
     });

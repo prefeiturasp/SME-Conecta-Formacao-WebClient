@@ -92,15 +92,23 @@ const renderTurmaOption = (option: FlattenOptionData<BaseOptionType>) =>
   );
 
 type GrupoPeriodoRowProps = {
+  listName: string;
   field: FormListFieldData;
+  labelPeriodo: string;
   opcoesDisponiveis: TurmaOption[];
+  disabled?: boolean;
+  disabledDate?: (current: Dayjs) => boolean;
   onAdd: () => void;
   onRemove: (name: number) => void;
 };
 
 const GrupoPeriodoRow: React.FC<GrupoPeriodoRowProps> = ({
+  listName,
   field,
+  labelPeriodo,
   opcoesDisponiveis,
+  disabled,
+  disabledDate,
   onAdd,
   onRemove,
 }) => (
@@ -125,6 +133,7 @@ const GrupoPeriodoRow: React.FC<GrupoPeriodoRowProps> = ({
           popupClassName='periodo-turma-select-dropdown'
           options={opcoesDisponiveis}
           optionRender={renderTurmaOption}
+          disabled={disabled}
         />
       </Form.Item>
     </Col>
@@ -138,7 +147,7 @@ const GrupoPeriodoRow: React.FC<GrupoPeriodoRowProps> = ({
           marginBottom: 8,
         }}
       >
-        Período de realização
+        {labelPeriodo}
       </div>
       <Row gutter={[8, 0]} wrap={false} align='middle'>
         <Col flex='1'>
@@ -147,6 +156,11 @@ const GrupoPeriodoRow: React.FC<GrupoPeriodoRowProps> = ({
               name: [field.name, 'periodo'],
               style: { marginBottom: 0 },
             }}
+            rangerPickerProps={{
+              id: `${listName}-${field.name}-periodo`,
+              disabled,
+              disabledDate,
+            }}
           />
         </Col>
         <Col>
@@ -154,6 +168,7 @@ const GrupoPeriodoRow: React.FC<GrupoPeriodoRowProps> = ({
             <Button
               type='default'
               block
+              disabled={disabled}
               icon={<PlusOutlined />}
               onClick={onAdd}
               style={{
@@ -165,12 +180,120 @@ const GrupoPeriodoRow: React.FC<GrupoPeriodoRowProps> = ({
               }}
             />
           ) : (
-            <ButtonExcluir onClick={() => onRemove(field.name)} />
+            <ButtonExcluir onClick={() => onRemove(field.name)} disabled={disabled} />
           )}
         </Col>
       </Row>
     </Col>
   </Row>
+);
+
+type GrupoPeriodoTurmaListaProps = {
+  name: 'gruposPeriodos' | 'gruposPeriodosInscricao';
+  tituloSecao?: string;
+  descricaoSecao?: string;
+  labelPeriodo: string;
+  textoAjuda: string;
+  disabled?: boolean;
+  disabledDate?: (current: Dayjs) => boolean;
+  turmaOptions: TurmaOption[];
+  gruposWatch: GrupoPeriodoFormDTO[];
+};
+
+const GrupoPeriodoTurmaLista: React.FC<GrupoPeriodoTurmaListaProps> = ({
+  name,
+  tituloSecao,
+  descricaoSecao,
+  labelPeriodo,
+  textoAjuda,
+  disabled,
+  disabledDate,
+  turmaOptions,
+  gruposWatch,
+}) => (
+  <Col xs={24}>
+    {tituloSecao && (
+      <div
+        style={{
+          fontWeight: 700,
+          fontSize: 14,
+          color: '#42474A',
+          lineHeight: '100%',
+          marginBottom: 8,
+        }}
+      >
+        {tituloSecao}
+      </div>
+    )}
+    {descricaoSecao && (
+      <p
+        style={{
+          fontWeight: 400,
+          fontSize: 14,
+          color: '#42474A',
+          lineHeight: '100%',
+          marginBottom: 4,
+          paddingTop: '8px',
+          paddingBottom: '16px',
+        }}
+      >
+        {descricaoSecao}
+      </p>
+    )}
+    <Form.List name={name} initialValue={[{}]}>
+      {(fields, { add, remove }) => (
+        <>
+          {fields.map((field) => {
+            const turmasSelecionadasEmOutrosGrupos = gruposWatch
+              .filter((_, index) => index !== field.name)
+              .flatMap((g) => g.propostaTurmasIds ?? []);
+            const turmasSelecionadasNesteGrupo: number[] =
+              gruposWatch[field.name]?.propostaTurmasIds ?? [];
+            const opcoesDisponiveis = turmaOptions.map((opt) => ({
+              ...opt,
+              disabled:
+                disabled ||
+                (turmasSelecionadasEmOutrosGrupos.includes(opt.value as number) &&
+                  !turmasSelecionadasNesteGrupo.includes(opt.value as number)),
+            }));
+
+            return (
+              <GrupoPeriodoRow
+                key={field.key}
+                listName={name}
+                field={field}
+                labelPeriodo={labelPeriodo}
+                opcoesDisponiveis={opcoesDisponiveis}
+                disabled={disabled}
+                disabledDate={disabledDate}
+                onAdd={() => add({})}
+                onRemove={remove}
+              />
+            );
+          })}
+        </>
+      )}
+    </Form.List>
+
+    <div
+      style={{
+        border: '1px solid #F1F1F1',
+        background: '#FAFAFA',
+        padding: '12px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginTop: 16,
+        marginBottom: 8,
+      }}
+    >
+      <InfoCircleFilled
+        style={{ color: '#086397', fontSize: 20, flexShrink: 0, marginRight: 5 }}
+      />
+
+      <span style={{ fontSize: 14, color: '#42474A' }}>{textoAjuda}</span>
+    </div>
+  </Col>
 );
 
 type FormularioDatasProps = {
@@ -263,8 +386,17 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
     showExpandColumn: false,
   };
 
-  const datasPeriodoRealizacao = Form.useWatch('periodoRealizacao', form);
-  const gruposPeriodosWatch: GrupoPeriodoFormDTO[] = Form.useWatch('gruposPeriodos', form) ?? [];
+  const datasPeriodoRealizacaoWatch = Form.useWatch('periodoRealizacao', form);
+  const datasPeriodoRealizacao = datasPeriodoRealizacaoWatch ?? form.getFieldValue('periodoRealizacao');
+  const gruposPeriodosWatch: GrupoPeriodoFormDTO[] =
+    Form.useWatch('gruposPeriodos', form) ?? form.getFieldValue('gruposPeriodos') ?? [];
+
+  const datasPeriodoInscricaoWatch = Form.useWatch('periodoInscricao', form);
+  const datasPeriodoInscricao = datasPeriodoInscricaoWatch ?? form.getFieldValue('periodoInscricao');
+  const gruposPeriodosInscricaoWatch: GrupoPeriodoFormDTO[] =
+    Form.useWatch('gruposPeriodosInscricao', form) ??
+    form.getFieldValue('gruposPeriodosInscricao') ??
+    [];
 
   if (recarregarTurmas) {
     refTable.current?.reloadTable();
@@ -277,6 +409,30 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
     dataInicio,
     dataFim,
   };
+
+  const dataInicioInscricao = datasPeriodoInscricao?.[0] as Dayjs;
+  const dataFimInscricao = datasPeriodoInscricao?.[1] as Dayjs;
+
+  const temPeriodoGeralInscricao = Boolean(
+    dataInicioInscricao &&
+      dataFimInscricao &&
+      dataInicioInscricao.isValid?.() &&
+      dataFimInscricao.isValid?.(),
+  );
+
+  const disabledDateInscricao = (current: Dayjs) => {
+    if (!temPeriodoGeralInscricao) return false;
+    return (
+      current.isBefore(dataInicioInscricao.startOf('day')) ||
+      current.isAfter(dataFimInscricao.endOf('day'))
+    );
+  };
+
+  const turmas: PropostaTurmaFormDTO[] = form.getFieldValue('turmas') ?? [];
+  const turmaOptions: TurmaOption[] = turmas
+    .filter((t) => t.id)
+    .map((t) => ({ label: t.nome, value: t.id, disabled: false }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { numeric: true }));
 
   const abrirModal = () => {
     setDadosEncontro(undefined);
@@ -385,94 +541,15 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
               </b>
             </ButtonParecer>
           </Col>
-          <Col xs={24}>
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 14,
-                color: '#42474A',
-                lineHeight: '100%',
-                marginBottom: 8,
-              }}
-            >
-              Período da realização por turma
-            </div>
-            <p
-              style={{
-                fontWeight: 400,
-                fontSize: 14,
-                color: '#42474A',
-                lineHeight: '100%',
-                marginBottom: 4,
-                paddingTop: '8px',
-                paddingBottom: '16px',
-              }}
-            >
-              Defina o período em que as turmas selecionadas realizarão a formação. Se não for
-              informado, será considerado o período definido em &quot;Período geral da
-              formação&quot;.
-            </p>
-            <Form.List name='gruposPeriodos' initialValue={[{}]}>
-              {(fields, { add, remove }) => {
-                const turmas: PropostaTurmaFormDTO[] = form.getFieldValue('turmas') ?? [];
-                const turmaOptions = turmas
-                  .filter((t) => t.id)
-                  .map((t) => ({ label: t.nome, value: t.id }))
-                  .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { numeric: true }));
-
-                return (
-                  <>
-                    {fields.map((field) => {
-                      const turmasSelecionadasEmOutrosGrupos = gruposPeriodosWatch
-                        .filter((_, index) => index !== field.name)
-                        .flatMap((g) => g.propostaTurmasIds ?? []);
-                      const turmasSelecionadasNesteGrupo: number[] =
-                        gruposPeriodosWatch[field.name]?.propostaTurmasIds ?? [];
-                      const opcoesDisponiveis = turmaOptions.map((opt) => ({
-                        ...opt,
-                        disabled:
-                          turmasSelecionadasEmOutrosGrupos.includes(opt.value as number) &&
-                          !turmasSelecionadasNesteGrupo.includes(opt.value as number),
-                      }));
-
-                      return (
-                        <GrupoPeriodoRow
-                          key={field.key}
-                          field={field}
-                          opcoesDisponiveis={opcoesDisponiveis}
-                          onAdd={() => add({})}
-                          onRemove={remove}
-                        />
-                      );
-                    })}
-                  </>
-                );
-              }}
-            </Form.List>
-
-            <div
-              style={{
-                border: '1px solid #F1F1F1',
-                background: '#FAFAFA',
-                padding: '12px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                marginTop: 16,
-                marginBottom: 8,
-              }}
-            >
-              <InfoCircleFilled
-                style={{ color: '#086397', fontSize: 20, flexShrink: 0, marginRight: 5 }}
-              />
-
-              <span style={{ fontSize: 14, color: '#42474A' }}>
-                Selecione uma ou mais turmas e atribua datas de início e fim da formação. Para
-                turmas com datas diferentes, adicione uma nova linha e defina um período específico.
-                É possível configurar várias turmas em lote ou ajustar cada turma individualmente.
-              </span>
-            </div>
-          </Col>
+          <GrupoPeriodoTurmaLista
+            name='gruposPeriodos'
+            tituloSecao='Período da realização por turma'
+            descricaoSecao='Defina o período em que as turmas selecionadas realizarão a formação. Se não for informado, será considerado o período definido em "Período geral da formação".'
+            labelPeriodo='Período de realização'
+            textoAjuda='Selecione uma ou mais turmas e atribua datas de início e fim da formação. Para turmas com datas diferentes, adicione uma nova linha e defina um período específico. É possível configurar várias turmas em lote ou ajustar cada turma individualmente.'
+            turmaOptions={turmaOptions}
+            gruposWatch={gruposPeriodosWatch}
+          />
           <Col xs={24} style={{ marginTop: 16 }}>
             <div
               style={{
@@ -524,14 +601,27 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
             />
           </Col>
           <Col xs={24} sm={14} md={24} style={contentStyle}>
-            Inscrição
+            Período geral da inscrição
           </Col>
-          <Col xs={24} md={12} lg={8}>
+          <Col xs={24}>
+            <p
+              style={{
+                fontWeight: 400,
+                fontSize: 14,
+                color: '#42474A',
+                lineHeight: '100%',
+                margin: 0,
+              }}
+            >
+              Defina o intervalo do início da primeira turma até o término da última.
+            </p>
+          </Col>
+          <Col xs={24} sm={12}>
             <ButtonParecer campo={CampoConsideracaoEnum.periodoInscricao}>
               <b>
                 <DatePickerPeriodo
                   formItemProps={{
-                    label: 'Período de inscrição',
+                    label: 'Período geral da formação',
                     name: 'periodoInscricao',
                     rules: [
                       { required: true, message: PERIODO_INSCRICAO_NAO_INFORMADO },
@@ -549,7 +639,7 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
               </b>
             </ButtonParecer>
           </Col>
-          <Col xs={24} md={12} lg={8}>
+          <Col xs={24} sm={12}>
             <TimePickerPeriodo
               formItemProps={{
                 label: (
@@ -590,6 +680,19 @@ const FormularioDatas: React.FC<FormularioDatasProps> = (recarregarTurmas) => {
               }}
             />
           </Col>
+          <Col xs={24} sm={14} md={24} style={{ ...contentStyle, marginTop: 16 }}>
+            Período de inscrição customizado
+          </Col>
+          <GrupoPeriodoTurmaLista
+            name='gruposPeriodosInscricao'
+            descricaoSecao='Defina o período de inscrição de cada turma. Você pode adicionar várias turmas para a mesma data, mas cada turma pode ter apenas um período de inscrição. As datas informadas devem estar dentro do período geral de inscrição.'
+            labelPeriodo='Período de inscrição'
+            textoAjuda='Selecione uma ou mais turmas e atribua datas de início e fim da inscrição. Para turmas com datas diferentes, adicione uma nova linha e defina um período específico. É possível configurar várias turmas em lote ou ajustar cada turma individualmente.'
+            disabled={!temPeriodoGeralInscricao}
+            disabledDate={disabledDateInscricao}
+            turmaOptions={turmaOptions}
+            gruposWatch={gruposPeriodosInscricaoWatch}
+          />
         </Row>
       </Col>
     </>
