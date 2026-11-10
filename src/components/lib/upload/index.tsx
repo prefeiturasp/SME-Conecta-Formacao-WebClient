@@ -53,6 +53,10 @@ export const ContainerDraggerUpload = styled(Dragger)`
     .ant-upload-list-item-action {
     opacity: 1;
   }
+
+  .ant-upload-drag-icon .anticon {
+    color: #ff9a52;
+  }
 `;
 
 type UploadArquivosProps = {
@@ -61,6 +65,7 @@ type UploadArquivosProps = {
   formItemProps: FormItemProps & { name: string };
   tiposArquivosPermitidos?: string;
   tamanhoMaxUploadPorArquivo?: number;
+  titulo?: React.ReactNode;
   subTitulo?: string;
   downloadService: (codigosArquivo: string) => any;
   uploadService: (formData: FormData, configuracaoHeader: any) => any;
@@ -78,6 +83,7 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
     formItemProps,
     uploadService,
     downloadService,
+    titulo,
     subTitulo,
     tiposArquivosPermitidos = '',
     tamanhoMaxUploadPorArquivo = TAMANHO_PADRAO_MAXIMO_UPLOAD,
@@ -249,7 +255,9 @@ const UploadArquivosSME: React.FC<UploadArquivosProps> = (props) => {
         <p className='ant-upload-drag-icon'>
           <InboxOutlined />
         </p>
-        <p className='ant-upload-text'>Clique ou arraste para fazer o upload do arquivo</p>
+        <p className='ant-upload-text'>
+          {titulo ?? 'Clique ou arraste para fazer o upload do arquivo'}
+        </p>
         <p className='ant-upload-hint'>
           {subTitulo ?? 'Deve permitir apenas imagens com no máximo 5MB cada'}
         </p>

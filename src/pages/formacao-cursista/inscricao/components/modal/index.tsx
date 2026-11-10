@@ -55,7 +55,9 @@ export const ModalInscricao: React.FC<ModalInscricaoProps> = ({
       <Flex justify='center' align='center' vertical>
         {obterIcone(typeIcon)}
 
-        <Typography.Text style={{ fontSize: 20, fontWeight: 'bold', width: 380 }}>
+        <Typography.Text
+          style={{ fontSize: 20, fontWeight: 'bold', maxWidth: 380, width: '100%', textAlign: 'center' }}
+        >
           {mensagem}
         </Typography.Text>
 

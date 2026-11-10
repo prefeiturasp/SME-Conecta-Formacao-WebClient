@@ -35,6 +35,7 @@ Object.defineProperty(window, 'matchMedia', {
 jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
   useNavigate: jest.fn(),
+  useLocation: jest.fn().mockReturnValue({ pathname: '/inscricao/1' }),
 }));
 
 jest.mock('react-redux', () => ({
@@ -240,5 +241,47 @@ describe('Inscricao', () => {
     fireEvent.click(salvar);
     const modalOk = await screen.findByText('Modal OK');
     expect(modalOk).toBeInTheDocument();
+  });
+
+  describe('Inscrição no Mobile', () => {
+    beforeEach(() => {
+      (window.matchMedia as jest.Mock).mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      }));
+    });
+
+    it('renderiza o breadcrumb mobile com trilha correta', async () => {
+      renderComponent();
+      expect(await screen.findByText('Minhas inscrições')).toBeInTheDocument();
+      expect(screen.getByText('Explorar formações')).toBeInTheDocument();
+      expect(screen.getByText('Detalhes da formação')).toBeInTheDocument();
+    });
+
+    it('renderiza os botões de ação mobile ao final do formulário', async () => {
+      renderComponent();
+      expect(await screen.findByRole('button', { name: 'Enviar inscrição' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Voltar' })).toBeInTheDocument();
+    });
+
+    it('renderiza botão mobile de alterar nome social com ícone', async () => {
+      renderComponent();
+      const btnEditar = await screen.findByRole('button', { name: 'Alterar nome social' });
+      expect(btnEditar).toBeInTheDocument();
+    });
+
+    it('chama onClickVoltar ao clicar no botão voltar do mobile', async () => {
+      const { onClickVoltar } = require('~/core/utils/form');
+      renderComponent();
+      const btnVoltarMobile = await screen.findByRole('button', { name: 'Voltar' });
+      fireEvent.click(btnVoltarMobile);
+      expect(onClickVoltar).toHaveBeenCalled();
+    });
   });
 });
