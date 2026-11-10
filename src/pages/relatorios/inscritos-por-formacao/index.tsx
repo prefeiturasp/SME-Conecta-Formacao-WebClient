@@ -66,7 +66,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const modalidade = Form.useWatch('modalidade', form);
   const anosTurmas = Form.useWatch('anosTurmas', form);
   const periodoRealizacao = Form.useWatch('periodoRealizacao', form);
-  const turmaDisabled = !numeroHomologacao;
+  const turmaDisabled = !numeroHomologacao && !propostaId;
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
 
   const isFirstStep = currentStep === 0;
@@ -119,41 +119,52 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (!propostaId) {
+  const aoMudarCodigoProposta = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e?.target?.value;
+    if (!valor) {
+      form.setFieldValue('numeroHomologacao', undefined);
+      form.setFieldValue('propostaTurmaId', undefined);
+      setTurmasOptions([]);
+    }
+  };
+
+  const aoSairDoCampoCodigoProposta = async (valorDigitado?: string) => {
+    const valor = (valorDigitado ?? form.getFieldValue('propostaId') ?? '')
+      .toString()
+      .replace(/\D/g, '');
+
+    if (!valor) {
       form.setFieldValue('numeroHomologacao', undefined);
       form.setFieldValue('propostaTurmaId', undefined);
       setTurmasOptions([]);
       return;
     }
 
-    const id = Number(propostaId);
+    const id = Number(valor);
     if (!id || isNaN(id)) return;
 
-    obterNumeroHomologacaoPorPropostaId(id)
-      .then((res) => {
-        if (res.sucesso && res.dados?.numeroHomologacao) {
-          form.setFieldValue('numeroHomologacao', res.dados.numeroHomologacao.toString());
-        } else {
-          form.setFieldValue('numeroHomologacao', undefined);
-        }
-      })
-      .catch(() => {
-        form.setFieldValue('numeroHomologacao', undefined);
-      });
+    try {
+      const [resHomologacao, resTurmas] = await Promise.all([
+        obterNumeroHomologacaoPorPropostaId(id),
+        obterTurmasInscricao(id),
+      ]);
 
-    obterTurmasInscricao(id)
-      .then((res) => {
-        if (res.sucesso && res.dados?.length) {
-          setTurmasOptions(res.dados);
-        } else {
-          setTurmasOptions([]);
-        }
-      })
-      .catch(() => {
+      if (resHomologacao.sucesso && resHomologacao.dados?.numeroHomologacao) {
+        form.setFieldValue('numeroHomologacao', resHomologacao.dados.numeroHomologacao.toString());
+      } else {
+        form.setFieldValue('numeroHomologacao', undefined);
+      }
+
+      if (resTurmas.sucesso && resTurmas.dados?.length) {
+        setTurmasOptions(resTurmas.dados);
+      } else {
         setTurmasOptions([]);
-      });
-  }, [propostaId, form]);
+      }
+    } catch {
+      form.setFieldValue('numeroHomologacao', undefined);
+      setTurmasOptions([]);
+    }
+  };
 
   const onDreChange = () => {
     form.setFieldValue('ueId', undefined);
@@ -257,7 +268,13 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
             <Col xs={24} sm={12} md={8}>
               <InputNumero
                 formItemProps={{ label: 'Código da formação', name: 'propostaId' }}
-                inputProps={{ placeholder: 'Código da formação', allowClear: true }}
+                inputProps={{
+                  placeholder: 'Código da formação',
+                  allowClear: true,
+                  onChange: aoMudarCodigoProposta,
+                  onBlur: (e) => aoSairDoCampoCodigoProposta(e.target.value),
+                  onPressEnter: (e) => aoSairDoCampoCodigoProposta(e.currentTarget.value),
+                }}
               />
             </Col>
             <Col xs={24} sm={12} md={8}>

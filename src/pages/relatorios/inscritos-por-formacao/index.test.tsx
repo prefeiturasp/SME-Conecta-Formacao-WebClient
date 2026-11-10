@@ -84,7 +84,18 @@ jest.mock('~/components/main/input/componente-curricular', () => ({
 
 jest.mock('~/components/main/numero', () => ({
   __esModule: true,
-  default: () => <div>Numero</div>,
+  default: ({ inputProps, formItemProps }: any) => (
+    <input
+      data-testid='input-numero'
+      data-name={formItemProps?.name}
+      placeholder={inputProps?.placeholder}
+      onChange={inputProps?.onChange}
+      onBlur={inputProps?.onBlur}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') inputProps?.onPressEnter?.(e);
+      }}
+    />
+  ),
 }));
 
 jest.mock('~/components/main/text/input-text', () => ({
@@ -208,13 +219,18 @@ describe('RelatorioInscritosPorFormacao', () => {
     });
   });
 
-  describe('Carregamento automático de homologação pelo código da formação', () => {
-    test('deve carregar numero de homologacao automaticamente quando propostaId for informado e possuir homologacao', async () => {
-      (Form.useWatch as jest.Mock).mockImplementation((name: string) => {
-        if (name === 'propostaId') return '12345';
-        return undefined;
-      });
+  describe('Carregamento automático de homologação pelo código da formação no onBlur', () => {
+    test('nao deve consultar APIs enquanto o usuario apenas digita teclas no campo (sem blur)', async () => {
+      render(<RelatorioInscritosPorFormacao />);
 
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.change(input, { target: { value: '123' } });
+
+      expect(obterNumeroHomologacaoPorPropostaId).not.toHaveBeenCalled();
+      expect(obterTurmasInscricao).not.toHaveBeenCalled();
+    });
+
+    test('deve carregar numero de homologacao e turmas ao sair do campo (onBlur)', async () => {
       (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockResolvedValue({
         sucesso: true,
         dados: { numeroHomologacao: 987654 },
@@ -227,6 +243,9 @@ describe('RelatorioInscritosPorFormacao', () => {
 
       render(<RelatorioInscritosPorFormacao />);
 
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.blur(input, { target: { value: '12345' } });
+
       await waitFor(() => {
         expect(obterNumeroHomologacaoPorPropostaId).toHaveBeenCalledWith(12345);
         expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', '987654');
@@ -234,12 +253,30 @@ describe('RelatorioInscritosPorFormacao', () => {
       });
     });
 
-    test('deve limpar numero de homologacao quando formacao nao possuir homologacao', async () => {
-      (Form.useWatch as jest.Mock).mockImplementation((name: string) => {
-        if (name === 'propostaId') return '54321';
-        return undefined;
+    test('deve consultar homologacao ao teclar Enter no campo (onPressEnter)', async () => {
+      (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: { numeroHomologacao: 111222 },
       });
 
+      (obterTurmasInscricao as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: [{ id: 2, descricao: 'Turma B' }],
+      });
+
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.change(input, { target: { value: '789' } });
+      fireEvent.keyDown(input, { key: 'Enter', currentTarget: { value: '789' } });
+
+      await waitFor(() => {
+        expect(obterNumeroHomologacaoPorPropostaId).toHaveBeenCalledWith(789);
+        expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', '111222');
+      });
+    });
+
+    test('deve limpar numero de homologacao quando formacao nao possuir homologacao', async () => {
       (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockResolvedValue({
         sucesso: true,
         dados: { numeroHomologacao: null },
@@ -247,40 +284,48 @@ describe('RelatorioInscritosPorFormacao', () => {
 
       render(<RelatorioInscritosPorFormacao />);
 
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.blur(input, { target: { value: '54321' } });
+
       await waitFor(() => {
         expect(obterNumeroHomologacaoPorPropostaId).toHaveBeenCalledWith(54321);
         expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
       });
     });
 
-    test('deve tratar erro ao consultar numero de homologacao e turmas', async () => {
-      (Form.useWatch as jest.Mock).mockImplementation((name: string) => {
-        if (name === 'propostaId') return '999';
-        return undefined;
-      });
-
+    test('deve tratar erro ao consultar numero de homologacao e turmas no onBlur', async () => {
       (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockRejectedValue(new Error('Erro API'));
       (obterTurmasInscricao as jest.Mock).mockRejectedValue(new Error('Erro API'));
 
       render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.blur(input, { target: { value: '999' } });
 
       await waitFor(() => {
         expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
       });
     });
 
-    test('deve limpar numero de homologacao e turmas quando propostaId for apagado', async () => {
-      (Form.useWatch as jest.Mock).mockImplementation((name: string) => {
-        if (name === 'propostaId') return undefined;
-        return undefined;
-      });
-
+    test('deve limpar numero de homologacao e turmas quando campo for limpo (onChange vazio)', async () => {
       render(<RelatorioInscritosPorFormacao />);
 
-      await waitFor(() => {
-        expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
-        expect(mockForm.setFieldValue).toHaveBeenCalledWith('propostaTurmaId', undefined);
-      });
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.change(input, { target: { value: '123' } });
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('propostaTurmaId', undefined);
+    });
+
+    test('deve limpar campos se usuario sair do campo com valor vazio', async () => {
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.blur(input, { target: { value: '' } });
+
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('propostaTurmaId', undefined);
     });
   });
 
