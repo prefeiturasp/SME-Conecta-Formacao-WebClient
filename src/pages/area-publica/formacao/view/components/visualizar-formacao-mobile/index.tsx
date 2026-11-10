@@ -114,7 +114,7 @@ const VisualizarFormacaoMobile: React.FC<Props> = ({
               )}
               {!!dadosFormacao?.codigoEventoSigpec && (
                 <Badge>
-                  <FaStar /> Evolução por merecimento
+                  <FaStar/> Evolução por merecimento
                 </Badge>
             )}
           </Badges>
