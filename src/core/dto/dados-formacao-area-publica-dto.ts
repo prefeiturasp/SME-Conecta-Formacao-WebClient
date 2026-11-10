@@ -29,6 +29,7 @@ export type RetornoDetalheFormacaoDto = {
   usuarioAcessibilidade?: UsuarioAcessibilidadeResponseDto | null;
   cursoComCertificado?: boolean;  
   codigoEventoSigpec?: number | null;
+  numeroHomologacao?: number | null;
   formacaoAnteriorId?: number;
   formacaoPosteriorId?: number;
 };

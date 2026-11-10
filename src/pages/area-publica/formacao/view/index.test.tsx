@@ -43,6 +43,11 @@ jest.mock('../list/components/dados-destaque', () => ({
   default: () => <div data-testid="dados-destaque">DadosDestaque</div>,
 }));
 
+jest.mock('./components/visualizar-formacao-mobile', () => ({
+  __esModule: true,
+  default: () => <div data-testid="visualizar-formacao-mobile" />,
+}));
+
 const dadosFormacaoMock: RetornoDetalheFormacaoDto = {
   titulo: 'Curso teste',
   sobreEsteCurso: '<p>Descrição do curso</p>',
