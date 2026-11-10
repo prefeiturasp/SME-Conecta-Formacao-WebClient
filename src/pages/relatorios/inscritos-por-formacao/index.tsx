@@ -25,7 +25,7 @@ import { Formato, FormatoDisplay } from '~/core/enum/formato';
 import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situacao-inscricao';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
-import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
+import { autocompletarFormacao, obterNumeroHomologacaoPorPropostaId, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { gerarRelatorioInscritosPorFormacao } from '~/core/services/relatorio-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { carregarUesPorDre, UeDTO } from '~/core/services/ue-service';
@@ -67,7 +67,6 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const anosTurmas = Form.useWatch('anosTurmas', form);
   const periodoRealizacao = Form.useWatch('periodoRealizacao', form);
   const turmaDisabled = !numeroHomologacao;
-  const periodoEnabled = !(propostaId && numeroHomologacao);
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
 
   const isFirstStep = currentStep === 0;
@@ -120,13 +119,47 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (!propostaId) {
+      form.setFieldValue('numeroHomologacao', undefined);
+      form.setFieldValue('propostaTurmaId', undefined);
+      setTurmasOptions([]);
+      return;
+    }
+
+    const id = Number(propostaId);
+    if (!id || isNaN(id)) return;
+
+    obterNumeroHomologacaoPorPropostaId(id)
+      .then((res) => {
+        if (res.sucesso && res.dados?.numeroHomologacao) {
+          form.setFieldValue('numeroHomologacao', res.dados.numeroHomologacao.toString());
+        } else {
+          form.setFieldValue('numeroHomologacao', undefined);
+        }
+      })
+      .catch(() => {
+        form.setFieldValue('numeroHomologacao', undefined);
+      });
+
+    obterTurmasInscricao(id)
+      .then((res) => {
+        if (res.sucesso && res.dados?.length) {
+          setTurmasOptions(res.dados);
+        } else {
+          setTurmasOptions([]);
+        }
+      })
+      .catch(() => {
+        setTurmasOptions([]);
+      });
+  }, [propostaId, form]);
+
   const onDreChange = () => {
     form.setFieldValue('ueId', undefined);
   };
 
-  useEffect(() => {
-    if (!periodoEnabled) form.setFieldValue('periodoRealizacao', undefined);
-  }, [periodoEnabled, form]);
+
 
   useEffect(() => {
     const dreIdValue = dreId?.value ?? dreId;
@@ -141,7 +174,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   }, [dreId]);
 
   const proximoPasso = () => {
-    if (isFirstStep && periodoEnabled && !periodoRealizacao) {
+    if (isFirstStep && !propostaId && !periodoRealizacao) {
       notification.warning({
         message: 'Campo obrigatório',
         description: 'Informe o Período de realização antes de avançar.',
@@ -289,7 +322,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
                   locale={locale}
                   style={{ width: '100%' }}
                   placeholder={['Data início', 'Data fim']}
-                  disabled={!periodoEnabled}
+                  
                 />
               </Form.Item>
             </Col>

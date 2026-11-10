@@ -1229,4 +1229,27 @@ describe('PropostaService', () => {
       expect(result).toEqual(mockResponse);
     });
   });
+
+  describe('obterNumeroHomologacaoPorPropostaId', () => {
+    test('deve obter numero de homologacao com sucesso', async () => {
+      const id = 12345;
+      const mockResponse = {
+        sucesso: true,
+        dados: { numeroHomologacao: 998877 },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await propostaService.obterNumeroHomologacaoPorPropostaId(id);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(
+        `${URL_API_PROPOSTA}/${id}/numero-homologacao`,
+        undefined,
+        true,
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
 });

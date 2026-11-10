@@ -127,6 +127,19 @@ const salvarNumeroHomologacao = (
     numeroHomologacao,
   });
 
+export type PropostaNumeroHomologacaoDTO = {
+  numeroHomologacao: number | null;
+};
+
+const obterNumeroHomologacaoPorPropostaId = (
+  id: string | number,
+): Promise<ApiResult<PropostaNumeroHomologacaoDTO>> =>
+  obterRegistro<PropostaNumeroHomologacaoDTO>(
+    `${URL_API_PROPOSTA}/${id}/numero-homologacao`,
+    undefined,
+    true,
+  );
+
 const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}`);
 
@@ -319,6 +332,7 @@ export {
   removerParecer,
   removerPropostaEncontro,
   salvarParecer,
+  obterNumeroHomologacaoPorPropostaId,
   salvarNumeroHomologacao,
   salvarPropostaEncontro,
   salvarPropostaProfissionalRegente,
