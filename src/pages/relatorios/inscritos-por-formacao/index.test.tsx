@@ -230,7 +230,7 @@ describe('RelatorioInscritosPorFormacao', () => {
       expect(obterTurmasInscricao).not.toHaveBeenCalled();
     });
 
-    test('deve carregar numero de homologacao e turmas ao sair do campo (onBlur)', async () => {
+    test('deve carregar numero de homologacao, dropdown de homologacao e turmas ao sair do campo (onBlur)', async () => {
       (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockResolvedValue({
         sucesso: true,
         dados: { numeroHomologacao: 987654 },
@@ -241,6 +241,13 @@ describe('RelatorioInscritosPorFormacao', () => {
         dados: [{ id: 1, descricao: 'Turma A' }],
       });
 
+      (autocompletarFormacao as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: {
+          items: [{ propostaId: 12345, numeroHomologacao: 987654, nomeFormacao: 'Formacao Teste' }],
+        },
+      });
+
       render(<RelatorioInscritosPorFormacao />);
 
       const input = screen.getByPlaceholderText('Código da formação');
@@ -249,11 +256,12 @@ describe('RelatorioInscritosPorFormacao', () => {
       await waitFor(() => {
         expect(obterNumeroHomologacaoPorPropostaId).toHaveBeenCalledWith(12345);
         expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', '987654');
+        expect(autocompletarFormacao).toHaveBeenCalledWith('987654');
         expect(obterTurmasInscricao).toHaveBeenCalledWith(12345);
       });
     });
 
-    test('deve consultar homologacao ao teclar Enter no campo (onPressEnter)', async () => {
+    test('deve consultar homologacao e carregar dropdown ao teclar Enter no campo (onPressEnter)', async () => {
       (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockResolvedValue({
         sucesso: true,
         dados: { numeroHomologacao: 111222 },
@@ -262,6 +270,13 @@ describe('RelatorioInscritosPorFormacao', () => {
       (obterTurmasInscricao as jest.Mock).mockResolvedValue({
         sucesso: true,
         dados: [{ id: 2, descricao: 'Turma B' }],
+      });
+
+      (autocompletarFormacao as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: {
+          items: [{ propostaId: 789, numeroHomologacao: 111222, nomeFormacao: 'Formacao Enter' }],
+        },
       });
 
       render(<RelatorioInscritosPorFormacao />);
@@ -273,6 +288,7 @@ describe('RelatorioInscritosPorFormacao', () => {
       await waitFor(() => {
         expect(obterNumeroHomologacaoPorPropostaId).toHaveBeenCalledWith(789);
         expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', '111222');
+        expect(autocompletarFormacao).toHaveBeenCalledWith('111222');
       });
     });
 

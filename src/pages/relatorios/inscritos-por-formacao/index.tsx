@@ -125,6 +125,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
       form.setFieldValue('numeroHomologacao', undefined);
       form.setFieldValue('propostaTurmaId', undefined);
       setTurmasOptions([]);
+      setOpcoesHomologacao([]);
     }
   };
 
@@ -137,6 +138,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
       form.setFieldValue('numeroHomologacao', undefined);
       form.setFieldValue('propostaTurmaId', undefined);
       setTurmasOptions([]);
+      setOpcoesHomologacao([]);
       return;
     }
 
@@ -150,9 +152,12 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
       ]);
 
       if (resHomologacao.sucesso && resHomologacao.dados?.numeroHomologacao) {
-        form.setFieldValue('numeroHomologacao', resHomologacao.dados.numeroHomologacao.toString());
+        const numHomologacaoStr = resHomologacao.dados.numeroHomologacao.toString();
+        form.setFieldValue('numeroHomologacao', numHomologacaoStr);
+        await onSearchHomologacao(numHomologacaoStr);
       } else {
         form.setFieldValue('numeroHomologacao', undefined);
+        setOpcoesHomologacao([]);
       }
 
       if (resTurmas.sucesso && resTurmas.dados?.length) {
@@ -163,6 +168,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     } catch {
       form.setFieldValue('numeroHomologacao', undefined);
       setTurmasOptions([]);
+      setOpcoesHomologacao([]);
     }
   };
 
