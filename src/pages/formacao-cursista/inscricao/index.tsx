@@ -4,8 +4,11 @@ import { cloneDeep } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import editIcon from '~/assets/material-symbols_edit-outline.svg';
 import CardContent from '~/components/lib/card-content';
 import HeaderPage from '~/components/lib/header-page';
+import BreadcrumbConecta from '~/components/main/breadcrumb';
 import ButtonVoltar from '~/components/main/button/voltar';
 import InputCPF from '~/components/main/input/cpf';
 import InputRegistroFuncional from '~/components/main/input/input-registro-funcional';
@@ -26,6 +29,7 @@ import {
 import { FormacaoDTO } from '~/core/dto/formacao-dto';
 import { InscricaoDTO, UsuarioAcessibilidadeDTO } from '~/core/dto/inscricao-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { useIsMobile } from '~/core/hooks/use-is-mobile';
 import { useAppSelector } from '~/core/hooks/use-redux';
 import { setDadosFormacao } from '~/core/redux/modules/area-publica-inscricao/actions';
 import { inserirInscricao, obterDadosInscricaoProposta } from '~/core/services/inscricao-service';
@@ -37,7 +41,217 @@ import { ModalInscricao } from './components/modal';
 import { ModalAcessibilidade } from './components/modal/modal-acessibilidade';
 import SelectTurma from './components/turmas';
 
+const DesktopHeaderWrapper = styled.div`
+  display: block;
+
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+`;
+
+const MobileHeaderWrapper = styled.div`
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+`;
+
+const MobileBreadcrumbWrapper = styled.div`
+  margin-bottom: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+
+  .ant-breadcrumb ol {
+    flex-wrap: nowrap !important;
+  }
+
+  .ant-breadcrumb li {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+`;
+
+const MobilePageTitle = styled.h1`
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #42474a;
+  line-height: 1.3;
+  margin: 0 0 16px 0;
+`;
+
+const CardContentWrapper = styled.div`
+  width: 100%;
+
+  @media (max-width: 768px) {
+    > div {
+      padding: 16px !important;
+      border-radius: 12px !important;
+      box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .ant-form-item {
+      margin-bottom: 16px;
+    }
+
+    .ant-form-item-label > label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #42474a;
+    }
+
+    .ant-input,
+    .ant-select-selector {
+      border-radius: 8px !important;
+    }
+  }
+`;
+
+const DesktopAlterarButton = styled(Button)`
+  font-weight: 700;
+  color: #ff9a52;
+  border-color: #ff9a52;
+  background-color: #ffffff;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+`;
+
+const MobileEditButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  img {
+    width: 38px;
+    height: 38px;
+  }
+`;
+
+const UploadWrapper = styled.div`
+  width: 100%;
+
+  .upload-mobile-text {
+    display: none;
+  }
+  .upload-desktop-text {
+    display: inline;
+  }
+
+  .ant-upload-drag-icon {
+    margin-bottom: 8px !important;
+    .anticon {
+      color: #ff9a52 !important;
+      font-size: 40px !important;
+    }
+  }
+
+  .ant-upload.ant-upload-drag {
+    border-radius: 8px !important;
+  }
+
+  @media (max-width: 768px) {
+    .ant-form-item-label {
+      display: none !important;
+    }
+
+    .upload-mobile-text {
+      display: inline !important;
+    }
+    .upload-desktop-text {
+      display: none !important;
+    }
+
+    .ant-upload.ant-upload-drag {
+      border: 1px dashed #d9d9d9 !important;
+      background-color: #ffffff !important;
+      padding: 20px 16px !important;
+    }
+
+    .ant-upload-text {
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      color: #42474a !important;
+      margin-bottom: 4px !important;
+    }
+
+    .ant-upload-hint {
+      font-size: 12px !important;
+      color: #929494 !important;
+    }
+  }
+`;
+
+const MobileActionsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  width: 100%;
+`;
+
+const MobileButtonPrimary = styled(Button)`
+  width: 100%;
+  height: 40px;
+  background-color: #ff9a52 !important;
+  border-color: #ff9a52 !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+
+  &:hover,
+  &:focus {
+    background-color: #f28a3e !important;
+    border-color: #f28a3e !important;
+    color: #ffffff !important;
+  }
+`;
+
+const MobileButtonSecondary = styled(Button)`
+  width: 100%;
+  height: 40px;
+  background-color: #ffffff !important;
+  border: 1px solid #ff9a52 !important;
+  border-radius: 8px !important;
+  color: #ff9a52 !important;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+
+  &:hover,
+  &:focus {
+    background-color: #fff8f3 !important;
+    border-color: #ff9a52 !important;
+    color: #ff9a52 !important;
+  }
+`;
+
 export const Inscricao = () => {
+  const isMobile = useIsMobile();
   const paramsRoute = useParams();
   const propostaId = paramsRoute?.id ? parseInt(paramsRoute?.id) : 0;
   const [form] = useForm();
@@ -328,53 +542,74 @@ export const Inscricao = () => {
         initialValues={initialValues}
         validateMessages={validateMessages}
       >
-        <HeaderPage title={`Inscrição ${formacaoNome}`}>
-          <Col span={24}>
-            <Row gutter={[8, 8]}>
-              <Col>
-                <ButtonVoltar
-                  onClick={() =>
-                    onClickVoltar({
-                      form,
-                      navigate,
-                      route: ROUTES.AREA_PUBLICA,
-                      mensagem: SUA_INSCRICAO_NAO_FOI_ENVIADA,
-                    })
-                  }
-                  id={CF_BUTTON_VOLTAR}
-                />
-              </Col>
-              <Col>
-                <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
-                  {() => (
+        {!isMobile && (
+          <DesktopHeaderWrapper>
+            <HeaderPage title={`Inscrição ${formacaoNome}`}>
+              <Col span={24}>
+                <Row gutter={[8, 8]}>
+                  <Col>
+                    <ButtonVoltar
+                      onClick={() =>
+                        onClickVoltar({
+                          form,
+                          navigate,
+                          route: ROUTES.AREA_PUBLICA,
+                          mensagem: SUA_INSCRICAO_NAO_FOI_ENVIADA,
+                        })
+                      }
+                      id={CF_BUTTON_VOLTAR}
+                    />
+                  </Col>
+                  <Col>
+                    <Form.Item shouldUpdate style={{ marginBottom: 0 }}>
+                      {() => (
+                        <Button
+                          block
+                          type='default'
+                          id={CF_BUTTON_CANCELAR}
+                          style={{ fontWeight: 700 }}
+                          onClick={() => onClickCancelar({ form })}
+                        >
+                          Cancelar
+                        </Button>
+                      )}
+                    </Form.Item>
+                  </Col>
+                  <Col>
                     <Button
                       block
-                      type='default'
-                      id={CF_BUTTON_CANCELAR}
+                      type='primary'
+                      htmlType='submit'
+                      id={CF_BUTTON_NOVO}
                       style={{ fontWeight: 700 }}
-                      onClick={() => onClickCancelar({ form })}
                     >
-                      Cancelar
+                      {ENVIAR_INSCRICAO}
                     </Button>
-                  )}
-                </Form.Item>
+                  </Col>
+                </Row>
               </Col>
-              <Col>
-                <Button
-                  block
-                  type='primary'
-                  htmlType='submit'
-                  id={CF_BUTTON_NOVO}
-                  style={{ fontWeight: 700 }}
-                >
-                  {ENVIAR_INSCRICAO}
-                </Button>
-              </Col>
-            </Row>
-          </Col>
-        </HeaderPage>
+            </HeaderPage>
+          </DesktopHeaderWrapper>
+        )}
 
-        <CardContent>
+        {isMobile && (
+          <MobileHeaderWrapper>
+            <MobileBreadcrumbWrapper>
+              <BreadcrumbConecta
+                menu='Minhas inscrições'
+                mainPage='Explorar formações'
+                urlMainPage={ROUTES.AREA_PUBLICA}
+                title='Detalhes da formação'
+              />
+            </MobileBreadcrumbWrapper>
+            <MobilePageTitle>
+              {`Inscrição ${formacaoNome}`}
+            </MobilePageTitle>
+          </MobileHeaderWrapper>
+        )}
+
+        <CardContentWrapper>
+          <CardContent>
           <Col span={24}>
             <Row gutter={[16, 8]}>
               <Col xs={24} sm={12}>
@@ -398,21 +633,28 @@ export const Inscricao = () => {
                   >
                     <Input disabled type='text' maxLength={50} placeholder='Nome social' />
                   </Form.Item>
-                  <Button
-                    style={{
-                      fontWeight: 700,
-                      color: '#ff9a52',
-                      borderColor: '#ff9a52',
-                      backgroundColor: '#FFFFFF',
-                      flexShrink: 0,
-                    }}
-                    onClick={() => {
-                      setNomeSocialTemp(form.getFieldValue('usuarioNomeSocial') ?? '');
-                      setAbrirModalNomeSocial(true);
-                    }}
-                  >
-                    Alterar
-                  </Button>
+                  {!isMobile && (
+                    <DesktopAlterarButton
+                      onClick={() => {
+                        setNomeSocialTemp(form.getFieldValue('usuarioNomeSocial') ?? '');
+                        setAbrirModalNomeSocial(true);
+                      }}
+                    >
+                      Alterar
+                    </DesktopAlterarButton>
+                  )}
+                  {isMobile && (
+                    <MobileEditButton
+                      type='button'
+                      aria-label='Alterar nome social'
+                      onClick={() => {
+                        setNomeSocialTemp(form.getFieldValue('usuarioNomeSocial') ?? '');
+                        setAbrirModalNomeSocial(true);
+                      }}
+                    >
+                      <img src={editIcon} alt='Alterar nome social' />
+                    </MobileEditButton>
+                  )}
                 </div>
               </Col>
 
@@ -536,16 +778,57 @@ export const Inscricao = () => {
                 </>
               )}
               <Col xs={24}>
-                <UploadArquivosConectaFormacao
-                  form={form}
-                  formItemProps={{
-                    name: 'arquivoId',
-                    label: 'Upload',
-                  }}
-                  tipoArquivosPermitidos='.pdf'
-                  subTitulo='Permite apenas arquivos PDF com no máximo 5MB cada'
-                />
+                <UploadWrapper>
+                  <UploadArquivosConectaFormacao
+                    form={form}
+                    formItemProps={{
+                      name: 'arquivoId',
+                      label: 'Upload',
+                    }}
+                    titulo={
+                      <>
+                        <span className='upload-desktop-text'>
+                          Clique ou arraste para fazer o upload do arquivo
+                        </span>
+                        <span className='upload-mobile-text'>
+                          Clique para fazer o upload do arquivo
+                        </span>
+                      </>
+                    }
+                    tipoArquivosPermitidos='.pdf'
+                    subTitulo='Permite apenas arquivos PDF com no máximo 5MB cada.'
+                  />
+                </UploadWrapper>
               </Col>
+
+              {isMobile && (
+                <Col xs={24}>
+                  <MobileActionsWrapper>
+                    <MobileButtonPrimary
+                      type='primary'
+                      htmlType='submit'
+                      id={`${CF_BUTTON_NOVO}-mobile`}
+                    >
+                      {ENVIAR_INSCRICAO}
+                    </MobileButtonPrimary>
+
+                    <MobileButtonSecondary
+                      type='default'
+                      id={`${CF_BUTTON_VOLTAR}-mobile`}
+                      onClick={() =>
+                        onClickVoltar({
+                          form,
+                          navigate,
+                          route: ROUTES.AREA_PUBLICA,
+                          mensagem: SUA_INSCRICAO_NAO_FOI_ENVIADA,
+                        })
+                      }
+                    >
+                      Voltar
+                    </MobileButtonSecondary>
+                  </MobileActionsWrapper>
+                </Col>
+              )}
 
               {abrirModalListaDeEspera && (
                 <Modal
@@ -671,6 +954,7 @@ export const Inscricao = () => {
             </Row>
           </Col>
         </CardContent>
+      </CardContentWrapper>
 
         <ModalAcessibilidade
           open={abrirModalAcessibilidade}
