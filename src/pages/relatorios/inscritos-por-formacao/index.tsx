@@ -26,7 +26,7 @@ import { SituacaoInscricao, SituacaoInscricaoTagDisplay } from '~/core/enum/situ
 import { SituacaoAprovacao, SituacaoAprovacaoTagDisplay } from '~/core/enum/situacao-aprovacao';
 import { obterFuncaoEspecifica } from '~/core/services/cargo-funcao-service';
 import { obterTurmasInscricao } from '~/core/services/inscricao-service';
-import { autocompletarFormacao, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
+import { autocompletarFormacao, obterNumeroHomologacaoPorPropostaId, PropostaAutocompletarDTO } from '~/core/services/proposta-service';
 import { gerarRelatorioInscritosPorFormacao } from '~/core/services/relatorio-service';
 import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
 import { carregarUesPorDre, UeDTO } from '~/core/services/ue-service';
@@ -67,8 +67,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   const modalidade = Form.useWatch('modalidade', form);
   const anosTurmas = Form.useWatch('anosTurmas', form);
   const periodoRealizacao = Form.useWatch('periodoRealizacao', form);
-  const turmaDisabled = !numeroHomologacao;
-  const periodoEnabled = !(propostaId && numeroHomologacao);
+  const turmaDisabled = !numeroHomologacao && !propostaId;
   const [loadingAutocompleteHomologacao, setLoadingAutocompleteHomologacao] = useState(false);
 
   const isFirstStep = currentStep === 0;
@@ -121,13 +120,64 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
     }
   };
 
+  const aoMudarCodigoProposta = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e?.target?.value;
+    if (!valor) {
+      form.setFieldValue('numeroHomologacao', undefined);
+      form.setFieldValue('propostaTurmaId', undefined);
+      setTurmasOptions([]);
+      setOpcoesHomologacao([]);
+    }
+  };
+
+  const aoSairDoCampoCodigoProposta = async (valorDigitado?: string) => {
+    const valor = (valorDigitado ?? form.getFieldValue('propostaId') ?? '')
+      .toString()
+      .replace(/\D/g, '');
+
+    if (!valor) {
+      form.setFieldValue('numeroHomologacao', undefined);
+      form.setFieldValue('propostaTurmaId', undefined);
+      setTurmasOptions([]);
+      setOpcoesHomologacao([]);
+      return;
+    }
+
+    const id = Number(valor);
+    if (!id || isNaN(id)) return;
+
+    try {
+      const [resHomologacao, resTurmas] = await Promise.all([
+        obterNumeroHomologacaoPorPropostaId(id),
+        obterTurmasInscricao(id),
+      ]);
+
+      if (resHomologacao.sucesso && resHomologacao.dados?.numeroHomologacao) {
+        const numHomologacaoStr = resHomologacao.dados.numeroHomologacao.toString();
+        form.setFieldValue('numeroHomologacao', numHomologacaoStr);
+        await onSearchHomologacao(numHomologacaoStr);
+      } else {
+        form.setFieldValue('numeroHomologacao', undefined);
+        setOpcoesHomologacao([]);
+      }
+
+      if (resTurmas.sucesso && resTurmas.dados?.length) {
+        setTurmasOptions(resTurmas.dados);
+      } else {
+        setTurmasOptions([]);
+      }
+    } catch {
+      form.setFieldValue('numeroHomologacao', undefined);
+      setTurmasOptions([]);
+      setOpcoesHomologacao([]);
+    }
+  };
+
   const onDreChange = () => {
     form.setFieldValue('ueId', undefined);
   };
 
-  useEffect(() => {
-    if (!periodoEnabled) form.setFieldValue('periodoRealizacao', undefined);
-  }, [periodoEnabled, form]);
+
 
   useEffect(() => {
     const dreIdValue = dreId?.value ?? dreId;
@@ -142,7 +192,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
   }, [dreId]);
 
   const proximoPasso = () => {
-    if (isFirstStep && periodoEnabled && !periodoRealizacao) {
+    if (isFirstStep && !propostaId && !periodoRealizacao) {
       notification.warning({
         message: 'Campo obrigatório',
         description: 'Informe o Período de realização antes de avançar.',
@@ -230,7 +280,13 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
             <Col xs={24} sm={12} md={8}>
               <InputNumero
                 formItemProps={{ label: 'Código da formação', name: 'propostaId' }}
-                inputProps={{ placeholder: 'Código da formação', allowClear: true }}
+                inputProps={{
+                  placeholder: 'Código da formação',
+                  allowClear: true,
+                  onChange: aoMudarCodigoProposta,
+                  onBlur: (e) => aoSairDoCampoCodigoProposta(e.target.value),
+                  onPressEnter: (e) => aoSairDoCampoCodigoProposta(e.currentTarget.value),
+                }}
               />
             </Col>
             <Col xs={24} sm={12} md={8}>
@@ -295,7 +351,7 @@ const RelatorioInscritosPorFormacao: React.FC = () => {
                   locale={locale}
                   style={{ width: '100%' }}
                   placeholder={['Data início', 'Data fim']}
-                  disabled={!periodoEnabled}
+                  
                 />
               </Form.Item>
             </Col>
