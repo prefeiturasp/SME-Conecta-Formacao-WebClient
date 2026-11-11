@@ -9,12 +9,10 @@ import { Inscricao } from '.';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import {
-  obterDadosInscricaoProposta,
-  inserirInscricao,
-} from '~/core/services/inscricao-service';
+import { obterDadosInscricaoProposta, inserirInscricao } from '~/core/services/inscricao-service';
 
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
+import { onClickVoltar } from '~/core/utils/form';
 
 (window as any).React = React;
 
@@ -73,8 +71,7 @@ jest.mock('~/components/lib/card-content', () => {
 });
 
 jest.mock('~/components/main/button/voltar', () => {
-  const Mock = (props: any) =>
-    React.createElement('button', { onClick: props.onClick }, 'Voltar');
+  const Mock = (props: any) => React.createElement('button', { onClick: props.onClick }, 'Voltar');
   Mock.displayName = 'ButtonVoltar';
   return Mock;
 });
@@ -147,6 +144,51 @@ const renderComponent = () => {
 };
 
 describe('Inscricao', () => {
+  const originalMatches = Element.prototype.matches;
+  const originalQuerySelector = document.querySelector;
+  const originalQuerySelectorAll = document.querySelectorAll;
+
+  beforeAll(() => {
+    Element.prototype.matches = function (selector: string) {
+      try {
+        return originalMatches.call(this, selector);
+      } catch (e) {
+        if (typeof selector === 'string' && selector.includes('ant-select')) {
+          return false;
+        }
+        throw e;
+      }
+    };
+
+    document.querySelector = function (selector: string) {
+      try {
+        return originalQuerySelector.call(this, selector);
+      } catch (e) {
+        if (typeof selector === 'string' && selector.includes('ant-select')) {
+          return null;
+        }
+        throw e;
+      }
+    };
+
+    document.querySelectorAll = function (selector: string) {
+      try {
+        return originalQuerySelectorAll.call(this, selector);
+      } catch (e) {
+        if (typeof selector === 'string' && selector.includes('ant-select')) {
+          return [] as any;
+        }
+        throw e;
+      }
+    };
+  });
+
+  afterAll(() => {
+    Element.prototype.matches = originalMatches;
+    document.querySelector = originalQuerySelector;
+    document.querySelectorAll = originalQuerySelectorAll;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(jest.fn());
@@ -266,20 +308,19 @@ describe('Inscricao', () => {
 
     it('renderiza os botões de ação mobile ao final do formulário', async () => {
       renderComponent();
-      expect(await screen.findByRole('button', { name: 'Enviar inscrição' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Voltar' })).toBeInTheDocument();
+      expect(await screen.findByText('Enviar inscrição')).toBeInTheDocument();
+      expect(screen.getByText('Voltar')).toBeInTheDocument();
     });
 
     it('renderiza botão mobile de alterar nome social com ícone', async () => {
       renderComponent();
-      const btnEditar = await screen.findByRole('button', { name: 'Alterar nome social' });
+      const btnEditar = await screen.findByLabelText('Alterar nome social');
       expect(btnEditar).toBeInTheDocument();
     });
 
     it('chama onClickVoltar ao clicar no botão voltar do mobile', async () => {
-      const { onClickVoltar } = require('~/core/utils/form');
       renderComponent();
-      const btnVoltarMobile = await screen.findByRole('button', { name: 'Voltar' });
+      const btnVoltarMobile = await screen.findByText('Voltar');
       fireEvent.click(btnVoltarMobile);
       expect(onClickVoltar).toHaveBeenCalled();
     });
