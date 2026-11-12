@@ -1,4 +1,5 @@
-import { Row, Col, Form, Select } from "antd";
+import { Row, Col, Form, Select, Tooltip } from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import InputNumero from "~/components/main/numero";
 import InputTexto from "~/components/main/text/input-text";
 import { CF_INPUT_NUMERO_HOMOLOGACAO, CF_INPUT_NOME_FORMACAO, CF_INPUT_CODIGO_FORMACAO } from "~/core/constants/ids/input";
@@ -9,6 +10,8 @@ interface SecaoFormularioProps {
   onBlurCodigoFormacao: (value: string) => void;
   turmasFiltradas: RetornoListagemDTO[];
   turmaDisabled: boolean;
+  tooltipAberto?: boolean;
+  exibirTooltipTurma?: boolean;
   camposBloqueados: {
     numeroHomologacao: boolean;
     codigoFormacao: boolean;
@@ -21,6 +24,8 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
   onBlurCodigoFormacao,
   turmasFiltradas,
   turmaDisabled,
+  tooltipAberto = false,
+  exibirTooltipTurma = false,
   camposBloqueados
 }) => {
   return (
@@ -84,7 +89,19 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <b>
             <Form.Item
-              label='Turma'
+              label={
+                <span>
+                  Turma{' '}
+                  {exibirTooltipTurma && (
+                    <Tooltip
+                      title='Não é possível selecionar uma turma já inserida em um CODAF'
+                      open={tooltipAberto || undefined}
+                    >
+                      <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
+                    </Tooltip>
+                  )}
+                </span>
+              }
               name='turmaId'
               rules={[{ required: true, message: 'Campo obrigatório' }]}
             >
