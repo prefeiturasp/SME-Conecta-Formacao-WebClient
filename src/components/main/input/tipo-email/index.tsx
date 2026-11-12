@@ -33,7 +33,7 @@ const SelectTipoEmail: React.FC<SelectTipoEmailProps> = ({ formItemProps, select
       rules={[{ required: true, message: TIPO_EMAIL_NAO_INFORMADO }]}
       {...formItemProps}
     >
-      <Select  {...selectProps} options={options} placeholder='Tipo' id={CF_SELECT_TIPO_EMAIL} />
+      <Select placeholder='Tipo' {...selectProps} options={options} id={CF_SELECT_TIPO_EMAIL} />
     </Form.Item>
   );
 };

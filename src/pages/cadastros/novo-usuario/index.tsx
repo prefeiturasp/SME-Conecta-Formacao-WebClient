@@ -33,12 +33,15 @@ import { removeAcentos, removerTudoQueNaoEhDigito } from '~/core/utils/functions
 import InputEmailEducacional from '~/components/main/input/email-educacional';
 import SelectTipoEmail from '~/components/main/input/tipo-email';
 import { TipoEmail } from '~/core/enum/tipo-email';
+import { CriteriosSenhaMobile, TituloCadastroMobile } from './styles';
+import { useEhMobile } from './use-eh-mobile';
 
 export const CadastroDeUsuario = () => {
   const [form] = Form.useForm();
   const DOMINIO_DEFAULT = '@edu.sme.prefeitura.sp.gov.br';
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const ehMobile = useEhMobile();
 
   const [erroGeral, setErroGeral] = useState<string[]>();
   const [loadingCPF, setLoadingCPF] = useState<boolean>(false);
@@ -218,9 +221,17 @@ export const CadastroDeUsuario = () => {
           if (errorForm) {
             setErrorOnFinish(true);
           }
+          if (ehMobile) {
+            setTimeout(() =>
+              document
+                .querySelector('.ant-form-item-has-error')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+            );
+          }
         }}
         validateMessages={validateMessages}
       >
+        {ehMobile && <TituloCadastroMobile>Cadastro de usuário</TituloCadastroMobile>}
         <Row gutter={[16, 8]}>
           <Col span={24}>
             <InputCPF
@@ -232,6 +243,7 @@ export const CadastroDeUsuario = () => {
               inputProps={{
                 name: 'cpf',
                 id: CF_INPUT_CPF,
+                inputMode: 'numeric',
                 onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                   const value = removerTudoQueNaoEhDigito(e.target.value);
                   if (value.length === 11) {
@@ -243,7 +255,12 @@ export const CadastroDeUsuario = () => {
             />
           </Col>
           <Col span={24}>
-            <SelectTipoEmail selectProps={{ onChange: criarEmailEdu }} />
+            <SelectTipoEmail
+              selectProps={{
+                onChange: criarEmailEdu,
+                placeholder: ehMobile ? 'Selecione' : 'Tipo',
+              }}
+            />
           </Col>
           <Col span={24}>
             <Form.Item
@@ -260,7 +277,7 @@ export const CadastroDeUsuario = () => {
               <Input
                 maxLength={100}
                 id={CF_INPUT_NOME}
-                placeholder='Informe o nome completo'
+                placeholder={ehMobile ? 'Exemplo: João da Silva' : 'Informe o nome completo'}
                 onChange={criarEmailEdu}
               />
             </Form.Item>
@@ -284,19 +301,49 @@ export const CadastroDeUsuario = () => {
             />
           </Col>
           <Col span={24}>
-            <InputEmailEducacional />
+            <InputEmailEducacional label={ehMobile ? 'E-mail (@edu)' : 'E-mail @edu'} />
           </Col>
           <Col span={24}>
-            <InputCodigoEolUE />
+            <InputCodigoEolUE
+              formItemProps={ehMobile ? { label: 'Código EOL da unidade educacional' } : undefined}
+              inputProps={ehMobile ? { placeholder: 'Exemplo: 123.456.7' } : undefined}
+            />
           </Col>
           <Col span={24}>
-            <Form.Item label='Nome da unidade' name='nomeUnidade' rules={[{ required: true }]}>
-              <Input maxLength={100} id={CF_INPUT_NOME_UE} placeholder='Nome da unidade' disabled />
+            <Form.Item
+              label={ehMobile ? 'Nome da unidade educacional' : 'Nome da unidade'}
+              name='nomeUnidade'
+              rules={[{ required: true }]}
+            >
+              <Input
+                maxLength={100}
+                id={CF_INPUT_NOME_UE}
+                placeholder={ehMobile ? 'Exemplo: EMEF João da Silva' : 'Nome da unidade'}
+                disabled
+              />
             </Form.Item>
           </Col>
           <Col span={24}>
             <SenhaCadastro inputProps={{ id: CF_INPUT_SENHA }} />
           </Col>
+          {ehMobile && (
+            <Col span={24}>
+              <CriteriosSenhaMobile>
+                <strong>
+                  Por questões de segurança, a senha deve seguir os seguintes critérios:
+                </strong>
+                <ul>
+                  <li>Ao menos uma letra maiúscula</li>
+                  <li>Ao menos uma letra minúscula</li>
+                  <li>Entre 8 e 12 caracteres</li>
+                  <li>Ao menos um caracter numérico</li>
+                  <li>Ao menos um caracter especial (#@&amp;!?_)</li>
+                  <li>Não deve conter espaços em branco</li>
+                  <li>Não deve conter caracteres acentuados</li>
+                </ul>
+              </CriteriosSenhaMobile>
+            </Col>
+          )}
           <Col span={24}>
             <SenhaCadastro
               confirmarSenha={{ fieldName: 'senha' }}
@@ -320,7 +367,7 @@ export const CadastroDeUsuario = () => {
               id={CF_BUTTON_CONTINUAR}
               style={{ fontWeight: 700 }}
             >
-              Continuar
+              {ehMobile ? 'Cadastrar' : 'Continuar'}
             </Button>
           </Col>
 
