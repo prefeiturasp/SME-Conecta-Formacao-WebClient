@@ -1,9 +1,9 @@
-import { Row, Col, Form, Select, Tooltip } from "antd";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Row, Col } from "antd";
 import InputNumero from "~/components/main/numero";
 import InputTexto from "~/components/main/text/input-text";
 import { CF_INPUT_NUMERO_HOMOLOGACAO, CF_INPUT_NOME_FORMACAO, CF_INPUT_CODIGO_FORMACAO } from "~/core/constants/ids/input";
 import { RetornoListagemDTO } from "~/core/dto/retorno-listagem-dto";
+import { CampoSelectTurmaCodaf } from "~/pages/formacoes/codaf/shared/componentes/campo-select-turma-codaf";
 
 interface SecaoFormularioProps {
   onChangeCodigoFormacao: (value: string) => void;
@@ -86,37 +86,12 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
             />
           </b>
         </Col>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
-            <Form.Item
-              label={
-                <span>
-                  Turma{' '}
-                  {exibirTooltipTurma && (
-                    <Tooltip
-                      title='Não é possível selecionar uma turma já inserida em um CODAF'
-                      open={tooltipAberto || undefined}
-                    >
-                      <QuestionCircleOutlined style={{ color: '#ff6b35', cursor: 'help' }} />
-                    </Tooltip>
-                  )}
-                </span>
-              }
-              name='turmaId'
-              rules={[{ required: true, message: 'Campo obrigatório' }]}
-            >
-              <Select
-                placeholder='Selecione a turma'
-                options={turmasFiltradas.map((turma) => ({
-                  label: turma.descricao,
-                  value: turma.id,
-                }))}
-                disabled={camposBloqueados.turma || turmaDisabled}
-                allowClear
-              />
-            </Form.Item>
-          </b>
-        </Col>
+        <CampoSelectTurmaCodaf
+          turmas={turmasFiltradas}
+          desabilitado={camposBloqueados.turma || turmaDisabled}
+          exibirAvisoCodafExistente={exibirTooltipTurma}
+          tooltipAberto={tooltipAberto}
+        />
       </Row>
     </div>
   );
