@@ -306,7 +306,7 @@ export const CadastroDeUsuario = () => {
           <Col span={24}>
             <InputCodigoEolUE
               formItemProps={ehMobile ? { label: 'Código EOL da unidade educacional' } : undefined}
-              inputProps={ehMobile ? { placeholder: 'Exemplo: 123.456.7' } : undefined}
+              inputProps={ehMobile ? { placeholder: 'Exemplo: 1234567' } : undefined}
             />
           </Col>
           <Col span={24}>

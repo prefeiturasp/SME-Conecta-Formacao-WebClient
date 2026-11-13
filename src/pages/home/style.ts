@@ -71,7 +71,7 @@ export const ConteudoCol = styled(Col)`
     }
 
     .home-navegadores {
-      display: none;
+      text-align: center;
     }
   }
 `;
