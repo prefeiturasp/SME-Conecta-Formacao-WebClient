@@ -129,11 +129,15 @@ export const obterInscritosTurma = (
   turmaId: number,
   numeroPagina = 1,
   numeroRegistros = 9999,
+  codafCursoNaoHomologadoId?: number | null,
 ): Promise<ApiResult<InscritoTurmaRetornoDTO>> => {
-  const params = {
+  const params: Record<string, number> = {
     numeroPagina,
     numeroRegistros,
   };
+  if (codafCursoNaoHomologadoId) {
+    params.codafCursoNaoHomologadoId = codafCursoNaoHomologadoId;
+  }
   return obterRegistro(`${URL_API_CODAF_CURSO_NAO_HOMOLOGADO}/inscritos-turma/${turmaId}`, { params });
 };
 

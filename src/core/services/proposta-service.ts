@@ -272,6 +272,7 @@ export type PropostaTurmaDTO = {
   id: number;
   descricao: string;
   possuiCodafListaPresenca?: boolean;
+  possuiCodafCursoNaoHomologado?: boolean;
 };
 
 export type PropostaComTurmasDTO = {
