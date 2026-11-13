@@ -7,6 +7,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 
 import { CadastroDeUsuario } from './index';
+import { useEhMobile } from './use-eh-mobile';
 
 import funcionarioExternoService from '../../../core/services/funcionario-externo-service';
 import usuarioService from '../../../core/services/usuario-service';
@@ -194,6 +195,10 @@ jest.mock('~/components/main/erro-geral-login', () => ({
   default: () => <div>Erro</div>,
 }));
 
+jest.mock('./use-eh-mobile', () => ({
+  useEhMobile: jest.fn(() => false),
+}));
+
 describe('CadastroDeUsuario', () => {
   const renderPage = () =>
     render(
@@ -344,5 +349,31 @@ describe('CadastroDeUsuario', () => {
 
     expect(copyEvent.preventDefault).toHaveBeenCalled();
     expect(pasteEvent.preventDefault).toHaveBeenCalled();
+  });
+
+  describe('mobile', () => {
+    beforeEach(() => {
+      (useEhMobile as jest.Mock).mockReturnValue(true);
+    });
+
+    afterEach(() => {
+      (useEhMobile as jest.Mock).mockReturnValue(false);
+    });
+
+    it('deve exibir título, critérios de senha e botão Cadastrar', () => {
+      renderPage();
+
+      expect(screen.getByText('Cadastro de usuário')).toBeInTheDocument();
+      expect(screen.getByText('Entre 8 e 12 caracteres')).toBeInTheDocument();
+      expect(screen.getByText('Cadastrar')).toBeDisabled();
+      expect(screen.queryByText('Continuar')).not.toBeInTheDocument();
+    });
+  });
+
+  it('desktop não deve exibir elementos do mobile', () => {
+    renderPage();
+
+    expect(screen.queryByText('Cadastro de usuário')).not.toBeInTheDocument();
+    expect(screen.queryByText('Entre 8 e 12 caracteres')).not.toBeInTheDocument();
   });
 });

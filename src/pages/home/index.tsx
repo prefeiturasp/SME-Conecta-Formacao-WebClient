@@ -4,16 +4,16 @@ import conecataFormacaoLogoTitulo from '~/assets/conecta-formacao-logo-titulo.sv
 import prefeituraLogo from '~/assets/prefeitura-sp-logo.png';
 
 import { Outlet } from 'react-router-dom';
-import { BackgroundHome } from './style';
+import { BackgroundCol, BackgroundHome, ConteudoCol, HomeContainer } from './style';
 
 const Home = () => {
   return (
-    <Row align='middle' style={{ height: '100vh' }}>
-      <Col sm={0} md={8} lg={12}>
+    <HomeContainer align='middle'>
+      <BackgroundCol sm={0} md={8} lg={12}>
         <BackgroundHome />
-      </Col>
-      <Col sm={24} md={16} lg={12} style={{ maxHeight: '100vh', overflow: 'auto' }}>
-        <Row justify='center' style={{ margin: '40px 0px' }}>
+      </BackgroundCol>
+      <ConteudoCol sm={24} md={16} lg={12}>
+        <Row justify='center' className='home-logo' style={{ margin: '40px 0px' }}>
           <Col span={14}>
             <img
               style={{ width: '100%', height: '100%' }}
@@ -22,7 +22,7 @@ const Home = () => {
             />
           </Col>
         </Row>
-        <Row justify='center'>
+        <Row justify='center' className='home-conteudo'>
           <Outlet />
         </Row>
         <Row justify='center' style={{ marginTop: '40px' }}>
@@ -34,11 +34,11 @@ const Home = () => {
             />
           </Col>
         </Row>
-        <Row justify='center' style={{ marginTop: '10px' }}>
+        <Row justify='center' className='home-navegadores' style={{ marginTop: '10px' }}>
           Sistema homologado para navegadores: Google Chrome e Firefox
         </Row>
-      </Col>
-    </Row>
+      </ConteudoCol>
+    </HomeContainer>
   );
 };
 
