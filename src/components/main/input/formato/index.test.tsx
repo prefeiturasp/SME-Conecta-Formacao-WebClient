@@ -77,6 +77,16 @@ describe('SelectFormato', () => {
     });
   });
 
+  it('busca dados com o novo tipo de formação conferência quando informado nos valores iniciais', async () => {
+    obterFormatoMock.mockResolvedValue({ sucesso: true, dados: [] });
+
+    renderComponent({}, { tipoFormacao: TipoFormacao.Conferencia });
+
+    await waitFor(() => {
+      expect(obterFormatoMock).toHaveBeenCalledWith(TipoFormacao.Conferencia);
+    });
+  });
+
   it('usa o serviço público quando publico=true', async () => {
     obterFormatoPublicoMock.mockResolvedValue({ sucesso: true, dados: [] });
 
