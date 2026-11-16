@@ -1,10 +1,12 @@
-import { Button, Col, Row } from 'antd';
+import { Button, Col, Form, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useContext, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { CF_BUTTON_ADD_REGENTE } from '~/core/constants/ids/button/intex';
 import { PropostaRegenteDTO } from '~/core/dto/proposta-regente-dto';
+import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import DrawerRegente from '~/pages/cadastros/propostas/form/steps/formulario-profissionais/components/lista-regentes/drawer';
+import { PropostaContext } from '~/pages/cadastros/propostas/form/provider';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { TituloListaPaginada, TituloSecao } from '../../../../styles';
 import DataTableProfissionalRegente from '~/components/lib/card-table-profissional-regente';
@@ -24,6 +26,11 @@ const ListaRegentes: React.FC<ListaRegentesProps> = ({ recarregarTurmas }) => {
   const paramsRoute = useParams();
   const refTable = useRef<any>(null);
   const { desabilitarCampos } = useContext(PermissaoContext);
+  const { formInitialValues } = useContext(PropostaContext);
+  const form = Form?.useFormInstance ? Form.useFormInstance() : undefined;
+  const tipoFormacaoWatch = Form?.useWatch ? Form.useWatch('tipoFormacao', form) : undefined;
+  const tipoFormacao = tipoFormacaoWatch ?? formInitialValues?.tipoFormacao;
+  const ehConferencia = tipoFormacao === TipoFormacao.Conferencia;
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosRegentSelecionado, setDadosRegentSelecionado] = useState<PropostaRegenteDTO>();
@@ -71,7 +78,7 @@ const ListaRegentes: React.FC<ListaRegentesProps> = ({ recarregarTurmas }) => {
                   type='primary'
                   id={CF_BUTTON_ADD_REGENTE}
                   onClick={abrirModal}
-                  disabled={desabilitarCampos}
+                  disabled={desabilitarCampos || ehConferencia}
                 >
                   Adicionar regentes
                 </Button>

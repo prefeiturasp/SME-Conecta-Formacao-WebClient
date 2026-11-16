@@ -14,6 +14,8 @@ import React from 'react';
 import ListaTutores from './index';
 import { PermissaoContext } from '../../../../../../../../routes/config/guard/permissao/provider';
 import { CF_BUTTON_ADD_TUTOR } from '../../../../../../../../core/constants/ids/button/intex';
+import { TipoFormacao } from '~/core/enum/tipo-formacao';
+import { PropostaContext } from '~/pages/cadastros/propostas/form/provider';
 
 type Tutor = {
   id?: number;
@@ -235,14 +237,22 @@ describe('ListaTutores', () => {
   const renderizar = (
     recarregarTurmas = false,
     desabilitarCampos = false,
+    tipoFormacao?: TipoFormacao,
   ) =>
     render(
       <PermissaoContext.Provider
         value={{ desabilitarCampos } as never}
       >
-        <ListaTutores
-          recarregarTurmas={recarregarTurmas}
-        />
+        <PropostaContext.Provider
+          value={{
+            formInitialValues: { tipoFormacao },
+            setFormInitialValues: jest.fn(),
+          }}
+        >
+          <ListaTutores
+            recarregarTurmas={recarregarTurmas}
+          />
+        </PropostaContext.Provider>
       </PermissaoContext.Provider>,
     );
 
@@ -309,6 +319,26 @@ describe('ListaTutores', () => {
         name: 'Adicionar mediadores',
       }),
     ).toBeDisabled();
+  });
+
+  it('desabilita o botão de adicionar mediadores quando o tipo de formação for Conferencia', () => {
+    renderizar(false, false, TipoFormacao.Conferencia);
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Adicionar mediadores',
+      }),
+    ).toBeDisabled();
+  });
+
+  it('habilita o botão de adicionar mediadores quando o tipo de formação for Curso', () => {
+    renderizar(false, false, TipoFormacao.Curso);
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Adicionar mediadores',
+      }),
+    ).not.toBeDisabled();
   });
 
   it('não renderiza o drawer inicialmente', () => {
