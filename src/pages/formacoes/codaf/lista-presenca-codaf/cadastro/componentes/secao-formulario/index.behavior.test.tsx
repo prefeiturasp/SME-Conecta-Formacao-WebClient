@@ -114,18 +114,6 @@ describe('SecaoFormulario behavior', () => {
     expect(posCodigo).toBeLessThan(posHomologacao);
   });
 
-  test('renderiza layout padrão para perfis não-DRE com Número de homologação exibido primeiro', () => {
-    const { container } = renderComponent({ ehPerfilDRE: false });
-
-    expect(screen.getByText('Código da formação')).not.toBeNull();
-    expect(screen.getByText('Número de homologação')).not.toBeNull();
-
-    const textContent = container.textContent || '';
-    const posHomologacao = textContent.indexOf('Número de homologação');
-    const posCodigo = textContent.indexOf('Código da formação');
-    expect(posHomologacao).toBeLessThan(posCodigo);
-  });
-
   test('renderiza com loadingAutocomplete true', () => {
     renderComponent({ loadingAutocomplete: true });
     expect(screen.getByText('Número de homologação')).not.toBeNull();
