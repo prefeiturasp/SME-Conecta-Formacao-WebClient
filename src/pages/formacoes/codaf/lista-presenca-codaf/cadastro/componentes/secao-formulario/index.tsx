@@ -197,11 +197,11 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
       ) : (
         <>
           <Row gutter={[16, 8]}>
-            {campoNumeroHomologacaoAutoComplete}
+            {campoCodigoFormacao}
             {campoNomeFormacao}
           </Row>
           <Row gutter={[16, 8]}>
-            {campoCodigoFormacao}
+            {campoNumeroHomologacaoAutoComplete}
             {campoTurma}
           </Row>
         </>
