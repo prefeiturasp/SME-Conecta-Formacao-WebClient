@@ -45,5 +45,8 @@ export enum ROUTES {
   CODAF_SUPLEMENTAR_EDITAR = '/formacoes/codaf-suplementar/editar/:id',
   LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO = '/formacoes/lista-presenca-codaf/nao-homologado',
   LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_NOVO = '/formacoes/lista-presenca-codaf/nao-homologado/novo',
-  LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_EDITAR = '/formacoes/lista-presenca-codaf/nao-homologado/editar/:id'
+  LISTA_PRESENCA_CODAF_NAO_HOMOLOGADO_EDITAR = '/formacoes/lista-presenca-codaf/nao-homologado/editar/:id',
+  CODAF_CONFERENCIA = '/formacoes/codaf-conferencia',
+  CODAF_CONFERENCIA_NOVO = '/formacoes/codaf-conferencia/novo',
+  CODAF_CONFERENCIA_EDITAR = '/formacoes/codaf-conferencia/editar/:id'
 }
