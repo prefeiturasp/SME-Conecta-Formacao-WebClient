@@ -4,7 +4,6 @@ import { calcularAprovacao } from '../../../../../core/utils/codaf-utils';
 import type { RegrasAprovacaoCursistaCodafDto } from '../../../../../core/dto/cursista-dto';
 
 describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados', () => {
-
   describe('Filtragem de anexos exibidos', () => {
     const filtrarAnexosValidos = (anexos: Array<{ arquivoCodigo?: string | null }>) =>
       anexos.filter(
@@ -25,10 +24,7 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
 
       const anexosFiltrados = filtrarAnexosValidos(anexos);
 
-      expect(anexosFiltrados).toEqual([
-        { arquivoCodigo: '123' },
-        { arquivoCodigo: 'abc' },
-      ]);
+      expect(anexosFiltrados).toEqual([{ arquivoCodigo: '123' }, { arquivoCodigo: 'abc' }]);
     });
   });
 
@@ -81,8 +77,16 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
       houveAlteracao: true,
       totalNovos: idsNovos.length,
       totalRemovidos: idsRemovidos.length,
-      inscritosNovos: idsNovos.map(id => ({ id, nome: 'A', documento: '1', percentualFrequencia: 100, conceitoFinal: 'S', atividadeObrigatorio: true, aprovado: true })),
-      inscritosRemovidos: idsRemovidos.map(id => ({ id, nome: 'A', documento: '1' })),
+      inscritosNovos: idsNovos.map((id) => ({
+        id,
+        nome: 'A',
+        documento: '1',
+        percentualFrequencia: 100,
+        conceitoFinal: 'S',
+        atividadeObrigatorio: true,
+        aprovado: true,
+      })),
+      inscritosRemovidos: idsRemovidos.map((id) => ({ id, nome: 'A', documento: '1' })),
     });
 
     test('DadoAmbosOsDeltasNulos_QuandoComparar_EntaoSaoIguais', () => {
@@ -150,16 +154,20 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
         finalizado: status === 4,
       };
 
-      const bloqueioDivergenciaSalvar = modoEdicao && (situacao.iniciado || situacao.aguardandoDF) && mostrarDivergencia;
+      const bloqueioDivergenciaSalvar =
+        modoEdicao && (situacao.iniciado || situacao.aguardandoDF) && mostrarDivergencia;
       const bloqueioDivergenciaEnviarDF = modoEdicao && mostrarDivergencia;
 
       return {
         salvar: {
-          visivel: (!situacao.aguardandoDF || (situacao.aguardandoDF && perfil.admin)) && !situacao.finalizado,
+          visivel:
+            (!situacao.aguardandoDF || (situacao.aguardandoDF && perfil.admin)) &&
+            !situacao.finalizado,
           bloqueado: situacao.finalizado || bloqueioDivergenciaSalvar,
         },
         enviarDF: {
-          visivel: (situacao.iniciado || status === null || situacao.devolvidoDF) && ehAreaPromotora,
+          visivel:
+            (situacao.iniciado || status === null || situacao.devolvidoDF) && ehAreaPromotora,
           bloqueado: situacao.finalizado || !!bloqueioDivergenciaEnviarDF,
         },
         devolver: {
@@ -262,6 +270,47 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
       });
     });
 
+    describe('Regras de Bloqueio dos Campos para Perfil DRE vs Outros Perfis', () => {
+      const calcularBloqueiosSecaoFormulario = (
+        ehPerfilDre: boolean,
+        modoEdicao: boolean,
+        bloqueadoPorStatusOuCertificado: boolean,
+        situacaoFinalizado: boolean,
+      ) => {
+        return {
+          numeroHomologacao: ehPerfilDre ? true : bloqueadoPorStatusOuCertificado,
+          nomeFormacao: situacaoFinalizado,
+          codigoFormacao: ehPerfilDre
+            ? modoEdicao || bloqueadoPorStatusOuCertificado
+            : situacaoFinalizado,
+          turma: bloqueadoPorStatusOuCertificado,
+        };
+      };
+
+      test('DadoPerfilDRE_ModoCriacao_EntaoCodigoFormacaoHabilitadoENumeroHomologacaoDesabilitado', () => {
+        const bloqueios = calcularBloqueiosSecaoFormulario(true, false, false, false);
+        expect(bloqueios.codigoFormacao).toBe(false);
+        expect(bloqueios.numeroHomologacao).toBe(true);
+      });
+
+      test('DadoPerfilDRE_ModoEdicao_EntaoCodigoFormacaoDesabilitadoENumeroHomologacaoDesabilitado', () => {
+        const bloqueios = calcularBloqueiosSecaoFormulario(true, true, false, false);
+        expect(bloqueios.codigoFormacao).toBe(true);
+        expect(bloqueios.numeroHomologacao).toBe(true);
+      });
+
+      test('DadoPerfilNaoDRE_ModoCriacao_EntaoCodigoFormacaoESituacaoFinalizadoENumeroHomologacaoHabilitado', () => {
+        const bloqueios = calcularBloqueiosSecaoFormulario(false, false, false, false);
+        expect(bloqueios.codigoFormacao).toBe(false);
+        expect(bloqueios.numeroHomologacao).toBe(false);
+      });
+
+      test('DadoPerfilNaoDRE_StatusBloqueado_EntaoNumeroHomologacaoBloqueado', () => {
+        const bloqueios = calcularBloqueiosSecaoFormulario(false, false, true, false);
+        expect(bloqueios.numeroHomologacao).toBe(true);
+      });
+    });
+
     describe('Regras do Botão "Devolver" (Correção)', () => {
       test('DadoPerfilAdminStatusAguardandoDFFormValido_QuandoCalcularBloqueios_EntaoDevolverVisivelEHabilitado', () => {
         // Arrange / Act
@@ -289,117 +338,170 @@ describe('CadastroListaPresencaCodaf - Regras de Negócio e Máquina de Estados'
         expect(ui.devolver.visivel).toBe(false);
       });
     });
-
   });
 
   describe('CodafUtils - Motor de Regras de Certificacao (calcularAprovacao)', () => {
-  
-  const regrasBaseMock: RegrasAprovacaoCursistaCodafDto = {
-    frequenciaMinima: 75,
-    conceitosAceitos: ['S', 'P'],
-    exigeAtividadeObrigatoria: true,
-    possuiRegraAvaliacao: true
-  };
+    const regrasBaseMock: RegrasAprovacaoCursistaCodafDto = {
+      frequenciaMinima: 75,
+      conceitosAceitos: ['S', 'P'],
+      exigeAtividadeObrigatoria: true,
+      possuiRegraAvaliacao: true,
+    };
 
-  test('DadoRegrasNaoDefinidasQuandoCalcularEntaoRetornaNulo', () => {
-    // Arrange
-    const regrasNulas = undefined;
+    test('DadoRegrasNaoDefinidasQuandoCalcularEntaoRetornaNulo', () => {
+      // Arrange
+      const regrasNulas = undefined;
 
-    // Act
-    const resultado = calcularAprovacao(100, 'S', 'S', regrasNulas);
+      // Act
+      const resultado = calcularAprovacao(100, 'S', 'S', regrasNulas);
 
-    // Assert
-    expect(resultado).toBeNull();
+      // Assert
+      expect(resultado).toBeNull();
+    });
+
+    test('DadoPossuiRegraAvaliacaoFalsoQuandoCalcularEntaoRetornaNulo', () => {
+      // Arrange
+      const regrasVazias: RegrasAprovacaoCursistaCodafDto = {
+        ...regrasBaseMock,
+        possuiRegraAvaliacao: false,
+      };
+
+      // Act
+      const resultado = calcularAprovacao(100, 'S', 'S', regrasVazias);
+
+      // Assert
+      expect(resultado).toBeNull();
+    });
+
+    test('DadoFrequenciaAbaixoDoMinimoQuandoCalcularEntaoRetornaFalso', () => {
+      // Arrange
+      const frequenciaReprovacao = 74;
+
+      // Act
+      const resultado = calcularAprovacao(frequenciaReprovacao, 'S', 'S', regrasBaseMock);
+
+      // Assert
+      expect(resultado).toBe(false);
+    });
+
+    test('DadoConceitoForaDosAceitosQuandoCalcularEntaoRetornaFalso', () => {
+      // Arrange
+      const conceitoFinalInvalido = 'NS';
+
+      // Act
+      const resultado = calcularAprovacao(100, conceitoFinalInvalido, 'S', regrasBaseMock);
+
+      // Assert
+      expect(resultado).toBe(false);
+    });
+
+    test('DadoConceitoNuloQuandoRegraExigeConceitoEntaoRetornaFalso', () => {
+      // Arrange
+      const conceitoFinalNulo = null;
+
+      // Act
+      const resultado = calcularAprovacao(100, conceitoFinalNulo, 'S', regrasBaseMock);
+
+      // Assert
+      expect(resultado).toBe(false);
+    });
+
+    test('DadoAtividadeObrigatoriaNaoRealizadaQuandoCalcularEntaoRetornaFalso', () => {
+      // Arrange
+      const atividadeNaoRealizada = 'N';
+
+      // Act
+      const resultado = calcularAprovacao(100, 'P', atividadeNaoRealizada, regrasBaseMock);
+
+      // Assert
+      expect(resultado).toBe(false);
+    });
+
+    test('DadoTodasAsRegrasSatisfeitasQuandoCalcularEntaoRetornaVerdadeiro', () => {
+      // Arrange
+      const frequenciaValida = 80;
+      const conceitoValido = 'P';
+      const atividadeRealizada = 'S';
+
+      // Act
+      const resultado = calcularAprovacao(
+        frequenciaValida,
+        conceitoValido,
+        atividadeRealizada,
+        regrasBaseMock,
+      );
+
+      // Assert
+      expect(resultado).toBe(true);
+    });
+
+    test('DadoRegraSemExigenciaDeAtividadeQuandoAvaliarComAtividadeNaoRealizadaEntaoRetornaVerdadeiro', () => {
+      // Arrange
+      const regrasSemAtividade = { ...regrasBaseMock, exigeAtividadeObrigatoria: false };
+
+      // Act
+      const resultado = calcularAprovacao(100, 'S', 'N', regrasSemAtividade);
+
+      // Assert
+      expect(resultado).toBe(true);
+    });
+
+    test('DadoRegraSemExigenciaDeConceitoQuandoAvaliarComQualquerConceitoEntaoRetornaVerdadeiro', () => {
+      // Arrange
+      const regrasSemConceito = { ...regrasBaseMock, conceitosAceitos: [] };
+
+      // Act
+      const resultado = calcularAprovacao(100, 'NS', 'S', regrasSemConceito);
+
+      // Assert
+      expect(resultado).toBe(true);
+    });
   });
 
-  test('DadoPossuiRegraAvaliacaoFalsoQuandoCalcularEntaoRetornaNulo', () => {
-    // Arrange
-    const regrasVazias: RegrasAprovacaoCursistaCodafDto = { ...regrasBaseMock, possuiRegraAvaliacao: false };
+  describe('Filtragem de Turmas por PossuiCodafListaPresenca', () => {
+    test('DadoTurmasComCodaf_QuandoFiltrarDisponiveis_EntaoRetornaApenasSemCodaf', () => {
+      const turmas = [
+        { id: 1, descricao: 'Turma 01', possuiCodafListaPresenca: false },
+        { id: 2, descricao: 'Turma 02', possuiCodafListaPresenca: true },
+        { id: 3, descricao: 'Turma 03', possuiCodafListaPresenca: false },
+      ];
 
-    // Act
-    const resultado = calcularAprovacao(100, 'S', 'S', regrasVazias);
+      const disponiveis = turmas.filter((t) => !t.possuiCodafListaPresenca);
 
-    // Assert
-    expect(resultado).toBeNull();
+      expect(disponiveis).toHaveLength(2);
+      expect(disponiveis.map((t) => t.id)).toEqual([1, 3]);
+    });
+
+    test('DadoEdicaoDeRegistro_QuandoCarregarTurmas_EntaoMantemTurmaSelecionadaMesmoComCodafEFiltraDemais', () => {
+      const dados = { id: 10, propostaId: 100, propostaTurmaId: 2 };
+      const turmas = [
+        { id: 1, descricao: 'Turma 01', possuiCodafListaPresenca: false },
+        { id: 2, descricao: 'Turma 02', possuiCodafListaPresenca: true },
+        { id: 3, descricao: 'Turma 03', possuiCodafListaPresenca: true },
+        { id: 4, descricao: 'Turma 04', possuiCodafListaPresenca: false },
+      ];
+
+      const turmasDisponiveis: typeof turmas = [];
+      const turmaSelecionada = turmas.find((t) => t.id === dados.propostaTurmaId);
+      if (turmaSelecionada) turmasDisponiveis.push(turmaSelecionada);
+
+      for (const turma of turmas) {
+        if (turma.id === dados.propostaTurmaId) continue;
+        if (!turma.possuiCodafListaPresenca) turmasDisponiveis.push(turma);
+      }
+
+      expect(turmasDisponiveis.map((t) => t.id)).toEqual([2, 1, 4]);
+    });
+
+    test('DadoTodasAsTurmasComCodaf_QuandoBuscar_EntaoListaVaziaAposFiltro', () => {
+      const turmas = [
+        { id: 1, descricao: 'Turma 01', possuiCodafListaPresenca: true },
+        { id: 2, descricao: 'Turma 02', possuiCodafListaPresenca: true },
+      ];
+
+      const disponiveis = turmas.filter((t) => !t.possuiCodafListaPresenca);
+
+      expect(disponiveis).toHaveLength(0);
+    });
   });
-
-  test('DadoFrequenciaAbaixoDoMinimoQuandoCalcularEntaoRetornaFalso', () => {
-    // Arrange
-    const frequenciaReprovacao = 74;
-
-    // Act
-    const resultado = calcularAprovacao(frequenciaReprovacao, 'S', 'S', regrasBaseMock);
-
-    // Assert
-    expect(resultado).toBe(false);
-  });
-
-  test('DadoConceitoForaDosAceitosQuandoCalcularEntaoRetornaFalso', () => {
-    // Arrange
-    const conceitoFinalInvalido = 'NS';
-
-    // Act
-    const resultado = calcularAprovacao(100, conceitoFinalInvalido, 'S', regrasBaseMock);
-
-    // Assert
-    expect(resultado).toBe(false);
-  });
-
-  test('DadoConceitoNuloQuandoRegraExigeConceitoEntaoRetornaFalso', () => {
-    // Arrange
-    const conceitoFinalNulo = null;
-
-    // Act
-    const resultado = calcularAprovacao(100, conceitoFinalNulo, 'S', regrasBaseMock);
-
-    // Assert
-    expect(resultado).toBe(false);
-  });
-
-  test('DadoAtividadeObrigatoriaNaoRealizadaQuandoCalcularEntaoRetornaFalso', () => {
-    // Arrange
-    const atividadeNaoRealizada = 'N';
-
-    // Act
-    const resultado = calcularAprovacao(100, 'P', atividadeNaoRealizada, regrasBaseMock);
-
-    // Assert
-    expect(resultado).toBe(false);
-  });
-
-  test('DadoTodasAsRegrasSatisfeitasQuandoCalcularEntaoRetornaVerdadeiro', () => {
-    // Arrange
-    const frequenciaValida = 80;
-    const conceitoValido = 'P';
-    const atividadeRealizada = 'S';
-
-    // Act
-    const resultado = calcularAprovacao(frequenciaValida, conceitoValido, atividadeRealizada, regrasBaseMock);
-
-    // Assert
-    expect(resultado).toBe(true);
-  });
-
-  test('DadoRegraSemExigenciaDeAtividadeQuandoAvaliarComAtividadeNaoRealizadaEntaoRetornaVerdadeiro', () => {
-    // Arrange
-    const regrasSemAtividade = { ...regrasBaseMock, exigeAtividadeObrigatoria: false };
-
-    // Act
-    const resultado = calcularAprovacao(100, 'S', 'N', regrasSemAtividade);
-
-    // Assert
-    expect(resultado).toBe(true);
-  });
-
-  test('DadoRegraSemExigenciaDeConceitoQuandoAvaliarComQualquerConceitoEntaoRetornaVerdadeiro', () => {
-    // Arrange
-    const regrasSemConceito = { ...regrasBaseMock, conceitosAceitos: [] };
-
-    // Act
-    const resultado = calcularAprovacao(100, 'NS', 'S', regrasSemConceito);
-
-    // Assert
-    expect(resultado).toBe(true);
-  });
-});
 });

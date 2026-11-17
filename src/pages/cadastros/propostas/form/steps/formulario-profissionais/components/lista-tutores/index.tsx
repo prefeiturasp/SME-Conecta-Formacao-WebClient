@@ -1,11 +1,13 @@
-import { Button, Col, Row } from 'antd';
+import { Button, Col, Form, Row } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DataTableContextProvider from '~/components/lib/card-table/provider';
 import { CF_BUTTON_ADD_TUTOR } from '~/core/constants/ids/button/intex';
 import { PropostaTutorDTO } from '~/core/dto/proposta-tutor-dto';
+import { TipoFormacao } from '~/core/enum/tipo-formacao';
 import DrawerTutor from '~/pages/cadastros/propostas/form/steps/formulario-profissionais/components/lista-tutores/drawer';
+import { PropostaContext } from '~/pages/cadastros/propostas/form/provider';
 import { PermissaoContext } from '~/routes/config/guard/permissao/provider';
 import { TituloListaPaginada, TituloSecao } from '../../../../styles';
 import DataTableProfissionalTutor from '~/components/lib/card-table-profissional-tutor';
@@ -25,6 +27,11 @@ const ListaTutores: React.FC<ListaTutoresProps> = ({ recarregarTurmas }) => {
   const paramsRoute = useParams();
   const refTable = useRef<any>(null);
   const { desabilitarCampos } = useContext(PermissaoContext);
+  const { formInitialValues } = useContext(PropostaContext);
+  const form = Form?.useFormInstance ? Form.useFormInstance() : undefined;
+  const tipoFormacaoWatch = Form?.useWatch ? Form.useWatch('tipoFormacao', form) : undefined;
+  const tipoFormacao = tipoFormacaoWatch ?? formInitialValues?.tipoFormacao;
+  const ehConferencia = tipoFormacao === TipoFormacao.Conferencia;
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dadosTutorSelecionado, setDadosTutorSelecionado] = useState<PropostaTutorDTO>();
@@ -76,7 +83,7 @@ const ListaTutores: React.FC<ListaTutoresProps> = ({ recarregarTurmas }) => {
                   type='primary'
                   id={CF_BUTTON_ADD_TUTOR}
                   onClick={abrirModal}
-                  disabled={desabilitarCampos}
+                  disabled={desabilitarCampos || ehConferencia}
                 >
                   Adicionar mediadores
                 </Button>

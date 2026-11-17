@@ -7,35 +7,55 @@ import { render, screen } from '@testing-library/react';
 import Principal from './index';
 
 jest.mock('react-router-dom', () => ({
-  Outlet: () => <div data-testid="outlet" />,
+  Outlet: () => <div data-testid='outlet' />,
 }));
 
-jest.mock('~/components/lib/header', () => () => (
-  <div data-testid="header" />
-));
+jest.mock(
+  '~/components/lib/header',
+  () =>
+    function MockHeader() {
+      return <div data-testid='header' />;
+    },
+);
 
-jest.mock('~/components/lib/footer', () => () => (
-  <div data-testid="footer" />
-));
+jest.mock(
+  '~/components/lib/footer',
+  () =>
+    function MockFooter() {
+      return <div data-testid='footer' />;
+    },
+);
 
-jest.mock('~/components/main/sider', () => () => (
-  <div data-testid="sider" />
-));
+jest.mock(
+  '~/components/main/sider',
+  () =>
+    function MockSider() {
+      return <div data-testid='sider' />;
+    },
+);
+
+jest.mock(
+  '~/components/main/button/voltar-topo',
+  () =>
+    function MockVoltarTopo() {
+      return <div data-testid='voltar-topo' />;
+    },
+);
 
 const layoutMock = jest.fn();
 const contentMock = jest.fn();
 
 jest.mock('antd', () => {
-  const Layout = ({ children, ...props }: any) => {
+  const Layout = function MockLayout({ children, ...props }: any) {
     layoutMock(props);
 
-    return <div data-testid="layout">{children}</div>;
+    return <div data-testid='layout'>{children}</div>;
   };
 
-  Layout.Content = ({ children, ...props }: any) => {
+  Layout.Content = function MockContent({ children, ...props }: any) {
     contentMock(props);
 
-    return <div data-testid="content">{children}</div>;
+    return <div data-testid='content'>{children}</div>;
   };
 
   return { Layout };
@@ -86,7 +106,7 @@ describe('Principal', () => {
         style: {
           minHeight: '100vh',
         },
-      })
+      }),
     );
   });
 
@@ -99,7 +119,7 @@ describe('Principal', () => {
         style: {
           marginLeft: '88px',
         },
-      })
+      }),
     );
   });
 
@@ -111,7 +131,20 @@ describe('Principal', () => {
         style: {
           margin: '16px 32px',
         },
-      })
+      }),
     );
+  });
+
+  it('deve renderizar o layout-wrapper e sider-wrapper responsivos', () => {
+    render(<Principal />);
+
+    expect(screen.getByTestId('layout-wrapper')).toBeInTheDocument();
+    expect(screen.getByTestId('sider-wrapper')).toBeInTheDocument();
+  });
+
+  it('deve renderizar o botao voltar ao topo', () => {
+    render(<Principal />);
+
+    expect(screen.getByTestId('voltar-topo')).toBeInTheDocument();
   });
 });

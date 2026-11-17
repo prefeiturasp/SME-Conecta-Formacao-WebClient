@@ -301,6 +301,66 @@ describe('InscricaoService', () => {
         params: { codigoDre: undefined },
       });
     });
+
+    test('deve obter turmas com flag apenasPeriodoInscricaoVigente', async () => {
+      const propostaId = 1;
+      const codigoDre = 'DRE-01';
+      const mockResponse = {
+        sucesso: true,
+        dados: [{ id: 1, descricao: 'Turma 1' }],
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await inscricaoService.obterTurmasInscricao(propostaId, codigoDre, true);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_INSCRICAO}/turmas/${propostaId}`, {
+        params: { codigoDre, apenasPeriodoInscricaoVigente: true },
+      });
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('obterTurmasEmInscricao', () => {
+    test('deve obter turmas em período de inscrição com filtro DRE', async () => {
+      const propostaId = 1;
+      const codigoDre = 'DRE-123';
+      const mockResponse = {
+        sucesso: true,
+        dados: [{ id: 1, descricao: 'Turma Vigente' }],
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await inscricaoService.obterTurmasEmInscricao(propostaId, codigoDre);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_INSCRICAO}/turmas-em-inscricao/${propostaId}`, {
+        params: { codigoDre },
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('deve obter turmas em período de inscrição sem filtro DRE', async () => {
+      const propostaId = 1;
+      const mockResponse = {
+        sucesso: true,
+        dados: [],
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      await inscricaoService.obterTurmasEmInscricao(propostaId);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_INSCRICAO}/turmas-em-inscricao/${propostaId}`, {
+        params: { codigoDre: undefined },
+      });
+    });
   });
 
   describe('obterTiposInscricao', () => {
@@ -482,6 +542,44 @@ describe('InscricaoService', () => {
       const result = await inscricaoService.sortearInscricao(propostaId);
 
       expect(mockAlterarRegistro).toHaveBeenCalledWith(`${URL_INSCRICAO}/sortear/${propostaId}`);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('obterInscricoesProximas', () => {
+    test('deve obter inscrições próximas com filtros', async () => {
+      const params = { pagina: 1, quantidadeRegistros: 10 } as any;
+      const mockResponse = {
+        sucesso: true,
+        dados: { itens: [] },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await inscricaoService.obterInscricoesProximas(params);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_INSCRICAO}/proximas`, { params });
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('obterInscricoesFinalizadas', () => {
+    test('deve obter inscrições finalizadas com filtros', async () => {
+      const params = { pagina: 1, quantidadeRegistros: 10 } as any;
+      const mockResponse = {
+        sucesso: true,
+        dados: { itens: [] },
+        mensagens: [],
+        status: 200,
+      };
+
+      mockObterRegistro.mockResolvedValueOnce(mockResponse as any);
+
+      const result = await inscricaoService.obterInscricoesFinalizadas(params);
+
+      expect(mockObterRegistro).toHaveBeenCalledWith(`${URL_INSCRICAO}/finalizadas`, { params });
       expect(result).toEqual(mockResponse);
     });
   });

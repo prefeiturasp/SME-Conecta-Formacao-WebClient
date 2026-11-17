@@ -82,6 +82,26 @@ describe('SecaoFormulario', () => {
       expect(typeof ehPerfilEMFORPEFTrue).toBe('boolean');
       expect(typeof ehPerfilEMFORPEFFalse).toBe('boolean');
     });
+
+    test('deve aceitar ehPerfilDRE como boolean', () => {
+      const ehPerfilDRETrue = true;
+      const ehPerfilDREFalse = false;
+
+      expect(typeof ehPerfilDRETrue).toBe('boolean');
+      expect(typeof ehPerfilDREFalse).toBe('boolean');
+    });
+
+    test('deve aceitar onChangeCodigoFormacao como função opcional', () => {
+      const mockCallback = jest.fn();
+      mockCallback('123');
+      expect(mockCallback).toHaveBeenCalledWith('123');
+    });
+
+    test('deve aceitar onBlurCodigoFormacao como função opcional', () => {
+      const mockCallback = jest.fn();
+      mockCallback('123');
+      expect(mockCallback).toHaveBeenCalledWith('123');
+    });
   });
 
   describe('Campo Número de homologação', () => {

@@ -2,7 +2,11 @@ import { Form, Input } from 'antd';
 import React, { useState } from 'react';
 import { CF_INPUT_EMAIL_EDUCACIONAL } from '~/core/constants/ids/input';
 
-const InputEmailEducacional: React.FC = () => {
+type InputEmailEducacionalProps = {
+  label?: string;
+};
+
+const InputEmailEducacional: React.FC<InputEmailEducacionalProps> = ({ label = 'E-mail @edu' }) => {
   const form = Form.useFormInstance();
   const [exibirErro, setExibirErro] = useState(true);
   const removerEspacoEmail = () => {
@@ -22,7 +26,7 @@ const InputEmailEducacional: React.FC = () => {
   };
   return (
     <Form.Item
-      label='E-mail @edu'
+      label={label}
       name='emailEducacional'
       rules={[{ required: true }, { message: exibirErro ? 'Não é um e-mail válido' : '' }]}
     >
