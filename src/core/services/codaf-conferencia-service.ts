@@ -104,6 +104,24 @@ export type InscritoTurmaConferenciaRetornoDTO = {
   totalRegistros: number;
 };
 
+export type PropostaConferenciaTurmaDTO = {
+  id: number;
+  nome: string;
+  descricao: string;
+  dataInicio?: string | null;
+  dataFim?: string | null;
+  possuiCodafConferencia?: boolean;
+};
+
+export type PropostaConferenciaComTurmasDTO = {
+  id: number;
+  nomeFormacao: string;
+  numeroFormacao: number | null;
+  tipoFormacao?: number | null;
+  situacao?: number | null;
+  turmas: PropostaConferenciaTurmaDTO[];
+};
+
 export const URL_API_CODAF_CONFERENCIA = 'v1/codaf-conferencia';
 
 export const montarParametrosFiltroCodafConferencia = (filtros: FiltroCodafConferenciaDTO) => {
@@ -167,6 +185,12 @@ export const obterInscritosTurmaConferencia = (
     params.codafConferenciaId = codafConferenciaId;
   }
   return obterRegistro(`${URL_API_CODAF_CONFERENCIA}/inscritos-turma/${turmaId}`, { params });
+};
+
+export const obterDetalhesPropostaConferenciaComTurmasPorId = (
+  propostaId: number,
+): Promise<ApiResult<PropostaConferenciaComTurmasDTO | null>> => {
+  return obterRegistro(`${URL_API_CODAF_CONFERENCIA}/propostas/${propostaId}/detalhes-com-turmas`);
 };
 
 export const verificarTurmaPossuiCodafConferencia = (

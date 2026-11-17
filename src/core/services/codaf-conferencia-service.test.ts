@@ -12,6 +12,7 @@ import {
   fazerUploadAnexoCodafConferencia,
   montarParametrosFiltroCodafConferencia,
   obterCodafConferenciaPorId,
+  obterDetalhesPropostaConferenciaComTurmasPorId,
   obterInscritosTurmaConferencia,
   obterListaCodafConferencia,
   URL_API_CODAF_CONFERENCIA,
@@ -165,6 +166,18 @@ describe('codaf-conferencia-service', () => {
             codafConferenciaId: 99,
           },
         },
+      );
+    });
+  });
+
+  describe('obterDetalhesPropostaConferenciaComTurmasPorId', () => {
+    it('deve chamar obterRegistro com o propostaId informado', async () => {
+      (obterRegistro as jest.Mock).mockResolvedValue({ sucesso: true, dados: null });
+
+      await obterDetalhesPropostaConferenciaComTurmasPorId(100);
+
+      expect(obterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_CONFERENCIA}/propostas/100/detalhes-com-turmas`,
       );
     });
   });

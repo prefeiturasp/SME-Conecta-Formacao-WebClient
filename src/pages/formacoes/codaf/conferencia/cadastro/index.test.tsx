@@ -140,6 +140,7 @@ const mockObterPorId = jest.fn();
 const mockCriarCodaf = jest.fn();
 const mockAtualizarCodaf = jest.fn();
 const mockObterInscritos = jest.fn();
+const mockObterDetalhesProposta = jest.fn();
 const mockVerificarTurma = jest.fn();
 const mockUploadAnexo = jest.fn();
 
@@ -149,13 +150,10 @@ jest.mock('~/core/services/codaf-conferencia-service', () => ({
   atualizarCodafConferencia: (...args: any[]) => mockAtualizarCodaf(...args),
   excluirCodafConferencia: jest.fn(),
   obterInscritosTurmaConferencia: (...args: any[]) => mockObterInscritos(...args),
+  obterDetalhesPropostaConferenciaComTurmasPorId: (...args: any[]) =>
+    mockObterDetalhesProposta(...args),
   verificarTurmaPossuiCodafConferencia: (...args: any[]) => mockVerificarTurma(...args),
   fazerUploadAnexoCodafConferencia: (...args: any[]) => mockUploadAnexo(...args),
-}));
-
-const mockObterDetalhesProposta = jest.fn();
-jest.mock('~/core/services/proposta-service', () => ({
-  obterDetalhesPropostaComTurmasPorId: (...args: any[]) => mockObterDetalhesProposta(...args),
 }));
 
 jest.mock('~/components/main/text/auditoria', () => () => <div data-testid='auditoria' />);
@@ -577,7 +575,7 @@ describe('CadastroCodafConferencia', () => {
     // Proposta nao pertence ao tipo conferencia
     mockObterDetalhesProposta.mockResolvedValueOnce({
       sucesso: true,
-      dados: { id: 100, tipoFormacao: 1, turmas: [] },
+      dados: { id: 100, tipoFormacao: 1, situacao: 1, turmas: [] },
     });
     await act(async () => {
       await capturedFormularioProps.onBlurCodigoFormacao('100');
@@ -588,7 +586,21 @@ describe('CadastroCodafConferencia', () => {
       }),
     );
 
-    // Proposta do tipo conferencia com turmas
+    // Proposta nao esta com situacao Publicada
+    mockObterDetalhesProposta.mockResolvedValueOnce({
+      sucesso: true,
+      dados: { id: 100, tipoFormacao: 3, situacao: 2, turmas: [] },
+    });
+    await act(async () => {
+      await capturedFormularioProps.onBlurCodigoFormacao('100');
+    });
+    expect(notification.warning).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: 'A formação informada deve estar com a situação Publicada.',
+      }),
+    );
+
+    // Proposta do tipo conferencia publicada com turmas
     mockObterDetalhesProposta.mockResolvedValueOnce({
       sucesso: true,
       dados: {
@@ -596,6 +608,7 @@ describe('CadastroCodafConferencia', () => {
         nomeFormacao: 'Conf',
         numeroFormacao: 1,
         tipoFormacao: 3,
+        situacao: 1,
         turmas: [{ id: 10, nome: 'Turma A' }],
       },
     });

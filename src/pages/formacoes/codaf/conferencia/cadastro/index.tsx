@@ -11,6 +11,7 @@ import { notification } from '~/components/lib/notification';
 import Auditoria from '~/components/main/text/auditoria';
 import { AuditoriaDTO } from '~/core/dto/auditoria-dto';
 import { ROUTES } from '~/core/enum/routes-enum';
+import { SituacaoProposta } from '~/core/enum/situacao-proposta';
 import {
   SituacaoCodafConferenciaTagDisplay,
   StatusCodafConferencia,
@@ -27,11 +28,11 @@ import {
   excluirCodafConferencia,
   fazerUploadAnexoCodafConferencia,
   obterCodafConferenciaPorId,
+  obterDetalhesPropostaConferenciaComTurmasPorId,
   obterInscritosTurmaConferencia,
   verificarTurmaPossuiCodafConferencia,
 } from '~/core/services/codaf-conferencia-service';
 import { obterAnexoCodafParaDownload } from '~/core/services/codaf-lista-presenca-service';
-import { obterDetalhesPropostaComTurmasPorId } from '~/core/services/proposta-service';
 import { onClickVoltar } from '~/core/utils/form';
 import {
   DadosLoteCursistas,
@@ -181,7 +182,9 @@ const CadastroCodafConferencia: React.FC = () => {
 
     const carregarTurmas = async (dados: CodafConferenciaDetalheDTO) => {
       try {
-        const turmasResponse = await obterDetalhesPropostaComTurmasPorId(dados.propostaId, true);
+        const turmasResponse = await obterDetalhesPropostaConferenciaComTurmasPorId(
+          dados.propostaId,
+        );
         if (turmasResponse.sucesso && turmasResponse.dados?.turmas?.length) {
           setTurmasFiltradas(
             turmasResponse.dados.turmas.map((t: any) => ({
@@ -374,7 +377,7 @@ const CadastroCodafConferencia: React.FC = () => {
     }
 
     try {
-      const response = await obterDetalhesPropostaComTurmasPorId(Number(valor), true);
+      const response = await obterDetalhesPropostaConferenciaComTurmasPorId(Number(valor));
       setTurmasFiltradas([]);
       form.setFieldsValue({
         nomeFormacao: '',
@@ -383,7 +386,7 @@ const CadastroCodafConferencia: React.FC = () => {
       });
 
       if (response.sucesso && response.dados) {
-        const dadosProposta: any = response.dados;
+        const dadosProposta = response.dados;
         if (
           dadosProposta.tipoFormacao !== undefined &&
           dadosProposta.tipoFormacao !== null &&
@@ -392,6 +395,19 @@ const CadastroCodafConferencia: React.FC = () => {
           notification.warning({
             message: 'Atenção',
             description: 'A formação informada não pertence ao tipo Conferência.',
+          });
+          setTurmaDisabled(true);
+          return;
+        }
+
+        if (
+          dadosProposta.situacao !== undefined &&
+          dadosProposta.situacao !== null &&
+          dadosProposta.situacao !== SituacaoProposta.Publicada
+        ) {
+          notification.warning({
+            message: 'Atenção',
+            description: 'A formação informada deve estar com a situação Publicada.',
           });
           setTurmaDisabled(true);
           return;
@@ -425,7 +441,7 @@ const CadastroCodafConferencia: React.FC = () => {
         setTurmaDisabled(true);
         notification.info({
           message: 'Informação',
-          description: 'Formação não encontrada',
+          description: 'Formação de conferência publicada não encontrada',
         });
       }
     } catch {
