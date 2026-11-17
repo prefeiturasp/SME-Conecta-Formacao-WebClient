@@ -60,6 +60,21 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
             podeAlterar: PermissaoEnum.Inscricao_A,
           },
         },
+        {
+          key: MenuEnum.CodafFormacoesConferencia,
+          title: (
+            <>
+              CODAF Formação <br /> de Conferência
+            </>
+          ),
+          url: ROUTES.CODAF_CONFERENCIA,
+          roles: {
+            podeConsultar: PermissaoEnum.Inscricao_C,
+            podeIncluir: PermissaoEnum.Inscricao_I,
+            podeExcluir: PermissaoEnum.Inscricao_E,
+            podeAlterar: PermissaoEnum.Inscricao_A,
+          },
+        },
       ],
     },
     ...(isCodafSuplementarEnabled
