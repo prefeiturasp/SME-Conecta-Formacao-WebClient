@@ -1,8 +1,10 @@
 import {
   setPerfilUsuario,
   setPerfilSelecionado,
+  setDres,
   typeSetPerfilUsuario,
   typeSetPerfilSelecionado,
+  typeSetDres,
 } from './actions';
 import { PerfilUsuarioDTO } from '../../../../core/dto/perfil-usuario-dto';
 
@@ -68,6 +70,23 @@ describe('Perfil Actions', () => {
       const payload = {} as PerfilUsuarioDTO;
 
       expect(setPerfilSelecionado(payload).type).toBe(typeSetPerfilSelecionado);
+    });
+  });
+
+  describe('setDres', () => {
+    it('deve criar a action corretamente', () => {
+      const payload = ['108900', '108100'];
+
+      const result = setDres(payload);
+
+      expect(result).toEqual({
+        type: typeSetDres,
+        payload,
+      });
+    });
+
+    it('deve retornar o type correto', () => {
+      expect(setDres([]).type).toBe(typeSetDres);
     });
   });
 });

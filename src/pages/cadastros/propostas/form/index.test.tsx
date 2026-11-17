@@ -79,6 +79,7 @@ jest.mock('antd/es/form/Form', () => ({
     {
       getFieldValue: jest.fn(),
       getFieldsValue: jest.fn(() => ({})),
+      setFieldValue: jest.fn(),
       setFieldsValue: jest.fn(),
       isFieldsTouched: jest.fn(() => true),
       resetFields: jest.fn(),
@@ -197,7 +198,9 @@ import {
   mapearHoraPeriodo,
   formatarDataInscricao,
   extrairDatasFormatadas,
+  handleFormValuesChange,
 } from './index';
+import { FormacaoHomologada } from '../../../../core/enum/formacao-homologada';
 import cloneDeep from 'lodash/cloneDeep';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
@@ -1349,6 +1352,38 @@ describe('FormCadastroDePropostas Helper Functions', () => {
 
       cloned[0].nome = 'Modified';
       expect(mapped[0].nome).toBe('Turma A');
+    });
+  });
+
+  describe('handleFormValuesChange', () => {
+    it('deve marcar cursoComCertificado como true quando formacaoHomologada for Sim (1)', () => {
+      const mockForm = { setFieldValue: jest.fn() };
+      handleFormValuesChange({ formacaoHomologada: FormacaoHomologada.Sim }, mockForm);
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('cursoComCertificado', true);
+    });
+
+    it('não deve alterar cursoComCertificado quando formacaoHomologada for diferente de Sim', () => {
+      const mockForm = { setFieldValue: jest.fn() };
+      handleFormValuesChange({ formacaoHomologada: FormacaoHomologada.NaoCursosPorIN }, mockForm);
+      expect(mockForm.setFieldValue).not.toHaveBeenCalled();
+    });
+
+    it('não deve alterar cursoComCertificado quando formacaoHomologada não estiver nos campos alterados', () => {
+      const mockForm = { setFieldValue: jest.fn() };
+      handleFormValuesChange({ outroCampo: 'valor' }, mockForm);
+      expect(mockForm.setFieldValue).not.toHaveBeenCalled();
+    });
+
+    it('não deve lançar erro se changedValues for nulo ou indefinido', () => {
+      const mockForm = { setFieldValue: jest.fn() };
+      expect(() => handleFormValuesChange(undefined, mockForm)).not.toThrow();
+      expect(mockForm.setFieldValue).not.toHaveBeenCalled();
+    });
+
+    it('deve usar setFieldsValue se setFieldValue não estiver disponível', () => {
+      const mockForm = { setFieldsValue: jest.fn() };
+      handleFormValuesChange({ formacaoHomologada: FormacaoHomologada.Sim }, mockForm as any);
+      expect(mockForm.setFieldsValue).toHaveBeenCalledWith({ cursoComCertificado: true });
     });
   });
 });

@@ -9,12 +9,10 @@ import { Inscricao } from '.';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import {
-  obterDadosInscricaoProposta,
-  inserirInscricao,
-} from '~/core/services/inscricao-service';
+import { obterDadosInscricaoProposta, inserirInscricao } from '~/core/services/inscricao-service';
 
 import { obterDadosFormacao } from '~/core/services/area-publica-service';
+import { onClickVoltar } from '~/core/utils/form';
 
 (window as any).React = React;
 
@@ -35,6 +33,7 @@ Object.defineProperty(window, 'matchMedia', {
 jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
   useNavigate: jest.fn(),
+  useLocation: jest.fn().mockReturnValue({ pathname: '/inscricao/1' }),
 }));
 
 jest.mock('react-redux', () => ({
@@ -72,8 +71,7 @@ jest.mock('~/components/lib/card-content', () => {
 });
 
 jest.mock('~/components/main/button/voltar', () => {
-  const Mock = (props: any) =>
-    React.createElement('button', { onClick: props.onClick }, 'Voltar');
+  const Mock = (props: any) => React.createElement('button', { onClick: props.onClick }, 'Voltar');
   Mock.displayName = 'ButtonVoltar';
   return Mock;
 });
@@ -146,6 +144,51 @@ const renderComponent = () => {
 };
 
 describe('Inscricao', () => {
+  const originalMatches = Element.prototype.matches;
+  const originalQuerySelector = document.querySelector;
+  const originalQuerySelectorAll = document.querySelectorAll;
+
+  beforeAll(() => {
+    Element.prototype.matches = function (selector: string) {
+      try {
+        return originalMatches.call(this, selector);
+      } catch (e) {
+        if (typeof selector === 'string' && selector.includes('ant-select')) {
+          return false;
+        }
+        throw e;
+      }
+    };
+
+    document.querySelector = function (selector: string) {
+      try {
+        return originalQuerySelector.call(this, selector);
+      } catch (e) {
+        if (typeof selector === 'string' && selector.includes('ant-select')) {
+          return null;
+        }
+        throw e;
+      }
+    };
+
+    document.querySelectorAll = function (selector: string) {
+      try {
+        return originalQuerySelectorAll.call(this, selector);
+      } catch (e) {
+        if (typeof selector === 'string' && selector.includes('ant-select')) {
+          return [] as any;
+        }
+        throw e;
+      }
+    };
+  });
+
+  afterAll(() => {
+    Element.prototype.matches = originalMatches;
+    document.querySelector = originalQuerySelector;
+    document.querySelectorAll = originalQuerySelectorAll;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(jest.fn());
@@ -240,5 +283,46 @@ describe('Inscricao', () => {
     fireEvent.click(salvar);
     const modalOk = await screen.findByText('Modal OK');
     expect(modalOk).toBeInTheDocument();
+  });
+
+  describe('Inscrição no Mobile', () => {
+    beforeEach(() => {
+      (window.matchMedia as jest.Mock).mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      }));
+    });
+
+    it('renderiza o breadcrumb mobile com trilha correta', async () => {
+      renderComponent();
+      expect(await screen.findByText('Minhas inscrições')).toBeInTheDocument();
+      expect(screen.getByText('Explorar formações')).toBeInTheDocument();
+      expect(screen.getByText('Detalhes da formação')).toBeInTheDocument();
+    });
+
+    it('renderiza os botões de ação mobile ao final do formulário', async () => {
+      renderComponent();
+      expect(await screen.findByText('Enviar inscrição')).toBeInTheDocument();
+      expect(screen.getByText('Voltar')).toBeInTheDocument();
+    });
+
+    it('renderiza botão mobile de alterar nome social com ícone', async () => {
+      renderComponent();
+      const btnEditar = await screen.findByLabelText('Alterar nome social');
+      expect(btnEditar).toBeInTheDocument();
+    });
+
+    it('chama onClickVoltar ao clicar no botão voltar do mobile', async () => {
+      renderComponent();
+      const btnVoltarMobile = await screen.findByText('Voltar');
+      fireEvent.click(btnVoltarMobile);
+      expect(onClickVoltar).toHaveBeenCalled();
+    });
   });
 });

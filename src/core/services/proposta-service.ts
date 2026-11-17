@@ -123,7 +123,22 @@ const salvarNumeroHomologacao = (
   id: string | number,
   numeroHomologacao?: number | null,
 ): Promise<ApiResult<boolean>> =>
-  alterarRegistroParcial<boolean>(`${URL_API_PROPOSTA}/${id}/numero-homologacao`, { numeroHomologacao });
+  alterarRegistroParcial<boolean>(`${URL_API_PROPOSTA}/${id}/numero-homologacao`, {
+    numeroHomologacao,
+  });
+
+export type PropostaNumeroHomologacaoDTO = {
+  numeroHomologacao: number | null;
+};
+
+const obterNumeroHomologacaoPorPropostaId = (
+  id: string | number,
+): Promise<ApiResult<PropostaNumeroHomologacaoDTO>> =>
+  obterRegistro<PropostaNumeroHomologacaoDTO>(
+    `${URL_API_PROPOSTA}/${id}/numero-homologacao`,
+    undefined,
+    true,
+  );
 
 const obterPropostaPorId = (id: string | number): Promise<ApiResult<PropostaCompletoDTO>> =>
   obterRegistro(`${URL_API_PROPOSTA}/${id}`);
@@ -224,7 +239,7 @@ const recusarConsideracoesAdminDf = (propostaId: number, justificativa: string) 
 const obterCargaHorariaTotal = () =>
   obterRegistro<RetornoListagemDTO[]>(`${URL_API_PROPOSTA}/horas-totais-proposta`);
 
-export interface RespostaPaginadaCursistasDTO{
+export interface RespostaPaginadaCursistasDTO {
   items: DadosInscricaoCursistaDTO[];
   totalPaginas: number;
   totalRegistros: number;
@@ -235,44 +250,47 @@ export type DadosInscricaoCursistaDTO = {
   inscricaoId: number;
   nome: string;
   documento: string;
-}
+};
 
 export const pesquisarCursistasDaTurma = (
   termo: string,
   propostaTurmaId: number,
   numeroPagina: number = 1,
-  numeroRegistros: number = 20
+  numeroRegistros: number = 20,
 ): Promise<ApiResult<RespostaPaginadaCursistasDTO>> => {
   const params = {
     termo: termo,
     NumeroPagina: numeroPagina,
     NumeroRegistros: numeroRegistros,
   };
-  return obterRegistro(`${URL_API_PROPOSTA}/proposta-turmas/${propostaTurmaId}/inscritos/buscar`, { params });
-}
+  return obterRegistro(`${URL_API_PROPOSTA}/proposta-turmas/${propostaTurmaId}/inscritos/buscar`, {
+    params,
+  });
+};
 
 export type PropostaTurmaDTO = {
   id: number;
   descricao: string;
-}
+  possuiCodafListaPresenca?: boolean;
+  possuiCodafCursoNaoHomologado?: boolean;
+};
 
 export type PropostaComTurmasDTO = {
   id: number;
   nomeFormacao: string;
   numeroFormacao: number | null;
   turmas: PropostaTurmaDTO[];
-}
+};
 
 export const obterDetalhesPropostaComTurmasPorId = (
-  propostaId: number, 
-  formacoesHomologas: boolean
+  propostaId: number,
+  formacoesHomologadas: boolean,
 ): Promise<ApiResult<PropostaComTurmasDTO>> => {
   const params = {
-    formacoesHomologas,
+    formacoesHomologadas,
   };
   return obterRegistro(`${URL_API_PROPOSTA}/${propostaId}/detalhes-com-turmas`, { params });
 };
-
 
 export {
   alterarParecer,
@@ -315,6 +333,7 @@ export {
   removerParecer,
   removerPropostaEncontro,
   salvarParecer,
+  obterNumeroHomologacaoPorPropostaId,
   salvarNumeroHomologacao,
   salvarPropostaEncontro,
   salvarPropostaProfissionalRegente,

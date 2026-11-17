@@ -87,6 +87,9 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
 
   const [turmasFiltradas, setTurmasFiltradas] = useState<PropostaTurmaDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
+  const [tooltipAberto, setTooltipAberto] = useState(false);
+  const [exibirTooltipTurma, setExibirTooltipTurma] = useState(false);
+  const [todasTurmasPossuemCodaf, setTodasTurmasPossuemCodaf] = useState(false);
   const [registroId, setRegistroId] = useState<number | null>(null);
   const [status, setStatus] = useState<number | null>(null);
   const formOriginal = React.useRef<any>(null);
@@ -123,7 +126,10 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
     botoes: {
       excluir: {
         visivel: modoEdicao,
-        bloqueado: situacao.finalizado || declaracaoEmitida,
+        bloqueado:
+          situacao.finalizado ||
+          declaracaoEmitida ||
+          (!modoEdicao && todasTurmasPossuemCodaf),
       },
 
       salvar: {
@@ -131,7 +137,10 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
           (!situacao.aguardandoFinalizacao ||
             (situacao.aguardandoFinalizacao && ehAreaPromotoraEAdmin)) &&
           !situacao.finalizado,
-        bloqueado: situacao.finalizado || declaracaoEmitida,
+        bloqueado:
+          situacao.finalizado ||
+          declaracaoEmitida ||
+          (!modoEdicao && todasTurmasPossuemCodaf),
       },
     },
   };
@@ -162,8 +171,15 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         if (!turmasResponse.sucesso || !turmasResponse.dados) return;
 
         if (turmasResponse.dados.turmas && turmasResponse.dados.turmas.length > 0) {
-          setTurmasFiltradas(turmasResponse.dados.turmas);
+          const turmasDisponiveis = turmasResponse.dados.turmas.filter(
+            (turma) =>
+              turma.id === dados.propostaTurmaId || !turma.possuiCodafCursoNaoHomologado,
+          );
+          setTurmasFiltradas(turmasDisponiveis);
           setTurmaDisabled(false);
+          setTooltipAberto(false);
+          setExibirTooltipTurma(false);
+          setTodasTurmasPossuemCodaf(false);
         } else {
           setTurmasFiltradas([]);
           setTurmaDisabled(true);
@@ -245,7 +261,8 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
 
     setCarregando(true);
     try {
-      const resposta = await obterInscritosTurma(turmaId, 1, 99999);
+      const codafIdAtual = registroId ?? (id ? Number(id) : undefined);
+      const resposta = await obterInscritosTurma(turmaId, 1, 99999, codafIdAtual);
       if (resposta.sucesso && resposta.dados) {
         const inscritosFormatados = resposta.dados.items.map((inscrito) => ({
           nomeCursista: inscrito.nome,
@@ -353,6 +370,9 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
       turmaId: undefined,
     });
     setTurmaDisabled(true);
+    setTooltipAberto(false);
+    setExibirTooltipTurma(false);
+    setTodasTurmasPossuemCodaf(false);
   };
 
   const onBlurCodigoFormacao = async (_value: string) => {
@@ -361,6 +381,9 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
     if (valor.length < 1) {
       setTurmasFiltradas([]);
       setTurmaDisabled(true);
+      setTooltipAberto(false);
+      setExibirTooltipTurma(false);
+      setTodasTurmasPossuemCodaf(false);
       return;
     }
 
@@ -371,6 +394,9 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
     try {
       const response = await obterDetalhesPropostaComTurmasPorId(Number(valor), false);
       setTurmasFiltradas([]);
+      setTooltipAberto(false);
+      setExibirTooltipTurma(false);
+      setTodasTurmasPossuemCodaf(false);
       form.setFieldsValue({
         nomeFormacao: '',
         numeroHomologacao: '',
@@ -385,8 +411,28 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
         });
 
         if (response.dados.turmas && response.dados.turmas.length > 0) {
-          setTurmasFiltradas(response.dados.turmas);
-          setTurmaDisabled(false);
+          const turmas = response.dados.turmas;
+          const turmasDisponiveis = turmas.filter(
+            (turma) => !turma.possuiCodafCursoNaoHomologado,
+          );
+          const possuiTurmaComCodaf = turmas.some(
+            (turma) => !!turma.possuiCodafCursoNaoHomologado,
+          );
+          setExibirTooltipTurma(possuiTurmaComCodaf);
+
+          if (turmasDisponiveis.length === 0) {
+            const primeiraTurma = turmas[0];
+            setTurmasFiltradas([primeiraTurma]);
+            form.setFieldValue('turmaId', primeiraTurma.id);
+            setTurmaDisabled(true);
+            setTooltipAberto(true);
+            setTodasTurmasPossuemCodaf(true);
+          } else {
+            setTurmasFiltradas(turmasDisponiveis);
+            setTurmaDisabled(false);
+            setTooltipAberto(false);
+            setTodasTurmasPossuemCodaf(false);
+          }
         } else {
           setTurmasFiltradas([]);
           setTurmaDisabled(true);
@@ -555,6 +601,8 @@ const CadastroCodafFormacoesNaoHomologadas: React.FC = () => {
             onBlurCodigoFormacao={onBlurCodigoFormacao}
             turmasFiltradas={turmasFiltradas}
             turmaDisabled={turmaDisabled}
+            tooltipAberto={tooltipAberto}
+            exibirTooltipTurma={exibirTooltipTurma}
             camposBloqueados={bloqueios.campos.secaoFormulario}
           />
           <SecaoListaInscritos
