@@ -367,8 +367,10 @@ describe('CadastroCodafConferencia', () => {
     });
     expect(mockSetCursistas).toHaveBeenCalled();
 
+    expect(capturedDrawerProps.modo).toBe('registrar');
+
     act(() => {
-      capturedListaInscritosProps.rowSelection.onChange([1, 2]);
+      capturedListaInscritosProps.rowSelection.onChange([1]);
       capturedListaInscritosProps.rowSelection.getCheckboxProps();
       capturedListaInscritosProps.onClickRegistrarDados();
       capturedListaInscritosProps.onClickEditarDados();
@@ -376,6 +378,16 @@ describe('CadastroCodafConferencia', () => {
 
     await act(async () => {
       await capturedDrawerProps.onConfirmar({ participou: true });
+    });
+
+    expect(mockAtualizarCodaf).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockCursistasState[0].participou).toBe(true);
+    expect(mockCursistasState[1].participou).toBeNull();
+    expect(mockSetSelecionadosIds).toHaveBeenCalledWith([]);
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('btn-salvar'));
     });
 
     expect(mockAtualizarCodaf).toHaveBeenCalled();
@@ -616,13 +628,20 @@ describe('CadastroCodafConferencia', () => {
       await capturedFormularioProps.onBlurCodigoFormacao('100');
     });
 
-    // Proposta sem turmas
-    mockObterDetalhesProposta.mockResolvedValueOnce({
-      sucesso: true,
-      dados: { id: 100, tipoFormacao: 3, turmas: [] },
-    });
+    // Sair do campo Codigo da formacao sem alterar o valor com turmas carregadas nao deve limpar nem refazer busca
+    const chamadasAntes = mockObterDetalhesProposta.mock.calls.length;
     await act(async () => {
       await capturedFormularioProps.onBlurCodigoFormacao('100');
+    });
+    expect(mockObterDetalhesProposta).toHaveBeenCalledTimes(chamadasAntes);
+
+    // Proposta sem turmas (outro codigo de formacao)
+    mockObterDetalhesProposta.mockResolvedValueOnce({
+      sucesso: true,
+      dados: { id: 101, tipoFormacao: 3, turmas: [] },
+    });
+    await act(async () => {
+      await capturedFormularioProps.onBlurCodigoFormacao('101');
     });
     expect(notification.warning).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -788,7 +807,7 @@ describe('CadastroCodafConferencia', () => {
     // Falha na criacao sem mensagens
     mockCriarCodaf.mockResolvedValueOnce({ sucesso: false });
     await act(async () => {
-      await capturedDrawerProps.onConfirmar({ participou: false });
+      fireEvent.click(screen.getByTestId('btn-salvar'));
     });
     expect(notification.error).toHaveBeenCalled();
 
@@ -798,6 +817,32 @@ describe('CadastroCodafConferencia', () => {
       fireEvent.click(screen.getByTestId('btn-salvar'));
     });
     expect(mockExibirErroSalvar).toHaveBeenCalled();
+  });
+
+  it('deve habilitar gerenciamento de anexos para Admin e bloquear quando usuario nao for area promotora nem admin', () => {
+    mockId = undefined;
+    mockPerfil = {
+      ehAreaPromotora: false,
+      ehAreaPromotoraEAdmin: true,
+    };
+
+    const { rerender } = render(
+      <BrowserRouter>
+        <CadastroCodafConferencia />
+      </BrowserRouter>,
+    );
+    expect(capturedSecaoAnexosProps.podeGerenciarAnexos).toBe(true);
+
+    mockPerfil = {
+      ehAreaPromotora: false,
+      ehAreaPromotoraEAdmin: false,
+    };
+    rerender(
+      <BrowserRouter>
+        <CadastroCodafConferencia />
+      </BrowserRouter>,
+    );
+    expect(capturedSecaoAnexosProps.podeGerenciarAnexos).toBe(false);
   });
 
   it('deve tratar erro ao atualizar em modo edicao com mensagens da API', async () => {

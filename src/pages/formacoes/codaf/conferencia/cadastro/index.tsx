@@ -100,12 +100,12 @@ const CadastroCodafConferencia: React.FC = () => {
 
   const [turmasFiltradas, setTurmasFiltradas] = useState<TurmaConferenciaOptionDTO[]>([]);
   const [turmaDisabled, setTurmaDisabled] = useState(true);
+  const [codigoFormacaoCarregado, setCodigoFormacaoCarregado] = useState<number | null>(null);
   const [registroId, setRegistroId] = useState<number | null>(null);
   const [status, setStatus] = useState<number | null>(null);
   const [certificadoEmitido, setCertificadoEmitido] = useState(false);
   const [auditoriaDados, setAuditoriaDados] = useState<AuditoriaDTO>();
   const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
-  const [drawerLoteModo, setDrawerLoteModo] = useState<'registrar' | 'editar'>('registrar');
 
   const modoEdicao = !!id;
 
@@ -192,9 +192,11 @@ const CadastroCodafConferencia: React.FC = () => {
               descricao: t.descricao || t.nome,
             })),
           );
+          setCodigoFormacaoCarregado(dados.propostaId);
           setTurmaDisabled(false);
         } else {
           setTurmasFiltradas([]);
+          setCodigoFormacaoCarregado(null);
           setTurmaDisabled(true);
         }
       } catch {
@@ -303,31 +305,26 @@ const CadastroCodafConferencia: React.FC = () => {
   const editarDadosDesabilitado = !modoEdicao || !quantidadeMinimaSelecionada;
 
   const onClickRegistrarDados = () => {
-    setDrawerLoteModo('registrar');
     setDrawerLoteAberto(true);
   };
 
   const onClickEditarDados = () => {
-    setDrawerLoteModo('editar');
     setDrawerLoteAberto(true);
   };
 
-  const onConfirmarDadosLote = async (dados: DadosLoteCursistas) => {
-    const novaListaCursistas = cursistas.map((cursista) =>
-      cursistasSelecionadosIds.includes(cursista.id)
-        ? {
-            ...cursista,
-            participou: dados.participou,
-          }
-        : cursista,
+  const onConfirmarDadosLote = (dados: DadosLoteCursistas) => {
+    setCursistas((prev) =>
+      prev.map((cursista) =>
+        cursistasSelecionadosIds.includes(cursista.id)
+          ? {
+              ...cursista,
+              participou: dados.participou,
+            }
+          : cursista,
+      ),
     );
-
-    const sucesso = await onClickSalvar(novaListaCursistas);
-
-    if (sucesso) {
-      setDrawerLoteAberto(false);
-      setCursistasSelecionadosIds([]);
-    }
+    setDrawerLoteAberto(false);
+    setCursistasSelecionadosIds([]);
   };
 
   const onChangeParticipou = useCallback(
@@ -358,6 +355,7 @@ const CadastroCodafConferencia: React.FC = () => {
   };
 
   const onChangeCodigoFormacao = () => {
+    setCodigoFormacaoCarregado(null);
     setTurmasFiltradas([]);
     form.setFieldsValue({
       nomeFormacao: '',
@@ -371,13 +369,23 @@ const CadastroCodafConferencia: React.FC = () => {
     const valor = rawValue.replaceAll(/\D/g, '');
 
     if (valor.length < 1) {
+      setCodigoFormacaoCarregado(null);
       setTurmasFiltradas([]);
       setTurmaDisabled(true);
       return;
     }
 
+    if (
+      turmasFiltradas.length > 0 &&
+      codigoFormacaoCarregado !== null &&
+      Number(valor) === codigoFormacaoCarregado
+    ) {
+      return;
+    }
+
     try {
       const response = await obterDetalhesPropostaConferenciaComTurmasPorId(Number(valor));
+      setCodigoFormacaoCarregado(null);
       setTurmasFiltradas([]);
       form.setFieldsValue({
         nomeFormacao: '',
@@ -437,6 +445,7 @@ const CadastroCodafConferencia: React.FC = () => {
               possuiCodafConferencia: !!t.possuiCodafConferencia,
             })),
           );
+          setCodigoFormacaoCarregado(dadosProposta.id);
           setTurmaDisabled(false);
         } else {
           setTurmasFiltradas([]);
@@ -512,18 +521,13 @@ const CadastroCodafConferencia: React.FC = () => {
     }
   };
 
-  const montarPayloadSalvar = (
-    values: any,
-    inscritosOverride?: CursistaConferenciaDTO[],
-  ): CodafConferenciaCadastroDTO => {
+  const montarPayloadSalvar = (values: any): CodafConferenciaCadastroDTO => {
     const anexosMapeados =
       values.anexos?.map((arquivo: any) => ({
         arquivoCodigo: arquivo.response?.codigo ?? arquivo.arquivoCodigo,
         nomeArquivo: arquivo.name || arquivo.nomeArquivo,
         tipoAnexoId: 3,
       })) ?? [];
-
-    const inscritosBase = Array.isArray(inscritosOverride) ? inscritosOverride : cursistas;
 
     return {
       propostaId: Number(values.codigoFormacao) || 0,
@@ -539,7 +543,7 @@ const CadastroCodafConferencia: React.FC = () => {
       codigoCursoEol: values.codigoCursoEol ? Number(values.codigoCursoEol) : null,
       codigoNivel: values.codigoNivel ? Number(values.codigoNivel) : null,
       observacao: values.observacao || '',
-      inscritos: inscritosBase.map((cursista) => ({
+      inscritos: cursistas.map((cursista) => ({
         inscricaoId: cursista.id,
         participou: cursista.participou ?? null,
       })),
@@ -568,14 +572,12 @@ const CadastroCodafConferencia: React.FC = () => {
     }
   };
 
-  const onClickSalvar = async (
-    inscritosOverride?: CursistaConferenciaDTO[],
-  ): Promise<boolean> => {
+  const onClickSalvar = async (): Promise<void> => {
     try {
       const values = await form.validateFields();
       setCarregando(true);
 
-      const dados = montarPayloadSalvar(values, inscritosOverride);
+      const dados = montarPayloadSalvar(values);
 
       const response = modoEdicao
         ? await atualizarCodafConferencia(Number(id), dados)
@@ -589,18 +591,9 @@ const CadastroCodafConferencia: React.FC = () => {
         if (registroIdAtual) {
           await recarregarAnexos(Number(registroIdAtual));
         }
-
-        if (inscritosOverride) {
-          setCursistas(inscritosOverride);
-        }
-
-        return true;
       }
-
-      return false;
     } catch (error: any) {
       exibirErroSalvar(error, modoEdicao);
-      return false;
     } finally {
       setCarregando(false);
     }
@@ -674,7 +667,7 @@ const CadastroCodafConferencia: React.FC = () => {
           />
           <SecaoAnexos
             form={form}
-            podeGerenciarAnexos={ehAreaPromotora}
+            podeGerenciarAnexos={ehAreaPromotora || ehAreaPromotoraEAdmin}
             onDownloadAnexo={onDownloadAnexo}
             fazerUploadAnexoCodaf={fazerUploadAnexoValidado}
             obterAnexoCodafParaDownload={obterAnexoCodafParaDownload}
@@ -686,7 +679,7 @@ const CadastroCodafConferencia: React.FC = () => {
       </Form>
       <DrawerEdicaoLoteCursistas
         open={drawerLoteAberto}
-        modo={drawerLoteModo}
+        modo='registrar'
         loading={carregando}
         onClose={() => setDrawerLoteAberto(false)}
         onConfirmar={onConfirmarDadosLote}
