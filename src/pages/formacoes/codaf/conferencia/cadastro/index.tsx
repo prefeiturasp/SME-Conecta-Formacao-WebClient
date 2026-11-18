@@ -1,4 +1,4 @@
-import { Col, Form, Row, Tag } from 'antd';
+import { Badge, Col, Form, Row } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import { TableRowSelection } from 'antd/lib/table/interface';
 import dayjs from 'dayjs';
@@ -622,60 +622,53 @@ const CadastroCodafConferencia: React.FC = () => {
         </Col>
       </HeaderPage>
       <Form form={form} layout='vertical' autoComplete='off'>
-        <CardContent>
-          <Row gutter={[16, 8]}>
-            <Col span={24}>
-              <div
-                style={{
-                  paddingBottom: '24px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <div>
+        <Badge.Ribbon
+          data-testid='tag-situacao-codaf'
+          text={SituacaoCodafConferenciaTagDisplay[situacaoCalculada]}
+        >
+          <CardContent>
+            <Row gutter={[16, 8]}>
+              <Col span={24}>
+                <div style={{ paddingBottom: '24px' }}>
                   Aqui você cria ou edita um CODAF para formação do tipo Conferência.
                 </div>
-                <Tag data-testid='tag-situacao-codaf'>
-                  {SituacaoCodafConferenciaTagDisplay[situacaoCalculada]}
-                </Tag>
-              </div>
-            </Col>
-          </Row>
-          <SecaoFormularioConferencia
-            onChangeCodigoFormacao={onChangeCodigoFormacao}
-            onBlurCodigoFormacao={onBlurCodigoFormacao}
-            onSelectTurma={onSelectTurma}
-            turmasFiltradas={turmasFiltradas}
-            turmaDisabled={turmaDisabled}
-            camposBloqueados={bloqueios.campos.secaoFormulario}
-          />
-          <SecaoListaInscritos
-            colunasCursistas={colunasCursistas}
-            cursistas={cursistas}
-            paginaAtualInscritos={paginaAtualInscritos}
-            registrosPorPaginaInscritos={registrosPorPaginaInscritos}
-            totalRegistrosInscritos={totalRegistrosInscritos}
-            handleTableChangeInscritos={handleTableChangeInscritos}
-            rowSelection={rowSelection}
-            quantidadeSelecionados={cursistasSelecionadosIds.length}
-            onClickRegistrarDados={onClickRegistrarDados}
-            onClickEditarDados={onClickEditarDados}
-            registrarDadosDesabilitado={registrarDadosDesabilitado}
-            editarDadosDesabilitado={editarDadosDesabilitado}
-            modoEdicao={modoEdicao}
-          />
-          <SecaoAnexos
-            form={form}
-            podeGerenciarAnexos={ehAreaPromotora || ehAreaPromotoraEAdmin}
-            onDownloadAnexo={onDownloadAnexo}
-            fazerUploadAnexoCodaf={fazerUploadAnexoValidado}
-            obterAnexoCodafParaDownload={obterAnexoCodafParaDownload}
-            bloqueado={bloqueios.anexos.areaPromotora}
-          />
-          <SecaoInformacoesAdicionais disabled={bloqueios.campos.informacoesAdicionais} />
-          <Auditoria dados={auditoriaDados} />
-        </CardContent>
+              </Col>
+            </Row>
+            <SecaoFormularioConferencia
+              onChangeCodigoFormacao={onChangeCodigoFormacao}
+              onBlurCodigoFormacao={onBlurCodigoFormacao}
+              onSelectTurma={onSelectTurma}
+              turmasFiltradas={turmasFiltradas}
+              turmaDisabled={turmaDisabled}
+              camposBloqueados={bloqueios.campos.secaoFormulario}
+            />
+            <SecaoListaInscritos
+              colunasCursistas={colunasCursistas}
+              cursistas={cursistas}
+              paginaAtualInscritos={paginaAtualInscritos}
+              registrosPorPaginaInscritos={registrosPorPaginaInscritos}
+              totalRegistrosInscritos={totalRegistrosInscritos}
+              handleTableChangeInscritos={handleTableChangeInscritos}
+              rowSelection={rowSelection}
+              quantidadeSelecionados={cursistasSelecionadosIds.length}
+              onClickRegistrarDados={onClickRegistrarDados}
+              onClickEditarDados={onClickEditarDados}
+              registrarDadosDesabilitado={registrarDadosDesabilitado}
+              editarDadosDesabilitado={editarDadosDesabilitado}
+              modoEdicao={modoEdicao}
+            />
+            <SecaoAnexos
+              form={form}
+              podeGerenciarAnexos={ehAreaPromotora || ehAreaPromotoraEAdmin}
+              onDownloadAnexo={onDownloadAnexo}
+              fazerUploadAnexoCodaf={fazerUploadAnexoValidado}
+              obterAnexoCodafParaDownload={obterAnexoCodafParaDownload}
+              bloqueado={bloqueios.anexos.areaPromotora}
+            />
+            <SecaoInformacoesAdicionais disabled={bloqueios.campos.informacoesAdicionais} />
+            <Auditoria dados={auditoriaDados} />
+          </CardContent>
+        </Badge.Ribbon>
       </Form>
       <DrawerEdicaoLoteCursistas
         open={drawerLoteAberto}
