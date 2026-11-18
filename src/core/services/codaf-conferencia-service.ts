@@ -28,6 +28,7 @@ export type CodafConferenciaDTO = {
   nomeTurma: string;
   nomeAreaPromotora: string;
   status: number;
+  statusCertificacaoTurma?: number;
   codigoCursoEol?: number | null;
   codigoNivel?: number | null;
   possuiAprovacoes: boolean;

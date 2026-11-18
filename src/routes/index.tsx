@@ -46,6 +46,7 @@ import CodafSuplementar from '~/pages/formacoes/codaf/codaf-suplementar';
 import CadastroCodafSuplementar from '~/pages/formacoes/codaf/codaf-suplementar/cadastro';
 import CodafFormacoesNaoHomologadas from '~/pages/formacoes/codaf/formacoes-nao-homologadas';
 import CadastroCodafFormacoesNaoHomologadas from '~/pages/formacoes/codaf/formacoes-nao-homologadas/cadastro';
+import CodafConferencia from '~/pages/formacoes/codaf/conferencia';
 import CadastroCodafConferencia from '~/pages/formacoes/codaf/conferencia/cadastro';
 
 const isCodafSuplementarEnabled: boolean = true;
@@ -249,7 +250,7 @@ const RoutesConfig = () => {
 
               <Route path={ROUTES.CODAF_CONFERENCIA}>
                 <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesConferencia} />}>
-                  <Route path='' element={<CadastroCodafConferencia />} />
+                  <Route path='' element={<CodafConferencia />} />
                 </Route>
                 <Route element={<GuardPermissao menuKey={MenuEnum.CodafFormacoesConferencia} />}>
                   <Route
