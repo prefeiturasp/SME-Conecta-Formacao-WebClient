@@ -385,7 +385,17 @@ const CadastroCodafConferencia: React.FC = () => {
         turmaId: undefined,
       });
 
-      if (response.sucesso && response.dados) {
+      if (!response.sucesso) {
+        setTurmasFiltradas([]);
+        setTurmaDisabled(true);
+        notification.warning({
+          message: 'Atenção',
+          description: 'Erro ao buscar detalhes da formação',
+        });
+        return;
+      }
+
+      if (response.dados) {
         const dadosProposta = response.dados;
         if (
           dadosProposta.tipoFormacao !== undefined &&

@@ -630,16 +630,35 @@ describe('CadastroCodafConferencia', () => {
       }),
     );
 
-    // Proposta nao encontrada
+    // Proposta nao encontrada (204 No Content)
     mockObterDetalhesProposta.mockResolvedValueOnce({
-      sucesso: false,
+      sucesso: true,
+      dados: null,
     });
     await act(async () => {
       await capturedFormularioProps.onBlurCodigoFormacao('999');
     });
-    expect(notification.info).toHaveBeenCalled();
+    expect(notification.info).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: 'Formação de conferência publicada não encontrada',
+      }),
+    );
 
-    // Erro na requisicao
+    // Falha HTTP retornada pelo helper obterRegistro
+    mockObterDetalhesProposta.mockResolvedValueOnce({
+      sucesso: false,
+      dados: null,
+    });
+    await act(async () => {
+      await capturedFormularioProps.onBlurCodigoFormacao('999');
+    });
+    expect(notification.warning).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: 'Erro ao buscar detalhes da formação',
+      }),
+    );
+
+    // Erro na requisicao (excecao)
     mockObterDetalhesProposta.mockRejectedValueOnce(new Error('Erro'));
     await act(async () => {
       await capturedFormularioProps.onBlurCodigoFormacao('999');
