@@ -45,7 +45,6 @@ import { BotoesAcaoCodaf } from '../../shared/componentes/botoes-acao-codaf';
 import { criarColunasCodafNaoHomologado } from '../../shared/componentes/codaf-colunas-factory';
 import { SecaoInformacoesAdicionais } from '../../shared/componentes/secao-informacoes-adicionais';
 import {
-  calcularSituacaoCodafConferencia,
   SecaoFormularioConferencia,
   TurmaConferenciaOptionDTO,
 } from './componentes/secao-formulario';
@@ -144,16 +143,9 @@ const CadastroCodafConferencia: React.FC = () => {
   };
 
   const turmaId = Form.useWatch('turmaId', form);
-  const codigoFormacaoWatch = Form.useWatch('codigoFormacao', form);
-  const codigoCursoEolWatch = Form.useWatch('codigoCursoEol', form);
 
-  const situacaoCalculada = calcularSituacaoCodafConferencia(
-    codigoFormacaoWatch,
-    turmaId,
-    codigoCursoEolWatch,
-    cursistas,
-    status,
-  );
+  const situacaoExibida: StatusCodafConferencia =
+    (status as StatusCodafConferencia) ?? StatusCodafConferencia.INICIADO;
 
   const quantidadeMinimaSelecionada = cursistasSelecionadosIds.length >= 1;
 
@@ -261,11 +253,12 @@ const CadastroCodafConferencia: React.FC = () => {
 
     setCarregando(true);
     try {
+      const codafIdAtual = registroId ?? (id ? Number(id) : undefined);
       const resposta = await obterInscritosTurmaConferencia(
         turmaId,
         1,
         99999,
-        registroId ?? undefined,
+        codafIdAtual,
       );
       if (resposta.sucesso && resposta.dados) {
         const inscritosFormatados = resposta.dados.items.map((inscrito) => ({
@@ -624,7 +617,7 @@ const CadastroCodafConferencia: React.FC = () => {
       <Form form={form} layout='vertical' autoComplete='off'>
         <Badge.Ribbon
           data-testid='tag-situacao-codaf'
-          text={SituacaoCodafConferenciaTagDisplay[situacaoCalculada]}
+          text={SituacaoCodafConferenciaTagDisplay[situacaoExibida]}
         >
           <CardContent>
             <Row gutter={[16, 8]}>

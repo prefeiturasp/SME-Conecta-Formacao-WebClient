@@ -427,6 +427,7 @@ describe('CadastroCodafConferencia', () => {
 
     await waitFor(() => {
       expect(mockObterPorId).toHaveBeenCalledWith(123);
+      expect(screen.getByText('Aguardando Finalização')).toBeInTheDocument();
     });
     unmount();
 
@@ -460,6 +461,44 @@ describe('CadastroCodafConferencia', () => {
 
     await waitFor(() => {
       expect(mockObterPorId).toHaveBeenCalledWith(123);
+      expect(screen.getByText('Finalizado')).toBeInTheDocument();
+    });
+  });
+
+  it('deve exibir Iniciado no modo criacao e passar registroId ao carregar inscritos apos carregar dados em edicao', async () => {
+    mockId = undefined;
+    mockWatchValues = { turmaId: undefined, codigoFormacao: undefined, codigoCursoEol: undefined };
+
+    const { unmount } = render(
+      <BrowserRouter>
+        <CadastroCodafConferencia />
+      </BrowserRouter>,
+    );
+    expect(screen.getByText('Iniciado')).toBeInTheDocument();
+    unmount();
+
+    mockId = '123';
+    mockWatchValues = { turmaId: undefined, codigoFormacao: 100, codigoCursoEol: 555 };
+    const { rerender } = render(
+      <BrowserRouter>
+        <CadastroCodafConferencia />
+      </BrowserRouter>,
+    );
+
+    await waitFor(() => {
+      expect(mockObterPorId).toHaveBeenCalledWith(123);
+      expect(screen.getByText('Iniciado')).toBeInTheDocument();
+    });
+
+    mockWatchValues = { turmaId: 10, codigoFormacao: 100, codigoCursoEol: 555 };
+    rerender(
+      <BrowserRouter>
+        <CadastroCodafConferencia />
+      </BrowserRouter>,
+    );
+
+    await waitFor(() => {
+      expect(mockObterInscritos).toHaveBeenCalledWith(10, 1, 99999, 123);
     });
   });
 
