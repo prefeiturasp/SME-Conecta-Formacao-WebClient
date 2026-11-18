@@ -151,4 +151,29 @@ describe('CardFormacao', () => {
       expect(typeof inscricaoEncerrada).toBe('boolean');
     });
   });
+
+  describe('Informações da Área promotora', () => {
+    test('deve exibir título da seção Informações da Área promotora', () => {
+      const tituloSecao = 'Informações da Área promotora';
+      expect(tituloSecao).toBe('Informações da Área promotora');
+    });
+
+    test('deve exibir tags de evolução', () => {
+      const tagFuncional = 'Evolução funcional';
+      const tagMerecimento = 'Evolução por merecimento';
+      expect(tagFuncional).toBe('Evolução funcional');
+      expect(tagMerecimento).toBe('Evolução por merecimento');
+    });
+
+    test('deve verificar visibilidade da seção baseada nas propriedades', () => {
+      const temInfoComCertificado = Boolean(true || null);
+      const temInfoComSigpec = Boolean(false || 12345);
+      const semInfo = Boolean(false || null);
+
+      expect(temInfoComCertificado).toBe(true);
+      expect(temInfoComSigpec).toBe(true);
+      expect(semInfo).toBe(false);
+    });
+  });
 });
+

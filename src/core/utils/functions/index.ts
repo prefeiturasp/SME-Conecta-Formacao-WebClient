@@ -151,6 +151,14 @@ const downloadBlob = (data: any, fileName: string) => {
   document.body.removeChild(a);
 };
 
+const obterIniciaisNome = (nome?: string): string => {
+  if (!nome || typeof nome !== 'string') return '';
+  const partes = nome.trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return '';
+  if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
+  return `${partes[0].charAt(0)}${partes[partes.length - 1].charAt(0)}`.toUpperCase();
+};
+
 export {
   downloadBlob,
   formatarDataHoraAuditoria,
@@ -158,6 +166,7 @@ export {
   formatterCPFMask,
   maskTelefone,
   mostrarQtdParecer,
+  obterIniciaisNome,
   onchangeMultiSelectLabelInValueOpcaoTodos,
   onchangeMultiSelectOpcaoTodos,
   removeAcentos,

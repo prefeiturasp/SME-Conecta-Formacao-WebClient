@@ -22,6 +22,7 @@ import FormularioDatas from './formulario-datas';
 import { Form } from 'antd';
 import { notification } from '~/components/lib/notification';
 import { useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
@@ -48,11 +49,23 @@ jest.mock('../components/modal-parecer/modal-parecer-button', () => ({
 }));
 
 jest.mock('~/components/lib/excluir-button', () => (props: any) => (
-  <button onClick={props.onClick}>Excluir</button>
+  <button onClick={props.onClick} disabled={props.disabled}>
+    Excluir
+  </button>
 ));
 
 jest.mock('~/components/main/input/date-range', () => ({
-  DatePickerPeriodo: () => <div />,
+  DatePickerPeriodo: ({ formItemProps, rangerPickerProps }: any) => {
+    const id = rangerPickerProps?.id ?? formItemProps?.name;
+    return (
+      <input
+        id={id}
+        data-testid={`date-picker-${id}`}
+        disabled={rangerPickerProps?.disabled}
+        readOnly
+      />
+    );
+  },
 }));
 
 jest.mock('~/components/main/input/time-range', () => ({
@@ -81,12 +94,24 @@ jest.mock('styled-components', () => ({
 }));
 
 jest.mock('@ant-design/icons', () => ({
-  InfoCircleFilled: () => <span />,
-  PlusOutlined: () => <span />,
+  InfoCircleFilled: () => <span data-testid='info-icon' />,
+  PlusOutlined: () => <span data-testid='plus-icon'>+</span>,
 }));
 
-const renderComForm = (ui: React.ReactNode) => {
-  return render(<Form>{ui}</Form>);
+const WrapperComForm: React.FC<{ initialValues?: any; children: React.ReactNode }> = ({
+  initialValues,
+  children,
+}) => {
+  const [form] = Form.useForm();
+  return (
+    <Form form={form} initialValues={initialValues}>
+      {children}
+    </Form>
+  );
+};
+
+const renderComForm = (ui: React.ReactNode, initialValues?: any) => {
+  return render(<WrapperComForm initialValues={initialValues}>{ui}</WrapperComForm>);
 };
 
 describe('FormularioDatas', () => {
@@ -114,9 +139,10 @@ describe('FormularioDatas', () => {
     expect(screen.getByText('Adicionar datas')).toBeInTheDocument();
   });
 
-  it('renderiza seção de inscrição', () => {
+  it('renderiza seções de período geral da inscrição e período customizado', () => {
     renderComForm(<FormularioDatas recarregarTurmas={false as any} />);
-    expect(screen.getByText('Inscrição')).toBeInTheDocument();
+    expect(screen.getByText('Período geral da inscrição')).toBeInTheDocument();
+    expect(screen.getByText('Período de inscrição customizado')).toBeInTheDocument();
   });
 
   it('renderiza campo hora de início e fim de inscrição', () => {
@@ -139,5 +165,45 @@ describe('FormularioDatas', () => {
     renderComForm(<FormularioDatas recarregarTurmas={false as any} />);
     const timePickerElement = screen.getByTestId('time-picker-periodo');
     expect(timePickerElement.textContent).toContain('Hora de início e fim');
+  });
+
+  it('mantém campos de período de inscrição customizado desabilitados quando período geral não for preenchido', () => {
+    renderComForm(<FormularioDatas recarregarTurmas={false as any} />);
+    const datePickerCustom = screen.getByTestId('date-picker-gruposPeriodosInscricao-0-periodo');
+    expect(datePickerCustom).toBeDisabled();
+  });
+
+  it('habilita campos de período customizado quando período geral da inscrição for preenchido', () => {
+    const inicio = dayjs('2026-10-01');
+    const fim = dayjs('2027-01-30');
+    renderComForm(<FormularioDatas recarregarTurmas={false as any} />, {
+      periodoInscricao: [inicio, fim],
+      turmas: [{ id: 1, nome: 'Turma 01' }],
+    });
+
+    const datePickerCustom = screen.getByTestId('date-picker-gruposPeriodosInscricao-0-periodo');
+    expect(datePickerCustom).not.toBeDisabled();
+  });
+
+  it('permite adicionar nova linha de período customizado ao clicar no botão (+)', () => {
+    const inicio = dayjs('2026-10-01');
+    const fim = dayjs('2027-01-30');
+    renderComForm(<FormularioDatas recarregarTurmas={false as any} />, {
+      periodoInscricao: [inicio, fim],
+      turmas: [
+        { id: 1, nome: 'Turma 01' },
+        { id: 2, nome: 'Turma 02' },
+      ],
+    });
+
+    const botoesPlus = screen.getAllByTestId('plus-icon');
+    expect(botoesPlus.length).toBeGreaterThanOrEqual(1);
+
+    const botaoAdd = botoesPlus[botoesPlus.length - 1].closest('button');
+    expect(botaoAdd).not.toBeNull();
+    fireEvent.click(botaoAdd!);
+
+    const botoesExcluir = screen.getAllByText('Excluir');
+    expect(botoesExcluir.length).toBeGreaterThanOrEqual(1);
   });
 });

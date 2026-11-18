@@ -1,140 +1,138 @@
-import { describe, test, expect } from '@jest/globals';
+/**
+ * @jest-environment jsdom
+ */
+
+import '@testing-library/jest-dom';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { MinhasInscricoes } from './index';
+import { ROUTES } from '~/core/enum/routes-enum';
+
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  useNavigate: () => mockNavigate,
+}));
+
+let mockPerfil = 'Cursista';
+jest.mock('~/core/hooks/use-redux', () => ({
+  useAppSelector: (selector: any) =>
+    selector({
+      perfil: {
+        perfilSelecionado: {
+          perfilNome: mockPerfil,
+        },
+      },
+    }),
+}));
+
+jest.mock('~/components/lib/header-page', () => {
+  return function MockHeaderPage({ title, children }: any) {
+    return (
+      <div data-testid='header-page'>
+        <h1>{title}</h1>
+        {children}
+      </div>
+    );
+  };
+});
+
+jest.mock('~/components/lib/card-content', () => {
+  return function MockCardContent({ children }: any) {
+    return <div data-testid='card-content'>{children}</div>;
+  };
+});
+
+jest.mock('~/components/lib/card-table/provider', () => {
+  return function MockDataTableContextProvider({ children }: any) {
+    return <div data-testid='data-table-provider'>{children}</div>;
+  };
+});
+
+jest.mock('./listagem', () => ({
+  MinhasInscricoesListaPaginada: () => (
+    <div data-testid='lista-paginada-desktop'>Lista Desktop</div>
+  ),
+}));
+
+jest.mock('./components/minhas-inscricoes-mobile', () => {
+  return function MockMinhasInscricoesMobile({ ehCursista }: any) {
+    return (
+      <div data-testid='minhas-inscricoes-mobile-comp'>
+        Mobile Comp - Cursista: {String(ehCursista)}
+      </div>
+    );
+  };
+});
 
 describe('MinhasInscricoes', () => {
-  describe('Header da página', () => {
-    test('deve ter título "Minhas Inscrições"', () => {
-      const title = 'Minhas Inscrições';
-      expect(title).toBe('Minhas Inscrições');
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPerfil = 'Cursista';
+  });
+
+  describe('Renderização e Estrutura Responsiva', () => {
+    it('deve renderizar os wrappers desktop e mobile', () => {
+      render(<MinhasInscricoes />);
+
+      expect(screen.getByTestId('minhas-inscricoes-desktop')).toBeInTheDocument();
+      expect(screen.getByTestId('minhas-inscricoes-mobile-wrapper')).toBeInTheDocument();
+      expect(screen.getByTestId('lista-paginada-desktop')).toBeInTheDocument();
+      expect(screen.getByTestId('minhas-inscricoes-mobile-comp')).toBeInTheDocument();
     });
 
-    test('deve ter botão de nova inscrição', () => {
-      const NOVA_INSCRICAO = 'Nova inscrição';
-      expect(NOVA_INSCRICAO).toBeTruthy();
+    it('deve ter título "Minhas Inscrições" no header desktop', () => {
+      render(<MinhasInscricoes />);
+      expect(screen.getByText('Minhas Inscrições')).toBeInTheDocument();
+    });
+
+    it('deve navegar para AREA_PUBLICA ao clicar em Explorar formações no desktop', () => {
+      render(<MinhasInscricoes />);
+
+      const btnExplorar = screen.getByText('Explorar formações');
+      fireEvent.click(btnExplorar);
+
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.AREA_PUBLICA);
     });
   });
 
-  describe('Botão Nova Inscrição', () => {
-    test('deve ter tipo primary', () => {
-      const buttonType = 'primary';
-      expect(buttonType).toBe('primary');
+  describe('Verificação de perfil de acesso', () => {
+    it('não deve redirecionar quando perfil for Cursista', () => {
+      mockPerfil = 'Cursista';
+      render(<MinhasInscricoes />);
+
+      expect(mockNavigate).not.toHaveBeenCalledWith(ROUTES.PRINCIPAL);
     });
 
-    test('deve ter id correto', () => {
-      const buttonId = 'CF_BUTTON_NOVO';
-      expect(buttonId).toBe('CF_BUTTON_NOVO');
+    it('deve redirecionar para PRINCIPAL quando perfil não for Cursista', () => {
+      mockPerfil = 'Administrador';
+      render(<MinhasInscricoes />);
+
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.PRINCIPAL);
     });
 
-    test('deve ter fontWeight 700', () => {
-      const style = { fontWeight: 700 };
-      expect(style.fontWeight).toBe(700);
-    });
-  });
+    it('não deve navegar para AREA_PUBLICA ao clicar em nova inscrição se não for cursista', () => {
+      mockPerfil = 'Administrador';
+      render(<MinhasInscricoes />);
 
-  describe('Verificação de perfil', () => {
-    test('deve identificar perfil Cursista', () => {
-      const TipoPerfilEnum = { Cursista: 1 };
-      const TipoPerfilTagDisplay: Record<number, string> = { 1: 'Cursista' };
+      mockNavigate.mockClear();
 
-      const perfilCursista = TipoPerfilTagDisplay[TipoPerfilEnum.Cursista];
-      expect(perfilCursista).toBe('Cursista');
-    });
+      const btnExplorar = screen.getByText('Explorar formações');
+      fireEvent.click(btnExplorar);
 
-    test('deve verificar se é cursista corretamente', () => {
-      const perfilSelecionado = 'Cursista';
-      const TipoPerfilTagDisplay = { Cursista: 'Cursista' };
-
-      const ehCursista = perfilSelecionado === TipoPerfilTagDisplay.Cursista;
-      expect(ehCursista).toBe(true);
-    });
-
-    test('deve retornar false para perfil diferente', () => {
-      const perfilSelecionado = 'Admin';
-      const TipoPerfilTagDisplay = { Cursista: 'Cursista' };
-
-      const ehCursista = perfilSelecionado === TipoPerfilTagDisplay.Cursista;
-      expect(ehCursista).toBe(false);
-    });
-  });
-
-  describe('Navegação', () => {
-    test('deve redirecionar para PRINCIPAL se não for cursista', () => {
-      const route = 'ROUTES.PRINCIPAL';
-      expect(route).toBeTruthy();
-    });
-
-    test('deve navegar para área pública ao clicar em nova inscrição', () => {
-      const route = 'ROUTES.AREA_PUBLICA';
-      expect(route).toBeTruthy();
-    });
-  });
-
-  describe('Função novaInscricao', () => {
-    test('deve navegar somente se for cursista', () => {
-      const ehCursista = true;
-      const shouldNavigate = ehCursista;
-      expect(shouldNavigate).toBe(true);
-    });
-
-    test('não deve navegar se não for cursista', () => {
-      const ehCursista = false;
-      const shouldNavigate = ehCursista;
-      expect(shouldNavigate).toBe(false);
-    });
-  });
-
-  describe('useEffect de verificação de perfil', () => {
-    test('deve ter dependências corretas', () => {
-      const dependencies = ['ehCursista', 'perfilSelecionado'];
-      expect(dependencies).toContain('ehCursista');
-      expect(dependencies).toContain('perfilSelecionado');
-    });
-  });
-
-  describe('Estrutura de layout', () => {
-    test('deve ter Col como wrapper principal', () => {
-      const wrapper = 'Col';
-      expect(wrapper).toBe('Col');
-    });
-
-    test('deve ter HeaderPage', () => {
-      const hasHeaderPage = true;
-      expect(hasHeaderPage).toBe(true);
-    });
-
-    test('deve ter CardContent', () => {
-      const hasCardContent = true;
-      expect(hasCardContent).toBe(true);
-    });
-  });
-
-  describe('DataTableContextProvider', () => {
-    test('deve envolver MinhasInscricoesListaPaginada', () => {
-      const provider = 'DataTableContextProvider';
-      const child = 'MinhasInscricoesListaPaginada';
-
-      expect(provider).toBeTruthy();
-      expect(child).toBeTruthy();
-    });
-  });
-
-  describe('Layout dos botões', () => {
-    test('deve ter gutter de 8x8', () => {
-      const gutter = [8, 8];
-      expect(gutter).toEqual([8, 8]);
-    });
-
-    test('Col deve ter span 24', () => {
-      const span = 24;
-      expect(span).toBe(24);
-    });
-  });
-
-  describe('Redux selector', () => {
-    test('deve selecionar perfilSelecionado do store', () => {
-      const selectorPath = 'store.perfil.perfilSelecionado.perfilNome';
-      expect(selectorPath).toContain('perfil');
-      expect(selectorPath).toContain('perfilSelecionado');
-      expect(selectorPath).toContain('perfilNome');
+      expect(mockNavigate).not.toHaveBeenCalledWith(ROUTES.AREA_PUBLICA);
     });
   });
 });

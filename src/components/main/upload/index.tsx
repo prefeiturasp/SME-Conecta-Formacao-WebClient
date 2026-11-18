@@ -9,6 +9,7 @@ type UploadArquivosConectaFormacaoProps = {
   formItemProps: FormItemProps & { name: string };
   draggerProps?: DraggerProps;
   tipoArquivosPermitidos?: string;
+  titulo?: React.ReactNode;
   subTitulo?: string;
   tamanhoMaxUploadPorArquivo?: number;
   uploadService?: (formData: FormData, configuracaoHeader: any) => Promise<any>;
@@ -22,6 +23,7 @@ const UploadArquivosConectaFormacao: React.FC<UploadArquivosConectaFormacaoProps
   formItemProps,
   draggerProps,
   tipoArquivosPermitidos,
+  titulo,
   subTitulo,
   tamanhoMaxUploadPorArquivo = 5,
   uploadService = arquivoService.fazerUploadArquivo,
@@ -34,6 +36,7 @@ const UploadArquivosConectaFormacao: React.FC<UploadArquivosConectaFormacaoProps
     <UploadArquivosSME
       draggerProps={draggerProps}
       form={form}
+      titulo={titulo}
       subTitulo={subTitulo}
       formItemProps={formItemProps}
       tiposArquivosPermitidos={tipoArquivosPermitidos || '.jpg,.jpeg,.png,.tiff'}

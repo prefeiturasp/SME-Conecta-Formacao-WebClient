@@ -422,4 +422,78 @@ describe('FormularioCertificacao', () => {
       ).toBeInTheDocument();
     });
   });
+
+  it('deve limpar idEmissor quando tipoEmissor for inválido e idEmissor estiver preenchido', async () => {
+    watchValue = undefined;
+    mockGetFieldValue.mockImplementation((campo) => {
+      if (campo === 'idEmissor') return 123;
+      if (campo === 'cursoComCertificado') return false;
+      if (campo === 'criterioCertificacao') return [];
+      return undefined;
+    });
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(mockSetFieldValue).toHaveBeenCalledWith('idEmissor', undefined);
+    });
+  });
+
+  it('deve sincronizar valuePossuiCertificado quando cursoComCertificado do form for true', async () => {
+    mockGetFieldValue.mockImplementation((campo) => {
+      if (campo === 'cursoComCertificado') return true;
+      if (campo === 'criterioCertificacao') return [];
+      return undefined;
+    });
+
+    renderComponent();
+
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    await waitFor(() => {
+      expect(mockGetFieldValue).toHaveBeenCalledWith('cursoComCertificado');
+    });
+  });
+
+  it('não deve sincronizar valuePossuiCertificado quando cursoComCertificado não for boolean', async () => {
+    mockGetFieldValue.mockImplementation((campo) => {
+      if (campo === 'cursoComCertificado') return undefined;
+      if (campo === 'criterioCertificacao') return [];
+      return undefined;
+    });
+
+    renderComponent();
+
+    await waitFor(() => {
+      const radioSim = screen.getByLabelText('Sim');
+      expect(radioSim).not.toBeChecked();
+    });
+  });
+
+  it('deve limpar idEmissor quando tipoEmissor for alterado', async () => {
+    watchValue = 1; // DRE
+    mockGetFieldValue.mockImplementation((campo) => {
+      if (campo === 'idEmissor') return 123;
+      if (campo === 'cursoComCertificado') return false;
+      if (campo === 'criterioCertificacao') return [];
+      return undefined;
+    });
+
+    const { rerender } = renderComponent();
+
+    watchValue = 2; // Coordenadoria (alterado)
+    rerender(
+      <PermissaoContext.Provider value={{ desabilitarCampos: false } as any}>
+        <Form>
+          <FormularioCertificacao />
+        </Form>
+      </PermissaoContext.Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockSetFieldValue).toHaveBeenCalledWith('idEmissor', undefined);
+    });
+  });
 });

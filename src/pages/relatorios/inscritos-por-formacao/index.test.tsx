@@ -3,7 +3,12 @@
  */
 import React from 'react';
 import { describe, test, expect, jest, beforeEach } from '@jest/globals';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen, fireEvent, act } from '@testing-library/react';
+
+const mockForm = {
+  setFieldValue: jest.fn(),
+  getFieldsValue: jest.fn(() => ({})),
+};
 
 jest.mock('antd/es/date-picker/locale/pt_BR', () => ({}));
 
@@ -16,7 +21,7 @@ jest.mock('antd/es/form/Form', () => {
   return {
     __esModule: true,
     default: Form,
-    useForm: jest.fn(() => [{}]),
+    useForm: jest.fn(() => [mockForm]),
     useWatch: jest.fn(),
   };
 });
@@ -26,7 +31,7 @@ jest.mock('antd', () => {
 
   const Form = ({ children }: any) => <form>{children}</form>;
   Form.Item = ({ children }: any) => <div>{children}</div>;
-  Form.useForm = jest.fn(() => [{}]);
+  Form.useForm = jest.fn(() => [mockForm]);
   Form.useWatch = jest.fn();
 
   return {
@@ -37,9 +42,9 @@ jest.mock('antd', () => {
     Select: ({ children }: any) => <select>{children}</select>,
     Input: (props: any) => <input {...props} />,
     DatePicker: {
-      RangePicker: () => <div>RangePicker</div>,
+      RangePicker: (props: any) => <div data-testid='range-picker' {...props}>RangePicker</div>,
     },
-    AutoComplete: () => <div>AutoComplete</div>,
+    AutoComplete: (props: any) => <div data-testid='autocomplete' {...props}>AutoComplete</div>,
   };
 });
 
@@ -79,7 +84,18 @@ jest.mock('~/components/main/input/componente-curricular', () => ({
 
 jest.mock('~/components/main/numero', () => ({
   __esModule: true,
-  default: () => <div>Numero</div>,
+  default: ({ inputProps, formItemProps }: any) => (
+    <input
+      data-testid='input-numero'
+      data-name={formItemProps?.name}
+      placeholder={inputProps?.placeholder}
+      onChange={inputProps?.onChange}
+      onBlur={inputProps?.onBlur}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') inputProps?.onPressEnter?.(e);
+      }}
+    />
+  ),
 }));
 
 jest.mock('~/components/main/text/input-text', () => ({
@@ -96,12 +112,12 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('~/components/lib/card-content', () => ({
   __esModule: true,
-  default: () => <div>CardContent</div>,
+  default: ({ children }: any) => <div>{children}</div>,
 }));
 
 jest.mock('~/components/lib/header-page', () => ({
   __esModule: true,
-  default: () => <div>HeaderPage</div>,
+  default: ({ children }: any) => <div>{children}</div>,
 }));
 
 jest.mock('~/components/main/button/voltar', () => ({
@@ -138,6 +154,9 @@ jest.mock('~/core/services/proposta-service', () => ({
   autocompletarFormacao: jest.fn(() =>
     Promise.resolve({ sucesso: true, dados: { items: [] } })
   ),
+  obterNumeroHomologacaoPorPropostaId: jest.fn(() =>
+    Promise.resolve({ sucesso: true, dados: { numeroHomologacao: null } })
+  ),
 }));
 
 jest.mock('~/core/services/relatorio-service', () => ({
@@ -159,12 +178,19 @@ jest.mock('~/core/enum/routes-enum', () => ({
 }));
 
 import RelatorioInscritosPorFormacao from './';
+import { Form } from 'antd';
 import { gerarRelatorioInscritosPorFormacao } from '~/core/services/relatorio-service';
+import {
+  obterNumeroHomologacaoPorPropostaId,
+  autocompletarFormacao,
+} from '~/core/services/proposta-service';
+import { obterTurmasInscricao } from '~/core/services/inscricao-service';
 import { notification } from '~/components/lib/notification';
 
 describe('RelatorioInscritosPorFormacao', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (Form.useWatch as jest.Mock).mockReturnValue(undefined);
   });
 
   describe('Componente', () => {
@@ -190,6 +216,168 @@ describe('RelatorioInscritosPorFormacao', () => {
       await waitFor(() => {
         expect(true).toBe(true);
       });
+    });
+  });
+
+  describe('Carregamento automático de homologação pelo código da formação no onBlur', () => {
+    test('nao deve consultar APIs enquanto o usuario apenas digita teclas no campo (sem blur)', async () => {
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.change(input, { target: { value: '123' } });
+
+      expect(obterNumeroHomologacaoPorPropostaId).not.toHaveBeenCalled();
+      expect(obterTurmasInscricao).not.toHaveBeenCalled();
+    });
+
+    test('deve carregar numero de homologacao, dropdown de homologacao e turmas ao sair do campo (onBlur)', async () => {
+      (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: { numeroHomologacao: 987654 },
+      });
+
+      (obterTurmasInscricao as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: [{ id: 1, descricao: 'Turma A' }],
+      });
+
+      (autocompletarFormacao as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: {
+          items: [{ propostaId: 12345, numeroHomologacao: 987654, nomeFormacao: 'Formacao Teste' }],
+        },
+      });
+
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.blur(input, { target: { value: '12345' } });
+
+      await waitFor(() => {
+        expect(obterNumeroHomologacaoPorPropostaId).toHaveBeenCalledWith(12345);
+        expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', '987654');
+        expect(autocompletarFormacao).toHaveBeenCalledWith('987654');
+        expect(obterTurmasInscricao).toHaveBeenCalledWith(12345);
+      });
+    });
+
+    test('deve consultar homologacao e carregar dropdown ao teclar Enter no campo (onPressEnter)', async () => {
+      (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: { numeroHomologacao: 111222 },
+      });
+
+      (obterTurmasInscricao as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: [{ id: 2, descricao: 'Turma B' }],
+      });
+
+      (autocompletarFormacao as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: {
+          items: [{ propostaId: 789, numeroHomologacao: 111222, nomeFormacao: 'Formacao Enter' }],
+        },
+      });
+
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.change(input, { target: { value: '789' } });
+      fireEvent.keyDown(input, { key: 'Enter', currentTarget: { value: '789' } });
+
+      await waitFor(() => {
+        expect(obterNumeroHomologacaoPorPropostaId).toHaveBeenCalledWith(789);
+        expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', '111222');
+        expect(autocompletarFormacao).toHaveBeenCalledWith('111222');
+      });
+    });
+
+    test('deve limpar numero de homologacao quando formacao nao possuir homologacao', async () => {
+      (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockResolvedValue({
+        sucesso: true,
+        dados: { numeroHomologacao: null },
+      });
+
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.blur(input, { target: { value: '54321' } });
+
+      await waitFor(() => {
+        expect(obterNumeroHomologacaoPorPropostaId).toHaveBeenCalledWith(54321);
+        expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
+      });
+    });
+
+    test('deve tratar erro ao consultar numero de homologacao e turmas no onBlur', async () => {
+      (obterNumeroHomologacaoPorPropostaId as jest.Mock).mockRejectedValue(new Error('Erro API'));
+      (obterTurmasInscricao as jest.Mock).mockRejectedValue(new Error('Erro API'));
+
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.blur(input, { target: { value: '999' } });
+
+      await waitFor(() => {
+        expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
+      });
+    });
+
+    test('deve limpar numero de homologacao e turmas quando campo for limpo (onChange vazio)', async () => {
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.change(input, { target: { value: '123' } });
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('propostaTurmaId', undefined);
+    });
+
+    test('deve limpar campos se usuario sair do campo com valor vazio', async () => {
+      render(<RelatorioInscritosPorFormacao />);
+
+      const input = screen.getByPlaceholderText('Código da formação');
+      fireEvent.blur(input, { target: { value: '' } });
+
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('numeroHomologacao', undefined);
+      expect(mockForm.setFieldValue).toHaveBeenCalledWith('propostaTurmaId', undefined);
+    });
+  });
+
+  describe('Remoção da obrigatoriedade do período', () => {
+    test('deve exigir periodo quando codigo da formacao nao for informado', async () => {
+      (Form.useWatch as jest.Mock).mockImplementation((name: string) => {
+        if (name === 'propostaId') return undefined;
+        if (name === 'periodoRealizacao') return undefined;
+        return undefined;
+      });
+
+      render(<RelatorioInscritosPorFormacao />);
+
+      const btnProximo = screen.getByText('Próximo');
+      fireEvent.click(btnProximo);
+
+      expect(notification.warning).toHaveBeenCalledWith({
+        message: 'Campo obrigatório',
+        description: 'Informe o Período de realização antes de avançar.',
+      });
+    });
+
+    test('nao deve exigir periodo quando codigo da formacao estiver preenchido', async () => {
+      (Form.useWatch as jest.Mock).mockImplementation((name: string) => {
+        if (name === 'propostaId') return '12345';
+        if (name === 'periodoRealizacao') return undefined;
+        return undefined;
+      });
+
+      render(<RelatorioInscritosPorFormacao />);
+
+      const btnProximo = screen.getByText('Próximo');
+      fireEvent.click(btnProximo);
+
+      expect(notification.warning).not.toHaveBeenCalled();
+      expect(screen.getByText('Público e estrutura')).toBeDefined();
     });
   });
 

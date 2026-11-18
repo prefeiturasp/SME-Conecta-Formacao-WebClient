@@ -154,6 +154,23 @@ describe('codaf-nao-homologado-service', () => {
         }
       );
     });
+
+    it('deve incluir codafCursoNaoHomologadoId nos parametros quando informado', async () => {
+      (obterRegistro as jest.Mock).mockResolvedValue({});
+
+      await obterInscritosTurma(10, 1, 9999, 77);
+
+      expect(obterRegistro).toHaveBeenCalledWith(
+        `${URL_API_CODAF_CURSO_NAO_HOMOLOGADO}/inscritos-turma/10`,
+        {
+          params: {
+            numeroPagina: 1,
+            numeroRegistros: 9999,
+            codafCursoNaoHomologadoId: 77,
+          },
+        }
+      );
+    });
   });
 
   describe('baixarModeloTermoResponsabilidade', () => {

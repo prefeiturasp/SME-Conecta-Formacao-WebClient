@@ -2,6 +2,7 @@ import reducer from './reducers';
 import {
   setPerfilUsuario,
   setPerfilSelecionado,
+  setDres,
 } from './actions';
 import { PerfilUsuarioDTO } from '../../../../core/dto/perfil-usuario-dto';
 
@@ -9,6 +10,7 @@ describe('Perfil reducer', () => {
   const initialState = {
     perfilUsuario: [],
     perfilSelecionado: undefined,
+    dres: [],
   };
 
   const perfilAdmin = {
@@ -44,6 +46,7 @@ describe('Perfil reducer', () => {
     expect(state).toEqual({
       perfilUsuario: payload,
       perfilSelecionado: undefined,
+      dres: [],
     });
   });
 
@@ -56,6 +59,20 @@ describe('Perfil reducer', () => {
     expect(state).toEqual({
       perfilUsuario: [],
       perfilSelecionado: perfilProfessor,
+      dres: [],
+    });
+  });
+
+  it('deve atualizar dres', () => {
+    const state = reducer(
+      initialState,
+      setDres(['108900', '108100'])
+    );
+
+    expect(state).toEqual({
+      perfilUsuario: [],
+      perfilSelecionado: undefined,
+      dres: ['108900', '108100'],
     });
   });
 
@@ -63,6 +80,7 @@ describe('Perfil reducer', () => {
     const stateAnterior = {
       perfilUsuario: [perfilAdmin],
       perfilSelecionado: perfilAdmin,
+      dres: [],
     };
 
     const state = reducer(
@@ -78,6 +96,7 @@ describe('Perfil reducer', () => {
     const stateAnterior = {
       perfilUsuario: [perfilAdmin],
       perfilSelecionado: perfilProfessor,
+      dres: [],
     };
 
     const novaLista = [perfilProfessor];
@@ -95,6 +114,7 @@ describe('Perfil reducer', () => {
     const stateAnterior = {
       perfilUsuario: [perfilAdmin],
       perfilSelecionado: perfilProfessor,
+      dres: ['108900'],
     };
 
     const state = reducer(stateAnterior, {

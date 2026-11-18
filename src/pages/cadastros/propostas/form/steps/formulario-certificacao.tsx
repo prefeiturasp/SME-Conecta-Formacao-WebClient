@@ -18,12 +18,23 @@ const FormularioCertificacao: React.FC = () => {
 
   const { desabilitarCampos } = useContext(PermissaoContext);
 
-  const [valuePossuiCertificado, setValuePossuiCertificado] = useState(false);
+  const [valuePossuiCertificado, setValuePossuiCertificado] = useState<boolean>(() => {
+    const valorInicial = form?.getFieldValue?.('cursoComCertificado');
+    return typeof valorInicial === 'boolean' ? valorInicial : false;
+  });
   const [editorRequerido, setEditorRequerido] = useState(false);
   const obterPossuiCertificado = (e: RadioChangeEvent) => {
     setValuePossuiCertificado(e.target.value);
     form.setFieldValue('cursoComCertificado', e.target.value);
   };
+
+  const valorCursoComCertificado = form.getFieldValue('cursoComCertificado');
+
+  useEffect(() => {
+    if (typeof valorCursoComCertificado === 'boolean') {
+      setValuePossuiCertificado(valorCursoComCertificado);
+    }
+  }, [valorCursoComCertificado]);
 
   const tipoEmissorWatch = Form.useWatch('tipoEmissor', form);
   const tipoEmissorAnteriorRef = useRef<TipoEmissorEnum | undefined>(undefined);
