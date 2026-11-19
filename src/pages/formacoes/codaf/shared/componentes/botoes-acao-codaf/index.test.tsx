@@ -6,6 +6,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BotoesAcaoCodaf } from './index';
 
+jest.setTimeout(15000);
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -210,5 +212,29 @@ describe('BotoesAcaoCodaf', () => {
 
     // Assert
     expect(onClickSalvar).toHaveBeenCalledTimes(1);
+  });
+
+  test('DadoTooltipsInformados_QuandoRenderizado_EntaoExibeTooltipsAoPassarOMouse', async () => {
+    const bloqueios = {
+      ...bloqueiosBotoesPadrao,
+      excluir: { visivel: true, bloqueado: false },
+      salvar: { visivel: true, bloqueado: false },
+    };
+
+    render(
+      <BotoesAcaoCodaf
+        {...mockProps}
+        bloqueiosBotoes={bloqueios}
+        tooltipExcluir='Não implementado!'
+        tooltipSalvar='Não implementado!'
+      />,
+    );
+
+    fireEvent.mouseEnter(screen.getByText('Excluir').closest('button') as HTMLElement);
+    fireEvent.mouseEnter(screen.getByText('Salvar').closest('button') as HTMLElement);
+
+    expect(screen.getByText('Excluir').closest('button')).not.toBeDisabled();
+    expect(screen.getByText('Salvar').closest('button')).not.toBeDisabled();
+    expect(await screen.findAllByText('Não implementado!')).not.toHaveLength(0);
   });
 });

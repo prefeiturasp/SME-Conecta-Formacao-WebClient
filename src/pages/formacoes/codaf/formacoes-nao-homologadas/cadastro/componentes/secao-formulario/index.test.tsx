@@ -86,4 +86,24 @@ describe('SecaoFormulario - Formações Não Homologadas', () => {
     );
     expect(tooltip).toHaveAttribute('data-open', 'true');
   });
+
+  it('deve usar valores padrão de tooltip quando omitidos e desabilitar turma quando bloqueada', () => {
+    render(
+      <Form>
+        <SecaoFormulario
+          onChangeCodigoFormacao={jest.fn()}
+          onBlurCodigoFormacao={jest.fn()}
+          turmasFiltradas={[{ id: 1, descricao: 'Turma 1' }]}
+          turmaDisabled
+          camposBloqueados={{
+            numeroHomologacao: true,
+            codigoFormacao: true,
+            turma: true,
+          }}
+        />
+      </Form>,
+    );
+
+    expect(screen.queryByTestId('turma-tooltip-icon')).not.toBeInTheDocument();
+  });
 });

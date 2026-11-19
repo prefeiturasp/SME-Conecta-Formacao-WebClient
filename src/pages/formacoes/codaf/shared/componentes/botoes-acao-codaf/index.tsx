@@ -1,4 +1,4 @@
-import { Button, Col, Row } from 'antd';
+import { Button, Col, Row, Tooltip } from 'antd';
 import React from 'react';
 import ButtonVoltar from '~/components/main/button/voltar';
 import {
@@ -18,6 +18,8 @@ interface BotoesAcaoCodafProps {
   onClickSalvar: () => void;
   onClickEnviarParaDF?: () => void;
   onClickDevolverParaDF?: () => void;
+  tooltipExcluir?: string;
+  tooltipSalvar?: string;
 }
 
 export const BotoesAcaoCodaf: React.FC<BotoesAcaoCodafProps> = ({
@@ -30,6 +32,8 @@ export const BotoesAcaoCodaf: React.FC<BotoesAcaoCodafProps> = ({
   onClickSalvar,
   onClickEnviarParaDF,
   onClickDevolverParaDF,
+  tooltipExcluir,
+  tooltipSalvar,
 }) => {
   return (
     <Row gutter={[8, 8]}>
@@ -38,15 +42,17 @@ export const BotoesAcaoCodaf: React.FC<BotoesAcaoCodafProps> = ({
       </Col>
       {bloqueiosBotoes.excluir?.visivel && (
         <Col>
-          <Button
-            type='default'
-            disabled={bloqueiosBotoes.excluir?.bloqueado}
-            onClick={onClickExcluir}
-            id={CF_BUTTON_EXCLUIR}
-            style={{ fontWeight: 700 }}
-          >
-            Excluir
-          </Button>
+          <Tooltip title={tooltipExcluir}>
+            <Button
+              type='default'
+              disabled={bloqueiosBotoes.excluir?.bloqueado}
+              onClick={onClickExcluir}
+              id={CF_BUTTON_EXCLUIR}
+              style={{ fontWeight: 700 }}
+            >
+              Excluir
+            </Button>
+          </Tooltip>
         </Col>
       )}
       {bloqueiosBotoes.salvar?.visivel && (
@@ -64,16 +70,18 @@ export const BotoesAcaoCodaf: React.FC<BotoesAcaoCodafProps> = ({
       )}
       {bloqueiosBotoes.salvar?.visivel && (
         <Col>
-          <Button
-            disabled={bloqueiosBotoes.salvar?.bloqueado}
-            type='primary'
-            onClick={onClickSalvar}
-            loading={loading}
-            id={CF_BUTTON_SALVAR}
-            style={{ fontWeight: 700 }}
-          >
-            Salvar
-          </Button>
+          <Tooltip title={tooltipSalvar}>
+            <Button
+              disabled={bloqueiosBotoes.salvar?.bloqueado}
+              type='primary'
+              onClick={onClickSalvar}
+              loading={loading}
+              id={CF_BUTTON_SALVAR}
+              style={{ fontWeight: 700 }}
+            >
+              Salvar
+            </Button>
+          </Tooltip>
         </Col>
       )}
       <Col>

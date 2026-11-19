@@ -24,14 +24,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 dayjs.locale('pt-br');
 import CardContent from '~/components/lib/card-content';
 import { notification } from '~/components/lib/notification';
-import SelectAreaPromotora from '~/components/main/input/area-promotora';
-import InputNumero from '~/components/main/numero';
-import InputTexto from '~/components/main/text/input-text';
-import {
-  CF_INPUT_CODIGO_FORMACAO,
-  CF_INPUT_NOME_FORMACAO,
-  CF_INPUT_NUMERO_HOMOLOGACAO,
-} from '~/core/constants/ids/input';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import { obterDetalhesPropostaComTurmasPorId } from '~/core/services/proposta-service';
@@ -42,6 +34,7 @@ import { TipoPerfilEnum, TipoPerfilTagDisplay } from '~/core/enum/tipo-perfil';
 import { CodafNaoHomologadoListagemDTO, emitirDeclaracaoCodafNaoHomologado, exportarRelatorioCodafNaoHomologado, obterListaCodafNaoHomologado, finalizarCodafNaoHomologado } from '~/core/services/codaf-nao-homologado-service';
 import ModalFinalizarCodaf from '~/components/main/modal/modal-finalizar-codaf';
 import { criarColunasBaseListagemCodaf } from '../shared/componentes/codaf-colunas-factory';
+import { FiltrosBaseListagemCodaf } from '../shared/componentes/filtros-base-listagem-codaf';
 import { ModalAvisoNovoRegistroCodaf } from '../shared/componentes/modal-aviso-novo-registro-codaf';
 import { HeaderListagemCodaf } from '../shared/componentes/header-listagem-codaf';
 
@@ -561,77 +554,22 @@ const CodafFormacoesNaoHomologadas: React.FC = () => {
       
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
-          <Row gutter={[16, 8]}>
-            <Col span={24}>
-              <div style={HEADER_TEXT_STYLE}>
-                <div>
-                  Aqui você confere todos os CODAFs não homologados registrados no sistema. Use os campos abaixo para refinar a sua busca.
+          <FiltrosBaseListagemCodaf
+            onChangeCodigoFormacao={aoMudarCodigoProposta}
+            onBlurCodigoFormacao={aoSairDoCampoCodigoProposta}
+            placeholderNomeFormacao='Digite o nome da formação'
+            placeholderCodigoFormacao='Digite o código da formação'
+            placeholderNumeroHomologacao='00000'
+            cabecalho={
+              <Col span={24}>
+                <div style={HEADER_TEXT_STYLE}>
+                  <div>
+                    Aqui você confere todos os CODAFs não homologados registrados no sistema. Use os campos abaixo para refinar a sua busca.
+                  </div>
                 </div>
-              </div>
-            </Col>
-            <Col span={24}>
-              <b>
-                <InputTexto
-                  formItemProps={{
-                    label: 'Nome da formação',
-                    name: 'nomeFormacao',
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_NOME_FORMACAO,
-                    placeholder: 'Digite o nome da formação',
-                    maxLength: 200,
-                  }}
-                />
-              </b>
-            </Col>
-          </Row>
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <SelectAreaPromotora
-                  formItemProps={{ name: 'areaPromotoraId' }}
-                  selectProps={{ disabled: false }}
-                  placeholder='Selecione'
-                />
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Código da formação',
-                    name: 'codigoFormacao',
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_CODIGO_FORMACAO,
-                    placeholder: 'Digite o código da formação',
-                    maxLength: 19,
-                    onChange: aoMudarCodigoProposta,
-                    onBlur: (e) => aoSairDoCampoCodigoProposta(e.target.value),
-                  }}
-                />
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Número de homologação',
-                    name: 'numeroHomologacao',
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_NUMERO_HOMOLOGACAO,
-                    placeholder: '00000',
-                    maxLength: 20,
-                    disabled: false,
-                  }}
-                />
-              </b>
-            </Col>
-          </Row>
+              </Col>
+            }
+          />
           <Row gutter={[16, 8]}>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
