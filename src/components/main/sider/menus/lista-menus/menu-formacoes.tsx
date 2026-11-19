@@ -6,7 +6,9 @@ import { MenuItemConectaProps } from '..';
 
 const isCodafSuplementarEnabled: boolean = true;
 
-export const MENU_FORMACOES: MenuItemConectaProps = {
+export const criarMenuFormacoes = (
+  habilitarCodafSuplementar: boolean = isCodafSuplementarEnabled,
+): MenuItemConectaProps => ({
   key: MenuEnum.Formacoes,
   title: 'Formações',
   icon: <BsFillMortarboardFill size={24} />,
@@ -60,9 +62,24 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
             podeAlterar: PermissaoEnum.Inscricao_A,
           },
         },
+        {
+          key: MenuEnum.CodafFormacoesConferencia,
+          title: (
+            <>
+              CODAF Formações <br /> de Conferência
+            </>
+          ),
+          url: ROUTES.CODAF_CONFERENCIA,
+          roles: {
+            podeConsultar: PermissaoEnum.Inscricao_C,
+            podeIncluir: PermissaoEnum.Inscricao_I,
+            podeExcluir: PermissaoEnum.Inscricao_E,
+            podeAlterar: PermissaoEnum.Inscricao_A,
+          },
+        },
       ],
     },
-    ...(isCodafSuplementarEnabled
+    ...(habilitarCodafSuplementar
       ? [
           {
             key: MenuEnum.CodafSuplementar,
@@ -100,4 +117,6 @@ export const MENU_FORMACOES: MenuItemConectaProps = {
       },
     },
   ],
-};
+});
+
+export const MENU_FORMACOES: MenuItemConectaProps = criarMenuFormacoes();
