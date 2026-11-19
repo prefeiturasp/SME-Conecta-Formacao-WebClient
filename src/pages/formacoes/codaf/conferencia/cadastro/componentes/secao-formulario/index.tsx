@@ -2,17 +2,14 @@ import { Col, DatePicker, Form, Row, Select } from 'antd';
 import locale from 'antd/lib/date-picker/locale/pt_BR';
 import React from 'react';
 import InputNumero from '~/components/main/numero';
-import InputTexto from '~/components/main/text/input-text';
 import {
   CF_INPUT_CODIGO_CURSO_EOL,
-  CF_INPUT_CODIGO_FORMACAO,
   CF_INPUT_CODIGO_NIVEL,
-  CF_INPUT_NOME_FORMACAO,
   CF_INPUT_NUMERO_COMUNICADO,
-  CF_INPUT_NUMERO_HOMOLOGACAO,
   CF_INPUT_PAGINA_COMUNICADO,
 } from '~/core/constants/ids/input';
 import { StatusCodafConferencia } from '~/core/enum/status-codaf-conferencia';
+import { CamposBaseFormularioCodaf } from '~/pages/formacoes/codaf/shared/componentes/campos-base-formulario-codaf';
 
 export interface TurmaConferenciaOptionDTO {
   id: number;
@@ -74,62 +71,12 @@ export const SecaoFormularioConferencia: React.FC<SecaoFormularioConferenciaProp
 
   return (
     <div>
-      <Row gutter={[16, 8]}>
-        <Col xs={24}>
-          <b>
-            <InputTexto
-              formItemProps={{
-                label: 'Nome da formação',
-                name: 'nomeFormacao',
-                rules: [{ required: true, message: 'Campo obrigatório' }],
-              }}
-              inputProps={{
-                id: CF_INPUT_NOME_FORMACAO,
-                placeholder: 'Nome da formação',
-                maxLength: 200,
-                disabled: true,
-              }}
-            />
-          </b>
-        </Col>
-      </Row>
-      <Row gutter={[16, 8]}>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
-            <InputNumero
-              formItemProps={{
-                label: 'Código da formação',
-                name: 'codigoFormacao',
-                rules: [{ required: true, message: 'Campo obrigatório' }],
-              }}
-              inputProps={{
-                id: CF_INPUT_CODIGO_FORMACAO,
-                placeholder: 'Código da formação',
-                maxLength: 19,
-                disabled: camposBloqueados.codigoFormacao,
-                onChange: (e) => onChangeCodigoFormacao(e.target.value),
-                onBlur: (e) => onBlurCodigoFormacao(e.target.value),
-              }}
-            />
-          </b>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
-            <InputNumero
-              formItemProps={{
-                label: 'Código de homologação',
-                name: 'numeroHomologacao',
-                rules: [{ required: false }],
-              }}
-              inputProps={{
-                id: CF_INPUT_NUMERO_HOMOLOGACAO,
-                placeholder: '00000',
-                maxLength: 20,
-                disabled: true,
-              }}
-            />
-          </b>
-        </Col>
+      <CamposBaseFormularioCodaf
+        onChangeCodigoFormacao={onChangeCodigoFormacao}
+        onBlurCodigoFormacao={onBlurCodigoFormacao}
+        codigoFormacaoDisabled={camposBloqueados.codigoFormacao}
+        labelNumeroHomologacao='Código de homologação'
+      >
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <b>
             <Form.Item
@@ -151,7 +98,7 @@ export const SecaoFormularioConferencia: React.FC<SecaoFormularioConferenciaProp
             </Form.Item>
           </b>
         </Col>
-      </Row>
+      </CamposBaseFormularioCodaf>
       <Row gutter={[16, 8]}>
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <b>

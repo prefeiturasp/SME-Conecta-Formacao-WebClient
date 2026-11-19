@@ -1,9 +1,7 @@
-import { Row, Col } from "antd";
-import InputNumero from "~/components/main/numero";
-import InputTexto from "~/components/main/text/input-text";
-import { CF_INPUT_NUMERO_HOMOLOGACAO, CF_INPUT_NOME_FORMACAO, CF_INPUT_CODIGO_FORMACAO } from "~/core/constants/ids/input";
-import { RetornoListagemDTO } from "~/core/dto/retorno-listagem-dto";
-import { CampoSelectTurmaCodaf } from "~/pages/formacoes/codaf/shared/componentes/campo-select-turma-codaf";
+import React from 'react';
+import { RetornoListagemDTO } from '~/core/dto/retorno-listagem-dto';
+import { CampoSelectTurmaCodaf } from '~/pages/formacoes/codaf/shared/componentes/campo-select-turma-codaf';
+import { CamposBaseFormularioCodaf } from '~/pages/formacoes/codaf/shared/componentes/campos-base-formulario-codaf';
 
 interface SecaoFormularioProps {
   onChangeCodigoFormacao: (value: string) => void;
@@ -26,73 +24,22 @@ export const SecaoFormulario: React.FC<SecaoFormularioProps> = ({
   turmaDisabled,
   tooltipAberto = false,
   exibirTooltipTurma = false,
-  camposBloqueados
+  camposBloqueados,
 }) => {
   return (
     <div>
-      <Row gutter={[16, 8]}>
-        <Col xs={24}>
-          <b>
-            <InputTexto
-              formItemProps={{
-                label: 'Nome da formação',
-                name: 'nomeFormacao',
-                rules: [{ required: true, message: 'Campo obrigatório' }],
-              }}
-              inputProps={{
-                id: CF_INPUT_NOME_FORMACAO,
-                placeholder: 'Nome da formação',
-                maxLength: 200,
-                disabled: true,
-              }}
-            />
-          </b>
-        </Col>
-      </Row>
-      <Row gutter={[16, 8]}>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
-            <InputNumero
-              formItemProps={{
-                label: 'Código da formação',
-                name: 'codigoFormacao',
-                rules: [{ required: true, message: 'Campo obrigatório' }],
-              }}
-              inputProps={{
-                id: CF_INPUT_CODIGO_FORMACAO,
-                placeholder: 'Código da formação',
-                maxLength: 19,
-                disabled: camposBloqueados.codigoFormacao,
-                onChange: (e) => onChangeCodigoFormacao(e.target.value),
-                onBlur: (e) => onBlurCodigoFormacao(e.target.value),
-              }}
-            />
-          </b>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <b>
-            <InputNumero
-              formItemProps={{
-                label: 'Número de homologação',
-                name: 'numeroHomologacao',
-                rules: [{ required: false }],
-              }}
-              inputProps={{
-                id: CF_INPUT_NUMERO_HOMOLOGACAO,
-                placeholder: '00000',
-                maxLength: 20,
-                disabled: true,
-              }}
-            />
-          </b>
-        </Col>
+      <CamposBaseFormularioCodaf
+        onChangeCodigoFormacao={onChangeCodigoFormacao}
+        onBlurCodigoFormacao={onBlurCodigoFormacao}
+        codigoFormacaoDisabled={camposBloqueados.codigoFormacao}
+      >
         <CampoSelectTurmaCodaf
           turmas={turmasFiltradas}
           desabilitado={camposBloqueados.turma || turmaDisabled}
           exibirAvisoCodafExistente={exibirTooltipTurma}
           tooltipAberto={tooltipAberto}
         />
-      </Row>
+      </CamposBaseFormularioCodaf>
     </div>
   );
 };
