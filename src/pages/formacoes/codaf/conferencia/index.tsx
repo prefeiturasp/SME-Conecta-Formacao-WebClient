@@ -59,6 +59,11 @@ export interface IStateLocationCodafConferencia {
 }
 
 const COR_PRIMARIA = '#ff6b35';
+export const TOOLTIP_NAO_IMPLEMENTADO = 'Não implementado!';
+
+export interface CodafConferenciaProps {
+  exclusaoHabilitada?: boolean;
+}
 
 const SITUACOES_CODAF_CONFERENCIA = [
   {
@@ -108,7 +113,7 @@ const renderDropdownMenu = (menu: React.ReactNode) => (
   </div>
 );
 
-const CodafConferencia: React.FC = () => {
+const CodafConferencia: React.FC<CodafConferenciaProps> = ({ exclusaoHabilitada = false }) => {
   const [form] = useForm();
   const navigate = useNavigate();
   const location = useLocation();
@@ -339,9 +344,14 @@ const CodafConferencia: React.FC = () => {
     if (record.status === StatusCodafConferencia.INICIADO && permissao?.podeExcluir) {
       items.push({
         key: 'excluir',
-        label: <span style={{ display: 'block' }}>Excluir</span>,
+        label: (
+          <Tooltip title={exclusaoHabilitada ? undefined : TOOLTIP_NAO_IMPLEMENTADO}>
+            <span style={{ display: 'block' }}>Excluir</span>
+          </Tooltip>
+        ),
         onClick: (e) => {
           e.domEvent.stopPropagation();
+          if (!exclusaoHabilitada) return;
           setRegistroParaExcluir(record);
           setModalExcluirVisible(true);
         },

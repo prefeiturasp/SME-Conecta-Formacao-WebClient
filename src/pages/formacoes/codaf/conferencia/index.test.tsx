@@ -15,6 +15,7 @@ import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import CodafConferencia, {
   obterEstadoBotaoCertificado,
   obterSituacaoTexto,
+  TOOLTIP_NAO_IMPLEMENTADO,
 } from './index';
 
 Object.defineProperty(window, 'matchMedia', {
@@ -340,10 +341,25 @@ describe('CodafConferencia - Componente', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Novo registro' }));
     fireEvent.click(screen.getByLabelText('Close'));
 
-    // Também cobre retorno bem-sucedido via status 204 ao confirmar exclusão a partir da listagem
+    // Modo padrao: Excluir aparece sem estilo desabilitado, com tooltip e nao abre modal ao clicar
+    const excluirButtons = container.querySelectorAll('button[data-menu-item="excluir"]');
+    expect(excluirButtons).toHaveLength(1);
+    expect(excluirButtons[0]).not.toBeDisabled();
+    fireEvent.mouseEnter(excluirButtons[0].querySelector('span') as HTMLElement);
+    expect(await screen.findByText(TOOLTIP_NAO_IMPLEMENTADO)).toBeInTheDocument();
+    fireEvent.click(excluirButtons[0]);
+    expect(screen.getByTestId('modal-excluir-mock')).toHaveAttribute('data-visible', 'false');
+    expect(excluirCodafConferencia).not.toHaveBeenCalled();
+  });
+
+  test('deve confirmar exclusao com status 204 quando exclusaoHabilitada estiver ativa', async () => {
+    const { container } = render(<CodafConferencia exclusaoHabilitada />);
+    await waitFor(() => expect(screen.getByTestId('row-1')).toBeInTheDocument());
+
     const excluirButtons = container.querySelectorAll('button[data-menu-item="excluir"]');
     expect(excluirButtons).toHaveLength(1);
     fireEvent.click(excluirButtons[0]);
+    expect(screen.getByTestId('modal-excluir-mock')).toHaveAttribute('data-visible', 'true');
     await act(async () => {
       fireEvent.click(screen.getByTestId('btn-confirmar-exclusao-mock'));
     });
@@ -488,7 +504,7 @@ describe('CodafConferencia - Componente', () => {
       },
     });
 
-    const { container } = render(<CodafConferencia />);
+    const { container } = render(<CodafConferencia exclusaoHabilitada />);
     await waitFor(() => expect(screen.getByTestId('row-1')).toBeInTheDocument());
 
     fireEvent.click(screen.getByTestId('row-1'));

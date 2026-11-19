@@ -4,7 +4,10 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { notification } from '~/components/lib/notification';
-import CadastroCodafConferencia, { validarArquivoPdf } from './index';
+import CadastroCodafConferencia, {
+  TOOLTIP_NAO_IMPLEMENTADO,
+  validarArquivoPdf,
+} from './index';
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -351,10 +354,43 @@ describe('CadastroCodafConferencia', () => {
     });
   });
 
-  it('deve carregar dados no modo edicao, atualizar participacao, salvar e excluir', async () => {
+  it('deve desativar temporariamente Excluir e Salvar na edicao sem estilo desabilitado e com tooltip Nao implementado!', async () => {
+    mockId = '123';
     render(
       <BrowserRouter>
         <CadastroCodafConferencia />
+      </BrowserRouter>,
+    );
+
+    await waitFor(() => {
+      expect(mockObterPorId).toHaveBeenCalledWith(123);
+    });
+
+    expect(capturedBotoesProps.bloqueiosBotoes.excluir).toEqual({
+      visivel: true,
+      bloqueado: false,
+    });
+    expect(capturedBotoesProps.bloqueiosBotoes.salvar).toEqual({
+      visivel: true,
+      bloqueado: false,
+    });
+    expect(capturedBotoesProps.tooltipExcluir).toBe(TOOLTIP_NAO_IMPLEMENTADO);
+    expect(capturedBotoesProps.tooltipSalvar).toBe(TOOLTIP_NAO_IMPLEMENTADO);
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('btn-excluir'));
+      fireEvent.click(screen.getByTestId('btn-salvar'));
+    });
+
+    expect(mockOnClickExcluir).not.toHaveBeenCalled();
+    expect(mockAtualizarCodaf).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('deve carregar dados no modo edicao, atualizar participacao, salvar e excluir', async () => {
+    render(
+      <BrowserRouter>
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 
@@ -421,7 +457,7 @@ describe('CadastroCodafConferencia', () => {
 
     const { unmount } = render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 
@@ -455,7 +491,7 @@ describe('CadastroCodafConferencia', () => {
 
     render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 
@@ -471,7 +507,7 @@ describe('CadastroCodafConferencia', () => {
 
     const { unmount } = render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
     expect(screen.getByText('Iniciado')).toBeInTheDocument();
@@ -507,7 +543,7 @@ describe('CadastroCodafConferencia', () => {
 
     render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 
@@ -524,7 +560,7 @@ describe('CadastroCodafConferencia', () => {
 
     const { unmount } = render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 
@@ -550,7 +586,7 @@ describe('CadastroCodafConferencia', () => {
     mockObterPorId.mockRejectedValueOnce(new Error('Erro fatal'));
     render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
     await waitFor(() => {
@@ -564,7 +600,7 @@ describe('CadastroCodafConferencia', () => {
 
     const { unmount } = render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
     expect(mockSetTotalRegistros).toHaveBeenCalledWith(0);
@@ -599,7 +635,7 @@ describe('CadastroCodafConferencia', () => {
     mockObterInscritos.mockRejectedValueOnce(new Error('Falha inscritos'));
     render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
     await waitFor(() => {
@@ -611,7 +647,7 @@ describe('CadastroCodafConferencia', () => {
     mockId = undefined;
     render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 
@@ -732,7 +768,7 @@ describe('CadastroCodafConferencia', () => {
     mockId = undefined;
     render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 
@@ -780,7 +816,7 @@ describe('CadastroCodafConferencia', () => {
     mockId = undefined;
     render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 
@@ -893,7 +929,7 @@ describe('CadastroCodafConferencia', () => {
 
     render(
       <BrowserRouter>
-        <CadastroCodafConferencia />
+        <CadastroCodafConferencia edicaoEExclusaoHabilitadas />
       </BrowserRouter>,
     );
 

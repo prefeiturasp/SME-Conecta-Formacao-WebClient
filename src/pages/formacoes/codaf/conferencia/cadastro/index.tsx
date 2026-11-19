@@ -59,6 +59,11 @@ export interface CursistaConferenciaDTO {
 }
 
 export const TIPO_FORMACAO_CONFERENCIA = 3;
+export const TOOLTIP_NAO_IMPLEMENTADO = 'Não implementado!';
+
+export interface CadastroCodafConferenciaProps {
+  edicaoEExclusaoHabilitadas?: boolean;
+}
 
 export const validarArquivoPdf = (arquivo?: { name?: string; type?: string } | null): boolean => {
   if (!arquivo?.name) return false;
@@ -67,7 +72,9 @@ export const validarArquivoPdf = (arquivo?: { name?: string; type?: string } | n
   return extensaoValida && mimeValido;
 };
 
-const CadastroCodafConferencia: React.FC = () => {
+const CadastroCodafConferencia: React.FC<CadastroCodafConferenciaProps> = ({
+  edicaoEExclusaoHabilitadas = false,
+}) => {
   const [form] = useForm();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -107,6 +114,7 @@ const CadastroCodafConferencia: React.FC = () => {
   const [drawerLoteAberto, setDrawerLoteAberto] = useState(false);
 
   const modoEdicao = !!id;
+  const acoesEdicaoDesabilitadas = modoEdicao && !edicaoEExclusaoHabilitadas;
 
   const situacao = {
     iniciado: status === StatusCodafConferencia.INICIADO,
@@ -130,14 +138,15 @@ const CadastroCodafConferencia: React.FC = () => {
     botoes: {
       excluir: {
         visivel: modoEdicao,
-        bloqueado: !situacao.iniciado || certificadoEmitido,
+        bloqueado: acoesEdicaoDesabilitadas ? false : !situacao.iniciado || certificadoEmitido,
       },
       salvar: {
         visivel:
-          (!situacao.aguardandoFinalizacao ||
+          acoesEdicaoDesabilitadas ||
+          ((!situacao.aguardandoFinalizacao ||
             (situacao.aguardandoFinalizacao && ehAreaPromotoraEAdmin)) &&
-          !situacao.finalizado,
-        bloqueado: situacao.finalizado || certificadoEmitido,
+            !situacao.finalizado),
+        bloqueado: acoesEdicaoDesabilitadas ? false : situacao.finalizado || certificadoEmitido,
       },
     },
   };
@@ -608,9 +617,11 @@ const CadastroCodafConferencia: React.FC = () => {
             bloqueiosBotoes={bloqueios.botoes}
             loading={carregando}
             onClickVoltar={onClickCancelar}
-            onClickExcluir={onClickExcluir}
+            onClickExcluir={acoesEdicaoDesabilitadas ? () => {} : onClickExcluir}
             onClickCancelar={onClickCancelar}
-            onClickSalvar={() => onClickSalvar()}
+            onClickSalvar={acoesEdicaoDesabilitadas ? () => {} : () => onClickSalvar()}
+            tooltipExcluir={acoesEdicaoDesabilitadas ? TOOLTIP_NAO_IMPLEMENTADO : undefined}
+            tooltipSalvar={acoesEdicaoDesabilitadas ? TOOLTIP_NAO_IMPLEMENTADO : undefined}
           />
         </Col>
       </HeaderPage>
