@@ -22,14 +22,6 @@ import { FiPrinter } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CardContent from '~/components/lib/card-content';
 import { notification } from '~/components/lib/notification';
-import SelectAreaPromotora from '~/components/main/input/area-promotora';
-import InputNumero from '~/components/main/numero';
-import InputTexto from '~/components/main/text/input-text';
-import {
-  CF_INPUT_CODIGO_FORMACAO,
-  CF_INPUT_NOME_FORMACAO,
-  CF_INPUT_NUMERO_HOMOLOGACAO,
-} from '~/core/constants/ids/input';
 import { MenuEnum } from '~/core/enum/menu-enum';
 import { ROUTES } from '~/core/enum/routes-enum';
 import {
@@ -46,6 +38,7 @@ import {
 import { obterPermissaoPorMenu } from '~/core/utils/perfil';
 import ModalExcluir from '../lista-presenca-codaf/cadastro/componentes/modal-excluir/modal-excluir';
 import { criarColunasBaseListagemCodaf } from '../shared/componentes/codaf-colunas-factory';
+import { FiltrosBaseListagemCodaf } from '../shared/componentes/filtros-base-listagem-codaf';
 import { HeaderListagemCodaf } from '../shared/componentes/header-listagem-codaf';
 import { ModalConfirmacaoInscritosConferencia } from './componentes/modal-confirmacao-inscritos';
 
@@ -462,69 +455,10 @@ const CodafConferencia: React.FC<CodafConferenciaProps> = ({ exclusaoHabilitada 
 
       <Form form={form} layout='vertical' autoComplete='off'>
         <CardContent>
-          <Row gutter={[16, 8]}>
-            <Col span={24}>
-              <b>
-                <InputTexto
-                  formItemProps={{
-                    label: 'Nome da formação',
-                    name: 'nomeFormacao',
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_NOME_FORMACAO,
-                    placeholder: 'Nome da formação',
-                    maxLength: 200,
-                  }}
-                />
-              </b>
-            </Col>
-          </Row>
-          <Row gutter={[16, 8]}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <SelectAreaPromotora
-                  formItemProps={{ name: 'areaPromotoraId' }}
-                  selectProps={{ disabled: false }}
-                  placeholder='Selecione'
-                />
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Código da formação',
-                    name: 'codigoFormacao',
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_CODIGO_FORMACAO,
-                    placeholder: 'Código da formação',
-                    maxLength: 19,
-                    onChange: aoMudarCodigoProposta,
-                    onBlur: (e) => aoSairDoCampoCodigoProposta(e.target.value),
-                  }}
-                />
-              </b>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <b>
-                <InputNumero
-                  formItemProps={{
-                    label: 'Número de homologação',
-                    name: 'numeroHomologacao',
-                    rules: [{ required: false }],
-                  }}
-                  inputProps={{
-                    id: CF_INPUT_NUMERO_HOMOLOGACAO,
-                    placeholder: 'Número de homologação',
-                    maxLength: 20,
-                  }}
-                />
-              </b>
-            </Col>
-          </Row>
+          <FiltrosBaseListagemCodaf
+            onChangeCodigoFormacao={aoMudarCodigoProposta}
+            onBlurCodigoFormacao={aoSairDoCampoCodigoProposta}
+          />
           <Row gutter={[16, 8]}>
             <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <b>
