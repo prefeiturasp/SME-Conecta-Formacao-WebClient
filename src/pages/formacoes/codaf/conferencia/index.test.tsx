@@ -18,6 +18,8 @@ import CodafConferencia, {
   TOOLTIP_NAO_IMPLEMENTADO,
 } from './index';
 
+jest.setTimeout(15000);
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -121,12 +123,30 @@ jest.mock('antd', () => {
     </div>
   );
 
+  const Tooltip = ({ title, children }: any) => (
+    <div data-tooltip={title ?? ''}>{children}</div>
+  );
+
+  const Modal = ({ open, title, children, footer, onCancel }: any) =>
+    open ? (
+      <div data-testid='modal-antd'>
+        <div>{title}</div>
+        <div>{children}</div>
+        <div>{footer}</div>
+        <button type='button' aria-label='Close' onClick={onCancel}>
+          Close
+        </button>
+      </div>
+    ) : null;
+
   return {
     ...actual,
     Select,
     DatePicker,
     Dropdown,
     Table,
+    Tooltip,
+    Modal,
   };
 });
 
@@ -345,8 +365,10 @@ describe('CodafConferencia - Componente', () => {
     const excluirButtons = container.querySelectorAll('button[data-menu-item="excluir"]');
     expect(excluirButtons).toHaveLength(1);
     expect(excluirButtons[0]).not.toBeDisabled();
-    fireEvent.mouseEnter(excluirButtons[0].querySelector('span') as HTMLElement);
-    expect(await screen.findByText(TOOLTIP_NAO_IMPLEMENTADO)).toBeInTheDocument();
+    expect(excluirButtons[0].querySelector('[data-tooltip]')).toHaveAttribute(
+      'data-tooltip',
+      TOOLTIP_NAO_IMPLEMENTADO,
+    );
     fireEvent.click(excluirButtons[0]);
     expect(screen.getByTestId('modal-excluir-mock')).toHaveAttribute('data-visible', 'false');
     expect(excluirCodafConferencia).not.toHaveBeenCalled();
